@@ -30,10 +30,10 @@ struct AnimatedPageIndicator: View {
                     .fill(Color.grayPlaceholder)
                     .overlay(
                         Capsule()
-                            .fill(.primary)
+                            .fill(inactiveDotSize == 5 ? Color(white: 0.3) : .primary)
                             .opacity(closeness)
                     )
-                    .frame(width: width, height: height)
+                    .frame(width: width, height: inactiveDotSize == 5 ? inactiveDotSize + 1 : height)
             }
         }
     }

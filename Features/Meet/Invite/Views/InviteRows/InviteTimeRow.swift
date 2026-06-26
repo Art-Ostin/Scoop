@@ -238,12 +238,6 @@ private struct TimeRowScrollLabel: View {
     @Binding var scrolledPageID: Int?
     @Binding var activeTimeFrame: CGRect
 
-    //scrollProgress is the fractional page index (0, 1, 2…); it lands on a whole
-    //number only when settled, so any offset from that means a drag is in flight.
-    private var isScrolling: Bool {
-        abs(scrollProgress - scrollProgress.rounded()) > 0.01
-    }
-
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
@@ -259,7 +253,7 @@ private struct TimeRowScrollLabel: View {
             scrolledPageID: $scrolledPageID,
             pageWidth: $pageWidth,
             scrollProgress: $scrollProgress,
-            isScrolling: isScrolling, pageCount: times.count
+            pageCount: times.count
         ))
     }
 
@@ -290,9 +284,13 @@ struct PagedScrollStyle: ViewModifier {
     @Binding var scrolledPageID: Int?
     @Binding var pageWidth: CGFloat
     @Binding var scrollProgress: Double
-    let isScrolling: Bool
     let pageCount: Int
-    
+
+    //scrollProgress is the fractional page index; it lands on a whole number when settled.
+    private var isScrolling: Bool {
+        abs(scrollProgress - scrollProgress.rounded()) > 0.01
+    }
+
     func body(content: Content) -> some View {
         content
             .scrollPosition(id: $scrolledPageID)

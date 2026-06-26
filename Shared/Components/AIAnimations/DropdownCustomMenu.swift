@@ -430,6 +430,12 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     /// close. `nil` (the default) means no footer, so existing call sites are unaffected.
     /// Items inside it use `.dropdownCustomMenuItem` / `dropdownCustomMenuDismiss` just like content.
     var footer: (() -> AnyView)?
+    /// Intercepts a completed tap on the label, just before the menu would open. Return `true`
+    /// to claim the tap so the menu stays CLOSED and the call site handles it instead (e.g. the
+    /// type pager routes a tap on its message page to the message editor); `false`/`nil` opens
+    /// the menu as usual. Only the open tap is gated — re-tapping an open menu to close it is
+    /// unaffected (that path lives in the overlay window).
+    var onLabelTap: (() -> Bool)?
 
     @State private var controller = DropdownCustomMenuController()
     @State private var labelFrame: CGRect = .zero
@@ -447,6 +453,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
          placementOffsetY: CGFloat = DropdownCustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
+         onLabelTap: (() -> Bool)? = nil,
          footer: (() -> AnyView)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
@@ -461,6 +468,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
         self.onClose = onClose
+        self.onLabelTap = onLabelTap
         self.footer = footer
         self.content = content
         self.label = label
@@ -556,6 +564,9 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                 // Releases that travelled too far are scrolls/drags, not taps.
                 let distance = hypot(value.translation.width, value.translation.height)
                 guard distance < DropdownCustomMenuSpec.tapSlop else { return }
+                // Let the call site claim the tap (e.g. route the pager's message page to the
+                // message editor); if it does, the menu stays closed.
+                if onLabelTap?() == true { return }
                 onOpen?()
                 // Seed the morph collapse/bloom target before the overlay renders, so the
                 // open bloom starts from the tight content (not the padded label frame).

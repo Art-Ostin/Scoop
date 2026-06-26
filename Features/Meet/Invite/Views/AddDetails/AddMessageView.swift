@@ -38,13 +38,13 @@ struct AddMessageView: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 36) {
-            VStack(spacing: 16) {
+            VStack(spacing: 28) {
                 dropdownTitle
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 textFieldSection
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-            .padding(.top, 36)
+            .padding(.top, 28)
             
             doneButton
         }
@@ -52,6 +52,7 @@ struct AddMessageView: View {
         .navSubTitle("Improve your invite with a message")
         .padding(.horizontal, 24)
         .frame(maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea(.keyboard, edges: .bottom) 
         .overlay(alignment: .topTrailing) {savedOverlayIcon}
         
         //All Logic dealing with SavedIcon
