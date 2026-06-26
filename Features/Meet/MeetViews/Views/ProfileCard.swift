@@ -30,7 +30,7 @@ struct ProfileCard : View {
     var body: some View {
         
         Image(uiImage: displayImage)
-            .meetImageCard(size)
+            .profileImageCard(size)
         
             .overlay { backgroundBlur }
             .overlay(alignment: .bottomLeading) { cardOverlay }
@@ -93,7 +93,7 @@ extension ProfileCard {
 }
 
 extension Image {
-    func meetImageCard(_ size: CGFloat, ratio: CGFloat = 1.08) -> some View {
+    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.08) -> some View {
         self
             .resizable()
             .scaledToFill()

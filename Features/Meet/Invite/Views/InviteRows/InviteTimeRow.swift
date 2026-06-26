@@ -255,15 +255,12 @@ private struct TimeRowScrollLabel: View {
             .padding(.vertical, 30)
             .scrollTargetLayout()
         }
-        .scrollPosition(id: $scrolledPageID)
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
-        .trackScrollProgress(scrollProgress: $scrollProgress)
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.paging)
-        //Leading fade only mid-drag; settles to 0 on every stationary page so it never covers a time.
-        .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
-        .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
-        .scrollDisabled(times.count <= 1)
+        .modifier(PagedScrollStyle(
+            scrolledPageID: $scrolledPageID,
+            pageWidth: $pageWidth,
+            scrollProgress: $scrollProgress,
+            isScrolling: isScrolling, pageCount: times.count
+        ))
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {
@@ -286,3 +283,26 @@ private struct GlobalFrameReader: View {
 extension EnvironmentValues {
     @Entry var isLiveTimeRow: Bool = false
 }
+
+
+//Put into a struct as InviteTypeRow also needs this
+struct PagedScrollStyle: ViewModifier {
+    @Binding var scrolledPageID: Int?
+    @Binding var pageWidth: CGFloat
+    @Binding var scrollProgress: Double
+    let isScrolling: Bool
+    let pageCount: Int
+    
+    func body(content: Content) -> some View {
+        content
+            .scrollPosition(id: $scrolledPageID)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
+            .trackScrollProgress(scrollProgress: $scrollProgress)
+            .scrollIndicators(.hidden)
+            .scrollTargetBehavior(.paging)
+            .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
+            .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
+            .scrollDisabled(pageCount <= 1)
+    }
+}
+

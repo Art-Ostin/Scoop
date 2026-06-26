@@ -968,7 +968,6 @@
 			isa = PBXGroup;
 			children = (
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
-				65F3B4732F9F5031007D1EEB /* InvitesView.swift */,
 				65D978B02FD4340F00C22646 /* InviteCard.swift */,
 				655441482FE9769100425CBF /* InviteCardInfo.swift */,
 				6566B96D2FEAD7460075C3B2 /* InvitesPlaceholder.swift */,
@@ -1558,6 +1557,7 @@
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
 				657486DB2FA8D5D000F38738 /* OldTimeAndPlace.swift */,
 				65E963DA2F3F8FC30022595F /* Celebrations.json */,
+				65F3B4732F9F5031007D1EEB /* InvitesView.swift */,
 			);
 			path = "Old Code";
 			sourceTree = "<group>";

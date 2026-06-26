@@ -25,10 +25,10 @@ struct InvitesContainer: View {
         NavigationStack {
             AppScrollView(title: "Invites") {
                 invitesView
+                    .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
             }
         }
         .profileMorphHost(profileMorph)
-        
         .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
         
@@ -41,9 +41,8 @@ struct InvitesContainer: View {
     }
 }
 
-//Different Views
+//1. Logic for ProfileView
 extension InvitesContainer {
-    //1. Constructor for opening and displaying Profile View
     @ViewBuilder
     private func profileView() -> some View {
         if let profile = ui.selectedProfile, let eventProfile = vm.eventProfile(for: profile.id) {
@@ -79,8 +78,12 @@ extension InvitesContainer {
             respond(eventProfile.event.id, type)
         }
     }
+}
 
-    @ViewBuilder //2. Constructor for opening and displaying respondContainer
+
+//2. RespondContainer Logic
+extension InvitesContainer {
+    @ViewBuilder
     private func respondContainer(_ eventId: String) -> some View {
         if let eventProfile = vm.eventProfile(forEventId: eventId) {
             RespondContainer(
@@ -91,28 +94,47 @@ extension InvitesContainer {
             )
         }
     }
-}
-
-extension InvitesContainer {
-
     
     @ViewBuilder
     private var respondOverlay: some View {
-        
         Color.clear.respondConfirmAlerts(ui: respondUI) { type in
-            // The pager is still open during the confirm alert, so the driver holds the id.
             if let id = ui.showRespondPopup { respond(id, type) }
         }
     }
+}
+
+
+//Logic for Invite Card
+extension InvitesContainer {
 
     @ViewBuilder
     private var invitesView: some View {
         if vm.invites.isEmpty {
             InvitesPlaceholder()
         } else {
-            InvitesView(ui: ui, vm: vm) { respond($0, .decline)}
+            invitesCardView
                 .padding(.top, 20)
         }
+    }
+    
+    private var invitesCardView: some View {
+        ForEach(vm.invites, id: \.self) { invite in
+            VStack {
+                inviteCard(invite)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+    
+    private func inviteCard(_ invite: EventProfile) -> some View {
+        InviteCard(
+            selectedProfile: $ui.selectedProfile,
+            draft: vm.draftBinding(for: invite),
+            eventProfile: invite,
+            imageSize: imageSize,
+            onRespond: {ui.showRespondPopup = invite.event.id}
+        )
+        .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
 }
 

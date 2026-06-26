@@ -137,7 +137,11 @@
       "Bash(swift measure.swift base.mov 0.025)",
       "Bash(awk -F, 'NR==1{print;next} $2!=\"NA\"{print}')",
       "Bash(awk -F, 'NR==1{print;next}{w=$2+0; if\\(w>5\\){print}}')",
-      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"exit: $?\"; echo \"errors: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)"
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"exit: $?\"; echo \"errors: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -20)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -30)",
+      "Bash(git -C /Users/napoleon/Documents/Scoop status --porcelain)",
+      "Bash(echo \"=== find resolved DominantColors checkout ===\" && find ~/Library/Developer/Xcode/DerivedData -type d -path \"*checkouts/DominantColors\" 2>/dev/null | head; find ~/Library/Developer/Xcode/DerivedData -type d -iname \"DominantColors\" -path \"*SourcePackages*\" 2>/dev/null | head)",
+      "Bash(echo \"=== Recently modified swift files \\(last 7 days\\) ===\" && find . -name \"*.swift\" -mtime -7 -not -path \"*/.*\" 2>/dev/null | head -40; echo \"=== LayoutTest dirs anywhere ===\" && find /Users/napoleon/Documents -maxdepth 3 -iname \"*layout*\" -o -iname \"*gradient*test*\" 2>/dev/null | head; echo \"=== Sibling projects ===\" && ls -la /Users/napoleon/Documents/ 2>/dev/null | head -40)"
     ]
   }
 }

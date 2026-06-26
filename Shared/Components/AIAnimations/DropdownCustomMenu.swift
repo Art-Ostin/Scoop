@@ -401,6 +401,13 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     /// original behaviour: a small circle at the label's trailing edge. No effect on
     /// the pre-26 fallback (which always scales from an anchor point near the label).
     var morphsFromTrailingPoint: Bool
+    /// Explicit (global) rect the glass lens blooms from / collapses into, overriding the
+    /// label's own measured frame. Use when the label is larger than what should visually
+    /// morph — e.g. a pager whose scroll view carries vertical padding the bloom must not
+    /// include (the zoom point would otherwise read far taller than the visible text).
+    /// Placement still uses the full label frame; only the morph geometry uses this.
+    /// Mirrors `TimeCustomMenu.morphAnchor`.
+    var morphAnchor: CGRect?
     /// When `true`, a no-change dismiss flexes the label instead of running the circle morph:
     /// re-selecting the already-selected row uses `dismiss(.flex)`, and a tap-away (which is
     /// always no-change) flexes too. `false` (default) keeps every dismiss on the morph.
@@ -434,6 +441,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
          labelCornerRadius: CGFloat? = nil,
          alignment: DropdownCustomMenuAlignment = .automatic,
          morphsFromTrailingPoint: Bool = false,
+         morphAnchor: CGRect? = nil,
          flexOnEmptyDismiss: Bool = false,
          placementOffsetX: CGFloat = DropdownCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = DropdownCustomMenuSpec.placementOffsetY,
@@ -448,6 +456,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.morphsFromTrailingPoint = morphsFromTrailingPoint
+        self.morphAnchor = morphAnchor
         self.flexOnEmptyDismiss = flexOnEmptyDismiss
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
@@ -479,6 +488,9 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         // one for that window so we don't see a static double underneath the morph; the
         // overlay restores it (under the copy) right before melting the halo + teardown.
         let _ = syncPresentedLabel()
+        // Keep the morph collapse/bloom target current too (the pager's active page can
+        // reflow), so the lens lands on the tight content rather than the padded label.
+        let _ = syncMorphAnchor()
         return label()
             .contentShape(Rectangle())
             .onGeometryChange(for: CGRect.self) { proxy in
@@ -522,6 +534,16 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         }
     }
 
+    /// Pushes the freshest morph anchor into the controller while presented, so the
+    /// close morph collapses onto the active page's current (tight) bounds. Deferred one
+    /// runloop turn like the label sync. No-op while closed or when no override is set.
+    private func syncMorphAnchor() {
+        guard controller.isPresented, let morphAnchor else { return }
+        DispatchQueue.main.async {
+            controller.updateMorphAnchor(morphAnchor)
+        }
+    }
+
     /// The label presses (shrinks) under the finger via `$isPressed`, then expands
     /// the menu on release — a completed tap — instead of on touch-down, so it reads
     /// like a normal button tap. (This drops the native press-drag-to-select flow;
@@ -535,6 +557,9 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                 let distance = hypot(value.translation.width, value.translation.height)
                 guard distance < DropdownCustomMenuSpec.tapSlop else { return }
                 onOpen?()
+                // Seed the morph collapse/bloom target before the overlay renders, so the
+                // open bloom starts from the tight content (not the padded label frame).
+                controller.updateMorphAnchor(morphAnchor)
                 controller.present(
                     anchor: labelFrame,
                     cornerRadius: cornerRadius,
@@ -557,14 +582,22 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
 // MARK: - Dismiss action environment
 
 /// How the menu leaves the screen.
-/// - `morph`: the default glass bloom-close (the platter shrinks back into the label).
+/// - `morph`: the default glass bloom-close (the platter shrinks back into the label,
+///   carrying the label copy through the circle-collapse → reveal so a just-selected
+///   value swaps at the apex).
+/// - `morphPlatterOnly`: the platter alone shrinks into the circle and melts — the label
+///   copy is NOT carried and the real label is NEVER hidden. For call sites whose visible
+///   label isn't what the menu would morph (e.g. the type pager parked on its MESSAGE page,
+///   where the menu's label copy is the type icon but the message is what's on screen):
+///   the full `morph` would flash the type over the message and yank the pager back, so we
+///   only zoom the platter into the chevron and let the row update its own label.
 /// - `pop`: removes the platter + footer with the `.scoopPop` transition (blur + scale).
 /// - `flex`: pops the platter like `.pop`, but instead of the circle morph it gives the
 ///   (still-visible) label a quick scale-up + lift that settles back — for a no-change
 ///   dismiss, where the morph would just shrink and re-expand the same label. See the
 ///   `.flex` spec block and `flexLabel()`.
 /// - `instant`: tears the window down immediately, no animation.
-enum DropdownCustomMenuDismissStyle { case morph, pop, flex, instant }
+enum DropdownCustomMenuDismissStyle { case morph, morphPlatterOnly, pop, flex, instant }
 
 struct DropdownCustomMenuDismissAction {
     /// Pass a `DropdownCustomMenuDismissStyle` to pick the exit (default `.morph`). E.g.
@@ -683,6 +716,10 @@ final class DropdownCustomMenuController {
     /// selection), not the frame captured at open time. Placement keeps using the
     /// fixed `anchor` so the open menu never moves underfoot.
     private(set) var collapseAnchor: CGRect = .zero
+    /// Caller's explicit morph collapse/bloom target (global), preferred over `collapseAnchor`
+    /// when set, so the lens morphs around the tight content instead of the padded label
+    /// frame. See `DropdownCustomMenu.morphAnchor`.
+    private(set) var morphAnchor: CGRect?
     private(set) var content: (() -> AnyView)?
     /// Pixel-identical copy of the label, carried by the overlay only during the iOS 26
     /// dismiss so it can morph (label → centred circle → label). The real label hides
@@ -802,6 +839,13 @@ final class DropdownCustomMenuController {
         collapseAnchor = frame
     }
 
+    /// Sets/clears the caller's explicit morph collapse/bloom target. Seeded just before
+    /// `present` (and kept fresh while shown) so the lens morphs around the tight content
+    /// rather than the padded label frame.
+    func updateMorphAnchor(_ rect: CGRect?) {
+        morphAnchor = rect
+    }
+
     /// Re-points the carried label copy at the latest closure so the dismiss morph
     /// shrinks/reveals the current value rather than the snapshot captured when the
     /// menu opened. No-op while not presented.
@@ -862,13 +906,18 @@ final class DropdownCustomMenuController {
             // wall-clock timer, so the sequence can't desync from the animation under load
             // and there's no dead stop at the apex. The hand-offs call back into
             // `enterRevealPhase` / `restoreLabel` / `finishMorphDismiss` below.
-            // Freeze the label for non-selection dismisses (tap-away / programmatic);
-            // a selection already froze the OLD value before mutating state. No-op if
-            // already frozen, so the selection's freeze is never overwritten.
-            freezeLabel()
-            // Hide the real label only if we have a copy to morph in its place; without
-            // one we'd leave a gap, so fall back to leaving it visible.
-            if labelView != nil { hidesLabel = true }
+            // `.morphPlatterOnly` keeps the real label on screen the whole time (the platter
+            // just shrinks into the chevron and melts), so it neither freezes a copy nor hides
+            // the label. The full `.morph` does both so the label can ride the circle morph.
+            if style == .morph {
+                // Freeze the label for non-selection dismisses (tap-away / programmatic);
+                // a selection already froze the OLD value before mutating state. No-op if
+                // already frozen, so the selection's freeze is never overwritten.
+                freezeLabel()
+                // Hide the real label only if we have a copy to morph in its place; without
+                // one we'd leave a gap, so fall back to leaving it visible.
+                if labelView != nil { hidesLabel = true }
+            }
             // Safety net only: if a completion handler is ever dropped, this guarantees the
             // window is still torn down. The normal path beats it via `finishMorphDismiss`,
             // which bumps `generation` so this no-ops.
@@ -936,6 +985,7 @@ final class DropdownCustomMenuController {
         morphsFromTrailingPoint = false
         placementOffset = .zero
         collapseAnchor = .zero
+        morphAnchor = nil
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
@@ -1027,7 +1077,13 @@ private struct DropdownCustomMenuOverlayRoot: View {
 
     var body: some View {
         GeometryReader { geo in
-            let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor,
+            // Place against the tight morph anchor (the visible label) when supplied, else the
+            // full label frame. A padded label (e.g. the type pager's 30pt scroll padding) has
+            // a `minY` well above its visible text, so placing off it drops the menu on top of
+            // the label instead of below it; the tight anchor lands it below, like the compact
+            // label. Only placement uses this — the press hit-test below keeps the full frame.
+            let placementAnchor = controller.morphAnchor ?? controller.anchor
+            let metrics = Metrics(geo: geo, anchor: placementAnchor, overlapsAnchor: overlapsAnchor,
                                   alignment: controller.alignment, placementOffset: controller.placementOffset)
             ZStack(alignment: .topLeading) {
                 // Swallows every outside touch, exactly like the native menu. A touch
@@ -1096,6 +1152,21 @@ private struct DropdownCustomMenuOverlayRoot: View {
     /// instant the collapse logically reaches the circle (no dead stop at the apex).
     @available(iOS 26.0, *)
     private func runMorphDismiss() {
+        // `.morphPlatterOnly`: no label copy and the real label was never hidden, so there's
+        // nothing to reveal. Just shrink the platter into the chevron circle (phase 1) and
+        // melt the glass — the row's own label handles the value change underneath.
+        if controller.dismissStyle == .morphPlatterOnly {
+            withAnimation(DropdownCustomMenuSpec.collapseToCircle, completionCriteria: .logicallyComplete) {
+                morphProgress = 0
+            } completion: {
+                withAnimation(DropdownCustomMenuSpec.lensFadeOut) {
+                    lensOpacity = 0
+                } completion: {
+                    controller.finishMorphDismiss()
+                }
+            }
+            return
+        }
         // Phase 1 — rectangular collapse → centred circle. `logicallyComplete` fires the
         // moment the collapse reaches the circle (a touch before it fully settles), so the
         // reveal flows straight out of it.
@@ -1269,14 +1340,16 @@ private struct DropdownCustomMenuOverlayRoot: View {
 
         if let size = menuSize {
             let menuRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
-            // Collapse onto the label's live frame, falling back to the open-time
-            // anchor before the first geometry update lands. The morph grows from /
-            // shrinks back into this full frame.
-            let collapsedRect = controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor
-            // The default `.morph` dismiss hands off to the new circle-collapse → reveal
+            // Collapse onto the caller's explicit morph anchor (the tight content) when set,
+            // else the label's live frame, falling back to the open-time anchor before the
+            // first geometry update lands. The morph grows from / shrinks back into this.
+            let collapsedRect = controller.morphAnchor
+                ?? (controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor)
+            // The `.morph` / `.morphPlatterOnly` dismisses hand off to the circle-collapse
             // choreography (dismissPresentation); the open bloom (and the brief pre-removal
             // frame of a `.pop` dismiss) stay on MenuLensMorph.
-            let isMorphDismiss = controller.phase == .dismissing && controller.dismissStyle == .morph
+            let isMorphDismiss = controller.phase == .dismissing
+                && (controller.dismissStyle == .morph || controller.dismissStyle == .morphPlatterOnly)
             // No GlassEffectContainer: with a single glass shape it isn't needed,
             // and the container ignores per-view .opacity (so the glass couldn't
             // fade). Standalone .glassEffect honours it, which is what lets the
@@ -1319,12 +1392,17 @@ private struct DropdownCustomMenuOverlayRoot: View {
     @ViewBuilder
     private func dismissPresentation(content: AnyView, metrics: Metrics,
                                      menuRect: CGRect, labelRect: CGRect) -> some View {
-        // The centred circle both collapse into. Sized off the SMALLER label dimension and
+        // The circle both layers collapse into. Sized off the SMALLER label dimension and
         // clamped, so a tall multi-line label collapses to a tidy circle (not a big blob)
-        // and a tiny label still gets a visible one. Centred on the label's original frame.
+        // and a tiny label still gets a visible one. Always centred vertically; placed at the
+        // label's TRAILING edge when the open bloomed from there (`morphsFromTrailingPoint` —
+        // e.g. a wide pager label whose content hugs the trailing edge), otherwise centred.
+        // This makes the close collapse onto the same point the open grew from, instead of the
+        // empty middle of a wide label (which read as "close in the centre, then snap right").
         let side = (min(labelRect.width, labelRect.height) * DropdownCustomMenuSpec.dismissCircleScale)
             .clamped(to: DropdownCustomMenuSpec.dismissCircleMinDiameter ... DropdownCustomMenuSpec.dismissCircleMaxDiameter)
-        let circleRect = CGRect(x: labelRect.midX - side / 2, y: labelRect.midY - side / 2,
+        let circleX = controller.morphsFromTrailingPoint ? labelRect.maxX - side : labelRect.midX - side / 2
+        let circleRect = CGRect(x: circleX, y: labelRect.midY - side / 2,
                                 width: side, height: side)
         let platterCorners = controller.cornerRadii
             ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.platterCornerRadius)
@@ -1347,7 +1425,10 @@ private struct DropdownCustomMenuOverlayRoot: View {
             // Collapse shows the OLD label (frozen bitmap, captured before any selection
             // mutated state); the reveal shows the live/new label. They swap at the circle
             // apex where the label's opacity is 0, so the change is never seen mid-air.
+            // `.morphPlatterOnly` carries no label copy — the real label stays on screen —
+            // so this layer is skipped and only the platter collapses into the chevron.
             let labelLayer: AnyView? = {
+                guard controller.dismissStyle == .morph else { return nil }
                 if !controller.revealing, let frozen = controller.frozenLabelImage {
                     return AnyView(Image(uiImage: frozen))
                 }

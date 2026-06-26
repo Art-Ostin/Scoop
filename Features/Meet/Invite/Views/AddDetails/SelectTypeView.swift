@@ -32,6 +32,13 @@ struct SelectTypeView: View {
 
     let message: String
 
+    //True when the type row's pager is parked on its MESSAGE page (so the on-screen label is
+    //the message, not the type). A type switch from here can't use the circle-reveal morph —
+    //the menu's label copy is the type icon, which would flash over the message and snap the
+    //pager back — so we close with `.morphPlatterOnly` and let the row's own title morph.
+    //Defaults false (e.g. AddMessageView, which has no pager/message page).
+    var onMessagePage: Bool = false
+
     //Card corners. Default uniform 16; the invite menu passes top 16 / bottom 10 so it
     //pairs with the "Add a Message" footer beneath it.
     var cardCorners: RectangleCornerRadii = RectangleCornerRadii(uniform: 16)
@@ -149,6 +156,16 @@ extension SelectTypeView {
             //Re-picking the already-selected type changes nothing, so there's nothing to morph
             //to: flex the label instead. Only a real switch freezes the old value and morphs.
             let changed = eventType != selectedType
+            //On the message page the visible label is the message, so a real switch closes with
+            //`.morphPlatterOnly` (platter zooms into the chevron only) — no label freeze, since
+            //the row's left title carries the type change with its own blur-morph + flex.
+            if changed && onMessagePage {
+                selectedType = eventType
+                showTypePopup = false
+                dismissMenu(.morphPlatterOnly)
+                dismissTimeMenu()
+                return
+            }
             if changed {
                 //Freeze the OLD label to a bitmap BEFORE mutating, so the morph collapse shrinks the
                 //current type (e.g. "Double Date") and only reveals the new one (e.g. "Grab a Drink")

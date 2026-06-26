@@ -8,11 +8,6 @@
 import SwiftUI
 
 struct HorizontalScrollView<Content: View>: View {
-    /// Width of the neighbouring page revealed on each side at rest. Implemented as a
-    /// margin on the scroll *content* — it never touches a modifier on the views you
-    /// pass in, so it can't shift their internal layout the way wrapping them in
-    /// .padding would. (Unlike padding on the pages, it also stays inside the scroll
-    /// view, so nothing around the scroll view moves.)
     var peek: CGFloat = 0
     @ViewBuilder var content: Content
 
@@ -24,7 +19,7 @@ struct HorizontalScrollView<Content: View>: View {
             .scrollTargetLayout()
         }
         .contentMargins(.horizontal, peek, for: .scrollContent)
-        .scrollTargetBehavior(.viewAligned)
+        .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
     }
 }

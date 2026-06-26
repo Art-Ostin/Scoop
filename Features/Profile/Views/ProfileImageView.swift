@@ -92,6 +92,5 @@ extension ProfileImageView {
             }
         }
     }
-    
 }
 

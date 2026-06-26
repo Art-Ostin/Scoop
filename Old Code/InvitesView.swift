@@ -9,11 +9,12 @@ import SwiftUI
 
 struct InvitesView: View {
     
+    let imageSize: CGFloat
+    
     @Bindable var ui: InvitesUIState
     @Bindable var vm: InvitesViewModel
     let onDecline: (String) -> ()
     
-    @State var imageSize: CGFloat = 0
     
     var body: some View {
         VStack(spacing: 96) {
@@ -22,7 +23,6 @@ struct InvitesView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .getImageSize(imageSize: $imageSize, horizontalPadding: 20)
         .padding(.top, 12)
     }
 }
