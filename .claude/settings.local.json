@@ -153,7 +153,11 @@
       "Bash(sed -i '' 's/var t = 2.0/var t = 3.4/' dump.swift)",
       "Bash(sed -i '' 's/while t < 3.8/while t < 5.0/' dump.swift)",
       "Bash(rm -f f_*.png)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "WebFetch(domain:www.jrdevhub.com)",
+      "Bash(mkdir -p AlertProbe.app)",
+      "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios26.0-simulator -parse-as-library main.swift -o AlertProbe.app/AlertProbe)",
+      "Bash(echo \"BUILD_EXIT:$?\")"
     ]
   }
 }

@@ -54,21 +54,8 @@ struct SelectTimeView: View {
             if suppressSavedFlash { suppressSavedFlash = false }
             else { flashSaved() }
         }
-        .onChange(of: proposedTimes.dates) { old, new in
-            // The mutation in selectDay disables animations; re-introduce them here
-            // (like displayedCount) so the selectedTimes list can blur in/out.
-            if old.count != new.count {
-                withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
-                    displayedCount = new.count
-                    displayedDates = new
-                }
-            } else {
-                displayedDates = new   // time edit: same count, keep mirror in sync silently
-            }
-        }
         .task(id: warning) { await clickedUnavailableDay() }
         .animation(.easeInOut(duration: 0.2), value: warning)
-        .overlay(alignment: .bottomLeading) { selectedTimes}
     }
 
     private enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unavailable" }
@@ -191,18 +178,6 @@ private extension SelectTimeView {
     }
     
     
-    private var selectedTimes: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(displayedDates, id: \.self) { proposedTime in
-                Text(FormatEvent.shortDayAndTime(proposedTime.date, withHour: false))
-                    .font(.body(10, .bold))
-                    .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
-                    .transition(.blurReplace)
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 20)
-    }
 }
 
 // MARK: - Actions
@@ -337,6 +312,37 @@ private struct DayCell: View {
              .font(.body(12, .bold))
              .foregroundStyle(Color.warningYellow)
              .padding(.horizontal).background(Color.appCanvas).padding(.top, 98)
+     }
+ }
+
+ 
+ 
+ //Code for updating and listing selected Times
+ .overlay(alignment: .bottomLeading) { selectedTimes}
+
+ private var selectedTimes: some View {
+     VStack(alignment: .leading, spacing: 4) {
+         ForEach(displayedDates, id: \.self) { proposedTime in
+             Text(FormatEvent.shortDayAndTime(proposedTime.date, withHour: false))
+                 .font(.body(10, .bold))
+                 .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
+                 .transition(.blurReplace)
+         }
+     }
+     .padding(.horizontal, 20)
+     .padding(.bottom, 20)
+ }
+
+ .onChange(of: proposedTimes.dates) { old, new in
+     // The mutation in selectDay disables animations; re-introduce them here
+     // (like displayedCount) so the selectedTimes list can blur in/out.
+     if old.count != new.count {
+         withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
+             displayedCount = new.count
+             displayedDates = new
+         }
+     } else {
+         displayedDates = new   // time edit: same count, keep mirror in sync silently
      }
  }
 

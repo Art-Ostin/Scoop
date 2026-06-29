@@ -1,0 +1,36 @@
+//
+//  InviteContainer.swift
+//  Scoop Test
+//
+//  Created by Art Ostin on 29/06/2026.
+//
+
+import SwiftUI
+
+struct InviteContainer: View {
+    @State var vm: TimeAndPlaceViewModel
+    @State var showBack: Bool = false
+    
+    
+    let sendInvite: (EventFieldsDraft) -> Void
+
+    
+    var body: some View {
+        
+        CardFlipContainer(showBack: $showBack) {
+            
+            
+            
+        } backCard: {
+            
+        }
+    }
+}
+
+extension InviteContainer {
+    
+    
+    private var sendInviteContainer: some View {
+        SendInviteContainer(draft: <#T##Binding<EventFieldsDraft>#>, name: <#T##String#>, image: <#T##UIImage#>, deleteEventDefault: <#T##() -> Void#>, onSendInvite: <#T##() -> ()#>, isInviteResponse: <#T##Bool#>, defaults: <#T##any DefaultsManaging#>)
+    }
+}
