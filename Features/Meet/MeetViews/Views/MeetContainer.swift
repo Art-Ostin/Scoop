@@ -35,12 +35,12 @@ struct MeetContainer: View {
                 .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                 .navigationTitle("Meet")
         }
+        
+        
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
-        
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
-        
         .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
             timeAndPlaceView(id)
         } overlay: {

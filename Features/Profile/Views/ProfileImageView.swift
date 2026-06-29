@@ -29,7 +29,7 @@ struct ProfileImageView: View {
 }
 
 //All Logic for large images
-extension ProfileImageView {
+extension ProfileImageView {    
     
     private var largeImageScrollView: some View {
         HorizontalScrollView {

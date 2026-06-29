@@ -4,7 +4,6 @@
 //
 //  Created by Art Ostin on 28/05/2026.
 //
-
 import SwiftUI
 
 struct AnimatedPageIndicator: View {
@@ -15,6 +14,8 @@ struct AnimatedPageIndicator: View {
     var inactiveDotSize: CGFloat = 6
     var activeWidth: CGFloat = 12
     var spacing: CGFloat = 8
+    
+    var isInviteIndicator: Bool { inactiveDotSize == 5 }
     
     var body: some View {
         HStack(spacing: spacing) {
@@ -28,12 +29,20 @@ struct AnimatedPageIndicator: View {
 
                 Capsule()
                     .fill(Color.grayPlaceholder)
+                    .opacity(isInviteIndicator ? 1 - closeness : 1)
                     .overlay(
-                        Capsule()
-                            .fill(inactiveDotSize == 5 ? Color(white: 0.3) : .primary)
-                            .opacity(closeness)
+                        Group {
+                            if isInviteIndicator {
+                                Capsule()
+                                    .strokeBorder(.black, lineWidth: 1.3)
+                            } else {
+                                Capsule()
+                                    .fill(.primary)
+                            }
+                        }
+                        .opacity(closeness)
                     )
-                    .frame(width: width, height: inactiveDotSize == 5 ? inactiveDotSize + 1 : height)
+                    .frame(width: width, height: height)
             }
         }
     }
@@ -56,4 +65,3 @@ extension View {
             }
     }
 }
-

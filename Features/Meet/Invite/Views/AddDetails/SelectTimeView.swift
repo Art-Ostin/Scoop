@@ -21,16 +21,23 @@ struct SelectTimeView: View {
 
     @State private var suppressSavedFlash = false
     @State private var displayedCount = 0
+    @State private var displayedDates: [ProposedTime] = []
 
     private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7)
     private let dayCount = 11
     private let cellWidth: CGFloat = 30
-    
+
+    // Selected-times list: 2 cells across, then wrap → [date1] [date2] / [date3]
+//    private let selectedColumns = Array(
+//        repeating: GridItem(.fixed(50), spacing: 24, alignment: .trailing),
+//        count: 2
+//    )
+//    
     @Namespace private var countNS
 
     var body: some View {
         VStack(spacing: 18) {
-            titleSectionV2
+            titleSection
             dayPicker
             timePicker
                 .padding(.top, -8)
@@ -40,43 +47,37 @@ struct SelectTimeView: View {
         .onAppear {
             loadSelectedHourAndMinute()
             displayedCount = proposedTimes.dates.count
+            displayedDates = proposedTimes.dates
         }
         .onChange(of: selectedHour * 60 + selectedMinute) {
             proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
             if suppressSavedFlash { suppressSavedFlash = false }
             else { flashSaved() }
         }
-        .onChange(of: proposedTimes.dates.count) { _, newCount in
-            withAnimation(.snappy(duration: 0.3)) { displayedCount = newCount }
+        .onChange(of: proposedTimes.dates) { old, new in
+            // The mutation in selectDay disables animations; re-introduce them here
+            // (like displayedCount) so the selectedTimes list can blur in/out.
+            if old.count != new.count {
+                withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
+                    displayedCount = new.count
+                    displayedDates = new
+                }
+            } else {
+                displayedDates = new   // time edit: same count, keep mirror in sync silently
+            }
         }
         .task(id: warning) { await clickedUnavailableDay() }
         .animation(.easeInOut(duration: 0.2), value: warning)
+        .overlay(alignment: .bottomLeading) { selectedTimes}
     }
 
     private enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unavailable" }
 }
 
-// MARK: - Subviews
+//Title Logic and Done Button
 private extension SelectTimeView {
     
     private var titleSection: some View {
-        
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text("Choose Time")
-                    .font(.body(17, .bold))
-                    .foregroundStyle(Color(white: 0.1))
-                Spacer()
-                timeCountAndWarningSign
-            }
-            
-            Text("Propose up to 3 days to Meet")
-                .font(.body(12, .regular))
-                .foregroundStyle(Color(white: 0.6))
-        }
-    }
-    
-    private var titleSectionV2: some View {
         HStack {
             Text("Propose 1-3 days to meet") //"Propose up to 3 days"
                 .font(.body(17, .medium))
@@ -85,81 +86,6 @@ private extension SelectTimeView {
             timeCountAndWarningSign
         }
     }
-    
-
-    var dayPicker: some View {
-        VStack(spacing: 10) {                                          // (3) weekday header → numbers
-            LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
-            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // (4) row → row
-        }
-    }
-
-    var dayOfWeekText: some View {
-        ForEach(0..<7) { idx in
-            Text(
-                availableDays[idx]
-                    .formatted(.dateTime.weekday(.narrow))       // 3-letter "MON"
-                    .uppercased()
-            )
-                .font(.system(size: 11, weight: .regular))          // Apple SF Pro
-                .foregroundStyle(Color(white: 0.75))
-                .fixedSize()                                         // natural width, centered on its column → overflows the 27pt track symmetrically
-        }
-    }
-
-    var daysOfMonthText: some View {
-        ForEach(availableDays.indices, id: \.self) { idx in
-            let day = availableDays[idx]
-            DayCell(day: day, isSelected: proposedTimes.contains(day: day)) {
-                selectDay(day: day)
-            }
-        }
-    }
-
-    var timePicker: some View {
-        HStack {
-            Picker("Hour", selection: $selectedHour) {
-                ForEach(0..<24, id: \.self) { h in
-                    Text(String(format: "%02d", h)).tag(h)
-                }
-            }
-
-            Picker("Minute", selection: $selectedMinute) {
-                ForEach([00, 15, 30, 45], id: \.self) { m in
-                    Text(String(format: "%02d", m)).tag(m)
-                }
-            }
-        }
-        .pickerStyle(.wheel)
-        .frame(width: 160, height: 130)
-        .labelsHidden()
-        .tint(.accent)
-    }
-
-    @ViewBuilder
-    var dayUnavailablePopup: some View {
-        if let warning {
-            Text(warning.rawValue)
-                .font(.body(12, .bold))
-                .foregroundStyle(Color.warningYellow)
-                .padding(.horizontal).background(Color.appCanvas).padding(.top, 98)
-        }
-    }
-
-    var doneButton: some View {
-        Button {
-            dismissMenu()
-        } label: {
-            Image("TickButton")
-                .scaleEffect(0.9)
-                .frame(width: 33, height: 33)
-                .circleStroke(lineWidth: 1, color: .black)
-        }
-        .shrinkButton(shadow: nil, shadowColor: .clear)
-        .padding(.bottom, 96)
-        .padding(.horizontal, 24)
-    }
-    
     
     private var timeCountAndWarningSign: some View {
         Text("0/3")
@@ -188,6 +114,94 @@ private extension SelectTimeView {
                 }
                 .fixedSize()
             }
+    }
+    
+    private var doneButton: some View {
+        Button {
+            dismissMenu()
+        } label: {
+            Image("TickButton")
+                .scaleEffect(0.9)
+                .frame(width: 33, height: 33)
+                .circleStroke(lineWidth: 1, color: .black)
+        }
+        .shrinkButton(shadow: nil, shadowColor: .clear)
+        .padding(.bottom, 96)
+        .padding(.horizontal, 24)
+    }
+}
+
+
+// Day Picker And Title
+private extension SelectTimeView {
+    
+    var dayPicker: some View {
+        VStack(spacing: 10) {                                          // (3) weekday header → numbers
+            LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
+            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // (4) row → row
+        }
+    }
+    
+    var dayOfWeekText: some View {
+        ForEach(0..<7) { idx in
+            Text(
+                availableDays[idx]
+                    .formatted(.dateTime.weekday(.narrow))       // 3-letter "MON"
+                    .uppercased()
+            )
+            .font(.system(size: 11, weight: .regular))          // Apple SF Pro
+            .foregroundStyle(Color(white: 0.75))
+            .fixedSize()                                         // natural width, centered on its column → overflows the 27pt track symmetrically
+        }
+    }
+    
+    var daysOfMonthText: some View {
+        ForEach(availableDays.indices, id: \.self) { idx in
+            let day = availableDays[idx]
+            DayCell(day: day, isSelected: proposedTimes.contains(day: day)) {
+                selectDay(day: day)
+            }
+        }
+    }
+    
+}
+
+//Hour Picker and Days Selected
+private extension SelectTimeView {
+    
+    var timePicker: some View {
+        HStack {
+            Picker("Hour", selection: $selectedHour) {
+                ForEach(0..<24, id: \.self) { h in
+                    Text(String(format: "%02d", h)).tag(h)
+                }
+            }
+
+            Picker("Minute", selection: $selectedMinute) {
+                ForEach([00, 15, 30, 45], id: \.self) { m in
+                    Text(String(format: "%02d", m)).tag(m)
+                }
+            }
+        }
+        .pickerStyle(.wheel)
+        .frame(width: 160, height: 130)
+        .labelsHidden()
+        .tint(.accent)
+        .frame(maxWidth: .infinity)
+    }
+    
+    
+    private var selectedTimes: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(displayedDates, id: \.self) { proposedTime in
+                Text(FormatEvent.shortDayAndTime(proposedTime.date, withHour: false))
+                    .font(.body(10, .bold))
+                    .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
+                    .transition(.blurReplace)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 20)
     }
 }
 
@@ -253,7 +267,6 @@ private extension SelectTimeView {
     }
 }
 
-// MARK: - Supporting Types
 private struct SelectTimeBackground: ViewModifier {
 
     let isRespond: Bool
@@ -296,3 +309,36 @@ private struct DayCell: View {
         .showShakeAnimation(bool: shake)
     }
 }
+
+
+
+/*
+ private var titleSection: some View {
+     
+     VStack(alignment: .leading, spacing: 4) {
+         HStack {
+             Text("Choose Time")
+                 .font(.body(17, .bold))
+                 .foregroundStyle(Color(white: 0.1))
+             Spacer()
+             timeCountAndWarningSign
+         }
+         
+         Text("Propose up to 3 days to Meet")
+             .font(.body(12, .regular))
+             .foregroundStyle(Color(white: 0.6))
+     }
+ }
+ 
+ @ViewBuilder
+ var dayUnavailablePopup: some View {
+     if let warning {
+         Text(warning.rawValue)
+             .font(.body(12, .bold))
+             .foregroundStyle(Color.warningYellow)
+             .padding(.horizontal).background(Color.appCanvas).padding(.top, 98)
+     }
+ }
+
+
+ */

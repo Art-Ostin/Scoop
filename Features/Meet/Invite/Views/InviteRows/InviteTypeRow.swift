@@ -18,6 +18,9 @@ struct InviteTypeRow: View {
 
     @State private var messageHeight: CGFloat = 0
     @State private var lastCountedMessage = ""
+
+    //Snapshot of the message when the editor opens, so we can tell if it changed on close.
+    @State private var messageBeforeEdit: String?
     
     
     @State private var openInfoTypes: Set<Event.EventType> = []
@@ -51,36 +54,34 @@ struct InviteTypeRow: View {
 
 
     var body: some View {
-        HStack(spacing: 4) {
+        //Give less spacing if Text, then 
+        HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
             rowTitle
             
             Spacer(minLength: 0)
             
-            if message.isEmpty {
-                inviteTypeButton
-            } else {
-                inviteTypeScroller
-            }
-            
-            
+            inviteTypeScroller
+
         }
         .overlay(alignment: .bottom) {pageIndicator}
-        
-        
-        
-        
         .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
         .onChange(of: message) {updateLineHeight()} //clearing/edits: recount (and reset) on text change
         .onChange(of: type) {if onMessagePage { pulseTypeTitle() } }
+        .onChange(of: ui.showMessageScreen) {goToMessageSection()}
     }
 }
 
 extension InviteTypeRow {
     
+    private func goToMessageSection() {
+        if ui.showMessageScreen {
+            messageBeforeEdit = unparsedMessage
+        } else if unparsedMessage != messageBeforeEdit, !message.isEmpty {
+            withAnimation(.snappy(duration: 0.3)) { scrolledPageID = 1 }
+        }
+    }
 
     private var rowTitle: some View {
-        //The .id/.transition live on the inner Text; the .animation must sit on the stable ZStack
-        //*outside* the .id, or it gets rebuilt on every id change and never sees the swap. (cf. InviteTimeRow)
         ZStack(alignment: .leading) {
             Text(rowTitleText.capitalized)
                 .font(.body(13, .regular))
@@ -105,13 +106,11 @@ extension InviteTypeRow {
 
     @ViewBuilder
     private var pageIndicator: some View {
-        if !message.isEmpty {
             AnimatedPageIndicator(count: 2, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, 6)
+                .padding(.bottom, 8)
                 .offset(x: 6)
                 .opacity(ui.typePopupOpen ? 0 : 1)
-        }
     }
 
     private func pulseTypeTitle() {
@@ -122,7 +121,6 @@ extension InviteTypeRow {
         }
     }
 
-
     private func updateLineHeight() {
         if message.isEmpty {
             ui.messageLineCount = 0
@@ -131,7 +129,6 @@ extension InviteTypeRow {
             return
         }
         guard message != lastCountedMessage, messageHeight > 0 else { return }
-
         let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
         ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
         lastCountedMessage = message
@@ -160,7 +157,7 @@ extension InviteTypeRow {
             isPopupOpen: ui.typePopupOpen,
             scrollProgress: $scrollProgress,
             scrolledPageID: $scrolledPageID,
-            messageHeight: $messageHeight,
+            messageHeight: $messageHeight, ui: ui,
             typeFrame: $typeFrame,
             messageFrame: $messageFrame,
             chevronFrame: $chevronFrame
@@ -174,10 +171,10 @@ extension InviteTypeRow {
         return union.isNull ? nil : union
     }
 
-    //A tap while parked on the message page opens the message editor instead of the menu; the type
-    //page (and the compact button) fall through. Returning true claims the tap so the menu stays shut.
+    //A tap while parked on the message page (id 1) opens the message editor instead of the menu —
+    //including the empty "Add Message" placeholder. The type page (id 0) falls through to the menu.
     private func handleScrollerTap() -> Bool {
-        guard onMessagePage else { return false }
+        guard (scrolledPageID ?? 0) >= 1 else { return false }
         ui.showMessageScreen = true
         return true
     }
@@ -232,6 +229,7 @@ private struct TypeRowMenuLabel: View {
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
     @Binding var messageHeight: CGFloat
+    @Bindable var ui: TimeAndPlaceUIState
 
     @Binding var typeFrame: CGRect
     @Binding var messageFrame: CGRect
@@ -252,6 +250,7 @@ private struct TypeRowMenuLabel: View {
                         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { typeFrame = $0 }
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(0)
+                    
                     messageView
                         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { messageFrame = $0 }
                         .padding(.leading, 12)
@@ -292,15 +291,24 @@ private struct TypeRowMenuLabel: View {
         DropDownButton(isOpen: isPopupOpen)
     }
 
+    @ViewBuilder
     private var messageView: some View {
-        Text(message)
-            .font(.footnote)
-            .foregroundStyle(.gray)
-            .lineLimit(2)
-            .multilineTextAlignment(.trailing)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { messageHeight = $0 }
-            .transition(.opacity.animation(.smooth(duration: 0.2)))
-            .fixedSize(horizontal: false, vertical: true)
+        if !message.isEmpty {
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.gray)
+                .lineLimit(3)
+                .multilineTextAlignment(.trailing)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { messageHeight = $0 }
+                .transition(.opacity.animation(.smooth(duration: 0.2)))
+                .fixedSize(horizontal: false, vertical: true)
+                .offset(y: ui.messageLineCount == 3 ? -4 : 0)
+        } else {
+            Text("Add Message")
+                .font(.body(16, .regular))
+                .foregroundStyle(Color(white: 0.4))
+                .transition(.opacity.animation(.smooth(duration: 0.2)))
+        }
     }
 }
 
@@ -334,3 +342,12 @@ private struct AddMessageFooter: View {
             }
     }
 }
+
+/*
+ if message.isEmpty {
+     inviteTypeButton
+ } else {
+     
+ }
+
+ */

@@ -141,7 +141,19 @@
       "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'generic/platform=iOS Simulator' -quiet build > /tmp/scoop_build.log 2>&1; echo \"xcodebuild exit: $?\"; echo \"error count: $\\(grep -c 'error:' /tmp/scoop_build.log\\)\"; grep -E \"error:\" /tmp/scoop_build.log | head -30)",
       "Bash(git -C /Users/napoleon/Documents/Scoop status --porcelain)",
       "Bash(echo \"=== find resolved DominantColors checkout ===\" && find ~/Library/Developer/Xcode/DerivedData -type d -path \"*checkouts/DominantColors\" 2>/dev/null | head; find ~/Library/Developer/Xcode/DerivedData -type d -iname \"DominantColors\" -path \"*SourcePackages*\" 2>/dev/null | head)",
-      "Bash(echo \"=== Recently modified swift files \\(last 7 days\\) ===\" && find . -name \"*.swift\" -mtime -7 -not -path \"*/.*\" 2>/dev/null | head -40; echo \"=== LayoutTest dirs anywhere ===\" && find /Users/napoleon/Documents -maxdepth 3 -iname \"*layout*\" -o -iname \"*gradient*test*\" 2>/dev/null | head; echo \"=== Sibling projects ===\" && ls -la /Users/napoleon/Documents/ 2>/dev/null | head -40)"
+      "Bash(echo \"=== Recently modified swift files \\(last 7 days\\) ===\" && find . -name \"*.swift\" -mtime -7 -not -path \"*/.*\" 2>/dev/null | head -40; echo \"=== LayoutTest dirs anywhere ===\" && find /Users/napoleon/Documents -maxdepth 3 -iname \"*layout*\" -o -iname \"*gradient*test*\" 2>/dev/null | head; echo \"=== Sibling projects ===\" && ls -la /Users/napoleon/Documents/ 2>/dev/null | head -40)",
+      "Bash(xcodebuild -project Scoop.xcodeproj -scheme \"Scoop\" -configuration Debug -destination 'platform=iOS Simulator,id=A6EA7578-6CF6-4472-AB37-F990CDEC3762' -derivedDataPath /private/tmp/claude-501/-Users-napoleon-Documents-Scoop/8952ad43-1557-40b6-b2b0-5ca361bf9123/scratchpad/DD build)",
+      "Bash(tee /private/tmp/claude-501/-Users-napoleon-Documents-Scoop/8952ad43-1557-40b6-b2b0-5ca361bf9123/scratchpad/build.log)",
+      "Bash(open -a Simulator)",
+      "Bash(rm -rf App.app)",
+      "Bash(mkdir -p App.app)",
+      "Bash(cp Info.plist App.app/Info.plist)",
+      "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios26.0-simulator -parse-as-library main.swift -o App.app/App)",
+      "Bash(swift dump.swift)",
+      "Bash(sed -i '' 's/var t = 2.0/var t = 3.4/' dump.swift)",
+      "Bash(sed -i '' 's/while t < 3.8/while t < 5.0/' dump.swift)",
+      "Bash(rm -f f_*.png)",
+      "Bash(echo \"EXIT:$?\")"
     ]
   }
 }

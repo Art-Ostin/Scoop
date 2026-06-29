@@ -45,7 +45,7 @@ struct InviteTimeRow: View {
             timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
-//            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
+            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
         }
         .background { pickerWarmUp }
         .offset(y: 1.5)
@@ -95,7 +95,7 @@ private extension InviteTimeRow {
         if times.count > 1 {
             AnimatedPageIndicator(count: times.count, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, 6)
+                .padding(.bottom, 8)
                 .offset(x: 6)
         }
     }
@@ -177,6 +177,7 @@ private struct TimeRowMenuLabel: View {
                 pager
             }
             chevron
+                .offset(y: -0.5)//Fine tune so in line
         }
     }
 
@@ -209,7 +210,7 @@ private struct TimeRowMenuLabel: View {
     @ViewBuilder
     private var activeTimeText: some View {
         if times.indices.contains(activeIndex) {
-            Text(FormatEvent.dayAndTime(times[activeIndex], wide: true, withHour: true))
+            Text(FormatEvent.dayAndTime(times[activeIndex], wide: true, withHour: true, monthWide: false))
                 .font(.body(17, .medium))
         } else {
             chooseTimeText
@@ -259,7 +260,7 @@ private struct TimeRowScrollLabel: View {
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {
-        Text(FormatEvent.dayAndTime(time, wide: true, withHour: true))
+        Text(FormatEvent.dayAndTime(time, wide: true, withHour: true, monthWide: false))
             .font(.body(17, .medium))
             .lineLimit(1)
             .background { if isActive { GlobalFrameReader(frame: $activeTimeFrame) } }
@@ -302,6 +303,7 @@ struct PagedScrollStyle: ViewModifier {
             .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
             .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
             .scrollDisabled(pageCount <= 1)
+            .animation(.spring(), value: isScrolling)
     }
 }
 

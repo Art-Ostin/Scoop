@@ -301,7 +301,11 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
 
     @State private var controller = TimeCustomMenuController()
     @State private var labelFrame: CGRect = .zero
-    @GestureState private var isPressed = false
+    //Touch-down press state, driven by `pressGesture` (simultaneous so it fires on touch-down over
+    //the time pager instead of waiting for the scroll to fail at release). `pressStart` holds the
+    //shrink briefly on a fast tap. Separate from `pressAndDrag`, which owns open + drag-select.
+    @State private var pressed = false
+    @State private var pressStart: Date?
 
     init(labelCornerRadius: CGFloat? = nil,
          morphAnchor: CGRect? = nil,
@@ -334,10 +338,6 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         let _ = syncMorphAnchor()
         return label()
             .contentShape(Rectangle())
-            // iOS 26: the overlay's lens swallows the label, so the real one
-            // hides while the menu is up (it is the menu now), like native.
-            .opacity(controller.hidesLabel ? 0 : (isPressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
-            .animation(.easeOut(duration: 0.1), value: isPressed)
             .onGeometryChange(for: CGRect.self) { proxy in
                 proxy.frame(in: .global)
             } action: { frame in
@@ -346,7 +346,19 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 // when a selection changes its text) so the lens lands cleanly.
                 controller.updateCollapseAnchor(frame)
             }
+            // Press shrink + dim on touch-DOWN, driven by `pressGesture` (a simultaneous gesture so
+            // it fires the instant the finger lands, like InviteTypeRow's type menu). Applied AFTER
+            // the geometry read so the shrink transform never feeds back into the placement anchor.
+            // iOS 26: `hidesLabel` swallows the real label while the menu's lens is up (it is the
+            // menu now), like native.
+            .scaleEffect(pressed ? PressEffect.shrink.scale : 1)
+            .opacity(controller.hidesLabel ? 0 : (pressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
+            .animation(pressed ? .snappy(duration: PressEffect.shrink.pressDuration)
+                               : .spring(response: PressEffect.shrink.release.response,
+                                         dampingFraction: PressEffect.shrink.release.damping),
+                       value: pressed)
             .gesture(pressAndDrag)
+            .simultaneousGesture(pressGesture)
             .onDisappear { controller.dismiss(animated: false) }
     }
 
@@ -375,7 +387,6 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// so a single zero-distance drag drives the whole interaction.
     private var pressAndDrag: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
-            .updating($isPressed) { _, state, _ in state = true }
             .onChanged { value in
                 if !controller.isPresented {
                     onOpen?()
@@ -397,6 +408,27 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             }
             .onEnded { value in
                 controller.dragEnded(at: value.location, translation: value.translation)
+            }
+    }
+
+    /// Drives the touch-DOWN press shrink, separate from `pressAndDrag` (which opens the menu and
+    /// runs the native drag-select). A `.simultaneousGesture` so it fires on touch-down even over
+    /// the time pager's ScrollView instead of waiting for the scroll to fail at release; a drag past
+    /// `tapSlop` is a scroll/page, so the shrink releases. Mirrors InviteTypeRow's type-menu press.
+    private var pressGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                let moved = max(abs(value.translation.width), abs(value.translation.height))
+                if moved < TimeCustomMenuSpec.tapSlop {
+                    if !pressed { pressed = true; pressStart = .now }
+                } else if pressed {
+                    pressed = false   // turned into a scroll/page — let the shrink go
+                }
+            }
+            .onEnded { _ in
+                // Hold the shrink briefly so a fast tap still reads, then release (PressEffect's hold).
+                let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
+                DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) { pressed = false }
             }
     }
 }

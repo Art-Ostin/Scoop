@@ -439,7 +439,11 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
 
     @State private var controller = DropdownCustomMenuController()
     @State private var labelFrame: CGRect = .zero
-    @GestureState private var isPressed = false
+    //Touch-down press state, driven by `pressGesture` (a simultaneous gesture so it fires on
+    //touch-down over the pager instead of waiting for the scroll to fail at release). `pressStart`
+    //holds the shrink briefly on a fast tap, like PressEffectModifier.
+    @State private var pressed = false
+    @State private var pressStart: Date?
 
     init(cornerRadius: CGFloat? = nil,
          cornerRadii: RectangleCornerRadii? = nil,
@@ -479,54 +483,71 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         // out of a small circle at the label's trailing edge, so the real label is
         // always visible underneath (never swallowed/hidden). It reflows naturally
         // on selection, so the close morph collapses onto its current value.
-        // Same shrink + opacity as `.shrinkPress`, reusing only the shared
-        // `PressEffect.shrink` *values*. The press is driven by this view's own
-        // `isPressed` gesture state below, so all of the drop-down's tap/press logic
-        // lives in this file (no second gesture from PressEffectModifier to fight
-        // `pressAndDrag`, and nothing added to ButtonPressStyle).
-        let press = PressEffect.shrink
-        // Shrink while the finger is on the label — whether the menu is closed (this
-        // view's own `pressAndDrag` sets `isPressed`) or already open (the overlay
-        // window sits on top and swallows the touch, so it reports the press back
-        // through `controller.labelPressed`). Without the second term, re-tapping the
-        // label to close it wouldn't shrink, since this view's gesture never sees it.
-        let pressed = isPressed || controller.labelPressed
-        // While the iOS 26 dismiss runs, the overlay carries a pixel-identical copy of
-        // the label and morphs it (label → centred glass circle → label). Hide the real
-        // one for that window so we don't see a static double underneath the morph; the
-        // overlay restores it (under the copy) right before melting the halo + teardown.
         let _ = syncPresentedLabel()
         // Keep the morph collapse/bloom target current too (the pager's active page can
         // reflow), so the lens lands on the tight content rather than the padded label.
         let _ = syncMorphAnchor()
+        // Press feedback is driven by a `.simultaneousGesture` (NOT `.gesture`, NOT a Button). A
+        // plain `.gesture`/Button DEFERS to the inner pager ScrollView and only resolves the press
+        // on release — that's why every prior attempt shrank late. A SIMULTANEOUS min-0 drag
+        // recognises alongside the scroll, so `onChanged` fires on touch-DOWN (translation .zero)
+        // and the shrink lands immediately, while a real drag still scrolls/pages the row.
+        // `labelPressed` is the open-menu re-tap, reported by the overlay (the label sits under it
+        // then, so the gesture below can't see that press).
+        let shrunk = pressed || controller.labelPressed
         return label()
             .contentShape(Rectangle())
             .onGeometryChange(for: CGRect.self) { proxy in
                 proxy.frame(in: .global)
             } action: { frame in
                 labelFrame = frame
-                // Keep the close target on the label's current frame (it reflows
-                // when a selection changes its text) so the morph lands cleanly.
+                // Keep the close target on the label's current frame (it reflows when a
+                // selection changes its text) so the morph lands cleanly.
                 controller.updateCollapseAnchor(frame)
             }
-            // Press feedback applied AFTER the geometry read so the shrink transform
-            // never feeds back into the anchor frame used to place/collapse the menu.
-            .scaleEffect(pressed ? press.scale : 1)
-            .opacity(controller.hidesLabel ? 0 : (pressed ? press.opacity : 1))
-            .animation(pressed
-                       ? .snappy(duration: press.pressDuration)
-                       : .spring(response: press.release.response, dampingFraction: press.release.damping),
-                       value: pressed)
+            // Press shrink applied AFTER the geometry read so the transform never feeds back into
+            // the anchor frame used to place/collapse the menu.
+            .scaleEffect(shrunk ? PressEffect.shrink.scale : 1)
+            .opacity(controller.hidesLabel ? 0 : (shrunk ? PressEffect.shrink.opacity : 1))
+            .animation(shrunk ? .snappy(duration: PressEffect.shrink.pressDuration)
+                              : .spring(response: PressEffect.shrink.release.response,
+                                        dampingFraction: PressEffect.shrink.release.damping),
+                       value: shrunk)
             // `.flex` dismiss: a quick scale-up + lift that settles back, in place of the
-            // circle morph when nothing changed. Applied after the geometry read (like the
-            // press shrink) so it never feeds the flex transform back into the anchor frame.
+            // circle morph when nothing changed.
             .scaleEffect(controller.flexing ? DropdownCustomMenuSpec.flexScale : 1)
             .offset(y: controller.flexing ? DropdownCustomMenuSpec.flexOffsetY : 0)
             .animation(controller.flexing ? DropdownCustomMenuSpec.flexUp
                                           : DropdownCustomMenuSpec.flexDown,
                        value: controller.flexing)
-            .gesture(pressAndDrag)
+            .simultaneousGesture(pressGesture)
             .onDisappear { controller.dismiss(style: .instant) }
+    }
+
+    /// Drives the touch-DOWN shrink and the tap-to-open. A `.simultaneousGesture` so it recognises
+    /// alongside the pager's scroll instead of waiting for it to fail (which only happens at
+    /// release). `onChanged` with translation ~0 = touch-down → shrink; a drag past `tapSlop` is a
+    /// scroll/page → release the shrink and don't open; a release under `tapSlop` is a tap → open.
+    private var pressGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                guard !controller.isPresented else { return }
+                let moved = max(abs(value.translation.width), abs(value.translation.height))
+                if moved < DropdownCustomMenuSpec.tapSlop {
+                    if !pressed { pressed = true; pressStart = .now }
+                } else if pressed {
+                    pressed = false   // turned into a scroll/page — let the shrink go
+                }
+            }
+            .onEnded { value in
+                guard !controller.isPresented else { pressed = false; return }
+                // Hold the shrink briefly so a fast tap still reads, then release (PressEffect's hold).
+                let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
+                DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) { pressed = false }
+                let moved = max(abs(value.translation.width), abs(value.translation.height))
+                guard moved < DropdownCustomMenuSpec.tapSlop else { return }  // a scroll, not a tap
+                openMenu()
+            }
     }
 
     /// Pushes the freshest label closure into the controller while presented, so the
@@ -552,41 +573,32 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         }
     }
 
-    /// The label presses (shrinks) under the finger via `$isPressed`, then expands
-    /// the menu on release — a completed tap — instead of on touch-down, so it reads
-    /// like a normal button tap. (This drops the native press-drag-to-select flow;
-    /// once the menu is open, items are chosen by tapping them.)
-    private var pressAndDrag: some Gesture {
-        DragGesture(minimumDistance: 0, coordinateSpace: .global)
-            .updating($isPressed) { _, state, _ in state = true }
-            .onEnded { value in
-                guard !controller.isPresented else { return }
-                // Releases that travelled too far are scrolls/drags, not taps.
-                let distance = hypot(value.translation.width, value.translation.height)
-                guard distance < DropdownCustomMenuSpec.tapSlop else { return }
-                // Let the call site claim the tap (e.g. route the pager's message page to the
-                // message editor); if it does, the menu stays closed.
-                if onLabelTap?() == true { return }
-                onOpen?()
-                // Seed the morph collapse/bloom target before the overlay renders, so the
-                // open bloom starts from the tight content (not the padded label frame).
-                controller.updateMorphAnchor(morphAnchor)
-                controller.present(
-                    anchor: labelFrame,
-                    cornerRadius: cornerRadius,
-                    cornerRadii: cornerRadii,
-                    footerCornerRadii: footerCornerRadii,
-                    labelCornerRadius: labelCornerRadius,
-                    alignment: alignment,
-                    morphsFromTrailingPoint: morphsFromTrailingPoint,
-                    flexOnEmptyDismiss: flexOnEmptyDismiss,
-                    placementOffset: placementOffset,
-                    onClose: onClose,
-                    footer: footer,
-                    label: { AnyView(label()) },
-                    content: { AnyView(content()) }
-                )
-            }
+    /// A completed tap on the label opens the menu — fired by `pressGesture` on a release that
+    /// barely moved (a drag that pages the scroller doesn't qualify). The call site can claim the
+    /// tap first via `onLabelTap` (e.g. the type pager routing to the message editor), in which
+    /// case the menu stays closed. No-op while already presented.
+    private func openMenu() {
+        guard !controller.isPresented else { return }
+        if onLabelTap?() == true { return }
+        onOpen?()
+        // Seed the morph collapse/bloom target before the overlay renders, so the
+        // open bloom starts from the tight content (not the padded label frame).
+        controller.updateMorphAnchor(morphAnchor)
+        controller.present(
+            anchor: labelFrame,
+            cornerRadius: cornerRadius,
+            cornerRadii: cornerRadii,
+            footerCornerRadii: footerCornerRadii,
+            labelCornerRadius: labelCornerRadius,
+            alignment: alignment,
+            morphsFromTrailingPoint: morphsFromTrailingPoint,
+            flexOnEmptyDismiss: flexOnEmptyDismiss,
+            placementOffset: placementOffset,
+            onClose: onClose,
+            footer: footer,
+            label: { AnyView(label()) },
+            content: { AnyView(content()) }
+        )
     }
 }
 
@@ -1123,8 +1135,15 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 // Detached accessory rides UNDER the platter (lower z) so it emerges
                 // from the menu's bottom edge during the bloom (placed once sized).
                 // On a `.pop` dismiss it's removed with the platter via `.scoopPop`.
-                if let footer = controller.footer, controller.menuFrame != .zero, !popExit {
-                    footerCard(footer())
+                // Anchor the footer to the platter's LIVE placement — the same `metrics` + size
+                // the platter derives from below — not the cached `controller.menuFrame`, which
+                // only refreshes on a size change. When the morph anchor shifts the placement
+                // without resizing (the type pager pushes a fresh anchor while open), the platter
+                // moves but a stale menuFrame would leave the footer detached. One shared source
+                // keeps them locked together.
+                if let footer = controller.footer, let size = menuSize, !popExit {
+                    let platterRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
+                    footerCard(footer(), platterRect: platterRect)
                         .transition(.scoopPop)
                 }
 
@@ -1211,9 +1230,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
     /// it get the same `controller` + `dropdownCustomMenuDismiss` environment as the menu content, so
     /// `.dropdownCustomMenuItem` and `@Environment(\.dropdownCustomMenuDismiss)` work identically.
     @ViewBuilder
-    private func footerCard(_ footer: AnyView) -> some View {
-        let frame = controller.menuFrame
-
+    private func footerCard(_ footer: AnyView, platterRect frame: CGRect) -> some View {
         // The footer is a self-contained card: it draws its OWN platter (via
         // `.dropdownCustomMenuFooterPlatter`) and its own press effect, so a tap scales the whole
         // glass card rather than just its inner content. DropdownCustomMenu only sizes, positions
