@@ -100,6 +100,9 @@ extension SendInviteContainer {
     
     var cardMargin: CGFloat {
         var margin = Self.screenMargin
+        if draft.place != nil {
+            margin -= 2
+        }
         return margin
     }
 }
