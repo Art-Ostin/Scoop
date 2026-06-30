@@ -33,7 +33,7 @@ extension InvitePlaceRow {
             HStack(spacing: 12) {
                 Group {
                     if let eventLocation {
-                        VStack(alignment: .trailing) {
+                        VStack(alignment: .trailing, spacing: 4) {
                             locationName(eventLocation)
                             locationAddress(eventLocation)
                         }
@@ -43,7 +43,7 @@ extension InvitePlaceRow {
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
 
-                Image("InviteChevron")
+                DropDownButton(isOpen: ui.timePopupOpen, isAccept: false)
             }
             .opacity(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed ? 0 : 1)
         }
@@ -66,8 +66,8 @@ extension InvitePlaceRow {
     private func locationAddress(_ eventLocation: EventLocation) -> some View {
         
         Text(FormatEvent.addressBeforeFirstComma(eventLocation.address))
-            .font(.footnote)
-            .foregroundStyle(.gray)
+            .font(.body(12, .regular))
+            .foregroundStyle(Color.grayText)
             .lineLimit(1)
     }
 }

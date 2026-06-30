@@ -157,7 +157,9 @@
       "WebFetch(domain:www.jrdevhub.com)",
       "Bash(mkdir -p AlertProbe.app)",
       "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios26.0-simulator -parse-as-library main.swift -o AlertProbe.app/AlertProbe)",
-      "Bash(echo \"BUILD_EXIT:$?\")"
+      "Bash(echo \"BUILD_EXIT:$?\")",
+      "Bash(grep -nED 'ScrollView|scrollTo|ScrollViewReader|scrollPosition|scrollTarget|TabView|HStack|offset|horizontal')",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

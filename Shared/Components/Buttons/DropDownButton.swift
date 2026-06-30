@@ -12,7 +12,7 @@ struct DropDownButton: View {
     var isAccept: Bool = false
     
     var body: some View {
-        Image(isAccept ? "DropDownIconGreen" : "InviteChevron")
+        Image(isAccept ? "DropDownIconGreen" : "DropdownGray") //GrayIcon //InviteDropdown
             .rotationEffect(.degrees(isOpen ? 90 : 0))
             .animation(.snappy(duration: 0.2, extraBounce: 0.01), value: isOpen)
     }

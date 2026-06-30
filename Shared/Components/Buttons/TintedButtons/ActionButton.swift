@@ -28,7 +28,7 @@ struct ActionButton: View {
             Text(text)
                 .font(.body(18, .bold))
                 .padding(.horizontal, hPadding)
-                .frame(height: 44) 
+                .frame(height: text == "Send Invite" ? 47 : 44) 
         }
         .disabled(!isValid)
     }

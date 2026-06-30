@@ -34,7 +34,7 @@ struct AnimatedPageIndicator: View {
                         Group {
                             if isInviteIndicator {
                                 Capsule()
-                                    .strokeBorder(.black, lineWidth: 1.3)
+                                    .strokeBorder(Color(white: 0.5), lineWidth: 1.3)
                             } else {
                                 Capsule()
                                     .fill(.primary)

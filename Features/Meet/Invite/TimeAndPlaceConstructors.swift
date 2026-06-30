@@ -14,16 +14,7 @@ struct InviteTimeAndPlaceView: View {
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     var body: some View {
-        SendInviteContainer(
-            draft: $vm.event,
-            name: vm.inviteModel.name,
-            image: vm.inviteModel.image,
-            deleteEventDefault: {vm.deleteEventDefault()},
-            onSendInvite: {sendInvite(vm.event)},
-            isInviteResponse: false,
-            defaults: vm.defaults,
-            requestConfirm: requestConfirm
-        )
+        InviteContainer(vm: vm, sendInvite: sendInvite)
     }
 }
 
@@ -36,6 +27,7 @@ struct RespondTimeAndPlaceView: View {
     var body: some View {
         SendInviteContainer(
             draft: $vm.respondDraft.newEvent,
+            showConfirmScreen: .constant(false),
             name: event.otherUserName,
             image: vm.image,
             deleteEventDefault: {vm.deleteEventDefault()},
@@ -45,3 +37,16 @@ struct RespondTimeAndPlaceView: View {
         )
     }
 }
+
+/*
+ SendInviteContainer(
+     draft: $vm.event,
+     name: vm.inviteModel.name,
+     image: vm.inviteModel.image,
+     deleteEventDefault: {vm.deleteEventDefault()},
+     onSendInvite: {sendInvite(vm.event)},
+     isInviteResponse: false,
+     defaults: vm.defaults,
+     requestConfirm: requestConfirm
+ )
+ */

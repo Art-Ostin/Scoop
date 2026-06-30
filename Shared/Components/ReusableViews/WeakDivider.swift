@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct LightDivider: View {
-    
+
+    @Environment(\.displayScale) private var displayScale
+
     var body: some View {
-    RoundedRectangle(cornerRadius: 10)
-        .frame(maxWidth: .infinity, maxHeight: 1)
-        .foregroundStyle(Color(white: 0.93))
+        Rectangle()
+            .foregroundStyle(Color(white: 0.88))
+            .frame(height: 1 / displayScale) //exactly one physical pixel — crisp & identical on every device
+            .frame(maxWidth: .infinity)
     }
 }

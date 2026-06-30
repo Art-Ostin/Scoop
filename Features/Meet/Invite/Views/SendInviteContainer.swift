@@ -4,9 +4,8 @@ import SwiftUI
 //Vertical spacing here is adaptive. Therefore, it is controlled by the type, time, place padding not the vertical stacks
 
 struct SendInviteContainer: View {
+    
     //0. Base gap from each screen edge to the card. Passed to the morph as the entrance-fallback
-    //width (`style.sideMargin`) at the call sites. The live, adaptive margin is `cardMargin`,
-    //which the card now owns directly via padding (content-owns-background morph).
     static let screenMargin: CGFloat = 30
 
     //1. Controls what popup is showing or not
@@ -14,6 +13,7 @@ struct SendInviteContainer: View {
 
     //2. The draft holds, proposedTimes, message, time and place, modified in this view
     @Binding var draft: EventFieldsDraft
+    @Binding var showConfirmScreen: Bool
 
     //4. Info required for viewLayout
     let name: String
@@ -30,7 +30,7 @@ struct SendInviteContainer: View {
     let defaults: DefaultsManaging
 
     var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
-
+    
 
     var body: some View {
         VStack(spacing: 0) {
@@ -46,7 +46,6 @@ struct SendInviteContainer: View {
         .modifier(InviteCardBackground())
         .padding(.horizontal, cardMargin)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .padding(.top, 24)
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
         .task(id: ui.timePopupOpen) { await addTimePopupDelay() }
         .task(id: ui.typePopupOpen) { await addTypePopupDelay()}

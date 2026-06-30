@@ -16,13 +16,10 @@ struct InviteContainer: View {
 
     
     var body: some View {
-        
         CardFlipContainer(showBack: $showBack) {
-            
-            
-            
+            sendInviteContainer
         } backCard: {
-            
+            confirmInviteView
         }
     }
 }
@@ -31,6 +28,26 @@ extension InviteContainer {
     
     
     private var sendInviteContainer: some View {
-        SendInviteContainer(draft: <#T##Binding<EventFieldsDraft>#>, name: <#T##String#>, image: <#T##UIImage#>, deleteEventDefault: <#T##() -> Void#>, onSendInvite: <#T##() -> ()#>, isInviteResponse: <#T##Bool#>, defaults: <#T##any DefaultsManaging#>)
+        SendInviteContainer(
+            draft: $vm.event,
+            showConfirmScreen: $showBack,
+            name: vm.inviteModel.name,
+            image: vm.inviteModel.image,
+            deleteEventDefault: {vm.deleteEventDefault()},
+            onSendInvite: {sendInvite(vm.event)},
+            isInviteResponse: false,
+            defaults: vm.defaults,
+            requestConfirm: nil,
+            
+        )
+    }
+    
+    private var confirmInviteView: some View {
+        ConfirmInviteScreen(
+            draft: vm.event,
+            name: vm.inviteModel.name,
+            defaults: vm.defaults,
+            showConfirmInviteScreen: $showBack
+        )
     }
 }

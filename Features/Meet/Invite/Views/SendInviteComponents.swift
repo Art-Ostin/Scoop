@@ -84,11 +84,7 @@ extension SendInviteContainer {
     
     private var sendInviteValidButton: some View {
         ActionButton(text: "Send Invite", isValid: true, showShadow: false, hPadding: 44) {
-            if let requestConfirm {
-                requestConfirm(onSendInvite)
-            } else {
-                ui.showConfirmPopup = true
-            }
+            showConfirmScreen = true
         }
     }    
     
@@ -96,7 +92,7 @@ extension SendInviteContainer {
     private var sendInvitePlaceholder: some View {
         Text("Send Invite")
             .font(.body(18, .bold))
-            .padding(.horizontal, 44)
+            .padding(.horizontal, 47)
             .frame(height: 44)
             .foregroundStyle(.white)
             .background(Color.grayBackground, in: Capsule())
@@ -108,11 +104,7 @@ extension SendInviteContainer {
     }
 }
 
-
 //Logic for increasing width and padding of elements
-
-
-
 
 //Used througout code
 extension View {
