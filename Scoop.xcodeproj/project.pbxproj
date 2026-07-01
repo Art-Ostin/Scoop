@@ -28,6 +28,7 @@
 		650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */; };
 		650E8E5E2EB82F6F009F5454 /* EventDeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */; };
 		650F5F352F297C6D0099CECC /* OkDismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F5F342F297C6D0099CECC /* OkDismissButton.swift */; };
+		650FA5192FF3D89800B1A914 /* LargeDefaultImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */; };
 		65140B1C2F55E41000ED1DDE /* ChatThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1B2F55E40E00ED1DDE /* ChatThread.swift */; };
 		65140B1E2F55E92400ED1DDE /* ChatMessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */; };
 		65140B202F55EE7400ED1DDE /* ChatRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */; };
@@ -351,6 +352,7 @@
 		650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsSections.swift; sourceTree = "<group>"; };
 		650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDeclineButton.swift; sourceTree = "<group>"; };
 		650F5F342F297C6D0099CECC /* OkDismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OkDismissButton.swift; sourceTree = "<group>"; };
+		650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeDefaultImage.swift; sourceTree = "<group>"; };
 		65140B1B2F55E40E00ED1DDE /* ChatThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatThread.swift; sourceTree = "<group>"; };
 		65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageModel.swift; sourceTree = "<group>"; };
 		65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepo.swift; sourceTree = "<group>"; };
@@ -1111,6 +1113,7 @@
 				65E5C8F92E4EAAE70093410B /* SendInviteContainer.swift */,
 				65439BFB2FE17022003C3556 /* SendInviteComponents.swift */,
 				652AD16D2FF2A56300E3A8FC /* ConfirmInviteScreen.swift */,
+				650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */,
 				6549DA772F9E884200C89DF2 /* InviteRows */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 			);
@@ -1984,6 +1987,7 @@
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */,
 				657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */,
+				650FA5192FF3D89800B1A914 /* LargeDefaultImage.swift in Sources */,
 				658CC0AD2FC1C703008B0958 /* EventsScrollView.swift in Sources */,
 				65988F372FA7AB9600953BB4 /* PreferredMapsView.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
