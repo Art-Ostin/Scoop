@@ -41,7 +41,7 @@ struct MeetContainer: View {
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
-        .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin)) { id in
+        .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin), image: { id in vm.profileImages[id]?.first }) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)

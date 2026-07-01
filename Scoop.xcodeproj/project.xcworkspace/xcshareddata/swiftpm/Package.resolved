@@ -1,5 +1,5 @@
 {
-  "originHash" : "f76b7e439a2d68cfef93b54cb9002bd5acaf09a5166511fa5d9e8702f8bb63e8",
+  "originHash" : "b2bad1d6ba9068db803c7dc6c372e56e544df232e75b100f9d87283c43b0d81f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -29,12 +29,30 @@
       }
     },
     {
+      "identity" : "dominantcolors",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DenDmitriev/DominantColors",
+      "state" : {
+        "revision" : "a05327d36092c47e9ddc77ce565eb35a5b4a4a6e",
+        "version" : "1.2.2"
+      }
+    },
+    {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk",
       "state" : {
         "revision" : "fdc352fabaf5916e7faa1f96ad02b1957e93e5a5",
         "version" : "11.15.0"
+      }
+    },
+    {
+      "identity" : "glur",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joogps/Glur",
+      "state" : {
+        "revision" : "178af6499ed7957c7f91187fdee2b09d322f5b87",
+        "version" : "1.1.0"
       }
     },
     {

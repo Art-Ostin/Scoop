@@ -6,7 +6,7 @@ import SwiftUI
 struct SendInviteContainer: View {
     
     //0. Base gap from each screen edge to the card. Passed to the morph as the entrance-fallback
-    static let screenMargin: CGFloat = 30
+    static let screenMargin: CGFloat = 28
 
     //1. Controls what popup is showing or not
     @State var ui = TimeAndPlaceUIState()
@@ -40,6 +40,7 @@ struct SendInviteContainer: View {
             timePlaceAndType
             sendInviteButton
                 .opacity(ui.typePopupOpenDelayed ? 0.4 : 1)
+                .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .overlay(alignment: .topTrailing) { clearAndInfoButtons }
@@ -63,7 +64,6 @@ extension SendInviteContainer {
     //1. Main Views
     private var inviteTitle: some View {
         HStack(spacing: 8) {
-            CirclePhoto(image: image, showShadow: false, height: 30)
             Text(isInviteResponse ? "Send New Invite" : "Meet \(name)")
                 .font(.title(24))
         }
@@ -72,17 +72,15 @@ extension SendInviteContainer {
     private var timePlaceAndType: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
-                .frame(height: 75, alignment: .center)
+                .frame(height: 80, alignment: .center)
             LightDivider()
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
-                .frame(height: 78, alignment: .center)//Fine Tuned Height Kep
+                .frame(height: 83, alignment: .center)//Fine Tuned Height Kep
             LightDivider()
             InvitePlaceRow(ui: ui, eventLocation: $draft.place, showMapView: $ui.showMapView, isMultipleTimes: draft.time.dates.count > 1)
-                .frame(height: 75, alignment: .center)//Computed height, so doesn't change when I add a place
+                .frame(height: 80, alignment: .center)//Computed height, so doesn't change when I add a place
         }
         .zIndex(1) //so pop ups always appear above the Action Button
-        .padding(.top, 6) //Gives illusion of being identical because of Circle Button
-        .padding(.bottom, draft.place == nil ? 9 : 14) //Fine tune so exact same
     }
     
     private var addMessageView: some View {
@@ -92,13 +90,48 @@ extension SendInviteContainer {
     }
 }
 
+extension SendInviteContainer {
+    
+    private var inviteTypeRow: some View {
+        VStack {
+            InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
+            Spacer(minLength: 0)
+            LightDivider()
+        }
+        .frame(height: 50, alignment: .top)
+    }
+    
+    
+
+    
+    
+}
+
+
+
 
 struct InviteCardBackground: ViewModifier {
+    // Dominant color extracted from the morph's source image, exposed here for a second background.
+    @Environment(\.inviteCardTint) private var tint
+
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 32)
-            .padding(.top, 28)
-            .padding(.bottom, 22)//Slightly closer as Circle givesweird measurements
-            .inviteCardBackground()
+            .padding(.top, 24)
+            .padding(.bottom, 20)//Slightly closer as Circle givesweird measurements
+            // Tint wash first, so it lands ABOVE the opaque appCanvas but below the content.
+            .background(tint.opacity(0.1), in: .rect(cornerRadius: 36, style: .continuous))
+            .inviteCardBackground() //appCanvas fill sits behind the wash
+            .padding(.top, 96)
     }
 }
+
+
+
+
+/*
+ CirclePhoto(image: image, showShadow: false, height: 30)
+ .padding(.top, 6) //Gives illusion of being identical because of Circle Button
+ .padding(.bottom, draft.place == nil ? 9 : 14) //Fine tune so exact same
+
+ */

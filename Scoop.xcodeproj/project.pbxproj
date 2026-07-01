@@ -187,6 +187,10 @@
 		657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5442F91C8E00074255E /* CoreInfoPage.swift */; };
 		657FD5492F92ABE50074255E /* EventDetailsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD5482F92ABE50074255E /* EventDetailsContainer.swift */; };
 		657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */; };
+		65837E802FF5033600569F22 /* InviteMorphMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65837E7F2FF5033600569F22 /* InviteMorphMain.swift */; };
+		65837E822FF508E500569F22 /* InviteMorphBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65837E812FF508E500569F22 /* InviteMorphBackground.swift */; };
+		65837E852FF50A8C00569F22 /* DominantColors in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E842FF50A8C00569F22 /* DominantColors */; };
+		65837E882FF50B1800569F22 /* Glur in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E872FF50B1800569F22 /* Glur */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
 		65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65871F4D2F3A543200C9A87A /* ClearIcon.swift */; };
 		658B74982E6B53D700BE8B6B /* SFProRounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */; };
@@ -506,6 +510,8 @@
 		657FD5442F91C8E00074255E /* CoreInfoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreInfoPage.swift; sourceTree = "<group>"; };
 		657FD5482F92ABE50074255E /* EventDetailsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsContainer.swift; sourceTree = "<group>"; };
 		657FD54A2F92ABEF0074255E /* EventDetailsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsInfo.swift; sourceTree = "<group>"; };
+		65837E7F2FF5033600569F22 /* InviteMorphMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMorphMain.swift; sourceTree = "<group>"; };
+		65837E812FF508E500569F22 /* InviteMorphBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteMorphBackground.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65871F4D2F3A543200C9A87A /* ClearIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearIcon.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
@@ -659,11 +665,13 @@
 				653BAF8E2E0B860800C1AB9E /* FirebaseStorage in Frameworks */,
 				653BAF8C2E0B860800C1AB9E /* FirebaseAuth in Frameworks */,
 				65E1ECC62F1A99C0004C9236 /* SwiftyCrop in Frameworks */,
+				65837E852FF50A8C00569F22 /* DominantColors in Frameworks */,
 				655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */,
 				655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */,
 				65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */,
 				6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */,
 				650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */,
+				65837E882FF50B1800569F22 /* Glur in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1528,12 +1536,22 @@
 			isa = PBXGroup;
 			children = (
 				9D4F2A7C1B8E3D5F00000001 /* ProfileMorph.swift */,
-				65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */,
+				65837E7E2FF5032400569F22 /* InviteMorph */,
 				656BA6922FE560C300475776 /* TimeCustomMenu.swift */,
 				65F115C92FED11D600AC5463 /* DropdownCustomMenu.swift */,
 				656BA6932FE560C300475776 /* TypeCustomMenu.swift */,
 			);
 			path = AIAnimations;
+			sourceTree = "<group>";
+		};
+		65837E7E2FF5032400569F22 /* InviteMorph */ = {
+			isa = PBXGroup;
+			children = (
+				65BDBD6F2FCAAF0F0021FA3D /* InviteMorph.swift */,
+				65837E7F2FF5033600569F22 /* InviteMorphMain.swift */,
+				65837E812FF508E500569F22 /* InviteMorphBackground.swift */,
+			);
+			path = InviteMorph;
 			sourceTree = "<group>";
 		};
 		659497012E01DD4000880921 /* Features */ = {
@@ -1699,6 +1717,8 @@
 				655E5E282F1AD12D006ADA24 /* Zoomable */,
 				655AB9032F1EE7EA003A1DE7 /* Lottie */,
 				6517952B2F7EE546001D70E4 /* ChatBubble */,
+				65837E842FF50A8C00569F22 /* DominantColors */,
+				65837E872FF50B1800569F22 /* Glur */,
 			);
 			productName = ScoopTest;
 			productReference = 6578382C2DE773CC00770B49 /* Scoop Test.app */;
@@ -1790,6 +1810,8 @@
 				655E5E272F1AD12D006ADA24 /* XCRemoteSwiftPackageReference "Zoomable" */,
 				655AB9022F1EE7EA003A1DE7 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				6517952A2F7EE546001D70E4 /* XCRemoteSwiftPackageReference "ChatBubble" */,
+				65837E832FF50A8C00569F22 /* XCRemoteSwiftPackageReference "DominantColors" */,
+				65837E862FF50B1800569F22 /* XCRemoteSwiftPackageReference "Glur" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6578382D2DE773CC00770B49 /* Products */;
@@ -1931,6 +1953,7 @@
 				659497202E01DD4000880921 /* EnterEmailView.swift in Sources */,
 				6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */,
 				65F660C02F23DC4A00AF791F /* FrozenInfo.swift in Sources */,
+				65837E822FF508E500569F22 /* InviteMorphBackground.swift in Sources */,
 				65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */,
 				65439BFC2FE17022003C3556 /* SendInviteComponents.swift in Sources */,
 				65E820D32E3958CF0098CC36 /* EditProfileContainer.swift in Sources */,
@@ -2028,6 +2051,7 @@
 				65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */,
 				653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */,
 				65BA061C2FCC99FE00295AC6 /* ScoopButton.swift in Sources */,
+				65837E802FF5033600569F22 /* InviteMorphMain.swift in Sources */,
 				65FE78D62F293C6C00DC2538 /* DropDownView.swift in Sources */,
 				65B4E3992FA606A40044EE9A /* UserSession.swift in Sources */,
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
@@ -2509,6 +2533,22 @@
 				kind = branch;
 			};
 		};
+		65837E832FF50A8C00569F22 /* XCRemoteSwiftPackageReference "DominantColors" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/DenDmitriev/DominantColors";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.2;
+			};
+		};
+		65837E862FF50B1800569F22 /* XCRemoteSwiftPackageReference "Glur" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joogps/Glur";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 		65E1ECC42F1A99C0004C9236 /* XCRemoteSwiftPackageReference "SwiftyCrop" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/benedom/SwiftyCrop";
@@ -2564,6 +2604,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 655E5E272F1AD12D006ADA24 /* XCRemoteSwiftPackageReference "Zoomable" */;
 			productName = Zoomable;
+		};
+		65837E842FF50A8C00569F22 /* DominantColors */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65837E832FF50A8C00569F22 /* XCRemoteSwiftPackageReference "DominantColors" */;
+			productName = DominantColors;
+		};
+		65837E872FF50B1800569F22 /* Glur */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65837E862FF50B1800569F22 /* XCRemoteSwiftPackageReference "Glur" */;
+			productName = Glur;
 		};
 		65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;

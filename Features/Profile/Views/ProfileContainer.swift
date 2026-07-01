@@ -85,7 +85,8 @@ struct ProfileView: View {
             style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
                 .presentedAsOverlay()
                 .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
-                .sideMargin(SendInviteContainer.screenMargin)
+                .sideMargin(SendInviteContainer.screenMargin),
+            image: { _ in displayImages.first }
         ) { _ in
             sendInviteMorphCard
         } overlay: {

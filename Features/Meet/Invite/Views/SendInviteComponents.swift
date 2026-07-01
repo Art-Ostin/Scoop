@@ -74,19 +74,39 @@ extension SendInviteContainer {
     let isValid = !ui.showConfirmPopup &&  !draft.time.dates.isEmpty && draft.place != nil
     let noPopup = !ui.timePopupOpenDelayed && !ui.typePopupOpenDelayed
         
+    newSendInviteButton
     //Don't want glass button when not valid here, as it gives shadow and looks poor. (So given placehodler field)
-        if isValid && noPopup { //using delay as makes it smoother
-        sendInviteValidButton
-    } else {
-        sendInvitePlaceholder
-    }
+//        if isValid && noPopup { //using delay as makes it smoother
+//        sendInviteValidButton
+//    } else {
+//        sendInvitePlaceholder
+//    }
 }
     
     private var sendInviteValidButton: some View {
         ActionButton(text: "Send Invite", isValid: true, showShadow: false, hPadding: 44) {
             showConfirmScreen = true
         }
-    }    
+    }
+
+    @ViewBuilder
+    private var newSendInviteButton: some View {
+        if #available(iOS 26.0, *) {
+            sendInviteButton(shape: ConcentricRectangle())
+        } else {
+            sendInviteButton(shape: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+    }
+
+    private func sendInviteButton<S: Shape>(shape: S) -> some View {
+        ScoopButton(style: .tinted(.accent, shadow: nil), shape: Capsule(), action: { }) {
+            Text("Send Invite")
+                .font(.body(18, .bold))
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+        }
+    }
     
     @ViewBuilder
     private var sendInvitePlaceholder: some View {
@@ -120,3 +140,12 @@ extension View {
 enum DetailFont: String {
     case when, `where`, what
 }
+
+/*
+ if isValid && noPopup { //using delay as makes it smoother
+ sendInviteValidButton
+} else {
+ sendInvitePlaceholder
+}
+
+ */

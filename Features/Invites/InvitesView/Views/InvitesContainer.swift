@@ -33,7 +33,9 @@ struct InvitesContainer: View {
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
         
         
-        .quickInvite(openPopupId: $ui.showRespondPopup, style: .respond) { eventId in
+        .quickInvite(openPopupId: $ui.showRespondPopup, style: .respond, image: { eventId in
+            vm.eventProfile(forEventId: eventId).flatMap { fetchProfileImages($0).first }
+        }) { eventId in
             respondContainer(eventId)
         } overlay: {
             respondOverlay
