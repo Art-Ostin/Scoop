@@ -24,6 +24,7 @@ struct SignUpView: View {
             VStack(spacing: 24) {
                 tabSection
                 PageIndicator(count: 2, selection: tabSelection ?? 0)
+                    .offset(y: 24)
             }
             VStack(spacing: 8) {
                 ActionButton(text: "Login / Sign Up", hPadding: 24) { showCover = true}
@@ -48,7 +49,10 @@ extension SignUpView {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
                 Image("CoolGuys")
-                    .resizable().scaledToFit()
+                    .resizable()
+                    .scaledToFit()
+//                    .frame(width: 250, height: 250)
+                    .padding(.horizontal, 72)
                     .containerRelativeFrame([.horizontal, .vertical])
                     .id(0)
 
@@ -78,7 +82,7 @@ extension SignUpView {
                 .foregroundStyle(.black)
             
             (Text(tabSelection == 0 ? "Made by and for " : "Only available to ")
-             + Text("McGill students"))
+             + Text("Students"))
               .contentTransition(.opacity)
               .animation(.easeInOut(duration: 0.25), value: tabSelection)
               .font(.body())
