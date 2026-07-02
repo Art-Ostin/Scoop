@@ -216,12 +216,23 @@ private struct InviteCardTintKey: EnvironmentKey {
     static let defaultValue: Color = .clear
 }
 
+private struct InviteCardBaseKey: EnvironmentKey {
+    static let defaultValue: Color = .appCanvas
+}
+
 extension EnvironmentValues {
     /// Dominant color extracted from the morph's source image, shared down to the card so its
     /// background can carry a faint wash matching the backdrop. `.clear` until extraction lands / no image.
     var inviteCardTint: Color {
         get { self[InviteCardTintKey.self] }
         set { self[InviteCardTintKey.self] = newValue }
+    }
+
+    /// The card's opaque base fill, published by `inviteCardBackground()` so edge fades inside the card
+    /// dissolve into the exact same color. Defaults to `.appCanvas` for everything outside a card.
+    var inviteCardBase: Color {
+        get { self[InviteCardBaseKey.self] }
+        set { self[InviteCardBaseKey.self] = newValue }
     }
 }
 

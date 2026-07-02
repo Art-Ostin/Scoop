@@ -12,14 +12,26 @@ struct HidePopup: View {
     let onHide: () -> Void
 
     var body: some View {
-        Button(action: onHide) {
-            Text("") //Hide
+        ScoopButton(style: .clearGlass, shape: .capsule, action: {onHide()}) {
+            Text("Hide")
                 .font(.title(14, .bold))
                 .kerning(1.5)
                 .foregroundStyle(Color.black)
-                .padding(36)
-                .contentShape(Rectangle())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
         }
-        .padding(-36)
     }
 }
+
+/*
+ Button(action: onHide) {
+     Text("Hide")
+         .font(.title(14, .bold))
+         .kerning(1.5)
+         .foregroundStyle(Color.black)
+         .padding(36)
+         .contentShape(Rectangle())
+ }
+ .padding(-36)
+
+ */

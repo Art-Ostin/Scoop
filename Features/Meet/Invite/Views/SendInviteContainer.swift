@@ -37,13 +37,17 @@ struct SendInviteContainer: View {
             inviteTitle
                 .opacity(ui.timePopupOpen ? 0.1 : 1)
                 .animation(.snappy(duration: 0.2), value: ui.timePopupOpen)
+                .offset(y: 6)
             timePlaceAndType
             sendInviteButton
                 .opacity(ui.typePopupOpenDelayed ? 0.4 : 1)
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
-        .overlay(alignment: .topTrailing) { clearAndInfoButtons }
+        .overlay(alignment: .topTrailing) {
+            verticalEllipses
+        }
+//        .overlay(alignment: .topTrailing) { clearAndInfoButtons.offset(y: 4) }
         .modifier(InviteCardBackground())
         .padding(.horizontal, cardMargin)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -63,10 +67,15 @@ struct SendInviteContainer: View {
 extension SendInviteContainer {
     //1. Main Views
     private var inviteTitle: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
+//            CirclePhoto(image: image, showShadow: false, height: 35)
+//                .frame(height: 0) //keeps its 30pt width (shifts the title like a real HStack) but adds no row height
             Text(isInviteResponse ? "Send New Invite" : "Meet \(name)")
-                .font(.title(24))
+                .font(.title(26))
+            
+            Spacer()
         }
+//        .padding(2) //XTEXT
     }
 
     private var timePlaceAndType: some View {
@@ -88,6 +97,17 @@ extension SendInviteContainer {
             AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
         }
     }
+    
+    private var verticalEllipses: some View {
+        Image(systemName: "ellipsis")
+            .font(.body(16, .bold))
+            .foregroundStyle(Color(red: 0.54, green: 0.54, blue: 0.56))
+            .frame(width: 30, height: 30)
+            .background(Color(red: 0.92, green: 0.92, blue: 0.94), in: Circle())
+//            .rotationEffect(.degrees(90))
+            .offset(y: 6) //16
+            .offset(x: 2)
+    }
 }
 
 extension SendInviteContainer {
@@ -100,15 +120,7 @@ extension SendInviteContainer {
         }
         .frame(height: 50, alignment: .top)
     }
-    
-    
-
-    
-    
 }
-
-
-
 
 struct InviteCardBackground: ViewModifier {
     // Dominant color extracted from the morph's source image, exposed here for a second background.
@@ -117,21 +129,11 @@ struct InviteCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 32)
-            .padding(.top, 24)
+            .padding(.top, 20) //Content offset 4 down, so really identical as 20 bottom padding
             .padding(.bottom, 20)//Slightly closer as Circle givesweird measurements
-            // Tint wash first, so it lands ABOVE the opaque appCanvas but below the content.
-            .background(tint.opacity(0.1), in: .rect(cornerRadius: 36, style: .continuous))
-            .inviteCardBackground() //appCanvas fill sits behind the wash
-            .padding(.top, 96)
+            // Tint wash first, so it lands ABOVE the opaque white base but below the content.
+            .background(tint.opacity(0.08), in: .rect(cornerRadius: 36, style: .continuous))
+            .inviteCardBackground() //white fill sits behind the wash
+            .padding(.top, 60)
     }
 }
-
-
-
-
-/*
- CirclePhoto(image: image, showShadow: false, height: 30)
- .padding(.top, 6) //Gives illusion of being identical because of Circle Button
- .padding(.bottom, draft.place == nil ? 9 : 14) //Fine tune so exact same
-
- */

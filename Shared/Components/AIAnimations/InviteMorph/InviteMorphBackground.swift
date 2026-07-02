@@ -25,11 +25,11 @@ struct InviteMorphBackground: View {
                 .opacity(expanded ? 1 : 0)
                 .allowsHitTesting(expanded) // dismiss is Hide-only
 
-            Group {
                 tint
                     .opacity(0.3)
                 appImageOverlay
-            }
+            
+            //XTEXT
         }
         .ignoresSafeArea()
         .animation(.smooth(duration: 0.4), value: tint)
@@ -42,7 +42,7 @@ extension InviteMorphBackground {
     
     private var appImageOverlay: some View {
         Color.clear
-            .aspectRatio(1/1.5, contentMode: .fit)
+            .aspectRatio(1/1.35, contentMode: .fit)
             .overlay {
                 Image(uiImage: image)
                     .resizable()
@@ -57,7 +57,7 @@ extension InviteMorphBackground {
             .mask { blurEdgeGradient}
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .ignoresSafeArea()
-            .offset(y: -36)
+            .offset(y: -44)//Crops top part of image
             .overlay(alignment: .bottom) {
                 linearGradientOverlay
             } //Has nice effect putting overlay here

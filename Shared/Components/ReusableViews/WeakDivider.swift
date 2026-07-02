@@ -13,8 +13,8 @@ struct LightDivider: View {
 
     var body: some View {
         Rectangle()
-            .foregroundStyle(Color(white: 0.86))
-            .frame(height: 1 / displayScale) //exactly one physical pixel — crisp & identical on every device
+            .foregroundStyle(Color(white: 0.84))
+            .frame(height: 1/displayScale) //exactly 1.5 physical pixels — identical on every device
             .frame(maxWidth: .infinity)
     }
 }

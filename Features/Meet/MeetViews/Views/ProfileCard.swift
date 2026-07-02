@@ -93,13 +93,13 @@ extension ProfileCard {
 }
 
 extension Image {
-    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.08) -> some View {
+    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.12) -> some View {
         self
             .resizable()
             .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0) * ratio) //How much taller than wide i.e. 8%
-            .clipShape(.rect(cornerRadius: 22, style: .continuous)) //Corner Radius 22
-            .background(Color.appCanvas, in: .rect(cornerRadius: 22, style: .continuous)) //For Shadow
+            .frame(width: max(size, 0), height: max(size, 0) * ratio) //How much taller than wide i.e. 12%
+            .clipShape(.rect(cornerRadius: 20, style: .continuous)) //Corner Radius 22
+            .background(Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous)) //For Shadow
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
 }

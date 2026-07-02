@@ -8,14 +8,29 @@
 import SwiftUI
 
 extension LinearGradient {
-    static func appCanvasFade(startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
+    // The base fade curve for any solid card/canvas color, opaque → clear.
+    static func canvasFade(_ color: Color, startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
         LinearGradient(
-            colors: [.appCanvas, .appCanvas.opacity(0.9), .appCanvas.opacity(0.6), .appCanvas.opacity(0.25), .appCanvas.opacity(0.0)],
+            colors: [color, color.opacity(0.9), color.opacity(0.6), color.opacity(0.25), color.opacity(0.0)],
             startPoint: startPoint,
             endPoint: endPoint
         )
     }
+
+    static func appCanvasFade(startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
+        canvasFade(.appCanvas, startPoint: startPoint, endPoint: endPoint)
+    }
     
+    // Same alpha curve as appCanvasFade, scaled to the card's 8% wash so, layered on top of
+    // appCanvasFade, it composites to exactly the base + tint — the real card background color.
+    static func tintFade(_ color: Color, startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
+        LinearGradient(
+            colors: [color.opacity(0.08), color.opacity(0.072), color.opacity(0.048), color.opacity(0.02), color.opacity(0.0)],
+            startPoint: startPoint,
+            endPoint: endPoint
+        )
+    }
+
     static func strongAppCanvasFade(startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
         LinearGradient(
             stops: [
@@ -68,6 +83,11 @@ struct CustomScrollFade: ViewModifier {
 }
 
 struct CustomHorizontalScrollFade: ViewModifier {
+    // The card's base fill (`.appCanvas` by default) and tint wash (`.clear` outside the card),
+    // so the fade dissolves into base + tint — the exact card background.
+    @Environment(\.inviteCardBase) private var base
+    @Environment(\.inviteCardTint) private var tint
+
     let width: CGFloat
     let showFade: Bool
     let fromLeading: Bool
@@ -76,10 +96,19 @@ struct CustomHorizontalScrollFade: ViewModifier {
     func body(content: Content) -> some View {
         content.overlay(alignment: fromLeading ? .leading : .trailing) {
             if showFade {
-                LinearGradient.appCanvasFade(
-                    startPoint: fromLeading ? .leading : .trailing,
-                    endPoint: fromLeading ? .trailing : .leading
-                )
+                ZStack {
+                    LinearGradient.canvasFade(
+                        base,
+                        startPoint: fromLeading ? .leading : .trailing,
+                        endPoint: fromLeading ? .trailing : .leading
+                    )
+                    // Matches the card's wash on the same curve, so the fade blends into base + tint.
+                    LinearGradient.tintFade(
+                        tint,
+                        startPoint: fromLeading ? .leading : .trailing,
+                        endPoint: fromLeading ? .trailing : .leading
+                    )
+                }
                 .frame(maxHeight: .infinity)
                 .frame(width: width)
                 .allowsHitTesting(false)
