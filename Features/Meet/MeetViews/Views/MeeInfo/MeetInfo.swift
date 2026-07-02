@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MeetInfoCover: View {
+struct MeetInfo: View {
     
     @Environment(\.dismiss) private var dismiss
     

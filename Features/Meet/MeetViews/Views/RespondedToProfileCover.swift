@@ -14,7 +14,7 @@ enum ProfileResponse {
     case decline
 }
 
-struct RespondedToProfileView: View {
+struct RespondedToProfileCover: View {
     let responseType: ProfileResponse
     
     var body: some View {

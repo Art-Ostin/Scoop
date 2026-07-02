@@ -10,7 +10,7 @@ import FirebaseFirestore
 import SwiftUI
 
 @MainActor
-@Observable final class InviteViewModel {
+@Observable final class MeetViewModel {
 
     let s: Session
     let defaults: DefaultsManaging
