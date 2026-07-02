@@ -11,9 +11,7 @@ struct InviteContainer: View {
     @State var vm: TimeAndPlaceViewModel
     @State var showBack: Bool = false
     
-    
     let sendInvite: (EventFieldsDraft) -> Void
-
     
     var body: some View {
         CardFlipContainer(showBack: $showBack) {
@@ -26,19 +24,15 @@ struct InviteContainer: View {
 
 extension InviteContainer {
     
-    
     private var sendInviteContainer: some View {
         SendInviteContainer(
             draft: $vm.event,
-            showConfirmScreen: $showBack,
+            showConfirm: $showBack,
             name: vm.inviteModel.name,
-            image: vm.inviteModel.image,
-            deleteEventDefault: {vm.deleteEventDefault()},
-            onSendInvite: {sendInvite(vm.event)},
             isInviteResponse: false,
             defaults: vm.defaults,
-            requestConfirm: nil,
-            
+            onClearDraft: {vm.deleteEventDefault()},
+            onSendInvite: {sendInvite(vm.event)}
         )
     }
     

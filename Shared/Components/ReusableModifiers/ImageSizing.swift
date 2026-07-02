@@ -27,7 +27,6 @@ struct AppImage: View {
     let hPadding: CGFloat = 16 //Default Spacing
     
     var body: some View {
-        
         Color.clear
             .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {

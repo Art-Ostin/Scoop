@@ -1,4 +1,0 @@
-module leveldb {
-umbrella "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/leveldb/include"
-export *
-}

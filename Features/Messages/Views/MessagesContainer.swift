@@ -18,7 +18,6 @@ struct MessagesContainer: View {
     @State private var showSettings = false
     @Namespace private var settingsZoom
 
-
     @State private var showProfile = false
     @Namespace private var profileZoom
 

@@ -11,13 +11,10 @@ struct InvitePlaceRow: View {
     
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var eventLocation: EventLocation?
-    @Binding var showMapView: Bool
-    
-    let isMultipleTimes: Bool //If there are decrease topPadding as looks cleaner
-    
+        
     var body: some View {
         HStack {
-            inviteTypeText(.where).opacity(ui.typePopupOpen ? 0.3 : 1)
+            RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))
             chooseButton
         }
     }
@@ -28,24 +25,21 @@ extension InvitePlaceRow {
     
     private var chooseButton: some View {
         Button {
-            withAnimation(.snappy) { showMapView.toggle() }
+            withAnimation(.snappy) { ui.showMapView.toggle() }
         } label: {
             HStack(spacing: 12) {
                 Group {
                     if let eventLocation {
-                        VStack(alignment: .trailing, spacing: 4) {
-                            locationName(eventLocation)
-                            locationAddress(eventLocation)
-                        }
+                        locationNameAndAddress(eventLocation)
                     } else {
                         noLocationPlaceholder
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
 
-                DropDownButton(isOpen: ui.timePopupOpen, isAccept: false)
+                DropDownButton(isOpen: ui.showMessageScreen)
             }
-            .opacity(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed ? 0 : 1)
+            .opacity(ui.isPopopOpenDelayed() ? 0 : 1)
         }
         .shrinkButton(shadow: nil, shadowColor: .clear)
     }
@@ -56,19 +50,19 @@ extension InvitePlaceRow {
             .foregroundStyle(Color(white: 0.4))
     }
     
-    private func locationName(_ eventLocation: EventLocation)->  some View {
-        Text(eventLocation.name ?? "")
-            .font(.body(17, .medium))
-            .foregroundStyle(Color.black)
-            .multilineTextAlignment(.trailing)
-    }
     
-    private func locationAddress(_ eventLocation: EventLocation) -> some View {
-        
-        Text(FormatEvent.addressBeforeFirstComma(eventLocation.address))
-            .font(.body(12, .regular))
-            .foregroundStyle(Color.grayText)
-            .lineLimit(1)
+    private func locationNameAndAddress(_ location: EventLocation) -> some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            Text(location.name ?? "")
+                .font(.body(17, .medium))
+                .foregroundStyle(Color.black)
+                .multilineTextAlignment(.trailing)
+            
+            Text(FormatEvent.addressBeforeFirstComma(location.address))
+                .font(.body(12, .regular))
+                .foregroundStyle(Color.grayText)
+                .lineLimit(1)
+        }
     }
 }
 

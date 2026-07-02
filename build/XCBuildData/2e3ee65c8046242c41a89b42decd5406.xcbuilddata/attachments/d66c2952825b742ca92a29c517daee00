@@ -1,4 +1,0 @@
-module GTMSessionFetcherCore {
-umbrella "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/gtm-session-fetcher/Sources/Core/Public"
-export *
-}

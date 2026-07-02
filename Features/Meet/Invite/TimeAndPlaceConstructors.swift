@@ -27,13 +27,12 @@ struct RespondTimeAndPlaceView: View {
     var body: some View {
         SendInviteContainer(
             draft: $vm.respondDraft.newEvent,
-            showConfirmScreen: .constant(false),
+            showConfirm: .constant(false),
             name: event.otherUserName,
-            image: vm.image,
-            deleteEventDefault: {vm.deleteEventDefault()},
-            onSendInvite: { sendInvite()},
             isInviteResponse: true,
-            defaults: vm.defaults
+            defaults: vm.defaults,
+            onClearDraft: {vm.deleteEventDefault()},
+            onSendInvite: {sendInvite()}
         )
     }
 }

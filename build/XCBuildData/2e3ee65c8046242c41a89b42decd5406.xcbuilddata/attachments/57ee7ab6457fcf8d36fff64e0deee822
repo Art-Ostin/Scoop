@@ -1,4 +1,0 @@
-module FirebaseAppCheckInterop {
-umbrella header "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAppCheck/Interop/Public/FirebaseAppCheckInterop/FirebaseAppCheckInterop.h"
-export *
-}

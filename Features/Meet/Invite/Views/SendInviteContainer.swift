@@ -7,7 +7,8 @@ struct SendInviteContainer: View {
     @State var ui = TimeAndPlaceUIState()
 
     @Binding var draft: EventFieldsDraft
-
+    @Binding var showConfirm: Bool
+    
     let name: String
     let isInviteResponse: Bool
     let defaults: DefaultsManaging
@@ -15,7 +16,6 @@ struct SendInviteContainer: View {
     let onClearDraft: () -> Void
     let onSendInvite: () -> Void
     
-
     var body: some View {
         VStack(spacing: 0) {
             title
@@ -29,7 +29,7 @@ struct SendInviteContainer: View {
 
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
         
-        .morphPopupOpen(ui.isOpen())   // hide the morph's floating Hide button while a popup is open
+        .morphPopupOpen(ui.isPopupOpen())   // hide the morph's floating Hide button while a popup is open
         .hideTabBar(hideBar: isInviteResponse)
         
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
@@ -48,8 +48,8 @@ extension SendInviteContainer {
         Text(isInviteResponse ? "Send New Invite" : "Meet \(name)")
             .font(.title(26))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(ui.isOpen(.time) ? 0.1 : 1)
-            .animation(.snappy(duration: 0.2), value: ui.isOpen(.time))
+            .opacity(ui.isPopupOpen(.time) ? 0.1 : 1)
+            .animation(.snappy(duration: 0.2), value: ui.isPopupOpen(.time))
             .offset(y: 6)
     }
     
@@ -84,12 +84,11 @@ extension SendInviteContainer {
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
         }
-        .opacity(ui.isOpenDelayed() ? 0.4 : 1)
+        .opacity(ui.isPopopOpenDelayed() ? 0.4 : 1)
         .padding(.top, 4)
         .allowsHitTesting(draft.isComplete)
     }
 }
-
 
 struct InviteCardBackground: ViewModifier {
     @Environment(\.inviteCardTint) private var tint
@@ -102,10 +101,12 @@ struct InviteCardBackground: ViewModifier {
             .padding(.top, 20)
             .padding(.bottom, 20)
         
-            .background(tint.opacity(0.08), in: .rect(cornerRadius: 36, style: .continuous))
+            .background(Color.appCanvas, in: .rect(cornerRadius: 36, style: .continuous))
         
             .padding(.horizontal, screenMargin)
             .padding(.top, 60)
+            .compositingGroup()
+            .morphCardAnchor()
     }
 }
 
@@ -136,14 +137,5 @@ struct SheetBackground: ViewModifier {
                         .fill(Color.white)
                 }
             }
-    }
-}
-
-extension View {
-    func inviteCardBackground(tint: Color = Color(.systemBackground)) -> some View {
-        return self
-            .modifier(SheetBackground(tint: tint))
-            .compositingGroup()
-            .morphCardAnchor() //Sets it as destination view
     }
 }

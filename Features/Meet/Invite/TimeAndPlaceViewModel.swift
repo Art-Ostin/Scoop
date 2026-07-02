@@ -66,8 +66,8 @@ class TimeAndPlaceViewModel {
     private(set) var delayedPopup: Popup?
     
     ///Convenienve functions to check if the type open or not
-    func isOpen(_ popup: Popup? = nil) -> Bool { popup == activePopup }
-    func isOpenDelayed(_ popup: Popup? = nil) -> Bool {popup == delayedPopup}
+    func isPopupOpen(_ popup: Popup? = nil) -> Bool { popup == activePopup }
+    func isPopopOpenDelayed(_ popup: Popup? = nil) -> Bool {popup == delayedPopup}
     
     func syncDelayedPopup() async {
         let target = activePopup
