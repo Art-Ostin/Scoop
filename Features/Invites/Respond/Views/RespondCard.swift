@@ -149,7 +149,7 @@ extension View {
     func inviteCardBackground() -> some View {
         let base = Color.white // single source of truth for the card's opaque fill
         return self
-//            .glassBackgroundIfAvailable(shape: .rect(cornerRadius: 36, style: .continuous))
+//            .glassBackgroundIfAvailable(shape: .rect(cornerRadius: 36, style: .continuous), isClear: <#T##Bool#>)
         
         
         

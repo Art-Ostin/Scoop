@@ -36,10 +36,10 @@ extension View {
     
     
     //6. Applies class background if availble
-    func glassBackgroundIfAvailable< S: InsettableShape>(shape: S) -> some View {
+    func glassBackgroundIfAvailable< S: InsettableShape>(shape: S, isClear: Bool = false) -> some View {
         return Group {
             if #available(iOS 26.0, *) {
-                self.glassEffect(in: shape)
+                self.glassEffect(isClear ? .clear : .regular, in: shape)
             } else {
                 self
                     .background(shape.fill(Color.appCanvas))

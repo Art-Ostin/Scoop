@@ -123,29 +123,28 @@ private extension InviteTimeRow {
     //Done this way for smooth transition
     private var rowTitle: some View {
         ZStack(alignment: .leading) {
-            Text(rowTitleText().capitalized)
-                .font(.body(13, .regular))
-                .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
-                .contentTransition(.numericText())
-                .id(rowTitleTransitionID)
-                .transition(.blurReplace)
+            Group {
+                if isWhenLabel {
+                    inviteTypeText(.when)
+                } else {
+                    Text(optionTitle)
+                        .font(.body(13, .regular))
+                        .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                }
+            }
+            .contentTransition(.numericText())
+            .id(rowTitleTransitionID)
+            .transition(.blurReplace)
         }
         .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
         .animation(.snappy, value: scrolledPageID)
     }
-    
-    private var rowTitleTransitionID: String {
-        scrolledPageID == nil || scrolledPageID == 0 ? "when" : "option"
-    }
-    
-    
-    func rowTitleText() -> String {
-        if scrolledPageID == nil || scrolledPageID == 0 {
-            return "WHEN"
-        } else {
-            return "Option \((scrolledPageID ?? 0) + 1)"
-        }
-    }
+
+    private var isWhenLabel: Bool { scrolledPageID == nil || scrolledPageID == 0 }
+
+    private var rowTitleTransitionID: String { isWhenLabel ? "when" : "option" }
+
+    private var optionTitle: String { "Option \((scrolledPageID ?? 0) + 1)" }
 }
 
 private struct TimeRowMenuLabel: View {

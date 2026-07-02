@@ -83,14 +83,20 @@ extension InviteTypeRow {
 
     private var rowTitle: some View {
         ZStack(alignment: .leading) {
-            Text(rowTitleText.capitalized)
-                .font(.body(13, .regular))
-                .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
-                .multilineTextAlignment(.leading) //so "Double Date" stays on one line
-                .frame(width: 47, alignment: .leading)
-                .lineSpacing(2)
-                .id(rowTitleTransitionID)
-                .transition(.blurReplace)
+            Group {
+                if onMessagePage {
+                    Text(type.title.capitalized)
+                        .font(.body(13, .regular))
+                        .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                } else {
+                    inviteTypeText(.what)
+                }
+            }
+            .multilineTextAlignment(.leading) //so "Double Date" stays on one line
+            .frame(width: 47, alignment: .leading)
+            .lineSpacing(2)
+            .id(rowTitleTransitionID)
+            .transition(.blurReplace)
         }
         .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
         .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
@@ -99,8 +105,6 @@ extension InviteTypeRow {
         .animation(.snappy, value: scrolledPageID)
         .opacity(ui.typePopupOpen ? 0.3 : 1)
     }
-
-    private var rowTitleText: String { onMessagePage ? type.title : "WHAT" }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
 
