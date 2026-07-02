@@ -129,7 +129,7 @@
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
 		6570CADD2F28D6EE00CBEA67 /* DropDownButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */; };
 		657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486D92FA8C22100F38738 /* InviteContext.swift */; };
-		657486DE2FA8F80900F38738 /* TimeAndPlaceConstructors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */; };
+		657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */; };
 		65761E3A2FD9C5B9007CA835 /* EventDetailsHowItWorks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */; };
 		65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */; };
 		65761E3E2FDA7533007CA835 /* EventScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E3D2FDA7533007CA835 /* EventScrollView.swift */; };
@@ -419,7 +419,7 @@
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
 		6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownButton.swift; sourceTree = "<group>"; };
 		657486D92FA8C22100F38738 /* InviteContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContext.swift; sourceTree = "<group>"; };
-		657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceConstructors.swift; sourceTree = "<group>"; };
+		657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceScreens.swift; sourceTree = "<group>"; };
 		65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsHowItWorks.swift; sourceTree = "<group>"; };
 		65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundBlur.swift; sourceTree = "<group>"; };
 		65761E3D2FDA7533007CA835 /* EventScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventScrollView.swift; sourceTree = "<group>"; };
@@ -885,15 +885,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		6549DA662F9E854C00C89DF2 /* MeetViews */ = {
-			isa = PBXGroup;
-			children = (
-				65E5C9252E51FBB10093410B /* MeetViewModel.swift */,
-				6549DA672F9E858400C89DF2 /* Views */,
-			);
-			path = MeetViews;
-			sourceTree = "<group>";
-		};
 		6549DA672F9E858400C89DF2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -1023,25 +1014,25 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		6549DA742F9E87A800C89DF2 /* Invite */ = {
+		6549DA742F9E87A800C89DF2 /* SendInvite */ = {
 			isa = PBXGroup;
 			children = (
 				65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */,
-				657486DD2FA8F80900F38738 /* TimeAndPlaceConstructors.swift */,
+				657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */,
 				6549DA752F9E87C100C89DF2 /* Views */,
-				6549DA782F9E886100C89DF2 /* Map */,
+				6549DA782F9E886100C89DF2 /* PlacePicker */,
 			);
-			path = Invite;
+			path = SendInvite;
 			sourceTree = "<group>";
 		};
 		6549DA752F9E87C100C89DF2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				652AD16F2FF2DA3C00E3A8FC /* InviteContainer.swift */,
 				65E5C8F92E4EAAE70093410B /* SendInviteContainer.swift */,
+				652AD16F2FF2DA3C00E3A8FC /* InviteContainer.swift */,
 				65D13D612FF69DAB00F4006F /* InviteComponents.swift */,
 				652AD16D2FF2A56300E3A8FC /* ConfirmInviteScreen.swift */,
-				6549DA772F9E884200C89DF2 /* InviteRows */,
+				6549DA772F9E884200C89DF2 /* Rows */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 			);
 			path = Views;
@@ -1057,7 +1048,7 @@
 			path = AddDetails;
 			sourceTree = "<group>";
 		};
-		6549DA772F9E884200C89DF2 /* InviteRows */ = {
+		6549DA772F9E884200C89DF2 /* Rows */ = {
 			isa = PBXGroup;
 			children = (
 				65D13D5F2FF6881800F4006F /* InviteRowContainer.swift */,
@@ -1065,17 +1056,17 @@
 				657B8D522F2D41C300583ADA /* InviteTimeRow.swift */,
 				65ED38912F68575100AD5600 /* InvitePlaceRow.swift */,
 			);
-			path = InviteRows;
+			path = Rows;
 			sourceTree = "<group>";
 		};
-		6549DA782F9E886100C89DF2 /* Map */ = {
+		6549DA782F9E886100C89DF2 /* PlacePicker */ = {
 			isa = PBXGroup;
 			children = (
 				653A78C52E15DC130098747F /* MapViewModel.swift */,
 				657E61512F353B9300262821 /* MapSearchViewModel.swift */,
 				6549DA792F9E887500C89DF2 /* Views */,
 			);
-			path = Map;
+			path = PlacePicker;
 			sourceTree = "<group>";
 		};
 		6549DA792F9E887500C89DF2 /* Views */ = {
@@ -1366,8 +1357,8 @@
 		6566B9692FEACBF80075C3B2 /* Meet */ = {
 			isa = PBXGroup;
 			children = (
-				6549DA662F9E854C00C89DF2 /* MeetViews */,
-				6549DA742F9E87A800C89DF2 /* Invite */,
+				65E5C9252E51FBB10093410B /* MeetViewModel.swift */,
+				6549DA672F9E858400C89DF2 /* Views */,
 			);
 			path = Meet;
 			sourceTree = "<group>";
@@ -1449,6 +1440,7 @@
 			children = (
 				6549DA622F9E842400C89DF2 /* Onboarding */,
 				6566B9692FEACBF80075C3B2 /* Meet */,
+				6549DA742F9E87A800C89DF2 /* SendInvite */,
 				6566B96A2FEACC330075C3B2 /* Invites */,
 				6549DA6B2F9E862100C89DF2 /* Events */,
 				6549DA6E2F9E869E00C89DF2 /* Messages */,
@@ -1759,7 +1751,7 @@
 				657B8D4B2F2CFA5F00583ADA /* SaveIcon.swift in Sources */,
 				652882D42F707331000B724D /* RespondTimePopup.swift in Sources */,
 				65D907C92FCC8B85006EC5C8 /* ButtonShadow.swift in Sources */,
-				657486DE2FA8F80900F38738 /* TimeAndPlaceConstructors.swift in Sources */,
+				657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */,
 				657FD5452F91C8E00074255E /* CoreInfoPage.swift in Sources */,
 				65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */,
 				651702DE2FCEB14500CB0D3E /* ButtonSizing.swift in Sources */,
