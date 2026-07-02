@@ -100,7 +100,7 @@ extension InviteTypeRow {
         .opacity(ui.typePopupOpen ? 0.3 : 1)
     }
 
-    private var rowTitleText: String { onMessagePage ? type.title : "What" }
+    private var rowTitleText: String { onMessagePage ? type.title : "WHAT" }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
 

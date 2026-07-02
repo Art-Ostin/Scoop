@@ -132,7 +132,7 @@ extension SendInviteContainer {
 //Used througout code
 extension View {
     func inviteTypeText(_ detailFont: DetailFont) -> some View {
-        Text(detailFont.rawValue.capitalized)
+        Text(detailFont.rawValue.uppercased())
             .font(.body(13, .regular))
             .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
     }

@@ -141,7 +141,7 @@ private extension InviteTimeRow {
     
     func rowTitleText() -> String {
         if scrolledPageID == nil || scrolledPageID == 0 {
-            return "When"
+            return "WHEN"
         } else {
             return "Option \((scrolledPageID ?? 0) + 1)"
         }
