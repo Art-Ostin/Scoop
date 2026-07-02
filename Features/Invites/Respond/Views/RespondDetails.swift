@@ -39,7 +39,7 @@ enum DetailInfo: CaseIterable {
     }
 }
 
-struct RespondDetailsView: View {
+struct RespondDetails: View {
     
     let event: UserEvent
     @Binding var showInfo: Bool
@@ -60,7 +60,7 @@ struct RespondDetailsView: View {
     }
 }
 
-extension RespondDetailsView {
+extension RespondDetails {
     
     private var title: some View {
         Text(event.type.emoji + " " + event.type.longTitle)

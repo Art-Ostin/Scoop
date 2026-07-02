@@ -59,7 +59,7 @@ extension MessagesContainer {
     
     private func chatRow(for eventProfile: EventProfile) -> some View {
         NavigationLink(value: PastEventsRoute.chat(eventProfile)) {
-            let chatPreview = ChatPreviewModel(eventProfile: eventProfile)
+            let chatPreview = ChatPreview(eventProfile: eventProfile)
             ChatRowView(chatPreview: chatPreview)
                 .id(eventProfile.id)
         }
@@ -152,7 +152,7 @@ extension MessagesContainer {
     }
     
     private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+        SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
             .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     

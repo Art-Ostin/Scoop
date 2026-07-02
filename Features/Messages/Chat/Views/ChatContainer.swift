@@ -55,7 +55,7 @@ struct ChatContainer: View {
     var body: some View {
         ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                TypeMessageView(vm: vm, isFocused: $isFocused)
+                MessageInputBar(vm: vm, isFocused: $isFocused)
             }
             .zIndex(2)
 
@@ -92,7 +92,7 @@ struct ChatContainer: View {
 extension ChatContainer {
 
     private var profileView: some View {
-        ProfileView(
+        ProfileContainer(
             vm: ProfileViewModel(
                 profile: vm.eventProfile.profile,
                 event: vm.eventProfile.event,

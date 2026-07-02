@@ -16,7 +16,7 @@ struct EventMap: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            EventMapView(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+            EventLocationMap(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             locationInfo
         }
         .padding([.horizontal, .top], 4)

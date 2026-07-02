@@ -30,11 +30,11 @@ struct FrozenView: View {
             .padding(.top, 72)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
-            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
+            .sheet(isPresented: $showInfo) {FrozenInfo(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
             .background(Color.appCanvas)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
+                    SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: tabSelection)

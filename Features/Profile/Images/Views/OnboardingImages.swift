@@ -14,7 +14,7 @@ struct OnboardingImages: View {
     @Environment(\.dismiss) private var dismiss
     
     let vm: OnboardingViewModel
-    @State private var imageVM: OnboardingImageViewModel
+    @State private var imageVM: ProfileImagesViewModel
 
     @State var images: [UIImage?] = Array(repeating: nil, count: 6)
 
@@ -26,7 +26,7 @@ struct OnboardingImages: View {
     
     init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing, authService: AuthServicing) {
         self.vm = vm
-        _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
+        _imageVM = State(wrappedValue: ProfileImagesViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
     }
 
     var body: some View {
@@ -62,7 +62,7 @@ struct OnboardingImages: View {
         .padding(.horizontal, 24)
         .background(Color.appCanvas)
         .fullScreenCover(item: $selectedImage) {localImage in
-            ProfileImagesEditing(importedImage: localImage) { updatedImage in
+            ProfileImageEditor(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
             }
         }

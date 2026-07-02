@@ -10,7 +10,7 @@ import SwiftUI
 import PhotosUI
 
 
-struct ImagesView: View {
+struct ProfileImages: View {
 
     @Bindable var vm: EditProfileViewModel
     @Binding var selectedImage: ImageSlot?

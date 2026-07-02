@@ -34,7 +34,7 @@ Shared/     Reusable components, modifiers, design tokens, static data
 
 **Boundary rule: nothing in `Features/` or `Shared/` imports Firebase.** Firestore types
 (`FieldValue`, `Firestore.Encoder`, query types) stay behind the repository protocols in
-`AppState/ManagersProtocol.swift`. Business rules that touch persistence (e.g. cancellation
+`AppState/DataProtocols.swift`. Business rules that touch persistence (e.g. cancellation
 penalties) live in a repo method, written as one atomic batch — never as sequential writes
 from a ViewModel.
 
@@ -50,7 +50,7 @@ Features/<Name>/
 ```
 
 - **ViewModel** holds data and async operations; depends only on protocols from
-  `ManagersProtocol.swift` plus `Session`. Constructor injection, label `session:` (never `s:`).
+  `DataProtocols.swift` plus `Session`. Constructor injection, label `session:` (never `s:`).
   The parent constructs the ViewModel and passes it in (`@State var vm:` in the container) —
   child screens receive a built VM, not a bag of raw dependencies.
 - **UIState** (`<Name>UIState`, no `New`/`Old` prefixes) holds ephemeral view state: selections,
@@ -72,11 +72,11 @@ Features/<Name>/
 
 ## Design tokens
 
-- Colors: only named tokens from `Shared/Resources/ScoopColors.swift` (`.appCanvas`, `.appGreen`,
+- Colors: only named tokens from `Shared/Design/ScoopColors.swift` (`.appCanvas`, `.appGreen`,
   `.grayBackground`, `.grayPlaceholder`, `.grayText`, `.dangerRed`, `.warningYellow`, ...).
   Raw `Color(red:green:blue:)` is allowed **only inside ScoopColors.swift**. Need a new color?
   Add a token.
-- Fonts: only `Shared/Resources/ScoopFonts.swift` — `.font(.body(16, .medium))`,
+- Fonts: only `Shared/Design/ScoopFonts.swift` — `.font(.body(16, .medium))`,
   `.font(.title(26))`, and the `UIFont` variants. No `.font(.system(...))` in features.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)

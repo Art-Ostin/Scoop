@@ -1,5 +1,5 @@
 //
-//  ChatModel.swift
+//  ChatThread.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/03/2026.
@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 
-struct ChatModel: Codable {
+struct ChatThread: Codable {
     @DocumentID var id: String?
     let participantIds: [String]
     

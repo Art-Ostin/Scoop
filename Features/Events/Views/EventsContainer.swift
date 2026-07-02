@@ -9,8 +9,8 @@ import SwiftUI
 
 struct EventsContainer: View {
 
-    @State var vm: EventViewModel
-    @State private var ui = EventUIState()
+    @State var vm: EventsViewModel
+    @State private var ui = EventsUIState()
 
     @Binding var showMessageScreen: String?
 
@@ -127,7 +127,7 @@ extension EventsContainer {
     }
 
     private func profileView(profile: UserProfile) -> some View {
-        ProfileView(
+        ProfileContainer(
             vm:ProfileViewModel(profile: profile, event: vm.event(forProfile: profile.id)?.event, imageLoader: vm.imageLoader, defaults: vm.defaults),
             profileImages: ui.profileImages[profile.id] ?? seedImages(for: profile),
             mode: .viewProfile,

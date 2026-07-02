@@ -19,7 +19,7 @@ class ChatViewModel {
     let imageLoader: ImageLoading
     let eventProfile: EventProfile
 
-    var messages: [MessageModel] = []
+    var messages: [ChatMessage] = []
     private var pendingTempIds: Set<String> = []
 
     init(defaults: DefaultsManaging, session: Session, chatRepo: ChatRepository, imageLoader: ImageLoading, eventProfile: EventProfile) {
@@ -32,23 +32,23 @@ class ChatViewModel {
 
     var userId: String {session.user.id}
 
-    func isMyChat(_ message: MessageModel) -> Bool {
+    func isMyChat(_ message: ChatMessage) -> Bool {
         message.authorId == userId
     }
 
-    func isNewAuthor(for message: MessageModel) -> Bool {
+    func isNewAuthor(for message: ChatMessage) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }), idx > 0 else { return true }
         return messages[idx - 1].authorId != message.authorId || isNewDay(for: message)
     }
 
-    func isNextNewAuthor(for message: MessageModel) -> Bool {
+    func isNextNewAuthor(for message: ChatMessage) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
         guard idx < messages.count - 1 else { return true }
         let next = messages[idx + 1]
         return next.authorId != message.authorId || isNewDay(for: next)
     }
 
-    func isNewDay(for message: MessageModel) -> Bool {
+    func isNewDay(for message: ChatMessage) -> Bool {
         guard let idx = messages.firstIndex(where: { $0.id == message.id }) else { return true }
         guard idx > 0 else { return true }
         guard let lastDay = messages[idx - 1].dateCreated else { return false }
@@ -57,7 +57,7 @@ class ChatViewModel {
     }
 
     func sendMessage(text: String) async throws {
-        var optimistic = MessageModel(authorId: userId, recipientId: eventProfile.profile.id, content: text)
+        var optimistic = ChatMessage(authorId: userId, recipientId: eventProfile.profile.id, content: text)
         let tempId = "temp-\(UUID().uuidString)"
         optimistic.id = tempId
         optimistic.dateCreated = Date()

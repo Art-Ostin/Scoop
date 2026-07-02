@@ -19,7 +19,7 @@ struct MessageBubbleView: View {
     @State private var maxBubbleWidth: CGFloat = 0
     @State private var bubbleContentWidth: CGFloat = 0
 
-    let chat: MessageModel
+    let chat: ChatMessage
     let newAuthor: Bool
     let nextIsNewAuthor: Bool
     let isMyChat: Bool
@@ -251,7 +251,7 @@ struct NewMessageBubble: View {
         self.showsTail = showsTail
     }
 
-    init(chat: MessageModel, isMyChat: Bool, showsTail: Bool = true) {
+    init(chat: ChatMessage, isMyChat: Bool, showsTail: Bool = true) {
         self.text = chat.content
         self.time = FormatEvent.hourTime(chat.dateCreated ?? Date())
         self.isMyChat = isMyChat

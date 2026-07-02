@@ -11,7 +11,7 @@ import SwiftUI
 @Observable
 class TimeAndPlaceViewModel {
     
-    let inviteModel: InviteModel
+    let inviteModel: InviteContext
     let defaults: DefaultsManaging
     
     
@@ -19,7 +19,7 @@ class TimeAndPlaceViewModel {
         didSet { updateEventDraft()}
     }
     
-    init(inviteModel: InviteModel, defaults: DefaultsManaging) {
+    init(inviteModel: InviteContext, defaults: DefaultsManaging) {
         self.inviteModel = inviteModel
         self.defaults = defaults
         self.event = Self.loadEvent(d: defaults, id: inviteModel.profileId)

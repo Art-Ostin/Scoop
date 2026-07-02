@@ -161,7 +161,7 @@ extension Session {
         }
     }
 
-    private func presentPopup(_ popup: MessagePopupModel) {
+    private func presentPopup(_ popup: MessagePopup) {
         guard popup.eventId != activeChatEventId else { return }
         notifications.push(.newMessage(popup))
     }

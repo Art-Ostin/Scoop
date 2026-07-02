@@ -1,5 +1,5 @@
 //
-//  FrozenExplainedScreen.swift
+//  FrozenInfo.swift
 //  Scoop
 //
 //  Created by Art Ostin on 23/01/2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FrozenExplainedScreen: View {
+struct FrozenInfo: View {
     
     //Turn this into a tab view. 
     

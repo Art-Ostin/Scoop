@@ -10,7 +10,7 @@ import SwiftUI
 enum ProfileTitleStyle { case base, overlay }
 
 //Overlay title
-extension ProfileView {
+extension ProfileContainer {
     
     var overlayTitle: some View {
     HStack {
@@ -40,7 +40,7 @@ extension ProfileView {
     }
 }
     
-extension ProfileView {
+extension ProfileContainer {
     
     var profileTitle: some View {
         HStack{
@@ -89,7 +89,7 @@ extension ProfileView {
 }
 
 //Details and Morph Logic
-extension ProfileView {
+extension ProfileContainer {
     
     func animateSnapBack(releaseVelocity: CGFloat) {
         let signedDistance = -ui.profileOffset
@@ -116,7 +116,7 @@ extension ProfileView {
     @ViewBuilder var sendInviteMorphCard: some View {
         switch mode {
         case .sendInvite(let onSend, _):
-            let inviteModel = InviteModel(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
+            let inviteModel = InviteContext(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
             InviteTimeAndPlaceView(
                 vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
                 sendInvite: onSend,

@@ -50,7 +50,7 @@ extension FrozenWithEvents {
         @Bindable var router = router
         
         return EventsContainer(
-            vm: EventViewModel(
+            vm: EventsViewModel(
                 session: vm.session,
                 userRepo: vm.userRepo,
                 defaults: vm.defaults,

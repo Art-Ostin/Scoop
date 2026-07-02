@@ -12,7 +12,7 @@ import Lottie
 
 struct MeetContainer: View {
     
-    let vm: InviteViewModel
+    let vm: MeetViewModel
     @State private var ui = MeetUIState()
     @State var imageSize: CGFloat = 0
 
@@ -26,7 +26,7 @@ struct MeetContainer: View {
     //Logic for showing
     @State private var isAtTopOfScroll = true
 
-    init(vm: InviteViewModel) { self.vm = vm }
+    init(vm: MeetViewModel) { self.vm = vm }
     
 
     var body: some View {
@@ -40,13 +40,13 @@ struct MeetContainer: View {
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
-        .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileView(responseType: $0)}
+        .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin), image: { id in vm.profileImages[id]?.first }) { id in
             timeAndPlaceView(id)
         } overlay: {
             MorphConfirmAlert(pending: $pendingInvite)
         }
-        .fullScreenCover(isPresented: $ui.showInfo) {MeetInfoCover()}
+        .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
 }
 
@@ -56,7 +56,7 @@ extension MeetContainer {
     @ViewBuilder
     private func profileView() -> some View {
         if let profile = ui.openProfile {
-            ProfileView(
+            ProfileContainer(
                 vm: profileVM(profile),
                 profileImages: profileImages(profile),
                 mode: sendInvite(profile),
@@ -146,8 +146,8 @@ extension MeetContainer {
         TimeAndPlaceViewModel(inviteModel: inviteModel(profileEvent), defaults: vm.defaults)
     }
     
-    private func inviteModel(_ profileEvent: PendingProfile) -> InviteModel {
-        InviteModel(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+    private func inviteModel(_ profileEvent: PendingProfile) -> InviteContext {
+        InviteContext(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
     }
     
     private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {

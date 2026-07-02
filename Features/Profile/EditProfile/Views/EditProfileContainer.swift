@@ -27,7 +27,7 @@ struct EditProfileContainer: View {
                         .transition(.move(edge: .trailing))
                 }
             } else {
-                ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
+                ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
 //                    .clipped() //Fixes bug of content over extending
                     .transition(.move(edge: .leading))
             }
@@ -97,7 +97,7 @@ extension EditProfileContainer {
     }
     
     private func imageEditScreen(_ slot: ImageSlot) -> some View {
-        ProfileImagesEditing(importedImage: slot) {updatedImage in
+        ProfileImageEditor(importedImage: slot) {updatedImage in
             Task { try await vm.changeImage(image: updatedImage) }
         }
     }

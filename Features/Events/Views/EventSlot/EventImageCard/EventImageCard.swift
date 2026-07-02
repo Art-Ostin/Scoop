@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EventImageCard: View {
-    @Bindable var ui: EventUIState
+    @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
     

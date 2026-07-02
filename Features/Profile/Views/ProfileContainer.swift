@@ -9,7 +9,7 @@ enum ProfileMode {
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 
-struct ProfileView: View {
+struct ProfileContainer: View {
 
     // Environment
     @Environment(\.dismiss) var dismiss
@@ -80,7 +80,7 @@ struct ProfileView: View {
         .quickInvite(
             openPopupId: sendInviteMorphId,
             hideCard: pendingInvite != nil,
-            // ProfileView already covers the tab bar, so present as an overlay to skip the
+            // ProfileContainer already covers the tab bar, so present as an overlay to skip the
             // cover-presentation latency that makes the morph pop in collapsed before opening.
             style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
                 .presentedAsOverlay()
@@ -95,7 +95,7 @@ struct ProfileView: View {
     }
 }
 
-extension ProfileView {
+extension ProfileContainer {
     
     private var titleAndImage: some View {
         VStack(spacing: 24) {

@@ -1,5 +1,5 @@
 //
-//  MessagePopupModel.swift
+//  MessagePopup.swift
 //  Scoop
 //
 //  Created by Art Ostin on 29/04/2026.

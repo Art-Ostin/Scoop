@@ -1,0 +1,113 @@
+//
+//  CantMakeIT.swift
+//  Scoop
+//
+//  Created by Art Ostin on 23/01/2026.
+//
+
+import SwiftUI
+
+struct CantMakeIt: View {
+    
+    @Environment(\.dismiss) private var dismiss
+    @State var showCancelAlert: Bool = false
+    
+    let vm: EventsViewModel
+    
+    let eventProfile: EventProfile
+    
+    var fullTime: String {
+        FormatEvent.dayAndTime(eventProfile.event.acceptedTime ?? Date())
+    }
+    
+    var hour: String {
+        return eventProfile.event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? "22"
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24){
+            Text("Can’t Make It?")
+                .font(.body(24, .bold))
+            
+            Text("We get it, shit happens. You can cancel up to 10 hours before (No rescheduling).")
+                             
+            Text("But to deter people bailing from nerves or effort ")
+            + Text("your account is frozen for 14 days 🥶")
+                .foregroundStyle(Color(red: 0, green: 0.65, blue: 0.73))
+            
+            
+            Text("If you don’t show, ")
+            + Text("your account is permanently blocked, ")
+                .font(.body(16, .bold))
+            
+            + Text("so better to cancel if you must")
+            
+            Image("Monkey")
+                .frame(width: 240, height: 240)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            VStack(spacing: 16) {
+                Text("Meeting \(eventProfile.event.otherUserName)")
+                
+                Text("\(fullTime) · \(hour)")
+            }
+            .font(.body(18, .medium))
+            .frame(maxWidth: .infinity)
+            
+            cancelButton
+        }
+        .font(.body(16, .medium))
+        .lineSpacing(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, 24)
+        .padding(.horizontal, 24)
+        .navigationBarBackButtonHidden(true)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            DismissButton(type: .cross)
+            Spacer()
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+        }
+        .background(Color.appCanvas)
+        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", emoji: "🚨", cancelTitle: "Back", okTitle: "Confirm", showTwoButtons: true) {
+            Task {
+                do {
+                    try await vm.cancelEvent(event: eventProfile.event)
+                    print("Updated")
+                    vm.session.appState = .frozen
+                } catch {
+                    print("cancelEvent failed:", error)
+                    Thread.callStackSymbols.forEach { print($0) }
+                }
+            }
+        }
+        .interactiveDismissDisabled(showCancelAlert)
+    }
+}
+
+extension CantMakeIt {
+    
+    private var cancelButton: some View {
+        Button {
+            showCancelAlert.toggle()
+        } label: {
+            Text("Cancel Date")
+                .frame(width: 120, height: 35)
+                .stroke(10, lineWidth: 2, color: Color.dangerRed)
+                .foregroundStyle(Color.dangerRed)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 24)
+        }
+    }
+    
+    private var frozenUntilDate: String {
+        let frozenUntil = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+        let full = FormatEvent.dayAndTime(frozenUntil)
+        let monthText = frozenUntil.formatted(.dateTime.month(.wide))
+        let secondWord = full.split(whereSeparator: \.isWhitespace).dropFirst().first.map(String.init) ?? ""
+        
+        return "the \(secondWord) of \(monthText)"
+    }
+    
+}

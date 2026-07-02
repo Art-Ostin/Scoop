@@ -45,7 +45,7 @@ struct BlockedView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
+                    SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
             .overlay(alignment: .topLeading) {
@@ -57,7 +57,7 @@ struct BlockedView: View {
                 .padding(.horizontal)
             }
             .sheet(isPresented: $showBlockedInfo) {
-                FrozenExplainedScreen(vm: vm, name: blockedContext.profileName, frozenUntilDate: Date(), isBlocked: true)
+                FrozenInfo(vm: vm, name: blockedContext.profileName, frozenUntilDate: Date(), isBlocked: true)
             }
         }
     }

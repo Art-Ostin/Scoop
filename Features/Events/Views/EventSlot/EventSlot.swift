@@ -12,7 +12,7 @@ struct EventSlot: View {
     @State private var disableMap: Bool = true
     @State private var mapEnabledAt: Date?
     
-    @Bindable var ui: EventUIState
+    @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let userImage: UIImage
@@ -75,7 +75,7 @@ extension EventSlot {
     
     
     private var howItWorksView: some View {
-        CoreInfoPage(event: eventProfile.event)
+        EventCoreInfoPage(event: eventProfile.event)
             .dimWhenMapActive($disableMap)
     }
     

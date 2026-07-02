@@ -75,9 +75,9 @@ class EventsRepo: EventsRepository {
         return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue, in: statuses)}
     }
     
-    //Streams MessagePopupModel events for incoming messages from the other user.
+    //Streams MessagePopup events for incoming messages from the other user.
     //Filters out doc updates where chatState didn't change (status/location/etc. edits don't trigger a popup).
-    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopupModel>, Error> {
+    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopup>, Error> {
         let userEventPath = "users/\(userId)/user_events"
         let source: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(userEventPath) {
             $0.whereField(self.chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
@@ -173,7 +173,7 @@ extension EventsRepo {
 //Logic regarding the 'recentMessageState' in the events
 extension EventsRepo {
         
-    private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
+    private func recentChatFields(message: ChatMessage, unreadCount: Any) -> [String: Any] {
         [
             chatStateField(.lastMessageAuthor): message.authorId,
             chatStateField(.lastMessagePreview): String(message.content.prefix(40)),
@@ -182,7 +182,7 @@ extension EventsRepo {
         ]
     }
     
-    func updateRecentChat(message: MessageModel, eventId: String) async throws {
+    func updateRecentChat(message: ChatMessage, eventId: String) async throws {
         async let updateAuthor: Void = fs.update(
             userEventPath(userId: message.authorId, userEventId: eventId),
             fields: recentChatFields(message: message, unreadCount: 0)
@@ -214,7 +214,7 @@ extension EventsRepo {
         userFields[UserEvent.Field.chatState.rawValue] = try fs.encodeFields(ChatState())
         try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: eventFields)
         //Chat Model
-        let chatModel = ChatModel(participantIds: [senderId, userId], lastMessageAt: nil)
+        let chatModel = ChatThread(participantIds: [senderId, userId], lastMessageAt: nil)
         try fs.set("chats/\(eventId)", value: chatModel, merge: false)
     }
     

@@ -10,7 +10,7 @@ import SwiftUI
 struct EventScrollView: View {
     
     @Binding var selectedEvent: String?
-    @Bindable var vm: EventViewModel
+    @Bindable var vm: EventsViewModel
     
     var body: some View {
         ForEach(vm.events) { event in

@@ -51,7 +51,7 @@ class RespondViewModel {
     }
 }
 
-@Observable final class NewRespondUIState {
+@Observable final class RespondUIState {
     
     //1. Determine if 0, 1 or 2 messages
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChatRowView: View {
     
-    let chatPreview: ChatPreviewModel
+    let chatPreview: ChatPreview
         
     var body: some View {
         

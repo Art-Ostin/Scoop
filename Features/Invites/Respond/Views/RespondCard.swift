@@ -13,7 +13,7 @@ struct RespondCard: View {
     @Bindable var vm: RespondViewModel
     
     //2. UI holds which views, and popups are showing
-    @Bindable var ui: NewRespondUIState
+    @Bindable var ui: RespondUIState
     
     //3. Actions are controlled in the container so passed up
     @Binding var confirmNewTimePopup: Bool

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EventImage: View {
 
-    @Bindable var ui: EventUIState
+    @Bindable var ui: EventsUIState
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
 
     let eventProfile: EventProfile

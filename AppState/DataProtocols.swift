@@ -54,11 +54,11 @@ protocol EventsRepository {
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws
     func deleteAllSentPendingInvites(userId: String) async throws
     func cancelEvent(eventId: String, cancelledById: String, blockedContext: BlockedContext) async throws
-    func updateRecentChat(message: MessageModel, eventId: String) async throws
+    func updateRecentChat(message: ChatMessage, eventId: String) async throws
     func readRecentMessages(userId: String, userEventId: String) async throws
     func acceptEvent(eventId: String, senderId: String, userId: String, acceptedTime: Date) async throws
     func declineEvent(eventId: String, otherUserId: String, userId: String) async throws
-    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopupModel>, Error>
+    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopup>, Error>
     func respondWithNewTime(newTime: RescheduleResponse) async throws
     func respondWithNewEvent(eventResponse: EventResponse) async throws
     func chatStateField(_ field: ChatState.Field) -> String 
@@ -66,9 +66,9 @@ protocol EventsRepository {
 
 protocol ChatRepository {
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
-    func fetchMessages(eventId: String) async throws -> [MessageModel]
-    func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatModel>, Error>
-    func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<MessageModel>, Error>
+    func fetchMessages(eventId: String) async throws -> [ChatMessage]
+    func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatThread>, Error>
+    func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatMessage>, Error>
 }
 
 protocol ProfilesRepository {

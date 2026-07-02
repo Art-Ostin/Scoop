@@ -12,7 +12,7 @@ struct RespondAcceptContainer: View {
     @Bindable var vm: RespondViewModel
     @Binding var confirmNewTimeInvite: Bool
     @Binding var confirmAcceptInvite: Bool
-    @State var ui = NewRespondUIState()
+    @State var ui = RespondUIState()
     
     let onDecline: () -> Void
     
@@ -39,7 +39,7 @@ extension RespondAcceptContainer {
     }
     
     private var respondDetails: some View {
-        RespondDetailsView(
+        RespondDetails(
             event: vm.respondDraft.originalInvite.event,
             showInfo: $ui.showMeetInfo, image: vm.image
         )

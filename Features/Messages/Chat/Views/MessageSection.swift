@@ -10,7 +10,7 @@ import SwiftUI
 struct MessageSection: View {
 
     @Bindable var vm: ChatViewModel
-    let message: MessageModel
+    let message: ChatMessage
 
     var body: some View {
         VStack(spacing: 16) {
