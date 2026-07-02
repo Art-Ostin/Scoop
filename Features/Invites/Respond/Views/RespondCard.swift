@@ -145,27 +145,6 @@ struct RespondCardBackground: ViewModifier {
     }
 }
 
-extension View {
-    func inviteCardBackground() -> some View {
-        let base = Color.white // single source of truth for the card's opaque fill
-        return self
-//            .glassBackgroundIfAvailable(shape: .rect(cornerRadius: 36, style: .continuous), isClear: <#T##Bool#>)
-        
-        
-        
-            .background(base, in: .rect(cornerRadius: 36, style: .continuous))
-        
-        
-        
-        
-        
-            .environment(\.inviteCardBase, base) //so edge fades inside the card dissolve into this exact color
-            .containerShape(RoundedRectangle(cornerRadius: 36, style: .continuous))
-            .compositingGroup()
-            .morphCardAnchor() //Sets it as destination view
-    }
-}
-
 
 
 

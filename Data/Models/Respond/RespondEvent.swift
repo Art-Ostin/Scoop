@@ -47,8 +47,14 @@ struct EventFieldsDraft: Codable, Equatable {
     var type: Event.EventType = .socialMeet
     var time: ProposedTimes = .init()
     var place: EventLocation?
-
     var message: String?
+    
+    var hasChanges: Bool {
+        !time.dates.isEmpty || place != nil || type != .socialMeet || message != nil
+    }
+    var isComplete: Bool {
+        !time.dates.isEmpty && place != nil
+    }
 }
 
 //To Use McGill as backup location

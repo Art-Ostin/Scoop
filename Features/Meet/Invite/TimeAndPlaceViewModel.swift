@@ -44,24 +44,37 @@ class TimeAndPlaceViewModel {
 }
 
 
+/*
+ //Drive certain behaviour is popup open
+ var typePopupOpen: Bool = false
+ var timePopupOpen: Bool = false
+ var typePopupOpenDelayed: Bool = false
+ var timePopupOpenDelayed: Bool = false
+ let rowHeight: CGFloat = 50
+ var showConfirmPopup: Bool = false
+ var isMessageTap: Bool = false
+ */
+
+
 @Observable class TimeAndPlaceUIState {
-    enum Popup { case type, time }
+    
+    //1. Logic to deal with the popup open
+    enum Popup: Equatable { case type, time }
+    
+    ///Track if the time or type popup is open on the screen
     var activePopup: Popup?
-    var showMessageScreen: Bool = false
-    var showMapView: Bool = false
-    var isMessageTap: Bool = false
-    var showInfoScreen: Bool = false
-    let rowHeight: CGFloat = 50
-    var showConfirmPopup: Bool = false
+    private(set) var delayedPopup: Popup?
     
-    var messageLineCount: Int = 0
+    ///Convenienve functions to check if the type open or not
+    func isOpen(_ popup: Popup? = nil) -> Bool { popup == activePopup }
+    func isOpenDelayed(_ popup: Popup? = nil) -> Bool {popup == delayedPopup}
     
-    //Drive certain behaviour is popup open
-    var typePopupOpen: Bool = false
-    var timePopupOpen: Bool = false
-    
-    var typePopupOpenDelayed: Bool = false
-    var timePopupOpenDelayed: Bool = false
+    func syncDelayedPopup() async {
+        let target = activePopup
+        try? await Task.sleep(for: .milliseconds(target == nil ? 40 : 150))
+        guard !Task.isCancelled else { return }   // sleep's error was swallowed; don't commit a stale value
+        delayedPopup = target
+    }
     
     func binding(for popup: Popup) -> Binding<Bool> {
         Binding(
@@ -69,13 +82,9 @@ class TimeAndPlaceViewModel {
             set: { self.activePopup = $0 ? popup : nil }
         )
     }
-
+        
+    var showMessageScreen: Bool = false
+    var showMapView: Bool = false
+    var showInfoScreen: Bool = false
+    var messageLineCount: Int = 0
 }
-
-/*
- 
- var popupOpen: Bool = false
- 
- var popupOpenDelayed = false //actually opens it after a delay -> makes it tad smoother
-
- */

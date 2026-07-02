@@ -299,8 +299,8 @@ struct PagedScrollStyle: ViewModifier {
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
             .scrollTargetBehavior(.paging)
-            .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
-            .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
+//            .customHorizontalScrollFade(width: isScrolling ? 40 : 0, showFade: true)
+//            .customHorizontalScrollFade(width: 12, showFade: true, fromLeading: false)
             .scrollDisabled(pageCount <= 1)
             .animation(.spring(), value: isScrolling)
     }

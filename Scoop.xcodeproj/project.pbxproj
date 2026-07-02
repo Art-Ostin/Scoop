@@ -28,7 +28,6 @@
 		650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */; };
 		650E8E5E2EB82F6F009F5454 /* EventDeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */; };
 		650F5F352F297C6D0099CECC /* OkDismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650F5F342F297C6D0099CECC /* OkDismissButton.swift */; };
-		650FA5192FF3D89800B1A914 /* LargeDefaultImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */; };
 		65140B1C2F55E41000ED1DDE /* ChatThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1B2F55E40E00ED1DDE /* ChatThread.swift */; };
 		65140B1E2F55E92400ED1DDE /* ChatMessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */; };
 		65140B202F55EE7400ED1DDE /* ChatRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */; };
@@ -260,6 +259,7 @@
 		65CA5E212F210CDA00694981 /* OnboardingLoadScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E202F210CDA00694981 /* OnboardingLoadScreen.swift */; };
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
 		65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */; };
+		65D13D602FF6881800F4006F /* InviteRowContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D5F2FF6881800F4006F /* InviteRowContainer.swift */; };
 		65D1C40E2F3FCA1C00B61C00 /* MeetInfoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D1C40D2F3FCA1C00B61C00 /* MeetInfoCard.swift */; };
 		65D25A692FA9D66A00008632 /* BoolToStringBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D25A682FA9D66A00008632 /* BoolToStringBinding.swift */; };
 		65D366C42FC95887000180B3 /* AppScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D366C32FC95887000180B3 /* AppScrollView.swift */; };
@@ -356,7 +356,6 @@
 		650E8E5B2EB80D9E009F5454 /* DetailsSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsSections.swift; sourceTree = "<group>"; };
 		650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDeclineButton.swift; sourceTree = "<group>"; };
 		650F5F342F297C6D0099CECC /* OkDismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OkDismissButton.swift; sourceTree = "<group>"; };
-		650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeDefaultImage.swift; sourceTree = "<group>"; };
 		65140B1B2F55E40E00ED1DDE /* ChatThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatThread.swift; sourceTree = "<group>"; };
 		65140B1D2F55E92400ED1DDE /* ChatMessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageModel.swift; sourceTree = "<group>"; };
 		65140B1F2F55EE7400ED1DDE /* ChatRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepo.swift; sourceTree = "<group>"; };
@@ -581,6 +580,7 @@
 		65CA5E202F210CDA00694981 /* OnboardingLoadScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLoadScreen.swift; sourceTree = "<group>"; };
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
 		65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlot.swift; sourceTree = "<group>"; };
+		65D13D5F2FF6881800F4006F /* InviteRowContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteRowContainer.swift; sourceTree = "<group>"; };
 		65D1C40D2F3FCA1C00B61C00 /* MeetInfoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetInfoCard.swift; sourceTree = "<group>"; };
 		65D25A682FA9D66A00008632 /* BoolToStringBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolToStringBinding.swift; sourceTree = "<group>"; };
 		65D366C32FC95887000180B3 /* AppScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScrollView.swift; sourceTree = "<group>"; };
@@ -1119,9 +1119,7 @@
 			children = (
 				652AD16F2FF2DA3C00E3A8FC /* InviteContainer.swift */,
 				65E5C8F92E4EAAE70093410B /* SendInviteContainer.swift */,
-				65439BFB2FE17022003C3556 /* SendInviteComponents.swift */,
 				652AD16D2FF2A56300E3A8FC /* ConfirmInviteScreen.swift */,
-				650FA5182FF3D89800B1A914 /* LargeDefaultImage.swift */,
 				6549DA772F9E884200C89DF2 /* InviteRows */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 			);
@@ -1141,6 +1139,7 @@
 		6549DA772F9E884200C89DF2 /* InviteRows */ = {
 			isa = PBXGroup;
 			children = (
+				65D13D5F2FF6881800F4006F /* InviteRowContainer.swift */,
 				657B8D4E2F2D3F1C00583ADA /* InviteTypeRow.swift */,
 				657B8D522F2D41C300583ADA /* InviteTimeRow.swift */,
 				65ED38912F68575100AD5600 /* InvitePlaceRow.swift */,
@@ -1580,6 +1579,7 @@
 				65F704512F6EDF5D00CE29C5 /* CardBackground.swift */,
 				65ED38892F64656600AD5600 /* OldInviteCard.swift */,
 				650E8E5D2EB82F6F009F5454 /* EventDeclineButton.swift */,
+				65439BFB2FE17022003C3556 /* SendInviteComponents.swift */,
 				6549DA6A2F9E85D900C89DF2 /* InviteCardInfo(Dead Code) */,
 				656373B42F50152F003A922D /* MinimalistButton.swift */,
 				657486DB2FA8D5D000F38738 /* OldTimeAndPlace.swift */,
@@ -2010,7 +2010,6 @@
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */,
 				657FD54B2F92ABEF0074255E /* EventDetailsInfo.swift in Sources */,
-				650FA5192FF3D89800B1A914 /* LargeDefaultImage.swift in Sources */,
 				658CC0AD2FC1C703008B0958 /* EventsScrollView.swift in Sources */,
 				65988F372FA7AB9600953BB4 /* PreferredMapsView.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventPlaceholder.swift in Sources */,
@@ -2072,6 +2071,7 @@
 				65140B202F55EE7400ED1DDE /* ChatRepo.swift in Sources */,
 				65A93D482F39379E003F6410 /* MapSearchBar.swift in Sources */,
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
+				65D13D602FF6881800F4006F /* InviteRowContainer.swift in Sources */,
 				657F61C32FDFC0EF00B2F903 /* RespondContainter.swift in Sources */,
 				65140B1E2F55E92400ED1DDE /* ChatMessageModel.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* ProfileButtonView.swift in Sources */,
