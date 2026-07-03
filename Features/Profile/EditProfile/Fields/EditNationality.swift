@@ -1,6 +1,6 @@
 //
 //  EditNationalityNew.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 
@@ -113,9 +113,7 @@ extension GenericNationality {
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
-                            .foregroundStyle(availableLetters.contains(String(char)) ?
-                                             (scrollPosition == String(char) ? .accent : .black) :
-                                             .grayPlaceholder)
+                            .foregroundStyle(letterColor(String(char)))
                             .overlay(alignment: .bottom) {
                                 if scrollPosition == String(char) {
                                     RoundedRectangle(cornerRadius: 16)
@@ -129,6 +127,11 @@ extension GenericNationality {
             }
         }
         .animation(.smooth(duration: 0.25, extraBounce: 0), value: scrollPosition)
+    }
+
+    private func letterColor(_ letter: String) -> Color {
+        guard availableLetters.contains(letter) else { return .textPlaceholder }
+        return scrollPosition == letter ? .textAccent : .textPrimary
     }
     
     @ViewBuilder
@@ -188,7 +191,7 @@ private struct FlagItem: View {
                 .padding(6)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.grayPlaceholder, lineWidth: 1)
+                        .stroke(Color.border, lineWidth: 1)
                         .fill(isSelected ? Color.blue : Color.clear)
                 )
                 .overlay(alignment: .topTrailing) {
@@ -231,12 +234,12 @@ private struct FlagItem: View {
 func CircleIcon (_ image: String, _ fontSize: CGFloat = 8) -> some View {
     ZStack {
         Circle()
-            .stroke(Color.grayPlaceholder, lineWidth: 1)
+            .stroke(Color.border, lineWidth: 1)
             .background(Circle().fill(Color.white))
             .frame(width: 16, height: 16)
         Image(systemName: image)
             .font(.system(size: fontSize, weight: .bold))
-            .foregroundStyle(.black)
+            .foregroundStyle(Color.textPrimary)
     }
 }
 
@@ -275,7 +278,7 @@ struct ScrollTitle: View {
             if title != "Nationality" && selectedCount < 6 {
                 Text("Choose at least 6")
                     .font(.body(14, .medium))
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.textTertiary)
             }
         }
         .padding(.horizontal)

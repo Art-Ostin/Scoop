@@ -51,7 +51,7 @@ extension InvitedTimeCell {
     private var optionTypeText: some View {
         Text("Option \(idx + 1)")
             .font(.body(14, .medium))
-            .foregroundStyle(isSelected ? Color.appGreen : Color.grayText)
+            .foregroundStyle(isSelected ? Color.successGreen : Color.textTertiary)
     }
     
     private var eventTimeText: some View {
@@ -59,7 +59,7 @@ extension InvitedTimeCell {
         return Group {
             Text("\(weekday) \(month) ·").font(.body(16, status != .available ? .regular : .medium))
             +
-            Text(" \(hour)").font(.body(14)).foregroundStyle(Color.grayText)
+            Text(" \(hour)").font(.body(14)).foregroundStyle(Color.textTertiary)
         }
         .opacity(status != .available ? 0.6 : 1)
     }
@@ -76,7 +76,7 @@ extension InvitedTimeCell {
         if status != .available {
             Text(status.rawValue)
                 .font(.body(12, .italic))
-                .foregroundStyle(isShaking ? Color.warningYellow : Color.grayText)
+                .foregroundStyle(isShaking ? Color.warningYellow : Color.textTertiary)
                 .animation(.easeInOut(duration: 0.2), value: isShaking)
                 .padding(.horizontal)
                 .padding(.top, 12)
@@ -125,6 +125,6 @@ extension View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white, in: .rect(cornerRadius: 16))
             .opacity(isAvailable ? 0.4 : 1)
-            .stroke(16, lineWidth: 1, color: isSelected ? Color.appGreen.opacity(0.35) : Color.grayBackground)
+            .stroke(16, lineWidth: 1, color: isSelected ? Color.successGreen.opacity(0.35) : Color.border)
     }
 }

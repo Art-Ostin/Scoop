@@ -1,6 +1,6 @@
 //
 //  ColorMenu.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 20/06/2025.
 //
@@ -40,13 +40,6 @@ extension UINavigationBar {
     }
 }
 
-//Newer iOS 26 builds have SwiftUI re-assert the navigation bar's appearance
-//objects after content/tab transitions — both bar-level and per-item (a
-//UINavigationItem appearance overrides the bar AND the proxy) — so the title
-//silently falls back to the system font. A one-shot fix loses that race; this
-//enforcer keeps watching the enclosing bar and restores the Scoop appearance
-//whenever anything overwrites it. Every pass is guarded by a font check, so
-//it settles immediately and never loops.
 private struct NavigationBarFontEnforcer: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> EnforcerController { EnforcerController() }

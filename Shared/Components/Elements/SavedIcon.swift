@@ -16,7 +16,7 @@ struct SavedIcon: View {
         HStack(spacing: isSettings ? 2 : 12) {
             Text("Saved")
                 .font(.body(isSettings ? 12 : 14, .bold))
-                .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
+                .foregroundStyle(Color.successGreen)
             
             Image("GreenTick")
                 .offset(y: -2)

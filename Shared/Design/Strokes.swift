@@ -1,6 +1,6 @@
 //
 //  Strokes.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 14/06/2026.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
 
-    func rectangleStroke(radius: CGFloat, lineWidth: CGFloat, color: Color = Color.grayPlaceholder) -> some View {
+    func rectangleStroke(radius: CGFloat, lineWidth: CGFloat, color: Color = Color.border) -> some View {
         self
             .overlay {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
@@ -19,7 +19,7 @@ extension View {
 
     /// Stroke variant for asymmetric corners (e.g. a card whose top and bottom
     /// radii differ). Matches the shape the glass/background uses so they align.
-    func rectangleStroke(corners: RectangleCornerRadii, lineWidth: CGFloat, color: Color = Color.grayPlaceholder) -> some View {
+    func rectangleStroke(corners: RectangleCornerRadii, lineWidth: CGFloat, color: Color = Color.border) -> some View {
         self
             .overlay {
                 UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
@@ -27,7 +27,7 @@ extension View {
             }
     }
 
-    func circleStroke(lineWidth: CGFloat, color: Color = Color.grayPlaceholder) -> some View {
+    func circleStroke(lineWidth: CGFloat, color: Color = Color.border) -> some View {
         self
             .overlay {
                 Circle()

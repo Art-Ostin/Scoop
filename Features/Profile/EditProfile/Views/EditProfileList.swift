@@ -1,6 +1,6 @@
 //
 //  CustomList.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 12/07/2025.
 //
@@ -30,7 +30,7 @@ struct CustomList<Content: View> : View {
             if let title = title {
                 Text(title)
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.textTertiary)
                     .padding(.horizontal, 16)
 
                 if showInfoText {
@@ -73,9 +73,9 @@ struct ListItem<Value: Hashable>: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.body(.bold))
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(Color.textPrimary)
                     Text(isEmpty ? "Add Info" : (writeAll ? "All" : response.joined(separator: ", ")))
-                        .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                        .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
                         .font(.body(15))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
@@ -83,7 +83,7 @@ struct ListItem<Value: Hashable>: View {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.body(13, .bold))
-                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                    .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 6)

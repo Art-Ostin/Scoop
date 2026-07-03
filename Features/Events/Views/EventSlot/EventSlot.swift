@@ -89,7 +89,7 @@ extension EventSlot {
     
     private var eventDivider: some View {
         RoundedRectangle(cornerRadius: 1)
-            .fill(Color(white: 0.8))
+            .fill(Color.border)
             .frame(maxWidth: .infinity, maxHeight: 1)
             .padding(.horizontal, 72)
             .padding(.vertical, 4)//add tad more padding here than default
@@ -110,16 +110,16 @@ extension View {
         self
             .background (Color.appCanvas, in: .rect(cornerRadius: 16))
             .compositingGroup()
-            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
-            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
-            .stroke(16, lineWidth: 0.85, color: Color(white: 0.94))
+            .shadow(color: Color.black.opacity(0.0125), radius: 4, x: 0, y: 1)
+            .shadow(color: Color.black.opacity(0.0075), radius: 12, x: 0, y: 0)
+            .stroke(16, lineWidth: 0.85, color: Color.border)
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view
     func eventTextOverlay(isDetails: Bool = false) -> some View {
         self
             .font(.title(13, .semibold))
-            .foregroundStyle(isDetails ? Color(red: 0.55, green: 0, blue: 0.25) : Color(white: 0.68))
+            .foregroundStyle(isDetails ? Color.textAccent : Color.textTertiary)
             .padding(.horizontal, 4)
             .padding(.vertical, 2)
             .background(Color.appCanvas)

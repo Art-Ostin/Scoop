@@ -39,7 +39,7 @@ extension InvitePlaceRow {
 
                 DropDownButton(isOpen: ui.showMessageScreen)
             }
-            .opacity(ui.isPopopOpenDelayed() ? 0 : 1)
+            .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
         .shrinkButton(shadow: nil, shadowColor: .clear)
     }
@@ -47,7 +47,7 @@ extension InvitePlaceRow {
     private var noLocationPlaceholder: some View {
         Text("Choose Place")
             .font(.body(16, .regular))
-            .foregroundStyle(Color(white: 0.4))
+            .foregroundStyle(Color.textSecondary)
     }
     
     
@@ -55,12 +55,12 @@ extension InvitePlaceRow {
         VStack(alignment: .trailing, spacing: 4) {
             Text(location.name ?? "")
                 .font(.body(17, .medium))
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.trailing)
             
             Text(FormatEvent.addressBeforeFirstComma(location.address))
                 .font(.body(12, .regular))
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textSecondary)
                 .lineLimit(1)
         }
     }

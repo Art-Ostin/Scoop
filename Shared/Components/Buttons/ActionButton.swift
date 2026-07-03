@@ -1,6 +1,6 @@
 //
 //  ActionButton.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 18/06/2025.
 //
@@ -18,7 +18,7 @@ struct ActionButton: View {
     let onTap: () -> Void
     
     var color: Color {
-        isValid ? (isInvite ? Color.appGreen : Color.accent) : Color.grayBackground
+        isValid ? (isInvite ? Color.successGreen : Color.accent) : Color.fillGray
     }
     
     var shadow: Elevation? { isValid && showShadow ? .high : nil}

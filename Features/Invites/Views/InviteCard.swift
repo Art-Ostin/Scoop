@@ -1,6 +1,6 @@
 //
 //  NewInviteCard.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 06/06/2026.
 //
@@ -42,7 +42,7 @@ struct InviteCard: View {
                 .coordinateSpace(name: "ProfileCard")
             
             RoundedRectangle(cornerRadius: 1)
-                .fill(Color(white: 0.8))
+                .fill(Color.border)
                 .frame(maxWidth: .infinity, maxHeight: 1)
                 .padding(.horizontal, 72)
                 .padding(.vertical, 4)

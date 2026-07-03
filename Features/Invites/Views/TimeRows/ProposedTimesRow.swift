@@ -55,7 +55,7 @@ extension ProposedTimesRow {
             if dates.count == 0 {
                 Text("Select Time")
                     .font(.body(15, .medium))
-                    .foregroundStyle(Color(red: 0.3, green: 0.3, blue: 0.3))
+                    .foregroundStyle(Color.textSecondary)
                 
             } else if dates.count == 1 {
                 Text(FormatEvent.dayAndTime(dates.first ?? Date(), withHour: true))
@@ -78,7 +78,7 @@ extension ProposedTimesRow {
             if let firstTime = dates.first {
                 Text(FormatEvent.hourTime(firstTime))
                     .font(.footnote)
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color.textTertiary)
             }
         }
     }

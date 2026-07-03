@@ -10,7 +10,7 @@ import SwiftUI
 struct CustomDivider: View {
     var body: some View {
         Rectangle()
-            .foregroundStyle(Color(red: 0.91, green: 0.91, blue: 0.91))
+            .foregroundStyle(Color.border)
             .frame(height: 1)
             .frame(maxWidth: .infinity)
     }
@@ -22,7 +22,7 @@ struct LightDivider: View {
 
     var body: some View {
         Rectangle()
-            .foregroundStyle(Color(white: 0.84))
+            .foregroundStyle(Color.border)
             .frame(height: 1/displayScale) //exactly 1.5 physical pixels — identical on every device
             .frame(maxWidth: .infinity)
     }

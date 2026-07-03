@@ -1,6 +1,6 @@
 //
 //  EventImageCard.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 10/06/2026.
 //

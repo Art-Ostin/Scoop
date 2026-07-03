@@ -1,6 +1,6 @@
 //
 //  MapSearchView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 02/07/2025.
 //
@@ -84,11 +84,11 @@ extension MapSheetContainer {
 
             VStack {
                 ProgressView()
-                    .tint(Color.grayText)
+                    .tint(Color.textTertiary)
                 
                 Text("Searching...")
                     .font(.body(17, .medium))
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.textTertiary)
             }
             
             Spacer()

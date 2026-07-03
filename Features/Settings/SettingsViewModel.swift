@@ -1,6 +1,6 @@
 //
 //  SettingsViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 27/08/2025.
 //

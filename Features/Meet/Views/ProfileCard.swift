@@ -1,6 +1,6 @@
 //
 //  ProfileCard.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 09/08/2025.
 

@@ -22,11 +22,9 @@ struct InviteTypeRow: View {
     //Snapshot of the message when the editor opens, so we can tell if it changed on close.
     @State private var messageBeforeEdit: String?
     
-    
     @State private var openInfoTypes: Set<Event.EventType> = []
     
     @State private var typePulse = false
-
 
 
     //3. Need Frames for DropDown Menu Tracker
@@ -87,9 +85,9 @@ extension InviteTypeRow {
                 if onMessagePage {
                     Text(type.title.capitalized)
                         .font(.body(13, .regular))
-                        .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                        .foregroundStyle(Color.textTertiary)
                 } else {
-                    inviteTypeText(.what)
+                    RowCaption(label: .what, dimmed: false)
                 }
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line
@@ -103,7 +101,7 @@ extension InviteTypeRow {
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
         .animation(.snappy, value: scrolledPageID)
-        .opacity(ui.typePopupOpen ? 0.3 : 1)
+        .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
@@ -114,7 +112,7 @@ extension InviteTypeRow {
                 .scaleEffect(0.6, anchor: .bottom)
                 .padding(.bottom, 8)
                 .offset(x: 6)
-                .opacity(ui.typePopupOpen ? 0 : 1)
+                .opacity(ui.isPopupOpen(.type) ? 0 : 1)
     }
 
     private func pulseTypeTitle() {
@@ -158,7 +156,7 @@ extension InviteTypeRow {
         TypeRowMenuLabel(
             type: type,
             message: message,
-            isPopupOpen: ui.typePopupOpen,
+            isPopupOpen: ui.isPopupOpen(.type),
             scrollProgress: $scrollProgress,
             scrolledPageID: $scrolledPageID,
             messageHeight: $messageHeight, ui: ui,
@@ -213,8 +211,8 @@ extension InviteTypeRow {
             morphAnchor: morphAnchor,
             flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
             placementOffsetY: 24,
-            onOpen: { ui.typePopupOpen = true },
-            onClose: { ui.typePopupOpen = false; openInfoTypes.removeAll() },
+            onOpen: { ui.activePopup = .type },
+            onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
             onLabelTap: handleScrollerTap,
             footer: { AnyView(addMessageFooter) },
             content: { selectTypeView },
@@ -300,7 +298,7 @@ private struct TypeRowMenuLabel: View {
         if !message.isEmpty {
             Text(message)
                 .font(.footnote)
-                .foregroundStyle(.gray)
+                .foregroundStyle(Color.textSecondary)
                 .lineLimit(3)
                 .multilineTextAlignment(.trailing)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { messageHeight = $0 }
@@ -310,7 +308,7 @@ private struct TypeRowMenuLabel: View {
         } else {
             Text("Add Message")
                 .font(.body(16, .regular))
-                .foregroundStyle(Color(white: 0.4))
+                .foregroundStyle(Color.textSecondary)
                 .transition(.opacity.animation(.smooth(duration: 0.2)))
         }
     }
@@ -330,7 +328,7 @@ private struct AddMessageFooter: View {
 
     var body: some View {
         Text(message.isEmpty ? "Add a Message" : "Edit Message")
-            .foregroundStyle(Color.black)
+            .foregroundStyle(Color.textPrimary)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
@@ -346,12 +344,3 @@ private struct AddMessageFooter: View {
             }
     }
 }
-
-/*
- if message.isEmpty {
-     inviteTypeButton
- } else {
-     
- }
-
- */

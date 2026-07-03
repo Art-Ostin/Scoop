@@ -1,6 +1,6 @@
 //
 //  OptionCellNoCount.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
 //
@@ -27,7 +27,7 @@ struct OptionPill: View {
         
         Text(title)
             .frame(width: width, height: 44)
-            .background (selected ? Color.accent : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
+            .background (selected ? Color.accent : Color.fillGray, in: RoundedRectangle(cornerRadius: 20))
             .font(.body(16, .bold))
             .foregroundStyle(selected ? Color.white : Color.black)
             .onTapGesture {
@@ -56,7 +56,7 @@ struct SexStandardPill: View {
     var body: some View {
         Text(title)
             .frame(width: 148, height: 44)
-            .background (isSelected ? Color.accentColor : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
+            .background (isSelected ? Color.accent : Color.fillGray, in: RoundedRectangle(cornerRadius: 20))
             .font(.body(16, .bold))
             .foregroundStyle(isSelected ? Color.white : Color.black)
             .onTapGesture {

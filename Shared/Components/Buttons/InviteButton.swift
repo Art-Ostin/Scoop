@@ -1,6 +1,6 @@
 //
 //  InviteButton.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 30/05/2026.
 //
@@ -17,7 +17,7 @@ struct InviteButton: View {
     let action: () -> Void
     
     var body: some View {
-        ScoopButton(style: .tinted(isInviting ? Color.accent : Color.appGreen, shadow:  isInviteCard ? nil : .high), shape: Circle(), action: action) {
+        ScoopButton(style: .tinted(isInviting ? Color.accent : Color.successGreen, shadow:  isInviteCard ? nil : .high), shape: Circle(), action: action) {
             Image("LetterIconProfile")
                 .resizable()
                 .scaledToFit()

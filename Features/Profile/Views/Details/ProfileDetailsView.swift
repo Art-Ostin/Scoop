@@ -1,6 +1,6 @@
 //
 //  pDetailsView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 23/06/2025.
 
@@ -55,7 +55,7 @@ struct ProfileDetailsView: View {
         .frame(maxWidth: .infinity)
         .frame(height: ui.detailsCardHeight).background(Color.appCanvas)
         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
-        .stroke(30, lineWidth: 1, color: Color.grayPlaceholder)
+        .stroke(30, lineWidth: 1, color: Color.border)
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)
@@ -80,7 +80,7 @@ extension ProfileDetailsView {
     @ViewBuilder private var eventInvite: some View {
         if let event = event, event.status == .accepted {
             DetailsSection(
-                color: .appGreen,
+                color: .successGreen,
                 title: "event with \(event.otherUserName)",
                 adaptivePadding: true,
                 padding: 12
@@ -93,9 +93,9 @@ extension ProfileDetailsView {
 
     private var keyInfoStrokeColour: Color {
         if !ui.detailsOpen {
-            Color.grayPlaceholder.opacity(0.4)
+            Color.border.opacity(0.5)
         } else if vm.viewProfileType == .accept {
-            Color.appGreen
+            Color.successGreen
         } else {
             Color.accent
         }
@@ -112,7 +112,7 @@ extension ProfileDetailsView {
         
 
     private var profileInterests: some View {
-        DetailsSection(color: .grayPlaceholder, title: "Interests & Character") {
+        DetailsSection(color: .border, title: "Interests & Character") {
             UserInterests(p: p)
                 .padding(.vertical, -12)
         }

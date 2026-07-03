@@ -1,6 +1,6 @@
 //
 //  ProfileInvite.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 18/08/2025.
 //

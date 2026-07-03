@@ -1,6 +1,6 @@
 //
-//  NextButton2.swift
-//  ScoopTest
+//  NextButton.swift
+//  Scoop
 //
 //  Created by Art Ostin on 05/07/2025.
 //
@@ -12,7 +12,7 @@ struct NextButton: View {
     let onTap: () -> Void
         
     var shadow: Elevation? { isValid ? .medium : nil }
-    var color: Color { isValid ? .accent : .grayPlaceholder}
+    var color: Color { isValid ? .accent : .fillGray}
     var radius: some Shape {.rect(cornerRadius: 33) }
     
     var body: some View {

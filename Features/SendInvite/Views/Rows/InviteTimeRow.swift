@@ -40,12 +40,12 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            rowTitle.opacity(ui.typePopupOpenDelayed ? 0.3 : 1)
+            rowTitle.opacity(ui.isPopupOpenDelayed(.type) ? 0.3 : 1)
             Spacer()
-            timeCustomMenu.opacity(ui.typePopupOpenDelayed ? 0 : 1)
+            timeCustomMenu.opacity(ui.isPopupOpenDelayed(.type) ? 0 : 1)
         }
         .overlay(alignment: .bottom) {
-            pageIndicator.opacity(ui.typePopupOpenDelayed ? 0 : 1)
+            pageIndicator.opacity(ui.isPopupOpenDelayed(.type) ? 0 : 1)
         }
         .background { pickerWarmUp }
         .offset(y: 1.5)
@@ -102,12 +102,12 @@ private extension InviteTimeRow {
 
     func openMenu() {
         draft = proposedTimes
-        ui.timePopupOpen = true
+        ui.activePopup = .time
     }
 
     func closeMenu() {
         proposedTimes = draft
-        ui.timePopupOpen = false
+        ui.activePopup = nil
         snapToActivePage()
     }
 
@@ -125,11 +125,11 @@ private extension InviteTimeRow {
         ZStack(alignment: .leading) {
             Group {
                 if isWhenLabel {
-                    inviteTypeText(.when)
+                    RowCaption(label: .when, dimmed: false)
                 } else {
                     Text(optionTitle)
                         .font(.body(13, .regular))
-                        .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+                        .foregroundStyle(Color.textTertiary)
                 }
             }
             .contentTransition(.numericText())
@@ -225,7 +225,7 @@ private struct TimeRowMenuLabel: View {
         Text("Choose Time")
             .kerning(0.32)
             .font(.body(16, .regular))
-            .foregroundStyle(Color(white: 0.4))
+            .foregroundStyle(Color.textSecondary)
             .transition(.opacity.animation(.smooth(duration: 0.2)))
     }
 }

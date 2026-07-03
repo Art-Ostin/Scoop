@@ -24,7 +24,7 @@ struct BlockedView: View {
                     
                     Text(verbatim: email)
                         .font(.body(14, .medium))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                 }
                 Image("Monkey")
                     .onTapGesture {
@@ -33,7 +33,7 @@ struct BlockedView: View {
                 VStack(spacing: 12) {
                     Text("Account blocked for not showing")
                         .font(.body(17, .italic))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                         .lineSpacing(6)
                         .multilineTextAlignment(.center)
                     

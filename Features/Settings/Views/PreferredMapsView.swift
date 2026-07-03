@@ -82,9 +82,9 @@ extension PreferredMapsView {
             }
             .frame(width: 148, height: 44, alignment: .center)
             .font(.body(15, .bold))
-            .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.grayPlaceholder)
-            .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.blue)
-            .foregroundStyle(isSelected ? Color.black : Color.grayPlaceholder)
+            .stroke(20, lineWidth: isSelected ? 0 : 1, color: Color.border)
+            .stroke(20, lineWidth: isSelected ? 1 : 0, color: Color.accent)
+            .foregroundStyle(isSelected ? Color.textPrimary : Color.textPlaceholder)
         }
     }
     

@@ -1,6 +1,6 @@
 //
 //  AddImageView3.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 23/07/2025.
 //
@@ -37,7 +37,7 @@ struct OnboardingImages: View {
             
             Text("Ensure you're in all")
                 .font(.body())
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textTertiary)
             
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(images.indices, id: \.self) { index in

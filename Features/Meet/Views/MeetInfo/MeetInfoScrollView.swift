@@ -1,6 +1,6 @@
 //
 //  MeetInfoSection1.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 28/05/2026.
 //

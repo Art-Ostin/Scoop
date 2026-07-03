@@ -84,7 +84,7 @@ struct ProfileContainer: View {
             // cover-presentation latency that makes the morph pop in collapsed before opening.
             style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
                 .presentedAsOverlay()
-                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
+                .tinted(vm.viewProfileType == .invite ? .accent : .successGreen)
                 .sideMargin(SendInviteContainer.screenMargin),
             image: { _ in displayImages.first }
         ) { _ in

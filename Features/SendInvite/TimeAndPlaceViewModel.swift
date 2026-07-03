@@ -44,18 +44,6 @@ class TimeAndPlaceViewModel {
 }
 
 
-/*
- //Drive certain behaviour is popup open
- var typePopupOpen: Bool = false
- var timePopupOpen: Bool = false
- var typePopupOpenDelayed: Bool = false
- var timePopupOpenDelayed: Bool = false
- let rowHeight: CGFloat = 50
- var showConfirmPopup: Bool = false
- var isMessageTap: Bool = false
- */
-
-
 @Observable class TimeAndPlaceUIState {
     
     //1. Logic to deal with the popup open
@@ -65,9 +53,13 @@ class TimeAndPlaceViewModel {
     var activePopup: Popup?
     private(set) var delayedPopup: Popup?
     
-    ///Convenienve functions to check if the type open or not
-    func isPopupOpen(_ popup: Popup? = nil) -> Bool { popup == activePopup }
-    func isPopopOpenDelayed(_ popup: Popup? = nil) -> Bool {popup == delayedPopup}
+    ///Check a specific popup, or whether any popup is open when called with no argument.
+    func isPopupOpen(_ popup: Popup? = nil) -> Bool {
+        popup == nil ? activePopup != nil : popup == activePopup
+    }
+    func isPopupOpenDelayed(_ popup: Popup? = nil) -> Bool {
+        popup == nil ? delayedPopup != nil : popup == delayedPopup
+    }
     
     func syncDelayedPopup() async {
         let target = activePopup

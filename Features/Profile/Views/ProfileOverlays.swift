@@ -60,7 +60,7 @@ extension ProfileContainer {
         } label: {
             Image(systemName: "chevron.down")
                 .font(.body(18, .bold))
-                .foregroundStyle(.black)
+                .foregroundStyle(Color.textPrimary)
         }
         .buttonStyle(.plain)
     }

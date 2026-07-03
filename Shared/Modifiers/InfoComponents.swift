@@ -1,6 +1,6 @@
 //
 //  InfoText.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 17/06/2026.
 //
@@ -13,14 +13,14 @@ extension View {
         self
             .multilineTextAlignment(.leading)
             .font(.body(12, .regular))
-            .foregroundStyle(Color.grayText)
+            .foregroundStyle(Color.textTertiary)
             .lineSpacing(4)
     }
 }
 
 struct SmallInfoIcon: View {
     var size: CGFloat = 12
-    var colour = Color(red: 0.8, green: 0.8, blue: 0.8)
+    var colour = Color.textPlaceholder
     
     var body: some View {
         Image(systemName: "info.circle")

@@ -1,6 +1,6 @@
 //
 //  SingleChoiceEdit.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 27/07/2025.
 

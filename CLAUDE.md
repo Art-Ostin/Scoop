@@ -72,10 +72,16 @@ Features/<Name>/
 
 ## Design tokens
 
-- Colors: only named tokens from `Shared/Design/ScoopColors.swift` (`.appCanvas`, `.appGreen`,
-  `.grayBackground`, `.grayPlaceholder`, `.grayText`, `.dangerRed`, `.warningYellow`, ...).
-  Raw `Color(red:green:blue:)` is allowed **only inside ScoopColors.swift**. Need a new color?
-  Add a token.
+- Colors: only named tokens from `Shared/Design/Colors.swift`. Text levels: `.textPrimary`,
+  `.textSecondary`, `.textTertiary` (glanceable labels/icons only — never sentences),
+  `.textPlaceholder`, `.textAccent` (accent-hued *type* on light backgrounds). Surfaces & lines:
+  `.appCanvas`, `.fillGray` (fills, disabled buttons), `.border` (hairlines, strokes, dividers).
+  Status: `.successGreen` (confirmed/accepted states only), `.dangerRed`, `.warningYellow`.
+  The brand accent lives in `Assets.xcassets/AccentColor` (drives system tinting) — use `.accent`
+  for fills/controls and `.textAccent` when the accent appears as text.
+  Raw `Color(red:green:blue:)` is allowed **only inside Colors.swift**, plus the map-category
+  identity gradients in `MapCategory.swift`/`MapSearchView.swift` (data, not chrome). Need a
+  new color? Add a token.
 - Fonts: only `Shared/Design/ScoopFonts.swift` — `.font(.body(16, .medium))`,
   `.font(.title(26))`, and the `UIFont` variants. No `.font(.system(...))` in features.
 

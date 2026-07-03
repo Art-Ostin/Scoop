@@ -1,6 +1,6 @@
 //
 //  InterestsTest.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
@@ -25,7 +25,7 @@ struct InterestsHolder<Content: View, Value: Hashable>: View {
                 HStack {
                     Text("Interests & Character")
                         .font(.body(12, .bold))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textTertiary)
                     Spacer()
                     Image("EditGray")
                         .offset(x: -8)

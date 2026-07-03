@@ -1,6 +1,6 @@
 //
 //  EventScrollView.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 11/06/2026.
 //
@@ -26,7 +26,7 @@ struct EventScrollView: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .inset(by: 0.5)
-                            .stroke(Color(red: 0.55, green: 0, blue: 0.25), lineWidth: 1)
+                            .stroke(Color.textAccent, lineWidth: 1)
                     )
                     .animation(.spring, value: isSelected)
             }

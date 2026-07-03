@@ -1,6 +1,6 @@
 //
 //  InviteComponents.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 02/07/2026.
 //
@@ -17,7 +17,7 @@ struct RowCaption: View {
     var body: some View {
         Text(label.rawValue.uppercased())
             .font(.body(11, .regular))
-            .foregroundStyle(Color(red: 0.70, green: 0.70, blue: 0.75))
+            .foregroundStyle(Color.textTertiary)
             .opacity(dimmed ? 0.3 : 1)
     }
 }

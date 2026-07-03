@@ -42,7 +42,7 @@ extension MapSearchBar {
     private var searchIcon: some View {
         Image(systemName: "magnifyingglass")
             .font(.system(size: 17, weight: .medium))
-            .foregroundStyle(.black)
+            .foregroundStyle(Color.textPrimary)
             .padding(.leading, 12)
     }
         
@@ -58,7 +58,7 @@ extension MapSearchBar {
                     .padding(4)
                     .background (
                         Circle()
-                            .foregroundStyle(Color(red: 0.53, green: 0.53, blue: 0.56))
+                            .foregroundStyle(Color.textSecondary)
                     )
                     .scaleEffect(0.8)
                     .padding(.horizontal, 12)

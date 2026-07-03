@@ -1,6 +1,6 @@
 //
 //  DefaultsManager.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 22/08/2025.
 //

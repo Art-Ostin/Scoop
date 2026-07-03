@@ -1,6 +1,6 @@
 //
 //  InvitesPlaceholder.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 23/06/2026.
 //

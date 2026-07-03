@@ -33,7 +33,7 @@ struct CantMakeIt: View {
                              
             Text("But to deter people bailing from nerves or effort ")
             + Text("your account is frozen for 14 days 🥶")
-                .foregroundStyle(Color(red: 0, green: 0.65, blue: 0.73))
+                .foregroundStyle(Color.successGreen)
             
             
             Text("If you don’t show, ")

@@ -83,11 +83,11 @@ extension MapSearchView {
                 HStack(spacing: 12) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                     
                     (
-                        Text(search.title).foregroundStyle(.black).font(.body(17, .medium)) +
-                    Text(" · \(search.town)").foregroundStyle(Color.grayText)
+                        Text(search.title).foregroundStyle(Color.textPrimary).font(.body(17, .medium)) +
+                    Text(" · \(search.town)").foregroundStyle(Color.textSecondary)
                     )
                     .font(.body(17, .regular))
                     .lineLimit(1)
@@ -100,7 +100,7 @@ extension MapSearchView {
                 clearRecentSeachButton(place: search)
             } label: {
                 Image(systemName: "ellipsis")
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.textPrimary)
                     .font(.system(size: 20, weight: .medium))
                     .contentShape(Rectangle())
                     .frame(width: 44, height: 44, alignment: .trailing)
@@ -129,7 +129,7 @@ extension MapSearchView {
                         .padding(.trailing, 16)
                 }
             }
-            .foregroundStyle(.black)
+            .foregroundStyle(Color.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -147,7 +147,7 @@ extension MapSearchView {
             } buttonLabel: {
                 Image(systemName: "xmark")
                     .font(.system(size: 17, weight: .heavy))
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.textPrimary)
             }
             */
         }
@@ -195,12 +195,12 @@ extension MapSearchView {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "minus.circle")
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.textPrimary)
                 
                 Text("Clear")
             }
         }
-        .foregroundStyle(Color.black)
+        .foregroundStyle(Color.textPrimary)
     }
 }
 
@@ -230,7 +230,7 @@ private struct MapSearchBox<Content: View>: View {
             .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.gray.opacity(0.05), lineWidth: 0.5)
+                    .stroke(Color.border.opacity(0.2), lineWidth: 0.5)
             )
             .padding(.horizontal, 16)
         }
@@ -275,7 +275,7 @@ private struct SearchSuggestionRow: View {
                 
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundStyle(Color(Color(red: 0.54, green: 0.54, blue: 0.56)))
+                    .foregroundStyle(Color.textSecondary)
                     .lineLimit(1)
             }
         }
@@ -313,7 +313,7 @@ private struct SearchSuggestionRow: View {
 struct MapDivider: View {
     var body: some View {
         Rectangle()
-            .foregroundStyle(Color(red: 0.91, green: 0.91, blue: 0.91))
+            .foregroundStyle(Color.border)
             .frame(height: 1)
             .frame(maxWidth: .infinity)
     }

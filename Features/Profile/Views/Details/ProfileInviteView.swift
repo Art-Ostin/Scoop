@@ -38,7 +38,7 @@ extension ProfileInviteView {
                     +
                     Text(message)
                         .font(.footnote)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color.textSecondary)
                 )
             }
         }
@@ -58,7 +58,7 @@ extension ProfileInviteView {
 
                     Text(FormatEvent.hourTime(first))
                         .font(.footnote)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color.textSecondary)
                 }
             }
         }
@@ -68,7 +68,7 @@ extension ProfileInviteView {
         HStack(spacing: 24) {
             Image("MiniMapIcon")
                 .scaleEffect(1.3)
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
 
             VStack {
                 let location = event.location
@@ -77,7 +77,7 @@ extension ProfileInviteView {
                         .font(.body(16, .medium))
                     Text(FormatEvent.addressWithoutCountry(location.address))
                         .font(.footnote)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(Color.textSecondary)
                 }
             }
         }

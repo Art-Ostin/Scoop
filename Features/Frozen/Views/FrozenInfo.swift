@@ -31,7 +31,7 @@ struct FrozenInfo: View {
                 }
             }
             .font(.body(17, .italic))
-            .foregroundStyle(.black)
+            .foregroundStyle(Color.textPrimary)
             .lineSpacing(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             

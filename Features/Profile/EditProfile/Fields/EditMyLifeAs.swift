@@ -1,6 +1,6 @@
 //
 //  EmbodyYou.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
 //
@@ -124,7 +124,7 @@ extension EditMyLifeAs {
                 RoundedRectangle(cornerRadius: 20, style: .circular)
                     .frame(maxWidth: .infinity)
                     .frame(height: 1)
-                    .foregroundStyle (Color.grayPlaceholder)
+                    .foregroundStyle (Color.textPlaceholder)
             }
             Spacer()
         }

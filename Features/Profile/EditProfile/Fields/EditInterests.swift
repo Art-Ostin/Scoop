@@ -1,6 +1,6 @@
 //
 //  EditPassions.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 12/07/2025.
 //
@@ -279,7 +279,7 @@ struct OptionCell: View {
                     .fill(isSelected && fillColour ? Color.accent : Color.appCanvas)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected && !fillColour ? .accent : Color(red: 0.90, green: 0.90, blue: 0.90), lineWidth: 1)
+                            .stroke(isSelected && !fillColour ? .accent : Color.border, lineWidth: 1)
                     )
             )
             .overlay {

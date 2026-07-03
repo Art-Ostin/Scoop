@@ -1,6 +1,6 @@
 //
 //  InviteContainer.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 29/06/2026.
 //

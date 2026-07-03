@@ -72,7 +72,7 @@ extension ProfileImageEditor {
             dismiss()
         } label: {
             Text("Cancel")
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textTertiary)
                 .font(.body(14, .medium))
                 .frame(minWidth: 50, minHeight: 50, alignment: .center)   //Fixes bug so Icon is in centre of its tappable area
                 .padding(.horizontal, 16)

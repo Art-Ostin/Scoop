@@ -142,7 +142,7 @@ extension ChatContainer {
 
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.textPrimary)
             }
             .frame(height: 39) //Same height as medium buttons keeps consistency
             .padding(.trailing, 8)

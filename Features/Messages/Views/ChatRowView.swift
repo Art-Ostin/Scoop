@@ -49,7 +49,7 @@ extension ChatRowView {
         HStack(alignment: .top) {
             Text(chatPreview.name)
                 .font(.body(18, .bold))
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.textPrimary)
             Spacer()
             lastMessageTime
         }
@@ -83,14 +83,14 @@ extension ChatRowView {
         if let lastChat = chatPreview.lastChat {
             Text(lastChat)
                 .font(.system(size: 15, weight: .regular))
-                .foregroundStyle(Color(red: 0.42, green: 0.42, blue: 0.42))
+                .foregroundStyle(Color.textSecondary)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineLimit(2)
         } else {
             Text("Start Chat")
                 .font(.body(15, .regular))
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textSecondary)
         }
     }
     
@@ -99,7 +99,7 @@ extension ChatRowView {
         let isUnreadMessage = chatPreview.unreadCount > 0
         Text(chatPreview.lastChatTime)
             .font(.system(size: 15, weight: .regular))
-            .foregroundStyle(isUnreadMessage ? Color.accent : Color(red: 0.42, green: 0.42, blue: 0.42))
+            .foregroundStyle(isUnreadMessage ? Color.textAccent : Color.textSecondary)
             .padding(.trailing, 16)
     }
     

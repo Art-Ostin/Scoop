@@ -1,6 +1,6 @@
 //
 //  TextFieldEdit.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
@@ -96,7 +96,7 @@ extension TextFieldGeneric {
             RoundedRectangle(cornerRadius: 20, style: .circular)
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .foregroundStyle (Color.grayPlaceholder)
+                .foregroundStyle (Color.textPlaceholder)
         }
     }
 }

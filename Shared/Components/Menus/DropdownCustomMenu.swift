@@ -1,6 +1,6 @@
 //AI Code Beware!
 //  DropdownCustomMenu.swift
-//  Scoop Test
+//  Scoop
 //
 //  NOTE: The OPEN is the pre-2026-06-24 `TypeCustomMenu` behaviour, lifted into its
 //  own type (all symbols renamed `TypeCustomMenu*` → `DropdownCustomMenu*`): the label
@@ -130,7 +130,7 @@ struct DropdownCustomMenuBuilder: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 24))
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
                 .padding(8)
         }
     }
@@ -148,8 +148,8 @@ struct DropdownCustomMenuBuilder: View {
                 }
                 Divider()
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(44)), count: 4), spacing: 10) {
-                    ForEach([Color.appGreen, .accent, .warningYellow,
-                             .grayPlaceholder, .grayText, .appCanvas, .dangerRed], id: \.self) { color in
+                    ForEach([Color.successGreen, .accent, .warningYellow,
+                             .border, .textTertiary, .appCanvas, .dangerRed], id: \.self) { color in
                         Circle()
                             .fill(color)
                             .frame(width: 38, height: 38)
@@ -164,7 +164,7 @@ struct DropdownCustomMenuBuilder: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(Color.appGreen, in: Capsule())
+                .background(Color.successGreen, in: Capsule())
         }
     }
 

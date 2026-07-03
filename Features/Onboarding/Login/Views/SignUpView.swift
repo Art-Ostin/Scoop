@@ -1,6 +1,6 @@
 //
 //  SignUpPage.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/05/2025.
 //
@@ -79,7 +79,7 @@ extension SignUpView {
         VStack(spacing: 24){
             Text("Scoop")
                 .font(.title())
-                .foregroundStyle(.black)
+                .foregroundStyle(Color.textPrimary)
             
             (Text(tabSelection == 0 ? "Made by and for " : "Only available to ")
              + Text("Students"))
@@ -99,6 +99,6 @@ extension SignUpView {
         }
         .font(.body(10, .medium))
         .padding(.horizontal, 12)
-        .foregroundStyle(Color.grayText)
+        .foregroundStyle(Color.textSecondary)
     }
 }

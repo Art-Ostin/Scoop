@@ -1,6 +1,6 @@
 //
 //  InviteMorphMain.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/07/2026.
 //
@@ -112,7 +112,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .inset(by: 0.5)
-                .stroke(Color.grayBackground, lineWidth: 0.5)
+                .stroke(Color.border, lineWidth: 0.5)
                 .opacity(expanded ? 1 : 0)
         }
         .overlay {

@@ -1,6 +1,6 @@
 //
 //  MatchesViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 19/08/2025.
 //

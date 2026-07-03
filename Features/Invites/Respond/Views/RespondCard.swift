@@ -1,6 +1,6 @@
 //
 //  NewRespondAcceptCard.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 12/06/2026.
 //
@@ -81,7 +81,7 @@ extension RespondCard {
             MapsRouter.openMaps(defaults: vm.defaults, item: location.mapItem, withDirections: true)
         } label: {
             Text(location.name ?? "LocationEvent")
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
         }
         .shrinkButton(shadow: nil)
     }
@@ -103,7 +103,7 @@ extension RespondCard {
         let isModified = vm.respondDraft.respondType != .original
         let isValid = vm.respondDraft.originalInvite.selectedDay != nil
 
-        let colour: Color = isModified ? .accent : (isValid ? .appGreen : .grayPlaceholder)
+        let colour: Color = isModified ? .accent : (isValid ? .successGreen : .fillGray)
 
         return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: 16)) {
             if isModified {
@@ -126,10 +126,10 @@ extension RespondCard {
         } label: {
             Text("Decline")
                 .font(.body(16, .bold))
-                .foregroundStyle(Color(red: 0.36, green: 0.36, blue: 0.36))
+                .foregroundStyle(Color.textSecondary)
                 .frame(width: 135)
                 .frame(height: 40)
-                .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
+                .stroke(16, lineWidth: 1.5, color: Color.border)
         }
     }
 }
@@ -141,7 +141,7 @@ struct RespondCardBackground: ViewModifier {
         content
             .padding(.vertical, 18)
             .padding(.horizontal, 24)
-            .inviteCardBackground() //Slight green tint for shadow
+//            .inviteCardBackground() //Slight green tint for shadow
     }
 }
 

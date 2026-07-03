@@ -1,6 +1,6 @@
 //
 //  ButtonShadow.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 31/05/2026.
 //

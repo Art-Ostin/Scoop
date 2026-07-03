@@ -30,7 +30,7 @@ struct MessageBubbleView: View {
     var includeStroke: Bool { isInviteMessage ? true : false}
     
     var strokeColor: Color  {
-        isMyChat ? Color.accent.opacity(0.5) : Color.grayPlaceholder.opacity(0.1)
+        isMyChat ? Color.accent.opacity(0.5) : Color.border.opacity(0.1)
     }
 
     private var bubbleContentLeadingPadding: CGFloat {
@@ -42,13 +42,13 @@ struct MessageBubbleView: View {
     }
     
     var backgroundColor: Color {
-        isInviteMessage ? (isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93)) : (isMyChat ? Color.accent :  Color(red: 0.94, green: 0.93, blue: 0.92))
+        isMyChat ? (isInviteMessage ? Color.white : Color.accent) : Color.fillGray
     }
     
     var body: some View {
         Text(chat.content)
             .font(.body(isInviteMessage ? 14 : 16, .medium))
-            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : isInviteMessage ?  Color(red: 0.2, green: 0.2, blue: 0.2) : Color.black)
+            .foregroundStyle(isMyChat && !isInviteMessage ? Color.white : Color.textPrimary)
             .lineSpacing(isInviteMessage ? 3 : 5)
             .padding(.leading, bubbleContentLeadingPadding)
             .padding(.trailing, bubbleContentTrailingPadding)
@@ -158,7 +158,7 @@ extension MessageBubbleView {
             .padding(.horizontal, 10)
             .padding(.vertical, isInviteMessage ? 0 : 6)
             .kerning(isInviteMessage ? 0.3 : 1)
-            .foregroundStyle(isInviteMessage ? Color.accent : isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
+            .foregroundStyle(isInviteMessage ? Color.textAccent : isMyChat ? Color.white.opacity(0.7) : Color.textTertiary)
     }
     
     private enum BubbleRadius {
@@ -261,7 +261,7 @@ struct NewMessageBubble: View {
     var body: some View {
         Text(text)
             .font(.body(16, .medium))
-            .foregroundStyle(isMyChat ? Color.white : Color.black)
+            .foregroundStyle(isMyChat ? Color.white : Color.textPrimary)
             .lineSpacing(5)
             .padding(.leading, leadingPadding)
             .padding(.trailing, trailingPadding)
@@ -272,7 +272,7 @@ struct NewMessageBubble: View {
                 Text(time)
                     .font(.body(10, .regular))
                     .kerning(1)
-                    .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.gray.opacity(0.8))
+                    .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.textTertiary)
                     .padding(.trailing, isMyChat && showsTail ? 26 : 12)
                     .padding(.bottom, 6)
             }
@@ -291,7 +291,7 @@ struct NewMessageBubble: View {
     }
 
     private var messageBackground: some View {
-        bubbleShape.fill(isMyChat ? Color.accent : Color(uiColor: .systemGray6).opacity(0.8))
+        bubbleShape.fill(isMyChat ? Color.accent : Color.fillGray)
     }
 
     private var leadingPadding: CGFloat {

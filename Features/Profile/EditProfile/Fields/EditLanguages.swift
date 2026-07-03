@@ -88,7 +88,7 @@ extension EditLanguages {
             RoundedRectangle(cornerRadius: 20, style: .circular)
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .foregroundStyle (Color.grayPlaceholder)
+                .foregroundStyle (Color.textPlaceholder)
         }
     }
     

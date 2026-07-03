@@ -82,7 +82,7 @@ extension RespondTimePopup {
         HStack {
             Text(showCustomTime ? "Invited Times" : "Propose New Time")
                 .font(.title(16, .medium))
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textTertiary)
             Spacer()
             toggleViewButton
         }
@@ -103,19 +103,19 @@ extension RespondTimePopup {
     
     private var optionsLabel: some View {
         Text("Options")
-            .foregroundStyle(Color.appGreen)
+            .foregroundStyle(Color.successGreen)
             .font(.title(12))
             .padding(4)
             .kerning(0.5)
             .padding(.horizontal, 6)
-            .stroke(16, lineWidth: 1, color: Color.appGreen.opacity(0.2))
+            .stroke(16, lineWidth: 1, color: Color.successGreen.opacity(0.2))
             .offset(y: -2)
     }
     
     private var cantMakeItLabel: some View {
         Text("Can't make it?")
             .font(.body(12, .bold))
-            .foregroundStyle((Color(red: 0.45, green: 0.45, blue: 0.45)))
+            .foregroundStyle((Color.textSecondary))
             .kerning(0.5)
     }
     
@@ -188,7 +188,7 @@ struct RespondTimeBackground: ViewModifier {
             .padding(.top, horizontalInset)
             .compositingGroup()
             .clipShape(.rect(cornerRadius: 16, style: .continuous))
-            .rectangleStroke(radius: 16, lineWidth: 1, color: Color.grayBackground)
+            .rectangleStroke(radius: 16, lineWidth: 1, color: Color.border)
     }
 }
 

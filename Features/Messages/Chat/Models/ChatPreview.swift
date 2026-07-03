@@ -1,6 +1,6 @@
 //
 //  ChatPreview.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 18/05/2026.
 //

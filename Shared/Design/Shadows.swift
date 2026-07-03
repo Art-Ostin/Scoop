@@ -1,6 +1,6 @@
 //
 //  ScoopShadows.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 14/06/2026.
 //

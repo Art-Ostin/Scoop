@@ -27,11 +27,11 @@ struct RespondTextBubble: View {
                 Text(message)
                 +
                 Text(showRespondButton ? "  Respond" : "")
-                    .foregroundStyle(isNewTime ? .accent: .appGreen)
+                    .foregroundStyle(isNewTime ? Color.textAccent : Color.successGreen)
                     .font(.body(12, .bold))
             )
                 .font(.body(14, .medium))
-                .foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
+                .foregroundStyle(Color.textPrimary)
                 .lineSpacing(3)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -52,10 +52,10 @@ extension RespondTextBubble {
         
     private var messageBackground: some View {
         bubbleShape
-            .fill(isMyChat ? .white : Color(red: 0.93, green: 0.93, blue: 0.93))
+            .fill(isMyChat ? .white : Color.fillGray)
             .overlay {
                 bubbleShape.stroke (
-                    isMyChat ? isNewTime ? Color.accent.opacity(0.5) : Color.appGreen : Color.grayPlaceholder.opacity(0.1),
+                    isMyChat ? isNewTime ? Color.accent.opacity(0.5) : Color.successGreen : Color.border.opacity(0.1),
                     style: StrokeStyle(lineWidth: 1, lineJoin: .round)
                 )
             }
@@ -91,7 +91,7 @@ extension RespondTextBubble {
             .font(.body(10, .bold))
             .padding(.horizontal, 10)
             .kerning(0.3)
-            .foregroundStyle(isNewTime ? Color.accent : Color.appGreen)
+            .foregroundStyle(isNewTime ? Color.textAccent : Color.successGreen)
             .padding(.bottom, 4)
     }
 }

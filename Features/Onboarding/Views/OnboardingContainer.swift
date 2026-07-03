@@ -1,6 +1,6 @@
 //
 //  NewOnboardingContainer.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
@@ -76,7 +76,7 @@ extension OnboardingContainer {
         HStack(spacing: 12) {
             Text("Saved")
                 .font(.body(14, .bold))
-                .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
+                .foregroundStyle(Color.successGreen)
             
             Image("GreenTick")
         }

@@ -1,6 +1,6 @@
 //
 //  EventDetails.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 
@@ -56,7 +56,7 @@ struct EventDetails: View {
                     Text("Maps")
                         .font(.body(10, .bold))
                 }
-                .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+                .foregroundStyle(Color.textAccent)
             }
             .shrinkButton(shadow: .medium, shadowColor: .accent)
         }
@@ -94,7 +94,7 @@ extension EventDetails {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.body(12, .medium))
-                    .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
+                    .foregroundStyle(Color.textTertiary)
                 
                 Text(mainText)
                     .font(.body(17, .bold))
@@ -111,7 +111,7 @@ extension EventDetails {
             showBack = toBack
         } label: {
             Image(systemName: "info.circle")
-                .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                .foregroundStyle(Color.textTertiary)
                 .font(.body(14, .medium))
         }
         .growButton()
@@ -136,11 +136,11 @@ struct DetailsBackground: ViewModifier {
          VStack(alignment: .leading, spacing: 8) {
              Text(title)
                  .font(.body(12, .medium))
-                 .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
+                 .foregroundStyle(Color.textSecondary)
              
              Text(mainText)
                  .font(.body(17, .bold))
-                 .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+                 .foregroundStyle(Color.textAccent)
          }
      }
  } else {

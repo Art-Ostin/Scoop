@@ -1,6 +1,6 @@
 //
 //  AppScrollView.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 29/05/2026.
 

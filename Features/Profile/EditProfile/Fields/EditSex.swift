@@ -121,7 +121,7 @@ extension GenericSex {
     
     private var rubbishBin: some View {
         Image(systemName: "trash")
-            .foregroundStyle(.black)
+            .foregroundStyle(Color.textPrimary)
             .font(.system(size: 16))
             .frame(width: 45)
             .padding(4)

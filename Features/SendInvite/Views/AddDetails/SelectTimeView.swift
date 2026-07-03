@@ -1,6 +1,6 @@
 //
 //  SelectTimeView2.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 02/08/2025.
 //
@@ -68,7 +68,7 @@ private extension SelectTimeView {
         HStack {
             Text("Propose 1-3 days to meet") //"Propose up to 3 days"
                 .font(.body(17, .medium))
-                .foregroundStyle(Color(white: 0.1))
+                .foregroundStyle(Color.textPrimary)
             Spacer()
             timeCountAndWarningSign
         }
@@ -93,7 +93,7 @@ private extension SelectTimeView {
                     } else {
                         Text("\(displayedCount)/3")
                             .contentTransition(.numericText(value: Double(displayedCount)))
-                            .foregroundStyle(Color(white: 0.25))
+                            .foregroundStyle(Color.textPrimary)
                             .font(.body(12, .bold))
                             .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
                             .transition(.opacity)
@@ -137,7 +137,7 @@ private extension SelectTimeView {
                     .uppercased()
             )
             .font(.system(size: 11, weight: .regular))          // Apple SF Pro
-            .foregroundStyle(Color(white: 0.75))
+            .foregroundStyle(Color.textPlaceholder)
             .fixedSize()                                         // natural width, centered on its column → overflows the 27pt track symmetrically
         }
     }
@@ -271,7 +271,7 @@ private struct DayCell: View {
         } label: {
             Text(day, format: .dateTime.day())
                 .font(.system(size: 17, weight: isSelected ? .semibold : .regular))  // Apple SF Pro
-                .foregroundStyle(isSelected ? .white : isToday ? Color(red: 0.06, green: 0.47, blue: 0.94) : Color(white: 0.1))
+                .foregroundStyle(isSelected ? .white : isToday ? Color.accent : Color.textPrimary)
                 .frame(width: 36, height: 36, alignment: .center)                       // bigger circle for 20pt number
                 .background {
                     Circle()
@@ -294,14 +294,14 @@ private struct DayCell: View {
          HStack {
              Text("Choose Time")
                  .font(.body(17, .bold))
-                 .foregroundStyle(Color(white: 0.1))
+                 .foregroundStyle(Color.textPrimary)
              Spacer()
              timeCountAndWarningSign
          }
          
          Text("Propose up to 3 days to Meet")
              .font(.body(12, .regular))
-             .foregroundStyle(Color(white: 0.6))
+             .foregroundStyle(Color.textTertiary)
      }
  }
  
@@ -325,7 +325,7 @@ private struct DayCell: View {
          ForEach(displayedDates, id: \.self) { proposedTime in
              Text(FormatEvent.shortDayAndTime(proposedTime.date, withHour: false))
                  .font(.body(10, .bold))
-                 .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
+                 .foregroundStyle(Color.textTertiary)
                  .transition(.blurReplace)
          }
      }

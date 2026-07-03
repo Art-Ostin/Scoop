@@ -60,7 +60,7 @@ struct MapCategoryIcon: View {
                     }
                     .font(.body(12, .bold))
                     .frame(width: 75)
-                    .foregroundStyle(isSelected ? Color.accent : Color.grayText.opacity(0.8))
+                    .foregroundStyle(isSelected ? Color.accent : Color.textTertiary.opacity(0.8))
                 }
             }
         }

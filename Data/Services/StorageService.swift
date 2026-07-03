@@ -1,6 +1,6 @@
 //
 //  StorageManager.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2025.
 // Cannot Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL

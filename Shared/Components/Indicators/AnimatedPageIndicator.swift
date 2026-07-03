@@ -28,13 +28,13 @@ struct AnimatedPageIndicator: View {
                 let width = (inactiveDotSize + (activeWidth - inactiveDotSize) * closeness) * shrink
 
                 Capsule()
-                    .fill(Color.grayPlaceholder)
+                    .fill(Color.border)
                     .opacity(isInviteIndicator ? 1 - closeness : 1)
                     .overlay(
                         Group {
                             if isInviteIndicator {
                                 Capsule()
-                                    .strokeBorder(Color(white: 0.5), lineWidth: 1.3)
+                                    .strokeBorder(Color.textSecondary, lineWidth: 1.3)
                             } else {
                                 Capsule()
                                     .fill(.primary)

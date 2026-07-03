@@ -1,6 +1,6 @@
 //
 //  SettingsContainer.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
 //
@@ -90,7 +90,7 @@ extension SettingsContainer {
         Rectangle()
             .frame(height: 1)
             .frame(maxWidth:.infinity)
-            .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+            .foregroundStyle(Color.border)
             .padding(.leading, 16)
     }
     
@@ -109,14 +109,14 @@ extension SettingsContainer {
             customRow(text: "Download My Data (Beta)")
         }
         .font(.body(17, .medium))
-        .foregroundStyle(Color.black)
+        .foregroundStyle(Color.textPrimary)
     }
     
     private var softDivider: some View {
         Rectangle()
             .frame(height: 1)
             .frame(maxWidth:.infinity)
-            .foregroundStyle(Color(red: 0.94, green: 0.94, blue: 0.94))
+            .foregroundStyle(Color.border)
             .padding(.horizontal, 24)
     }
     
@@ -126,7 +126,7 @@ extension SettingsContainer {
                 Text(text)
                 +
                 Text("   \(role ?? "") ")
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.textTertiary)
                     .font(.body(15, .regular))
             )
             Spacer()

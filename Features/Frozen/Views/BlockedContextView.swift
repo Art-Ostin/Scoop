@@ -42,7 +42,7 @@ struct BlockedContextView: View {
                     Text(frozenContext.eventTime)
                     Text(frozenContext.eventPlace)
                 }
-                .foregroundStyle(Color(red: 0.32, green: 0.32, blue: 0.32))
+                .foregroundStyle(Color.textSecondary)
                 .font(.body(16, .regular))
             }
             .padding(22)
@@ -53,7 +53,7 @@ struct BlockedContextView: View {
                     .foregroundStyle(Color.appCanvas)
                     .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
             )
-            .stroke(16, lineWidth: 1, color: Color.grayPlaceholder)
+            .stroke(16, lineWidth: 1, color: Color.border)
             .overlay(alignment: .bottomTrailing) {
                 Text("\(vm.user.name) " + (isBlock ? "didn't show" : "cancelled"))
                     .font(.body(12, .bold))

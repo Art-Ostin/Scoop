@@ -73,7 +73,7 @@ extension FrozenView {
 
                     Text(verbatim: vm.user.email)
                         .font(.body(14, .medium))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.top, 24)
@@ -95,7 +95,7 @@ extension FrozenView {
     private var tabTitle: some View {
         Text("Account frozen for" +  (tabSelection == 0 ? " cancelling" : ":"))
             .font(.body(17, .italic))
-            .foregroundStyle(Color.grayText)
+            .foregroundStyle(Color.textSecondary)
             .lineSpacing(6)
             .multilineTextAlignment(.center)
             .transition(.opacity)

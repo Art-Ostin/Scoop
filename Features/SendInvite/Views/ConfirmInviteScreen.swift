@@ -1,6 +1,6 @@
 //
 //  ConfirmInviteScreen.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 29/06/2026.
 //
@@ -63,7 +63,7 @@ extension ConfirmInviteScreen {
         .padding(.leading, 2)//Bit Extra Padding
         .overlay {
             Capsule()
-                .strokeBorder(Color(white: 0.8), lineWidth: 1)
+                .strokeBorder(Color.border, lineWidth: 1)
         }
         .shrinkPress {
             withAnimation(.snappy) {
@@ -107,7 +107,7 @@ extension ConfirmInviteScreen {
         if let message = draft.message {
             Text(message)
                 .font(.system(size: 13, weight: .regular).italic())
-                .foregroundStyle(Color(red: 0.43, green: 0.43, blue: 0.45))
+                .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.leading)
                 .lineSpacing(4)
         }
@@ -131,14 +131,14 @@ extension ConfirmInviteScreen {
         
         return HStack(spacing: 8 ) {
             Text(whatText)
-                .foregroundStyle(Color(white: 0.14))
+                .foregroundStyle(Color.textPrimary)
                 .layoutPriority(1)
             Text("·")
                 .layoutPriority(1)
-                .foregroundStyle(Color(white: 0.14))
+                .foregroundStyle(Color.textPrimary)
             
             Text(whereText)
-                .foregroundStyle(.accent)
+                .foregroundStyle(Color.textAccent)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .shrinkPress {
@@ -158,7 +158,7 @@ extension ConfirmInviteScreen {
             }
         }
         .lineLimit(1)
-        .foregroundStyle(Color(white: 0.14))
+        .foregroundStyle(Color.textPrimary)
     }
     
     private func multipleDaysView(dates: [Date]) -> some View {
@@ -167,12 +167,12 @@ extension ConfirmInviteScreen {
             ForEach(dates, id: \.self) { date in
                 Text(FormatEvent.shortDayAndTime(date, withHour: false))
                     .font(.body(isThreeDays ? 14 : 16, .medium))
-                    .foregroundStyle(Color(white: 0.14))
+                    .foregroundStyle(Color.textPrimary)
                 
                 if date != dates.last {
                     Text("or")
                         .font(.body(12, .regular))
-                        .foregroundStyle(Color(white: 0.7))
+                        .foregroundStyle(Color.textTertiary)
                 }
             }
             
@@ -182,7 +182,7 @@ extension ConfirmInviteScreen {
                 if let date = dates.first {
                     Text(FormatEvent.hourTime(date))
                         .font(.body(16, .medium))
-                        .foregroundStyle(Color(white: 0.14))
+                        .foregroundStyle(Color.textPrimary)
                 }
             }
         }
@@ -195,7 +195,7 @@ extension ConfirmInviteScreen {
     
     private var warningText: some View {
         Text("If they accept a time and I don’t show I understand I’ll be blocked from Scoop")
-            .foregroundColor(Color(red: 0.66, green: 0.66, blue: 0.7))
+            .foregroundColor(Color.textSecondary)
             .multilineTextAlignment(.leading)
             .font(.body(12, .regular))
             .lineSpacing(4)
@@ -214,7 +214,7 @@ extension ConfirmInviteScreen {
             .font(.body(17, .bold))
             .frame(height: 48)
             .frame(maxWidth: .infinity)
-            .background(Color(white: 0.9), in: Capsule())
+            .background(Color.fillGray, in: Capsule())
             .shrinkPress { showConfirmInviteScreen = false }
     }
     

@@ -1,6 +1,6 @@
 //
 //  HideButton.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 23/06/2026.
 //
@@ -16,7 +16,7 @@ struct HidePopup: View {
             Text("Hide")
                 .font(.title(14, .bold))
                 .kerning(1.5)
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.textPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 4)
         }
@@ -28,7 +28,7 @@ struct HidePopup: View {
      Text("Hide")
          .font(.title(14, .bold))
          .kerning(1.5)
-         .foregroundStyle(Color.black)
+         .foregroundStyle(Color.textPrimary)
          .padding(36)
          .contentShape(Rectangle())
  }

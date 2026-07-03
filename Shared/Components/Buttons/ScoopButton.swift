@@ -1,6 +1,6 @@
 //
 //  GlassIfAvailable.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 31/05/2026.
 //
@@ -60,7 +60,7 @@ extension ScoopButton {
                 .growButton(shadowColor: .black)
             }
         }
-        .foregroundStyle(Color.black)
+        .foregroundStyle(Color.textPrimary)
     }
     
     @ViewBuilder

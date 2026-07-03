@@ -15,7 +15,7 @@ struct DetailsSection<Content: View>: View {
     let padding: CGFloat
     let adaptivePadding: Bool
     
-    init(color: Color = Color(red: 0.9, green: 0.9, blue: 0.9), title: String? = nil, adaptivePadding: Bool = false, padding: CGFloat = 16, @ViewBuilder content: () -> Content) {
+    init(color: Color = Color.border, title: String? = nil, adaptivePadding: Bool = false, padding: CGFloat = 16, @ViewBuilder content: () -> Content) {
         self.color = color
         self.title = title
         self.adaptivePadding = adaptivePadding

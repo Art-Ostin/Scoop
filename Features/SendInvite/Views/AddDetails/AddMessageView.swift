@@ -1,6 +1,6 @@
 //
 //  InviteAddMessageView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 24/06/2025.
 //
@@ -94,7 +94,7 @@ extension AddMessageView {
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
-            .stroke(12, lineWidth: 1, color: Color.grayPlaceholder)
+            .stroke(12, lineWidth: 1, color: Color.border)
             .overlay(alignment: .bottomTrailing) {
                 let remaining = max(0, messageLimit - (message ?? "").count)
                 if remaining <= warningThreshold {

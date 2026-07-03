@@ -19,9 +19,9 @@ struct UserKeyInfo: View {
         } else {
             keyInfoScrollView
         }
-        Divider().background(Color.grayPlaceholder)
+        Divider().background(Color.border)
         InfoItem(image: "ScholarStyle", info: p.degree)
-        Divider().background(Color.grayPlaceholder)
+        Divider().background(Color.border)
         InfoItem(image: "magnifyingglass", info: p.lookingFor)
     }
 }
@@ -62,7 +62,7 @@ struct UserInterests: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 10)
                 .font(.body(16))
-                .stroke(12, color: Color(red: 0.90, green: 0.90, blue: 0.90))
+                .stroke(12, color: Color.border)
         }
         .padding(.horizontal, -12)
     }

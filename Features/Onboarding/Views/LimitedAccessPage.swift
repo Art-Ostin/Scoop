@@ -57,7 +57,7 @@ extension LimitedAccessPage {
             Text("Sign out")
                 .font(.body(14, .bold))
                 .padding(8)
-                .foregroundStyle(.black)
+                .foregroundStyle(Color.textPrimary)
                 .background (
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.white )

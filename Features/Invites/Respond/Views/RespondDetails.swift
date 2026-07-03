@@ -77,7 +77,7 @@ extension RespondDetails {
                 
                 Text("Invite")
                     .font(.title(14, .bold))
-                    .foregroundStyle(Color.appGreen)
+                    .foregroundStyle(Color.successGreen)
             }
             .padding(.leading, 2) //As Image
             .padding(.trailing, 6)
@@ -102,7 +102,7 @@ struct DetailSection: View {
                 
                 Text(type.message(event))
                     .font(.footnote)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(Color.textSecondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -123,7 +123,7 @@ struct DetailSection: View {
          
          Text("Invite")
              .font(.title(14, .bold))
-             .foregroundStyle(Color.appGreen)
+             .foregroundStyle(Color.successGreen)
      }
      .padding(.leading, 6)
      .padding(.trailing, 8)

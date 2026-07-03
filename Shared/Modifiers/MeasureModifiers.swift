@@ -1,6 +1,6 @@
 //
 //  FetchPositions.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 15/06/2026.
 //

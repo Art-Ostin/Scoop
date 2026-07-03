@@ -26,7 +26,7 @@ struct AddMessageButton: View {
                     Circle()
                         .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
                 )
-                .stroke(100, lineWidth: 0.5, color: Color.grayPlaceholder.opacity(0.5))
+                .stroke(100, lineWidth: 0.5, color: Color.border.opacity(0.5))
                 .shadow(color: .black.opacity(hasEventMessage ? 0 : 0.05), radius: 1, x: 0, y: 1.5)
         }
     }
@@ -50,7 +50,7 @@ struct InviteRespondButton: View {
                 
                 Image(systemName: "info.circle")
                     .font(.body(10, .medium))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                    .foregroundStyle(Color.textTertiary)
                     .offset(y: -3)
             }
             .lineLimit(1)
@@ -82,7 +82,7 @@ struct EventTypeButton: View {
                     .font(.body(17, .bold))
                 Image(systemName: "info.circle")
                     .font(.body(12, .medium))
-                    .foregroundStyle(Color(white: 0.8))
+                    .foregroundStyle(Color.textPlaceholder)
                     .offset(x: 6, y: -3) // so goes slightly outside view
             }
         }

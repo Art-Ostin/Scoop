@@ -1,6 +1,6 @@
 //
 //  ProfileGestures.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/05/2026.
 //

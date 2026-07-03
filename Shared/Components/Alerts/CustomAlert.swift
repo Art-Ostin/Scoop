@@ -73,11 +73,11 @@ extension CustomAlertCard {
         } label:  {
             Text(isCancel ? cancelTitle : okTitle)
                 .font(.body(17, .bold))
-                .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.black) : (isDanger ? Color.black : Color.white))
+                .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.textPrimary) : (isDanger ? Color.textPrimary : Color.white))
                 .frame(height: 44)
                 .frame(width: isConfirmInvite ? 125 : 100)
                 .background(isCancel ? (isDanger ? Color.accent : Color.appCanvas) : (isDanger ? Color.appCanvas : Color.accent), in: .rect(cornerRadius: 20))
-                .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.grayText)
+                .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.textTertiary)
                 .frame(maxWidth: .infinity,  alignment: showTwoButtons ? (isCancel ? .leading : .trailing) : .center)
         }
     }

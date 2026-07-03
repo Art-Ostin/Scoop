@@ -35,7 +35,7 @@ struct ChatEventView: View {
                     if let message = event.message {
                         Text(message)
                             .font(.body(14, .italic))
-                            .foregroundStyle(Color.grayText)
+                            .foregroundStyle(Color.textSecondary)
                             .lineLimit(2)
                             .lineSpacing(2)
                     }
@@ -57,7 +57,7 @@ extension ChatEventView {
         .font(.body(16, .medium))
         .lineLimit(2)
         .lineSpacing(6)
-        .foregroundStyle(Color.black.opacity(0.8))
+        .foregroundStyle(Color.textPrimary)
         .tint(Color.accent)
         .environment(\.openURL, OpenURLAction { url in
             guard url == Self.locationURL else {
@@ -80,7 +80,7 @@ extension ChatEventView {
         var details = AttributedString("\(FormatEvent.dayAndTime(event.acceptedTime ?? Date())) · ")
         var location = AttributedString(event.location.name ?? event.location.address ?? "")
         location.link = Self.locationURL
-        location.foregroundColor = isLocationPressed ? Color.grayText.opacity(0.5) : Color.accent
+        location.foregroundColor = isLocationPressed ? Color.textAccent.opacity(0.5) : Color.textAccent
         details += location
         return details
     }

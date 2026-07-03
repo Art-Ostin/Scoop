@@ -1,6 +1,6 @@
 //
 //  EditProfileView2.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 09/07/2025.
 //

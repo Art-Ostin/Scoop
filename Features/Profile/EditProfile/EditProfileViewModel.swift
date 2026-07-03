@@ -1,6 +1,6 @@
 //
 //  EditProfileViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 19/08/2025.
 //Structure: The data edits the 'draft' profile which is repeatedly updated to be displayed on the 'preview' 'view' screen. Images however depend on the images.

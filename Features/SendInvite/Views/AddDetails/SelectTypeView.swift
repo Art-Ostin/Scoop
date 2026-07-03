@@ -1,6 +1,6 @@
 //
 //  SelectTypeView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 24/06/2025.
 //
@@ -98,7 +98,7 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 10, colour: Color(red: 0.83, green: 0.83, blue: 0.83))
+            SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
                 .padding(.trailing, 16)
                 .padding(.top, 8)
                 .padding(.leading, 10)
@@ -118,7 +118,7 @@ extension SelectTypeView {
         return RoundedRectangle(cornerRadius: 10)
             .frame(maxWidth: .infinity)
             .frame(height: thickness)
-            .foregroundStyle(Color(white: 0.95))
+            .foregroundStyle(Color.fillGray)
     }
 }
 
@@ -225,6 +225,6 @@ struct SelectTypeCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(width: 270)
-            .rectangleStroke(corners: corners, lineWidth: 1, color: Color.grayBackground)
+            .rectangleStroke(corners: corners, lineWidth: 1, color: Color.border)
     }
 }

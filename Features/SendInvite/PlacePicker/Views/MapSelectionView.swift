@@ -1,6 +1,6 @@
 //
 //  MapSelectionView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 05/07/2025.
 //
@@ -62,7 +62,7 @@ extension MapSelectionView {
                 .lineLimit(2)
             Text(pointOfInterestText())
                 .font(.footnote)
-                .foregroundStyle(.gray)
+                .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -91,7 +91,7 @@ extension MapSelectionView {
                 .frame(width: 35, height: 35, alignment: .center)
 //                .offset(y: -2)
                 .contentShape(Circle())
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.textPrimary)
         }
     }
     
@@ -114,7 +114,7 @@ extension MapSelectionView {
                 .overlay(alignment: .center) {
                     Text("No Preview Available")
                         .font(.body(13, .bold))
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(Color.textPrimary)
                 }
         }
     }
@@ -237,16 +237,9 @@ private struct MapSelectionAction<Icon: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 35)
-        .foregroundStyle(isEnabled ? Color.blue : Color.gray)
-        .stroke(24, lineWidth: 1.2, color: isEnabled ?  Color(red: 0.82, green: 0.82, blue: 0.82) : Color(red: 0.92, green: 0.92, blue: 0.92) )
+        .foregroundStyle(isEnabled ? Color.textAccent : Color.textPlaceholder)
+        .stroke(24, lineWidth: 1.2, color: Color.border)
         .disabled(!isEnabled)
     }
 }
 
-/*
- //    private var shouldPinContentToTop: Bool {
- //        lookAroundScene == nil && !isLoadingLookAround
- //    }
- // Color(red: 0, green: 0.09, blue: 0.72)
- 
- */

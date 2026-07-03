@@ -1,6 +1,6 @@
 //
 //  VicesView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 11/07/2025.
 //

@@ -1,6 +1,6 @@
 //AI Code Beware!
 //  SelectTypeTest.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 11/06/2026.
 //
@@ -117,7 +117,7 @@ struct TimeCustomMenuBuilder: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 24))
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
                 .padding(8)
         }
     }
@@ -135,8 +135,8 @@ struct TimeCustomMenuBuilder: View {
                 }
                 Divider()
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(44)), count: 4), spacing: 10) {
-                    ForEach([Color.appGreen, .accent, .warningYellow,
-                             .grayPlaceholder, .grayText, .appCanvas, .dangerRed], id: \.self) { color in
+                    ForEach([Color.successGreen, .accent, .warningYellow,
+                             .border, .textTertiary, .appCanvas, .dangerRed], id: \.self) { color in
                         Circle()
                             .fill(color)
                             .frame(width: 38, height: 38)
@@ -151,7 +151,7 @@ struct TimeCustomMenuBuilder: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(Color.appGreen, in: Capsule())
+                .background(Color.successGreen, in: Capsule())
         }
     }
 

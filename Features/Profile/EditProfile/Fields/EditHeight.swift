@@ -1,6 +1,6 @@
 //
 //  OptionSelectionView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
 //

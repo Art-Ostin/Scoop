@@ -1,6 +1,6 @@
 //
 //  InviteCardEventInfo.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 22/06/2026.
 //
@@ -51,7 +51,7 @@ extension InviteCardInfo {
                 .frame(width: 20, alignment: .leading)
 
             Text("Barbossa Montreal") //eventProfile.event.location.name ?? ""
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 19)
         }
@@ -62,7 +62,7 @@ extension InviteCardInfo {
     }
         
     private var infoButton: some View {
-        SmallInfoIcon(size: 12, colour: Color(white: 0.75))
+        SmallInfoIcon(size: 12, colour: Color.textPlaceholder)
             .padding()
             .padding(.trailing, 8)
     }

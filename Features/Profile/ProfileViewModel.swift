@@ -1,6 +1,6 @@
 //
 //  ProfileViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/08/2025.
 //

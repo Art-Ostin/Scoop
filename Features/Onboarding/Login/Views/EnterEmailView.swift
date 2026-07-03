@@ -1,6 +1,6 @@
 //
 //  RegisterEmailView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/05/2025.
 //
@@ -55,7 +55,7 @@ extension EnterEmailView {
                         .disableAutocorrection(true)
                         .tint(.blue)
                         .kerning(0.5)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color.textPrimary)
                 }
                 
                 Spacer()
@@ -67,11 +67,11 @@ extension EnterEmailView {
             HStack {
                 Rectangle()
                     .frame(width: 182, height: 1)
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.textPlaceholder)
                 Spacer()
                 Rectangle()
                     .frame(width: 140, height: 1)
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.textPlaceholder)
             }
             Text("We'll send a confirmation code")
                 .font(.caption2)

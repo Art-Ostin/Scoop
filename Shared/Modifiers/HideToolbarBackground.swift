@@ -1,6 +1,6 @@
 //
 //  HideToolbarBackground.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 03/06/2026.
 //

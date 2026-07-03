@@ -1,6 +1,6 @@
 //
 //  ImageContainer.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 07/08/2025.
 //

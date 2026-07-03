@@ -1,6 +1,6 @@
 //
 //  EnterOTP.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 03/08/2025.
 //
@@ -23,7 +23,7 @@ import SwiftUI
                              .font(.title)
                          Rectangle()
                              .frame(width: 24, height: 2)
-                             .foregroundStyle(Color.grayPlaceholder)
+                             .foregroundStyle(Color.textPlaceholder)
                              .offset(y: 24)
                          
                          if code.count == index {

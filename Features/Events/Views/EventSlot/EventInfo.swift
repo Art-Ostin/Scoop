@@ -1,6 +1,6 @@
 //
 //  EventInfo.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 //

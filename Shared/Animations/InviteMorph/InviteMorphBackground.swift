@@ -1,6 +1,6 @@
 //
 //  InviteMorphBackground.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/07/2026.
 //

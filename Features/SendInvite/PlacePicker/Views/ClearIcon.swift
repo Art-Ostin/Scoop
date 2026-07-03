@@ -62,11 +62,11 @@ extension ClearIcon {
         VStack(spacing: 0) {
             category.image
                 .renderingMode(.template)
-                .tint(Color.gray)
+                .tint(Color.textTertiary)
                 .scaleEffect(0.6)
             
             Text("Clear")
-                .tint(Color.gray)
+                .tint(Color.textTertiary)
                 .font(.body(10, .medium))
                 .offset(y: -2)
         }

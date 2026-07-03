@@ -24,7 +24,7 @@ struct RespondedToProfileCover: View {
                 Image("DancingCats")
                 Text("Accepted")
                     .font(.body(16, .bold))
-                    .foregroundStyle(Color(Color.appGreen))
+                    .foregroundStyle(Color.successGreen)
             case .newTime:
                 Image("DancingCats")
                 Text("NEW TIME SENT")

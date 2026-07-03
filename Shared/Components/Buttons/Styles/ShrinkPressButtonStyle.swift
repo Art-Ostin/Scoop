@@ -1,6 +1,6 @@
 //
 //  ProfileButtonPress.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 25/06/2026.
 //

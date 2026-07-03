@@ -115,7 +115,7 @@ extension MessagesContainer {
                 .matchedTransitionSource(id: "profile", in: profileZoom)
             } else {
                 Circle()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.fillGray)
                     .frame(width: 35, height: 35)
             }
         }

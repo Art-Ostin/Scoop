@@ -1,6 +1,6 @@
 //
 //  EventMap.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 //
@@ -21,7 +21,7 @@ struct EventMap: View {
         }
         .padding([.horizontal, .top], 4)
         .padding(.bottom, 16)
-        .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.grayBackground)
+        .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.border)
         .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .eventCardShadowBackground()
     }
@@ -48,11 +48,11 @@ extension EventMap {
                 Text("1.3km")
                     .font(.body(15, .bold))
             }
-            .foregroundStyle(Color(white: 0.07))
+            .foregroundStyle(Color.textPrimary)
             
             Text("Nightclub")   // update later so actually shows location
                 .font(.body(15, .regular))
-                .foregroundStyle(Color(white: 0.12))
+                .foregroundStyle(Color.textPrimary)
             
             if let category = location.mapItem.pointOfInterestCategory {
                 
@@ -60,7 +60,7 @@ extension EventMap {
             
             Text(location.address ?? "")
                 .font(.body(15, .regular))
-                .foregroundStyle(Color(white: 0.5))
+                .foregroundStyle(Color.textSecondary)
         }
     }
     
@@ -83,6 +83,6 @@ extension EventMap {
         }
         .frame(width: 75, height: 40)
         .background(Color.white, in: .rect(cornerRadius: 10.5))
-        .stroke(10.5, lineWidth: 1, color: isMap ? Color(red: 0.26, green: 0.52, blue: 0.96) : Color(white: 0.92))
+        .stroke(10.5, lineWidth: 1, color: isMap ? Color.accent : Color.border)
     }
 }

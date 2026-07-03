@@ -11,7 +11,7 @@ struct CustomCaption: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(.body(13, .italic))
-            .foregroundStyle(Color.grayText)
+            .foregroundStyle(Color.textTertiary)
     }
 }
 

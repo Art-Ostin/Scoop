@@ -1,6 +1,6 @@
 //
 //  PromptView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 11/07/2025.
 //
@@ -158,13 +158,13 @@ extension PromptGeneric {
             if prompt.response.isEmpty {
                 Text("Type your response here")
                     .font(.body(17, .medium))
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.textPlaceholder)
                 // Match the TextEditor’s visual inset
                     .padding(.horizontal, 22)
                     .padding(.vertical, 24)
                     .allowsHitTesting(false)
             }
         }
-        .stroke(20, lineWidth: 0.5, color: Color.grayPlaceholder)
+        .stroke(20, lineWidth: 0.5, color: Color.border)
     }
 }

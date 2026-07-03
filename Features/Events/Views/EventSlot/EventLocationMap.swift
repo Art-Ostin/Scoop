@@ -92,7 +92,7 @@ extension EventLocationMap {
         } label: {
             Text(disableMap ? "Enable Map" : "Disable Map")
                 .font(.body(10, .bold))
-                .foregroundStyle(Color.black)
+                .foregroundStyle(Color.textPrimary)
                 .padding(6)
                 .padding(.horizontal, 2)
                 .background (

@@ -29,21 +29,21 @@ struct DetailsExtraInfo: View {
             } else {
                 oneLineVice
             }
-            Divider().foregroundStyle(Color.grayPlaceholder)
+            Divider().foregroundStyle(Color.border)
             
             if let favouriteSong = p.favouriteSong {
                     InfoItem(image: "MusicIcon", info: favouriteSong)
-                    Divider().foregroundStyle(Color.grayPlaceholder)
+                    Divider().foregroundStyle(Color.border)
             }
             
             if let favouriteBook = p.favouriteBook {
                 InfoItem(image: "BookIcon", info: favouriteBook)
-                Divider().foregroundStyle(Color.grayPlaceholder)
+                Divider().foregroundStyle(Color.border)
             }
             
             if let favouriteMovie = p.favouriteMovie {
                 InfoItem(image: "MovieIcon", info: favouriteMovie)
-                Divider().foregroundStyle(Color.grayPlaceholder)
+                Divider().foregroundStyle(Color.border)
             }
             
             if genderAndLanguagesCount <= 26 {
@@ -64,7 +64,7 @@ extension DetailsExtraInfo {
             Spacer()
             InfoItem(image: "CigaretteIcon", info: p.smoking)
         }
-        Divider().foregroundStyle(Color.grayPlaceholder)
+        Divider().foregroundStyle(Color.border)
         HStack {
             InfoItem(image: "WeedIcon", info: p.marijuana)
             Spacer()

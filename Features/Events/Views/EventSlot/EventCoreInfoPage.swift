@@ -57,7 +57,7 @@ struct EventCoreInfoPage: View {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.white)
         )
-        .stroke(24, lineWidth: 1, color: Color(red: 0.93, green: 0.93, blue: 0.93)) //Color(red: 0.93, green: 0.93, blue: 0.93)
+        .stroke(24, lineWidth: 1, color: Color.border)
         .overlay(alignment: .topLeading) {
             eventDetailsOverlay
         }
@@ -71,7 +71,7 @@ struct EventCoreInfoPage: View {
     private var eventDetailsOverlay: some View {
         Text("How it Works")
             .font(.custom("SFProRounded-Medium", size: 10))
-            .foregroundStyle(Color(red: 0.68, green: 0.68, blue: 0.68))
+            .foregroundStyle(Color.textTertiary)
             .padding(.horizontal, 6)
             .background(
                 RoundedRectangle(cornerRadius: 4)
@@ -104,14 +104,14 @@ struct EventCoreInfoPage: View {
                 type == .type ?
                 Text(Image(systemName: "info.circle"))
                   .font(.body(11, .medium))
-                  .foregroundStyle(Color(red: 0.66, green: 0.66, blue: 0.66))
+                  .foregroundStyle(Color.textTertiary)
                   .baselineOffset(4)
                 :
                     Text("")
             )
         }
         .lineSpacing(5)
-        .foregroundStyle(Color(red: 0.25, green: 0.25, blue: 0.25))
+        .foregroundStyle(Color.textPrimary)
     }
 }
 

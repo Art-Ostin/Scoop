@@ -1,6 +1,6 @@
 //
 //  AppDependencies.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 26/07/2025.
 //

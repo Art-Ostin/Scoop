@@ -1,6 +1,6 @@
 //
 //  Prompts.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 12/07/2025.
 //
@@ -18,7 +18,7 @@ struct PromptsView: View {
                 ForEach(prompts.indices, id: \.self) { i in
                     NavigationLink(value: EditProfileRoute.prompt(i)) {
                         promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(Color.textPrimary)
                     }
                     .buttonStyle(.plain)
                 }
@@ -36,7 +36,7 @@ extension PromptsView {
         let isEmpty = response.isEmpty
             VStack(alignment: .leading, spacing: 12) {
                 Text(isEmpty ? "Add Prompt" : prompt)
-                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                    .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
                     .font(.body(14))
 
                 Text(response)
@@ -46,7 +46,7 @@ extension PromptsView {
             .padding()
             .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
             .background(Color.white, in: .rect(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke( isEmpty ? .accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke( isEmpty ? .accent : Color.border, lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
                 Image(isEmpty ? "EditButton" : "EditGray")
                     .padding()

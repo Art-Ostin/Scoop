@@ -1,6 +1,6 @@
 //
 //  EventDetailsHowItWorks.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 10/06/2026.
 //
@@ -15,7 +15,7 @@ struct EventDetailsHowItWorks: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("NOTE")
                 .font(.body(12, .medium))
-                .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
+                .foregroundStyle(Color.textSecondary)
 
             Text("No note added")
                 .font(.body(17, .bold))
@@ -27,7 +27,7 @@ struct EventDetailsHowItWorks: View {
                 onBack()
             } label: {
                 Image(systemName: "info.circle")
-                    .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
+                    .foregroundStyle(Color.textPlaceholder)
                     .font(.body(12, .medium))
             }
         }

@@ -67,15 +67,15 @@ extension SendInviteContainer {
          } label: {
              Image(systemName: "ellipsis")
                  .font(.body(16, .bold))
-                 .foregroundStyle(Color(red: 0.54, green: 0.54, blue: 0.56))
+                 .foregroundStyle(Color.textSecondary)
                  .frame(width: 30, height: 30)
-                 .background(Color(red: 0.92, green: 0.92, blue: 0.94), in: .circle)
+                 .background(Color.fillGray, in: .circle)
          }
          .offset(x: 2, y: 6)
      }
     
     private var sendButton: some View {
-        ScoopButton(style: .tinted(draft.isComplete ? .accent : .grayBackground, shadow: nil),
+        ScoopButton(style: .tinted(draft.isComplete ? .accent : .fillGray, shadow: nil),
                     shape: Capsule(),
                     action: { print("hello") }) {
             Text("Send Invite")
@@ -84,7 +84,7 @@ extension SendInviteContainer {
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
         }
-        .opacity(ui.isPopopOpenDelayed() ? 0.4 : 1)
+        .opacity(ui.isPopupOpenDelayed() ? 0.4 : 1)
         .padding(.top, 4)
         .allowsHitTesting(draft.isComplete)
     }

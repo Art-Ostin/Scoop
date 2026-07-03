@@ -1,6 +1,6 @@
 //
 //  EmailVerificationViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 21/07/2025.
 //

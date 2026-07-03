@@ -1,6 +1,6 @@
 //
 //  EmailVerificationPage.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 05/07/2025.
 //
@@ -29,7 +29,7 @@ import FirebaseAuth
             else if timeRemaining > countdownDuration {
                 Image(systemName: "checkmark")
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.appGreen)
+                    .foregroundStyle(Color.successGreen)
             }
             else {
                 Text("\(timeRemaining)")
@@ -81,7 +81,7 @@ struct VerifyEmailView: View {
             
             HStack(spacing: 48) {
                 Text("\(vm.email)")
-                    .foregroundStyle(Color.grayText)
+                    .foregroundStyle(Color.textSecondary)
                 UILogic.resendEmail()
             }
             .font(.body())

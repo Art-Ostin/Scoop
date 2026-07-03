@@ -1,6 +1,6 @@
 //
 //  Session.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 16/08/2025.
 //

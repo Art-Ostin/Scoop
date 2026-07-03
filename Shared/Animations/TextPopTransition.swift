@@ -1,6 +1,6 @@
 //
 //  TextPopTransition.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 24/06/2026.
 //

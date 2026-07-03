@@ -1,6 +1,6 @@
 //
 //  EventClock.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 //
@@ -82,10 +82,10 @@ extension EventTimer {
                 .font(.title(28))
                 .monospacedDigit()
                 .contentTransition(.numericText(countsDown: true))
-                .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+                .foregroundStyle(Color.textAccent)
             
             Text(type)
-                .foregroundStyle(Color(white: 0.8))
+                .foregroundStyle(Color.textPlaceholder)
                 .font(.title(8, .medium))
         }
         .frame(width: 37, height: 21)
@@ -93,7 +93,7 @@ extension EventTimer {
     
     private var divider: some View {
         RoundedRectangle(cornerRadius: 2)
-            .fill(Color(white: 0.93))
+            .fill(Color.fillGray)
             .frame(width: 0.85, height: 14)
             .offset(y: -4)
             .frame(maxWidth: .infinity)

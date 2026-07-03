@@ -1,6 +1,6 @@
 //
 //  EventsViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 05/08/2025.
 //

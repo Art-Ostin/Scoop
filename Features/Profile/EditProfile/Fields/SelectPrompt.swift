@@ -46,12 +46,12 @@ struct PromptRow : View {
         VStack(spacing: 20) {
             Text(text)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundStyle(isSelected ? .accent : .black)
+                .foregroundStyle(isSelected ? Color.textAccent : Color.textPrimary)
                 .font(.body(16, prompt.prompt == text ? .bold : .medium))
 
             RoundedRectangle(cornerRadius: 16)
                 .frame(height: 1, alignment: .leading)
-                .foregroundStyle(Color.gray.opacity(0.2))
+                .foregroundStyle(Color.border)
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
