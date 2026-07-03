@@ -39,7 +39,8 @@ extension InvitePlaceRow {
 
                 DropDownButton(isOpen: ui.showMessageScreen)
             }
-            .padding(.vertical, InviteRowMetrics.verticalPadding)
+            .frame(height: 76)
+            .onGeometryChange(for: CGFloat.self, of: {$0.size.height }, action: {height in print("HEIGHT IS \(height)")})
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
         .shrinkButton(shadow: nil, shadowColor: .clear)

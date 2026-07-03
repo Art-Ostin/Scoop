@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct SendInviteContainer: View {
-    
+    @Environment(\.inviteCardTint) private var tint
+
     static let screenMargin: CGFloat = 26
         
     @State var ui = TimeAndPlaceUIState()
@@ -19,11 +20,12 @@ struct SendInviteContainer: View {
     var body: some View {
         VStack(spacing: 0) { //Each row has 32 vertical padding
             title
+                .padding(.bottom, draft.place != nil ? 0 : 4)
             
             InviteRowContainer(ui: ui, draft: $draft)
             
             sendButton
-                .padding(.top, 4)
+                .padding(.top, draft.place != nil ? 10 : 6)
         }
         .overlay(alignment: .topTrailing) {optionsMenu}
         .modifier(InviteCardBackground(screenMargin: SendInviteContainer.screenMargin))
@@ -70,8 +72,9 @@ extension SendInviteContainer {
                  .foregroundStyle(Color.textSecondary)
                  .frame(width: 30, height: 30)
                  .background(Color.fillGray, in: .circle)
+                 .scaleEffect(0.9, anchor: .top)
          }
-         .offset(x: 4, y: -1)
+         .offset(x: 5, y: -2)
      }
     
     private var sendButton: some View {
@@ -109,7 +112,7 @@ struct InviteCardBackground: ViewModifier {
                         .glassEffect(.regular.tint(cardColor), in: .rect(cornerRadius: 36, style: .continuous))
                         .overlay {
                             RoundedRectangle(cornerRadius: 36, style: .continuous)
-                                .fill(cardColor.opacity(0.3))   // ← the transparency dial
+                                .fill(cardColor.opacity(0.5))
                         }
                 } else {
                     RoundedRectangle(cornerRadius: 36, style: .continuous).fill(Color.appCanvas)
@@ -123,29 +126,6 @@ struct InviteCardBackground: ViewModifier {
 }
 
 
-struct SheetBackground: ViewModifier {
-    var cornerRadius: CGFloat = 36
-    let tint: Color
-    
-    private var cardColor: Color { .tintedCanvas(tint) }
-    
-    func body(content: Content) -> some View {
-        content
-            .background {
-                if #available(iOS 26.0, *) {
-                    Color.clear
-                        .glassEffect(
-                            .regular.tint(tint.opacity(0.2)), in: .rect(cornerRadius: cornerRadius, style: .continuous)
-                        )
-                } else {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(tint.opacity(0.2))
-                        .fill(Color.white)
-                }
-            }
-    }
-}
-
 extension Color {
     /// `tint` at `strength` composited over an opaque white base, flattened to one color.
     /// Respects the tint's own alpha — a `.clear` tint yields pure white. //0.0025
@@ -158,3 +138,5 @@ extension Color {
                      blue: (1 - e) + e * b)
     }
 }
+
+

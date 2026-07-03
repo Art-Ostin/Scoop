@@ -15,8 +15,8 @@ struct RowCaption: View {
     let dimmed: Bool
 
     var body: some View {
-        Text(label.rawValue.uppercased())
-            .font(.body(11, .regular))
+        Text(label.rawValue.capitalized)
+            .font(.body(12, .regular))
             .foregroundStyle(Color.textTertiary)
             .opacity(dimmed ? 0.3 : 1)
     }

@@ -22,7 +22,7 @@ extension Color {
     //2. Grays used throughout app
     static let border = Color(red: 0.88, green: 0.87, blue: 0.86)
 
-    static let fillGray = Color(red: 0.94, green: 0.93, blue: 0.92)
+    static let fillGray = Color(red: 0.93, green: 0.93, blue: 0.92)
 
 
     //3. Background Color App
