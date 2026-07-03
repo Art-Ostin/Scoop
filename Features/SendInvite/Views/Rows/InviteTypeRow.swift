@@ -10,75 +10,125 @@ import SwiftUI
 struct InviteTypeRow: View {
 
     @Bindable var ui: TimeAndPlaceUIState
-    
-    
     @Binding var type: Event.EventType
-    
     @Binding var unparsedMessage: String?
-
-    @State private var messageHeight: CGFloat = 0
-    @State private var lastCountedMessage = ""
 
     //Snapshot of the message when the editor opens, so we can tell if it changed on close.
     @State private var messageBeforeEdit: String?
-    
+    @State private var messageHeight: CGFloat = 0
+    @State private var lastCountedMessage = ""
+
     @State private var openInfoTypes: Set<Event.EventType> = []
-    
     @State private var typePulse = false
 
+    @State private var scrollProgress: Double = 0
+    @State private var scrolledPageID: Int?
 
-    //3. Need Frames for DropDown Menu Tracker
+    //Global frames feeding the menu's morph anchor.
     @State private var typeFrame: CGRect = .zero
     @State private var messageFrame: CGRect = .zero
     @State private var chevronFrame: CGRect = .zero
 
-    
-    
     private let menuCorners = RectangleCornerRadii(top: 20, bottom: 6)
     private let footerCorners = RectangleCornerRadii(top: 6, bottom: 18)
 
-    //2. Track Scroll View and which ScrollView Present
-    @State private var scrollProgress: Double = 0
-    @State private var scrolledPageID: Int?
-    
-    private var onMessagePage: Bool {
-        !message.isEmpty && (scrolledPageID ?? 0) >= 1
-    }
-    
-    
-    var message: String {
+    private var message: String {
         (unparsedMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var onMessagePage: Bool {
+        !message.isEmpty && (scrolledPageID ?? 0) >= 1
+    }
 
     var body: some View {
-        //Give less spacing if Text, then 
+        //The message page sits a touch closer to the title than the type page.
         HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
             rowTitle
-            
             Spacer(minLength: 0)
-            
-            inviteTypeScroller
-
+            typeMenu
         }
-        .overlay(alignment: .bottom) {pageIndicator}
-        .task(id: messageHeight) { updateLineHeight() }       //typing: recount once the new text's height settles
-        .onChange(of: message) {updateLineHeight()} //clearing/edits: recount (and reset) on text change
-        .onChange(of: type) {if onMessagePage { pulseTypeTitle() } }
-        .onChange(of: ui.showMessageScreen) {goToMessageSection()}
+        .overlay(alignment: .bottom) { pageIndicator }
+        .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
+        .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
+        .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
+        .onChange(of: ui.showMessageScreen) { messageScreenChanged() }
     }
 }
 
+//The dropdown menu and what anchors it
 extension InviteTypeRow {
-    
-    private func goToMessageSection() {
-        if ui.showMessageScreen {
-            messageBeforeEdit = unparsedMessage
-        } else if unparsedMessage != messageBeforeEdit, !message.isEmpty {
-            withAnimation(.snappy(duration: 0.3)) { scrolledPageID = 1 }
-        }
+
+    private var typeMenu: some View {
+        DropdownCustomMenu(
+            cornerRadii: menuCorners,
+            footerCornerRadii: footerCorners,
+            morphsFromTrailingPoint: onMessagePage,
+            morphAnchor: morphAnchor,
+            flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
+            placementOffsetY: 24,
+            onOpen: { ui.activePopup = .type },
+            onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
+            onLabelTap: handleLabelTap,
+            footer: { AnyView(addMessageFooter) },
+            content: { selectTypeView },
+            label: { menuLabel }
+        )
+        .environment(\.isLiveInviteRow, true)
     }
 
+    private var menuLabel: some View {
+        TypeRowMenuLabel(
+            type: type,
+            message: message,
+            ui: ui,
+            scrollProgress: $scrollProgress,
+            scrolledPageID: $scrolledPageID,
+            messageHeight: $messageHeight,
+            typeFrame: $typeFrame,
+            messageFrame: $messageFrame,
+            chevronFrame: $chevronFrame
+        )
+    }
+
+    //Union of the active content page and the chevron, ignoring frames not yet measured.
+    private var morphAnchor: CGRect? {
+        let content = onMessagePage ? messageFrame : typeFrame
+        let union = [content, chevronFrame].filter { $0 != .zero }.reduce(CGRect.null) { $0.union($1) }
+        return union.isNull ? nil : union
+    }
+
+    //A tap while parked on the message page (id 1) opens the message editor instead of the menu —
+    //including the empty "Add Message" placeholder. The type page (id 0) falls through to the menu.
+    private func handleLabelTap() -> Bool {
+        guard (scrolledPageID ?? 0) >= 1 else { return false }
+        ui.showMessageScreen = true
+        return true
+    }
+
+    private var selectTypeView: some View {
+        SelectTypeView(
+            openTypes: $openInfoTypes,
+            selectedType: $type,
+            showMessageScreen: $ui.showMessageScreen,
+            showTypePopup: ui.binding(for: .type),
+            message: message,
+            onMessagePage: onMessagePage,
+            cardCorners: menuCorners
+        )
+    }
+
+    private var addMessageFooter: some View {
+        AddMessageFooter(message: message, corners: footerCorners) {
+            ui.showMessageScreen = true
+        }
+    }
+}
+
+//Row title: "WHAT" caption ↔ selected type swap
+extension InviteTypeRow {
+
+    //ZStack + the .animation(value:) modifiers form a stable ancestor for the .id swap;
+    //without one the .blurReplace transition rebuilds and swaps instantly.
     private var rowTitle: some View {
         ZStack(alignment: .leading) {
             Group {
@@ -106,20 +156,33 @@ extension InviteTypeRow {
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
 
-    @ViewBuilder
-    private var pageIndicator: some View {
-            AnimatedPageIndicator(count: 2, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
-                .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, 8)
-                .offset(x: 6)
-                .opacity(ui.isPopupOpen(.type) ? 0 : 1)
-    }
-
+    //Echoes the menu's `.flex` dismiss on the title when a type is picked from the message page.
     private func pulseTypeTitle() {
         typePulse = true
         Task {
             try? await Task.sleep(for: .seconds(DropdownCustomMenuSpec.flexHold))
             typePulse = false
+        }
+    }
+
+    private var pageIndicator: some View {
+        AnimatedPageIndicator(count: 2, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
+            .scaleEffect(0.6, anchor: .bottom)
+            .padding(.bottom, 8)
+            .offset(x: 6)
+            .opacity(ui.isPopupOpen(.type) ? 0 : 1)
+    }
+}
+
+//Message bookkeeping: editor round-trips and line count
+extension InviteTypeRow {
+
+    //Editor opened: snapshot the message. Editor closed: if it changed, park the pager on it.
+    private func messageScreenChanged() {
+        if ui.showMessageScreen {
+            messageBeforeEdit = unparsedMessage
+        } else if unparsedMessage != messageBeforeEdit, !message.isEmpty {
+            withAnimation(.snappy(duration: 0.3)) { scrolledPageID = 1 }
         }
     }
 
@@ -137,111 +200,26 @@ extension InviteTypeRow {
     }
 }
 
-
-
-//Logic for Menu Dropdown
-extension InviteTypeRow {
-
-    private var inviteTypeScroller: some View {
-        typeMenu(morphsFromTrailingPoint: onMessagePage, morphAnchor: morphAnchor) { menuLabel }
-            .environment(\.isLiveTypeRow, true)
-    }
-
-    //No message: the compact trigger. Without `isLiveTypeRow`, TypeRowMenuLabel renders just the static icon.
-    private var inviteTypeButton: some View {
-        typeMenu(morphsFromTrailingPoint: false) { menuLabel }
-    }
-
-    private var menuLabel: some View {
-        TypeRowMenuLabel(
-            type: type,
-            message: message,
-            isPopupOpen: ui.isPopupOpen(.type),
-            scrollProgress: $scrollProgress,
-            scrolledPageID: $scrolledPageID,
-            messageHeight: $messageHeight, ui: ui,
-            typeFrame: $typeFrame,
-            messageFrame: $messageFrame,
-            chevronFrame: $chevronFrame
-        )
-    }
-
-    //Union of the active content page and the chevron, ignoring frames not yet measured.
-    private var morphAnchor: CGRect? {
-        let content = onMessagePage ? messageFrame : typeFrame
-        let union = [content, chevronFrame].filter { $0 != .zero }.reduce(CGRect.null) { $0.union($1) }
-        return union.isNull ? nil : union
-    }
-
-    //A tap while parked on the message page (id 1) opens the message editor instead of the menu —
-    //including the empty "Add Message" placeholder. The type page (id 0) falls through to the menu.
-    private func handleScrollerTap() -> Bool {
-        guard (scrolledPageID ?? 0) >= 1 else { return false }
-        ui.showMessageScreen = true
-        return true
-    }
-
-    private var selectTypeView: some View {
-        SelectTypeView(
-            openTypes: $openInfoTypes,
-            selectedType: $type,
-            showMessageScreen: $ui.showMessageScreen,
-            showTypePopup: ui.binding(for: .type),
-            message: message,
-            onMessagePage: onMessagePage,
-            cardCorners: menuCorners
-        )
-    }
-
-    private var addMessageFooter: some View {
-        AddMessageFooter(message: message, corners: footerCorners) {
-            ui.showMessageScreen = true
-        }
-    }
-
-    private func typeMenu<Label: View>(
-        morphsFromTrailingPoint: Bool,
-        morphAnchor: CGRect? = nil,
-        @ViewBuilder label: @escaping () -> Label
-    ) -> some View {
-        DropdownCustomMenu(
-            cornerRadii: menuCorners,
-            footerCornerRadii: footerCorners,
-            morphsFromTrailingPoint: morphsFromTrailingPoint,
-            morphAnchor: morphAnchor,
-            flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
-            placementOffsetY: 24,
-            onOpen: { ui.activePopup = .type },
-            onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
-            onLabelTap: handleScrollerTap,
-            footer: { AnyView(addMessageFooter) },
-            content: { selectTypeView },
-            label: label
-        )
-    }
-}
-
+//The menu's label: the live type/message pager in the row, or the collapsed form the morph carries.
 private struct TypeRowMenuLabel: View {
-
-    @Environment(\.isLiveTypeRow) private var isLive
 
     let type: Event.EventType
     let message: String
-    let isPopupOpen: Bool
+    let ui: TimeAndPlaceUIState
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
     @Binding var messageHeight: CGFloat
-    @Bindable var ui: TimeAndPlaceUIState
-
     @Binding var typeFrame: CGRect
     @Binding var messageFrame: CGRect
     @Binding var chevronFrame: CGRect
 
-    //Local to the live pager — the parent never reads it, only this label measures and lays out from it.
+    @Environment(\.isLiveInviteRow) private var isLive
+
+    //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
 
     var body: some View {
-        if isLive { liveLabel } else { icon }
+        if isLive { liveLabel } else { collapsedLabel }
     }
 
     private var liveLabel: some View {
@@ -249,18 +227,18 @@ private struct TypeRowMenuLabel: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
                     typeText
-                        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { typeFrame = $0 }
+                        .readGlobalFrame(into: $typeFrame)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(0)
-                    
+
                     messageView
-                        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { messageFrame = $0 }
+                        .readGlobalFrame(into: $messageFrame)
                         .padding(.leading, 12)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(1)
                 }
-                .offset(x: -12) //align with the rest of the content
-                .frame(height: 75)
+                .offset(x: -12) //Align with the rest of the content
+                .padding(.vertical, InviteRowMetrics.verticalPadding)
                 .scrollTargetLayout()
             }
             .modifier(PagedScrollStyle(
@@ -270,11 +248,11 @@ private struct TypeRowMenuLabel: View {
                 pageCount: 2
             ))
             chevron
-                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { chevronFrame = $0 }
+                .readGlobalFrame(into: $chevronFrame)
         }
     }
 
-    private var icon: some View {
+    private var collapsedLabel: some View {
         HStack(spacing: 12) {
             typeText
             chevron
@@ -290,7 +268,7 @@ private struct TypeRowMenuLabel: View {
     }
 
     private var chevron: some View {
-        DropDownButton(isOpen: isPopupOpen)
+        DropDownButton(isOpen: ui.isPopupOpen(.type))
     }
 
     @ViewBuilder
@@ -314,10 +292,7 @@ private struct TypeRowMenuLabel: View {
     }
 }
 
-extension EnvironmentValues {
-    @Entry var isLiveTypeRow: Bool = false
-}
-
+//Own struct: renders in the menu's overlay window, where the dismiss env would otherwise no-op.
 private struct AddMessageFooter: View {
 
     @Environment(\.dropdownCustomMenuDismiss) private var menuDismiss

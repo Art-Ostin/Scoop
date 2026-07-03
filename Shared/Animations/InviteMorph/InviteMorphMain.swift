@@ -156,7 +156,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     // Pinned to the real card frame so it floats just below the card, with a full-screen tap region.
     private var hideButton: some View {
         HidePopup(onHide: onHide)
-            .position(x: expandedRect.midX, y: expandedRect.maxY + 120)
+            .position(x: expandedRect.midX, y: expandedRect.maxY + 48)
             .opacity(expanded && !hideCard && !popupOpen ? 1 : 0)
             .animation(.easeInOut(duration: 0.05), value: expanded)
             .animation(.smooth(duration: 0.2), value: popupOpen)

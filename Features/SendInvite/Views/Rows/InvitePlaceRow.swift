@@ -39,6 +39,7 @@ extension InvitePlaceRow {
 
                 DropDownButton(isOpen: ui.showMessageScreen)
             }
+            .padding(.vertical, InviteRowMetrics.verticalPadding)
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
         .shrinkButton(shadow: nil, shadowColor: .clear)

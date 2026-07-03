@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SendInviteContainer: View {
     
-    static let screenMargin: CGFloat = 18
+    static let screenMargin: CGFloat = 26
         
     @State var ui = TimeAndPlaceUIState()
 
@@ -17,15 +17,16 @@ struct SendInviteContainer: View {
     let onSendInvite: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 0) { //Each row has 32 vertical padding
             title
             
             InviteRowContainer(ui: ui, draft: $draft)
             
             sendButton
+                .padding(.top, 4)
         }
-        .modifier(InviteCardBackground(screenMargin: SendInviteContainer.screenMargin))
         .overlay(alignment: .topTrailing) {optionsMenu}
+        .modifier(InviteCardBackground(screenMargin: SendInviteContainer.screenMargin))
 
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
         
@@ -50,7 +51,6 @@ extension SendInviteContainer {
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(ui.isPopupOpen(.time) ? 0.1 : 1)
             .animation(.snappy(duration: 0.2), value: ui.isPopupOpen(.time))
-            .offset(y: 6)
     }
     
     private var optionsMenu: some View {
@@ -71,11 +71,11 @@ extension SendInviteContainer {
                  .frame(width: 30, height: 30)
                  .background(Color.fillGray, in: .circle)
          }
-         .offset(x: 2, y: 6)
+         .offset(x: 4, y: -1)
      }
     
     private var sendButton: some View {
-        ScoopButton(style: .tinted(draft.isComplete ? .accent : .fillGray, shadow: nil),
+        ScoopButton(style: .tinted(draft.isComplete ? .accent : .accent, shadow: nil),
                     shape: Capsule(),
                     action: { print("hello") }) {
             Text("Send Invite")
@@ -94,15 +94,27 @@ struct InviteCardBackground: ViewModifier {
     @Environment(\.inviteCardTint) private var tint
     let screenMargin: CGFloat
     
+    private var cardColor: Color { .tintedCanvas(tint) }
+    
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 32)
-            .padding(.top, 20)
-            .padding(.bottom, 20)
+            .padding(.top, 32)
+            .padding(.bottom, 24)
         
-            .background(Color.appCanvas, in: .rect(cornerRadius: 36, style: .continuous))
-        
+            .background {
+                if #available(iOS 26.0, *) {
+                    Color.clear
+                        .glassEffect(.regular.tint(cardColor), in: .rect(cornerRadius: 36, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 36, style: .continuous)
+                                .fill(cardColor.opacity(0.3))   // ← the transparency dial
+                        }
+                } else {
+                    RoundedRectangle(cornerRadius: 36, style: .continuous).fill(Color.appCanvas)
+                }
+            }
             .padding(.horizontal, screenMargin)
             .padding(.top, 60)
             .compositingGroup()
@@ -111,17 +123,11 @@ struct InviteCardBackground: ViewModifier {
 }
 
 
-
-
-
-
-
-
-
-
 struct SheetBackground: ViewModifier {
     var cornerRadius: CGFloat = 36
     let tint: Color
+    
+    private var cardColor: Color { .tintedCanvas(tint) }
     
     func body(content: Content) -> some View {
         content
@@ -137,5 +143,18 @@ struct SheetBackground: ViewModifier {
                         .fill(Color.white)
                 }
             }
+    }
+}
+
+extension Color {
+    /// `tint` at `strength` composited over an opaque white base, flattened to one color.
+    /// Respects the tint's own alpha — a `.clear` tint yields pure white. //0.0025
+    static func tintedCanvas(_ tint: Color, strength: CGFloat = 0.0015) -> Color {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(tint).getRed(&r, green: &g, blue: &b, alpha: &a)
+        let e = strength * a
+        return Color(red: (1 - e) + e * r,
+                     green: (1 - e) + e * g,
+                     blue: (1 - e) + e * b)
     }
 }
