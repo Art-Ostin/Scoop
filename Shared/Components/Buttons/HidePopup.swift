@@ -13,7 +13,7 @@ struct HidePopup: View {
 
     var body: some View {
         ScoopButton(style: .clearGlass, shape: .capsule, action: {onHide()}) {
-            Text("Hide")
+            Text("") //Hide
                 .font(.title(14, .bold))
                 .kerning(1.5)
                 .foregroundStyle(Color.textPrimary)

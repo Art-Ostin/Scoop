@@ -22,7 +22,9 @@ struct RowCaption: View {
     }
 }
 
-enum InviteRowMetrics { static let verticalPadding: CGFloat = 30}
+enum InviteRowMetrics {
+    static let rowHeight: CGFloat = 84
+}
 
 extension EnvironmentValues {
     @Entry var isLiveInviteRow: Bool = false

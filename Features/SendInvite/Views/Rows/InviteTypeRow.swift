@@ -47,7 +47,11 @@ struct InviteTypeRow: View {
             Spacer(minLength: 0)
             typeMenu
         }
-        .overlay(alignment: .bottom) { pageIndicator }
+        .overlay(alignment: .trailing) {
+            pageIndicator
+                .offset(y: 20)
+                .offset(x: -22)
+        }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
@@ -238,7 +242,7 @@ private struct TypeRowMenuLabel: View {
                         .id(1)
                 }
                 .offset(x: -12) //Align with the rest of the content
-                .padding(.vertical, InviteRowMetrics.verticalPadding)
+                .frame(height: InviteRowMetrics.rowHeight)
                 .scrollTargetLayout()
             }
             .modifier(PagedScrollStyle(

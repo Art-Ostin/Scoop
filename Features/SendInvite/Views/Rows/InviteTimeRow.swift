@@ -34,8 +34,11 @@ struct InviteTimeRow: View {
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
         }
-        .overlay(alignment: .bottom) {
-            pageIndicator.opacity(typePopupOpen ? 0 : 1)
+        .overlay(alignment: .trailing) {
+            pageIndicator
+                .offset(y: 20)
+                .offset(x: -22)
+                .opacity(typePopupOpen ? 0 : 1)
         }
         .background { pickerWarmUp }
         .offset(y: 1.5)
@@ -182,7 +185,7 @@ private struct TimeRowMenuLabel: View {
             if times.isEmpty {
                 chooseTimeText
                     .readGlobalFrame(into: $chooseTimeFrame)
-                    .padding(.vertical, InviteRowMetrics.verticalPadding)
+                    .frame(height: InviteRowMetrics.rowHeight)
             } else {
                 pager
             }
@@ -212,7 +215,7 @@ private struct TimeRowMenuLabel: View {
                 }
             }
             .offset(x: -12) //Align with the rest of the content
-            .padding(.vertical, InviteRowMetrics.verticalPadding)
+            .frame(height: InviteRowMetrics.rowHeight)
             .scrollTargetLayout()
         }
         .modifier(PagedScrollStyle(

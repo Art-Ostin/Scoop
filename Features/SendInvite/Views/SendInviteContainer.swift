@@ -3,7 +3,7 @@ import SwiftUI
 struct SendInviteContainer: View {
     @Environment(\.inviteCardTint) private var tint
 
-    static let screenMargin: CGFloat = 26
+    static let screenMargin: CGFloat = 8
         
     @State var ui = TimeAndPlaceUIState()
 
@@ -20,12 +20,12 @@ struct SendInviteContainer: View {
     var body: some View {
         VStack(spacing: 0) { //Each row has 32 vertical padding
             title
-                .padding(.bottom, draft.place != nil ? 0 : 4)
+//                .padding(.bottom, draft.place != nil ? 0 : 4)
             
             InviteRowContainer(ui: ui, draft: $draft)
             
             sendButton
-                .padding(.top, draft.place != nil ? 10 : 6)
+//                .padding(.top, draft.place != nil ? 10 : 6)
         }
         .overlay(alignment: .topTrailing) {optionsMenu}
         .modifier(InviteCardBackground(screenMargin: SendInviteContainer.screenMargin))
@@ -119,7 +119,7 @@ struct InviteCardBackground: ViewModifier {
                 }
             }
             .padding(.horizontal, screenMargin)
-            .padding(.top, 60)
+            .padding(.top, 460)
             .compositingGroup()
             .morphCardAnchor()
     }
