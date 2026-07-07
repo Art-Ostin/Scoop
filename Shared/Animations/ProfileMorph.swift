@@ -92,6 +92,10 @@ final class ProfileMorphState {
         sourceRadii[id] = radii
     }
 
+    //Live frame of a reported source image — the quick-invite flight departs
+    //from and returns to it (read-only reuse of the sources' geometry reports).
+    func sourceRect(id: String) -> CGRect? { sourceRects[id] }
+
     //The settled page image sits 6pt inside the pager container.
     func reportDestination(containerRect: CGRect) {
         destRect = containerRect.insetBy(dx: 6, dy: 0)

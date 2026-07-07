@@ -11,9 +11,14 @@ struct ProfileCard : View {
 
     //Hands back the image actually on screen, so the profile morph flies exactly it.
     let onTap: (UIImage) -> Void
+    //Same contract for the quick-invite flight.
+    let onQuickInvite: (UIImage) -> Void
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
+    //True while the quick-invite flight owns this card's image: the image hides
+    //instantly (pixel-covered by the flight copy) and the overlays quick-fade.
+    let quickInviteHidden: Bool
 
     private let cardCornerRadius: CGFloat = 22
     private let cardHeightRatio: CGFloat = 1.08   // card height = width × this
@@ -21,21 +26,19 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
-    
-    @Binding var showQuickInvite: PendingProfile?
-    
+
     private var displayImage: UIImage {
         image ?? profile.image
     }
 
     var body: some View {
-        
+
         Image(uiImage: displayImage)
-            .profileImageCard(size)
-        
-            .overlay { backgroundBlur }
-            .overlay(alignment: .bottomLeading) { cardOverlay }
-        
+            .profileImageCard(size, hideImage: quickInviteHidden)
+
+            .overlay { backgroundBlur.opacity(quickInviteHidden ? 0 : 1).animation(.easeOut(duration: 0.12), value: quickInviteHidden) }
+            .overlay(alignment: .bottomLeading) { cardOverlay.opacity(quickInviteHidden ? 0 : 1).animation(.easeOut(duration: 0.12), value: quickInviteHidden) }
+
             .profileShrinkPress {onTap(displayImage)}
 
             .coordinateSpace(name: ProfileCard.cardSpace)
@@ -58,7 +61,7 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         InviteButton(isInviting: true, morphId: profile.profile.id) {
-            showQuickInvite = profile
+            onQuickInvite(displayImage)
         }
     }
 
@@ -96,12 +99,13 @@ extension ProfileCard {
 }
 
 extension Image {
-    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.12) -> some View {
+    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.12, hideImage: Bool = false) -> some View {
         self
             .resizable()
             .scaledToFill()
             .frame(width: max(size, 0), height: max(size, 0) * ratio) //How much taller than wide i.e. 12%
             .clipShape(.rect(cornerRadius: 20, style: .continuous)) //Corner Radius 22
+            .opacity(hideImage ? 0 : 1) //Pixel-covered by the quick-invite flight copy; never animated
             .background(Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous)) //For Shadow
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
