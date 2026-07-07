@@ -10,11 +10,13 @@ import SwiftUI
 @MainActor
 struct InviteTimeAndPlaceView: View {
     @State var vm: TimeAndPlaceViewModel
+    
+    let image: UIImage
+    let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
-    var requestConfirm: ((@escaping () -> Void) -> Void)? = nil
 
     var body: some View {
-        InviteContainer(vm: vm, sendInvite: sendInvite)
+        SendInviteCard(vm: vm, image: image, hideInvite: hideInvite, sendInvite: sendInvite)
     }
 }
 
@@ -27,25 +29,12 @@ struct RespondTimeAndPlaceView: View {
     var body: some View {
         SendInviteContainer(
             draft: $vm.respondDraft.newEvent,
-            showConfirm: .constant(false),
             name: event.otherUserName,
             isInviteResponse: true,
             defaults: vm.defaults,
             onClearDraft: {vm.deleteEventDefault()},
+            hideInvite: {},
             onSendInvite: {sendInvite()}
         )
     }
 }
-
-/*
- SendInviteContainer(
-     draft: $vm.event,
-     name: vm.inviteModel.name,
-     image: vm.inviteModel.image,
-     deleteEventDefault: {vm.deleteEventDefault()},
-     onSendInvite: {sendInvite(vm.event)},
-     isInviteResponse: false,
-     defaults: vm.defaults,
-     requestConfirm: requestConfirm
- )
- */

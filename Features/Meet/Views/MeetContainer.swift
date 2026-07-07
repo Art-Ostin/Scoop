@@ -31,9 +31,16 @@ struct MeetContainer: View {
 
     var body: some View {
         NavigationStack {
-            meetView
-                .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
-                .navigationTitle("Meet")
+            
+            ZStack {
+                if let invite = ui.quickInvite, let image = ui.quickInviteImage {
+                    timeAndPlaceView(invite, image)
+                } else {
+                    meetView
+                        .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
+                        .navigationTitle("Meet")
+                }
+            }
         }
         
         
@@ -41,11 +48,6 @@ struct MeetContainer: View {
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
-        .quickInvite(openPopupId: $ui.quickInvite, hideCard: pendingInvite != nil, style: .send.sideMargin(SendInviteContainer.screenMargin), image: { id in vm.profileImages[id]?.first }) { id in
-            timeAndPlaceView(id)
-        } overlay: {
-            MorphConfirmAlert(pending: $pendingInvite)
-        }
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
 }
@@ -116,11 +118,13 @@ extension MeetContainer {
     private func profileCard(_ profile: PendingProfile)-> some View {
         ProfileCard(
             onTap: { image in openProfile(profile, image: image) },
-            onQuickInvite: { ui.quickInvite = profile.profile.id },
-            profile: profile, size: imageSize,
-            imageLoader: vm.imageLoader)
-            .task { await vm.loadProfileImages(profile: profile.profile) }
-            .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
+            profile: profile,
+            size: imageSize,
+            imageLoader: vm.imageLoader,
+            showQuickInvite: $ui.quickInvite
+        )
+        .task { await vm.loadProfileImages(profile: profile.profile) }
+        .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
     }
 }
 
@@ -128,22 +132,13 @@ extension MeetContainer {
 extension MeetContainer {
     
     @ViewBuilder
-    private func timeAndPlaceView(_ profileId: String) -> some View {
-        if let profileEvent = fetchPendingProfileFromId(profileId) {
-            InviteTimeAndPlaceView(
-                vm: timeAndPlaceViewModel(profileEvent),
-                sendInvite: { sendInvite(profileEvent, draft: $0) },
-                requestConfirm: { pendingInvite = $0 }
-            )
-        }
-    }
-
-    private func fetchPendingProfileFromId(_ profileId: String) -> PendingProfile? {
-        return vm.profiles.first(where: {$0.id == profileId})
-    }
-    
-    private func timeAndPlaceViewModel(_ profileEvent: PendingProfile) -> TimeAndPlaceViewModel {
-        TimeAndPlaceViewModel(inviteModel: inviteModel(profileEvent), defaults: vm.defaults)
+    private func timeAndPlaceView(_ pendingProfile: PendingProfile, _ image: UIImage) -> some View {
+        InviteTimeAndPlaceView(
+            vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pendingProfile), defaults: vm.defaults),
+            image: image,
+            hideInvite: {ui.quickInvite = nil},
+            sendInvite: {sendInvite(pendingProfile, draft: $0)}
+        )
     }
     
     private func inviteModel(_ profileEvent: PendingProfile) -> InviteContext {
@@ -215,3 +210,4 @@ extension MeetContainer {
         InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
     }
 }
+

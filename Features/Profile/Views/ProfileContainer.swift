@@ -88,7 +88,7 @@ struct ProfileContainer: View {
                 .sideMargin(SendInviteContainer.screenMargin),
             image: { _ in displayImages.first }
         ) { _ in
-            sendInviteMorphCard
+//            sendInviteMorphCard
         } overlay: {
             morphOverlay
         }

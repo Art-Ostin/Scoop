@@ -113,21 +113,6 @@ extension ProfileContainer {
         }
     }
 
-    @ViewBuilder var sendInviteMorphCard: some View {
-        switch mode {
-        case .sendInvite(let onSend, _):
-            let inviteModel = InviteContext(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
-            InviteTimeAndPlaceView(
-                vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-                sendInvite: onSend,
-                requestConfirm: { pendingInvite = $0 }
-            )
-        case .respondToInvite(let respondVM, let onResponse):
-            RespondContainer(vm: respondVM, ui: respondUI, onHide: { ui.showPopup = false }, onResponse: onResponse)
-        default:
-            EmptyView()
-        }
-    }
     
     func animateDismiss(releaseVelocity: CGFloat) {
         guard let morph else { onDismissStart?(); onDismiss?(); return }
@@ -167,3 +152,22 @@ extension ProfileContainer {
 }
 
 
+
+/*
+ @ViewBuilder var sendInviteMorphCard: some View {
+     switch mode {
+     case .sendInvite(let onSend, _):
+         let inviteModel = InviteContext(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
+         InviteTimeAndPlaceView(
+             vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
+             sendInvite: onSend,
+             requestConfirm: { pendingInvite = $0 }
+         )
+     case .respondToInvite(let respondVM, let onResponse):
+         RespondContainer(vm: respondVM, ui: respondUI, onHide: { ui.showPopup = false }, onResponse: onResponse)
+     default:
+         EmptyView()
+     }
+ }
+
+ */

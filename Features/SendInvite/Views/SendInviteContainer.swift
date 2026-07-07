@@ -8,33 +8,25 @@ struct SendInviteContainer: View {
     @State var ui = TimeAndPlaceUIState()
 
     @Binding var draft: EventFieldsDraft
-    @Binding var showConfirm: Bool
     
     let name: String
     let isInviteResponse: Bool
     let defaults: DefaultsManaging
 
     let onClearDraft: () -> Void
+    let hideInvite: () -> Void
     let onSendInvite: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) { //Each row has 32 vertical padding
+        VStack(spacing: 0) {
             title
-//                .padding(.bottom, draft.place != nil ? 0 : 4)
             
             InviteRowContainer(ui: ui, draft: $draft)
             
             sendButton
-//                .padding(.top, draft.place != nil ? 10 : 6)
         }
         .overlay(alignment: .topTrailing) {optionsMenu}
-        .modifier(InviteCardBackground(screenMargin: SendInviteContainer.screenMargin))
-
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
-        
-        .morphPopupOpen(ui.isPopupOpen())   // hide the morph's floating Hide button while a popup is open
-        .hideTabBar(hideBar: isInviteResponse)
-        
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {
             NavigationStack {
@@ -92,51 +84,3 @@ extension SendInviteContainer {
         .allowsHitTesting(draft.isComplete)
     }
 }
-
-struct InviteCardBackground: ViewModifier {
-    @Environment(\.inviteCardTint) private var tint
-    let screenMargin: CGFloat
-    
-    private var cardColor: Color { .tintedCanvas(tint) }
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 32)
-            .padding(.top, 32)
-            .padding(.bottom, 24)
-        
-            .background {
-                if #available(iOS 26.0, *) {
-                    Color.clear
-                        .glassEffect(.regular.tint(cardColor), in: .rect(cornerRadius: 36, style: .continuous))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 36, style: .continuous)
-                                .fill(cardColor.opacity(0.5))
-                        }
-                } else {
-                    RoundedRectangle(cornerRadius: 36, style: .continuous).fill(Color.appCanvas)
-                }
-            }
-            .padding(.horizontal, screenMargin)
-            .padding(.top, 460)
-            .compositingGroup()
-            .morphCardAnchor()
-    }
-}
-
-
-extension Color {
-    /// `tint` at `strength` composited over an opaque white base, flattened to one color.
-    /// Respects the tint's own alpha — a `.clear` tint yields pure white. //0.0025
-    static func tintedCanvas(_ tint: Color, strength: CGFloat = 0.0015) -> Color {
-        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-        UIColor(tint).getRed(&r, green: &g, blue: &b, alpha: &a)
-        let e = strength * a
-        return Color(red: (1 - e) + e * r,
-                     green: (1 - e) + e * g,
-                     blue: (1 - e) + e * b)
-    }
-}
-
-

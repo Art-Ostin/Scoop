@@ -19,12 +19,12 @@ extension Image {
 }
 
 
-struct AppImage: View {
+struct ScoopImage: View {
     
     let image: UIImage
-    let aspectRatio: CGFloat = 1/1.08//DefaultAppImage
-    let showShadow: Bool = false
-    let hPadding: CGFloat = 16 //Default Spacing
+    var aspectRatio: CGFloat = 1/1.08//DefaultAppImage
+    var showShadow: Bool = false
+    var hPadding: CGFloat = 16 //Default Spacing
     
     var body: some View {
         Color.clear
@@ -36,7 +36,6 @@ struct AppImage: View {
             }
             .clipShape(.rect(cornerRadius: 16, style: .continuous))
             .cardShadow(showShadow: showShadow)
-            .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 8)
             .padding(.horizontal, hPadding)
     }
 }

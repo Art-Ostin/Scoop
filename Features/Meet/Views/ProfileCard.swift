@@ -11,7 +11,6 @@ struct ProfileCard : View {
 
     //Hands back the image actually on screen, so the profile morph flies exactly it.
     let onTap: (UIImage) -> Void
-    let onQuickInvite: () -> Void
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
@@ -22,6 +21,8 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
+    
+    @Binding var showQuickInvite: PendingProfile?
     
     private var displayImage: UIImage {
         image ?? profile.image
@@ -56,7 +57,9 @@ extension ProfileCard {
     }
 
     private var inviteButton: some View {
-        InviteButton(isInviting: true, morphId: profile.profile.id, action: onQuickInvite)
+        InviteButton(isInviting: true, morphId: profile.profile.id) {
+            showQuickInvite = profile
+        }
     }
 
     private var infoSection: some View {
