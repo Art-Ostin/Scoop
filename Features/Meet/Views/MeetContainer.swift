@@ -32,14 +32,14 @@ struct MeetContainer: View {
     var body: some View {
         ZStack {
             Color.appCanvas.ignoresSafeArea()
-
-            //Stays mounted while the quick invite is up: the flight needs the
-            //source card's live frame and the list's scroll position preserved.
             NavigationStack {
                 meetView
                     .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
             }
+            //Meet chrome (info button included) fades with the flight and goes
+            //inert while the invite card is open.
+            .overlay(alignment: .topTrailing) {infoButton}
             .opacity(ui.quickInviteExpanded ? 0 : 1)
             .allowsHitTesting(!ui.quickInviteExpanded)
 
@@ -47,11 +47,13 @@ struct MeetContainer: View {
                 timeAndPlaceView(invite, image)
             }
         }
-        .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
+        //Driven by the animated flight value (not mount state), so the system bar
+        //animates out/in with the card and returns the moment the close starts.
+        .hideTabBar(hideBar: ui.quickInviteExpanded)
     }
 }
 
@@ -141,15 +143,15 @@ extension MeetContainer {
         InviteTimeAndPlaceView(
             vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pendingProfile), defaults: vm.defaults),
             image: image,
+            images: vm.profileImages[pendingProfile.profile.id] ?? [image],
+            details: profileDetails(pendingProfile.profile),
             expanded: $ui.quickInviteExpanded,
             sourceFrame: ui.quickInviteSource,
             hideInvite: {closeQuickInvite()},
             sendInvite: {sendInvite(pendingProfile, draft: $0)}
         )
     }
-
-    //Mounts the card collapsed, pixel-exact over the tapped card's image;
-    //SendInviteCard starts the open flight itself once its layout is measured.
+    
     private func openQuickInvite(_ profile: PendingProfile, image: UIImage) {
         if ui.quickInvite?.id == profile.id { //Reopen mid-close: retarget the spring
             withAnimation(SendInviteCard.flight) { ui.quickInviteExpanded = true }
@@ -174,6 +176,11 @@ extension MeetContainer {
         }
     }
     
+    //Must match ProfileCard's info line exactly — the flight chrome fades it out in place.
+    private func profileDetails(_ p: UserProfile) -> String {
+        "\(p.year) | \(p.degree) | \(p.hometown)"
+    }
+
     private func inviteModel(_ profileEvent: PendingProfile) -> InviteContext {
         InviteContext(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
     }
@@ -241,8 +248,11 @@ extension MeetContainer {
         }
     }
 
+    //Hides via the button's own .scoopPop show/hide (glass won't alpha-fade under
+    //ancestor opacity), driven by the animated flight value so it pops back in
+    //the moment the close starts.
     private var infoButton: some View {
-        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll)
+        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
     }
 }
 

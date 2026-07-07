@@ -4,6 +4,9 @@ struct SendInviteContainer: View {
     @Environment(\.inviteCardTint) private var tint
 
     static let screenMargin: CGFloat = 8
+    //Rows/button inset from the card content edge; the invite card's image
+    //overlays align to this — keep them moving together.
+    static let contentPadding: CGFloat = 24
         
     @State var ui = TimeAndPlaceUIState()
 
@@ -19,13 +22,16 @@ struct SendInviteContainer: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            title
-            
+            //The quick-invite card is title-less (the name lives on the image);
+            //the respond flow keeps its "Send New Invite" header and menu.
+            if isInviteResponse { title }
+
             InviteRowContainer(ui: ui, draft: $draft)
-            
+
             sendButton
+                .padding(.top, 4)
         }
-        .overlay(alignment: .topTrailing) {optionsMenu}
+        .overlay(alignment: .topTrailing) { if isInviteResponse { optionsMenu } }
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {
@@ -34,6 +40,7 @@ struct SendInviteContainer: View {
             }
         }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
+        .padding(.horizontal, Self.contentPadding)
     }
 }
 
@@ -80,7 +87,6 @@ extension SendInviteContainer {
                 .frame(height: 48)
         }
         .opacity(ui.isPopupOpenDelayed() ? 0.4 : 1)
-        .padding(.top, 4)
         .allowsHitTesting(draft.isComplete)
     }
 }

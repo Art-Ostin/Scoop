@@ -22,7 +22,7 @@ struct LightDivider: View {
 
     var body: some View {
         Rectangle()
-            .foregroundStyle(Color.textPlaceholder)
+            .foregroundStyle(Color.border)
             .frame(height: 1/displayScale) //exactly 1.5 physical pixels — identical on every device
             .frame(maxWidth: .infinity)
     }

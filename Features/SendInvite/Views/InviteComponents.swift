@@ -23,7 +23,7 @@ struct RowCaption: View {
 }
 
 enum InviteRowMetrics {
-    static let rowHeight: CGFloat = 84
+    static let rowHeight: CGFloat = 72
 }
 
 extension EnvironmentValues {

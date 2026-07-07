@@ -12,13 +12,15 @@ struct InviteTimeAndPlaceView: View {
     @State var vm: TimeAndPlaceViewModel
 
     let image: UIImage
+    let images: [UIImage]
+    let details: String
     @Binding var expanded: Bool
     let sourceFrame: CGRect
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
 
     var body: some View {
-        SendInviteCard(vm: vm, image: image, expanded: $expanded, sourceFrame: sourceFrame, hideInvite: hideInvite, sendInvite: sendInvite)
+        SendInviteCard(vm: vm, image: image, images: images, details: details, expanded: $expanded, sourceFrame: sourceFrame, hideInvite: hideInvite, sendInvite: sendInvite)
     }
 }
 

@@ -37,7 +37,10 @@ struct ProfileCard : View {
             .profileImageCard(size, hideImage: quickInviteHidden)
 
             .overlay { backgroundBlur.opacity(quickInviteHidden ? 0 : 1).animation(.easeOut(duration: 0.12), value: quickInviteHidden) }
-            .overlay(alignment: .bottomLeading) { cardOverlay.opacity(quickInviteHidden ? 0 : 1).animation(.easeOut(duration: 0.12), value: quickInviteHidden) }
+            //Hide fades (invisible under the opaque flight copy); the reveal is
+            //INSTANT — the flight chrome already faded the text back in and lands
+            //pixel-identical here, so a second fade would read as a flicker.
+            .overlay(alignment: .bottomLeading) { cardOverlay.opacity(quickInviteHidden ? 0 : 1).animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden) }
 
             .profileShrinkPress {onTap(displayImage)}
 
@@ -68,8 +71,10 @@ extension ProfileCard {
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             let p = profile.profile
+            //Title font matches the invite card's name overlay, so the quick-invite
+            //flight can glide this text with zero visual change.
             Text(p.name)
-                .font(.body(22, .bold))
+                .font(.title(26))
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(ProfileCard.cardSpace)) } action: { nameFrame = $0 }
 
             Text("\(p.year) | \(p.degree) | \(p.hometown)")

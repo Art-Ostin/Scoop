@@ -15,6 +15,8 @@ struct BackgroundBlur: View {
     let frames: [CGRect]
     var clipCornerRadius: CGFloat = 22
     var maskCornerRadius: CGFloat = 12
+    //Halo tightness: how much each frame shrinks vertically before blurring — raise to shorten.
+    var verticalInset: CGFloat = 4
 
     var body: some View {
         Image(uiImage: image)
@@ -38,7 +40,7 @@ struct BackgroundBlur: View {
     @ViewBuilder
     private func halo(for frame: CGRect) -> some View {
         if frame != .zero {
-            let rect = frame.insetBy(dx: -4, dy: 4)
+            let rect = frame.insetBy(dx: -4, dy: verticalInset)
             RoundedRectangle(cornerRadius: maskCornerRadius)
                 .frame(width: max(rect.width, 0), height: max(rect.height, 0))
                 .position(x: rect.midX, y: rect.midY)
