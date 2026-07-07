@@ -20,8 +20,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let image: UIImage?
     // Fires the instant the collapse lands, so the caller unmounts the cover in sync.
     let onCollapsed: () -> Void
-    // "Hide" control in this full-screen layer so its tap region isn't clamped to the card frame.
-    let showsHideButton: Bool
+    // Sheet-style grabber in this full-screen layer so its drag region isn't clamped to the card frame.
+    let showsGrabber: Bool
     let onHide: () -> Void
     @ViewBuilder var card: () -> Card
     @ViewBuilder var overlay: () -> Overlay
@@ -34,6 +34,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     @State private var popupOpen = false
     // Dominant color of `image`, extracted once here and shared with both the backdrop and the card.
     @State private var tint: Color = .clear
+    // Card's live vertical displacement while the grabber is being dragged.
+    @State private var dragOffset: CGFloat = 0
 
     private var sideMargin: CGFloat { style.sideMargin }
     private var cardWidth: CGFloat { max(0, containerSize.width - sideMargin * 2) }
@@ -69,7 +71,8 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
             .opacity(hideCard ? 0 : 1)
             .animation(.easeInOut(duration: 0.2), value: hideCard)
             .environment(\.inviteCardTint, tint) // card reads this for its faint background wash
-            if showsHideButton { hideButton }
+            .offset(y: dragOffset)
+            if showsGrabber { grabber }
             overlay()
         }
         .task {
@@ -148,19 +151,66 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                     .position(x: expandedRect.midX, y: expandedRect.midY)
             }
         }
+        // Once the dismiss drag engages, the card's controls go inert so the release can't land as a tap.
+        // Inside the drag attachment below, so the drag itself keeps tracking.
+        .disabled(dragOffset != 0)
         .opacity(expanded ? 1 : 0)
         .animation(expanded ? .easeIn(duration: 0.14).delay(contentFadeDelay) : nil, value: expanded)
         .allowsHitTesting(expanded)
+        // Swipe-down-to-dismiss from anywhere on the card; masked off entirely for flows without the grabber.
+        .simultaneousGesture(cardDismissDrag, including: showsGrabber ? .all : .subviews)
     }
 
-    // Pinned to the real card frame so it floats just below the card, with a full-screen tap region.
-    private var hideButton: some View {
-        HidePopup(onHide: onHide)
-            .position(x: expandedRect.midX, y: expandedRect.maxY + 120)
+    // Sheet-style grabber pinned to the card's top edge; dragging it tracks the card and dismisses past a threshold.
+    private var grabber: some View {
+        Capsule()
+            .fill(Color(red: 0.78, green: 0.78, blue: 0.80))
+            .frame(width: 36, height: 4)
+            .frame(width: 140, height: 44) // generous drag target around the thin bar
+            .contentShape(Rectangle())
+            .position(x: expandedRect.midX, y: expandedRect.minY + 12)
+            .offset(y: dragOffset)
             .opacity(expanded && !hideCard && !popupOpen ? 1 : 0)
-            .animation(.easeInOut(duration: 0.05), value: expanded)
+            .animation(expanded ? .easeIn(duration: 0.14).delay(contentFadeDelay) : nil, value: expanded) // fades in with the card content
             .animation(.smooth(duration: 0.2), value: popupOpen)
             .allowsHitTesting(expanded && !hideCard && !popupOpen)
+            .gesture(dismissDrag)
+    }
+
+    // Immediate tracking from the grabber itself.
+    private var dismissDrag: some Gesture {
+        DragGesture(minimumDistance: 1)
+            .onChanged { value in
+                let dy = value.translation.height
+                dragOffset = dy > 0 ? dy : dy / 3 // rubber-band resistance upward
+            }
+            .onEnded(endDrag)
+    }
+
+    // Anywhere on the card: runs alongside the card's own controls, but only captures clearly vertical drags
+    // so taps, presses, and horizontal swipes inside the card behave normally.
+    // Measured in the morph's stable space — the card itself moves with the drag, so its local space would feed back (jitter).
+    private var cardDismissDrag: some Gesture {
+        DragGesture(minimumDistance: 12, coordinateSpace: .named(morphCoordinateSpace))
+            .onChanged { value in
+                guard expanded, !hideCard, !popupOpen else { return }
+                let t = value.translation
+                if dragOffset == 0, abs(t.height) <= abs(t.width) { return }
+                dragOffset = t.height > 0 ? t.height : t.height / 3
+            }
+            .onEnded { value in
+                guard dragOffset != 0 else { return }
+                endDrag(value)
+            }
+    }
+
+    private func endDrag(_ value: DragGesture.Value) {
+        if value.translation.height > 100 || value.predictedEndTranslation.height > 220 {
+            withAnimation(closeAnimation) { dragOffset = 0 } // fold back from the dragged position
+            onHide()
+        } else {
+            withAnimation(.spring(duration: 0.35, bounce: 0.3)) { dragOffset = 0 }
+        }
     }
 
 }

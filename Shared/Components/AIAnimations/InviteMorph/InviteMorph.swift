@@ -26,8 +26,8 @@ struct QuickInviteMorphStyle {
     // Entrance-fallback edge gap for the first open frame, before content publishes its real frame.
     var sideMargin: CGFloat = 30
 
-    // Floats a "Hide" dismiss control below the card.
-    var showsHideButton: Bool = false
+    // Shows a sheet-style grabber at the card's top edge (swipe down dismisses).
+    var showsGrabber: Bool = false
 
     // Mount as a plain overlay (not a cover) for hosts already above the tab bar, to skip cover latency.
     var presentsAsOverlay: Bool = false
@@ -50,12 +50,12 @@ struct QuickInviteMorphStyle {
         return copy
     }
 
-    // Send card owns its chrome; adaptive width; shows Hide.
-    static let send = QuickInviteMorphStyle(contentOwnsBackground: true, showsHideButton: true)
-    // Content owns chrome; pager dismisses by responding, so no Hide.
+    // Send card owns its chrome; adaptive width; shows the grabber.
+    static let send = QuickInviteMorphStyle(contentOwnsBackground: true, showsGrabber: true)
+    // Content owns chrome; pager dismisses by responding, so no grabber.
     static let respond = QuickInviteMorphStyle(openDuration: 0.28, contentOwnsBackground: true)
     // Bare surface from a non-icon source (no glyph); card owns its background.
-    static let plainCard = QuickInviteMorphStyle(showsGlyph: false, contentOwnsBackground: true, showsHideButton: true)
+    static let plainCard = QuickInviteMorphStyle(showsGlyph: false, contentOwnsBackground: true, showsGrabber: true)
 }
 
 // MARK: - Presenter
@@ -111,7 +111,7 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                     style: style,
                     image: image(id),
                     onCollapsed: { if openPopupId == nil { withoutCoverAnimation { morphState.activeId = nil } } },
-                    showsHideButton: style.showsHideButton,
+                    showsGrabber: style.showsGrabber,
                     onHide: { openPopupId = nil },
                     card: { card(id) },
                     overlay: overlay
@@ -173,7 +173,7 @@ struct MorphCardFrameKey: PreferenceKey {
     }
 }
 
-// Published by the card when an inner popup is open, so the morph can hide the Hide control.
+// Published by the card when an inner popup is open, so the morph can hide the grabber.
 struct MorphPopupOpenKey: PreferenceKey {
     static var defaultValue: Bool = false
     static func reduce(value: inout Bool, nextValue: () -> Bool) {
@@ -199,7 +199,7 @@ extension View {
         anchorPreference(key: InviteIconBoundsKey.self, value: .bounds) { [id: $0] }
     }
 
-    /// Publishes "a popup is open inside me" up to the morph so it can hide the Hide control.
+    /// Publishes "a popup is open inside me" up to the morph so it can hide the grabber.
     func morphPopupOpen(_ isOpen: Bool) -> some View {
         preference(key: MorphPopupOpenKey.self, value: isOpen)
     }

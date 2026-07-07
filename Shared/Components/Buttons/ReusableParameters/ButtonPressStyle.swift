@@ -81,6 +81,7 @@ struct PressEffectModifier: ViewModifier {
     var shadowColor: Color = .accent
     var action: (() -> Void)?
 
+    @Environment(\.isEnabled) private var isEnabled
     @State private var isPressed = false
     @State private var scale: CGFloat = 1
     @State private var opacity: Double = 1
@@ -96,7 +97,9 @@ struct PressEffectModifier: ViewModifier {
             .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
             .contentShape(Rectangle())
             .gesture(
-                DragGesture(minimumDistance: 0)
+                // Global space so the finger's real travel is measured even when the view
+                // itself moves with the drag (e.g. the invite card's swipe-down dismiss).
+                DragGesture(minimumDistance: 0, coordinateSpace: .global)
                     .onChanged { _ in
                         guard !isPressed else { return }
                         isPressed = true
@@ -113,6 +116,13 @@ struct PressEffectModifier: ViewModifier {
                         }
                     }
             )
+            // If an ancestor disables us mid-press (dismiss drag engaging), the gesture is
+            // cancelled without onEnded — release the pressed look so it doesn't stick.
+            .onChange(of: isEnabled) { _, enabled in
+                guard !enabled, isPressed else { return }
+                isPressed = false
+                onPressed(false)
+            }
     }
 
     func onPressed(_ isPressed: Bool) {

@@ -54,7 +54,7 @@ struct SendInviteContainer: View {
         .animation(.spring(duration: 0.3), value: [Double(cardMargin), Double(ui.messageLineCount)])
         .task(id: ui.timePopupOpen) { await addTimePopupDelay() }
         .task(id: ui.typePopupOpen) { await addTypePopupDelay()}
-        .morphPopupOpen(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed) //hide the morph's floating Hide button while a popup is open
+        .morphPopupOpen(ui.timePopupOpenDelayed || ui.typePopupOpenDelayed) //hide the morph's grabber while a popup is open
         .hideTabBar(hideBar: isInviteResponse)
         .respondCustomAlert(isPresented: $ui.showConfirmPopup, type: .newInvite) {onSendInvite()}
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
