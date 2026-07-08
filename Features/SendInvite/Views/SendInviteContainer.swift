@@ -79,14 +79,24 @@ extension SendInviteContainer {
 
     private var sendButton: some View {
         let darkenedAccent = Color(red: 0.55, green: 0, blue: 0.25)
-        return ScoopButton(style: .tinted(draft.isComplete ? darkenedAccent : darkenedAccent, shadow: nil),
-                    shape: Capsule(),
-                    action: { print("hello") }) {
-            Text("Invite \(name)")
-                .font(.body(18, .bold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
+        
+        return Group {
+            if draft.isComplete {
+                ScoopButton(style: .tinted(darkenedAccent, shadow: nil), shape: Capsule(), action: { print("hello") }) {
+                    Text("Invite \(name)")
+                        .font(.body(18, .bold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                }
+            } else {
+                Text("Invite \(name)")
+                    .font(.body(18, .bold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.fillGray, in: Capsule())
+            }
         }
         .opacity(ui.isPopupOpenDelayed() ? 0.4 : 1)
         .allowsHitTesting(draft.isComplete)
