@@ -16,6 +16,7 @@ struct InviteImageCarousel: View {
     let size: CGSize
     let showsHideButton: Bool
     var dragDisabled: Bool = false //Swipe-dismiss owns the touch: no paging, even mid-pan
+    var optionsVisible: Bool = true //Flips at drag release so the menu is already popped in when the settle swap lands
     @Binding var scrollProgress: Double
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
     @Binding var showInfoScreen: Bool
@@ -119,17 +120,15 @@ extension InviteImageCarousel {
                 showInfoScreen = true
             }
         } label: {
-            Image(systemName: "ellipsis")
-                .font(.body(17, .bold))
-                .foregroundStyle(Color.black)
-                .frame(width: 35, height: 35)
-                .glassBackgroundIfAvailable(shape: Circle(), isClear: true)
-                .scaleEffect(0.9, anchor: .bottom)
-                .padding(55)
+            InviteOptionsIcon()
+                .padding(6)
                 .shrinkPress()
                 .contentShape(Circle())
         }
-        .padding(-55)
+        .padding(-6)
+        //Animates in parallel with the flight replica during a cancelled dismiss's spring-back,
+        //so it is already at full opacity when the settle swap makes it the visible copy.
+        .blurPop(visible: optionsVisible)
         .padding(.vertical, Self.nameTopInset)
         .padding(.horizontal, Self.nameLeadingInset)
         .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }

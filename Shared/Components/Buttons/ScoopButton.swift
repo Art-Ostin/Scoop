@@ -21,6 +21,7 @@ struct ScoopButton<Content: View, S: Shape>: View {
     
     var size: ButtonSize? = nil
     var weight: Font.Weight = .heavy
+    var hitInset: CGFloat = 16 //Tappable margin beyond the visible shape, matching the pre-26 paths
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -50,12 +51,15 @@ extension ScoopButton {
                 Button(action: action) {
                     sizedLabel()
                         .glassEffect(style == .clearGlass ? .clear.interactive() : .regular.interactive(), in: shape)
+                        //Must sit above the glass: interactive glass overrides any contentShape
+                        //beneath it (same hit-shape bug as the tinted path's contentShape fix).
+                        .expandHitArea(hitInset)
                 }
             } else {
                 Button(action: action) {
                     sizedLabel()
                         .background(shape.fill(.ultraThinMaterial).brightness(0.06))
-                        .expandHitArea()
+                        .expandHitArea(hitInset)
                 }
                 .growButton(shadowColor: .black)
             }
@@ -71,13 +75,14 @@ extension ScoopButton {
                     sizedLabel()
                         .glassEffect(.regular.tint(color), in: shape)
                         .contentShape(shape) //Fixes bug keep!
+                        .expandHitArea(hitInset)
                 }
                 .shrinkButton(shadow: shadow, shadowColor: color)
             } else {
                 Button(action: action) {
                     sizedLabel()
                         .background(shape.fill(color))
-                        .expandHitArea()
+                        .expandHitArea(hitInset)
                 }
                 .shrinkButton(shadow: shadow, shadowColor: color)
             }

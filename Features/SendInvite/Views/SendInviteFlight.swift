@@ -20,6 +20,7 @@ struct SendInviteFlight: View {
     let settled: Bool
     var dragImage: UIImage? = nil //Interactive dismiss: the carousel page the drag picked up
     var dragging: Bool = false //Finger owns the card; the tap-to-close mustn't fire under it
+    var optionsVisible: Bool = true //Flips at drag release (not spring completion) so the menu pops back in riding the spring-back
     let showsHideButton: Bool
     let hideInvite: () -> Void
 
@@ -98,6 +99,7 @@ extension SendInviteFlight {
             .overlay(alignment: .bottomLeading) { nameText }
             .overlay(alignment: .topLeading) { topName }
             .overlay(alignment: .bottomTrailing) { inviteButtonReplica }
+            .overlay(alignment: .topTrailing) { optionsMenuReplica }
             .allowsHitTesting(false) //Interaction belongs to the settled carousel
     }
 
@@ -127,6 +129,15 @@ extension SendInviteFlight {
         .padding(.top, InviteImageCarousel.nameTopInset)
         .padding(.leading, InviteImageCarousel.nameLeadingInset)
         .opacityPop(visible: expanded)
+    }
+
+    //Decorative copy of the carousel's options menu: pops with the open/close flight like the top name,
+    //and pops out the moment a dismiss drag grabs the card (the live Menu hides with the carousel swap).
+    private var optionsMenuReplica: some View {
+        InviteOptionsIcon()
+            .blurPop(visible: optionsVisible)
+            .padding(.top, InviteImageCarousel.nameTopInset)
+            .padding(.trailing, InviteImageCarousel.nameLeadingInset)
     }
 
     private var detailsText: some View {

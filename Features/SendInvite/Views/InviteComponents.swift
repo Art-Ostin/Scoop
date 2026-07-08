@@ -36,21 +36,22 @@ extension View {
     }
 }
 
-//One definition for the flight copy and the settled carousel, so the settle handoff renders identically.
-struct InviteBackButton: View {
-    let action: () -> Void
-
+//One definition for the flight replica and the settled carousel's menu label, so the settle handoff renders identically.
+struct InviteOptionsIcon: View {
     var body: some View {
-        ScoopButton(shape: Capsule(), action: action) {
-            HStack(spacing: 6) {
-                
-                Text("Hide")
-                    .font(.body(14, .bold))
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 6)
-        }
-        .padding(.top, 56)
+        Image(systemName: "ellipsis")
+            .font(.body(16, .bold))
+            .foregroundStyle(Color.textSecondary)
+            .frame(width: 30, height: 30)
+            .background(Color.fillGray, in: .circle)
+            .scaleEffect(0.9, anchor: .bottom)
+
+//        Image(systemName: "ellipsis")
+//            .font(.body(17, .bold))
+//            .foregroundStyle(Color.black)
+//            .frame(width: 35, height: 35)
+//            .glassBackgroundIfAvailable(shape: Circle(), isClear: true)
+//            .scaleEffect(0.9, anchor: .bottom)
     }
 }
 
@@ -59,16 +60,15 @@ struct BottomBackButton: View {
     let action: () -> Void
     
     var body: some View {
-        ScoopButton(shape: Capsule(), action: action) {
+        ScoopButton(shape: Circle(), hitInset: 50, action: action) {
             HStack(spacing: 6) {
-                Text("Hide")
-                    .font(.body(14, .bold))
+                Image(systemName: "chevron.down")
+                    .font(.body(17))
+                    .fontWeight(.heavy)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .frame(width: 45, height: 45)
         }
-        .padding(.top, 48)
-        .padding(.horizontal, 6)
+        .padding(.top, 36)
     }
 }
 
@@ -87,8 +87,6 @@ struct PagedScrollStyle: ViewModifier {
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
             .scrollDisabled(pageCount <= 1 || dragDisabled)
-            //.paging strides by viewport width: visual gaps must live inside the page
-            //cells (widened viewport), never as HStack spacing — pages drift by the gap.
             .scrollTargetBehavior(.paging)
     }
 }

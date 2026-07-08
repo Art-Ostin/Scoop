@@ -119,6 +119,7 @@ extension SendInviteCard {
             size: CGSize(width: width, height: width * Self.imageHeightRatio),
             showsHideButton: showsHideButton,
             dragDisabled: dragging,
+            optionsVisible: expanded && dragOffset == .zero,
             scrollProgress: $scrollProgress,
             vm: vm,
             showInfoScreen: $showInfoScreen,
@@ -151,9 +152,10 @@ extension SendInviteCard {
 
     private var backButton: some View {
     BottomBackButton(action: hideInvite)
-        .opacityPop(visible: expanded && dragOffset == .zero)
-        .frame(maxWidth: .infinity, alignment: .center)
+        .blurPop(visible: expanded && dragOffset == .zero)
+        .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, Self.screenGap)
+        .padding(.horizontal, 12) //12 extra padding beyond screen padding
         .allowsHitTesting(settled)
     }
 }
@@ -171,6 +173,7 @@ extension SendInviteCard {
             settled: settled,
             dragImage: dragImage,
             dragging: dragging,
+            optionsVisible: expanded && dragOffset == .zero,
             showsHideButton: showsHideButton,
             hideInvite: hideInvite
         )
