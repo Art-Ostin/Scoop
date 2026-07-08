@@ -20,8 +20,11 @@ struct SendInviteCard: View {
     static let imageBottomRadius: CGFloat = 12
     static let sourceRadius: CGFloat = 20 //Profile card image clip radius (collapsed state)
     static let imageHeightRatio: CGFloat = 1.05
-    static let nameBlurInset: CGFloat = 10
-    static let chromeBottomPadding: CGFloat = 16 //Shared by flight and carousel — if they differ the settle handoff snaps
+    static let chromeBottomPadding: CGFloat = 16 //Bottom anchor for the flight's expanded chrome targets
+
+    static let titleTopPadding: CGFloat = 0 //Extra weight above the title (the unit is vertically centered)
+    static let titleCardGap: CGFloat = 12 //Title row → card top
+    static let bottomSafeGap: CGFloat = 34 //Stand-in for the home-indicator inset: the layer ignores the bottom safe area (see body)
 
     @State var vm: TimeAndPlaceViewModel
 
@@ -30,7 +33,6 @@ struct SendInviteCard: View {
     let details: String
     @Binding var expanded: Bool
     let sourceFrame: CGRect //Profile card image frame, global coords
-    var showsHideButton: Bool = true //Hide pill on the expanded image; the invite button morphs into it
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
 
@@ -47,11 +49,21 @@ struct SendInviteCard: View {
             let origin = geo.frame(in: .global).origin
             ZStack(alignment: .top) {
                 cardBackground(origin)
-                cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
+                VStack(alignment: .leading, spacing: Self.titleCardGap) {
+                    title
+                        .padding(.top, Self.titleTopPadding)
+                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
+                }
+                .frame(maxHeight: .infinity, alignment: .center) //Leftover height splits evenly above and below
+                .padding(.bottom, Self.bottomSafeGap)
                 flight(origin)
             }
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
         }
+        //The tab bar hides/shows exactly when the flights start; if its safe-area inset
+        //resized this layer, the centered unit (and the flight's destination) would jump
+        //mid-spring. Ignoring the inset keeps the layer's height constant across the flip.
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -76,7 +88,7 @@ extension SendInviteCard {
         .allowsHitTesting(expanded)
         .padding(.horizontal, Self.screenGap)
     }
-
+    
     private func imageSlot(_ width: CGFloat) -> some View {
         Color.clear
             .frame(width: max(width, 0), height: max(width, 0) * Self.imageHeightRatio)
@@ -91,11 +103,8 @@ extension SendInviteCard {
     private func carousel(_ width: CGFloat) -> some View {
         InviteImageCarousel(
             images: gallery,
-            name: vm.inviteModel.name,
             size: CGSize(width: width, height: width * Self.imageHeightRatio),
-            showsHideButton: showsHideButton,
-            scrollProgress: $scrollProgress,
-            onBack: hideInvite
+            scrollProgress: $scrollProgress
         )
         .opacity(settled ? 1 : 0)
         .allowsHitTesting(settled)
@@ -134,7 +143,6 @@ extension SendInviteCard {
             rect: local(expanded ? imageFrame : sourceFrame, origin),
             expanded: $expanded,
             settled: settled,
-            showsHideButton: showsHideButton,
             hideInvite: hideInvite
         )
     }
@@ -190,5 +198,24 @@ extension SendInviteCard {
         } else {
             settled = false
         }
+    }
+}
+
+//Title row: sits above the card and fades with the open/close flight (no morph from the profile card's name).
+extension SendInviteCard {
+
+    private var title: some View {
+        HStack(spacing: 6) {
+            InviteBackButton(action: hideInvite)
+
+            HStack(spacing: 0) {
+                Text("Meet ")
+                Text(vm.inviteModel.name)
+            }
+            .font(.title(26))
+            .foregroundStyle(Color.textPrimary)
+        }
+        .opacity(expanded ? 1 : 0)
+        .allowsHitTesting(expanded)
     }
 }
