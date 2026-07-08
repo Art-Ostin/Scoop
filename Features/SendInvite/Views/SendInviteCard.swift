@@ -23,7 +23,7 @@ struct SendInviteCard: View {
     static let chromeBottomPadding: CGFloat = 16 //Bottom anchor for the flight's expanded chrome targets
 
     static let titleTopPadding: CGFloat = 0 //Extra weight above the title (the unit is vertically centered)
-    static let titleCardGap: CGFloat = 12 //Title row → card top
+    static let titleCardGap: CGFloat = 6 //Title row → card top
     static let bottomSafeGap: CGFloat = 34 //Stand-in for the home-indicator inset: the layer ignores the bottom safe area (see body)
 
     @State var vm: TimeAndPlaceViewModel
@@ -205,17 +205,21 @@ extension SendInviteCard {
 extension SendInviteCard {
 
     private var title: some View {
-        HStack(spacing: 6) {
+        ZStack {
             InviteBackButton(action: hideInvite)
+                .opacityPop(visible: expanded) //Pop BEFORE the full-width frame → scales around the button's own center (leading edge), not the screen center
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 0) {
                 Text("Meet ")
                 Text(vm.inviteModel.name)
             }
-            .font(.title(26))
+            .font(.title(20))
             .foregroundStyle(Color.textPrimary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .opacityPop(visible: expanded) //Scale+fade in place, riding the open/close flight that drives `expanded`
         }
-        .opacity(expanded ? 1 : 0)
         .allowsHitTesting(expanded)
+        .padding(.top, -24)
     }
 }
