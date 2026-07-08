@@ -48,9 +48,9 @@ struct InviteTypeRow: View {
             typeMenu
         }
         .overlay(alignment: .trailing) {
-            pageIndicator
-                .offset(y: 20)
-                .offset(x: -22)
+//            pageIndicator
+//                .offset(y: 20)
+//                .offset(x: -22)
         }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change

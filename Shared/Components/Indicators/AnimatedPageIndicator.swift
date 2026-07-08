@@ -118,8 +118,7 @@ extension View {
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
         self
             .onScrollGeometryChange(for: Double.self) { geo in
-                let width = geo.containerSize.width
-                return width > 0 ? geo.contentOffset.x / width : 0
+                geo.containerSize.width > 0 ? geo.contentOffset.x / geo.containerSize.width : 0
             } action: { _, newValue in
                 scrollProgress.wrappedValue = newValue
             }

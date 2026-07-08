@@ -36,6 +36,18 @@ extension View {
     }
 }
 
+//One definition for the flight copy and the settled carousel, so the settle handoff renders identically.
+struct InviteBackButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .medium, action: action) {
+            Image(systemName: "chevron.left")
+        }
+        .padding(12)
+    }
+}
+
 struct PagedScrollStyle: ViewModifier {
     @Binding var scrolledPageID: Int?
     @Binding var pageWidth: CGFloat
@@ -48,8 +60,10 @@ struct PagedScrollStyle: ViewModifier {
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
-            .scrollTargetBehavior(.paging)
             .scrollDisabled(pageCount <= 1)
+            //.paging strides by viewport width: visual gaps must live inside the page
+            //cells (widened viewport), never as HStack spacing — pages drift by the gap.
+            .scrollTargetBehavior(.paging)
     }
 }
 

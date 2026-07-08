@@ -154,7 +154,7 @@ extension MeetContainer {
     
     private func openQuickInvite(_ profile: PendingProfile, image: UIImage) {
         if ui.quickInvite?.id == profile.id { //Reopen mid-close: retarget the spring
-            withAnimation(SendInviteCard.flight) { ui.quickInviteExpanded = true }
+            withAnimation(SendInviteCard.openFlight) { ui.quickInviteExpanded = true }
             return
         }
         guard ui.quickInvite == nil, ui.openProfile == nil else { return }
@@ -163,10 +163,13 @@ extension MeetContainer {
         ui.quickInvite = profile
     }
 
-    //Reverse flight; unmounts only once the spring settles (skipped if reopened mid-close).
+    //Reverse flight; unmounts only once the spring FULLY settles (`.removed` —
+    //the default `.logicallyComplete` fires while the spring tail is still moving,
+    //so unmounting there cuts off the last points of travel: an end-of-close snap).
+    //Skipped if reopened mid-close.
     private func closeQuickInvite() {
         guard ui.quickInviteExpanded else { return }
-        withAnimation(SendInviteCard.flight) {
+        withAnimation(SendInviteCard.closeFlight, completionCriteria: .removed) {
             ui.quickInviteExpanded = false
         } completion: {
             guard !ui.quickInviteExpanded else { return }
@@ -197,8 +200,10 @@ extension MeetContainer {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
+    //Quick-invite guard keys on `expanded`, not mount state: during the close
+    //tail the card lingers (`.removed` unmount) but must not block profile taps.
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
-        guard ui.openProfile == nil, ui.quickInvite == nil else { return }
+        guard ui.openProfile == nil, !ui.quickInviteExpanded else { return }
         profileMorph.beginOpen(id: profile.profile.id, image: image)
         ui.openProfile = profile.profile
     }

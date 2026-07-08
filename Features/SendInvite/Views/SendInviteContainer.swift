@@ -22,8 +22,6 @@ struct SendInviteContainer: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            //The quick-invite card is title-less (the name lives on the image);
-            //the respond flow keeps its "Send New Invite" header and menu.
             if isInviteResponse { title }
 
             InviteRowContainer(ui: ui, draft: $draft)
@@ -77,7 +75,8 @@ extension SendInviteContainer {
      }
     
     private var sendButton: some View {
-        ScoopButton(style: .tinted(draft.isComplete ? .accent : .accent, shadow: nil),
+        let darkenedAccent = Color(red: 0.55, green: 0, blue: 0.25)
+        return ScoopButton(style: .tinted(draft.isComplete ? darkenedAccent : darkenedAccent, shadow: nil),
                     shape: Capsule(),
                     action: { print("hello") }) {
             Text("Send Invite")

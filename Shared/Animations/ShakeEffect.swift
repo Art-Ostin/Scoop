@@ -47,3 +47,26 @@ extension AnyTransition {
         AnyTransition(.blurReplace).combined(with: .scale(scale: 0.8, anchor: .top))
     }
 }
+
+// MARK: - Opacity pop (scale + fade, no blur)
+
+//Bool-driven counterpart to the `.scoopPop` transition, for chrome that must
+//stay mounted: a view INSERTED mid-animation renders at the destination
+//geometry instead of riding it, so these elements toggle visibility in place.
+//Rides whatever animation drives the passed value.
+private struct OpacityPop: ViewModifier {
+    var visible: Bool
+    var shrunkScale: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(visible ? 1 : shrunkScale)
+            .opacity(visible ? 1 : 0)
+    }
+}
+
+extension View {
+    func opacityPop(visible: Bool, scale: CGFloat = 0.4) -> some View {
+        modifier(OpacityPop(visible: visible, shrunkScale: scale))
+    }
+}

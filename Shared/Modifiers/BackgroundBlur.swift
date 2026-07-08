@@ -10,11 +10,18 @@ import SwiftUI
 //To blur behind the images in the app
 struct BackgroundBlur: View {
 
+    //Shared with SendInviteCard's flight halo, which re-creates this treatment
+    //on animated anchors — keep the two in lockstep via these constants.
+    static let imageBlurRadius: CGFloat = 22
+    static let haloWidthOutset: CGFloat = 4 //Halo extends this far past the text on each side
+    static let haloCornerRadius: CGFloat = 12
+    static let haloBlurRadius: CGFloat = 4
+
     let image: UIImage
     let size: CGSize
     let frames: [CGRect]
     var clipCornerRadius: CGFloat = 22
-    var maskCornerRadius: CGFloat = 12
+    var maskCornerRadius: CGFloat = Self.haloCornerRadius
     //Halo tightness: how much each frame shrinks vertically before blurring — raise to shorten.
     var verticalInset: CGFloat = 4
 
@@ -23,7 +30,7 @@ struct BackgroundBlur: View {
             .resizable()
             .scaledToFill()
             .frame(width: max(size.width, 0), height: max(size.height, 0))
-            .blur(radius: 22)
+            .blur(radius: Self.imageBlurRadius)
             .mask(mask)
             .clipShape(.rect(cornerRadius: clipCornerRadius, style: .continuous))
             .allowsHitTesting(false)
@@ -40,11 +47,11 @@ struct BackgroundBlur: View {
     @ViewBuilder
     private func halo(for frame: CGRect) -> some View {
         if frame != .zero {
-            let rect = frame.insetBy(dx: -4, dy: verticalInset)
+            let rect = frame.insetBy(dx: -Self.haloWidthOutset, dy: verticalInset)
             RoundedRectangle(cornerRadius: maskCornerRadius)
                 .frame(width: max(rect.width, 0), height: max(rect.height, 0))
                 .position(x: rect.midX, y: rect.midY)
-                .blur(radius: 4)
+                .blur(radius: Self.haloBlurRadius)
         }
     }
 }
