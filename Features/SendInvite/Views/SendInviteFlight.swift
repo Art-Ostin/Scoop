@@ -86,7 +86,6 @@ extension SendInviteFlight {
         Color.clear
             .overlay(alignment: .bottomLeading) { detailsText }
             .overlay(alignment: .bottomLeading) { nameText }
-            .overlay(alignment: .topLeading) { backButton }
             .overlay(alignment: .bottomTrailing) { inviteButtonReplica }
             .allowsHitTesting(false) //Interaction belongs to the settled carousel
     }
@@ -116,12 +115,6 @@ extension SendInviteFlight {
             .padding(.bottom, 16)
             .opacity(expanded ? 0 : 1)
             .blur(radius: expanded ? 6 : 0)
-    }
-
-    //Always present, never inserted; scale rides along so the glass reads animated.
-    private var backButton: some View {
-        InviteBackButton(action: {})
-            .opacityPop(visible: expanded)
     }
 
     //Decorative copy of ProfileCard's invite button: the tap that opened the invite covered

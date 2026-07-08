@@ -17,7 +17,6 @@ struct SendInviteContainer: View {
     let defaults: DefaultsManaging
 
     let onClearDraft: () -> Void
-    let hideInvite: () -> Void
     let onSendInvite: () -> Void
     
     var body: some View {
@@ -78,7 +77,7 @@ extension SendInviteContainer {
         let darkenedAccent = Color(red: 0.55, green: 0, blue: 0.25)
         return ScoopButton(style: .tinted(draft.isComplete ? darkenedAccent : darkenedAccent, shadow: nil),
                     shape: Capsule(),
-                    action: { print("hello") }) {
+                    action: onSendInvite) {
             Text("Send Invite")
                 .font(.body(18, .bold))
                 .foregroundStyle(.white)

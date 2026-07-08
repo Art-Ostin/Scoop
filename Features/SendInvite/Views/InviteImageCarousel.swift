@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-//The settled invite image: paged profile photos with the name and a glass back
-//button. Lives under the flight copy and takes over once it lands.
+//The settled invite image: paged profile photos with the name and the Hide pill.
+//Lives under the flight copy and takes over once it lands.
 struct InviteImageCarousel: View {
 
     let images: [UIImage]
@@ -16,7 +16,7 @@ struct InviteImageCarousel: View {
     let size: CGSize
     let showsHideButton: Bool
     @Binding var scrollProgress: Double
-    let onBack: () -> Void
+    let onHide: () -> Void
 
     @State private var scrolledPageID: Int?
     @State private var pageWidth: CGFloat = 0
@@ -29,7 +29,6 @@ struct InviteImageCarousel: View {
     var body: some View {
         pager
             .overlay { backgroundBlur }
-            .overlay(alignment: .topLeading) { InviteBackButton(action: onBack) }
             .overlay(alignment: .bottomLeading) { nameOverlay }
             .overlay(alignment: .bottomTrailing) { hideButton }
             .coordinateSpace(name: Self.imageSpace)
@@ -101,7 +100,7 @@ extension InviteImageCarousel {
     @ViewBuilder
     private var hideButton: some View {
         if showsHideButton {
-            HideSendInviteButton(action: onBack)
+            HideSendInviteButton(action: onHide)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { hideButtonHeight = $0 }
                 .padding(.trailing, SendInviteContainer.contentPadding)
                 .padding(.bottom, SendInviteCard.chromeBottomPadding + (nameFrame.height - hideButtonHeight) / 2)

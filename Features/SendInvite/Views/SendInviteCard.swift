@@ -12,7 +12,6 @@ struct SendInviteCard: View {
     static let openFlight = Animation.smooth(duration: 0.3)
     static let closeFlight = Animation.smooth(duration: 0.28)
 
-    //Concentric geometry: the image sits `imagePadding` inside the card, so its radius derives from the card's.
     static let cardRadius: CGFloat = 24
     static let screenGap: CGFloat = 10
     static let imagePadding: CGFloat = 3
@@ -22,6 +21,9 @@ struct SendInviteCard: View {
     static let imageHeightRatio: CGFloat = 1.05
     static let nameBlurInset: CGFloat = 10
     static let chromeBottomPadding: CGFloat = 16 //Shared by flight and carousel — if they differ the settle handoff snaps
+    //Declared on ProfileCard's root: every frame here is measured in it, so the whole
+    //morph is anchored to the feed cell and rides the scroll instead of the screen.
+    static let cellSpace = "SendInviteCard.cell"
 
     @State var vm: TimeAndPlaceViewModel
 
@@ -29,11 +31,13 @@ struct SendInviteCard: View {
     let images: [UIImage]
     let details: String
     @Binding var expanded: Bool
-    let sourceFrame: CGRect //Profile card image frame, global coords
+    let sourceFrame: CGRect //Collapsed ProfileCard footprint in cell space; the flight departs from and returns to it
     var showsHideButton: Bool = true //Hide pill on the expanded image; the invite button morphs into it
+    let onExpand: () -> Void //Joins the open transaction — the feed scrolls this card to the top on the same spring
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
 
+    @State private var cellWidth: CGFloat = 0
     @State private var cardFrame: CGRect = .zero
     @State private var imageFrame: CGRect = .zero
     @State private var hasOpened = false
@@ -43,20 +47,28 @@ struct SendInviteCard: View {
     private var gallery: [UIImage] { images.isEmpty ? [image] : images }
 
     var body: some View {
-        GeometryReader { geo in
-            let origin = geo.frame(in: .global).origin
-            ZStack(alignment: .top) {
-                cardBackground(origin)
-                cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
-                flight(origin)
-            }
-            .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
+        ZStack(alignment: .top) {
+            cardBackground
+            cardContent(imageWidth: cellWidth - 2 * (Self.screenGap + Self.imagePadding))
+            flight
         }
+        .frame(maxWidth: .infinity, alignment: .top)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cellWidth = $0 }
+        //The card's slot in the feed: the ProfileCard footprint when collapsed, the full card once
+        //expanded. Animating this height moves the feed apart in lockstep with the mask reveal.
+        .frame(height: slotHeight, alignment: .top)
+        .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
     }
 }
 
 //Card layout
 extension SendInviteCard {
+
+    //Pre-measure (cell recycled back on screen mid-invite) falls back to natural height — no snap.
+    private var slotHeight: CGFloat? {
+        guard expanded else { return sourceFrame.height }
+        return cardFrame.height > 1 ? cardFrame.height : nil
+    }
 
     private func cardContent(imageWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
@@ -67,7 +79,7 @@ extension SendInviteCard {
         }
         .padding([.horizontal, .top], Self.imagePadding)
         .padding(.bottom, 12)
-        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.cellSpace)) } action: {
             cardFrame = $0
             openWhenMeasured()
         }
@@ -80,7 +92,7 @@ extension SendInviteCard {
     private func imageSlot(_ width: CGFloat) -> some View {
         Color.clear
             .frame(width: max(width, 0), height: max(width, 0) * Self.imageHeightRatio)
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.cellSpace)) } action: {
                 imageFrame = $0
                 openWhenMeasured()
             }
@@ -95,7 +107,7 @@ extension SendInviteCard {
             size: CGSize(width: width, height: width * Self.imageHeightRatio),
             showsHideButton: showsHideButton,
             scrollProgress: $scrollProgress,
-            onBack: hideInvite
+            onHide: hideInvite
         )
         .opacity(settled ? 1 : 0)
         .allowsHitTesting(settled)
@@ -117,7 +129,6 @@ extension SendInviteCard {
             isInviteResponse: false,
             defaults: vm.defaults,
             onClearDraft: { vm.deleteEventDefault() },
-            hideInvite: hideInvite,
             onSendInvite: { sendInvite(vm.event) }
         )
     }
@@ -126,12 +137,12 @@ extension SendInviteCard {
 //Flight copy + expanding background
 extension SendInviteCard {
 
-    private func flight(_ origin: CGPoint) -> some View {
+    private var flight: some View {
         SendInviteFlight(
             image: image,
             name: vm.inviteModel.name,
             details: details,
-            rect: local(expanded ? imageFrame : sourceFrame, origin),
+            rect: expanded ? imageFrame : sourceFrame,
             expanded: $expanded,
             settled: settled,
             showsHideButton: showsHideButton,
@@ -139,8 +150,8 @@ extension SendInviteCard {
         )
     }
 
-    private func cardBackground(_ origin: CGPoint) -> some View {
-        backgroundShape(origin)
+    private var cardBackground: some View {
+        backgroundShape(.zero)
             .shadow(color: .black.opacity(expanded ? 0.05 : 0), radius: 3, x: 0, y: 1)
             .shadow(color: .black.opacity(expanded ? 0.04 : 0), radius: 20, x: 0, y: 0)
             .allowsHitTesting(false)
@@ -160,27 +171,27 @@ extension SendInviteCard {
     }
 }
 
-//Open/settle state machine
 extension SendInviteCard {
 
-    //Opens only once both frames are measured AND a collapsed frame has rendered: the 30ms sleep
-    //crosses a real frame boundary (a bare MainActor hop runs before the CA commit and the card snaps).
     private func openWhenMeasured() {
         guard !hasOpened, imageFrame.height > 50, cardFrame.height > 50 else { return }
         hasOpened = true
+        //Cell recycled and remounted while already expanded: adopt the settled state, no flight.
+        if expanded {
+            settled = true
+            return
+        }
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(30))
-            //.removed: the settle swap must wait for the spring's true end, not its perceptual duration.
             withAnimation(sourceFrame.width > 1 ? Self.openFlight : nil, completionCriteria: .removed) {
                 expanded = true
+                onExpand()
             } completion: {
                 settled = expanded
             }
         }
     }
 
-    //A reopen mid-close retargets the spring from MeetContainer (no completion reaches us),
-    //so re-settle on a timer sized past the spring's full removal.
     private func expandedChanged(_ isExpanded: Bool) {
         if isExpanded {
             Task {

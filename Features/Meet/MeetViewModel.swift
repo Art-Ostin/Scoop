@@ -58,8 +58,8 @@ import SwiftUI
     var openProfile: UserProfile? = nil
     var quickInvite: PendingProfile? //Mounted quick-invite card; nil only once the close flight lands
     var quickInviteImage: UIImage?
-    var quickInviteSource: CGRect = .zero //Profile card image frame the flight departs from and returns to
     var quickInviteExpanded = false //Drives the open/close flight (see SendInviteCard)
+    var quickInviteTailRoom = false //Extra feed tail so any card can reach the viewport top when it expands
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false

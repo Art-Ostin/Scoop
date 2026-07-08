@@ -36,18 +36,6 @@ extension View {
     }
 }
 
-//One definition for the flight copy and the settled carousel, so the settle handoff renders identically.
-struct InviteBackButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .medium, action: action) {
-            Image(systemName: "chevron.left")
-        }
-        .padding(12)
-    }
-}
-
 struct PagedScrollStyle: ViewModifier {
     @Binding var scrolledPageID: Int?
     @Binding var pageWidth: CGFloat

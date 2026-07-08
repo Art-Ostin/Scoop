@@ -16,9 +16,9 @@ struct ProfileCard : View {
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
-    //True while the quick-invite flight owns this card's image: the image hides
-    //instantly (pixel-covered by the flight copy) and the overlays quick-fade.
-    let quickInviteHidden: Bool
+    //Non-nil while this card owns the quick invite: the card renders its expanded
+    //invite state on top and morphs between the two inside its own feed cell.
+    var quickInvite: QuickInvite? = nil
 
     private let cardCornerRadius: CGFloat = 22
     private let cardHeightRatio: CGFloat = 1.08   // card height = width × this
@@ -26,13 +26,45 @@ struct ProfileCard : View {
     @State private var image: UIImage?
     @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
+    //Collapsed footprint in the cell's space — the invite flight departs from and returns to it.
+    @State private var sourceFrame: CGRect = .zero
 
     private var displayImage: UIImage {
         image ?? profile.image
     }
 
-    var body: some View {
+    //True while the quick-invite flight owns this card's image: the image hides
+    //instantly (pixel-covered by the flight copy) and the overlays quick-fade.
+    private var quickInviteHidden: Bool { quickInvite != nil }
 
+    var body: some View {
+        ZStack(alignment: .top) {
+            collapsedCard
+            if let quickInvite {
+                inviteCard(quickInvite)
+            }
+        }
+        .coordinateSpace(name: SendInviteCard.cellSpace)
+    }
+}
+
+//Everything the card needs to expand into its send-invite state.
+extension ProfileCard {
+    struct QuickInvite {
+        let vm: TimeAndPlaceViewModel
+        let image: UIImage //The image on screen at tap; the flight departs with it
+        let images: [UIImage]
+        let expanded: Binding<Bool>
+        let onExpand: () -> Void //Runs inside the open transaction (the feed scrolls the card to the top)
+        let onHide: () -> Void
+        let onSend: (EventFieldsDraft) -> Void
+    }
+}
+
+//Card states
+extension ProfileCard {
+
+    private var collapsedCard: some View {
         Image(uiImage: displayImage)
             .profileImageCard(size, hideImage: quickInviteHidden)
 
@@ -47,6 +79,23 @@ struct ProfileCard : View {
             .coordinateSpace(name: ProfileCard.cardSpace)
             .task(id: profile.id) { await fetchFirstImage() }
             .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(SendInviteCard.cellSpace)) } action: { sourceFrame = $0 }
+            .customShadow(.card, strength: 4) //Shadow works Nicely Keep!
+            .padding(.horizontal, 16) //Feed inset for the collapsed state; the expanded card manages its own gutters
+    }
+
+    private func inviteCard(_ invite: QuickInvite) -> some View {
+        SendInviteCard(
+            vm: invite.vm,
+            image: invite.image,
+            images: invite.images,
+            details: detailsLine,
+            expanded: invite.expanded,
+            sourceFrame: sourceFrame,
+            onExpand: invite.onExpand,
+            hideInvite: invite.onHide,
+            sendInvite: invite.onSend
+        )
     }
 }
 
@@ -70,21 +119,26 @@ extension ProfileCard {
 
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            let p = profile.profile
             //Title font matches the invite card's name overlay, so the quick-invite
             //flight can glide this text with zero visual change.
-            Text(p.name)
+            Text(profile.profile.name)
                 .font(.title(26))
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(ProfileCard.cardSpace)) } action: { nameFrame = $0 }
 
-            Text("\(p.year) | \(p.degree) | \(p.hometown)")
+            Text(detailsLine)
                 .font(.body(14, .medium))
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(ProfileCard.cardSpace)) } action: { detailsFrame = $0 }
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
     }
-    
+
+    //One source for the card and the invite flight, so the flight fades exactly this text.
+    private var detailsLine: String {
+        let p = profile.profile
+        return "\(p.year) | \(p.degree) | \(p.hometown)"
+    }
+
     private var backgroundBlur: some  View {
         BackgroundBlur(
             image: displayImage,
@@ -93,7 +147,7 @@ extension ProfileCard {
             clipCornerRadius: cardCornerRadius
         )
     }
-    
+
     func fetchFirstImage() async {
         image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
     }

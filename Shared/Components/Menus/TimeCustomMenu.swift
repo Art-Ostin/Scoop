@@ -303,7 +303,8 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @State private var labelFrame: CGRect = .zero
     //Touch-down press state, driven by `pressGesture` (simultaneous so it fires on touch-down over
     //the time pager instead of waiting for the scroll to fail at release). `pressStart` holds the
-    //shrink briefly on a fast tap. Separate from `pressAndDrag`, which owns open + drag-select.
+    //shrink briefly on a fast tap. Open comes from `openOnHold`/a clean tap; `dragSelect` pipes
+    //the press-drag-release selection while the menu is up.
     @State private var pressed = false
     @State private var pressStart: Date?
 
@@ -357,7 +358,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                                : .spring(response: PressEffect.shrink.release.response,
                                          dampingFraction: PressEffect.shrink.release.damping),
                        value: pressed)
-            .gesture(pressAndDrag)
+            // All three are SIMULTANEOUS gestures: the label now lives inside the Meet feed's
+            // vertical scroll, and a plain `.gesture` min-0 drag claims the touch and kills
+            // scrolling. Open comes from a hold (native touch-down feel; a moving finger cancels
+            // it and scrolls instead) or a clean tap release (see `pressGesture`); drag-select
+            // pipes only while the menu is up.
+            .simultaneousGesture(openOnHold)
+            .simultaneousGesture(dragSelect)
             .simultaneousGesture(pressGesture)
             .onDisappear { controller.dismiss(animated: false) }
     }
@@ -383,38 +390,32 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         }
     }
 
-    /// Native menus open on touch-down and support press-drag-release selection,
-    /// so a single zero-distance drag drives the whole interaction.
-    private var pressAndDrag: some Gesture {
+    /// Native menus open on touch-down; the closest scroll-friendly equivalent is a short hold —
+    /// it fires while the finger is still down (so press-drag-release selection still works), but
+    /// any real movement cancels it and the feed scrolls instead.
+    private var openOnHold: some Gesture {
+        LongPressGesture(minimumDuration: 0.15)
+            .onEnded { _ in presentMenu() }
+    }
+
+    /// Runs the native press-drag-release selection once the menu is up. Gated on `isPresented`,
+    /// so while the menu is closed it never competes with the feed scroll.
+    private var dragSelect: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
-                if !controller.isPresented {
-                    onOpen?()
-                    // Seed the morph collapse target before the overlay renders, so
-                    // the open bloom starts from the first item (not the full label).
-                    controller.updateMorphAnchor(morphAnchor)
-                    controller.present(
-                        anchor: labelFrame,
-                        label: { AnyView(label()) },
-                        labelCornerRadius: labelCornerRadius,
-                        alignment: alignment,
-                        placementOffset: placementOffset,
-                        estimatedContentSize: estimatedContentSize,
-                        onClose: onClose,
-                        content: { AnyView(content()) }
-                    )
-                }
+                guard controller.isPresented else { return }
                 controller.dragMoved(to: value.location)
             }
             .onEnded { value in
+                guard controller.isPresented else { return }
                 controller.dragEnded(at: value.location, translation: value.translation)
             }
     }
 
-    /// Drives the touch-DOWN press shrink, separate from `pressAndDrag` (which opens the menu and
-    /// runs the native drag-select). A `.simultaneousGesture` so it fires on touch-down even over
-    /// the time pager's ScrollView instead of waiting for the scroll to fail at release; a drag past
-    /// `tapSlop` is a scroll/page, so the shrink releases. Mirrors InviteTypeRow's type-menu press.
+    /// Drives the touch-DOWN press shrink and the tap-to-open. A `.simultaneousGesture` so it fires
+    /// on touch-down even over the time pager's ScrollView instead of waiting for the scroll to fail
+    /// at release; a drag past `tapSlop` is a scroll/page, so the shrink releases and the open never
+    /// fires. Mirrors InviteTypeRow's type-menu press.
     private var pressGesture: some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { value in
@@ -425,11 +426,31 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                     pressed = false   // turned into a scroll/page — let the shrink go
                 }
             }
-            .onEnded { _ in
+            .onEnded { value in
                 // Hold the shrink briefly so a fast tap still reads, then release (PressEffect's hold).
                 let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
                 DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) { pressed = false }
+                let moved = max(abs(value.translation.width), abs(value.translation.height))
+                if moved < TimeCustomMenuSpec.tapSlop { presentMenu() }
             }
+    }
+
+    private func presentMenu() {
+        guard !controller.isPresented else { return }
+        onOpen?()
+        // Seed the morph collapse target before the overlay renders, so
+        // the open bloom starts from the first item (not the full label).
+        controller.updateMorphAnchor(morphAnchor)
+        controller.present(
+            anchor: labelFrame,
+            label: { AnyView(label()) },
+            labelCornerRadius: labelCornerRadius,
+            alignment: alignment,
+            placementOffset: placementOffset,
+            estimatedContentSize: estimatedContentSize,
+            onClose: onClose,
+            content: { AnyView(content()) }
+        )
     }
 }
 
