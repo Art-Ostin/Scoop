@@ -15,7 +15,11 @@ struct InviteImageCarousel: View {
     let name: String
     let size: CGSize
     let showsHideButton: Bool
+    var dragDisabled: Bool = false //Swipe-dismiss owns the touch: no paging, even mid-pan
     @Binding var scrollProgress: Double
+    let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
+    @Binding var showInfoScreen: Bool
+
     let onBack: () -> Void
 
     @State private var scrolledPageID: Int?
@@ -26,11 +30,16 @@ struct InviteImageCarousel: View {
     private static let imageSpace = "InviteImageCarousel.image"
     private static let pageSpacing: CGFloat = 4 //Visual gap between pages; built into each cell, never HStack spacing
 
+    //Top-leading name insets. SendInviteFlight's top-name copy + its blur halo reuse these so the settle handoff is pixel-identical.
+    static let nameTopInset: CGFloat = 12
+    static let nameLeadingInset: CGFloat = 17
+    
+
     var body: some View {
         pager
             .overlay { backgroundBlur }
-//            .overlay(alignment: .topLeading) { InviteBackButton(action: onBack) }
             .overlay(alignment: .topLeading) { nameOverlay }
+            .overlay(alignment: .topTrailing) { optionsMenu }
             .coordinateSpace(name: Self.imageSpace)
     }
 }
@@ -65,7 +74,8 @@ extension InviteImageCarousel {
             scrolledPageID: $scrolledPageID,
             pageWidth: $pageWidth,
             scrollProgress: $scrollProgress,
-            pageCount: images.count
+            pageCount: images.count,
+            dragDisabled: dragDisabled
         ))
         //Viewport = one page pitch, overhanging the slot by half the gap each side;
         //the outer frame re-clamps layout to the slot so the chrome anchors stay put.
@@ -92,8 +102,36 @@ extension InviteImageCarousel {
         .font(.title(26))
         .foregroundStyle(Color.white)
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.imageSpace)) } action: { nameFrame = $0 }
-        .padding(.top, 12)
-        .padding(.leading, SendInviteContainer.contentPadding)
-        .padding(.bottom, SendInviteCard.chromeBottomPadding)
+        .padding(.top, Self.nameTopInset)
+        .padding(.leading, Self.nameLeadingInset)
+    }
+    
+    
+    private var optionsMenu: some View {
+        Menu {
+            if vm.event.hasChanges {
+                Button("Clear Draft", systemImage: "trash", role: .destructive) {
+                    // One animation owns the whole clear so every row cross-fades together.
+                    withAnimation(.easeInOut(duration: 0.2)) { vm.deleteEventDefault() }
+                }
+            }
+            Button("How Invites Work", systemImage: "info.circle") {
+                showInfoScreen = true
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.body(17, .bold))
+                .foregroundStyle(Color.black)
+                .frame(width: 35, height: 35)
+                .glassBackgroundIfAvailable(shape: Circle(), isClear: true)
+                .scaleEffect(0.9, anchor: .bottom)
+                .padding(55)
+                .shrinkPress()
+                .contentShape(Circle())
+        }
+        .padding(-55)
+        .padding(.vertical, Self.nameTopInset)
+        .padding(.horizontal, Self.nameLeadingInset)
+        .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
     }
 }

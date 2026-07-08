@@ -548,6 +548,9 @@ final class ProfileOverlayPresenter {
 
     //The presented profile surface (one app-wide at a time).
     private(set) var profile: Slot?
+    //The quick-invite card + its canvas backdrop (never open at the same time as a
+    //profile). The backdrop covers the live tab bar; the swipe-dismiss scrubs it away.
+    private(set) var invite: Slot?
     //Full-screen response cover — sits above the profile while a respond flow
     //tears the profile down behind it.
     private(set) var cover: Slot?
@@ -558,6 +561,7 @@ final class ProfileOverlayPresenter {
     func show(_ slot: ProfileOverlaySlotKind, id: String, view: @escaping () -> AnyView) {
         switch slot {
         case .profile: profile = Slot(id: id, view: view)
+        case .invite: invite = Slot(id: id, view: view)
         case .cover: cover = Slot(id: id, view: view)
         }
     }
@@ -566,12 +570,13 @@ final class ProfileOverlayPresenter {
     func clear(_ slot: ProfileOverlaySlotKind, id: String) {
         switch slot {
         case .profile: if profile?.id == id { profile = nil }
+        case .invite: if invite?.id == id { invite = nil }
         case .cover: if cover?.id == id { cover = nil }
         }
     }
 }
 
-enum ProfileOverlaySlotKind { case profile, cover }
+enum ProfileOverlaySlotKind { case profile, invite, cover }
 
 //Renders the presenter's slots. Place as the TabView's sibling at the app root.
 struct ProfileOverlayLayer: View {
@@ -579,6 +584,7 @@ struct ProfileOverlayLayer: View {
 
     var body: some View {
         ZStack {
+            if let i = presenter.invite { i.view().id(i.id).zIndex(0.5) }
             if let p = presenter.profile { p.view().id(p.id).zIndex(1) }
             if let c = presenter.cover { c.view().id(c.id).zIndex(2) }
             if let m = presenter.flightMorph { ProfileMorphLayer(morph: m).zIndex(3) }
@@ -619,6 +625,13 @@ extension View {
     //responseCover, which layers above this slot.
     func profileView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
         modifier(ProfileOverlayModifier(slot: .profile, presentedID: presentedID, overlay: content))
+    }
+
+    //Presents the quick-invite card at the app root, above the TabView — the tab
+    //bar never hides; the content's own backdrop covers it and the swipe-dismiss
+    //scrubs that backdrop away (the same recipe as the profile zoom dismissal).
+    func inviteView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
+        modifier(ProfileOverlayModifier(slot: .invite, presentedID: presentedID, overlay: content))
     }
 
     //Presents a full-screen response cover above the profile slot, used while a

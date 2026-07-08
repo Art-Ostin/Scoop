@@ -64,9 +64,9 @@
 //     like UIKit does, so it can never be clipped by scroll views, the nav stack
 //     or the tab bar. Anchor frames assume the app window fills the scene
 //     (always true on iPhone; iPad floating windows may offset slightly).
-//   • Touch-down opening means a label inside a ScrollView will claim drags that
-//     start on it; UIKit avoids this with delaysContentTouches, which has no
-//     public SwiftUI equivalent.
+//   • Opens on a completed tap (release within tapSlop), not native's touch-down,
+//     so drags that start on the label — pager swipes, the invite card's
+//     swipe-dismiss — never open the menu. Press-drag-release selection is dropped.
 //
 
 import SwiftUI
@@ -290,9 +290,9 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// Nudge applied to the final placement (positive = right / down). Defaults
     /// to the spec values; override per call site to fine-tune.
     var placementOffset: CGSize
-    /// Fires the instant the menu is requested to open (on touch-down, before the
-    /// bloom animation) — not when the content view appears, so there's no morph
-    /// lag. Use this instead of `.onAppear` on the content.
+    /// Fires the instant the menu is requested to open (on the opening tap's release,
+    /// before the bloom animation) — not when the content view appears, so there's no
+    /// morph lag. Use this instead of `.onAppear` on the content.
     var onOpen: (() -> Void)?
     /// Fires the instant dismissal is requested (any path: tap-away, drag-release,
     /// selection, programmatic) — not when the close morph + teardown finishes, so
@@ -383,31 +383,38 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         }
     }
 
-    /// Native menus open on touch-down and support press-drag-release selection,
-    /// so a single zero-distance drag drives the whole interaction.
+    /// The label presses (shrinks) under the finger, then the menu opens on RELEASE — a
+    /// completed tap — matching the type/place rows, instead of native's touch-down open.
+    /// A release past `tapSlop` is a scroll/page/card-drag, not a tap, so nothing opens:
+    /// this is what keeps the invite card's swipe-dismiss from popping the menu when the
+    /// drag starts on this label. (Drops the native press-drag-to-select flow.)
     private var pressAndDrag: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
-                if !controller.isPresented {
-                    onOpen?()
-                    // Seed the morph collapse target before the overlay renders, so
-                    // the open bloom starts from the first item (not the full label).
-                    controller.updateMorphAnchor(morphAnchor)
-                    controller.present(
-                        anchor: labelFrame,
-                        label: { AnyView(label()) },
-                        labelCornerRadius: labelCornerRadius,
-                        alignment: alignment,
-                        placementOffset: placementOffset,
-                        estimatedContentSize: estimatedContentSize,
-                        onClose: onClose,
-                        content: { AnyView(content()) }
-                    )
-                }
+                guard controller.isPresented else { return }
                 controller.dragMoved(to: value.location)
             }
             .onEnded { value in
-                controller.dragEnded(at: value.location, translation: value.translation)
+                if controller.isPresented {
+                    controller.dragEnded(at: value.location, translation: value.translation)
+                    return
+                }
+                let distance = hypot(value.translation.width, value.translation.height)
+                guard distance < TimeCustomMenuSpec.tapSlop else { return } // a scroll/drag, not a tap
+                onOpen?()
+                // Seed the morph collapse target before the overlay renders, so
+                // the open bloom starts from the first item (not the full label).
+                controller.updateMorphAnchor(morphAnchor)
+                controller.present(
+                    anchor: labelFrame,
+                    label: { AnyView(label()) },
+                    labelCornerRadius: labelCornerRadius,
+                    alignment: alignment,
+                    placementOffset: placementOffset,
+                    estimatedContentSize: estimatedContentSize,
+                    onClose: onClose,
+                    content: { AnyView(content()) }
+                )
             }
     }
 

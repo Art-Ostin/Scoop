@@ -18,12 +18,14 @@ struct SendInviteFlight: View {
     let rect: CGRect //Current image frame in the card's local space
     @Binding var expanded: Bool
     let settled: Bool
+    var dragImage: UIImage? = nil //Interactive dismiss: the carousel page the drag picked up
+    var dragging: Bool = false //Finger owns the card; the tap-to-close mustn't fire under it
     let showsHideButton: Bool
     let hideInvite: () -> Void
 
-    @State private var meetWidth: CGFloat = 0
     @State private var detailsHeight: CGFloat = 0
     @State private var nameSize: CGSize = .zero
+    @State private var topNameSize: CGSize = .zero
     @State private var hideButtonSize: CGSize = .zero
     @State private var inviteButtonPopped = false
 
@@ -32,6 +34,7 @@ struct SendInviteFlight: View {
             .resizable()
             .scaledToFill()
             .frame(width: rect.width, height: rect.height)
+            .overlay { dragImageOverlay }
             .clipShape(.rect(
                 topLeadingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius,
                 bottomLeadingRadius: expanded ? SendInviteCard.imageBottomRadius : SendInviteCard.sourceRadius,
@@ -40,45 +43,52 @@ struct SendInviteFlight: View {
                 style: .continuous
             ))
             .onTapGesture { hideInvite() }
-            .allowsHitTesting(expanded && !settled)
+            .allowsHitTesting(expanded && !settled && !dragging)
             .overlay { blur(rect.size) }
             .overlay { chrome }
             .overlay(alignment: .bottomTrailing) { reopenTapTarget }
             .position(x: rect.midX, y: rect.midY)
-            .opacity(settled ? 0 : 1) //Carousel takes over once landed
+            .opacity(settled ? 0 : 1)
     }
 }
 
 extension SendInviteFlight {
 
-    //ProfileCard's BackgroundBlur treatment, rebuilt on the flight's own anchors: measured
-    //frames never hold in-flight interpolation, so the halo must ride nameText's animated
-    //paddings or it parks at the destination and snaps in at the end.
+    @ViewBuilder
+    private var dragImageOverlay: some View {
+        if let dragImage {
+            Image(uiImage: dragImage)
+                .resizable()
+                .scaledToFill()
+                .frame(width: rect.width, height: rect.height)
+                .opacity(expanded ? 1 : 0)
+        }
+    }
+
     private func blur(_ size: CGSize) -> some View {
-        Image(uiImage: image)
+        Image(uiImage: dragImage ?? image) //Halo must blur the page actually showing
             .resizable()
             .scaledToFill()
             .frame(width: size.width, height: size.height)
             .blur(radius: BackgroundBlur.imageBlurRadius)
-            .mask { blurHalo }
+            .mask { topBlurHalo }
             .clipShape(.rect(cornerRadius: SendInviteCard.imageBottomRadius, style: .continuous))
             .allowsHitTesting(false)
             .opacity(expanded ? 1 : 0)
     }
 
-    //Paddings and offset stay in lockstep with nameText's.
-    private var blurHalo: some View {
+    //Matches InviteImageCarousel's BackgroundBlur halo behind the top name, so the settle swap is invisible.
+    private var topBlurHalo: some View {
         Color.clear
-            .overlay(alignment: .bottomLeading) {
+            .overlay(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: BackgroundBlur.haloCornerRadius)
                     .frame(
-                        width: nameSize.width + 2 * BackgroundBlur.haloWidthOutset,
-                        height: max(nameSize.height - 2 * SendInviteCard.nameBlurInset, 0)
+                        width: topNameSize.width + 2 * BackgroundBlur.haloWidthOutset,
+                        height: max(topNameSize.height - 2 * SendInviteCard.nameBlurInset, 0)
                     )
                     .blur(radius: BackgroundBlur.haloBlurRadius)
-                    .padding(.leading, (expanded ? SendInviteContainer.contentPadding : 16) - BackgroundBlur.haloWidthOutset)
-                    .padding(.bottom, (expanded ? SendInviteCard.chromeBottomPadding : 16 + detailsHeight + 8) + SendInviteCard.nameBlurInset)
-                    .offset(x: expanded ? 0 : -meetWidth)
+                    .padding(.leading, InviteImageCarousel.nameLeadingInset - BackgroundBlur.haloWidthOutset)
+                    .padding(.top, InviteImageCarousel.nameTopInset + SendInviteCard.nameBlurInset)
             }
     }
 
@@ -86,24 +96,37 @@ extension SendInviteFlight {
         Color.clear
             .overlay(alignment: .bottomLeading) { detailsText }
             .overlay(alignment: .bottomLeading) { nameText }
+            .overlay(alignment: .topLeading) { topName }
             .overlay(alignment: .bottomTrailing) { inviteButtonReplica }
             .allowsHitTesting(false) //Interaction belongs to the settled carousel
     }
 
-    //Collapsed replicates ProfileCard's infoSection anchors; expanded lands exactly on the carousel's copy.
+    //Collapsed only: the bare name at ProfileCard's 16pt inset, fading out in place as the card opens
+    //(the "Meet Name" copy takes over at the top). Kept so the close handoff lands back on ProfileCard.
     private var nameText: some View {
+        Text(name)
+            .font(.title(26))
+            .foregroundStyle(Color.white)
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { nameSize = $0 }
+            .padding(.leading, 16)
+            .padding(.bottom, 16 + detailsHeight + 8)
+            .opacity(expanded ? 0 : 1)
+            .blur(radius: expanded ? 6 : 0)
+    }
+
+    //The expanded name: pops in over the flight as the card opens and lands exactly on the carousel's
+    //top-leading copy at settle. Two Texts (not one string) so the glyph layout matches at the handoff.
+    private var topName: some View {
         HStack(spacing: 0) {
             Text("Meet ")
-                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { meetWidth = $0 }
-                .opacity(expanded ? 1 : 0)
             Text(name)
         }
         .font(.title(26))
         .foregroundStyle(Color.white)
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { nameSize = $0 }
-        .padding(.leading, expanded ? SendInviteContainer.contentPadding : 16)
-        .padding(.bottom, expanded ? SendInviteCard.chromeBottomPadding : 16 + detailsHeight + 8)
-        .offset(x: expanded ? 0 : -meetWidth) //Collapsed: the bare name sits at the 16pt inset
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { topNameSize = $0 }
+        .padding(.top, InviteImageCarousel.nameTopInset)
+        .padding(.leading, InviteImageCarousel.nameLeadingInset)
+        .opacityPop(visible: expanded)
     }
 
     private var detailsText: some View {

@@ -43,24 +43,42 @@ struct InviteBackButton: View {
     var body: some View {
         ScoopButton(shape: Capsule(), action: action) {
             HStack(spacing: 6) {
-                Image(systemName: "chevron.left")
-                    .font(.body(15, .bold))
                 
-                Text("Back")
-                    .font(.body(16, .bold))
+                Text("Hide")
+                    .font(.body(14, .bold))
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
         }
-        .padding(12)
+        .padding(.top, 56)
     }
 }
+
+struct BottomBackButton: View {
+    
+    let action: () -> Void
+    
+    var body: some View {
+        ScoopButton(shape: Capsule(), action: action) {
+            HStack(spacing: 6) {
+                Text("Hide")
+                    .font(.body(14, .bold))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+        }
+        .padding(.top, 48)
+        .padding(.horizontal, 6)
+    }
+}
+
 
 struct PagedScrollStyle: ViewModifier {
     @Binding var scrolledPageID: Int?
     @Binding var pageWidth: CGFloat
     @Binding var scrollProgress: Double
     let pageCount: Int
+    var dragDisabled: Bool = false //True while the invite card's swipe-dismiss owns the touch; kills in-flight pans too
 
     func body(content: Content) -> some View {
         content
@@ -68,7 +86,7 @@ struct PagedScrollStyle: ViewModifier {
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
-            .scrollDisabled(pageCount <= 1)
+            .scrollDisabled(pageCount <= 1 || dragDisabled)
             //.paging strides by viewport width: visual gaps must live inside the page
             //cells (widened viewport), never as HStack spacing — pages drift by the gap.
             .scrollTargetBehavior(.paging)

@@ -23,6 +23,11 @@ struct SendInviteCard: View {
     static let nameBlurInset: CGFloat = 10
     static let chromeBottomPadding: CGFloat = 16 //Shared by flight and carousel — if they differ the settle handoff snaps
 
+    //Interactive dismiss tuning (see dismissDrag)
+    static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the chrome collapse 0→1
+    static let dismissThreshold: CGFloat = 0.3 //Release past this progress (or a downward flick) dismisses
+    static let minDragScale: CGFloat = 0.82 //Progressive shrink of the whole card at full collapse
+
     @State var vm: TimeAndPlaceViewModel
 
     let image: UIImage
@@ -31,6 +36,7 @@ struct SendInviteCard: View {
     @Binding var expanded: Bool
     let sourceFrame: CGRect //Profile card image frame, global coords
     var showsHideButton: Bool = true //Hide pill on the expanded image; the invite button morphs into it
+    var onDismissProgress: ((Double) -> Void)? = nil //Drag collapse 0→1; the parent fades its chrome back in behind the card
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
 
@@ -39,6 +45,15 @@ struct SendInviteCard: View {
     @State private var hasOpened = false
     @State private var settled = false //True once the open flight lands; swaps the flight copy for the live carousel
     @State private var scrollProgress: Double = 0
+    @State private var showInfoScreen = false //"How Invites Work" sheet, opened from the options menu
+
+    //Interactive dismiss: a drag scrubs the close (chrome collapse + shrink) before the release flight commits it.
+    @State private var dragAxis: Axis? //Decided once per gesture; horizontal is voided (belongs to the pager)
+    @State private var dragging = false //Freezes the measured frames and owns the single on-screen image
+    @State private var springingBack = false //Cancel spring in flight; new grabs are declined until it lands
+    @State private var dragOffset: CGSize = .zero //Rubber-banded finger tracking
+    @State private var dragProgress: CGFloat = 0 //0 = expanded card, 1 = image only
+    @State private var dragImage: UIImage? //Carousel page under the finger; the flight carries it home
 
     private var gallery: [UIImage] { images.isEmpty ? [image] : images }
 
@@ -53,6 +68,9 @@ struct SendInviteCard: View {
                 }
                 flight(origin)
             }
+            .scaleEffect(1 - (1 - Self.minDragScale) * dragProgress, anchor: dragAnchor(geo.size, origin))
+            .offset(dragOffset)
+            .simultaneousGesture(dismissDrag)
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
         }
     }
@@ -60,7 +78,7 @@ struct SendInviteCard: View {
 
 //Card layout
 extension SendInviteCard {
-
+    
     private func cardContent(imageWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
             imageSlot(imageWidth)
@@ -70,13 +88,15 @@ extension SendInviteCard {
         }
         .padding([.horizontal, .top], Self.imagePadding)
         .padding(.bottom, 12)
+        .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+            guard !dragging else { return } //Frames are the drag's model space; frozen while it owns them
             cardFrame = $0
             openWhenMeasured()
         }
         .opacity(cardFrame.height > 1 ? 1 : 0) //Nothing shows until measured
         .mask { backgroundShape(cardFrame.origin) } //Revealed by the expanding background
-        .allowsHitTesting(expanded)
+        .allowsHitTesting(expanded && !dragging)
         .padding(.horizontal, Self.screenGap)
     }
 
@@ -84,6 +104,7 @@ extension SendInviteCard {
         Color.clear
             .frame(width: max(width, 0), height: max(width, 0) * Self.imageHeightRatio)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                guard !dragging else { return }
                 imageFrame = $0
                 openWhenMeasured()
             }
@@ -97,7 +118,10 @@ extension SendInviteCard {
             name: vm.inviteModel.name,
             size: CGSize(width: width, height: width * Self.imageHeightRatio),
             showsHideButton: showsHideButton,
+            dragDisabled: dragging,
             scrollProgress: $scrollProgress,
+            vm: vm,
+            showInfoScreen: $showInfoScreen,
             onBack: hideInvite
         )
         .opacity(settled ? 1 : 0)
@@ -126,12 +150,11 @@ extension SendInviteCard {
     }
 
     private var backButton: some View {
-        InviteBackButton(action: hideInvite)
-            .opacityPop(visible: expanded)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, Self.screenGap)
-            .allowsHitTesting(settled)
-            .padding(.top, 32)
+    BottomBackButton(action: hideInvite)
+        .opacityPop(visible: expanded && dragOffset == .zero)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, Self.screenGap)
+        .allowsHitTesting(settled)
     }
 }
 
@@ -146,6 +169,8 @@ extension SendInviteCard {
             rect: local(expanded ? imageFrame : sourceFrame, origin),
             expanded: $expanded,
             settled: settled,
+            dragImage: dragImage,
+            dragging: dragging,
             showsHideButton: showsHideButton,
             hideInvite: hideInvite
         )
@@ -155,13 +180,21 @@ extension SendInviteCard {
         backgroundShape(origin)
             .shadow(color: .black.opacity(expanded ? 0.05 : 0), radius: 3, x: 0, y: 1)
             .shadow(color: .black.opacity(expanded ? 0.04 : 0), radius: 20, x: 0, y: 0)
+            //ProfileCard's resting shadow (its customShadow(.card) + MeetContainer's wrapper = twice),
+            //worn by the flight while collapsed: the shadow morphs in DURING the close and is already
+            //complete the frame the card lands, so the unmount handoff to the real ProfileCard (which
+            //waits for the spring's .removed tail) swaps pixel-identically instead of popping in late.
+            //Same fix in reverse on open: the slot's shadow hands off to the flight with no gap.
+            .customShadow(.card, strength: expanded ? 0 : 1)
+            .customShadow(.card, strength: expanded ? 0 : 1)
             .allowsHitTesting(false)
     }
 
-    //Shared by the background and the content mask, so rows slide out from exactly under the traveling image.
     private func backgroundShape(_ origin: CGPoint) -> some View {
-        let rect = local(expanded ? cardFrame : sourceFrame, origin)
-        return RoundedRectangle(cornerRadius: expanded ? Self.cardRadius : Self.sourceRadius, style: .continuous)
+        let expandedRect = lerp(cardFrame, imageFrame, dragProgress)
+        let rect = local(expanded ? expandedRect : sourceFrame, origin)
+        let radius = expanded ? lerp(Self.cardRadius, Self.imageRadius, dragProgress) : Self.sourceRadius
+        return RoundedRectangle(cornerRadius: radius, style: .continuous)
             .fill(Color.appCanvas)
             .frame(width: rect.width, height: rect.height)
             .position(x: rect.midX, y: rect.midY)
@@ -195,12 +228,109 @@ extension SendInviteCard {
     //so re-settle on a timer sized past the spring's full removal.
     private func expandedChanged(_ isExpanded: Bool) {
         if isExpanded {
+            dragging = false //A reopen mid-close revives the card; unfreeze frames and hand hits back
+            springingBack = false
             Task {
                 try? await Task.sleep(for: .seconds(0.6))
-                if expanded { settled = true }
+                if expanded {
+                    settled = true
+                    dragImage = nil //Flight is hidden from here; a future drag recaptures the page
+                }
             }
         } else {
             settled = false
         }
+    }
+}
+
+//Interactive swipe-to-dismiss: a vertical drag anywhere on the card scrubs the chrome collapse and
+//rubber-bands the card after the finger; release either flies home through the shared close flight
+//or springs back open. Modeled on the zoom transition's interactive dismiss.
+extension SendInviteCard {
+
+    private var dismissDrag: some Gesture {
+        DragGesture(minimumDistance: 12)
+            .onChanged { value in
+                if dragAxis == nil {
+                    let vertical = abs(value.translation.height) >= abs(value.translation.width)
+                    let canBegin = expanded && settled && !springingBack //Only a landed card is grabbable
+                    if vertical && canBegin { dragAxis = .vertical; beginDrag() }
+                    else { dragAxis = .horizontal } //Voided: horizontal belongs to the pager
+                }
+                guard dragAxis == .vertical, dragging, expanded else { return }
+                let t = value.translation
+                dragProgress = min(max(t.height / Self.collapseDistance, 0), 1)
+                onDismissProgress?(dragProgress)
+                dragOffset = CGSize(
+                    width: rubberBand(t.width, limit: 160, response: 0.8),
+                    height: t.height >= 0
+                        ? rubberBand(t.height, limit: 700, response: 1)
+                        : rubberBand(t.height, limit: 80, response: 0.9) //Upward fights back hard
+                )
+            }
+            .onEnded { value in
+                let owned = dragAxis == .vertical && dragging
+                dragAxis = nil
+                guard owned, expanded else { return }
+                let flick = value.predictedEndTranslation.height - value.translation.height
+                if dragProgress > Self.dismissThreshold || (value.translation.height > 20 && flick > 90) {
+                    finishDismiss()
+                } else {
+                    cancelDrag()
+                }
+            }
+    }
+
+    private func beginDrag() {
+        dragging = true //Freezes cardFrame/imageFrame and gates row hit-testing
+        let page = min(max(Int(scrollProgress.rounded()), 0), gallery.count - 1)
+        dragImage = gallery[page] //The flight copy shows exactly what the carousel showed
+        settled = false //Swap to the flight copy: the drag owns the single on-screen image
+    }
+
+    //Fly home from wherever the finger left off: the drag transforms animate to identity with the
+    //same spring MeetContainer runs on `expanded`, so both compose into one motion into the slot.
+    private func finishDismiss() {
+        withAnimation(Self.closeFlight) {
+            dragProgress = 0
+            dragOffset = .zero
+            onDismissProgress?(0)
+        }
+        hideInvite()
+    }
+
+    private func cancelDrag() {
+        springingBack = true
+        withAnimation(Self.openFlight, completionCriteria: .removed) {
+            dragProgress = 0
+            dragOffset = .zero
+            onDismissProgress?(0)
+        } completion: {
+            springingBack = false
+            guard expanded else { return } //A close started mid-spring; leave state to that flight
+            settled = true
+            dragging = false
+            dragImage = nil
+        }
+    }
+
+    //Asymptotic rubber band: tracks at ~response·d near zero, saturating at `limit`.
+    private func rubberBand(_ d: CGFloat, limit: CGFloat, response: CGFloat) -> CGFloat {
+        guard d != 0 else { return 0 }
+        let m = abs(d) * response
+        return (1 - 1 / (m / limit + 1)) * limit * (d < 0 ? -1 : 1)
+    }
+
+    private func dragAnchor(_ size: CGSize, _ origin: CGPoint) -> UnitPoint {
+        guard imageFrame.height > 1, size.width > 1, size.height > 1 else { return .center }
+        return UnitPoint(x: (imageFrame.midX - origin.x) / size.width,
+                         y: (imageFrame.midY - origin.y) / size.height)
+    }
+
+    private func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat { a + (b - a) * t }
+
+    private func lerp(_ a: CGRect, _ b: CGRect, _ t: CGFloat) -> CGRect {
+        CGRect(x: lerp(a.minX, b.minX, t), y: lerp(a.minY, b.minY, t),
+               width: lerp(a.width, b.width, t), height: lerp(a.height, b.height, t))
     }
 }

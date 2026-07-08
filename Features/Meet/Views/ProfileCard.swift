@@ -111,7 +111,9 @@ extension Image {
             .frame(width: max(size, 0), height: max(size, 0) * ratio) //How much taller than wide i.e. 12%
             .clipShape(.rect(cornerRadius: 20, style: .continuous)) //Corner Radius 22
             .opacity(hideImage ? 0 : 1) //Pixel-covered by the quick-invite flight copy; never animated
-            .background(Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous)) //For Shadow
+            //Canvas fill exists only to give the shadow a shape — hidden with the image so the
+            //reserved slot renders NOTHING behind a swipe-dismiss drag (the layout gap remains).
+            .background(hideImage ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
 }

@@ -70,3 +70,29 @@ extension View {
         modifier(OpacityPop(visible: visible, shrunkScale: scale))
     }
 }
+
+// MARK: - Blur pop (scale + fade + blur)
+
+//`.opacityPop` plus the `.scoopPop` transition's blur, for mounted chrome toggled by
+//raw gesture state (e.g. the invite card's Hide button while a dismiss drag is live).
+//Unlike `.opacityPop` it carries its own spring: gesture handlers set state directly,
+//so there is no caller transaction to ride.
+private struct BlurPop: ViewModifier {
+    var visible: Bool
+    var shrunkScale: CGFloat
+    var blurRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .blur(radius: visible ? 0 : blurRadius)
+            .scaleEffect(visible ? 1 : shrunkScale)
+            .opacity(visible ? 1 : 0)
+            .animation(.scoopPop, value: visible)
+    }
+}
+
+extension View {
+    func blurPop(visible: Bool, scale: CGFloat = 0.7, blur: CGFloat = 8) -> some View {
+        modifier(BlurPop(visible: visible, shrunkScale: scale, blurRadius: blur))
+    }
+}

@@ -37,23 +37,20 @@ struct MeetContainer: View {
                     .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
             }
-            //Meet chrome (info button included) fades with the flight and goes
-            //inert while the invite card is open.
+            //Meet chrome (info button included) goes inert while the invite card is open;
+            //visually it's covered by the invite overlay's root backdrop (see inviteOverlay).
             .overlay(alignment: .topTrailing) {infoButton}
-            .opacity(ui.quickInviteExpanded ? 0 : 1)
             .allowsHitTesting(!ui.quickInviteExpanded)
-
-            if let invite = ui.quickInvite, let image = ui.quickInviteImage {
-                timeAndPlaceView(invite, image)
-            }
         }
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
+        //The quick-invite card presents at the app root, ABOVE the TabView, like
+        //profiles do: the tab bar never hides (its native visibility flip can't
+        //animate) — the overlay's backdrop covers it, and the swipe-dismiss scrubs
+        //the backdrop away, fading bar + meet list back in with the finger.
+        .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
-        //Driven by the animated flight value (not mount state), so the system bar
-        //animates out/in with the card and returns the moment the close starts.
-        .hideTabBar(hideBar: ui.quickInviteExpanded)
     }
 }
 
@@ -138,6 +135,22 @@ extension MeetContainer {
 //3. Quick Invite Logic
 extension MeetContainer {
 
+    //Rendered in the root overlay slot (above the TabView). The backdrop stands in for
+    //the old meet-chrome fade AND the tab-bar hide: opaque while the card is open, it
+    //rides the open/close flights via `expanded` and the dismiss drag via progress, so
+    //the live bar and the meet list fade gradually — no native visibility flips.
+    @ViewBuilder
+    private func inviteOverlay() -> some View {
+        if let invite = ui.quickInvite, let image = ui.quickInviteImage {
+            ZStack {
+                Color.appCanvas.ignoresSafeArea()
+                    .opacity(ui.quickInviteExpanded ? 1 - ui.quickInviteDismissProgress : 0)
+                    .allowsHitTesting(ui.quickInviteExpanded)
+                timeAndPlaceView(invite, image)
+            }
+        }
+    }
+
     @ViewBuilder
     private func timeAndPlaceView(_ pendingProfile: PendingProfile, _ image: UIImage) -> some View {
         InviteTimeAndPlaceView(
@@ -147,6 +160,7 @@ extension MeetContainer {
             details: profileDetails(pendingProfile.profile),
             expanded: $ui.quickInviteExpanded,
             sourceFrame: ui.quickInviteSource,
+            onDismissProgress: {ui.quickInviteDismissProgress = $0},
             hideInvite: {closeQuickInvite()},
             sendInvite: {sendInvite(pendingProfile, draft: $0)}
         )
@@ -158,6 +172,7 @@ extension MeetContainer {
             return
         }
         guard ui.quickInvite == nil, ui.openProfile == nil else { return }
+        ui.quickInviteDismissProgress = 0
         ui.quickInviteSource = profileMorph.sourceRect(id: profile.profile.id) ?? .zero
         ui.quickInviteImage = image
         ui.quickInvite = profile

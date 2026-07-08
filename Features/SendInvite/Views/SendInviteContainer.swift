@@ -52,6 +52,9 @@ extension SendInviteContainer {
             .animation(.snappy(duration: 0.2), value: ui.isPopupOpen(.time))
     }
     
+    
+    //Respond-flow copy (shown only when `isInviteResponse`); the quick-invite card
+    //renders its own next to the Hide button (see SendInviteCard.optionsMenu).
     private var optionsMenu: some View {
          Menu {
              if draft.hasChanges {
@@ -73,7 +76,7 @@ extension SendInviteContainer {
          }
          .offset(x: 5, y: -2)
      }
-    
+
     private var sendButton: some View {
         let darkenedAccent = Color(red: 0.55, green: 0, blue: 0.25)
         return ScoopButton(style: .tinted(draft.isComplete ? darkenedAccent : darkenedAccent, shadow: nil),
