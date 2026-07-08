@@ -79,7 +79,7 @@ extension SendInviteContainer {
         return ScoopButton(style: .tinted(draft.isComplete ? darkenedAccent : darkenedAccent, shadow: nil),
                     shape: Capsule(),
                     action: { print("hello") }) {
-            Text("Send Invite")
+            Text("Invite \(name)")
                 .font(.body(18, .bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)

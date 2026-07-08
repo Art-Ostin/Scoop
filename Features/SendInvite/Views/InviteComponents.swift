@@ -41,8 +41,16 @@ struct InviteBackButton: View {
     let action: () -> Void
 
     var body: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .medium, action: action) {
-            Image(systemName: "chevron.left")
+        ScoopButton(shape: Capsule(), action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: "chevron.left")
+                    .font(.body(15, .bold))
+                
+                Text("Back")
+                    .font(.body(16, .bold))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
         }
         .padding(12)
     }

@@ -86,7 +86,6 @@ extension SendInviteFlight {
         Color.clear
             .overlay(alignment: .bottomLeading) { detailsText }
             .overlay(alignment: .bottomLeading) { nameText }
-            .overlay(alignment: .topLeading) { backButton }
             .overlay(alignment: .bottomTrailing) { inviteButtonReplica }
             .allowsHitTesting(false) //Interaction belongs to the settled carousel
     }
@@ -118,12 +117,6 @@ extension SendInviteFlight {
             .blur(radius: expanded ? 6 : 0)
     }
 
-    //Always present, never inserted; scale rides along so the glass reads animated.
-    private var backButton: some View {
-        InviteBackButton(action: {})
-            .opacityPop(visible: expanded)
-    }
-
     //Decorative copy of ProfileCard's invite button: the tap that opened the invite covered
     //the real button mid-press, so the replica starts at the pressed scale and plays the release bounce.
     //On expand it morphs into the Hide pill: both ride this one anchor, cross-fading mid-flight.
@@ -131,7 +124,6 @@ extension SendInviteFlight {
         InviteButton(isInviting: true, morphId: "quick-invite-flight-copy", action: {})
             .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
             .opacityPop(visible: !expanded)
-            .overlay { hideButtonCopy } //Overlay: the pill never widens the anchor the collapsed handoff relies on
             .padding(.trailing, buttonTrailingPadding)
             .padding(.bottom, buttonBottomPadding)
             .task {
@@ -142,15 +134,6 @@ extension SendInviteFlight {
             }
     }
 
-    @ViewBuilder
-    private var hideButtonCopy: some View {
-        if showsHideButton {
-            HideSendInviteButton(action: {})
-                .fixedSize()
-                .onGeometryChange(for: CGSize.self) { $0.size } action: { hideButtonSize = $0 }
-                .opacityPop(visible: expanded)
-        }
-    }
 
     //Expanded targets land the pill exactly on the carousel's copy (trailing edge at contentPadding,
     //centered on the name line) so the settle handoff is invisible. No pill → fade in place as before.

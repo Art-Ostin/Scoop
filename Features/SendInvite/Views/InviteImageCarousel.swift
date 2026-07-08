@@ -29,9 +29,8 @@ struct InviteImageCarousel: View {
     var body: some View {
         pager
             .overlay { backgroundBlur }
-            .overlay(alignment: .topLeading) { InviteBackButton(action: onBack) }
-            .overlay(alignment: .bottomLeading) { nameOverlay }
-            .overlay(alignment: .bottomTrailing) { hideButton }
+//            .overlay(alignment: .topLeading) { InviteBackButton(action: onBack) }
+            .overlay(alignment: .topLeading) { nameOverlay }
             .coordinateSpace(name: Self.imageSpace)
     }
 }
@@ -93,18 +92,8 @@ extension InviteImageCarousel {
         .font(.title(26))
         .foregroundStyle(Color.white)
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.imageSpace)) } action: { nameFrame = $0 }
+        .padding(.top, 12)
         .padding(.leading, SendInviteContainer.contentPadding)
         .padding(.bottom, SendInviteCard.chromeBottomPadding)
-    }
-
-    //Centered on the name's line; the flight's morphing copy lands exactly here at the settle handoff.
-    @ViewBuilder
-    private var hideButton: some View {
-        if showsHideButton {
-            HideSendInviteButton(action: onBack)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { hideButtonHeight = $0 }
-                .padding(.trailing, SendInviteContainer.contentPadding)
-                .padding(.bottom, SendInviteCard.chromeBottomPadding + (nameFrame.height - hideButtonHeight) / 2)
-        }
     }
 }

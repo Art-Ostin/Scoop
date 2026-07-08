@@ -47,7 +47,10 @@ struct SendInviteCard: View {
             let origin = geo.frame(in: .global).origin
             ZStack(alignment: .top) {
                 cardBackground(origin)
-                cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
+                VStack(spacing: 0) {
+                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
+                    backButton
+                }
                 flight(origin)
             }
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
@@ -120,6 +123,15 @@ extension SendInviteCard {
             hideInvite: hideInvite,
             onSendInvite: { sendInvite(vm.event) }
         )
+    }
+
+    private var backButton: some View {
+        InviteBackButton(action: hideInvite)
+            .opacityPop(visible: expanded)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, Self.screenGap)
+            .allowsHitTesting(settled)
+            .padding(.top, 32)
     }
 }
 
