@@ -3,7 +3,6 @@
 //  Scoop
 //
 //  Created by Art Ostin on 07/07/2026.
-//
 
 import SwiftUI
 
@@ -12,16 +11,15 @@ struct SendInviteCard: View {
     static let openFlight = Animation.smooth(duration: 0.3)
     static let closeFlight = Animation.smooth(duration: 0.28)
 
-    //Concentric geometry: the image sits `imagePadding` inside the card, so its radius derives from the card's.
-    static let cardRadius: CGFloat = 24
+    //Concentric geometry, derived from CardImageScrollView so the flight radii always match the settled carousel.
+    //TODO: flight pass — the settled carousel insets its image by imagePadding and blurs at a different radius; the flight copy doesn't match yet.
+    static let cardRadius = CardImageScrollView.parentCornerRadius
+    static let imageRadius = CardImageScrollView.topRadius //Expanded image top corners
+    static let imageBottomRadius = CardImageScrollView.bottomRadius //Expanded image bottom corners
     static let screenGap: CGFloat = 10
-    static let imagePadding: CGFloat = 3
-    static var imageRadius: CGFloat { cardRadius - imagePadding }
-    static let imageBottomRadius: CGFloat = 12
     static let sourceRadius: CGFloat = 20 //Profile card image clip radius (collapsed state)
     static let imageHeightRatio: CGFloat = 1.05
     static let nameBlurInset: CGFloat = 10
-    static let chromeBottomPadding: CGFloat = 16 //Shared by flight and carousel — if they differ the settle handoff snaps
 
     //Interactive dismiss tuning (see dismissDrag)
     static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the chrome collapse 0→1
@@ -35,7 +33,6 @@ struct SendInviteCard: View {
     let details: String
     @Binding var expanded: Bool
     let sourceFrame: CGRect //Profile card image frame, global coords
-    var showsHideButton: Bool = true //Hide pill on the expanded image; the invite button morphs into it
     var onDismissProgress: ((Double) -> Void)? = nil //Drag collapse 0→1; the parent fades its chrome back in behind the card
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
@@ -45,7 +42,6 @@ struct SendInviteCard: View {
     @State private var hasOpened = false
     @State private var settled = false //True once the open flight lands; swaps the flight copy for the live carousel
     @State private var scrollProgress: Double = 0
-    @State private var showInfoScreen = false //"How Invites Work" sheet, opened from the options menu
 
     //Interactive dismiss: a drag scrubs the close (chrome collapse + shrink) before the release flight commits it.
     @State private var dragAxis: Axis? //Decided once per gesture; horizontal is voided (belongs to the pager)
@@ -63,7 +59,7 @@ struct SendInviteCard: View {
             ZStack(alignment: .top) {
                 cardBackground(origin)
                 VStack(spacing: 0) {
-                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + Self.imagePadding))
+                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + CardImageScrollView.imagePadding))
                     backButton
                 }
                 flight(origin)
@@ -82,11 +78,8 @@ extension SendInviteCard {
     private func cardContent(imageWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
             imageSlot(imageWidth)
-            pageIndicator
-                .scaleEffect(0.7, anchor: .top)
             sendInviteContainer
         }
-        .padding([.horizontal, .top], Self.imagePadding)
         .padding(.bottom, 12)
         .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
@@ -108,34 +101,21 @@ extension SendInviteCard {
                 imageFrame = $0
                 openWhenMeasured()
             }
-            .overlay { carousel(max(width, 0)) }
+            .overlay { carousel }
     }
 
     //Page one sits exactly under the flight copy, so the settled swap never shows.
-    private func carousel(_ width: CGFloat) -> some View {
+    private var carousel: some View {
         InviteImageCarousel(
             images: gallery,
             name: vm.inviteModel.name,
-            size: CGSize(width: width, height: width * Self.imageHeightRatio),
-            showsHideButton: showsHideButton,
             dragDisabled: dragging,
             optionsVisible: expanded && dragOffset == .zero,
             scrollProgress: $scrollProgress,
-            vm: vm,
-            showInfoScreen: $showInfoScreen,
-            onBack: hideInvite
+            vm: vm
         )
         .opacity(settled ? 1 : 0)
         .allowsHitTesting(settled)
-    }
-
-    @ViewBuilder
-    private var pageIndicator: some View {
-        if gallery.count > 1 {
-            AnimatedPageIndicator(count: gallery.count, progress: scrollProgress)
-                .frame(height: 0)
-                .offset(y: 11)
-        }
     }
 
     private var sendInviteContainer: some View {
@@ -144,13 +124,12 @@ extension SendInviteCard {
             name: vm.inviteModel.name,
             isInviteResponse: false,
             defaults: vm.defaults,
-            onClearDraft: { vm.deleteEventDefault() },
-            hideInvite: hideInvite,
             onSendInvite: { sendInvite(vm.event) }
         )
     }
 
     private var backButton: some View {
+        
     BottomBackButton(action: hideInvite)
         .blurPop(visible: expanded && dragOffset == .zero)
         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -174,7 +153,6 @@ extension SendInviteCard {
             dragImage: dragImage,
             dragging: dragging,
             optionsVisible: expanded && dragOffset == .zero,
-            showsHideButton: showsHideButton,
             hideInvite: hideInvite
         )
     }
@@ -196,7 +174,7 @@ extension SendInviteCard {
     private func backgroundShape(_ origin: CGPoint) -> some View {
         let expandedRect = lerp(cardFrame, imageFrame, dragProgress)
         let rect = local(expanded ? expandedRect : sourceFrame, origin)
-        let radius = expanded ? lerp(Self.cardRadius, Self.imageRadius, dragProgress) : Self.sourceRadius
+        let radius = expanded ? Self.cardRadius : Self.sourceRadius
         return RoundedRectangle(cornerRadius: radius, style: .continuous)
             .fill(Color.appCanvas)
             .frame(width: rect.width, height: rect.height)
@@ -245,6 +223,8 @@ extension SendInviteCard {
         }
     }
 }
+
+
 
 //Interactive swipe-to-dismiss: a vertical drag anywhere on the card scrubs the chrome collapse and
 //rubber-bands the card after the finger; release either flies home through the shared close flight

@@ -68,14 +68,8 @@ extension InviteCard {
             .padding(.leading, 16)
     }
 
-    private var profileImage: some View {
-        Image(uiImage: eventProfile.image ?? UIImage())
-            .profileImageCard(imageSize, ratio: 1.25)
-            .onTapGesture {openProfile()}
-    }
-    
     private var backgroundBlur: some View {
-        BackgroundBlur(image: mainImage, size: CGSize(width: imageSize, height: imageSize + 170), frames: [profileNameBounds], clipCornerRadius: 24)
+        BackgroundBlur(image: mainImage, frames: [profileNameBounds])
     }
 
     private func openProfile() {
@@ -91,25 +85,5 @@ extension InviteCard {
         InviteCardInfo(draft: $draft, eventProfile: eventProfile, onRespond: onRespond)
             .padding(12)
             .padding(.top, -4)
-    }
-}
-
-
-struct HorizontalScrollViewTest<Element: Hashable>: View {
-    let iterable: [Element]
-    
-    let pageWidth: CGFloat
-    
-    var body: some View {
-        
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(iterable, id: \.self) { item in
-                    
-                    
-                }
-            }
-            .scrollTargetLayout()
-        }
     }
 }

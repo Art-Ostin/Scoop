@@ -16,16 +16,13 @@ struct ProfileCard : View {
     let profile: PendingProfile
     let size: CGFloat
     let imageLoader: ImageLoading
-    //True while the quick-invite flight owns this card's image: the image hides
-    //instantly (pixel-covered by the flight copy) and the overlays quick-fade.
     let quickInviteHidden: Bool
 
     private let cardCornerRadius: CGFloat = 22
-    private let cardHeightRatio: CGFloat = 1.08   // card height = width × this
 
     @State private var image: UIImage?
-    @State private var detailsFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
+    @State private var detailsFrame: CGRect = .zero
 
     private var displayImage: UIImage {
         image ?? profile.image
@@ -36,10 +33,11 @@ struct ProfileCard : View {
         Image(uiImage: displayImage)
             .profileImageCard(size, hideImage: quickInviteHidden)
 
-            .overlay { backgroundBlur.opacity(quickInviteHidden ? 0 : 1).animation(.easeOut(duration: 0.12), value: quickInviteHidden) }
-            //Hide fades (invisible under the opaque flight copy); the reveal is
-            //INSTANT — the flight chrome already faded the text back in and lands
-            //pixel-identical here, so a second fade would read as a flicker.
+            .overlay {
+                BackgroundBlur(image: displayImage, frames: [nameFrame, detailsFrame])
+                    .opacity(quickInviteHidden ? 0 : 1)
+                    .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
+            }
             .overlay(alignment: .bottomLeading) { cardOverlay.opacity(quickInviteHidden ? 0 : 1).animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden) }
 
             .profileShrinkPress {onTap(displayImage)}
@@ -71,27 +69,16 @@ extension ProfileCard {
     private var infoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             let p = profile.profile
-            //Title font matches the invite card's name overlay, so the quick-invite
-            //flight can glide this text with zero visual change.
             Text(p.name)
                 .font(.title(26))
-                .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(ProfileCard.cardSpace)) } action: { nameFrame = $0 }
+                .getViewsRect($nameFrame, coordSpace: ProfileCard.cardSpace)
 
             Text("\(p.year) | \(p.degree) | \(p.hometown)")
                 .font(.body(14, .medium))
-                .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(ProfileCard.cardSpace)) } action: { detailsFrame = $0 }
+                .getViewsRect($detailsFrame, coordSpace: ProfileCard.cardSpace)
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
-    }
-    
-    private var backgroundBlur: some  View {
-        BackgroundBlur(
-            image: displayImage,
-            size: CGSize(width: size, height: size * cardHeightRatio),
-            frames: [nameFrame, detailsFrame],
-            clipCornerRadius: cardCornerRadius
-        )
     }
     
     func fetchFirstImage() async {
@@ -104,6 +91,7 @@ extension ProfileCard {
 }
 
 extension Image {
+
     func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.12, hideImage: Bool = false) -> some View {
         self
             .resizable()

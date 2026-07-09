@@ -7,60 +7,54 @@
 
 import SwiftUI
 
-//To blur behind the images in the app
+//Soft blurred-image halo revealed behind text overlaid on a photo (card names/details).
 struct BackgroundBlur: View {
 
-    //Shared with SendInviteCard's flight halo, which re-creates this treatment
-    //on animated anchors — keep the two in lockstep via these constants.
+    //Halo metrics shared with SendInviteFlight, which re-creates this treatment on animated anchors.
+    //TODO: flight pass — the flight blurs at `imageBlurRadius` while this body blurs at 40,
+    //and the mask insets differ; reconcile so the settle handoff is identical.
     static let imageBlurRadius: CGFloat = 22
-    static let haloWidthOutset: CGFloat = 4 //Halo extends this far past the text on each side
     static let haloCornerRadius: CGFloat = 12
+    static let haloWidthOutset: CGFloat = 4
     static let haloBlurRadius: CGFloat = 4
 
     let image: UIImage
-    let size: CGSize
+    // Label frames to reveal blur behind — in the base image's coordinate space.
     let frames: [CGRect]
-    var clipCornerRadius: CGFloat = 22
-    var maskCornerRadius: CGFloat = Self.haloCornerRadius
-    //Halo tightness: how much each frame shrinks vertically before blurring — raise to shorten.
-    var verticalInset: CGFloat = 4
 
     var body: some View {
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(size.width, 0), height: max(size.height, 0))
-            .blur(radius: Self.imageBlurRadius)
-            .mask(mask)
-            .clipShape(.rect(cornerRadius: clipCornerRadius, style: .continuous))
+        // Color.clear adopts the proposed size exactly, so the mask's coordinate
+        // space matches the base image the frames were measured against.
+        Color.clear
+            .overlay { Image(uiImage: image).resizable().scaledToFill() }
+            .blur(radius: 40)
+            .mask { mask } //The stencil: which bits of the blurred image to show.
             .allowsHitTesting(false)
     }
 
     private var mask: some View {
         ZStack {
-            ForEach(Array(frames.enumerated()), id: \.offset) { _, frame in
-                halo(for: frame)
+            ForEach(frames.indices, id: \.self) { index in
+                let frame = frames[index]
+                let dy = min(8, max((frame.height - 12) / 2, 0)) //Tighten the halo but never below a certain point
+                let rect = frame.insetBy(dx: 0, dy: dy)
+                RoundedRectangle(cornerRadius: Self.haloCornerRadius)
+                    .frame(width: max(rect.width, 0), height: max(rect.height, 0))
+                    .position(x: rect.midX, y: rect.midY)
+                    .blur(radius: Self.haloBlurRadius) //Feather the halo edge so the reveal fades out.
+                    .offset(y: 2) //Frame tops sit at ascender height ('L', 'T'); nudge the halo down.
             }
-        }
-    }
-
-    @ViewBuilder
-    private func halo(for frame: CGRect) -> some View {
-        if frame != .zero {
-            let rect = frame.insetBy(dx: -Self.haloWidthOutset, dy: verticalInset)
-            RoundedRectangle(cornerRadius: maskCornerRadius)
-                .frame(width: max(rect.width, 0), height: max(rect.height, 0))
-                .position(x: rect.midX, y: rect.midY)
-                .blur(radius: Self.haloBlurRadius)
         }
     }
 }
 
-#Preview {
-    BackgroundBlur(
-        image: UIImage(systemName: "photo.fill") ?? UIImage(),
-        size: CGSize(width: 300, height: 300),
-        frames: [CGRect(x: 24, y: 230, width: 180, height: 40)]
-    )
-    .frame(width: 300, height: 300)
+//Measure a view's rect in a named coordinate space into a binding.
+extension View {
+    func getViewsRect(_ rect: Binding<CGRect>, coordSpace: String) -> some View {
+        onGeometryChange(for: CGRect.self) {
+            $0.frame(in: .named(coordSpace))
+        } action: {
+            rect.wrappedValue = $0
+        }
+    }
 }

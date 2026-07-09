@@ -7,113 +7,63 @@
 
 import SwiftUI
 
-//The settled invite image: paged profile photos with the name and a glass back
-//button. Lives under the flight copy and takes over once it lands.
+//The settled invite image: paged profile photos with the name and options menu.
+//Lives under the flight copy and takes over once it lands.
 struct InviteImageCarousel: View {
-
     let images: [UIImage]
     let name: String
-    let size: CGSize
-    let showsHideButton: Bool
     var dragDisabled: Bool = false //Swipe-dismiss owns the touch: no paging, even mid-pan
     var optionsVisible: Bool = true //Flips at drag release so the menu is already popped in when the settle swap lands
     @Binding var scrollProgress: Double
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
-    @Binding var showInfoScreen: Bool
 
-    let onBack: () -> Void
-
-    @State private var scrolledPageID: Int?
-    @State private var pageWidth: CGFloat = 0
+    @State private var meetFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
-    @State private var hideButtonHeight: CGFloat = 0
+    @State private var showInfoScreen = false //"How Invites Work" sheet, opened from the options menu
 
     private static let imageSpace = "InviteImageCarousel.image"
-    private static let pageSpacing: CGFloat = 4 //Visual gap between pages; built into each cell, never HStack spacing
-
-    //Top-leading name insets. SendInviteFlight's top-name copy + its blur halo reuse these so the settle handoff is pixel-identical.
-    static let nameTopInset: CGFloat = 12
+    //Name inset from the image edge; the flight matches these so the settle handoff lands (see cardOverlay padding).
     static let nameLeadingInset: CGFloat = 17
-    
+    static let nameTopInset: CGFloat = 12
 
     var body: some View {
-        pager
+        CardImageScrollView(images: images, scrollProgress: $scrollProgress)
+            .scrollDisabled(images.count <= 1 || dragDisabled)
             .overlay { backgroundBlur }
-            .overlay(alignment: .topLeading) { nameOverlay }
-            .overlay(alignment: .topTrailing) { optionsMenu }
+            .overlay(alignment: .top) { cardOverlay }
             .coordinateSpace(name: Self.imageSpace)
     }
 }
 
 extension InviteImageCarousel {
 
-    private var pager: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(Array(images.enumerated()), id: \.offset) { _, page in
-                    Image(uiImage: page)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: size.width, height: size.height)
-                        //Must equal the flight image's expanded radii for the invisible handoff on page one.
-                        .clipShape(.rect(
-                            topLeadingRadius: SendInviteCard.imageRadius,
-                            bottomLeadingRadius: SendInviteCard.imageBottomRadius,
-                            bottomTrailingRadius: SendInviteCard.imageBottomRadius,
-                            topTrailingRadius: SendInviteCard.imageRadius,
-                            style: .continuous
-                        ))
-                        //Gap lives inside the cell (half per side) so the page pitch equals
-                        //the viewport width and .paging lands every page centered.
-                        .frame(width: size.width + Self.pageSpacing)
-                }
-            }
-            .scrollTargetLayout()
+    private var cardOverlay: some View {
+        HStack {
+            nameOverlay
+            Spacer()
+            optionsMenu
         }
-        .scrollClipDisabled() //Pages draw past the card gutter mid-scroll; the card mask cuts them at the true edge
-        .modifier(PagedScrollStyle(
-            scrolledPageID: $scrolledPageID,
-            pageWidth: $pageWidth,
-            scrollProgress: $scrollProgress,
-            pageCount: images.count,
-            dragDisabled: dragDisabled
-        ))
-        //Viewport = one page pitch, overhanging the slot by half the gap each side;
-        //the outer frame re-clamps layout to the slot so the chrome anchors stay put.
-        .frame(width: size.width + Self.pageSpacing)
-        .frame(width: size.width)
+        .padding(.vertical, Self.nameTopInset)
+        .padding(.horizontal, Self.nameLeadingInset)
     }
 
-    private var backgroundBlur: some View {
-        BackgroundBlur(
-            image: images[min(scrolledPageID ?? 0, images.count - 1)],
-            size: size,
-            frames: [nameFrame],
-            clipCornerRadius: SendInviteCard.imageBottomRadius,
-            verticalInset: SendInviteCard.nameBlurInset
-        )
-    }
-
-    //Two Texts (not one string) so the glyph layout matches the flight's "Meet " + name pair at the handoff.
+    //Two Texts (not one string) so the glyph layout matches the flight's copy at the handoff.
     private var nameOverlay: some View {
-        HStack(spacing: 0) {
-            Text("Meet ")
+        HStack(spacing: 2) {
+            Text("Meet")
+                .getViewsRect($meetFrame, coordSpace: Self.imageSpace)
             Text(name)
+                .getViewsRect($nameFrame, coordSpace: Self.imageSpace)
         }
         .font(.title(26))
         .foregroundStyle(Color.white)
-        .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(Self.imageSpace)) } action: { nameFrame = $0 }
-        .padding(.top, Self.nameTopInset)
-        .padding(.leading, Self.nameLeadingInset)
     }
-    
-    
+
     private var optionsMenu: some View {
         Menu {
             if vm.event.hasChanges {
                 Button("Clear Draft", systemImage: "trash", role: .destructive) {
-                    // One animation owns the whole clear so every row cross-fades together.
-                    withAnimation(.easeInOut(duration: 0.2)) { vm.deleteEventDefault() }
+                    withAnimation(.spring(duration: 0.2)) { vm.deleteEventDefault() }
                 }
             }
             Button("How Invites Work", systemImage: "info.circle") {
@@ -126,11 +76,24 @@ extension InviteImageCarousel {
                 .contentShape(Circle())
         }
         .padding(-6)
-        //Animates in parallel with the flight replica during a cancelled dismiss's spring-back,
-        //so it is already at full opacity when the settle swap makes it the visible copy.
         .blurPop(visible: optionsVisible)
-        .padding(.vertical, Self.nameTopInset)
-        .padding(.horizontal, Self.nameLeadingInset)
         .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
+    }
+
+    //Cross-fades the two neighbouring pages' halos so the blur tracks the scroll progressively.
+    private var backgroundBlur: some View {
+        let progress = min(max(scrollProgress, 0), Double(images.count - 1))
+        let page = Int(progress)
+        let next = min(page + 1, images.count - 1)
+        let fraction = progress - Double(page)
+
+        return ZStack {
+            BackgroundBlur(image: images[page], frames: [nameFrame, meetFrame])
+                .opacity(1 - fraction)
+            if next != page && fraction > 0 {
+                BackgroundBlur(image: images[next], frames: [nameFrame, meetFrame])
+                    .opacity(fraction)
+            }
+        }
     }
 }

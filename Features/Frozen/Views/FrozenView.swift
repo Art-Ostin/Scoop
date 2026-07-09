@@ -86,10 +86,6 @@ extension FrozenView {
         .scrollPosition(id: $tabSelection)
         .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) {
-            PageIndicator(count: 2, selection: tabSelection ?? 0)
-                .padding(.bottom, 36)
-        }
     }
     
     private var tabTitle: some View {

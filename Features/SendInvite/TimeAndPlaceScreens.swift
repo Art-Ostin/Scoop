@@ -37,9 +37,7 @@ struct RespondTimeAndPlaceView: View {
             name: event.otherUserName,
             isInviteResponse: true,
             defaults: vm.defaults,
-            onClearDraft: {vm.deleteEventDefault()},
-            hideInvite: {},
-            onSendInvite: {sendInvite()}
+            onSendInvite: sendInvite
         )
     }
 }

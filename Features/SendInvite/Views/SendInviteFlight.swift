@@ -21,13 +21,10 @@ struct SendInviteFlight: View {
     var dragImage: UIImage? = nil //Interactive dismiss: the carousel page the drag picked up
     var dragging: Bool = false //Finger owns the card; the tap-to-close mustn't fire under it
     var optionsVisible: Bool = true //Flips at drag release (not spring completion) so the menu pops back in riding the spring-back
-    let showsHideButton: Bool
     let hideInvite: () -> Void
 
     @State private var detailsHeight: CGFloat = 0
-    @State private var nameSize: CGSize = .zero
     @State private var topNameSize: CGSize = .zero
-    @State private var hideButtonSize: CGSize = .zero
     @State private var inviteButtonPopped = false
 
     var body: some View {
@@ -109,7 +106,6 @@ extension SendInviteFlight {
         Text(name)
             .font(.title(26))
             .foregroundStyle(Color.white)
-            .onGeometryChange(for: CGSize.self) { $0.size } action: { nameSize = $0 }
             .padding(.leading, 16)
             .padding(.bottom, 16 + detailsHeight + 8)
             .opacity(expanded ? 0 : 1)
@@ -117,10 +113,10 @@ extension SendInviteFlight {
     }
 
     //The expanded name: pops in over the flight as the card opens and lands exactly on the carousel's
-    //top-leading copy at settle. Two Texts (not one string) so the glyph layout matches at the handoff.
+    //top-leading copy at settle. Same HStack structure as the carousel so the glyph layout matches at the handoff.
     private var topName: some View {
-        HStack(spacing: 0) {
-            Text("Meet ")
+        HStack(spacing: 2) {
+            Text("Meet")
             Text(name)
         }
         .font(.title(26))
@@ -152,33 +148,19 @@ extension SendInviteFlight {
     }
 
     //Decorative copy of ProfileCard's invite button: the tap that opened the invite covered
-    //the real button mid-press, so the replica starts at the pressed scale and plays the release bounce.
-    //On expand it morphs into the Hide pill: both ride this one anchor, cross-fading mid-flight.
+    //the real button mid-press, so the replica starts at the pressed scale and plays the release
+    //bounce. On expand it fades out in place.
     private var inviteButtonReplica: some View {
         InviteButton(isInviting: true, morphId: "quick-invite-flight-copy", action: {})
             .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
             .opacityPop(visible: !expanded)
-            .padding(.trailing, buttonTrailingPadding)
-            .padding(.bottom, buttonBottomPadding)
+            .padding([.trailing, .bottom], 16)
             .task {
                 withAnimation(.spring(response: PressEffect.shrink.release.response,
                                       dampingFraction: PressEffect.shrink.release.damping)) {
                     inviteButtonPopped = true
                 }
             }
-    }
-
-
-    //Expanded targets land the pill exactly on the carousel's copy (trailing edge at contentPadding,
-    //centered on the name line) so the settle handoff is invisible. No pill → fade in place as before.
-    private var buttonTrailingPadding: CGFloat {
-        guard expanded, showsHideButton else { return 16 }
-        return SendInviteContainer.contentPadding + (hideButtonSize.width - InviteButton.diameter) / 2
-    }
-
-    private var buttonBottomPadding: CGFloat {
-        guard expanded, showsHideButton else { return 16 }
-        return SendInviteCard.chromeBottomPadding + (nameSize.height - InviteButton.diameter) / 2
     }
 
     //Invisible target over the invite-button replica: the real card button underneath is

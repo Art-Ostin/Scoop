@@ -54,12 +54,10 @@ struct BottomBackButton: View {
     
     var body: some View {
         ScoopButton(shape: Circle(), action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: "chevron.down")
-                    .font(.body(17))
-                    .fontWeight(.heavy)
-            }
-            .frame(width: 45, height: 45)
+            Image(systemName: "chevron.down")
+                .font(.body(17))
+                .fontWeight(.heavy)
+                .frame(width: 45, height: 45)
         }
         .padding(.top, 36)
     }
@@ -71,7 +69,6 @@ struct PagedScrollStyle: ViewModifier {
     @Binding var pageWidth: CGFloat
     @Binding var scrollProgress: Double
     let pageCount: Int
-    var dragDisabled: Bool = false //True while the invite card's swipe-dismiss owns the touch; kills in-flight pans too
 
     func body(content: Content) -> some View {
         content
@@ -79,7 +76,7 @@ struct PagedScrollStyle: ViewModifier {
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
-            .scrollDisabled(pageCount <= 1 || dragDisabled)
+            .scrollDisabled(pageCount <= 1)
             .scrollTargetBehavior(.paging)
     }
 }

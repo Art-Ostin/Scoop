@@ -1,0 +1,57 @@
+//
+//  ImageElements.swift
+//  Scoop
+//
+//  Created by Art Ostin on 09/07/2026.
+//
+
+import SwiftUI
+
+//Expands full width of view, and height set proportional
+struct GreedyImage: View {
+
+    var aspectRatio: CGFloat = 1/1.05
+    
+    let image: UIImage
+    
+    var body: some View {
+        Color.clear
+            .aspectRatio(aspectRatio, contentMode: .fit)
+            .overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            }
+    }
+}
+
+//Profile image carousel at top of a card
+struct CardImageScrollView: View {
+
+    //Standardised card-image geometry. SendInviteCard derives its card/flight radii
+    //from these so the flight copy always matches the settled carousel.
+    static let imagePadding: CGFloat = 3
+    static let parentCornerRadius: CGFloat = 24
+    static let aspectRatio: CGFloat = 1/1.05
+    static let bottomRadius: CGFloat = 12
+    static var topRadius: CGFloat { parentCornerRadius - imagePadding } //Concentric corners
+
+    let images: [UIImage]
+    @Binding var scrollProgress: Double
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ImageCarousel(
+                images: images,
+                hPadding: Self.imagePadding,
+                topRadius: Self.topRadius,
+                bottomRadius: Self.bottomRadius,
+                aspectRatio: Self.aspectRatio,
+                scrollProgress: $scrollProgress
+            )
+            AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+                .scaleEffect(0.7, anchor: .top)
+        }
+        .padding(.top, Self.imagePadding) //Horizontal padding applied inside ImageCarousel
+    }
+}
