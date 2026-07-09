@@ -48,9 +48,7 @@ struct InviteTypeRow: View {
             typeMenu
         }
         .overlay(alignment: .trailing) {
-//            pageIndicator
-//                .offset(y: 20)
-//                .offset(x: -22)
+
         }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
@@ -170,7 +168,7 @@ extension InviteTypeRow {
     }
 
     private var pageIndicator: some View {
-        AnimatedPageIndicator(count: 2, progress: scrollProgress, inactiveDotSize: 5, activeWidth: 8)
+        AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
             .scaleEffect(0.6, anchor: .bottom)
             .padding(.bottom, 8)
             .offset(x: 6)

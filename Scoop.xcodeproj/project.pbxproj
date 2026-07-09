@@ -160,7 +160,7 @@
 		657F61B32FDF0CB600B2F903 /* Strokes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B22FDF0CB600B2F903 /* Strokes.swift */; };
 		657F61B52FDF125300B2F903 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B42FDF125300B2F903 /* Colors.swift */; };
 		657F61B72FDF127600B2F903 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61B62FDF127600B2F903 /* Fonts.swift */; };
-		657F61BF2FDF173500B2F903 /* HorizontalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61BE2FDF173500B2F903 /* HorizontalScrollView.swift */; };
+		657F61BF2FDF173500B2F903 /* ImageHorizontalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61BE2FDF173500B2F903 /* ImageHorizontalScrollView.swift */; };
 		657F61C12FDF18CC00B2F903 /* DeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C02FDF18CC00B2F903 /* DeclineButton.swift */; };
 		657F61C32FDFC0EF00B2F903 /* RespondContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C22FDFC0EF00B2F903 /* RespondContainer.swift */; };
 		657F61C52FDFD6F900B2F903 /* MeasureModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */; };
@@ -456,7 +456,7 @@
 		657F61B22FDF0CB600B2F903 /* Strokes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strokes.swift; sourceTree = "<group>"; };
 		657F61B42FDF125300B2F903 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		657F61B62FDF127600B2F903 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
-		657F61BE2FDF173500B2F903 /* HorizontalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalScrollView.swift; sourceTree = "<group>"; };
+		657F61BE2FDF173500B2F903 /* ImageHorizontalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageHorizontalScrollView.swift; sourceTree = "<group>"; };
 		657F61C02FDF18CC00B2F903 /* DeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclineButton.swift; sourceTree = "<group>"; };
 		657F61C22FDFC0EF00B2F903 /* RespondContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondContainer.swift; sourceTree = "<group>"; };
 		657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureModifiers.swift; sourceTree = "<group>"; };
@@ -643,7 +643,7 @@
 			isa = PBXGroup;
 			children = (
 				65D366C32FC95887000180B3 /* AppScrollView.swift */,
-				657F61BE2FDF173500B2F903 /* HorizontalScrollView.swift */,
+				657F61BE2FDF173500B2F903 /* ImageHorizontalScrollView.swift */,
 			);
 			path = ScrollViews;
 			sourceTree = "<group>";
@@ -737,7 +737,6 @@
 			isa = PBXGroup;
 			children = (
 				651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */,
-				65A0704C2EE0631A009F798B /* PageIndicator.swift */,
 				65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */,
 			);
 			path = Indicators;
@@ -1444,6 +1443,7 @@
 		65B86D3A2FFCC2780076683A /* Old Code */ = {
 			isa = PBXGroup;
 			children = (
+				65A0704C2EE0631A009F798B /* PageIndicator.swift */,
 				652AD16F2FF2DA3C00E3A8FC /* InviteContainer.swift */,
 			);
 			path = "Old Code";
@@ -1947,7 +1947,7 @@
 				654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */,
 				655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */,
 				65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */,
-				657F61BF2FDF173500B2F903 /* HorizontalScrollView.swift in Sources */,
+				657F61BF2FDF173500B2F903 /* ImageHorizontalScrollView.swift in Sources */,
 				657F61AE2FDF08C300B2F903 /* CardFlip.swift in Sources */,
 				65E963D22F3F41C60022595F /* TimeAndPlaceViewModel.swift in Sources */,
 				656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */,
