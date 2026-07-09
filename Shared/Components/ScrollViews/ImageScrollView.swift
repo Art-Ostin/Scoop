@@ -13,40 +13,44 @@ struct ImageCarousel: View {
     let hPadding: CGFloat
     let topRadius: CGFloat
     let bottomRadius: CGFloat
-    var aspectRatio: CGFloat = 1 / 1.12
+    var aspectRatio: AspectRatio = .default
 
     @Binding var scrollProgress: Double
     @Binding var scrollPosition: ScrollPosition
-    
+    var hiddenIndex: Int? //Page hidden while a morph's floating copy covers it
+
     init(
         images: [UIImage],
         hPadding: CGFloat,
         topRadius: CGFloat,
         bottomRadius: CGFloat,
-        aspectRatio: CGFloat,
-        scrollProgress: Double
-        scrollPosition: ScrollPosition
+        aspectRatio: AspectRatio = .default,
+        scrollProgress: Binding<Double> = .constant(0),
+        scrollPosition: Binding<ScrollPosition> = .constant(ScrollPosition()),
+        hiddenIndex: Int? = nil
     ) {
         self.images = images
         self.hPadding = hPadding
         self.topRadius = topRadius
         self.bottomRadius = bottomRadius
         self.aspectRatio = aspectRatio
-        self.scrollProgress = scrollProgress
-        self.scrollPosition = scrollPosition
+        self._scrollProgress = scrollProgress
+        self._scrollPosition = scrollPosition
+        self.hiddenIndex = hiddenIndex
     }
-    
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
-                ForEach(images, id: \.self) { image in
-                    carouselImage(image)
+                ForEach(images.indices, id: \.self) { index in
+                    carouselImage(images[index])
+                        .opacity(index == hiddenIndex ? 0 : 1)
                 }
             }
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
+        .scrollPosition($scrollPosition)
         .scrollIndicators(.hidden)
         .trackScrollProgress(scrollProgress: $scrollProgress)
         .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them
@@ -65,48 +69,46 @@ struct ImageCarousel: View {
 }
 
 
-/*
- struct HorizontalScrollView<Content: View>: View {
-     var peek: CGFloat = 0
-     @ViewBuilder var content: Content
+//Free-page pager. Still used by RespondContainer; ImageCarousel replaces it for image paging.
+struct HorizontalScrollView<Content: View>: View {
+    var peek: CGFloat = 0
+    @ViewBuilder var content: Content
 
-     var body: some View {
-         ScrollView(.horizontal) {
-             HStack(spacing: 0) {
-                 content
-             }
-             .scrollTargetLayout()
-         }
-         .contentMargins(.horizontal, peek, for: .scrollContent)
-         .scrollTargetBehavior(.paging)
-         .scrollIndicators(.hidden)
-     }
- }
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                content
+            }
+            .scrollTargetLayout()
+        }
+        .contentMargins(.horizontal, peek, for: .scrollContent)
+        .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
+    }
+}
 
- extension View {
-     @ViewBuilder
-     func horizontalScrollSlot(id: some Hashable, shrinkAnchor: UnitPoint? = nil) -> some View {
-         let page = self
-             .frame(maxWidth: .infinity, maxHeight: .infinity)
-             .containerRelativeFrame(.horizontal)
-             .id(id)
+extension View {
+    @ViewBuilder
+    func horizontalScrollSlot(id: some Hashable, shrinkAnchor: UnitPoint? = nil) -> some View {
+        let page = self
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .containerRelativeFrame(.horizontal)
+            .id(id)
 
-         if let shrinkAnchor {
-             page.pageScrollTransition(anchor: shrinkAnchor)
-         } else {
-             page
-         }
-     }
+        if let shrinkAnchor {
+            page.pageScrollTransition(anchor: shrinkAnchor)
+        } else {
+            page
+        }
+    }
 
-     func pageScrollTransition(anchor: UnitPoint, yOffset: CGFloat = 0) -> some View {
-         scrollTransition(.interactive, axis: .horizontal) { content, phase in
-             let progress = 1 - min(abs(phase.value), 1)
-             let scale = 0.5 + progress * 0.5
-             return content
-                 .scaleEffect(scale, anchor: anchor)
-                 .offset(y: (1 - progress) * yOffset)
-         }
-     }
- }
-
- */
+    func pageScrollTransition(anchor: UnitPoint, yOffset: CGFloat = 0) -> some View {
+        scrollTransition(.interactive, axis: .horizontal) { content, phase in
+            let progress = 1 - min(abs(phase.value), 1)
+            let scale = 0.5 + progress * 0.5
+            return content
+                .scaleEffect(scale, anchor: anchor)
+                .offset(y: (1 - progress) * yOffset)
+        }
+    }
+}

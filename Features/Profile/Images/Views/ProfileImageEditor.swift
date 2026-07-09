@@ -29,7 +29,7 @@ struct ProfileImageEditor: View {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
                 
-                GreedyImage(image: importedImage.image, hPadding: 16, aspectRatio: 1/1.05)
+                GreedyImage(image: importedImage.image, hPadding: 16, aspectRatio: .card)
                     .overlay(alignment: .bottomTrailing) { changeImageButton }
                     .overlay(alignment: .bottomLeading) { cropPhotoIcon }
                 

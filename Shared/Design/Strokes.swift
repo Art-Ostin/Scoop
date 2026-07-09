@@ -32,6 +32,14 @@ extension View {
                     .strokeBorder(color, lineWidth: lineWidth)
             }
     }
+
+    func capsuleStroke(lineWidth: CGFloat, color: Color = Color.border) -> some View {
+        self
+            .overlay {
+                Capsule()
+                    .strokeBorder(color, lineWidth: lineWidth)
+            }
+    }
 }
 
 extension RectangleCornerRadii {

@@ -81,7 +81,7 @@ extension ProfileContainer {
             profileTitle
                 .modifier(DetailsFadeEffect(ui: ui, from: 1, to: 0, impactEnd: 0.75))
 
-            ProfileImageView(disableScroll: ui.isDismissDragging, importedImages: displayImages)
+            ProfileImageView(disableScroll: ui.isDismissDragging, images: displayImages)
                 .task { await vm.loadImagesIfNeeded() }
                 .overlay(alignment: .topLeading) {overlayTitle}
         }

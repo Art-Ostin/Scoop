@@ -10,77 +10,53 @@ import SwiftUI
 struct ProfileImageView: View {
 
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
-    @State private var imageSize: CGFloat = 0
-    @State private var selection: Int? = 0
+
+    @State private var scrollProgress: Double = 0
+    @State private var pagerPosition = ScrollPosition()
     @State var scrollPosition = ScrollPosition()
 
     let disableScroll: Bool
-    let importedImages: [UIImage]
-    
+    let images: [UIImage]
+
+    //trackScrollProgress reports the page index as a float; the settled page drives the thumb strip.
+    private var selection: Int { Int(scrollProgress.rounded()) }
+
     var body: some View {
-        
         VStack(spacing: 24) {
-            largeImageScrollView
+            imageCarousel
             imageScroller
         }
     }
 }
 
-//All Logic for large images
-extension ProfileImageView {    
-    
-    
-    
+//The full-width image pager (profile-morph destination)
+extension ProfileImageView {
+
     private var imageCarousel: some View {
-        
-        ImageCaro
-        
-        
         ImageCarousel(
-            images: importedImages,
+            images: images,
             hPadding: 8,
-            topRadius: <#T##CGFloat#>, bottomRadius: <#T##CGFloat#>, scrollProgress: <#T##Double#>
+            topRadius: CornerRadius.photoCard,
+            bottomRadius: CornerRadius.photoCard,
+            aspectRatio: .default,
+            scrollProgress: $scrollProgress,
+            scrollPosition: $pagerPosition,
+            hiddenIndex: morph?.hiddenDestIndex
         )
-        
-        
-    }
-    
-    
-    
-    
-    
-    private var largeImageScrollView: some View {
-        HorizontalScrollView {
-            ForEach(importedImages.indices, id: \.self) { index in
-                largeImage(index: index)
-            }
-        }
-        .frame(height: imageSize)
         .scrollDisabled(disableScroll)
-        .scrollPosition(id: $selection)
         .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
             morph?.reportDestination(containerRect: rect)
         }
     }
-    
-    
-    
-    private func largeImage(index: Int) -> some View {
-        Image(uiImage: importedImages[index])
-            .defaultImage(imageSize, 16)
-            .pinchZoom()
-            .opacity(morph?.hiddenDestIndex == index ? 0 : 1) //Hidden while the floating morph copy covers this frame.
-            .horizontalScrollSlot(id: index)
-    }
 }
 
-//All Logic for the imageScrollView
+//The thumbnail strip that mirrors and drives the pager
 extension ProfileImageView {
-    
+
     private var imageScroller : some View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 48) {
-                    ForEach(importedImages.indices, id: \.self) {index in
+                    ForEach(images.indices, id: \.self) {index in
                         scrollImage(index: index)
                     }
                     ClearRectangle(size: 0)
@@ -91,15 +67,17 @@ extension ProfileImageView {
             .scrollPosition($scrollPosition)
             .scrollDisabled(disableScroll)
             .scrollClipDisabled() //
-            .onChange(of: selection ?? 0) {scrollToImage(oldIndex: $0, newIndex: $1)}
+            .onChange(of: selection) {scrollToImage(oldIndex: $0, newIndex: $1)}
     }
-    
+
     private func scrollImage(index: Int) -> some View {
-        let image = importedImages[index]
-        return Image(uiImage: image)
-            .defaultImage(60, 10)
+        Image(uiImage: images[index])
+            .resizable()
+            .scaledToFill()
+            .frame(width: 60, height: 60)
+            .imageClip(CornerRadius.thumb)
             .customShadow(.card, strength: selection == index ? 4 : 0)
-            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
+            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { pagerPosition.scrollTo(id: index) } }
     }
 
     private func scrollToImage(oldIndex: Int, newIndex: Int) {
@@ -113,4 +91,3 @@ extension ProfileImageView {
         }
     }
 }
-

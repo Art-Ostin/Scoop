@@ -30,7 +30,7 @@ struct CustomAlertCard: View {
         }
         .padding(24)
         .frame(width: 320)
-        .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: 24))
+        .glassBackgroundIfAvailable(shape: RoundedRectangle(cornerRadius: CornerRadius.alert, style: .continuous))
         .customShadow(.floating)
         .frame(maxWidth: .infinity)
         .lineSpacing(8)
@@ -76,8 +76,8 @@ extension CustomAlertCard {
                 .foregroundStyle(isCancel ? (isDanger ? Color.white : Color.textPrimary) : (isDanger ? Color.textPrimary : Color.white))
                 .frame(height: 44)
                 .frame(width: isConfirmInvite ? 125 : 100)
-                .background(isCancel ? (isDanger ? Color.accent : Color.appCanvas) : (isDanger ? Color.appCanvas : Color.accent), in: .rect(cornerRadius: 20))
-                .stroke(20, lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.textTertiary)
+                .background(isCancel ? (isDanger ? Color.accent : Color.appCanvas) : (isDanger ? Color.appCanvas : Color.accent), in: .capsule)
+                .capsuleStroke(lineWidth: isCancel ? (isDanger ? 0 : 1) : (isDanger ? 1 : 0), color: Color.textTertiary)
                 .frame(maxWidth: .infinity,  alignment: showTwoButtons ? (isCancel ? .leading : .trailing) : .center)
         }
     }

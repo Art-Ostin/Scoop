@@ -26,17 +26,17 @@ struct ProfileCard : View {
             .overlay(alignment: .bottomLeading) {cardOverlay}
             .profileShrinkPress {onTap(profile.image)}
             .coordinateSpace(name: cardSpace)
-            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.lg)
+            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.photoCard)
     }
 }
 
 extension ProfileCard {
     
     private var profileCardImage: some View {
-        GreedyImage(image: profile.image, hPadding: 16, aspectRatio: 1/1.12)
-            .clipShape(.rect(cornerRadius: CornerRadius.lg, style: .continuous))
+        GreedyImage(image: profile.image, hPadding: 16, aspectRatio: .default)
+            .imageClip()
             .opacity(quickInviteHidden ? 0 : 1)
-            .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous))
+            .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: CornerRadius.photoCard, style: .continuous))
             .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
 

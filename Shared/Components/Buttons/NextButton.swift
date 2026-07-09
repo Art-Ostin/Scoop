@@ -13,10 +13,9 @@ struct NextButton: View {
         
     var shadow: Elevation? { isValid ? .medium : nil }
     var color: Color { isValid ? .accent : .fillGray}
-    var radius: some Shape {.rect(cornerRadius: 33) }
-    
+
     var body: some View {
-        ScoopButton(style: .tinted(color, shadow: shadow), shape: radius) {
+        ScoopButton(style: .tinted(color, shadow: shadow), shape: Capsule()) {
             onTap()
         } label: {
             Image("ForwardArrow")

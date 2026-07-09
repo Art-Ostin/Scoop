@@ -236,7 +236,7 @@ struct ConfirmInviteBackground: ViewModifier {
             .padding(.top, 26)
             .padding(.bottom, 16)
             .frame(maxWidth: .infinity)
-            .background(Color.appCanvas, in: .rect(cornerRadius: 36))
+            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.alert, style: .continuous))
             .padding(.horizontal, 30)
     }
 }

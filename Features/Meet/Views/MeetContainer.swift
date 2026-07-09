@@ -255,9 +255,6 @@ extension MeetContainer {
         }
     }
 
-    //Hides via the button's own .scoopPop show/hide (glass won't alpha-fade under
-    //ancestor opacity), driven by the animated flight value so it pops back in
-    //the moment the close starts.
     private var infoButton: some View {
         InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
     }
