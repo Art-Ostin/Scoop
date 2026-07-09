@@ -165,6 +165,6 @@ extension PromptGeneric {
                     .allowsHitTesting(false)
             }
         }
-        .stroke(20, lineWidth: 0.5, color: Color.border)
+        .stroke(CornerRadius.lg, lineWidth: 0.5, color: Color.border)
     }
 }

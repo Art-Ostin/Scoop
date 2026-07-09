@@ -76,12 +76,12 @@ extension ProfileImageEditor {
                 .frame(width: 90, height: 37)
                 .foregroundStyle(.accent)
                 .background (
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.white )
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                 )
                 .overlay (
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .stroke(.black, lineWidth: 1)
                 )
         }
@@ -97,7 +97,7 @@ extension ProfileImageEditor {
                     .font(.body(12, .bold))
             }
             .frame(width: 115, height: 28)
-            .background(Color.black.opacity(0.5), in: .rect(cornerRadius: 8))
+            .background(Color.black.opacity(0.5), in: .rect(cornerRadius: CornerRadius.xs))
             .padding()
         }
     }
@@ -109,7 +109,7 @@ extension ProfileImageEditor {
             Image("CropImageIcon")
         }
         .frame(width: 30, height: 28)
-        .background(Color.black.opacity(0.5), in: .rect(cornerRadius: 12))
+        .background(Color.black.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm))
         .padding()
     }
     

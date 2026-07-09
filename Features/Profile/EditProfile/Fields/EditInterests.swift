@@ -159,7 +159,7 @@ extension GenericInterests {
                         .foregroundStyle(isSelected ? .accent : .black)
                         .overlay {
                             if isSelected {
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: CornerRadius.md)
                                     .frame(width: idx == 1 ? 65 : 50, height: 3)
                                     .foregroundStyle(Color.accent)
                                     .offset(y: 12)
@@ -275,17 +275,17 @@ struct OptionCell: View {
             .font(.body(isLanguages ? 15 : 14))
             .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
             .background (
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: CornerRadius.sm)
                     .fill(isSelected && fillColour ? Color.accent : Color.appCanvas)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: CornerRadius.sm)
                             .stroke(isSelected && !fillColour ? .accent : Color.border, lineWidth: 1)
                     )
             )
             .overlay {
                 if let overlayText {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: CornerRadius.sm)
                             .fill(Color.appCanvas.opacity(1))
                         Text(overlayText)
                             .font(.body(14))

@@ -59,12 +59,12 @@ extension LimitedAccessPage {
                 .padding(8)
                 .foregroundStyle(Color.textPrimary)
                 .background (
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.white )
                         .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
                 )
                 .overlay (
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .stroke(.black, lineWidth: 1)
                 )
                 .padding(.horizontal, 16)

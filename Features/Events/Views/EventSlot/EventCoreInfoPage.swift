@@ -50,10 +50,10 @@ struct EventCoreInfoPage: View {
         .padding(.bottom, 22)
         .padding(.horizontal, 24)
         .background (
-            RoundedRectangle(cornerRadius: 24)
+            RoundedRectangle(cornerRadius: CornerRadius.xl)
                 .fill(Color.white)
         )
-        .stroke(24, lineWidth: 1, color: Color.border)
+        .stroke(CornerRadius.xl, lineWidth: 1, color: Color.border)
         .overlay(alignment: .topLeading) {
             eventDetailsOverlay
         }

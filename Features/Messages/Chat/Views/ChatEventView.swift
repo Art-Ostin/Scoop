@@ -45,7 +45,7 @@ struct ChatEventView: View {
             .padding(.top, 22)
             .padding(.bottom, 18)
             .frame(maxWidth: .infinity)
-            .stroke(16, lineWidth: 1, color: Color.accent.opacity(0.15))
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.15))
             .padding(.horizontal, 32)
         }
     }

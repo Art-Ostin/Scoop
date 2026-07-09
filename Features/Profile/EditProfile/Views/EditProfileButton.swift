@@ -36,10 +36,10 @@ struct EditProfileButton: View {
         .padding(.horizontal)
         .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill(Color.white)
                 .shadow(color: .black.opacity(0.1), radius: 10, y: 10)
-                .stroke(20, lineWidth: 1, color: .accent)
+                .stroke(CornerRadius.lg, lineWidth: 1, color: .accent)
         )
         .padding(.bottom)
         .onTapGesture {withAnimation (.easeInOut(duration: 0.3)) {isEdit.toggle()}}

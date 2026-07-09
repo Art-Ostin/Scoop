@@ -94,7 +94,7 @@ extension AddMessageView {
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
-            .stroke(12, lineWidth: 1, color: Color.border)
+            .stroke(CornerRadius.sm, lineWidth: 1, color: Color.border)
             .overlay(alignment: .bottomTrailing) {
                 let remaining = max(0, messageLimit - (message ?? "").count)
                 if remaining <= warningThreshold {
@@ -116,7 +116,7 @@ extension AddMessageView {
     }
     
     private var doneButton: some View {
-        ScoopButton(style: .tinted(.accent, shadow: .low), shape: .rect(cornerRadius: 24), action: {dismiss()}) {
+        ScoopButton(style: .tinted(.accent, shadow: .low), shape: .rect(cornerRadius: CornerRadius.xl), action: {dismiss()}) {
             Text("Done")
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)
@@ -150,7 +150,7 @@ extension AddMessageView {
         // Opaque backing so the menu's translucent glass platter can't lens the
         // red (accent) Done button sitting behind this popup's floating window.
         // Same appCanvas fill used by inviteCardBackground / RespondTimeBackground.
-        .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
         .compositingGroup()
     }
 }

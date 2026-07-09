@@ -49,11 +49,11 @@ struct EventLocationMap: View {
         }
         .tint(.blue)
         .clipShape(UnevenRoundedRectangle(
-                topLeadingRadius: 16,
-                bottomLeadingRadius: 8,
-                bottomTrailingRadius: 8,
-                topTrailingRadius: 16))
-        .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                topLeadingRadius: CornerRadius.md,
+                bottomLeadingRadius: CornerRadius.xs,
+                bottomTrailingRadius: CornerRadius.xs,
+                topTrailingRadius: CornerRadius.md))
+        .contentShape(RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
         .frame(width: max(imageSize, 0), height: max(mapHeight, 0))
         .scaleEffect(disableMap ? 1 : 1.03)
         .overlay(alignment: .bottomTrailing) {
@@ -96,7 +96,7 @@ extension EventLocationMap {
                 .padding(6)
                 .padding(.horizontal, 2)
                 .background (
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.appCanvas)
                 )
                 .contentShape(.rect)

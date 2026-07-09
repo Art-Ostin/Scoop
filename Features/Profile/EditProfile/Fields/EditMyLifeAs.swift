@@ -93,7 +93,7 @@ extension EditMyLifeAs {
                             .foregroundStyle(isSelected ? .accent : .primary)
                             .overlay(alignment: .bottom) {
                                 if isSelected {
-                                    RoundedRectangle(cornerRadius: 16)
+                                    RoundedRectangle(cornerRadius: CornerRadius.md)
                                         .frame(width: 50, height: 3)
                                         .offset(y: 8)
                                         .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
@@ -121,7 +121,7 @@ extension EditMyLifeAs {
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 
-                RoundedRectangle(cornerRadius: 20, style: .circular)
+                RoundedRectangle(cornerRadius: CornerRadius.lg, style: .circular)
                     .frame(maxWidth: .infinity)
                     .frame(height: 1)
                     .foregroundStyle (Color.textPlaceholder)

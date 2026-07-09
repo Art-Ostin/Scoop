@@ -17,7 +17,7 @@ struct DeclineButton: View {
                     Circle()
                         .fill(Color.appCanvas)
                 )
-                .stroke(100, lineWidth: 1, color: Color.border)
+                .circleStroke(lineWidth: 1, color: Color.border)
                 .contentShape(Circle())
                 .shadow(color: .black.opacity(0.05), radius: 1.5, x: 0, y: 3)
                 .onTapGesture {onTap()}

@@ -94,7 +94,7 @@ extension CantMakeIt {
         } label: {
             Text("Cancel Date")
                 .frame(width: 120, height: 35)
-                .stroke(10, lineWidth: 2, color: Color.dangerRed)
+                .stroke(CornerRadius.sm, lineWidth: 2, color: Color.dangerRed)
                 .foregroundStyle(Color.dangerRed)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 24)

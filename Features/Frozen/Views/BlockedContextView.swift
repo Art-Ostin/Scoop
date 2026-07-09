@@ -49,11 +49,11 @@ struct BlockedContextView: View {
             .padding(.bottom, 8)
             .frame(width: 330, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: CornerRadius.md)
                     .foregroundStyle(Color.appCanvas)
                     .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
             )
-            .stroke(16, lineWidth: 1, color: Color.border)
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.border)
             .overlay(alignment: .bottomTrailing) {
                 Text("\(vm.user.name) " + (isBlock ? "didn't show" : "cancelled"))
                     .font(.body(12, .bold))

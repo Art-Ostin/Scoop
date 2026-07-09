@@ -49,7 +49,7 @@ struct PromptRow : View {
                 .foregroundStyle(isSelected ? Color.textAccent : Color.textPrimary)
                 .font(.body(16, prompt.prompt == text ? .bold : .medium))
 
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: CornerRadius.md)
                 .frame(height: 1, alignment: .leading)
                 .foregroundStyle(Color.border)
         }

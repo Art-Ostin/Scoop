@@ -41,8 +41,8 @@ extension MessageInputBar {
             .lineSpacing(2.5)
             .lineLimit(1...5)
             .focused(isFocused)
-            .glassEffectIfAvailable(clear: false, interactive: true, shape: RoundedRectangle(cornerRadius: 24))
-            .contentShape(RoundedRectangle(cornerRadius: 24))
+            .glassEffectIfAvailable(clear: false, interactive: true, shape: RoundedRectangle(cornerRadius: CornerRadius.xl))
+            .contentShape(RoundedRectangle(cornerRadius: CornerRadius.xl))
             .onTapGesture { isFocused.wrappedValue = true }
     }
     

@@ -134,7 +134,7 @@ private struct MessageBannerView: View {
                 .padding(.leading, 12)
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.appCanvas, in: .rect(cornerRadius: 16))
+                .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
                 .padding(.horizontal, 16)
                 .customShadow(.floating, strength: 0.5)
                 .offset(y: dragOffset)

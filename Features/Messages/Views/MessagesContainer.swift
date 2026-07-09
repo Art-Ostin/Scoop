@@ -91,7 +91,7 @@ extension MessagesContainer {
             SettingsButton { showSettings = true }
                 .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
                     source
-                        .clipShape(.rect(cornerRadius: 27)) // small performance improvement
+                        .clipShape(.rect(cornerRadius: 27)) //Circle in disguise: matchedTransitionSource only accepts RoundedRectangle
                         .background(Color.appCanvas)
                 }
                 .padding(.leading, -10) //So it anchors to the left

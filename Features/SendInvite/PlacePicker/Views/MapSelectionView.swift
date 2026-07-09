@@ -78,7 +78,7 @@ extension MapSelectionView {
                 .foregroundStyle(.white)
                 .frame(width: 250)
                 .frame(height: 50)
-                .background(Color.accent, in: .rect(cornerRadius: 24))
+                .background(Color.accent, in: .rect(cornerRadius: CornerRadius.xl))
         }
     }
     
@@ -100,13 +100,13 @@ extension MapSelectionView {
         if let lookAroundScene {
             LookAroundPreview(initialScene: lookAroundScene)
                 .frame(maxHeight: .infinity)
-                .clipShape(.rect(cornerRadius: 24))
+                .clipShape(.rect(cornerRadius: CornerRadius.xl))
         } else if isLoadingLookAround {
             ProgressView()
                 .frame(maxWidth: .infinity)
                 .frame(maxHeight: .infinity)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(.rect(cornerRadius: 24))
+                .clipShape(.rect(cornerRadius: CornerRadius.xl))
         } else {
             //Replace with cool design when made
             ClearRectangle(size: 140)
@@ -238,7 +238,7 @@ private struct MapSelectionAction<Icon: View>: View {
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? Color.textAccent : Color.textPlaceholder)
-        .stroke(24, lineWidth: 1.2, color: Color.border)
+        .stroke(CornerRadius.xl, lineWidth: 1.2, color: Color.border)
         .disabled(!isEnabled)
     }
 }

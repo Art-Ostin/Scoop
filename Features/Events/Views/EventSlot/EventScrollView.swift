@@ -24,7 +24,7 @@ struct EventScrollView: View {
                     .padding(.vertical, 6)
                     .padding(.horizontal, 8)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
+                        Capsule()
                             .inset(by: 0.5)
                             .stroke(Color.textAccent, lineWidth: 1)
                     )

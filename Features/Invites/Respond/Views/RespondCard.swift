@@ -105,7 +105,7 @@ extension RespondCard {
 
         let colour: Color = isModified ? .accent : (isValid ? .successGreen : .fillGray)
 
-        return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: 16)) {
+        return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: CornerRadius.md)) {
             if isModified {
                 confirmNewTimePopup = true
             } else {
@@ -129,7 +129,7 @@ extension RespondCard {
                 .foregroundStyle(Color.textSecondary)
                 .frame(width: 135)
                 .frame(height: 40)
-                .stroke(16, lineWidth: 1.5, color: Color.border)
+                .stroke(CornerRadius.md, lineWidth: 1.5, color: Color.border)
         }
     }
 }

@@ -130,7 +130,7 @@ extension ChatContainer {
     }
 
     private var profileButton: some View {
-        ScoopButton(shape: .rect(cornerRadius: 24)) {
+        ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
             onProfileTap()
         } label: {
             HStack(spacing: 6) {

@@ -116,7 +116,7 @@ extension GenericNationality {
                             .foregroundStyle(letterColor(String(char)))
                             .overlay(alignment: .bottom) {
                                 if scrollPosition == String(char) {
-                                    RoundedRectangle(cornerRadius: 16)
+                                    Capsule()
                                         .frame(width: 16, height: 2)
                                         .offset(y: 2)
                                         .matchedGeometryEffect(id: "underline", in: alphabetUnderline)
@@ -190,7 +190,7 @@ private struct FlagItem: View {
                 .font(.system(size: 24))
                 .padding(6)
                 .background(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .stroke(Color.border, lineWidth: 1)
                         .fill(isSelected ? Color.blue : Color.clear)
                 )

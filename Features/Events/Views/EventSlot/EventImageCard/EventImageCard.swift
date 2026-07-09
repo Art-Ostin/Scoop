@@ -26,7 +26,7 @@ struct EventImageCard: View {
         .padding(.bottom, 6)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: CornerRadius.md)
                 .fill(Color.appCanvas)
                 .eventCardShadowBackground()
         )

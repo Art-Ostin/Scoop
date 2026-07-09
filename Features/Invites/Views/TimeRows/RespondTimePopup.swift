@@ -108,7 +108,7 @@ extension RespondTimePopup {
             .padding(4)
             .kerning(0.5)
             .padding(.horizontal, 6)
-            .stroke(16, lineWidth: 1, color: Color.successGreen.opacity(0.2))
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.successGreen.opacity(0.2))
             .offset(y: -2)
     }
     
@@ -187,7 +187,7 @@ struct RespondTimeBackground: ViewModifier {
             .frame(width: cardWidth, alignment: .leading)
             .padding(.top, horizontalInset)
             .compositingGroup()
-            .clipShape(.rect(cornerRadius: 16, style: .continuous))
+            .clipShape(.rect(cornerRadius: CornerRadius.md, style: .continuous))
             .rectangleStroke(radius: 16, lineWidth: 1, color: Color.border)
     }
 }

@@ -45,8 +45,8 @@ extension PromptsView {
             .font(.body())
             .padding()
             .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
-            .background(Color.white, in: .rect(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke( isEmpty ? .accent : Color.border, lineWidth: 0.5))
+            .background(Color.white, in: .rect(cornerRadius: CornerRadius.sm))
+            .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm).stroke( isEmpty ? .accent : Color.border, lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
                 Image(isEmpty ? "EditButton" : "EditGray")
                     .padding()

@@ -63,10 +63,10 @@ extension RespondTextBubble {
     
     private var bubbleShape: MessageBubbleShape {
         MessageBubbleShape(
-            topLeadingRadius: 12,
+            topLeadingRadius: CornerRadius.sm,
             bottomLeadingRadius: isMyChat ? 12 : 0,
             bottomTrailingRadius: isMyChat ? 0 : 12,
-            topTrailingRadius: 12,
+            topTrailingRadius: CornerRadius.sm,
             tail: isMyChat ? .trailing : .leading)
     }
     

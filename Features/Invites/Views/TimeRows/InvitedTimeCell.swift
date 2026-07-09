@@ -123,8 +123,8 @@ extension View {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white, in: .rect(cornerRadius: 16))
+            .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
             .opacity(isAvailable ? 0.4 : 1)
-            .stroke(16, lineWidth: 1, color: isSelected ? Color.successGreen.opacity(0.35) : Color.border)
+            .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.successGreen.opacity(0.35) : Color.border)
     }
 }

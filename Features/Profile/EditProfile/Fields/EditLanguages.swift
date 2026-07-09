@@ -85,7 +85,7 @@ extension EditLanguages {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
             
-            RoundedRectangle(cornerRadius: 20, style: .circular)
+            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .circular)
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
                 .foregroundStyle (Color.textPlaceholder)

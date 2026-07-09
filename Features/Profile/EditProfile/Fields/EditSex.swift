@@ -128,7 +128,7 @@ extension GenericSex {
             .background(
                 Circle()
                     .fill(Color.clear)
-                    .stroke(100, lineWidth: 0.5, color: .black))
+                    .capsuleStroke(lineWidth: 0.5, color: .black))
             .padding(12)
             .contentShape(Circle())
     }
@@ -144,10 +144,10 @@ extension GenericSex {
                 .font(.body(14, .bold))
                 .foregroundStyle(Color.accent)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.appCanvas)
                         .shadow(color: .black.opacity(0.1), radius: 2, y: 2)
-                        .stroke(12, lineWidth: 1, color: .black)
+                        .stroke(CornerRadius.sm, lineWidth: 1, color: .black)
                 )
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 36)

@@ -62,7 +62,7 @@ struct UserInterests: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 10)
                 .font(.body(16))
-                .stroke(12, color: Color.border)
+                .stroke(CornerRadius.sm, color: Color.border)
         }
         .padding(.horizontal, -12)
     }

@@ -17,9 +17,9 @@ struct ImageCell: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)
-                .clipShape(.rect(cornerRadius: 10))
+                .imageClip(CornerRadius.thumb)
                 .customShadow(.floating)
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: CornerRadius.thumb)
                 .frame(width: size, height: size)
                 .foregroundStyle(Color.clear)
                 .overlay(alignment: .topTrailing) {
@@ -59,7 +59,7 @@ extension OnboardingPhotoCell {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 120, height: 120)
-                .clipShape(.rect(cornerRadius: 10))
+                .imageClip(CornerRadius.thumb)
         }
     }
     func loadPickedImage () async {

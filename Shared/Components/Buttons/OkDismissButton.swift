@@ -13,7 +13,7 @@ struct OkDismissButton: View {
         
         ScoopButton(
             style: .tinted(.accent, shadow: .medium),
-            shape: RoundedRectangle(cornerRadius: 16)
+            shape: RoundedRectangle(cornerRadius: CornerRadius.md)
         ) {
             dismiss()
         } label: {
@@ -32,7 +32,7 @@ struct OkDismissButton: View {
                 .foregroundStyle(Color.white)
                 .font(Font.body(17, .bold))
                 .background (
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
                         .foregroundStyle(Color.accent)
                         .shadow(color: .black.opacity(0.12), radius: 2, y: 4)
                 )

@@ -108,11 +108,11 @@ extension View {
     //Used on all the cards
     func eventCardShadowBackground() -> some View {
         self
-            .background (Color.appCanvas, in: .rect(cornerRadius: 16))
+            .background (Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
             .compositingGroup()
             .shadow(color: Color.black.opacity(0.0125), radius: 4, x: 0, y: 1)
             .shadow(color: Color.black.opacity(0.0075), radius: 12, x: 0, y: 0)
-            .stroke(16, lineWidth: 0.85, color: Color.border)
+            .stroke(CornerRadius.md, lineWidth: 0.85, color: Color.border)
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view

@@ -32,7 +32,7 @@ struct DetailsSection<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .center)
             .frame(height: adaptivePadding ? nil : 169)
             .padding(.vertical, adaptivePadding ? 12 : 0)
-            .stroke(20, lineWidth: 1, color: color)
+            .stroke(CornerRadius.lg, lineWidth: 1, color: color)
             .padding(.horizontal, 16)
             .overlay(alignment: .topLeading) {
                 if let title = self.title {

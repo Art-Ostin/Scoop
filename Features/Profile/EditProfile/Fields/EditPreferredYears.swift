@@ -47,7 +47,7 @@ private struct YearPill: View {
                 .frame(width: 148, height: 44)
                 .font(.body(16, .bold))
                 .foregroundStyle(isSelected ? Color.textAccent : Color.textTertiary)
-                .stroke(20, lineWidth: 1, color: isSelected ? Color.textPrimary : Color.border)
+                .capsuleStroke(lineWidth: 1, color: isSelected ? Color.textPrimary : Color.border)
                 .contentShape(Rectangle())
                 .overlay {
                     if !isSelected {

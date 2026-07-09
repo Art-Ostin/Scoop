@@ -21,7 +21,7 @@ struct EventMap: View {
         }
         .padding([.horizontal, .top], 4)
         .padding(.bottom, 16)
-        .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.border)
+        .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0, color: Color.border)
         .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .eventCardShadowBackground()
     }
@@ -82,7 +82,7 @@ extension EventMap {
                 .font(.system(size: 11, weight: .bold))
         }
         .frame(width: 75, height: 40)
-        .background(Color.white, in: .rect(cornerRadius: 10.5))
-        .stroke(10.5, lineWidth: 1, color: isMap ? Color.accent : Color.border)
+        .background(Color.white, in: .rect(cornerRadius: CornerRadius.sm))
+        .stroke(CornerRadius.sm, lineWidth: 1, color: isMap ? Color.accent : Color.border)
     }
 }
