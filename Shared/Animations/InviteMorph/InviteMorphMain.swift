@@ -16,8 +16,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     let containerSize: CGSize
     let hideCard: Bool
     let style: QuickInviteMorphStyle
-    // Source image the background layer blurs behind the card (nil → no image backdrop).
-    let image: UIImage?
     // Fires the instant the collapse lands, so the caller unmounts the cover in sync.
     let onCollapsed: () -> Void
     // "Hide" control in this full-screen layer so its tap region isn't clamped to the card frame.
@@ -32,8 +30,6 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
     @State private var cardHeight: CGFloat = 360
     @State private var measuredCardRect: CGRect? = nil
     @State private var popupOpen = false
-    // Dominant color of `image`, extracted once here and shared with both the backdrop and the card.
-    @State private var tint: Color = .clear
 
     private var sideMargin: CGFloat { style.sideMargin }
     private var cardWidth: CGFloat { max(0, containerSize.width - sideMargin * 2) }
@@ -59,22 +55,14 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
 
     var body: some View {
         return ZStack {
-            if let image {
-                InviteMorphBackground(expanded: expanded, image: image, tint: tint)
-            }
             Group {
                 surface
                 cardContent
             }
             .opacity(hideCard ? 0 : 1)
             .animation(.easeInOut(duration: 0.2), value: hideCard)
-            .environment(\.inviteCardTint, tint) // card reads this for its faint background wash
             if showsHideButton { hideButton }
             overlay()
-        }
-        .task {
-            guard let image else { return }
-            tint = await InviteMorphBackground.backgroundTint(from: image)
         }
         .coordinateSpace(name: morphCoordinateSpace)
         .onPreferenceChange(MorphCardFrameKey.self) { rect in

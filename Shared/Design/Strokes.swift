@@ -17,8 +17,6 @@ extension View {
             }
     }
 
-    /// Stroke variant for asymmetric corners (e.g. a card whose top and bottom
-    /// radii differ). Matches the shape the glass/background uses so they align.
     func rectangleStroke(corners: RectangleCornerRadii, lineWidth: CGFloat, color: Color = Color.border) -> some View {
         self
             .overlay {

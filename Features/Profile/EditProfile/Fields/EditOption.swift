@@ -66,46 +66,46 @@ enum OptionField: CaseIterable {
     
     var title: String {
         switch self {
-        case .sex: return "Sex"
-        case .attractedTo: return "Attracted To"
-        case .lookingFor: return "Looking For"
-        case .year: return "Year"
+        case .sex: "Sex"
+        case .attractedTo: "Attracted To"
+        case .lookingFor: "Looking For"
+        case .year: "Year"
         }
     }
     
     var options: [String] {
         switch self {
-        case .sex: return ["Female", "Male", "Enter your Sex"]
-        case .attractedTo: return ["Men", "Women", "Men & Women", "All Genders"]
-        case .lookingFor: return ["Short-term", "Long-term", "Undecided"]
-        case .year: return ["U0", "U1", "U2", "U3", "U4"]
+        case .sex: ["Female", "Male", "Enter your Sex"]
+        case .attractedTo: ["Men", "Women", "Men & Women", "All Genders"]
+        case .lookingFor: ["Short-term", "Long-term", "Undecided"]
+        case .year: ["U0", "U1", "U2", "U3", "U4"]
         }
     }
     
     var key: UserProfile.Field {
         switch self {
-        case .sex: return .sex
-        case .attractedTo: return .attractedTo
-        case .lookingFor: return .lookingFor
-        case .year: return .year
+        case .sex: .sex
+        case .attractedTo: .attractedTo
+        case .lookingFor: .lookingFor
+        case .year: .year
         }
     }
     
     var keyPath: WritableKeyPath<UserProfile, String> {
         switch self {
-        case .sex: return \.sex
-        case .attractedTo: return \.attractedTo
-        case .lookingFor: return \.lookingFor
-        case .year: return \.year
+        case .sex: \.sex
+        case .attractedTo: \.attractedTo
+        case .lookingFor: \.lookingFor
+        case .year: \.year
         }
     }
     
     var keyPathDraft: WritableKeyPath<DraftProfile, String> {
         switch self {
-        case .sex: return \.sex
-        case .attractedTo: return \.attractedTo
-        case .lookingFor: return \.lookingFor
-        case .year: return \.year
+        case .sex: \.sex
+        case .attractedTo: \.attractedTo
+        case .lookingFor: \.lookingFor
+        case .year: \.year
         }
     }
 }

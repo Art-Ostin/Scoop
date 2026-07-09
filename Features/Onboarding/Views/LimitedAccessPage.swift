@@ -83,9 +83,9 @@ enum OnboardingPage: CaseIterable {
     
     private var data: (title: String, imageName: String, description: String) {
         switch self {
-        case .meet: return ("Meet", "Plants", "View weekly profiles here & send a Time and Place to Meet.")
-        case .meeting: return ("Meeting", "EventCups", "Details for upcoming meet ups appear here.")
-        case .message: return ("Message", "DancingCats", "View & message your previous matches here")
+        case .meet: ("Meet", "Plants", "View weekly profiles here & send a Time and Place to Meet.")
+        case .meeting: ("Meeting", "EventCups", "Details for upcoming meet ups appear here.")
+        case .message: ("Message", "DancingCats", "View & message your previous matches here")
         }
     }
 }

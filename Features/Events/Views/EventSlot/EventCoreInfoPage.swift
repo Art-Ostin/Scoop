@@ -14,14 +14,10 @@ enum TextCoreInfo: CaseIterable {
     
     func image(event: UserEvent) -> String {
         switch self {
-        case .certified:
-            return "TickVector"
-        case .type:
-            return  event.type.emoji
-        case .message:
-           return "💬"
-        case .warning:
-            return "⚠️"
+        case .certified: "TickVector"
+        case .type: event.type.emoji
+        case .message: "💬"
+        case .warning: "⚠️"
         }
     }
     

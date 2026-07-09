@@ -18,7 +18,23 @@ struct ImageCarousel: View {
     @Binding var scrollProgress: Double
     @Binding var scrollPosition: ScrollPosition
     
-    
+    init(
+        images: [UIImage],
+        hPadding: CGFloat,
+        topRadius: CGFloat,
+        bottomRadius: CGFloat,
+        aspectRatio: CGFloat,
+        scrollProgress: Double
+        scrollPosition: ScrollPosition
+    ) {
+        self.images = images
+        self.hPadding = hPadding
+        self.topRadius = topRadius
+        self.bottomRadius = bottomRadius
+        self.aspectRatio = aspectRatio
+        self.scrollProgress = scrollProgress
+        self.scrollPosition = scrollPosition
+    }
     
     
     var body: some View {

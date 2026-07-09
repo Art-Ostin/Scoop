@@ -13,13 +13,13 @@ enum InAppNotification: Identifiable, Equatable {
 
     var id: String {
         switch self {
-        case .newMessage(let p): return "message-\(p.eventId)"
+        case .newMessage(let p): "message-\(p.eventId)"
         }
     }
 
     var eventId: String? {
         switch self {
-        case .newMessage(let p): return p.eventId
+        case .newMessage(let p): p.eventId
         }
     }
 }

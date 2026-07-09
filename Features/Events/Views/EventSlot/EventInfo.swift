@@ -74,14 +74,10 @@ enum EventInfoData: CaseIterable {
     //Update when I actually have an image to add
     var image: String {
         switch self {
-        case .confirmed:
-            return "CoolGuys"
-        case .eventType:
-            return "CoolGuys"
-        case .message:
-            return "CoolGuys"
-        case .noShow:
-            return "CoolGuys"
+        case .confirmed: "CoolGuys"
+        case .eventType: "CoolGuys"
+        case .message: "CoolGuys"
+        case .noShow: "CoolGuys"
         }
     }
     

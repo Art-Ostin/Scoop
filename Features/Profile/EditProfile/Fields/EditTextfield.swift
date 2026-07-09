@@ -108,33 +108,33 @@ enum TextFieldOptions: CaseIterable {
     
     var title: String {
         switch self {
-        case .degree: return "Degree"
-        case .hometown: return "Hometown"
-        case .name: return "Name"
+        case .degree: "Degree"
+        case .hometown: "Hometown"
+        case .name: "Name"
         }
     }
 
     var key: UserProfile.Field {
         switch self {
-        case .degree: return .degree
-        case .hometown: return .hometown
-        case .name: return .name
+        case .degree: .degree
+        case .hometown: .hometown
+        case .name: .name
         }
     }
     
     var keyPath: WritableKeyPath<UserProfile, String> {
         switch self {
-        case .degree: return \.degree
-        case .hometown: return \.hometown
-        case .name: return \.name
+        case .degree: \.degree
+        case .hometown: \.hometown
+        case .name: \.name
         }
     }
     
     var draftKeyPath: WritableKeyPath<DraftProfile, String> {
         switch self {
-        case .degree: return \.degree
-        case .hometown: return \.hometown
-        default : return \.degree
+        case .degree: \.degree
+        case .hometown: \.hometown
+        default: \.degree
         }
     }
 }

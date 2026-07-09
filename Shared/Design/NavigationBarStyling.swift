@@ -13,9 +13,6 @@ import SwiftUI
 import UIKit
 
 
-
-
-
 extension Comparable {
     func clamped(to r: ClosedRange<Self>) -> Self {
         min(max(self, r.lowerBound), r.upperBound)

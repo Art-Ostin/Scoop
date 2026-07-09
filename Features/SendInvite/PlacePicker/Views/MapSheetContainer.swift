@@ -126,10 +126,10 @@ enum MapSheets: CaseIterable, Equatable {
 
     static func from(detent: PresentationDetent) -> Self {
         switch detent {
-        case searchDetent:  return .searchBar
-        case optionsDetent: return .optionsAndSearchBar
-        case selectedDetent:return .optionsAndSearchBar
-        default:            return .large
+        case searchDetent:  .searchBar
+        case optionsDetent: .optionsAndSearchBar
+        case selectedDetent: .optionsAndSearchBar
+        default:            .large
         }
     }
 }

@@ -65,8 +65,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     // Hides the morph card while a sibling confirm alert is up.
     let hideCard: Bool
     let style: QuickInviteMorphStyle
-    // Resolves the source image for the morphing id so the background can present it.
-    let image: (String) -> UIImage?
     @ViewBuilder let card: (String) -> Card
     // Full-screen sibling of the card (e.g. confirm alert) so its dim covers the whole screen.
     @ViewBuilder let overlay: () -> Overlay
@@ -109,7 +107,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
                     containerSize: geo.size,
                     hideCard: hideCard,
                     style: style,
-                    image: image(id),
                     onCollapsed: { if openPopupId == nil { withoutCoverAnimation { morphState.activeId = nil } } },
                     showsHideButton: style.showsHideButton,
                     onHide: { openPopupId = nil },
@@ -143,17 +140,6 @@ struct QuickInviteMorphPresenter<Card: View, Overlay: View>: ViewModifier {
     }
 }
 
-
-// Full-screen confirm alert for the morph send flow; pass-through while idle.
-struct MorphConfirmAlert: View {
-    @Binding var pending: (() -> Void)?
-
-    var body: some View {
-        Color.clear
-            .respondCustomAlert(isPresented: $pending.isPresent(), type: .newInvite, hideAnimation: .easeInOut(duration: 0.09)) { pending?() }
-            .allowsHitTesting(pending != nil)
-    }
-}
 
 // MARK: - Anchors
 
@@ -261,10 +247,9 @@ extension View {
         openPopupId: Binding<String?>,
         hideCard: Bool = false,
         style: QuickInviteMorphStyle = .send,
-        image: @escaping (String) -> UIImage? = { _ in nil },
         @ViewBuilder card: @escaping (String) -> Card,
         @ViewBuilder overlay: @escaping () -> Overlay
     ) -> some View {
-        modifier(QuickInviteMorphPresenter(openPopupId: openPopupId, hideCard: hideCard, style: style, image: image, card: card, overlay: overlay))
+        modifier(QuickInviteMorphPresenter(openPopupId: openPopupId, hideCard: hideCard, style: style, card: card, overlay: overlay))
     }
 }

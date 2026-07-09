@@ -104,16 +104,6 @@ extension ProfileContainer {
         }
     }
 
-    @ViewBuilder var morphOverlay: some View {
-        switch mode {
-        case .respondToInvite(_, let onResponse):
-            Color.clear.respondConfirmAlerts(ui: respondUI, onResponse: onResponse)
-        default:
-            MorphConfirmAlert(pending: $pendingInvite)
-        }
-    }
-
-    
     func animateDismiss(releaseVelocity: CGFloat) {
         guard let morph else { onDismissStart?(); onDismiss?(); return }
         guard morph.canMorphClose else { animateSnapBack(releaseVelocity: releaseVelocity); return }
@@ -133,41 +123,7 @@ extension ProfileContainer {
         }
     }
     
-    var sendInviteMorphId: Binding<String?> {
-        Binding(
-            get: {
-                guard ui.showPopup else { return nil }
-                switch mode {
-                case .sendInvite, .respondToInvite: return vm.profile.id
-                default: return nil
-                }
-            },
-            set: { ui.showPopup = ($0 != nil) }
-        )
-    }
-    
     func dismissProfile() {
         animateDismiss(releaseVelocity: 0)
     }
 }
-
-
-
-/*
- @ViewBuilder var sendInviteMorphCard: some View {
-     switch mode {
-     case .sendInvite(let onSend, _):
-         let inviteModel = InviteContext(profileId: vm.profile.id, name: vm.profile.name, image: profileImages.first ?? UIImage())
-         InviteTimeAndPlaceView(
-             vm: TimeAndPlaceViewModel(inviteModel: inviteModel, defaults: vm.defaults),
-             sendInvite: onSend,
-             requestConfirm: { pendingInvite = $0 }
-         )
-     case .respondToInvite(let respondVM, let onResponse):
-         RespondContainer(vm: respondVM, ui: respondUI, onHide: { ui.showPopup = false }, onResponse: onResponse)
-     default:
-         EmptyView()
-     }
- }
-
- */

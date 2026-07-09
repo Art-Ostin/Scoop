@@ -15,10 +15,8 @@ enum MapsRouter {
     static func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
                 
         switch defaults.preferredMapType {
-        case .appleMaps:
-            return openAppleMaps(item: item, withDirections: withDirections)
-        case .googleMaps:
-            return openGoogleMaps(item: item, withDirections: withDirections)
+        case .appleMaps: openAppleMaps(item: item, withDirections: withDirections)
+        case .googleMaps: openGoogleMaps(item: item, withDirections: withDirections)
         }
     }
     

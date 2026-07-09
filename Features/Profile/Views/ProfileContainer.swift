@@ -18,8 +18,6 @@ struct ProfileContainer: View {
     // State
     @State var vm: ProfileViewModel
     @State var ui = ProfileUIState()
-    @State var pendingInvite: (() -> Void)?
-    @State var respondUI = RespondPopupUIState()
 
     let mode: ProfileMode
     let profileImages: [UIImage]
@@ -31,10 +29,6 @@ struct ProfileContainer: View {
 
     var displayImages: [UIImage] {
         isUserProfile ? profileImages : vm.images
-    }
-    
-    var isRespondMode: Bool {
-        if case .respondToInvite = mode {true} else {false}
     }
     
     var isUserProfile: Bool {
@@ -77,21 +71,6 @@ struct ProfileContainer: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
-        .quickInvite(
-            openPopupId: sendInviteMorphId,
-            hideCard: pendingInvite != nil,
-            // ProfileContainer already covers the tab bar, so present as an overlay to skip the
-            // cover-presentation latency that makes the morph pop in collapsed before opening.
-            style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
-                .presentedAsOverlay()
-                .tinted(vm.viewProfileType == .invite ? .accent : .successGreen)
-                .sideMargin(SendInviteContainer.screenMargin),
-            image: { _ in displayImages.first }
-        ) { _ in
-//            sendInviteMorphCard
-        } overlay: {
-            morphOverlay
-        }
     }
 }
 

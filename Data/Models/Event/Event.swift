@@ -67,80 +67,55 @@ extension Event.EventType {
     
     var title: String {
         switch self {
-            case .drink:
-                return "Drink"
-            case .doubleDate:
-                return  "Double Date"
-            case .socialMeet:
-                return "Social"
-            case .custom:
-                return "Custom Meet"
-            }
+        case .drink: "Drink"
+        case .doubleDate: "Double Date"
+        case .socialMeet: "Social"
+        case .custom: "Custom Meet"
+        }
     }
     
     var longTitle: String {
         switch self {
-            case .drink:
-                return "Grab a Drink"
-            case .doubleDate:
-                return  "Double Date"
-            case .socialMeet:
-                return "Social Meet"
-            case .custom:
-                return "Custom Meet"
-            }
+        case .drink: "Grab a Drink"
+        case .doubleDate: "Double Date"
+        case .socialMeet: "Social Meet"
+        case .custom: "Custom Meet"
+        }
     }
     
     var emoji: String {
         switch self {
-            case .drink:
-                return "🍻"
-            case .doubleDate:
-                return  "🎑"
-            case .socialMeet:
-                return "🪩"
-            case .custom:
-                return "✒️"
-            }
+        case .drink: "🍻"
+        case .doubleDate: "🎑"
+        case .socialMeet: "🪩"
+        case .custom: "✒️"
+        }
     }
     
     var textPlaceholder: String {
         switch self {
-            case .drink:
-                return "E.g. Lets get a drink"
-            case .doubleDate:
-                return  "E.g. My friends instagram is @, let do a double dateee if you're down!"
-            case .socialMeet:
-                return "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
-            case .custom:
-                return "E.g. Throwing a house party on Friday, you should come along with your friends"
-            }
+        case .drink: "E.g. Lets get a drink"
+        case .doubleDate: "E.g. My friends instagram is @, let do a double dateee if you're down!"
+        case .socialMeet: "E.g. Some mates and I are going to SAT to see Overmono. We should pre Together!"
+        case .custom: "E.g. Throwing a house party on Friday, you should come along with your friends"
+        }
     }
     
     var howItWorks: String {
         switch self {
-        case .drink:
-            return "Meet up just the two of you and grab a drink together"
-        case .doubleDate:
-            return "Both bring a friend and meet for a double Date"
-        case .socialMeet:
-            return "Go with hour friends to the venue and meet them & their friends there"
-        case .custom:
-            return "For a custom meet, do whatever the other person has proposed in the invite."
+        case .drink: "Meet up just the two of you and grab a drink together"
+        case .doubleDate: "Both bring a friend and meet for a double Date"
+        case .socialMeet: "Go with hour friends to the venue and meet them & their friends there"
+        case .custom: "For a custom meet, do whatever the other person has proposed in the invite."
         }
     }
     
     func howItWorksEvent(_ name: String) -> String { //Update later
         switch self {
-        case .drink:
-            return "Meet up just the two of you and grab a drink together"
-        case .doubleDate:
-            return "Both bring a friend and meet for a double Date"
-        case .socialMeet:
-            return "Go with hour friends to the venue and meet them & their friends there"
-        case .custom:
-            return "For a custom meet, do whatever the other person has proposed in the invite."
-            
+        case .drink: "Meet up just the two of you and grab a drink together"
+        case .doubleDate: "Both bring a friend and meet for a double Date"
+        case .socialMeet: "Go with hour friends to the venue and meet them & their friends there"
+        case .custom: "For a custom meet, do whatever the other person has proposed in the invite."
         }
     }
     
@@ -149,23 +124,19 @@ extension Event.EventType {
     
     func howItWorksWithEvent(_ event: UserEvent) -> String {
         switch self {
-        case .drink:
-            return "When its time head to \(event.location.name ?? "the bar") and grab a drink together!"
-        case .doubleDate:
-            return "Both bring a friend and meet at \(event.location.name ?? "the venue") for a double Date!"
-        case .socialMeet:
-            return "Go with your friends to \(event.location.name ?? "the venue") and meet \(event.otherUserName) and their friends there."
-        case .custom:
-            return "For a custom meet, do whatever the other person has proposed in the invite."
+        case .drink: "When its time head to \(event.location.name ?? "the bar") and grab a drink together!"
+        case .doubleDate: "Both bring a friend and meet at \(event.location.name ?? "the venue") for a double Date!"
+        case .socialMeet: "Go with your friends to \(event.location.name ?? "the venue") and meet \(event.otherUserName) and their friends there."
+        case .custom: "For a custom meet, do whatever the other person has proposed in the invite."
         }
     }
     
     var image: String {
         switch self {
-        case .drink: return "EventCups"
-        case .doubleDate: return "CoolGuys"
-        case .socialMeet: return "CoolGuys"
-        case .custom: return "CoolGuys"
+        case .drink: "EventCups"
+        case .doubleDate: "CoolGuys"
+        case .socialMeet: "CoolGuys"
+        case .custom: "CoolGuys"
         }
     }
     
@@ -173,8 +144,8 @@ extension Event.EventType {
     // has something to choose from; custom and social meets accept a single slot.
     var minProposedTimes: Int {
         switch self {
-        case .drink, .doubleDate: return 2
-        case .custom, .socialMeet: return 1
+        case .drink, .doubleDate: 2
+        case .custom, .socialMeet: 1
         }
     }
 }

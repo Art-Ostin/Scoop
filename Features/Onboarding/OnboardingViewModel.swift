@@ -29,10 +29,8 @@ import FirebaseAuth
     var direction: TransitionDirection = .forward
     var transitionStep: AnyTransition {
         switch direction {
-        case .forward:
-            return  .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
-        case .back:
-            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+        case .forward: .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+        case .back: .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
         }
     }
 
@@ -64,7 +62,7 @@ import FirebaseAuth
     }
     
     var draftProfile: DraftProfile? {
-        return defaultManager.signUpDraft
+        defaultManager.signUpDraft
     }
     
     

@@ -13,28 +13,25 @@ enum DetailInfo: CaseIterable {
     
     func title(_ event: UserEvent) -> String {
         switch self {
-        case .time: return "Time"
-        case .message: return "Message"
-        case .event: return "Meet"
+        case .time: "Time"
+        case .message: "Message"
+        case .event: "Meet"
         }
     }
-    
+
     func message(_ event: UserEvent) -> String {
         switch self {
-        case .time:
-            return "Choose a time, or suggest a new one, or send \(event.otherUserName) a new invite."
-        case .message:
-            return "Once accepted, you can message to coordinate details and find each other."
-        case .event:
-            return event.type.howItWorksWithEvent(event)
+        case .time: "Choose a time, or suggest a new one, or send \(event.otherUserName) a new invite."
+        case .message: "Once accepted, you can message to coordinate details and find each other."
+        case .event: event.type.howItWorksWithEvent(event)
         }
     }
-    
+
     var image: String {
         switch self {
-        case .time: return "MiniClockIcon"
-        case .message: return "SmallMessageIcon"
-        case .event: return "FilledCup"
+        case .time: "MiniClockIcon"
+        case .message: "SmallMessageIcon"
+        case .event: "FilledCup"
         }
     }
 }

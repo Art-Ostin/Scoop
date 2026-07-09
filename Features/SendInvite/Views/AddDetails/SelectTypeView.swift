@@ -128,17 +128,10 @@ extension SelectTypeView {
     //1. Each text different kerning so they're all in line
     private func kerningAmount(_ type: Event.EventType) -> CGFloat {
         switch type {
-        case .socialMeet:
-            return 1.25
-            
-        case .doubleDate:
-            return 0.75
-            
-        case .drink:
-            return 0.525
-            
-        case .custom:
-            return -0.3
+        case .socialMeet: 1.25
+        case .doubleDate: 0.75
+        case .drink: 0.525
+        case .custom: -0.3
         }
     }
 
