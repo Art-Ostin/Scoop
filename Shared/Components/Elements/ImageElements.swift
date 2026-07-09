@@ -10,9 +10,10 @@ import SwiftUI
 //Expands full width of view, and height set proportional
 struct GreedyImage: View {
 
+    let image: UIImage
+    let hPadding: CGFloat
     var aspectRatio: CGFloat = 1/1.05
     
-    let image: UIImage
     
     var body: some View {
         Color.clear
@@ -22,6 +23,8 @@ struct GreedyImage: View {
                     .resizable()
                     .scaledToFill()
             }
+            .padding(.horizontal, hPadding)
+            .containerRelativeFrame(.horizontal)
     }
 }
 

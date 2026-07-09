@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct CornerRadius: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+enum CornerRadius {
+    static let xs: CGFloat = 8    // chips, small tags
+    static let sm: CGFloat = 12   // buttons, inputs, rows
+    static let md: CGFloat = 16   // default card
+    static let lg: CGFloat = 20   // large cards
+    static let xl: CGFloat = 24   // sheets, hero images
+    static let xxl: CGFloat = 32  // full-bleed / large surfaces
 }
 
-#Preview {
-    CornerRadius()
-}
+

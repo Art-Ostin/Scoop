@@ -14,7 +14,6 @@ struct MeetContainer: View {
     
     let vm: MeetViewModel
     @State private var ui = MeetUIState()
-    @State var imageSize: CGFloat = 0
 
     // Holds the pending send action while the morph's confirm alert is up. Hoisted here
     // so the alert can be presented full-screen above the (frame-clamped) morph card.
@@ -34,20 +33,13 @@ struct MeetContainer: View {
             Color.appCanvas.ignoresSafeArea()
             NavigationStack {
                 meetView
-                    .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
                     .navigationTitle("Meet")
             }
-            //Meet chrome (info button included) goes inert while the invite card is open;
-            //visually it's covered by the invite overlay's root backdrop (see inviteOverlay).
             .overlay(alignment: .topTrailing) {infoButton}
             .allowsHitTesting(!ui.quickInviteExpanded)
         }
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
-        //The quick-invite card presents at the app root, ABOVE the TabView, like
-        //profiles do: the tab bar never hides (its native visibility flip can't
-        //animate) — the overlay's backdrop covers it, and the swipe-dismiss scrubs
-        //the backdrop away, fading bar + meet list back in with the finger.
         .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
@@ -123,7 +115,6 @@ extension MeetContainer {
             onTap: { image in openProfile(profile, image: image) },
             onQuickInvite: { image in openQuickInvite(profile, image: image) },
             profile: profile,
-            size: imageSize,
             imageLoader: vm.imageLoader,
             quickInviteHidden: ui.quickInvite?.id == profile.id
         )

@@ -8,47 +8,37 @@
 import SwiftUI
 
 struct ProfileCard : View {
-
-    //Hands back the image actually on screen, so the profile morph flies exactly it.
-    let onTap: (UIImage) -> Void
-    //Same contract for the quick-invite flight.
-    let onQuickInvite: (UIImage) -> Void
-    let profile: PendingProfile
-    let size: CGFloat
-    let imageLoader: ImageLoading
-    let quickInviteHidden: Bool
-
-    private let cardCornerRadius: CGFloat = 22
-
-    @State private var image: UIImage?
+    
     @State private var nameFrame: CGRect = .zero
     @State private var detailsFrame: CGRect = .zero
+    
+    let cardSpace = "ProfileCard"
+    
+    let profile: PendingProfile
+    let quickInviteHidden: Bool
 
-    private var displayImage: UIImage {
-        image ?? profile.image
-    }
-
+    let onTap: (UIImage) -> Void
+    let onQuickInvite: (UIImage) -> Void
+    
     var body: some View {
-
-        Image(uiImage: displayImage)
-            .profileImageCard(size, hideImage: quickInviteHidden)
-
-            .overlay {
-                BackgroundBlur(image: displayImage, frames: [nameFrame, detailsFrame])
-                    .opacity(quickInviteHidden ? 0 : 1)
-                    .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
-            }
-            .overlay(alignment: .bottomLeading) { cardOverlay.opacity(quickInviteHidden ? 0 : 1).animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden) }
-
-            .profileShrinkPress {onTap(displayImage)}
-
-            .coordinateSpace(name: ProfileCard.cardSpace)
-            .task(id: profile.id) { await fetchFirstImage() }
-            .profileMorphSource(id: profile.profile.id, cornerRadius: cardCornerRadius)
+        profileCardImage
+            .overlay {backgroundBlur}
+            .overlay(alignment: .bottomLeading) {cardOverlay}
+            .profileShrinkPress {onTap(profile.image)}
+            .coordinateSpace(name: cardSpace)
+            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.lg)
     }
 }
 
 extension ProfileCard {
+    
+    private var profileCardImage: some View {
+        GreedyImage(image: profile.image, hPadding: 16, aspectRatio: 1/1.12)
+            .clipShape(.rect(cornerRadius: CornerRadius.lg, style: .continuous))
+            .opacity(quickInviteHidden ? 0 : 1)
+            .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous))
+            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
+    }
 
     private var cardOverlay: some View {
         HStack(alignment: .bottom) {
@@ -58,11 +48,13 @@ extension ProfileCard {
         }
         .padding(.vertical, 16)
         .padding(.horizontal)
+        .opacity(quickInviteHidden ? 0 : 1)
+        .animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden)
     }
 
     private var inviteButton: some View {
         InviteButton(isInviting: true, morphId: profile.profile.id) {
-            onQuickInvite(displayImage)
+            onQuickInvite(profile.image)
         }
     }
 
@@ -71,37 +63,20 @@ extension ProfileCard {
             let p = profile.profile
             Text(p.name)
                 .font(.title(26))
-                .getViewsRect($nameFrame, coordSpace: ProfileCard.cardSpace)
+                .getViewsRect($nameFrame, coordSpace: cardSpace)
 
             Text("\(p.year) | \(p.degree) | \(p.hometown)")
                 .font(.body(14, .medium))
-                .getViewsRect($detailsFrame, coordSpace: ProfileCard.cardSpace)
+                .getViewsRect($detailsFrame, coordSpace: cardSpace)
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
     }
     
-    func fetchFirstImage() async {
-        image = try? await imageLoader.fetchFirstImage(profile: profile.profile)
+    private var backgroundBlur: some View {
+        BackgroundBlur(image: profile.image, frames: [nameFrame, detailsFrame])
+            .opacity(quickInviteHidden ? 0 : 1)
+            .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
     }
 }
 
-extension ProfileCard {
-    fileprivate static let cardSpace = "ProfileCard.card"
-}
-
-extension Image {
-
-    func profileImageCard(_ size: CGFloat, ratio: CGFloat = 1.12, hideImage: Bool = false) -> some View {
-        self
-            .resizable()
-            .scaledToFill()
-            .frame(width: max(size, 0), height: max(size, 0) * ratio) //How much taller than wide i.e. 12%
-            .clipShape(.rect(cornerRadius: 20, style: .continuous)) //Corner Radius 22
-            .opacity(hideImage ? 0 : 1) //Pixel-covered by the quick-invite flight copy; never animated
-            //Canvas fill exists only to give the shadow a shape — hidden with the image so the
-            //reserved slot renders NOTHING behind a swipe-dismiss drag (the layout gap remains).
-            .background(hideImage ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: 20, style: .continuous))
-            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
-    }
-}

@@ -33,7 +33,7 @@ struct ImageCarousel: View {
     }
 
     private func carouselImage(_ image: UIImage) -> some View {
-        GreedyImage(aspectRatio: aspectRatio, image: image)
+        GreedyImage(image: image, hPadding: hPadding, aspectRatio: aspectRatio)
             .clipShape(.rect(
                 topLeadingRadius: topRadius,
                 bottomLeadingRadius: bottomRadius,
@@ -41,10 +41,11 @@ struct ImageCarousel: View {
                 topTrailingRadius: topRadius,
                 style: .continuous
             ))
-            .padding(.horizontal, hPadding) //Critical padding goes before containerRelativeFrame
-            .containerRelativeFrame(.horizontal)
     }
 }
+
+
+
 
 
 struct HorizontalScrollView<Content: View>: View {
