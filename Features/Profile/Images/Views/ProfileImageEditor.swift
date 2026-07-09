@@ -13,7 +13,6 @@ struct ProfileImageEditor: View {
     
     @State private var importedImage: ImageSlot
     @Environment(\.dismiss)  var dismiss
-    @State private var imageSize: CGFloat = 0
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
     
@@ -30,41 +29,25 @@ struct ProfileImageEditor: View {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
                 
-                Image(uiImage: importedImage.image)
-                    .defaultImage(imageSize, 16)
+                GreedyImage(image: importedImage.image, hPadding: 16, aspectRatio: 1/1.05)
                     .overlay(alignment: .bottomTrailing) { changeImageButton }
                     .overlay(alignment: .bottomLeading) { cropPhotoIcon }
+                
                 
                 saveButton
                     .padding(.top, 24)
             }
             .padding(.top, 120)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .getImageSize(imageSize: $imageSize, horizontalPadding: 8)
-            
-            
             
             cancelButton
-                .padding(.top, 16)
-                .padding(.trailing, 6)
-                .zIndex(1)
         }
         .task(id: item) { await loadImage() }
-        .fullScreenCover(isPresented: $showImageCropper) {
-            let configuration = SwiftyCropConfiguration(maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
-            SwiftyCropView(
-                imageToCrop: importedImage.image,
-                maskShape: .square,
-                configuration: configuration
-            ) { croppedImage in
-                if let newCroppedImage = croppedImage {
-                    importedImage.image = newCroppedImage
-                }
-            }
-        }
+        .fullScreenCover(isPresented: $showImageCropper) {cropView}
     }
 }
 
+//Buttons
 extension ProfileImageEditor {
     
     private var cancelButton: some View {
@@ -78,6 +61,9 @@ extension ProfileImageEditor {
                 .padding(.horizontal, 16)
                 .contentShape(Rectangle())
         }
+        .padding(.top, 16)
+        .padding(.trailing, 6)
+        .zIndex(1)
     }
     
     private var saveButton: some View {
@@ -116,7 +102,7 @@ extension ProfileImageEditor {
         }
     }
     
-    private var cropPhotoIcon : some View {
+    private var cropPhotoIcon: some View {
         Button {
             showImageCropper = true
         } label: {
@@ -138,4 +124,21 @@ extension ProfileImageEditor {
             print(error)
         }
     }
+}
+
+extension ProfileImageEditor {
+     
+    private var cropView: some View {
+        let configuration = SwiftyCropConfiguration(maxMagnificationScale: 6.0, zoomSensitivity: 6.0)
+        return SwiftyCropView(
+            imageToCrop: importedImage.image,
+            maskShape: .square,
+            configuration: configuration
+        ) { croppedImage in
+            if let newCroppedImage = croppedImage {
+                importedImage.image = newCroppedImage
+            }
+        }
+    }
+    
 }

@@ -15,6 +15,17 @@ extension View {
         .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
         .shadow(color: color.opacity(0.04), radius: 20, x: 0, y: 0)
     }
+    
+    @ViewBuilder
+    func cardShadow(showShadow: Bool) -> some View {
+        if showShadow {
+            self
+                .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 8)
+        } else {
+            self
+        }
+    }
 }
 
 enum ShadowStyle {

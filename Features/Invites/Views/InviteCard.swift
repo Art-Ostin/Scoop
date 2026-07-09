@@ -21,7 +21,6 @@ struct InviteCard: View {
     
     //3. Profile to pass in and dimiss logic
     let eventProfile: EventProfile
-    let imageSize: CGFloat
     let onRespond: () -> Void
     
     @State var profileNameBounds: CGRect = .zero
@@ -33,19 +32,14 @@ struct InviteCard: View {
     
     var body: some View {
         VStack(spacing: 36) {
-            Image(uiImage: eventProfile.image ?? UIImage())
-                .profileImageCard(imageSize, ratio: 1.5)
+            GreedyImage(image: eventProfile.image ?? UIImage(), hPadding: 16, aspectRatio: 1/1.5)
                 .onTapGesture {openProfile()}
                 .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: 24))
-                .overlay {backgroundBlur}
+                .overlay {BackgroundBlur(image: mainImage, frames: [profileNameBounds])}
                 .overlay(alignment: .bottomLeading) {inviteCardOverlay}
                 .coordinateSpace(name: "ProfileCard")
-            
-            RoundedRectangle(cornerRadius: 1)
-                .fill(Color.border)
-                .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal, 72)
-                .padding(.vertical, 4)
+
+            LightDivider()
         }
     }
 }
@@ -66,10 +60,6 @@ extension InviteCard {
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .named("ProfileCard")) } action: { profileNameBounds = $0 }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 16)
-    }
-
-    private var backgroundBlur: some View {
-        BackgroundBlur(image: mainImage, frames: [profileNameBounds])
     }
 
     private func openProfile() {

@@ -19,13 +19,11 @@ struct InvitesContainer: View {
     //Invite-card image → profile pager hero morph (see ProfileMorph.swift)
     @State private var profileMorph = ProfileMorphState()
 
-    @State var imageSize: CGFloat = 0
     
     var body: some View {
         NavigationStack {
             AppScrollView(title: "Invites") {
                 invitesView
-                    .getImageSize(imageSize: $imageSize, horizontalPadding: 16)
             }
         }
         .profileMorphHost(profileMorph)
@@ -133,7 +131,6 @@ extension InvitesContainer {
             selectedProfile: $ui.selectedProfile,
             draft: vm.draftBinding(for: invite),
             eventProfile: invite,
-            imageSize: imageSize,
             onRespond: {ui.showRespondPopup = invite.event.id}
         )
         .task { await vm.ensureImagesLoaded(for: invite.profile) }

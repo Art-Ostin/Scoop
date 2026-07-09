@@ -4,10 +4,7 @@
 //
 //  Created by Art Ostin on 08/08/2025.
 //
-
 import SwiftUI
-import Lottie
-
 
 
 struct MeetContainer: View {
@@ -112,11 +109,10 @@ extension MeetContainer {
     
     private func profileCard(_ profile: PendingProfile)-> some View {
         ProfileCard(
-            onTap: { image in openProfile(profile, image: image) },
-            onQuickInvite: { image in openQuickInvite(profile, image: image) },
             profile: profile,
-            imageLoader: vm.imageLoader,
-            quickInviteHidden: ui.quickInvite?.id == profile.id
+            quickInviteHidden: ui.quickInvite?.id == profile.id,
+            onTap: {image in openProfile(profile, image: image)},
+            onQuickInvite: {image in openQuickInvite(profile, image: image)}
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
         .customShadow(.card, strength: 4)//Shadow works Nicely Keep!

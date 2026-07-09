@@ -34,7 +34,9 @@ struct EventsContainer: View {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-        .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 22) //16 padding, /6 inside padding on card
+        
+        
+        
         .hideTabBar(hideBar: !path.isEmpty) //Chat: path-based, so it reappears the moment you pop (no flicker)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
@@ -46,11 +48,6 @@ struct EventsContainer: View {
 //The Event Slots screens
 extension EventsContainer {
 
-    //Same shell as the other containers: one stable AppScrollView owns the
-    //vertical scroll and the native title (Scoop font via scoopNavigationBarFonts),
-    //and the empty/loaded branch swaps inside it — swapping the whole scroll view
-    //out from under the stack makes the system reconfigure the bar from scratch.
-    //The pager inside it only swipes the event slots horizontally.
     private var eventsRootView: some View {
         AppScrollView(title: vm.events.isEmpty ? "Events" : "Meeting \(currentProfile?.profile.name ?? "")") {
             if vm.events.isEmpty {
@@ -165,3 +162,9 @@ extension EventsContainer {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
 }
+
+
+/*
+ .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 22) //16 padding, /6 inside padding on card
+
+ */

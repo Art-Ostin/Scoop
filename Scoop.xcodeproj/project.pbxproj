@@ -267,7 +267,6 @@
 		65F28E082F1E82CB008BF4DA /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E072F1E82CB008BF4DA /* PreferencesView.swift */; };
 		65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */; };
 		65F3B4762FA1F612007D1EEB /* MessagePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F3B4752FA1F612007D1EEB /* MessagePopup.swift */; };
-		65F450BF2E45567900AE3503 /* ImageSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450BE2E45567900AE3503 /* ImageSizing.swift */; };
 		65F450CB2E463E7900AE3503 /* MeetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450CA2E463E7900AE3503 /* MeetContainer.swift */; };
 		65F450D32E482B2F00AE3503 /* ProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F450D22E482B2F00AE3503 /* ProfileCard.swift */; };
 		65F660C02F23DC4A00AF791F /* FrozenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */; };
@@ -561,7 +560,6 @@
 		65F28E072F1E82CB008BF4DA /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPreferredYears.swift; sourceTree = "<group>"; };
 		65F3B4752FA1F612007D1EEB /* MessagePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePopup.swift; sourceTree = "<group>"; };
-		65F450BE2E45567900AE3503 /* ImageSizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSizing.swift; sourceTree = "<group>"; };
 		65F450CA2E463E7900AE3503 /* MeetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetContainer.swift; sourceTree = "<group>"; };
 		65F450D22E482B2F00AE3503 /* ProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCard.swift; sourceTree = "<group>"; };
 		65F660BF2F23DC4A00AF791F /* FrozenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenInfo.swift; sourceTree = "<group>"; };
@@ -707,7 +705,6 @@
 				65566B802FD05A6800F88933 /* HideToolbarBackground.swift */,
 				65E1EC9E2F19706D004C9236 /* PinchZoom.swift */,
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
-				65F450BE2E45567900AE3503 /* ImageSizing.swift */,
 				6579F19A2FE2CEA1005F8CD7 /* InfoComponents.swift */,
 				657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
@@ -1865,7 +1862,6 @@
 				65FAF98A2E414D1B0015E231 /* EventsContainer.swift in Sources */,
 				657F303B2F68B61C0057D42C /* DismissButtons.swift in Sources */,
 				65871F4E2F3A543200C9A87A /* ClearIcon.swift in Sources */,
-				65F450BF2E45567900AE3503 /* ImageSizing.swift in Sources */,
 				65939C502FCAE78900B24D11 /* InviteButton.swift in Sources */,
 				65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */,
 				653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */,

@@ -23,13 +23,31 @@ struct ProfileImageView: View {
             largeImageScrollView
             imageScroller
         }
-        .getImageSize(imageSize: $imageSize, horizontalPadding: 6)
-        
     }
 }
 
 //All Logic for large images
 extension ProfileImageView {    
+    
+    
+    
+    private var imageCarousel: some View {
+        
+        ImageCaro
+        
+        
+        ImageCarousel(
+            images: importedImages,
+            hPadding: 8,
+            topRadius: <#T##CGFloat#>, bottomRadius: <#T##CGFloat#>, scrollProgress: <#T##Double#>
+        )
+        
+        
+    }
+    
+    
+    
+    
     
     private var largeImageScrollView: some View {
         HorizontalScrollView {
@@ -44,6 +62,8 @@ extension ProfileImageView {
             morph?.reportDestination(containerRect: rect)
         }
     }
+    
+    
     
     private func largeImage(index: Int) -> some View {
         Image(uiImage: importedImages[index])
