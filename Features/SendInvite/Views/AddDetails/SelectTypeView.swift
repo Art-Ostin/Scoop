@@ -197,12 +197,7 @@ private struct RevealingInfoText: View {
             .fixedSize(horizontal: false, vertical: true) //Bug Fix: keep every line
             .padding(.top, 8) //the gap below the title, revealed together with the text
         
-            .onGeometryChange(for: CGFloat.self) { geo in
-                geo.size.height
-            } action: { newHeight in
-                contentHeight = newHeight
-            }
-        
+            .getHeight($contentHeight)
             .frame(height: isOpen ? contentHeight : 0, alignment: .top)
             .clipped()
     }

@@ -57,7 +57,7 @@ extension InviteCard {
         Text("\(eventProfile.profile.name)'s Invite")
             .font(.body(22, .bold))
             .foregroundStyle(Color.white)
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named("ProfileCard")) } action: { profileNameBounds = $0 }
+            .getRect($profileNameBounds, coordSpace: "ProfileCard")
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 16)
     }

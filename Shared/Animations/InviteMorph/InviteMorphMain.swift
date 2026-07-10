@@ -132,7 +132,7 @@ struct QuickInviteMorph<Card: View, Overlay: View>: View {
                 card()
                     .frame(width: cardWidth)
                     .fixedSize(horizontal: false, vertical: true)
-                    .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { cardHeight = $0 }
+                    .getHeight($cardHeight)
                     .position(x: expandedRect.midX, y: expandedRect.midY)
             }
         }

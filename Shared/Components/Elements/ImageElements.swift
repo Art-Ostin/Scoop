@@ -8,13 +8,17 @@
 import SwiftUI
 
 //Expands full width of view, and height set proportional
+//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow
 struct GreedyImage: View {
 
     let image: UIImage
-    let hPadding: CGFloat
-    var aspectRatio: AspectRatio = .card
-
-
+    
+    var hPadding: CGFloat = 0
+    var radius: CGFloat = 12
+    var bottomRadius: CGFloat? = nil
+    var showShadow = false
+    var aspectRatio: AspectRatio = .default
+    
     var body: some View {
         Color.clear
             .aspectRatio(aspectRatio, contentMode: .fit)
@@ -23,8 +27,10 @@ struct GreedyImage: View {
                     .resizable()
                     .scaledToFill()
             }
+            .imageClip(top: radius, bottom: bottomRadius ?? radius)
             .padding(.horizontal, hPadding)
             .containerRelativeFrame(.horizontal)
+            .cardShadow(showShadow: showShadow)
     }
 }
 

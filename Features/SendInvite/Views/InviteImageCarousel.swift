@@ -51,9 +51,9 @@ extension InviteImageCarousel {
     private var nameOverlay: some View {
         HStack(spacing: 2) {
             Text("Meet")
-                .getViewsRect($meetFrame, coordSpace: Self.imageSpace)
+                .getRect($meetFrame, coordSpace: Self.imageSpace)
             Text(name)
-                .getViewsRect($nameFrame, coordSpace: Self.imageSpace)
+                .getRect($nameFrame, coordSpace: Self.imageSpace)
         }
         .font(.title(26))
         .foregroundStyle(Color.white)

@@ -140,7 +140,7 @@ extension SendInviteFlight {
         Text(details)
             .font(.body(14, .medium))
             .foregroundStyle(Color.white)
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { detailsHeight = $0 }
+            .getHeight($detailsHeight)
             .padding(.leading, 16)
             .padding(.bottom, 16)
             .opacity(expanded ? 0 : 1)

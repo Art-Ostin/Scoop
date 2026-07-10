@@ -184,7 +184,7 @@ private struct TimeRowMenuLabel: View {
         HStack(spacing: times.isEmpty ? 12 : 0) {
             if times.isEmpty {
                 chooseTimeText
-                    .readGlobalFrame(into: $chooseTimeFrame)
+                    .getRect($chooseTimeFrame)
                     .frame(height: InviteRowMetrics.rowHeight)
             } else {
                 pager
@@ -230,13 +230,13 @@ private struct TimeRowMenuLabel: View {
         Text(FormatEvent.dayAndTime(time, wide: true, withHour: true, monthWide: false))
             .font(.body(17, .medium))
             .lineLimit(1)
-            .background { if isActive { Color.clear.readGlobalFrame(into: $activeTimeFrame) } }
+            .background { if isActive { Color.clear.getRect($activeTimeFrame) } }
             .frame(width: pageWidth, alignment: .trailing)
     }
 
     private var chevron: some View {
         DropDownButton(isOpen: false)
-            .readGlobalFrame(into: $chevronFrame)
+            .getRect($chevronFrame)
     }
 
     @ViewBuilder

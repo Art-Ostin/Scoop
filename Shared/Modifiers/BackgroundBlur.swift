@@ -50,14 +50,3 @@ struct BackgroundBlur: View {
         }
     }
 }
-
-//Measure a view's rect in a named coordinate space into a binding.
-extension View {
-    func getViewsRect(_ rect: Binding<CGRect>, coordSpace: String) -> some View {
-        onGeometryChange(for: CGRect.self) {
-            $0.frame(in: .named(coordSpace))
-        } action: {
-            rect.wrappedValue = $0
-        }
-    }
-}

@@ -58,11 +58,7 @@ struct ProfileContainer: View {
             }
             .background(Color.appCanvas)
             
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.size.height
-            } action: { height in
-                ui.containerHeight = height
-            }
+            .getHeight($ui.containerHeight)
             .simultaneousGesture(profileDrag())
             .coordinateSpace(name: "profileZStack")
             .onAppear { if isUserProfile { vm.viewProfileType = .view } }
@@ -85,11 +81,7 @@ extension ProfileContainer {
                 .task { await vm.loadImagesIfNeeded() }
                 .overlay(alignment: .topLeading) {overlayTitle}
         }
-        .onGeometryChange(for: CGFloat.self) { geo in
-            geo.size.height
-        } action: { height in
-            ui.headerHeight = height
-        }
+        .getHeight($ui.headerHeight)
         .padding(.top, ui.headerTopPadding)
         .modifier(ProfileHeaderDragEffect(ui: ui))
     }

@@ -57,6 +57,13 @@ struct ImageCarousel: View {
     }
 
     private func carouselImage(_ image: UIImage) -> some View {
+        
+        
+        
+        
+        
+        
+        
         GreedyImage(image: image, hPadding: hPadding, aspectRatio: aspectRatio)
             .clipShape(.rect(
                 topLeadingRadius: topRadius,

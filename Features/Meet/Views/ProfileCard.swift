@@ -33,11 +33,8 @@ struct ProfileCard : View {
 extension ProfileCard {
     
     private var profileCardImage: some View {
-        GreedyImage(image: profile.image, hPadding: 16, aspectRatio: .default)
-            .imageClip()
+        GreedyImage(image: profile.image, hPadding: 16, radius: 20, showShadow: true)
             .opacity(quickInviteHidden ? 0 : 1)
-            .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: CornerRadius.photoCard, style: .continuous))
-            .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
     }
 
     private var cardOverlay: some View {
@@ -63,11 +60,11 @@ extension ProfileCard {
             let p = profile.profile
             Text(p.name)
                 .font(.title(26))
-                .getViewsRect($nameFrame, coordSpace: cardSpace)
+                .getRect($nameFrame, coordSpace: cardSpace)
 
             Text("\(p.year) | \(p.degree) | \(p.hometown)")
                 .font(.body(14, .medium))
-                .getViewsRect($detailsFrame, coordSpace: cardSpace)
+                .getRect($detailsFrame, coordSpace: cardSpace)
         }
         .foregroundStyle(Color.white)
         .font(.body(14, .medium))
@@ -80,3 +77,12 @@ extension ProfileCard {
     }
 }
 
+
+/*
+ GreedyImage(image: profile.image, hPadding: 16, aspectRatio: .default)
+     .imageClip()
+     .opacity(quickInviteHidden ? 0 : 1)
+     .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: CornerRadius.photoCard, style: .continuous))
+     .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
+
+ */

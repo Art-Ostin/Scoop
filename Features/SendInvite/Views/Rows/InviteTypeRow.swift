@@ -229,12 +229,12 @@ private struct TypeRowMenuLabel: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
                     typeText
-                        .readGlobalFrame(into: $typeFrame)
+                        .getRect($typeFrame)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(0)
 
                     messageView
-                        .readGlobalFrame(into: $messageFrame)
+                        .getRect($messageFrame)
                         .padding(.leading, 12)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(1)
@@ -250,7 +250,7 @@ private struct TypeRowMenuLabel: View {
                 pageCount: 2
             ))
             chevron
-                .readGlobalFrame(into: $chevronFrame)
+                .getRect($chevronFrame)
         }
     }
 
@@ -281,7 +281,7 @@ private struct TypeRowMenuLabel: View {
                 .foregroundStyle(Color.textSecondary)
                 .lineLimit(3)
                 .multilineTextAlignment(.trailing)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { messageHeight = $0 }
+                .getHeight($messageHeight)
                 .transition(.opacity.animation(.smooth(duration: 0.2)))
                 .fixedSize(horizontal: false, vertical: true)
                 .offset(y: ui.messageLineCount == 3 ? -4 : 0)

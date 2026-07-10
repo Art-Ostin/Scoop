@@ -1078,7 +1078,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
     let controller: DropdownCustomMenuController
 
     @State private var menuSize: CGSize?
-    @State private var contentIdealHeight: CGFloat?
+    @State private var contentIdealHeight: CGFloat = 0
     @State private var appeared = false
     /// iOS 26 bloom: 0 = small circle at the label's trailing edge, 1 = full menu platter.
     /// Also drives dismiss phase 1 (1 = open platter → 0 = centred circle).
@@ -1527,14 +1527,10 @@ private struct DropdownCustomMenuOverlayRoot: View {
             .environment(\.dropdownCustomMenuFreezeLabel, DropdownCustomMenuFreezeLabelAction { [weak controller] in
                 controller?.freezeLabel()
             })
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.size.height
-            } action: { height in
-                contentIdealHeight = height
-            }
+            .getHeight($contentIdealHeight)
 
         Group {
-            if let ideal = contentIdealHeight, ideal > metrics.maxHeight {
+            if contentIdealHeight != 0, contentIdealHeight > metrics.maxHeight {
                 ScrollView {
                     inner
                 }

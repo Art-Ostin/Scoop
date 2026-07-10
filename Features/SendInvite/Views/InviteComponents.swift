@@ -30,12 +30,6 @@ extension EnvironmentValues {
     @Entry var isLiveInviteRow: Bool = false
 }
 
-extension View {
-    func readGlobalFrame(into frame: Binding<CGRect>) -> some View {
-        onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame.wrappedValue = $0 }
-    }
-}
-
 //One definition for the flight replica and the settled carousel's menu label, so the settle handoff renders identically.
 struct InviteOptionsIcon: View {
     var body: some View {
@@ -73,7 +67,7 @@ struct PagedScrollStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollPosition(id: $scrolledPageID)
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
+            .getWidth($pageWidth)
             .trackScrollProgress(scrollProgress: $scrollProgress)
             .scrollIndicators(.hidden)
             .scrollDisabled(pageCount <= 1)

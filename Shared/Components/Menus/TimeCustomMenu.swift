@@ -723,7 +723,7 @@ private struct TimeCustomMenuOverlayRoot: View {
     let controller: TimeCustomMenuController
 
     @State private var menuSize: CGSize?
-    @State private var contentIdealHeight: CGFloat?
+    @State private var contentIdealHeight: CGFloat = 0
     @State private var appeared = false
     /// iOS 26: the open bloom has been kicked (guards against re-firing).
     @State private var bloomStarted = false
@@ -915,11 +915,7 @@ private struct TimeCustomMenuOverlayRoot: View {
             .environment(\.timeCustomMenuDismiss, TimeCustomMenuDismissAction { [weak controller] in
                 controller?.dismiss()
             })
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.size.height
-            } action: { height in
-                contentIdealHeight = height
-            }
+            .getHeight($contentIdealHeight)
             // A tap on the menu's own body must NOT dismiss it — only an outside
             // tap (the Color.clear backdrop), a .timeCustomMenuItem, or the
             // caller's dismiss action (e.g. the Done button) should. Without a
@@ -932,7 +928,7 @@ private struct TimeCustomMenuOverlayRoot: View {
             .onTapGesture { }
 
         Group {
-            if let ideal = contentIdealHeight, ideal > metrics.maxHeight {
+            if contentIdealHeight != 0, contentIdealHeight > metrics.maxHeight {
                 ScrollView {
                     inner
                 }
