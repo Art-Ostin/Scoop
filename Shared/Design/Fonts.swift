@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 extension Font {
     
     enum bodyFontWeight: String {
@@ -27,16 +26,8 @@ extension Font {
         .custom(weight.rawValue, size: size)
     }
 
-    static func body(_ weight: bodyFontWeight) -> Font {
-        .custom(weight.rawValue, size: 16)
-    }
-
     static func title(_ size: CGFloat = 32, _ weight: titleFontWeight = .bold) -> Font {
         .custom(weight.rawValue, size: size)
-    }
-
-    static func title(_ weight: titleFontWeight) -> Font {
-        .custom(weight.rawValue, size: 32)
     }
 }
 
