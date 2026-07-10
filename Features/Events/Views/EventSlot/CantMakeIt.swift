@@ -25,7 +25,7 @@ struct CantMakeIt: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24){
+        VStack(alignment: .leading, spacing: Spacing.lg){
             Text("Can’t Make It?")
                 .font(.body(24, .bold))
             
@@ -46,7 +46,7 @@ struct CantMakeIt: View {
                 .frame(width: 240, height: 240)
                 .frame(maxWidth: .infinity, alignment: .center)
             
-            VStack(spacing: 16) {
+            VStack(spacing: Spacing.md) {
                 Text("Meeting \(eventProfile.event.otherUserName)")
                 
                 Text("\(fullTime) · \(hour)")
@@ -59,15 +59,15 @@ struct CantMakeIt: View {
         .font(.body(16, .medium))
         .lineSpacing(8)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 24)
-        .padding(.horizontal, 24)
+        .padding(.top, Spacing.lg)
+        .padding(.horizontal, Spacing.margin)
         .navigationBarBackButtonHidden(true)
         .safeAreaInset(edge: .top, spacing: 0) {
             DismissButton(type: .cross)
             Spacer()
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 4)
+            .padding(.horizontal, Spacing.md)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xxs)
         }
         .background(Color.appCanvas)
         .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", emoji: "🚨", cancelTitle: "Back", okTitle: "Confirm", showTwoButtons: true) {
@@ -95,7 +95,7 @@ extension CantMakeIt {
                 .stroke(CornerRadius.sm, lineWidth: 2, color: Color.dangerRed)
                 .foregroundStyle(Color.dangerRed)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 24)
+                .padding(.top, Spacing.lg)
         }
     }
     

@@ -37,7 +37,7 @@ struct InvitedTimeCell: View {
 extension InvitedTimeCell {
     
     private var timeCellLabel: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
             optionTypeText
             eventTimeText
         }
@@ -77,7 +77,7 @@ extension InvitedTimeCell {
                 .foregroundStyle(isShaking ? Color.warningYellow : Color.textTertiary)
                 .animation(.easeInOut(duration: 0.2), value: isShaking)
                 .padding(.horizontal)
-                .padding(.top, 12)
+                .padding(.top, Spacing.sm)
         }
     }
 }
@@ -118,8 +118,8 @@ extension InvitedTimeCell {
 extension View {
     func invitedTimeCellBackground(_ isSelected: Bool, isAvailable: Bool) -> some View {
         self
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
             .opacity(isAvailable ? 0.4 : 1)

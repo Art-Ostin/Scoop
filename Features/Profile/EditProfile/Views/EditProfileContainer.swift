@@ -90,7 +90,7 @@ extension EditProfileContainer {
                     .font(.body(14, .bold))
                     .foregroundStyle(.accent)
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, Spacing.xs)
                     .glassEffectIfAvailable(shape: .capsule)
             }
             .opacity(path.isEmpty ? 1 : 0)

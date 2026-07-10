@@ -100,7 +100,7 @@ extension SelectTypeView {
         } label: {
             SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
                 .padding(.trailing, 16)
-                .padding(.top, 8)
+                .padding(.top, Spacing.xs)
                 .padding(.leading, 10)
                 .padding(.bottom, 10)
                 .contentShape(Rectangle())
@@ -195,7 +195,7 @@ private struct RevealingInfoText: View {
             .infoText()
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true) //Bug Fix: keep every line
-            .padding(.top, 8) //the gap below the title, revealed together with the text
+            .padding(.top, Spacing.xs) //the gap below the title, revealed together with the text
         
             .getHeight($contentHeight)
             .frame(height: isOpen ? contentHeight : 0, alignment: .top)

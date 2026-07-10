@@ -16,7 +16,7 @@ struct OnboardingLoadingScreen: View {
 
 
     var body: some View {
-        VStack(spacing: 48){
+        VStack(spacing: Spacing.xxl){
             Text("Creating Profile")
                 .font(.body(20, .bold))
             
@@ -27,7 +27,7 @@ struct OnboardingLoadingScreen: View {
                 .frame(width: 250, height: 250)
                 .offset(y: -24)
             
-            VStack(spacing: 24) {
+            VStack(spacing: Spacing.lg) {
                 Text("Did you know")
                     .font(.body(17, .bold))
                 Text(facts[textIndex])

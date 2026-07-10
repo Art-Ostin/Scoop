@@ -71,7 +71,7 @@ struct ProfileContainer: View {
 extension ProfileContainer {
     
     private var titleAndImage: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             profileTitle
                 .modifier(DetailsFadeEffect(ui: ui, from: 1, to: 0, impactEnd: 0.75))
 

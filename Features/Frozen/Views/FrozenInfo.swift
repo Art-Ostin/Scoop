@@ -16,11 +16,11 @@ struct FrozenInfo: View {
     let isBlocked: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 36) {
+        VStack(alignment: .leading, spacing: Spacing.xl) {
             Text("Account " + (isBlocked ? "Blocked" : "Frozen"))
                 .font(.body(24, .bold))
             
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Spacing.md) {
                 if isBlocked {
                     Text("Your account is blocked as you didn't turn up to meet \(name)")
                 } else {
@@ -37,13 +37,13 @@ struct FrozenInfo: View {
             Image("Clock")
                 .resizable()
                 .frame(width: 240, height: 240)
-                .padding(.top, 48)
+                .padding(.top, Spacing.xxl)
                 .frame(maxWidth: .infinity, alignment: .center)
             
             OkDismissButton()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal, 24)
-        .padding(.top, 60)
+        .padding(.horizontal, Spacing.margin)
+        .padding(.top, Spacing.xxl)
     }
 }

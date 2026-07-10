@@ -18,7 +18,7 @@ struct RespondCard: View {
 
 
     var body: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: Spacing.lg) {
             respondTitle
             timeAndPlaceSection
             actionSection
@@ -31,7 +31,7 @@ struct RespondCard: View {
 extension RespondCard {
     
     private var respondTitle: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             titleNameAndPhoto
             Spacer()
             EventTypeButton(type: .drink, showInfo: $ui.showMeetInfo)
@@ -40,7 +40,7 @@ extension RespondCard {
     }
     
     private var titleNameAndPhoto: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             SmallImage(image: vm.image, size: 25, isCircle: true).offset(x: -2)
             Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
                 .font(.title(22))
@@ -56,7 +56,7 @@ extension RespondCard {
 extension RespondCard {
     
     private var timeAndPlaceSection: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: Spacing.md) {
             timeRow
             placeRow
         }
@@ -92,7 +92,7 @@ extension RespondCard {
             Spacer()
             acceptButton
         }
-        .padding(.top, 4) //As Image in title, to look equal distance from 'meeting x' and buttons add extra padding.
+        .padding(.top, Spacing.xxs) //As Image in title, to look equal distance from 'meeting x' and buttons add extra padding.
     }
         
     private var acceptButton: some View {
@@ -135,7 +135,7 @@ struct RespondCardBackground: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(.vertical, 18)
-            .padding(.horizontal, 24)
+            .padding(.vertical, Spacing.md)
+            .padding(.horizontal, Spacing.lg)
     }
 }

@@ -53,7 +53,7 @@ struct BottomBackButton: View {
                 .fontWeight(.heavy)
                 .frame(width: 45, height: 45)
         }
-        .padding(.top, 36)
+        .padding(.top, Spacing.xl)
     }
 }
 

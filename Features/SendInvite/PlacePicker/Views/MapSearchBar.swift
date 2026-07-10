@@ -55,7 +55,7 @@ extension MapSearchBar {
                 Image(systemName: "xmark")
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.white)
-                    .padding(4)
+                    .padding(Spacing.xxs)
                     .background (
                         Circle()
                             .foregroundStyle(Color.textSecondary)

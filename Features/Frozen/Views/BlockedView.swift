@@ -20,8 +20,8 @@ struct BlockedView: View {
 
     var body: some View {
         if let blockedContext = vm.user.blockedContext {
-            VStack(spacing: 48) {
-                VStack(spacing: 10) {
+            VStack(spacing: Spacing.xxl) {
+                VStack(spacing: Spacing.sm) {
                     Text("Account Blocked")
                         .font(.title())
                     
@@ -33,7 +33,7 @@ struct BlockedView: View {
                     .onTapGesture {
                         showBlockedInfo = true
                     }
-                VStack(spacing: 12) {
+                VStack(spacing: Spacing.sm) {
                     Text("Account blocked for not showing")
                         .font(.body(17, .italic))
                         .foregroundStyle(Color.textSecondary)
@@ -44,7 +44,7 @@ struct BlockedView: View {
                         .onTapGesture { showBlockedInfo  = true }
                 }
             }
-            .padding(.top, 96)
+            .padding(.top, Spacing.clearance)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {

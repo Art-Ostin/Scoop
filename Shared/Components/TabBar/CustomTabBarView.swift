@@ -20,14 +20,14 @@ struct CustomTabBarView: View {
                     .onTapGesture { selection = tab }
             }
         }
-        .padding(8)
+        .padding(Spacing.xs)
         .frame(height: 56)
         .background(.ultraThinMaterial,
                     in: RoundedRectangle(cornerRadius: CornerRadius.xl))
         .compositingGroup()
         .shadow(.floating)
-        .padding(.horizontal, 36)
-        .padding(.bottom, 12)
+        .padding(.horizontal, Spacing.xl)
+        .padding(.bottom, Spacing.sm)
         .animation(.snappy(duration: 0.2), value: selection)
     }
 }
@@ -43,7 +43,7 @@ extension CustomTabBarView {
 
     private func tabBar(tab: AppTab) -> some View {
         tab.customIcon(selected: selection == tab)
-            .padding(.vertical, 8)
+            .padding(.vertical, Spacing.xs)
             .frame(maxWidth: .infinity)
             .background(
                 ZStack {

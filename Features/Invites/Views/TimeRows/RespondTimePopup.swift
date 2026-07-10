@@ -30,7 +30,7 @@ struct RespondTimePopup: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             timeDropDownTitle
                 .padding(.horizontal, horizontalInset)
             contentViewport
@@ -101,9 +101,9 @@ extension RespondTimePopup {
         Text("Options")
             .foregroundStyle(Color.successGreen)
             .font(.title(12))
-            .padding(4)
+            .padding(.vertical, Spacing.xxs)
+            .padding(.horizontal, Spacing.xs)
             .kerning(0.5)
-            .padding(.horizontal, 6)
             .stroke(CornerRadius.md, lineWidth: 1, color: Color.successGreen.opacity(0.2))
             .offset(y: -2)
     }
@@ -140,12 +140,12 @@ extension RespondTimePopup {
     private var proposedTimes: some View {
         let orderedTimes = draft.originalInvite.event.proposedTimes.dates.sorted { $0.date < $1.date }
         
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
                 inviteTimeCell(idx, time)
             }
         }
-        .padding(.bottom, 18)
+        .padding(.bottom, Spacing.md)
     }
     
     @ViewBuilder

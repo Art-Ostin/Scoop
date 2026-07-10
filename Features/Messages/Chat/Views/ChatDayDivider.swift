@@ -22,7 +22,7 @@ struct ChatDayDivider: View {
                     .font(.body(12, .regular))
                     .foregroundStyle(Color.textTertiary)
             }
-            .padding(.top, 12)
+            .padding(.top, Spacing.sm)
         }
     }
     

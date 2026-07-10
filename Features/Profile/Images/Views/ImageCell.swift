@@ -22,7 +22,7 @@ struct ImageCell: View {
                 .foregroundStyle(Color.clear)
                 .overlay(alignment: .topTrailing) {
                     ImageEditButton()
-                        .padding(4)
+                        .padding(Spacing.xxs)
                 }
         }
         .contentShape(Rectangle())

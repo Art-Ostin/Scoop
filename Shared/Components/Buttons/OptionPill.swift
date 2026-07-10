@@ -73,10 +73,10 @@ struct SexOptionPill: View {
     
     var body: some View {
         
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             Text(gender)
                 .font(.body(16, .bold))
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.lg)
                 .frame(width: 148, height: 44)
                 .capsuleStroke(lineWidth: 2, color: .accent)
                 .overlay(alignment: .topTrailing) {

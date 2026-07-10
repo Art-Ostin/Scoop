@@ -78,7 +78,7 @@ extension InvitesContainer {
             InvitesPlaceholder()
         } else {
             invitesCardView
-                .padding(.top, 20)
+                .padding(.top, Spacing.lg)
         }
     }
     

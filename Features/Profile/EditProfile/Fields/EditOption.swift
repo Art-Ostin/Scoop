@@ -50,7 +50,7 @@ struct OptionGeneric: View {
             Text(field.title)
                 .font(.title(32))
                 .padding(.horizontal, 24)
-            LazyVGrid(columns: grid, spacing: 48) {
+            LazyVGrid(columns: grid, spacing: Spacing.xxl) {
                 ForEach(field.options, id: \.self) { option in
                     OptionPill(title: option, isSelected: $selection) {
                         onTap(option)
@@ -58,7 +58,7 @@ struct OptionGeneric: View {
                 }
             }
         }
-        .padding(.bottom, 24)
+        .padding(.bottom, Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appCanvas)
     }

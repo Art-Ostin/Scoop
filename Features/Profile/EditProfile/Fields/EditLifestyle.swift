@@ -80,7 +80,7 @@ struct GenericLifestyle: View {
     
     var body: some View {
 
-        VStack(spacing: 48) {
+        VStack(spacing: Spacing.xxl) {
             vicesOptions(title: "Drinking", isSelected: $drinking)
             vicesOptions(title: "Smoking", isSelected: $smoking)
             vicesOptions(title: "Marijuana", isSelected: $marijuana)
@@ -93,7 +93,7 @@ struct GenericLifestyle: View {
     }
     
     private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             Text(title)
                 .font(.title(28))
             HStack {

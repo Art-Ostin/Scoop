@@ -20,8 +20,8 @@ struct InfoButton: View {
                         .font(.body(18, .medium))
                 }
                 .transition(.scoopPop)
-                .padding(.top, 16) //As its small icon, sits in correct position
-                .padding(.horizontal, 22)
+                .padding(.top, Spacing.md) //As its small icon, sits in correct position
+                .padding(.horizontal, Spacing.margin)
             }
         }
         .animation(.scoopPop, value: isAtTopOfScroll)

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct InvitesPlaceholder: View {
     var body: some View {
-        VStack(spacing: 96) {
+        VStack(spacing: Spacing.titleGap) {
             Text("Any invites received appear here")
                 .font(.title(20, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -21,6 +21,6 @@ struct InvitesPlaceholder: View {
                 .frame(maxWidth: .infinity)
                 .frame(width: 250, height: 250)
         }
-        .padding(.top, 72)
+        .padding(.top, Spacing.titleGap)
     }
 }

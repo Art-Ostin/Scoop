@@ -246,7 +246,7 @@ private struct TypeRowMenuLabel: View {
     }
 
     private var collapsedLabel: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             typeText
             chevron
         }

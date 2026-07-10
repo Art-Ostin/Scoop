@@ -143,7 +143,7 @@ extension SendInviteFlight {
             .foregroundStyle(Color.white)
             .getHeight($detailsHeight)
             .padding(.leading, 16)
-            .padding(.bottom, 16)
+            .padding(.bottom, Spacing.md)
             .opacity(expanded ? 0 : 1)
             .blur(radius: expanded ? 6 : 0)
     }

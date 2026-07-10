@@ -73,11 +73,11 @@ extension InviteImageCarousel {
             }
         } label: {
             InviteOptionsIcon()
-                .padding(6)
+                .padding(Spacing.xs)
                 .shrinkPress()
                 .contentShape(Circle())
         }
-        .padding(-6)
+        .padding(-Spacing.xs)
         .blurPop(visible: optionsVisible)
         .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
     }

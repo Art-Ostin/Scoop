@@ -43,7 +43,7 @@ struct LimitedAccessPage: View {
         .padding(.top, 60)
         .overlay(alignment: .topTrailing) {
                 signOutButton
-                    .padding(.top, 24)
+                    .padding(.top, Spacing.lg)
         }
         .background(Color.appCanvas)
     }
@@ -56,7 +56,7 @@ extension LimitedAccessPage {
         } label: {
             Text("Sign out")
                 .font(.body(14, .bold))
-                .padding(8)
+                .padding(Spacing.xs)
                 .foregroundStyle(Color.textPrimary)
                 .background (
                     RoundedRectangle(cornerRadius: CornerRadius.sm)

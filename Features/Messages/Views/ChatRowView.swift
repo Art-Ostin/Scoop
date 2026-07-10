@@ -13,11 +13,11 @@ struct ChatRowView: View {
         
     var body: some View {
         
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             profilePhoto
             
             ZStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     nameAndTitle
                     
                     messageAndStatus
@@ -30,7 +30,7 @@ struct ChatRowView: View {
         }
         .frame(height: 87, alignment: .center)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 16)
+        .padding(.leading, Spacing.md)
     }
 }
 
@@ -52,7 +52,7 @@ extension ChatRowView {
     }
     
     private var messageAndStatus: some View {
-        HStack(alignment: .top, spacing: 2) {
+        HStack(alignment: .top, spacing: Spacing.hairline) {
             messagePreview
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
@@ -60,7 +60,7 @@ extension ChatRowView {
             messageStatus
                 .fixedSize()
         }
-        .padding(.trailing, 16)
+        .padding(.trailing, Spacing.md)
     }
     
     private var messageDivider: some View {
@@ -96,7 +96,7 @@ extension ChatRowView {
         Text(chatPreview.lastChatTime)
             .font(.system(size: 15, weight: .regular))
             .foregroundStyle(isUnreadMessage ? Color.textAccent : Color.textSecondary)
-            .padding(.trailing, 16)
+            .padding(.trailing, Spacing.md)
     }
     
     @ViewBuilder
@@ -105,7 +105,7 @@ extension ChatRowView {
             Text(String(chatPreview.unreadCount))  //unreadCount
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(Color.white)
-                .padding(5)
+                .padding(Spacing.xxs)
                 .background (
                     Circle()
                         .fill(.accent)

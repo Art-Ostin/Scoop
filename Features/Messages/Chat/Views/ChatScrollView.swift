@@ -23,7 +23,7 @@ struct ChatScrollView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 4) {
+            LazyVStack(spacing: Spacing.xxs) {
                 ClearRectangle(size: 72)
                 ChatEventView(event: vm.eventProfile.event)
                 messageScrollSection

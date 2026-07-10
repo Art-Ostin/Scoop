@@ -31,7 +31,7 @@ struct AddMessageView: View {
 
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 36) {
+        VStack(alignment: .leading, spacing: Spacing.xl) {
             VStack(spacing: 28) {
                 dropdownTitle
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -118,12 +118,12 @@ extension AddMessageView {
                 .geometryGroup()
 
         }
-        .padding(.top, 24)
+        .padding(.top, Spacing.lg)
     }
     
     
     private var selectTypeTitle: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text(eventType.longTitle)
                 .font(.body(17, .medium))
             DropDownButton(isOpen: showTypePopup)

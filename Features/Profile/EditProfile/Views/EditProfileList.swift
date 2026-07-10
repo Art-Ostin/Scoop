@@ -26,7 +26,7 @@ struct CustomList<Content: View> : View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             if let title = title {
                 Text(title)
                     .font(.body(12, .bold))
@@ -42,7 +42,7 @@ struct CustomList<Content: View> : View {
             VStack(spacing: 6) {
                 content()
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, Spacing.sm)
             .background(Color.white)
             .background(Color.white, in: RoundedRectangle(cornerRadius: CornerRadius.lg))
         }

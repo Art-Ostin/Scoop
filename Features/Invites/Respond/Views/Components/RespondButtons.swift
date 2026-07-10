@@ -18,10 +18,10 @@ struct AddMessageButton: View {
             showMessageScreen = true
         } label : {
             Image("AddMessageIcon")
-                .padding(12)
+                .padding(Spacing.sm)
                 .contentShape(Rectangle())
-                .padding(-12)
-                .padding(6)
+                .padding(-Spacing.sm)
+                .padding(Spacing.xs)
                 .background(
                     Circle()
                         .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
@@ -77,7 +77,7 @@ struct EventTypeButton: View {
         Button {
             showInfo.toggle()
         } label: {
-            HStack(spacing: 2) {
+            HStack(spacing: Spacing.hairline) {
                 Text("\(type.emoji) \(longTitle ? type.longTitle : type.title)")
                     .font(.body(17, .bold))
                 Image(systemName: "info.circle")

@@ -19,17 +19,17 @@ struct FrozenView: View {
 
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
-            VStack(spacing: 72) {
+            VStack(spacing: Spacing.titleGap) {
                 frozenHeader(frozenUntilDate)
                 
                 Image("Monkey")
                 
-                VStack(spacing: 12) {
+                VStack(spacing: Spacing.sm) {
                     tabTitle
                     tabSection(frozenContext: frozenContext, frozenUntilDate: frozenUntilDate)
                 }
             }
-            .padding(.top, 72)
+            .padding(.top, Spacing.xxxl) //Clears the floating actionBar overlay
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
             .sheet(isPresented: $showInfo) {FrozenInfo(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
@@ -46,7 +46,7 @@ struct FrozenView: View {
 
 extension FrozenView {
     private func frozenHeader(_ date: Date) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             Text("Account Frozen Until")
                 .font(.body(17, .medium))
             
@@ -65,7 +65,7 @@ extension FrozenView {
                 }
                 .id(0)
 
-            VStack(spacing: 48) {
+            VStack(spacing: Spacing.xxl) {
                 Text("Put large clock view here")
                     .frame(maxWidth: .infinity)
                     .onTapGesture {
@@ -77,7 +77,7 @@ extension FrozenView {
                     .foregroundStyle(Color.textSecondary)
             }
             .frame(maxHeight: .infinity, alignment: .top)
-            .padding(.top, 24)
+            .padding(.top, Spacing.lg)
             .containerRelativeFrame(.horizontal)
             .id(1)
         }

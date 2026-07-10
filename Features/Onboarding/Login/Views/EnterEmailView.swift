@@ -23,7 +23,7 @@ struct EnterEmailView: View {
             VStack(spacing: 72) {
                 SignUpTitle(text: "McGill Email")
                 enterEmailSection
-                NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, 16)
+                NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, Spacing.md)
             }
             .padding(.horizontal)
             .onAppear {isFocused = true}
@@ -42,7 +42,7 @@ struct EnterEmailView: View {
 extension EnterEmailView {
     
     private var enterEmailSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             HStack {
                 ZStack{
                     if vm.username.isEmpty {

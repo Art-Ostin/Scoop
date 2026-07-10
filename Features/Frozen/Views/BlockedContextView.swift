@@ -19,10 +19,10 @@ struct BlockedContextView: View {
     
     var body: some View {
         
-        VStack(spacing: 6)  {
+        VStack(spacing: Spacing.xs)  {
             
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                HStack(alignment: .center, spacing: Spacing.xs) {
                     if let image = profileImage {
                         SmallImage(image: image, size: 25, isCircle: true)
                     }
@@ -36,15 +36,15 @@ struct BlockedContextView: View {
                         .font(.body(14, .medium))
                         .offset(x: 6)
                 }
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
                     Text(frozenContext.eventTime)
                     Text(frozenContext.eventPlace)
                 }
                 .foregroundStyle(Color.textSecondary)
                 .font(.body(16, .regular))
             }
-            .padding(22)
-            .padding(.bottom, 8)
+            .padding(Spacing.lg)
+            .padding(.bottom, Spacing.xs)
             .frame(width: 330, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.md)

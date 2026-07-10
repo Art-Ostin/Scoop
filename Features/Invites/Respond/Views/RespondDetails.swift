@@ -44,7 +44,7 @@ struct RespondDetails: View {
     let image: UIImage
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             title
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 DetailSection(event: event, type: detail)
@@ -70,16 +70,16 @@ extension RespondDetails {
         ScoopButton(shape: Capsule()) {
             showInfo.toggle()
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.xs) {
                 SmallImage(image: image, size: 24, isCircle: true)
                 
                 Text("Invite")
                     .font(.title(14, .bold))
                     .foregroundStyle(Color.successGreen)
             }
-            .padding(.leading, 2) //As Image
-            .padding(.trailing, 6)
-            .padding(.vertical, 2) //As Image so smalle
+            .padding(.leading, Spacing.hairline) //Optical: image carries its own inset
+            .padding(.trailing, Spacing.xs)
+            .padding(.vertical, Spacing.hairline) //Optical: image carries its own inset
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
@@ -91,10 +91,10 @@ struct DetailSection: View {
     let type: DetailInfo
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             Image(type.image)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(type.title(event))
                     .font(.body(16, .medium))
                 

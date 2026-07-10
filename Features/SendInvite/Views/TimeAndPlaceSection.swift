@@ -54,6 +54,6 @@ extension SendInviteContainer {
         }
         .opacity(ui.isPopupOpenDelayed() ? 0.4 : 1)
         .allowsHitTesting(draft.isComplete)
-        .padding(.top, 4)
+        .padding(.top, Spacing.xxs)
     }
 }

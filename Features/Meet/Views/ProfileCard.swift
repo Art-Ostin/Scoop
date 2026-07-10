@@ -40,7 +40,7 @@ extension ProfileCard {
             Spacer()
             inviteButton
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, Spacing.md)
         .padding(.horizontal)
         .opacity(quickInviteHidden ? 0 : 1)
         .animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden)
@@ -53,7 +53,7 @@ extension ProfileCard {
     }
 
     private var infoSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             let p = profile.profile
             Text(p.name)
                 .font(.title(26))

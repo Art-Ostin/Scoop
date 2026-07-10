@@ -35,6 +35,6 @@ struct PreferencesView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(.bottom, 48)
+        .padding(.bottom, Spacing.xxl)
     }
 }

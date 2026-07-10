@@ -181,7 +181,7 @@ extension GenericInterests {
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentScroll)
         }
-        .padding(.bottom, 12)
+        .padding(.bottom, Spacing.sm)
         .padding(.horizontal)
     }
 }
@@ -202,7 +202,7 @@ struct InterestSection: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            HStack(alignment: .center, spacing: 24) {
+            HStack(alignment: .center, spacing: Spacing.lg) {
                 if let image = image {
                     Image(image)
                         .resizable()
@@ -215,7 +215,7 @@ struct InterestSection: View {
                 }
             }
             .padding(.horizontal, 5)
-            .padding(.bottom, 16)
+            .padding(.bottom, Spacing.md)
             
             FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
                 InterestOptionCell(text: input, selected: $selected, onInterestTap: onInterestTap)

@@ -123,7 +123,7 @@ extension ChatContainer {
         return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
             onProfileTap()
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xs) {
                 SmallImage(image: profileImages.first ?? UIImage(), size: avatarSize, isCircle: true)
                     .scaleEffect(0.9)
                     .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: avatarSize / 2, visualScale: 0.9)
@@ -133,8 +133,8 @@ extension ChatContainer {
                     .foregroundStyle(Color.textPrimary)
             }
             .frame(height: 39) //Same height as medium buttons keeps consistency
-            .padding(.trailing, 8)
-            .padding(.leading, 2)
+            .padding(.trailing, Spacing.xs)
+            .padding(.leading, Spacing.hairline)
         }
         .padding(.horizontal)
     }

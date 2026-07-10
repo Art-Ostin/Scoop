@@ -17,7 +17,7 @@ struct ProposedTimesRow: View {
     
     var body: some View {
         
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: Spacing.sm) {
             VStack(alignment: .leading, spacing: 0){
                 proposedDays
                 hourIfNeeded

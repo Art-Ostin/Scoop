@@ -28,7 +28,7 @@ struct OnboardingImages: View {
     }
 
     var body: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             
             SignUpTitle(text: "Add 6 Photos")
                 .padding(.horizontal, 12)
@@ -37,7 +37,7 @@ struct OnboardingImages: View {
                 .font(.body())
                 .foregroundStyle(Color.textTertiary)
             
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVGrid(columns: columns, spacing: Spacing.sm) {
                 ForEach(images.indices, id: \.self) { index in
                     OnboardingPhotoCell(selectedImage: $selectedImage, index: index, image: $images[index])
                 }

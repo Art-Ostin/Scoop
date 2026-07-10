@@ -37,7 +37,7 @@ struct EventDetails: View {
     }
 
     private var frontFace: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: Spacing.md) {
             detailSection(title: "WHAT", mainText: type.longTitle, image: type.emoji, isType: true)
             LightDivider()
             detailSection(title: "WHEN", mainText: FormatEvent.dayAndTime(time), image: "EventClockIcon")
@@ -51,7 +51,7 @@ struct EventDetails: View {
             Button {
                 openMaps()
             } label: {
-                VStack(spacing: 4) {
+                VStack(spacing: Spacing.xxs) {
                     Image(systemName: "location.fill")
                         .font(.body(12))
                     Text("Maps")
@@ -71,7 +71,7 @@ struct EventDetails: View {
 extension EventDetails {
     
     private func detailSection(title: String, mainText: String, image: String, isType: Bool = false) -> some View {
-        HStack(spacing: 24) {
+        HStack(spacing: Spacing.lg) {
             detailIcon(image: image, isType: isType)
             detailText(title: title, mainText: mainText)
             Spacer()//Pushes content to the left
@@ -92,7 +92,7 @@ extension EventDetails {
     
     @ViewBuilder
     private func detailText(title: String, mainText: String) -> some View {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(title)
                     .font(.body(12, .medium))
                     .foregroundStyle(Color.textTertiary)
@@ -122,8 +122,8 @@ extension EventDetails {
 struct DetailsBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 32)
-            .padding(.vertical, 24)
+            .padding(.horizontal, Spacing.xl)
+            .padding(.vertical, Spacing.lg)
             .eventCardBackground()
     }
 }

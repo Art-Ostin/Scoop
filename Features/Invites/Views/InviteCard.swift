@@ -24,7 +24,7 @@ struct InviteCard: View {
     }
 
     var body: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             ScoopImage(image: eventProfile.image ?? UIImage(), aspectRatio: .inviteCard, showShadow: true)
                 .onTapGesture {openProfile()}
                 .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: CornerRadius.image))
@@ -52,7 +52,7 @@ extension InviteCard {
             .foregroundStyle(Color.white)
             .getRect($profileNameBounds, coordSpace: "ProfileCard")
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 16)
+            .padding(.leading, Spacing.md)
     }
 
     private func openProfile() {
@@ -66,7 +66,7 @@ extension InviteCard {
     
     private var inviteCardInfo: some View {
         InviteCardInfo(draft: $draft, eventProfile: eventProfile, onRespond: onRespond)
-            .padding(12)
+            .padding(Spacing.sm)
             .padding(.top, -4)
     }
 }

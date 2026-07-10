@@ -86,15 +86,15 @@ extension EventLocationMap {
             Text(disableMap ? "Enable Map" : "Disable Map")
                 .font(.body(10, .bold))
                 .foregroundStyle(Color.textPrimary)
-                .padding(6)
-                .padding(.horizontal, 2)
+                .padding(.vertical, Spacing.xxs)
+                .padding(.horizontal, Spacing.xs)
                 .background (
                     RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.appCanvas)
                 )
                 .contentShape(.rect)
                 .padding()
-                .padding(4)
+                .padding(Spacing.xxs)
         }
     }
     

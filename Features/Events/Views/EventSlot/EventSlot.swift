@@ -21,16 +21,16 @@ struct EventSlot: View {
     @State private var mapEnabledAt: Date?
 
     var body: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             eventImageCard
             eventDetailsContainer
-                .padding(.top, 4)//Looks more natural as detailTitle pokes up a top.
+                .padding(.top, Spacing.xxs)//Looks more natural as detailTitle pokes up a top.
             eventDivider
             eventInfoSection
             eventDivider
             EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
         }
-        .padding(.bottom, 72)
+        .padding(.bottom, Spacing.xxl)
     }
 }
 
@@ -86,8 +86,8 @@ extension EventSlot {
         Capsule()
             .fill(Color.border)
             .frame(maxWidth: .infinity, maxHeight: 1)
-            .padding(.horizontal, 72)
-            .padding(.vertical, 4)//add tad more padding here than default
+            .padding(.horizontal, 72) //Geometry: sets the divider's length, not a rhythm gap
+            .padding(.vertical, Spacing.xxs)//add tad more padding here than default
     }
 }
 
@@ -104,8 +104,8 @@ extension View {
     func eventCardBackground() -> some View {
         self
             .frame(maxWidth: .infinity)
-            .background (Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
-            .padding(.horizontal, 16)
+            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.lg))
+            .padding(.horizontal, Spacing.gutter)
             .compositingGroup()
             .shadow(.card)
             .stroke(CornerRadius.md, lineWidth: 0.85)
@@ -116,10 +116,10 @@ extension View {
         self
             .font(.title(13, .semibold))
             .foregroundStyle(isDetails ? Color.textAccent : Color.textTertiary)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 2)
+            .padding(.horizontal, Spacing.xxs)
+            .padding(.vertical, Spacing.hairline)
             .background(Color.appCanvas)
-            .padding(.horizontal, 36)//Indent in by 16
+            .padding(.horizontal, Spacing.xl)//Indents the floating label in from the card edge
             .offset(y: -10)//Shifts it up
     }
 }

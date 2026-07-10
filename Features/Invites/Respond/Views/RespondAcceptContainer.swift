@@ -25,7 +25,7 @@ struct RespondAcceptContainer: View {
         } backCard: {
             respondDetails
         }
-        .padding(.top, 32)
+        .padding(.top, Spacing.xl)
     }
 }
 

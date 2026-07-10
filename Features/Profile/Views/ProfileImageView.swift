@@ -23,7 +23,7 @@ struct ProfileImageView: View {
     private var selection: Int { Int(scrollProgress.rounded()) }
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             imageCarousel
             imageScroller
         }
@@ -55,7 +55,7 @@ extension ProfileImageView {
 
     private var imageScroller : some View {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 48) {
+                HStack(spacing: Spacing.xxl) {
                     ForEach(images.indices, id: \.self) {index in
                         scrollImage(index: index)
                     }

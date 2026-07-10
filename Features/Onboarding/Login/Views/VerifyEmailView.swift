@@ -76,10 +76,10 @@ struct VerifyEmailView: View {
     @State private var code = ""
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             SignUpTitle(text: "Check Your email")
             
-            HStack(spacing: 48) {
+            HStack(spacing: Spacing.xxl) {
                 Text("\(vm.email)")
                     .foregroundStyle(Color.textSecondary)
                 uiLogic.resendEmail()
@@ -90,7 +90,7 @@ struct VerifyEmailView: View {
             
             EnterOTP(code: $code)
         }
-        .padding(.top, 48)
+        .padding(.top, Spacing.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .top)
         .padding(.horizontal)
         .background(Color.appCanvas)

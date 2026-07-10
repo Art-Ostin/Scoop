@@ -93,16 +93,18 @@ Features/<Name>/
   `CornerRadius.concentric(in:inset:)`. Borders go through `Shared/Design/Strokes.swift`
   (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
 - Shadows: only `Elevation` levels from `Shared/Design/Shadows.swift`, worn via the
-  `.shadow(.card)` overload — the ramp is `card → image → button → floating`
-  (plus the `glass` role alias of `card` for pre-26 glass stand-ins).
+  `.shadow(.card)` overload — the ramp is `card → image → button → softFloating →
+  floating` (plus the `glass` role alias of `card` for pre-26 glass stand-ins).
   Light always falls from straight above (x is 0); each level is a
   tight contact layer plus a wide faint ambient layer. `tint:` colors only the ambient
-  glow (tinted CTAs glow their own color — `.shadow(.button, tint: .accent)`); `strength:`
-  fades a shadow in/out without restructuring the view (press states animate it to
-  `Elevation.pressedStrength`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
+  glow (tinted CTAs glow their own color — `.shadow(.button, tint: .accent)`).
+  **A resting shadow is always full strength or absent**: `strength:` exists only to
+  animate a shadow in and out (`strength: isSelected ? 1 : 0`) or for press states
+  (`Elevation.pressedStrength`). A fractional literal at a call site means a level is
+  missing — add one, deriving it with `Layer.halved` where it descends from another
+  (`softFloating`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
   Shadows.swift**, plus the measured system-replication specs that interpolate geometry
-  (menu platter bloom in `DropdownCustomMenu.swift`/`TypeCustomMenu.swift`,
-  `ProfileMorph.swift`). Need a new look? Add or adjust a level, not a call site.
+  (menu platter bloom in `DropdownCustomMenu.swift`, `ProfileMorph.swift`).
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
 

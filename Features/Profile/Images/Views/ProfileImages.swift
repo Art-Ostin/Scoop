@@ -17,7 +17,7 @@ struct ProfileImages: View {
     private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
     
     var body: some View {
-            LazyVGrid(columns: columns, spacing: 24) {
+            LazyVGrid(columns: columns, spacing: Spacing.lg) {
                 ForEach(0..<6) {index in
                     let image = vm.images[index]
                     ImageCell(image: image, size: 112)

@@ -15,15 +15,15 @@ struct MessageInputBar: View {
     var isFocused: FocusState<Bool>.Binding
 
     var body: some View {
-            HStack(alignment: .bottom, spacing: 6) {
+            HStack(alignment: .bottom, spacing: Spacing.xs) {
                 chatTextField
                 sendMessageView
             }
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
         
-            .padding(.bottom, isFocused.wrappedValue ? 12 : 0)
-            .padding(.top, 12) // determines how much above the fade gradient goes ontop of the view
+            .padding(.bottom, isFocused.wrappedValue ? Spacing.sm : 0)
+            .padding(.top, Spacing.sm) // determines how much above the fade gradient goes ontop of the view
         
             //When no keyboard want it to ignore safe area. When is keyboard, bottom of fade is keyboard so don't ignore safe area
             .background(isFocused.wrappedValue ? nil : fadeGradient.ignoresSafeArea())
@@ -37,7 +37,7 @@ extension MessageInputBar {
         TextField("Message...", text: $text, axis: .vertical)
             .frame(maxWidth: .infinity, minHeight: 20, alignment: .leading)
             .padding(.horizontal)
-            .padding(.vertical, 10)
+            .padding(.vertical, Spacing.sm)
             .lineSpacing(2.5)
             .lineLimit(1...5)
             .focused(isFocused)

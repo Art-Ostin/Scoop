@@ -20,13 +20,13 @@ struct EditPreferredYears: View {
             Text("Preferred Years")
                 .font(.title(32))
                 .padding(.horizontal, 24)
-            LazyVGrid(columns: grid, spacing: 48) {
+            LazyVGrid(columns: grid, spacing: Spacing.xxl) {
                 ForEach(options, id: \.self) { option in
                     YearPill(title: option, selection: selection)
                 }
             }
         }
-        .padding(.bottom, 24)
+        .padding(.bottom, Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appCanvas)
     }
@@ -42,7 +42,7 @@ private struct YearPill: View {
     private var isSelected: Bool { selection.contains(title) }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Spacing.xs) {
             Text(title)
                 .frame(width: 148, height: 44)
                 .font(.body(16, .bold))

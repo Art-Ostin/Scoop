@@ -15,7 +15,7 @@ struct ProfileInviteView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             typeRow
             timeRow
             placeRow
@@ -26,12 +26,12 @@ struct ProfileInviteView: View {
 extension ProfileInviteView {
     private var typeRow: some View {
         
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             Text(event.type.emoji)
                 .font(.body(20, .medium))
             
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 (
                     Text("\(event.type.title): ")
                         .font(.body(16, .medium))
@@ -46,12 +46,12 @@ extension ProfileInviteView {
     
     private var timeRow: some View {
         
-        HStack(spacing: 24) {
+        HStack(spacing: Spacing.lg) {
             Image("MiniClockIcon")
                 .scaleEffect(1.3)
             
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
             if let first = event.proposedTimes.firstAvailableDate {
                 Text(FormatEvent.dayAndTime(first, wide: true, withHour: false))
                     .font(.body(16, .medium))
@@ -65,7 +65,7 @@ extension ProfileInviteView {
     }
     
     private var placeRow: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: Spacing.lg) {
             Image("MiniMapIcon")
                 .scaleEffect(1.3)
                 .foregroundStyle(Color.successGreen)

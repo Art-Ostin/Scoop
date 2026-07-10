@@ -23,7 +23,7 @@ struct DetailsExtraInfo: View {
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             if vicesOnTwoLines {
                 twoLineVices
             } else {
@@ -74,14 +74,14 @@ extension DetailsExtraInfo {
     
     private var oneLineVice: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 16) {
+            HStack(spacing: Spacing.md) {
                 InfoItem(image: "AlcoholIcon", info: p.drinking)
                 InfoItem(image: "CigaretteIcon", info: p.smoking)
                 InfoItem(image: "WeedIcon", info: p.marijuana)
                 InfoItem(image: "DrugsIcon",info: p.drugs)
             }
         }
-        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .padding(.vertical, Spacing.sm) //Trick to expand the tap area of the view so scrolls easier
         .contentShape(Rectangle())
         .padding(.vertical, -12)
     }
@@ -101,7 +101,7 @@ extension DetailsExtraInfo {
     
     private var genderaAndLanguagesScroll: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 24) {
+            HStack(spacing: Spacing.lg) {
                 InfoItem(image: "GenderIcon", info: p.sex)
                 if !p.languages.isEmpty {
                     InfoItem(image: "Languages", info: p.languages.joined(separator: ", "))
@@ -109,7 +109,7 @@ extension DetailsExtraInfo {
                 }
             }
         }
-        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .padding(.vertical, Spacing.sm) //Trick to expand the tap area of the view so scrolls easier
         .contentShape(Rectangle())
         .padding(.vertical, -12)
     }

@@ -21,7 +21,7 @@ struct InterestsHolder<Content: View, Value: Hashable>: View {
     
     var body: some View {
         NavigationLink(value: value) {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.xs) {
                 HStack {
                     Text("Interests & Character")
                         .font(.body(12, .bold))

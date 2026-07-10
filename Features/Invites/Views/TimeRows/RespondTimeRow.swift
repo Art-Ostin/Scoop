@@ -26,7 +26,7 @@ struct RespondTimeRow: View {
 extension RespondTimeRow {
     
     private var originalRowLabel: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.sm) {
             if rowHasIcon {
                 clockIcon
                     .frame(width: 20)
@@ -36,7 +36,7 @@ extension RespondTimeRow {
     }
     
     private var dayDropDownRow: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text(formattedDay)
                 .font(.body(17, .bold))
 

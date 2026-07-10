@@ -27,7 +27,7 @@ struct ProfileImageEditor: View {
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(spacing: 36) {
+            VStack(spacing: Spacing.xl) {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
                 
@@ -37,7 +37,7 @@ struct ProfileImageEditor: View {
                 
                 
                 saveButton
-                    .padding(.top, 24)
+                    .padding(.top, Spacing.lg)
             }
             .padding(.top, 120)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -63,7 +63,7 @@ extension ProfileImageEditor {
                 .padding(.horizontal, 16)
                 .contentShape(Rectangle())
         }
-        .padding(.top, 16)
+        .padding(.top, Spacing.md)
         .padding(.trailing, 6)
         .zIndex(1)
     }
@@ -91,7 +91,7 @@ extension ProfileImageEditor {
     
     private var changeImageButton: some View {
         PhotosPicker(selection: $item, matching: .images) {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.xs) {
                 Image("ChangeIconWhite")
                 
                 Text("Change Photo")

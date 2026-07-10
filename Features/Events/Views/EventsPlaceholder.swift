@@ -12,7 +12,7 @@ struct EventsPlaceholder: View {
 
     var body: some View {
         VStack {
-            VStack(spacing: 84) {
+            VStack(spacing: Spacing.titleGap) {
                 Text("Upcoming Events appear here")
                     .font(.title(16, .medium))
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -23,7 +23,7 @@ struct EventsPlaceholder: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                 
-                VStack(spacing: 24) {
+                VStack(spacing: Spacing.lg) {
                     Text(quotes.shared.allQuotes.first?.quoteText ?? "")
                         .font(.body(16, .italic))
                         .lineSpacing(8)
@@ -34,9 +34,9 @@ struct EventsPlaceholder: View {
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
-            .padding(.bottom, 16)
+            .padding(.bottom, Spacing.md)
             MapDivider()
-            VStack(spacing: 60) {
+            VStack(spacing: Spacing.xxl) {
                 ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
                 MapDivider()
                 ImageSection(textTitle: "Double Date ", text: "Both bring a friend along...social dating is the way", image: "DancingCats")
@@ -57,12 +57,12 @@ struct ImageSection: View {
     
     var body: some View {
         
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             Text(textTitle)
                 .font(.title(24, .bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            VStack(spacing: 24) {
+            VStack(spacing: Spacing.lg) {
                 Image(image)
                     .resizable()
                     .frame(width: 240, height: 240)

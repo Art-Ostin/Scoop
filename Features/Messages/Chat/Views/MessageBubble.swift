@@ -119,8 +119,8 @@ extension MessageBubbleView {
         let text: String = isInviteMessage && isMyChat ? "Edit note" : isInviteMessage ? "" : FormatEvent.hourTime(chat.dateCreated ?? Date())
         Text(text)
             .font(.body(10, isInviteMessage ? .bold : .regular))
-            .padding(.horizontal, 10)
-            .padding(.vertical, isInviteMessage ? 0 : 6)
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, isInviteMessage ? 0 : Spacing.xs)
             .kerning(isInviteMessage ? 0.3 : 1)
             .foregroundStyle(isInviteMessage ? Color.textAccent : isMyChat ? Color.white.opacity(0.7) : Color.textTertiary)
     }

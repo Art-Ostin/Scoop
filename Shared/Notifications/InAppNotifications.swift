@@ -114,10 +114,10 @@ private struct MessageBannerView: View {
     var body: some View {
         Group {
             if let image {
-                HStack(spacing: 16) {
+                HStack(spacing: Spacing.md) {
                     SmallImage(image: image, size: 40, isCircle: true)
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
                         Text(model.authorName)
                             .font(.body(16, .bold))
 
@@ -130,13 +130,13 @@ private struct MessageBannerView: View {
                             .lineSpacing(2.5)
                     }
                 }
-                .padding(.trailing, 16)
-                .padding(.leading, 12)
-                .padding(.vertical, 10)
+                .padding(.trailing, Spacing.md)
+                .padding(.leading, Spacing.sm)
+                .padding(.vertical, Spacing.sm)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
-                .padding(.horizontal, 16)
-                .shadow(.floating, strength: 0.5)
+                .padding(.horizontal, Spacing.gutter)
+                .shadow(.softFloating)
                 .offset(y: dragOffset)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .contentShape(Rectangle())

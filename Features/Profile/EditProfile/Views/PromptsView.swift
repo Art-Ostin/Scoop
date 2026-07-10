@@ -14,7 +14,7 @@ struct PromptsView: View {
     var body: some View {
         let prompts: [PromptResponse] = [ vm.draft.prompt1, vm.draft.prompt2, vm.draft.prompt3,]
         CustomList(title: "Prompts") {
-            VStack(spacing: 12) {
+            VStack(spacing: Spacing.sm) {
                 ForEach(prompts.indices, id: \.self) { i in
                     NavigationLink(value: EditProfileRoute.prompt(i)) {
                         promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
@@ -23,7 +23,7 @@ struct PromptsView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, Spacing.xs)
             .padding(.horizontal, 16)
         }
     }
@@ -34,7 +34,7 @@ extension PromptsView {
     @ViewBuilder
     private func promptResponse (prompt: String, response: String) -> some View {
         let isEmpty = response.isEmpty
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(isEmpty ? "Add Prompt" : prompt)
                     .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
                     .font(.body(14))

@@ -28,7 +28,7 @@ extension InvitePlaceRow {
         Button {
             withAnimation(.snappy) { ui.showMapView.toggle() }
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: Spacing.sm) {
                 Group {
                     if let eventLocation {
                         locationNameAndAddress(eventLocation)
@@ -54,7 +54,7 @@ extension InvitePlaceRow {
     
     
     private func locationNameAndAddress(_ location: EventLocation) -> some View {
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .trailing, spacing: Spacing.xxs) {
             Text(location.name ?? "")
                 .font(.body(17, .medium))
                 .foregroundStyle(Color.textPrimary)

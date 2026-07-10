@@ -15,7 +15,7 @@ struct EventImageCard: View {
     let openProfile: () -> ()
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: Spacing.xs) {
             CardImageCarousel(images: profileImages, scrollProgress: .constant(0))
                 .onTapGesture {openProfile()}
             timerSection
@@ -28,12 +28,12 @@ struct EventImageCard: View {
 extension EventImageCard {
     
     private var timerSection: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: Spacing.lg) {
             photoOverlap
             clockView
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.lg)
     }
     
     var photoOverlap: some View {

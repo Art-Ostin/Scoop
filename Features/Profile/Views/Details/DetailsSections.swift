@@ -40,13 +40,13 @@ extension UserKeyInfo {
     
     private var keyInfoScrollView: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 24) {
+            HStack(spacing: Spacing.lg) {
                 InfoItem(image: "Year", info: p.year)
                 InfoItem(image: "Height", info: ("193cm"))
                 InfoItem(image: "House", info: p.hometown)
             }
         }
-        .padding(.vertical, 12) //Trick to expand the tap area of the view so scrolls easier
+        .padding(.vertical, Spacing.sm) //Trick to expand the tap area of the view so scrolls easier
         .contentShape(Rectangle())
         .padding(.vertical, -12)
     }

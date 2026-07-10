@@ -18,7 +18,7 @@ import SwiftUI
 
      var body: some View {
          ZStack {
-             HStack(spacing: 36) {
+             HStack(spacing: Spacing.xl) {
                  ForEach(0..<6, id: \.self) { index in
                      ZStack {
                          Text(digit(at: index).isEmpty ? "\u{00A0}" : digit(at: index)) //Bug fix of offseting down when start typing

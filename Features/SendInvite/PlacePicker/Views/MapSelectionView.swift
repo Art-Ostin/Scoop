@@ -25,8 +25,8 @@ struct MapSelectionView: View {
     var body: some View {
         
         //Have overlay topLeft scoop Logo when done
-        VStack(alignment: .center, spacing: 16) {
-            VStack(spacing: 8) {
+        VStack(alignment: .center, spacing: Spacing.md) {
+            VStack(spacing: Spacing.xs) {
                 title
                 locationActions
                     .padding(.horizontal, 4)
@@ -37,7 +37,7 @@ struct MapSelectionView: View {
         .frame(maxWidth: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {dismissButton}
         .overlay(alignment: .topLeading) { searchButton}
-        .padding(.vertical, 16)
+        .padding(.vertical, Spacing.md)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
         .animation(.easeInOut(duration: 0.3), value: vm.showAnimation ?  isLoadingLookAround : nil) //Fixes Bug -> fades in when transition but not when first selected
@@ -54,7 +54,7 @@ struct MapSelectionView: View {
 extension MapSelectionView {
     
     private var title: some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: Spacing.xxs) {
             Text(mapItem.name ?? "")
                 .font(.title2)
                 .fontWeight(.bold)
@@ -122,7 +122,7 @@ extension MapSelectionView {
     @ViewBuilder
     private var locationActions: some View {
         
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             MapSelectionAction(text: writeMaps ? "Maps" : "Reviews") {
                  MapsRouter.openGoogleMaps(item: mapItem)
              } icon: {

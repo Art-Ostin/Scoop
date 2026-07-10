@@ -18,14 +18,14 @@ struct SignUpView: View {
     @State private var tabSelection: Int? = 0
 
     var body: some View {
-        VStack(spacing: 48){
+        VStack(spacing: Spacing.xxl){
             
             titleSection
             
-            VStack(spacing: 24) {
+            VStack(spacing: Spacing.lg) {
                 tabSection
             }
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.xs) {
                 ActionButton(text: "Login / Sign Up", hPadding: 24) { showCover = true}
                 termsText
             }
@@ -49,7 +49,7 @@ extension SignUpView {
                 .containerRelativeFrame([.horizontal, .vertical])
                 .id(0)
 
-            VStack(spacing: 36) {
+            VStack(spacing: Spacing.xl) {
                 (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
                 (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
             }
@@ -65,7 +65,7 @@ extension SignUpView {
     }
     
     private var titleSection: some View {
-        VStack(spacing: 24){
+        VStack(spacing: Spacing.lg){
             Text("Scoop")
                 .font(.title())
                 .foregroundStyle(Color.textPrimary)

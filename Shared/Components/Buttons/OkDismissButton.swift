@@ -21,7 +21,7 @@ struct OkDismissButton: View {
                 .frame(width: 100, height: 40)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, 24)
+        .padding(.top, Spacing.lg)
     }
 }
 

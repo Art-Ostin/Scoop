@@ -31,7 +31,7 @@ struct PreferredMapsView: View {
                     mapOption(mapType: .appleMaps)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, Spacing.xs)
             }
         }
     }

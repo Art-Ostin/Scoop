@@ -134,7 +134,7 @@ extension InviteTimeRow {
         if times.count > 1 {
             AnimatedPageIndicator(count: times.count, progress: scrollProgress, dotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, 8)
+                .padding(.bottom, Spacing.xs)
                 .offset(x: 6)
         }
     }

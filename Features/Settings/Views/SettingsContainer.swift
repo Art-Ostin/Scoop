@@ -16,7 +16,7 @@ struct SettingsContainer: View {
     var body: some View {
         NavigationStack { //As Settings appears in full screen cover
             AppScrollView(title: "Settings") {
-                VStack(spacing: 36) {
+                VStack(spacing: Spacing.xl) {
                     meetTheTeam
                     
                     keySettingsSection
@@ -25,7 +25,7 @@ struct SettingsContainer: View {
                     signOutSection
                 }
                 .toolbar { DismissToolbarItem(type: .cross, isLeading: false) }
-                .padding(24)
+                .padding(Spacing.lg)
                 .navigationBarBackButtonHidden()
             }
         }

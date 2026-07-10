@@ -17,7 +17,7 @@ struct MapOptionsView: View {
     @State private var scrollPos = ScrollPosition(idType: MapCategory.self)
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             HStack(spacing: 6) {
                 MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 
@@ -28,12 +28,12 @@ struct MapOptionsView: View {
             mapCategoryIcons
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, 16)
+        .padding(.top, Spacing.md)
     }
     
     private var mapCategoryIcons: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 36) {
+            HStack(spacing: Spacing.xl) {
                 ClearRectangle(size: 0)
                 ForEach(MapCategory.allCases) { category in
                     if category != .park {

@@ -55,7 +55,7 @@ extension MapSearchView {
             ForEach(Array(vm.recentMapSearches.enumerated()), id: \.offset) { index, search in
                 recentSearchRow(search: search)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, Spacing.xxs)
 
                 if index < vm.recentMapSearches.count - 1 {
                     MapDivider()
@@ -83,7 +83,7 @@ extension MapSearchView {
     func recentSearchRow(search: RecentPlace) -> some View {
         HStack(spacing: 0) {
             Button { searchRecentPlace(place: search) } label: {
-                HStack(spacing: 12) {
+                HStack(spacing: Spacing.sm) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(Color.textSecondary)
@@ -119,13 +119,13 @@ extension MapSearchView {
             vm.selectCategory(category)
         } label: {
             VStack(spacing: 0){
-                HStack(spacing: 12) {
+                HStack(spacing: Spacing.sm) {
                     MapCategoryIcon(sheet: $sheet, category: category, isMap: false, vm: vm, useSelectedDetent: $useSelectedDetent)
                     Text(category.description)
                         .font(.body(17, .bold))
                     Spacer()
                 }
-                .padding(16)
+                .padding(Spacing.md)
                 if category != MapCategory.allCases.last {
                     MapDivider()
                         .padding(.leading, 64)
@@ -138,7 +138,7 @@ extension MapSearchView {
     }
     
     private var headerBar: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: Spacing.sm) {
             MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -196,7 +196,7 @@ extension MapSearchView {
         Button {
             vm.deleteSearchFromDefaults(place: place)
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.xs) {
                 Image(systemName: "minus.circle")
                     .foregroundStyle(Color.textPrimary)
                 
@@ -219,7 +219,7 @@ private struct MapSearchBox<Content: View>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8)  {
+        VStack(alignment: .leading, spacing: Spacing.xs)  {
             if let text {
                 Text(text)
                     .font(.system(size: 20, weight: .semibold))
@@ -271,9 +271,9 @@ private struct SearchSuggestionRow: View {
     }
         
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             searchImageIcon
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(highlightedTitle)
                 
                 Text(suggestion.subtitle.isEmpty ? "Search Nearby" : suggestion.subtitle)

@@ -82,7 +82,7 @@ extension MapSheetContainer {
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
             }
             .padding(.horizontal)
-            .padding(.top, 36)
+            .padding(.top, Spacing.xl)
 
             VStack {
                 ProgressView()

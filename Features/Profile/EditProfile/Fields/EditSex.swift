@@ -50,7 +50,7 @@ struct GenericSex: View {
         VStack(alignment: .leading, spacing: 84) {
             SignUpTitle(text: "Sex")
             
-            VStack(alignment: .leading, spacing: 48) {
+            VStack(alignment: .leading, spacing: Spacing.xxl) {
                 HStack {
                     SexStandardPill(title: options[0], selectedOption: $selectedOption) {
                         onTap(selectedOption)
@@ -83,11 +83,11 @@ struct GenericSex: View {
             }
         }
         .padding(.horizontal, 24)
-        .padding(.bottom, 24)
+        .padding(.bottom, Spacing.lg)
         .sheet(isPresented: $showTypeSexField) {
             TextFieldGeneric(text: $selectedOption, field: "Your Gender")
                 .presentationBackground(Color.appCanvas)
-                .padding(.top, 48)
+                .padding(.top, Spacing.xxl)
                 .overlay(alignment: .topTrailing) {
                     if showSaved {
                         SavedIcon(topPadding: 72, horizontalPadding: 36, isSettings: false)
@@ -126,12 +126,12 @@ extension GenericSex {
             .foregroundStyle(Color.textPrimary)
             .font(.system(size: 16))
             .frame(width: 45)
-            .padding(4)
+            .padding(Spacing.xxs)
             .background(
                 Circle()
                     .fill(Color.clear)
                     .capsuleStroke(lineWidth: 0.5, color: .black))
-            .padding(12)
+            .padding(Spacing.sm)
             .contentShape(Circle())
     }
     
@@ -142,7 +142,7 @@ extension GenericSex {
         } label: {
             Text("Done")
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.vertical, Spacing.xs)
                 .font(.body(14, .bold))
                 .foregroundStyle(Color.accent)
                 .background(

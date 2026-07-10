@@ -36,7 +36,7 @@ struct MapCategoryIcon: View {
             vm.selectCategory(category, fromSearchArea: showSearchArea)
             useSelectedDetent = true
         } label : {
-            VStack(spacing: 12) {
+            VStack(spacing: Spacing.sm) {
                 ZStack {
                     Circle()
                         .fill(category.gradient)

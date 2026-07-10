@@ -12,7 +12,7 @@ struct EventDetailsHowItWorks: View {
     let onBack: () -> ()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             Text("NOTE")
                 .font(.body(12, .medium))
                 .foregroundStyle(Color.textSecondary)

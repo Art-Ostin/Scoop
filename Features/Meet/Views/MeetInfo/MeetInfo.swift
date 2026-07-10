@@ -14,13 +14,13 @@ struct MeetInfo: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 48) {
+                VStack(spacing: Spacing.xxl) {
                     ClearRectangle(size: 36)
                     MeetInfoCoverScrollView()
                     responseInfo
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, Spacing.margin)
                     meetInfo
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, Spacing.margin)
                     ClearRectangle(size: 48)
                 }
             }
@@ -30,7 +30,7 @@ struct MeetInfo: View {
             .toolbar { DismissToolbarItem(type: .cross) }
             .overlay(alignment: .bottom) {
                 ActionButton(text: "Done") { dismiss() }
-                    .padding(.bottom, 28)
+                    .padding(.bottom, Spacing.lg)
             }
         }
     }
@@ -39,8 +39,8 @@ struct MeetInfo: View {
 extension MeetInfo {
 
     private var responseInfo: some View {
-        VStack(spacing: 36) {
-            VStack(spacing: 24) {
+        VStack(spacing: Spacing.xl) {
+            VStack(spacing: Spacing.lg) {
                 Text("2. Response")
                     .font(.title(24, .bold))
 
@@ -56,8 +56,8 @@ extension MeetInfo {
     
     
     private var meetInfo: some View {
-        VStack(spacing: 36) {
-            VStack(spacing: 24) {
+        VStack(spacing: Spacing.xl) {
+            VStack(spacing: Spacing.lg) {
                 Text("3. Meet")
                     .font(.title(24, .bold))
                 

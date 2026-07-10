@@ -47,7 +47,7 @@ struct EditNationality: View {
             guard countriesSelected != vm.draft.nationality else { return }
             vm.set(.nationality, \.nationality, to: countriesSelected)
         }
-        .padding(.top, 24)
+        .padding(.top, Spacing.lg)
     }
 }
 
@@ -59,7 +59,7 @@ struct GenericNationality: View {
     //Local view state
     @State private var scrollPosition: String? = "A"
     @Namespace private var alphabetUnderline
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: Spacing.sm), count: 4)
     private let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
     private let countries = CountryDataServices.shared.allCountries
     var availableLetters: Set<String> {
@@ -109,7 +109,7 @@ extension GenericNationality {
 
     private var alphabet: some View {
         CustomScrollTab(height: 60) {
-            LazyVGrid(columns: alphabetColumns, spacing: 24) {
+            LazyVGrid(columns: alphabetColumns, spacing: Spacing.lg) {
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
                         withAnimation(.easeInOut) { scrollPosition = String(char) }
@@ -142,8 +142,8 @@ extension GenericNationality {
         let scrollAnchor = UnitPoint(x: 0.5, y: 0.12)
         ScrollView {
             ClearRectangle(size: 6)
-            VStack(spacing: 48) {
-                LazyVGrid(columns: columns, spacing: 36) {
+            VStack(spacing: Spacing.xxl) {
+                LazyVGrid(columns: columns, spacing: Spacing.xl) {
                     ForEach(CountryDataServices.shared.popularCountries) { country in
                         FlagItem(country: country, countriesSelected: $countriesSelected, onCountryTap: onCountryTap)
                             .padding(.top, 3.5)
@@ -151,7 +151,7 @@ extension GenericNationality {
                 }
                 
                 ForEach(groupedCountries, id: \.letter) {group in
-                    VStack(spacing: 24) {
+                    VStack(spacing: Spacing.lg) {
                         Text(group.letter)
                             .font(.body(32, .medium))
                             .padding(.horizontal)
@@ -159,7 +159,7 @@ extension GenericNationality {
                             .id(group.letter)
                             .offset(x: 16)
                         
-                        LazyVGrid(columns: columns, spacing: 36) {
+                        LazyVGrid(columns: columns, spacing: Spacing.xl) {
                             ForEach(group.countries) { country in
                                 FlagItem(country: country, countriesSelected: $countriesSelected, onCountryTap: onCountryTap)
                             }
@@ -302,14 +302,14 @@ struct CustomScrollTab<Content: View>: View {
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .padding(.vertical, 16)
+            .padding(.vertical, Spacing.md)
             .font(.body(16, .bold))
             .glassRectangle()
             .shadow(.floating)
             .contentShape(Rectangle())
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.horizontal, 8)
-            .padding(.vertical, 12)
+            .padding(.vertical, Spacing.sm)
     }
 }
 

@@ -71,7 +71,7 @@ extension OnboardingContainer {
     }
     
     private var saveButton: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text("Saved")
                 .font(.body(14, .bold))
                 .foregroundStyle(Color.successGreen)
@@ -94,9 +94,9 @@ extension OnboardingContainer {
         } label: {
             Image(systemName: "xmark")
                 .font(.body(16, .bold))
-                .padding(24)
+                .padding(Spacing.lg)
                 .contentShape(Rectangle())
-                .padding(-24)
+                .padding(-Spacing.lg)
         }
     }
     

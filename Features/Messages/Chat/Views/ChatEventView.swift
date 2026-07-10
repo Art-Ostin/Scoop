@@ -20,7 +20,7 @@ struct ChatEventView: View {
     var body: some View {
         
         if let event = event {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 HStack {
                     Text("\(event.otherUserName) Meeting")
                         .font(.body(18, .bold))
@@ -33,7 +33,7 @@ struct ChatEventView: View {
                         .lineLimit(1)
                 }
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
                     eventDetails(event: event)
                     if let message = event.message {
                         Text(message)
@@ -44,12 +44,12 @@ struct ChatEventView: View {
                     }
                 }
             }
-            .padding(.horizontal, 22)
-            .padding(.top, 22)
-            .padding(.bottom, 18)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.top, Spacing.lg)
+            .padding(.bottom, Spacing.md)
             .frame(maxWidth: .infinity)
             .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.15))
-            .padding(.horizontal, 32)
+            .padding(.horizontal, Spacing.xl)
         }
     }
 }

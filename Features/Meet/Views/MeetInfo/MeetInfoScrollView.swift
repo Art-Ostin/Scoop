@@ -12,7 +12,7 @@ struct MeetInfoCoverScrollView: View {
 
     var body: some View {
 
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             Text("1. Invite")
                 .font(.title(24, .bold))
 
@@ -37,7 +37,7 @@ extension MeetInfoCoverScrollView {
     }
     
     func scrollSection(type: Event.EventType) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Spacing.md) {
             Image(type.image)
                 .resizable()
                 .frame(width: 180, height: 180)
@@ -53,6 +53,6 @@ extension MeetInfoCoverScrollView {
             .multilineTextAlignment(.center)
             .lineSpacing(4)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.margin)
     }
 }

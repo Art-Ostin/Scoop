@@ -81,7 +81,7 @@ extension SendInviteCard {
             imageSlot(imageWidth)
             sendInviteContainer
         }
-        .padding(.bottom, 12)
+        .padding(.bottom, Spacing.sm)
         .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
             guard !dragging else { return } //Frames are the drag's model space; frozen while it owns them
@@ -162,7 +162,7 @@ extension SendInviteCard {
         backgroundShape(origin)
             //Expanded, the card is a modal surface: top-of-ramp elevation, halved so
             //the near-fullscreen sheet keeps only a hint of edge while dragged.
-            .shadow(.floating, strength: expanded ? 0.5 : 0)
+            .shadow(.softFloating, strength: expanded ? 1 : 0)
             //ProfileCard's resting shadow (its .shadow(.image) + MeetContainer's wrapper = twice),
             //worn by the flight while collapsed: the shadow morphs in DURING the close and is already
             //complete the frame the card lands, so the unmount handoff to the real ProfileCard (which

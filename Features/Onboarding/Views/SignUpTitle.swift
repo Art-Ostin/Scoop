@@ -14,7 +14,7 @@ struct SignUpTitle: View {
     var subtitle: String = ""
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 12) {
+        HStack(alignment: .bottom, spacing: Spacing.sm) {
             Text(text)
                 .font(.title())
                 .alignmentGuide(.bottom) { d in d[.firstTextBaseline] }

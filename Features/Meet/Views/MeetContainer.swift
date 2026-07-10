@@ -89,14 +89,14 @@ extension MeetContainer {
     }
 
     private var profileCardsSection: some View {
-        LazyVStack(spacing: 64) {
+        LazyVStack(spacing: Spacing.xxxl) {
             ForEach(vm.profiles) { profile in
                 profileCard(profile)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 60)
-        .padding(.top, 36)
+        .padding(.horizontal, Spacing.gutter)
+        .padding(.bottom, Spacing.xxl)
+        .padding(.top, Spacing.xl)
     }
     
     private func profileCard(_ profile: PendingProfile)-> some View {
@@ -107,7 +107,7 @@ extension MeetContainer {
             onQuickInvite: {image in openQuickInvite(profile, image: image)}
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
-        .shadow(.image) //Shadow works Nicely Keep!
+        .shadow(.image)
     }
 }
 

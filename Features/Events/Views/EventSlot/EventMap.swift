@@ -15,14 +15,14 @@ struct EventMap: View {
     let openMaps: () -> ()
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             EventLocationMap(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             locationInfo
         }
         .padding([.horizontal, .top], 4)
-        .padding(.bottom, 16)
+        .padding(.bottom, Spacing.md)
         .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0)
-        .shadow(.floating, strength: !disableMap ? 0.6 : 0)
+        .shadow(.image, strength: !disableMap ? 1 : 0)
         .eventCardBackground()
     }
 }
@@ -30,17 +30,17 @@ struct EventMap: View {
 extension EventMap {
 
     private var locationInfo: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             locationTextSection
             locationButtonSection
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.lg)
     }
     
     @ViewBuilder
     private var locationTextSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             HStack {
                 Text(location.name ?? "")
                     .font(.body(19, .bold))

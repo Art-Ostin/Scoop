@@ -20,7 +20,7 @@ struct SelectPrompt: View {
                     PromptRow(text: text, prompt: $userPrompt)
                 }
             }
-            .padding(.top, 48)
+            .padding(.top, Spacing.xxl)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .scrollContentBackground(.hidden)
             .padding(.leading, 24)

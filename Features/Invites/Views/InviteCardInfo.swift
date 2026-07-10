@@ -16,7 +16,7 @@ struct InviteCardInfo: View {
     let onRespond: () -> ()
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             eventTypeLine
             eventTimeLine
             eventPlaceLine
@@ -32,7 +32,7 @@ struct InviteCardInfo: View {
 extension InviteCardInfo {
     
     private var eventTypeLine: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.sm) {
             Text(eventProfile.event.type.emoji)
                 .font(.body(14))
                 .frame(width: 20, alignment: .leading)
@@ -42,7 +42,7 @@ extension InviteCardInfo {
     }
     
     private var eventPlaceLine: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.sm) {
             Image("MiniMapIcon")
                 .scaleEffect(1.2, anchor: .center)
                 .frame(width: 20, alignment: .leading)
@@ -50,7 +50,7 @@ extension InviteCardInfo {
             Text("Barbossa Montreal") //eventProfile.event.location.name ?? ""
                 .foregroundStyle(Color.successGreen)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.trailing, 19)
+                .padding(.trailing, Spacing.lg)
         }
     }
     
@@ -61,14 +61,14 @@ extension InviteCardInfo {
     private var infoButton: some View {
         SmallInfoIcon(size: 12, colour: Color.textPlaceholder)
             .padding()
-            .padding(.trailing, 8)
+            .padding(.trailing, Spacing.xs)
     }
     
     private var inviteButton: some View {
         InviteButton(isInviting: false, isInviteCard: true) {
             onRespond()
         }
-        .padding(12)
+        .padding(Spacing.sm)
     }
 }
 
@@ -76,8 +76,8 @@ struct InviteCardInfoBackground: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(16)
-            .padding(.vertical, 8)
+            .padding(Spacing.md)
+            .padding(.vertical, Spacing.xs)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.concentric(in: CornerRadius.image, inset: 12)))
     }

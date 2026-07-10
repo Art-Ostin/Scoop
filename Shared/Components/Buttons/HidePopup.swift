@@ -17,21 +17,8 @@ struct HidePopup: View {
                 .font(.title(14, .bold))
                 .kerning(1.5)
                 .foregroundStyle(Color.textPrimary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xxs)
         }
     }
 }
-
-/*
- Button(action: onHide) {
-     Text("Hide")
-         .font(.title(14, .bold))
-         .kerning(1.5)
-         .foregroundStyle(Color.textPrimary)
-         .padding(36)
-         .contentShape(Rectangle())
- }
- .padding(-36)
-
- */

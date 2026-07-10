@@ -59,9 +59,9 @@ extension EventsContainer {
         PagerScrollView {
             ForEach(vm.events) { eventProfile in
                 eventSlot(eventProfile)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 32)
-                    .padding(.bottom, 84)
+                    .padding(.horizontal, Spacing.gutter)
+                    .padding(.top, Spacing.xl)
+                    .padding(.bottom, Spacing.clearance)
                     .containerRelativeFrame(.horizontal)
                     .id(eventProfile.id)
             }
@@ -88,13 +88,13 @@ extension EventsContainer {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)
-                    .padding(10)
+                    .padding(Spacing.sm)
                     .glassEffectIfAvailable(shape: Circle())
                     .expandHitArea(24)
             }
             .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
-            .padding(.bottom, 96)
-            .padding(.horizontal, 24)
+            .padding(.bottom, Spacing.clearance)
+            .padding(.horizontal, Spacing.margin)
         }
     }
 }

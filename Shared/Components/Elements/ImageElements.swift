@@ -20,7 +20,7 @@ struct ScoopImage: View {
 
     var body: some View {
         Color.clear
-            .aspectRatio(aspectRatio, contentMode: .fit)
+            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
             .overlay {
                 Image(uiImage: image)
                     .resizable()
@@ -32,6 +32,7 @@ struct ScoopImage: View {
                 fillsPageWidth ? length : length - hPadding * 2
             }
             .shadow(showShadow ? .image : nil)
+        
     }
 }
 
@@ -78,7 +79,7 @@ struct CardImageCarousel: View {
     @Binding var scrollProgress: Double
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Spacing.xs) {
             ImageCarousel(
                 images: images,
                 hPadding: imagePadding,

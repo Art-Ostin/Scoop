@@ -20,7 +20,7 @@ struct EventInfo: View {
 
 
     var body: some View {
-        VStack(spacing: 36){
+        VStack(spacing: Spacing.xl){
             Text("\(eventType.emoji) \(eventType.longTitle)")
                 .font(.system(size: 24, weight: .medium, design: .serif))
             scrollSection
@@ -37,11 +37,11 @@ extension EventInfo {
                 eventInfoSlot(type: infoType)
             }
         }
-        .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
+        .padding(.horizontal, -Spacing.gutter) // Negates the card gutter so the carousel is full-bleed
     }
     
     private func eventInfoSlot(type: EventInfoData) -> some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             Image(type.image)
                 .resizable()
                 .scaledToFill()
@@ -50,7 +50,7 @@ extension EventInfo {
                 .font(.body(17, .medium))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
         }
         .containerRelativeFrame(.horizontal)
     }

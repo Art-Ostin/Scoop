@@ -49,7 +49,7 @@ struct InfoView: View {
         let sections: [(title: String, data: [EditPreview])] = [
             ("Core", coreInfo), ("About", aboutMe)]
         
-            VStack(spacing: 36) {
+            VStack(spacing: Spacing.xl) {
                 ForEach(sections, id: \.title) {section in
                     CustomList(title: section.title) {
                         ForEach(section.data) { info in

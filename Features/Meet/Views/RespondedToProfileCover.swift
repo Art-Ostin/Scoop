@@ -18,7 +18,7 @@ struct RespondedToProfileCover: View {
     let responseType: ProfileResponse
     
     var body: some View {
-        VStack(alignment: .center, spacing: 36) {
+        VStack(alignment: .center, spacing: Spacing.xl) {
             switch responseType {
             case .accepted:
                 Image("DancingCats")

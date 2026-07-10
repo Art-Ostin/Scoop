@@ -34,7 +34,7 @@ struct EditLanguages: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32)  {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.xs) {
                 SignUpTitle(text: "Languages Spoken")
                     .padding(.horizontal, 24)
                 selectedView
@@ -49,7 +49,7 @@ struct EditLanguages: View {
         .focusable()
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
-        .padding(.top, 24)
+        .padding(.top, Spacing.lg)
         .background(Color.appCanvas)
         .ignoresSafeArea(.keyboard)
         .onChange(of: isScrolling) {
@@ -118,7 +118,7 @@ extension EditLanguages {
                 }
             }
             .padding(.horizontal, -16) //Offsets default Flowlayout padding
-            .padding(.top, 8)
+            .padding(.top, Spacing.xs)
             .offset(y: 24) //Acts as Padding with the fade at start
         }
         .frame(maxWidth: .infinity, alignment: .leading)

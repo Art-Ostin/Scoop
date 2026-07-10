@@ -19,10 +19,10 @@ struct DeclineButton: View {
             )
             .circleStroke(lineWidth: 1, color: Color.border)
             .contentShape(Circle())
-            .shadow(.floating)
+            .shadow(.button)
             .onTapGesture {onTap()}
             .scaleEffect(1.1)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 6)
+            .padding(.horizontal, Spacing.margin)
+            .padding(.bottom, Spacing.xs)
     }
 }

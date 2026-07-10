@@ -100,7 +100,7 @@ struct PromptGeneric: View {
     var body: some View {
         VStack(spacing: 60) {
             SignUpTitle(text: promptTitle[promptIndex])
-            VStack(spacing: 36) {
+            VStack(spacing: Spacing.xl) {
                 selector
                 textEditor
             }
@@ -109,7 +109,7 @@ struct PromptGeneric: View {
             isFocused = true
             if prompt.prompt.isEmpty {prompt.prompt = prompts.randomElement() ?? "My Ideal Date"}
         }
-        .padding(.top, 24)
+        .padding(.top, Spacing.lg)
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt, promptIndex: promptIndex)}
@@ -120,7 +120,7 @@ struct PromptGeneric: View {
 
 extension PromptGeneric {
     private var selector: some View {
-        HStack (spacing: 24) {
+        HStack (spacing: Spacing.lg) {
             Text(prompt.prompt)
                 .font(.body(16))
                 .lineSpacing(8)
@@ -171,7 +171,7 @@ extension PromptGeneric {
                     .foregroundStyle(Color.textPlaceholder)
                 // Match the TextEditor’s visual inset
                     .padding(.horizontal, 22)
-                    .padding(.vertical, 24)
+                    .padding(.vertical, Spacing.lg)
                     .allowsHitTesting(false)
             }
         }
