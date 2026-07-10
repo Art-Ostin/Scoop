@@ -176,7 +176,7 @@ extension SendInviteCard {
         let expandedRect = lerp(cardFrame, imageFrame, dragProgress)
         let rect = local(expanded ? expandedRect : sourceFrame, origin)
         let radius = expanded ? Self.cardRadius : Self.sourceRadius
-        return RoundedRectangle(cornerRadius: radius, style: .continuous)
+        return RoundedRectangle(cornerRadius: radius)
             .fill(Color.appCanvas)
             .frame(width: rect.width, height: rect.height)
             .position(x: rect.midX, y: rect.midY)

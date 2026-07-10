@@ -84,6 +84,14 @@ Features/<Name>/
   new color? Add a token.
 - Fonts: only `Shared/Design/ScoopFonts.swift` — `.font(.body(16, .medium))`,
   `.font(.title(26))`, and the `UIFont` variants. No `.font(.system(...))` in features.
+- Corners: only `CornerRadius` tokens from `Shared/Design/GeneralParameters.swift` — the 4pt
+  scale (`xs/sm/md/lg/xl`), role aliases (`image`, `smallImage`), and measured system stand-ins
+  (`alert`, `menuPlatter`, …). Curvature is always continuous — it's the iOS 26 SDK default, so
+  **never pass `style:`** (the one sanctioned `.circular` is a rounded rect standing in for a
+  true circle, e.g. `matchedTransitionSource`). True pills are `Capsule()`, true circles
+  `Circle()` — never a radius the frame clamps. A rounded view inset in a rounded parent uses
+  `CornerRadius.concentric(in:inset:)`. Borders go through `Shared/Design/Strokes.swift`
+  (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
 

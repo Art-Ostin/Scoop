@@ -37,14 +37,7 @@ extension MeetInfoCoverScrollView {
             }
             .scrollTargetLayout()
         }
-        .scrollTargetBehavior(.paging)
-        .scrollIndicators(.hidden)
-        .onScrollGeometryChange(for: Double.self) { geo in
-            let width = geo.containerSize.width
-            return width > 0 ? geo.contentOffset.x / width : 0
-        } action: { _, newValue in
-            scrollProgress = newValue
-        }
+        .pagedScroll(progress: $scrollProgress)
     }
     
     func scrollSection(type: Event.EventType) -> some View {

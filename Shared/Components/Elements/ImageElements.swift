@@ -10,14 +10,14 @@ import SwiftUI
 //All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here
 struct ScoopImage: View {
     let image: UIImage
-    
+
     var aspectRatio: AspectRatio = .default
-    var radius: CGFloat = CornerRadius.image
-    var bottomRadius: CGFloat? = nil
-    var hPadding: CGFloat = 16
-    var isCarousel = false
+    var radii: RectangleCornerRadii = .init(uniform: CornerRadius.image)
+    var hPadding: CGFloat = Spacing.gutter
+
+    var fillsPageWidth = false
     var showShadow = false
-    
+
     var body: some View {
         Color.clear
             .aspectRatio(aspectRatio, contentMode: .fit)
@@ -26,35 +26,68 @@ struct ScoopImage: View {
                     .resizable()
                     .scaledToFill()
             }
-            .imageClip(top: radius, bottom: bottomRadius ?? radius)
-            .imagePadding(isCarousel, hPadding: hPadding)
+            .clipShape(.rect(cornerRadii: radii))
+            .padding(.horizontal, fillsPageWidth ? hPadding : 0)
+            .containerRelativeFrame(.horizontal) { length, _ in
+                fillsPageWidth ? length : length - hPadding * 2
+            }
             .cardShadow(showShadow: showShadow)
     }
 }
 
-extension View {
-    
-    func imagePadding(_ isCarousel: Bool, hPadding: CGFloat) -> some View {
-        padding(.horizontal, isCarousel ? hPadding : 0)
-        .containerRelativeFrame(.horizontal) { length, _ in
-            isCarousel ? length : length - hPadding * 2
+
+struct ImageCarousel: View {
+    let images: [UIImage]
+
+    // Geometry
+    let hPadding: CGFloat
+    let topRadius: CGFloat
+    let bottomRadius: CGFloat
+    var aspectRatio: AspectRatio
+
+    @Binding var scrollProgress: Double
+    @Binding var scrollPosition: ScrollPosition
+    var hiddenIndex: Int? = nil //Page hidden while the profile-morph flight copy covers it
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(images.indices, id: \.self) { index in
+                    carouselImage(images[index])
+                        .opacity(index == hiddenIndex ? 0 : 1)
+                }
+            }
+            .scrollTargetLayout()
         }
+        .pagedScroll(progress: $scrollProgress)
+        .scrollPosition($scrollPosition)
+        .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them
     }
-    
-    func imageClip(top: CGFloat, bottom: CGFloat) -> some View {
-        clipShape(.rect(
-            topLeadingRadius: top,
-            bottomLeadingRadius: bottom,
-            bottomTrailingRadius: bottom,
-            topTrailingRadius: top,
-            style: .continuous
-        ))
+
+    private func carouselImage(_ image: UIImage) -> some View {
+        ScoopImage(
+            image: image,
+            aspectRatio: aspectRatio,
+            radii: .init(top: topRadius, bottom: bottomRadius),
+            hPadding: hPadding,
+            fillsPageWidth: true
+        )
     }
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 struct SmallImage: View {
-    
     let image: UIImage
     let size: CGFloat
     

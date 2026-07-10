@@ -39,7 +39,7 @@ extension ProfileImageView {
             hPadding: 8,
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
-            aspectRatio: .default,
+            aspectRatio: .card,
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,
             hiddenIndex: morph?.hiddenDestIndex
@@ -62,8 +62,8 @@ extension ProfileImageView {
                     }
                     ClearRectangle(size: 0)
                 }
-                .offset(x: 18) // Gives ScrollView padding initially
             }
+            .contentMargins(12)
             .frame(height: 60)
             .scrollPosition($scrollPosition)
             .scrollDisabled(disableScroll)

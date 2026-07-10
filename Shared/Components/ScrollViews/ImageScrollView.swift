@@ -6,86 +6,28 @@
 
 import SwiftUI
 
-struct ImageCarousel: View {
-    let images: [UIImage]
-
-    // Geometry
-    let hPadding: CGFloat
-    let topRadius: CGFloat
-    let bottomRadius: CGFloat
-    var aspectRatio: AspectRatio = .default
-
-    @Binding var scrollProgress: Double
-    @Binding var scrollPosition: ScrollPosition
-    var hiddenIndex: Int? //Page hidden while a morph's floating copy covers it
-
-    init(
-        images: [UIImage],
-        hPadding: CGFloat,
-        topRadius: CGFloat,
-        bottomRadius: CGFloat,
-        aspectRatio: AspectRatio = .default,
-        scrollProgress: Binding<Double> = .constant(0),
-        scrollPosition: Binding<ScrollPosition> = .constant(ScrollPosition()),
-        hiddenIndex: Int? = nil
-    ) {
-        self.images = images
-        self.hPadding = hPadding
-        self.topRadius = topRadius
-        self.bottomRadius = bottomRadius
-        self.aspectRatio = aspectRatio
-        self._scrollProgress = scrollProgress
-        self._scrollPosition = scrollPosition
-        self.hiddenIndex = hiddenIndex
-    }
-    
-    var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(images.indices, id: \.self) { index in
-                    carouselImage(images[index])
-                        .opacity(index == hiddenIndex ? 0 : 1)
-                }
-            }
-            .scrollTargetLayout()
-        }
-        .scrollTargetBehavior(.paging)
-        .scrollPosition($scrollPosition)
-        .scrollIndicators(.hidden)
-        .trackScrollProgress(scrollProgress: $scrollProgress)
-        .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them
-    }
-
-    private func carouselImage(_ image: UIImage) -> some View {
-        ScoopImage(
-            image: image,
-            aspectRatio: aspectRatio,
-            radius: topRadius,
-            bottomRadius: bottomRadius,
-            hPadding: hPadding,
-            isCarousel: true
-        )
-    }
-}
 
 
 
 struct CardImageScrollView: View {
-
-    //Standardised card-image geometry. SendInviteCard derives its card/flight radii
-    //from these so the flight copy always matches the settled carousel.
-    static let imagePadding: CGFloat = 3
-    static let parentCornerRadius = CornerRadius.image
-    static let aspectRatio: AspectRatio = .card
-    static let bottomRadius = CornerRadius.sm //Card content continues below the image
+    
+    let images: [UIImage]
+    let imagePadding: CGFloat = 3
+    
+    
     static var topRadius: CGFloat { CornerRadius.concentric(in: parentCornerRadius, inset: imagePadding) }
 
+    
     //Injected (scrollProgress: pass a binding when the parent tracks paging, e.g. InviteImageCarousel's blur)
-    let images: [UIImage]
     var scrollProgress: Binding<Double>? = nil
 
     //Local view state
     @State private var internalProgress: Double = 0
+    
+    var topRadius: CGFloat { CornerRadius.concentric(in: 24, inset: 3)}
+    
+    
+    
 
     private var progress: Binding<Double> { scrollProgress ?? $internalProgress }
 
@@ -94,12 +36,12 @@ struct CardImageScrollView: View {
             ImageCarousel(
                 images: images,
                 hPadding: Self.imagePadding,
-                topRadius: Self.topRadius,
-                bottomRadius: Self.bottomRadius,
-                aspectRatio: Self.aspectRatio,
-                scrollProgress: progress
+                topRadius: topRadius,
+                bottomRadius: CornerRadius.sm,
+                aspectRatio: AspectRatio.card,
+                scrollProgress: progress,
+                scrollPosition: .constant(ScrollPosition())
             )
-
             AnimatedPageIndicator(count: images.count, progress: progress.wrappedValue)
                 .scaleEffect(0.7, anchor: .top)
         }
@@ -124,12 +66,29 @@ struct HorizontalScrollView<Content: View>: View {
             .scrollTargetLayout()
         }
         .contentMargins(.horizontal, peek, for: .scrollContent)
-        .scrollTargetBehavior(.paging)
-        .scrollIndicators(.hidden)
+        .pagedScroll()
+    }
+}
+
+
+extension View {
+    @ViewBuilder
+    func pagedScroll(progress: Binding<Double>? = nil) -> some View {
+        let base = self
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
+        if let progress {
+            base.trackScrollProgress(scrollProgress: progress)
+        } else {
+            base
+        }
     }
 }
 
 extension View {
+    //Shared pager defaults. .paging over .viewAligned is deliberate: viewAligned settles too soft.
+    //Position tracking and clip behaviour vary per pager, so they stay at the call site.
+
     @ViewBuilder
     func horizontalScrollSlot(id: some Hashable, shrinkAnchor: UnitPoint? = nil) -> some View {
         let page = self

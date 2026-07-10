@@ -238,7 +238,7 @@ private struct MapSelectionAction<Icon: View>: View {
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? Color.textAccent : Color.textPlaceholder)
-        .stroke(CornerRadius.xl, lineWidth: 1.2, color: Color.border)
+        .stroke(CornerRadius.xl, lineWidth: 1.2)
         .disabled(!isEnabled)
     }
 }

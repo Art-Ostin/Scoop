@@ -109,7 +109,7 @@ extension View {
             .compositingGroup()
             .shadow(color: Color.black.opacity(0.0125), radius: 4, x: 0, y: 1)
             .shadow(color: Color.black.opacity(0.0075), radius: 12, x: 0, y: 0)
-            .stroke(CornerRadius.md, lineWidth: 0.85, color: Color.border)
+            .stroke(CornerRadius.md, lineWidth: 0.85)
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view

@@ -38,11 +38,7 @@ struct ChatRowView: View {
 extension ChatRowView {
     
     private var profilePhoto: some View {
-        Image(uiImage: chatPreview.image ?? UIImage())
-            .resizable()
-            .scaledToFill()
-            .frame(width: 60, height: 60)
-            .clipShape(Circle())
+        SmallImage(image: chatPreview.image ?? UIImage(), size: 60, isCircle: true)
     }
 
     private var nameAndTitle: some View {

@@ -1,5 +1,5 @@
 //
-//  TestScreen.swift
+//  BlockedContextView.swift
 //  Scoop
 //
 //  Created by Art Ostin on 23/01/2026.
@@ -24,11 +24,7 @@ struct BlockedContextView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .center, spacing: 8) {
                     if let image = profileImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 25, height: 25)
-                            .clipShape(Circle())
+                        SmallImage(image: image, size: 25, isCircle: true)
                     }
                     
                     Text("\(frozenContext.profileName)")
@@ -55,7 +51,7 @@ struct BlockedContextView: View {
                     .foregroundStyle(Color.appCanvas)
                     .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
             )
-            .stroke(CornerRadius.md, lineWidth: 1, color: Color.border)
+            .stroke(CornerRadius.md)
             .overlay(alignment: .bottomTrailing) {
                 Text("\(vm.user.name) " + (isBlock ? "didn't show" : "cancelled"))
                     .font(.body(12, .bold))

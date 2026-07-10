@@ -68,10 +68,8 @@ struct PagedScrollStyle: ViewModifier {
         content
             .scrollPosition(id: $scrolledPageID)
             .getWidth($pageWidth)
-            .trackScrollProgress(scrollProgress: $scrollProgress)
-            .scrollIndicators(.hidden)
             .scrollDisabled(pageCount <= 1)
-            .scrollTargetBehavior(.paging)
+            .pagedScroll(progress: $scrollProgress)
     }
 }
 

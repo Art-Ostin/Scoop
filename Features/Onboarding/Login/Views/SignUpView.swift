@@ -65,9 +65,8 @@ extension SignUpView {
             .scrollTargetLayout()
         }
         .frame(height: 200)
-        .scrollTargetBehavior(.paging)
+        .pagedScroll()
         .scrollPosition(id: $tabSelection)
-        .scrollIndicators(.hidden)
     }
     
     private var titleSection: some View {

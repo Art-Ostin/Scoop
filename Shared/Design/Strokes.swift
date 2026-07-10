@@ -7,20 +7,22 @@
 
 import SwiftUI
 
+//The app's only border API: every stroked corner goes through these, so the
+//stroke always shares the curvature (and ideally the token) of the fill it wraps.
 extension View {
 
-    func rectangleStroke(radius: CGFloat, lineWidth: CGFloat, color: Color = Color.border) -> some View {
+    func stroke(_ radius: CGFloat, lineWidth: CGFloat = 1, color: some ShapeStyle = Color.border) -> some View {
         self
             .overlay {
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                RoundedRectangle(cornerRadius: radius)
                     .strokeBorder(color, lineWidth: lineWidth)
             }
     }
 
-    func rectangleStroke(corners: RectangleCornerRadii, lineWidth: CGFloat, color: Color = Color.border) -> some View {
+    func stroke(_ corners: RectangleCornerRadii, lineWidth: CGFloat = 1, color: some ShapeStyle = Color.border) -> some View {
         self
             .overlay {
-                UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+                UnevenRoundedRectangle(cornerRadii: corners)
                     .strokeBorder(color, lineWidth: lineWidth)
             }
     }

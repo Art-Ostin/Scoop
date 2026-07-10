@@ -194,7 +194,7 @@ enum DropdownCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
-    static let platterCornerRadius: CGFloat = 26
+    static let platterCornerRadius = CornerRadius.menuPlatter
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
     /// Peak refraction blur while the menu content is materializing as the
@@ -330,7 +330,7 @@ enum DropdownCustomMenuSpec {
     static let closeFade = Animation.easeIn(duration: 0.18)
     /// Window teardown after the classic close animation has finished.
     static let teardownDelay: TimeInterval = 0.32
-    static let legacyCornerRadius: CGFloat = 13
+    static let legacyCornerRadius = CornerRadius.legacyMenuPlatter
 
     // ── Shared metrics ──
     /// Standard native menu width; opt in with .frame(width:) on your content.
@@ -362,7 +362,7 @@ enum DropdownCustomMenuSpec {
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
-    static let highlightCornerRadius: CGFloat = 14
+    static let highlightCornerRadius = CornerRadius.menuHighlight
 }
 
 // MARK: - DropdownCustomMenu
@@ -669,7 +669,7 @@ extension View {
 struct DropdownCustomMenuFooterPlatter: ViewModifier {
     let corners: RectangleCornerRadii
     func body(content: Content) -> some View {
-        let shape = UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+        let shape = UnevenRoundedRectangle(cornerRadii: corners)
         if #available(iOS 26.0, *) {
             content
                 .glassEffect(.regular, in: shape)
@@ -699,7 +699,7 @@ private struct DropdownCustomMenuItemModifier: ViewModifier {
             .background {
                 if controller?.highlightedItemID == id {
                     if #available(iOS 26.0, *) {
-                        RoundedRectangle(cornerRadius: DropdownCustomMenuSpec.highlightCornerRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: DropdownCustomMenuSpec.highlightCornerRadius)
                             .fill(DropdownCustomMenuSpec.highlightFill)
                             .padding(3)
                     } else {
@@ -1484,8 +1484,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
         let placement = metrics.placement(for: menuSize ?? .zero)
         let platterShape = UnevenRoundedRectangle(
             cornerRadii: controller.cornerRadii
-                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.legacyCornerRadius),
-            style: .continuous
+                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.legacyCornerRadius)
         )
 
         chromeCore(content: content, metrics: metrics)
@@ -1640,7 +1639,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 .blur(radius: (1 - p).clamped(to: 0...1) * DropdownCustomMenuSpec.lensBlur)
                 .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                 .frame(width: w, height: h, alignment: .topLeading)
-                .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners, style: .continuous))
+                .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: lens.corners))
                 // Native platters cast a wide soft shadow; it grows with the bloom
                 // so the small origin circle casts almost none.
                 .shadow(color: .black.opacity(DropdownCustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
@@ -1741,7 +1740,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 .blur(radius: blur)
                 .opacity(contentOpacity)
                 .frame(width: w, height: h, alignment: .topLeading)
-                .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: corners, style: .continuous))
+                .glassEffect(.regular, in: UnevenRoundedRectangle(cornerRadii: corners))
                 .shadow(color: .black.opacity(DropdownCustomMenuSpec.platterShadowOpacity * shadowScale),
                         radius: DropdownCustomMenuSpec.platterShadowRadius * shadowScale,
                         y: DropdownCustomMenuSpec.platterShadowY * shadowScale)

@@ -125,7 +125,7 @@ extension RespondCard {
                 .foregroundStyle(Color.textSecondary)
                 .frame(width: 135)
                 .frame(height: 40)
-                .stroke(CornerRadius.md, lineWidth: 1.5, color: Color.border)
+                .stroke(CornerRadius.md, lineWidth: 1.5)
         }
     }
 }

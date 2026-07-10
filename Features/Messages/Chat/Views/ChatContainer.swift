@@ -119,13 +119,14 @@ extension ChatContainer {
     }
 
     private var profileButton: some View {
-        ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
+        let avatarSize: CGFloat = 35
+        return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
             onProfileTap()
         } label: {
             HStack(spacing: 6) {
-                SmallImage(image: profileImages.first ?? UIImage(), size: 35, isCircle: true)
+                SmallImage(image: profileImages.first ?? UIImage(), size: avatarSize, isCircle: true)
                     .scaleEffect(0.9)
-                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: 35 / 2, visualScale: 0.9)
+                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: avatarSize / 2, visualScale: 0.9)
 
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))

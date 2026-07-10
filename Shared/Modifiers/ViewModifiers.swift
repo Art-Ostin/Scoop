@@ -31,13 +31,6 @@ extension View {
         modifier(CustomCaption())
     }
 
-    func stroke<S: ShapeStyle>(_ cornerRadius: CGFloat, lineWidth: CGFloat = 1, color: S) -> some View {
-        overlay (
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .strokeBorder(color, lineWidth: lineWidth)
-        )
-    }
-
     func colorBackground(_ color: Color, top: Bool = false) -> some View {
         modifier(BackgroundFill(color: color, top: top))
     }

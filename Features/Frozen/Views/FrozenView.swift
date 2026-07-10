@@ -84,9 +84,8 @@ extension FrozenView {
             }
             .scrollTargetLayout()
         }
-        .scrollTargetBehavior(.paging)
+        .pagedScroll()
         .scrollPosition(id: $tabSelection)
-        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     

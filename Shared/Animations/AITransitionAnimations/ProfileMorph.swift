@@ -221,7 +221,7 @@ struct ProfileMorphLayer: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: morph.flightRect.width, height: morph.flightRect.height)
-                    .clipShape(UnevenRoundedRectangle(cornerRadii: morph.flightRadii, style: .continuous))
+                    .clipShape(UnevenRoundedRectangle(cornerRadii: morph.flightRadii))
                     .position(x: morph.flightRect.midX - origin.x, y: morph.flightRect.midY - origin.y)
             }
         }
@@ -524,7 +524,7 @@ struct ZoomClipShape: Shape {
     func path(in bounds: CGRect) -> Path {
         //Geometry not yet measured (first layout frames): don't clip anything.
         guard rect.width > 0, rect.height > 0 else { return Path(bounds) }
-        return Path(roundedRect: rect, cornerRadii: radii, style: .continuous)
+        return Path(roundedRect: rect, cornerRadii: radii)
     }
 }
 

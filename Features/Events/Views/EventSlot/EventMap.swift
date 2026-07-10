@@ -21,7 +21,7 @@ struct EventMap: View {
         }
         .padding([.horizontal, .top], 4)
         .padding(.bottom, 16)
-        .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0, color: Color.border)
+        .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0)
         .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
         .eventCardBackground()
     }

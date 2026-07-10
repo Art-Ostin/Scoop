@@ -39,8 +39,7 @@ struct SendInviteFlight: View {
                 topLeadingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius,
                 bottomLeadingRadius: expanded ? SendInviteCard.imageBottomRadius : SendInviteCard.sourceRadius,
                 bottomTrailingRadius: expanded ? SendInviteCard.imageBottomRadius : SendInviteCard.sourceRadius,
-                topTrailingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius,
-                style: .continuous
+                topTrailingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius
             ))
             .onTapGesture { hideInvite() }
             .allowsHitTesting(expanded && !settled && !dragging)
@@ -72,7 +71,7 @@ extension SendInviteFlight {
             .frame(width: size.width, height: size.height)
             .blur(radius: BackgroundBlur.imageBlurRadius)
             .mask { topBlurHalo }
-            .clipShape(.rect(cornerRadius: SendInviteCard.imageBottomRadius, style: .continuous))
+            .clipShape(.rect(cornerRadius: SendInviteCard.imageBottomRadius))
             .allowsHitTesting(false)
             .opacity(expanded ? 1 : 0)
     }

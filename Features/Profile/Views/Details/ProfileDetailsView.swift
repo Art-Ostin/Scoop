@@ -54,8 +54,8 @@ struct ProfileDetailsView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: ui.detailsCardHeight).background(Color.appCanvas)
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: CornerRadius.xl, topTrailingRadius: CornerRadius.xl, style: .continuous))
-        .stroke(CornerRadius.xl, lineWidth: 1, color: Color.border)
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: CornerRadius.xl, topTrailingRadius: CornerRadius.xl))
+        .stroke(CornerRadius.xl)
         .contentMargins(.bottom, 0, for: .scrollContent)
         .ignoresSafeArea(.container, edges: .bottom)
         .scrollIndicators(.hidden)

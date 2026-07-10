@@ -69,9 +69,8 @@ extension EventsContainer {
             }
             .scrollTargetLayout()
         }
-        .scrollTargetBehavior(.paging)
+        .pagedScroll()
         .scrollPosition(id: $ui.selectedEventId)
-        .scrollIndicators(.hidden)
     }
 
     @ViewBuilder

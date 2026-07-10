@@ -95,7 +95,7 @@ extension TextFieldGeneric {
                 .minimumScaleFactor(0.5)
 
             
-            RoundedRectangle(cornerRadius: CornerRadius.lg, style: .circular)
+            Capsule()
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
                 .foregroundStyle (Color.textPlaceholder)

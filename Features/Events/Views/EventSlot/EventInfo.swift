@@ -40,15 +40,8 @@ extension EventInfo {
             }
             .scrollTargetLayout()
         }
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.paging) // Makes scroll view snap to each place.
+        .pagedScroll(progress: $scrollProgress)
         .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
-        .onScrollGeometryChange(for: Double.self) { geo in
-            let width = geo.containerSize.width
-            return width > 0 ? geo.contentOffset.x / width : 0
-        } action: { _, newValue in
-            scrollProgress = newValue
-        } //Updates the scrollView
     }
     
     private func eventInfoSlot(type: EventInfoData) -> some View {

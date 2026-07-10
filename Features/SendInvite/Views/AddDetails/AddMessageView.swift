@@ -88,7 +88,7 @@ extension AddMessageView {
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 130)
-            .stroke(CornerRadius.sm, lineWidth: 1, color: Color.border)
+            .stroke(CornerRadius.sm)
             .overlay(alignment: .bottomTrailing) {
                 let remaining = max(0, messageLimit - (message ?? "").count)
                 if remaining <= warningThreshold {
@@ -144,7 +144,7 @@ extension AddMessageView {
         // Opaque backing so the menu's translucent glass platter can't lens the
         // red (accent) Done button sitting behind this popup's floating window.
         // Same appCanvas fill used by RespondTimeBackground.
-        .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
+        .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: CornerRadius.lg))
         .compositingGroup()
     }
 }

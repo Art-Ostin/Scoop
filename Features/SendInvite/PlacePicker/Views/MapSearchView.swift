@@ -230,9 +230,9 @@ private struct MapSearchBox<Content: View>: View {
                 content
             }
             .background(Color(.systemBackground))
-            .clipShape(.rect(cornerRadius: CornerRadius.xl, style: .continuous))
+            .clipShape(.rect(cornerRadius: CornerRadius.xl))
             .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
+                RoundedRectangle(cornerRadius: CornerRadius.xl)
                     .stroke(Color.border.opacity(0.2), lineWidth: 0.5)
             )
             .padding(.horizontal, 16)

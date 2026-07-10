@@ -213,6 +213,6 @@ struct SelectTypeCardBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(width: 270)
-            .rectangleStroke(corners: corners, lineWidth: 1, color: Color.border)
+            .stroke(corners)
     }
 }

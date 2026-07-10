@@ -23,6 +23,11 @@ struct EventLocationMap: View {
         imageSize > 50 ? imageSize - 36 : imageSize
     }
 
+    //Squared-off top, tucked-in bottom; the hit area follows the visible shape.
+    private var mapShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(cornerRadii: .init(top: CornerRadius.md, bottom: CornerRadius.xs))
+    }
+
     private var defaultCamera: MapCamera {
         MapCamera(centerCoordinate: coord, distance: 1300)
     }
@@ -46,12 +51,8 @@ struct EventLocationMap: View {
             .allowsHitTesting(!disableMap)
         }
         .tint(.blue)
-        .clipShape(UnevenRoundedRectangle(
-                topLeadingRadius: CornerRadius.md,
-                bottomLeadingRadius: CornerRadius.xs,
-                bottomTrailingRadius: CornerRadius.xs,
-                topTrailingRadius: CornerRadius.md))
-        .contentShape(RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
+        .clipShape(mapShape)
+        .contentShape(mapShape)
         .frame(width: max(imageSize, 0), height: max(mapHeight, 0))
         .scaleEffect(disableMap ? 1 : 1.03)
         .overlay(alignment: .bottomTrailing) {

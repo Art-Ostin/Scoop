@@ -181,7 +181,7 @@ enum TimeCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
-    static let platterCornerRadius: CGFloat = 26
+    static let platterCornerRadius = CornerRadius.menuPlatter
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
     /// Peak refraction blur while content is being swallowed/materialized
@@ -213,7 +213,7 @@ enum TimeCustomMenuSpec {
     static let closeGlassFadeProgress: CGFloat = 0.35
 
     static var platterShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: platterCornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: platterCornerRadius)
     }
 
     // ── Pre-26 fallback (classic menu) ──
@@ -228,10 +228,10 @@ enum TimeCustomMenuSpec {
     static let closeFade = Animation.easeIn(duration: 0.18)
     /// Window teardown after the classic close animation has finished.
     static let teardownDelay: TimeInterval = 0.32
-    static let legacyCornerRadius: CGFloat = 13
+    static let legacyCornerRadius = CornerRadius.legacyMenuPlatter
 
     static var legacyShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: legacyCornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: legacyCornerRadius)
     }
 
     // ── Shared metrics ──
@@ -250,7 +250,7 @@ enum TimeCustomMenuSpec {
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
-    static let highlightCornerRadius: CGFloat = 14
+    static let highlightCornerRadius = CornerRadius.menuHighlight
     static let pressedLabelOpacity: CGFloat = 0.5
 }
 
@@ -471,7 +471,7 @@ private struct TimeCustomMenuItemModifier: ViewModifier {
             .background {
                 if controller?.highlightedItemID == id {
                     if #available(iOS 26.0, *) {
-                        RoundedRectangle(cornerRadius: TimeCustomMenuSpec.highlightCornerRadius, style: .continuous)
+                        RoundedRectangle(cornerRadius: TimeCustomMenuSpec.highlightCornerRadius)
                             .fill(TimeCustomMenuSpec.highlightFill)
                             .padding(3)
                     } else {
@@ -1041,7 +1041,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .blur(radius: (1 - p).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
                     .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                     .frame(width: w, height: h, alignment: .topLeading)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius, style: .continuous))
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
                     .opacity(glassOpacity)
 
                 // The swallowed label, layered ON TOP of the glass so on close it

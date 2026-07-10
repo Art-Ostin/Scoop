@@ -23,7 +23,7 @@ struct CustomTabBarView: View {
         .padding(8)
         .frame(height: 56)
         .background(.ultraThinMaterial,
-                    in: RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
+                    in: RoundedRectangle(cornerRadius: CornerRadius.xl))
         .compositingGroup()
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 8)
         .padding(.horizontal, 36)
@@ -48,7 +48,7 @@ extension CustomTabBarView {
             .background(
                 ZStack {
                     if selection == tab {
-                        RoundedRectangle(cornerRadius: CornerRadius.xl)
+                        Capsule()
                             .fill(Color.white)
                             .padding(.horizontal, 1)
                             .matchedGeometryEffect(id: "background_rectangle", in: namespace)

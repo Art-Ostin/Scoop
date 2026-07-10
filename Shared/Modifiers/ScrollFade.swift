@@ -65,7 +65,8 @@ struct CustomScrollFade: ViewModifier {
                 .offset(y: isDetails ? 1 : 0) //So stroke on details is still always shown
                 .allowsHitTesting(false)
                 .padding(.horizontal, isDetails ? 1 : 0)
-                .clipShape(.rect(cornerRadius: isDetails ? 30 : 0))
+                //Concentric with ProfileDetailsView's xl top clip, inset by the 1pt stroke padding above.
+                .clipShape(.rect(cornerRadius: isDetails ? CornerRadius.concentric(in: CornerRadius.xl, inset: 1) : 0))
                 .ignoresSafeArea(edges: edge == .top ? .top : .bottom) //Important this goes at end
             }
         }
