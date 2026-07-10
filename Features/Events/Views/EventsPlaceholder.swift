@@ -10,8 +10,6 @@ import SwiftUI
 //Content-only: EventsContainer's AppScrollView owns the scroll view and title.
 struct EventsPlaceholder: View {
 
-    @State var showInfo: Bool = false
-
     var body: some View {
         VStack {
             VStack(spacing: 84) {

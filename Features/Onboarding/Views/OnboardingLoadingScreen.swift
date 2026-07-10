@@ -10,19 +10,11 @@ import Lottie
 
 struct OnboardingLoadingScreen: View {
     
+    //Local view state
     @State private var textIndex: Int = 0
-    
-    let text: [String] = [
-        "99.973% of an atom’s mass is packed into its nucleus",
-        "The nucleus is ~55,000× smaller than the atom",
-        "The sun",
-        "In a neutron star, gravity pushes nuclei together until there’s almost no empty space",
-        "Thus, a teaspoon of matter from a neutron star is equivalent to 4000 Olympic Swimming Pools, a teaspoon!"
-    ]
-    
-    let facts = Facts.oneLineFacts
-    
-    
+    private let facts = Facts.oneLineFacts
+
+
     var body: some View {
         VStack(spacing: 48){
             Text("Creating Profile")

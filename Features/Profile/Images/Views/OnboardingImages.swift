@@ -10,20 +10,18 @@ import PhotosUI
 
 struct OnboardingImages: View {
     
+    //Injected
     @Environment(AppDependencies.self) private var dep
     @Environment(\.dismiss) private var dismiss
-    
     let vm: OnboardingViewModel
+
+    //Local view state
     @State private var imageVM: ProfileImagesViewModel
-
-    @State var images: [UIImage?] = Array(repeating: nil, count: 6)
-
-    @State var selectedImage: ImageSlot? = nil
-    
+    @State private var images: [UIImage?] = Array(repeating: nil, count: 6)
+    @State private var selectedImage: ImageSlot? = nil
+    @State private var showSavingScreen: Bool = false
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    
-    @State var showSavingScreen: Bool = false
-    
+
     init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing, authService: AuthServicing) {
         self.vm = vm
         _imageVM = State(wrappedValue: ProfileImagesViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
@@ -52,7 +50,7 @@ struct OnboardingImages: View {
                          try await vm.createProfile()
                          dep.session.appState = .app
                     } catch {
-                        print(error)
+                        showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
                     }
                 }
             }

@@ -11,28 +11,17 @@ import UIKit
 
 struct ChatContainer: View {
     
-    //0. Dismiss Profile
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    
-    //1. View Model
     @State private var vm: ChatViewModel
-
-    //2. Different states either: (1) Profile Open (2) isFocused
-    @State var profileOpen: Bool = false
-    @State var profileRendered: Bool = false
-    @FocusState private var isFocused
-
-    //3. Load Profile Images
-    @State var profileImages: [UIImage] = []
-
-    //Header circle photo → profile pager hero morph (see ProfileMorph.swift).
-    //Owned here so it shadows any morph injected by a presenting container.
-    @State private var profileMorph = ProfileMorphState()
-    
-    //4.if ChatContainer for events its different
     let isEvent: Bool
-    
-    let buttonHeight: CGFloat = 39
+
+    //Local view state (profileMorph owned here so it shadows any morph injected by a presenting container)
+    @State private var profileOpen: Bool = false
+    @State private var profileRendered: Bool = false
+    @State private var profileImages: [UIImage] = []
+    @State private var profileMorph = ProfileMorphState()
+    @FocusState private var isFocused
 
     init(
         defaults: DefaultsManaging,

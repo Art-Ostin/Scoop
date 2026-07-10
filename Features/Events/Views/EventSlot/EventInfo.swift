@@ -9,16 +9,16 @@ import SwiftUI
 
 struct EventInfo: View {
     
+    //Injected
     let location: EventLocation
     let eventTime: Date
     let otherUserName: String
     let eventType: Event.EventType
-    
-    
-    @State var scrollProgress: Double = 0
-    
-    
-    
+
+    //Local view state
+    @State private var scrollProgress: Double = 0
+
+
     var body: some View {
         VStack(spacing: 36){
             Text("\(eventType.emoji) \(eventType.longTitle)")

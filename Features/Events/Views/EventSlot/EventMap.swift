@@ -23,7 +23,7 @@ struct EventMap: View {
         .padding(.bottom, 16)
         .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0, color: Color.border)
         .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
-        .eventCardShadowBackground()
+        .eventCardBackground()
     }
 }
 
@@ -50,14 +50,10 @@ extension EventMap {
             }
             .foregroundStyle(Color.textPrimary)
             
-            Text("Nightclub")   // update later so actually shows location
+            Text("Nightclub")   // TODO: show the real place category
                 .font(.body(15, .regular))
                 .foregroundStyle(Color.textPrimary)
-            
-            if let category = location.mapItem.pointOfInterestCategory {
-                
-            }
-            
+
             Text(location.address ?? "")
                 .font(.body(15, .regular))
                 .foregroundStyle(Color.textSecondary)

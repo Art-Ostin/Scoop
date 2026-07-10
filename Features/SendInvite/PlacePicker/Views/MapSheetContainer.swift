@@ -9,13 +9,15 @@ import SwiftUI
 import MapKit
 
 struct MapSheetContainer: View {
-    @FocusState private var searchFocused: Bool
+    //Injected
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @Binding var useSelectedDetent: Bool
     let onExitSelection: (MapSheets) -> Void
     let selectedLocation: (MKMapItem) -> Void
 
+    //Local view state
+    @FocusState private var searchFocused: Bool
 
     var body: some View {
         sheetContent

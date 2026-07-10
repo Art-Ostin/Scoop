@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct InvitesContainer: View {
+    //Injected
     @Environment(AppRouter.self) private var router
-    
-    @State var ui = InvitesUIState()
     @State var vm: InvitesViewModel
 
-    //Invite-card image → profile pager hero morph (see ProfileMorph.swift)
+    //Local view state (profileMorph: invite-card image → profile pager hero morph, see ProfileMorph.swift)
+    @State private var ui = InvitesUIState()
     @State private var profileMorph = ProfileMorphState()
-
 
     var body: some View {
         NavigationStack {

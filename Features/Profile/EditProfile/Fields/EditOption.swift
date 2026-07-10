@@ -7,10 +7,13 @@
 import SwiftUI
 
 struct OnboardingOption: View {
+    //Injected
     @Bindable var vm: OnboardingViewModel
-    @State var selection: String?
-    let field : OptionField
-    
+    let field: OptionField
+
+    //Local view state
+    @State private var selection: String?
+
     var body: some View {
         OptionGeneric(selection: $selection, field: field) {
             vm.saveAndNextStep(kp: field.keyPathDraft, to: $0)
@@ -34,12 +37,13 @@ struct EditOption: View {
 
 struct OptionGeneric: View {
 
+    //Injected
     @Binding var selection: String?
     let field: OptionField
-    let grid = [GridItem(.flexible()), GridItem(.flexible())]
     let onTap: (String) -> ()
-    
-    @State var showCustomSex: Bool = false
+
+    //Local view state
+    private let grid = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 84) {

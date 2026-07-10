@@ -9,16 +9,17 @@ import SwiftUI
 
 struct EventSlot: View {
     
-    @State private var disableMap: Bool = true
-    @State private var mapEnabledAt: Date?
-    
+    //Injected
     @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let userImage: UIImage
-
     let openMaps: () -> ()
-    
+
+    //Local view state
+    @State private var disableMap: Bool = true
+    @State private var mapEnabledAt: Date?
+
     var body: some View {
         VStack(spacing: 36) {
             eventImageCard
@@ -40,16 +41,15 @@ extension EventSlot {
     private var eventImageCard: some View {
         eventProfile.event.acceptedTime.map { targetTime in
             EventImageCard(
-                ui: ui,
-                eventProfile: eventProfile,
-                imageSize: imageSize,
+                profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
                 userImage: userImage,
-                targetTime: targetTime
+                targetTime: targetTime,
+                openProfile: { ui.selectedProfile = eventProfile.profile }
             )
         }
     }
-    
-    
+
+
     @ViewBuilder
     private var eventInfoSection: some View {
         let e = eventProfile.event
@@ -101,9 +101,11 @@ extension View {
     }
     
     //Used on all the cards
-    func eventCardShadowBackground() -> some View {
+    func eventCardBackground() -> some View {
         self
+            .frame(maxWidth: .infinity)
             .background (Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
+            .padding(.horizontal, 16)
             .compositingGroup()
             .shadow(color: Color.black.opacity(0.0125), radius: 4, x: 0, y: 1)
             .shadow(color: Color.black.opacity(0.0075), radius: 12, x: 0, y: 0)
@@ -122,31 +124,3 @@ extension View {
             .offset(y: -10)//Shifts it up
     }
 }
-
-
-
-/*
- cantMakeItButton
-
- private var cantMakeItButton: some View {
-     Button {
-         ui.showCantMakeIt = eventProfile
-     } label: {
-         Text("Can't Make It?")
-             .font(.body(14, .bold))
-             .contentShape(Rectangle())
-             .foregroundStyle(Color.accent)
-             .padding(.trailing, 24)
-     }
-     .frame(maxWidth: .infinity, alignment: .leading)
- }
- 
- 
- private var clockView: some View {
-     eventProfile.event.acceptedTime.map {
-         EventClock(targetTime: $0)
-     }
- }
-
-
- */

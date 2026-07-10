@@ -1,41 +1,47 @@
 //
-//  EventClock.swift
+//  EventImageCard.swift
 //  Scoop
 //
-//  Created by Art Ostin on 09/06/2026.
+//  Created by Art Ostin on 10/06/2026.
 //
-
 
 import SwiftUI
 
-struct EventTimer: View {
-    
+struct EventImageCard: View {
+
+    let profileImages: [UIImage]
     let userImage: UIImage
-    let profileImage: UIImage
     
     let targetTime: Date
+        
+    let openProfile: () -> ()
     
     var body: some View {
-        
-        HStack(spacing: 20) {
-            photoOverlap
-            
-            clockView
+        VStack(spacing: 6) {
+            CardImageScrollView(images: profileImages).onTapGesture {openProfile()}
+            timerSection
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 20)
+        .eventCardBackground()
     }
 }
 
-
-
-extension EventTimer {    
+extension EventImageCard {
+    
+    private var timerSection: some View {
+        HStack(spacing: 20) {
+            photoOverlap
+            clockView
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
+    }
+    
     var photoOverlap: some View {
         ZStack(alignment: .topLeading) {
-            SmallImage(image: userImage, size: 38)
+            SmallImage(image: userImage, size: 38, isCircle: true)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
-
-            SmallImage(image: profileImage, size: 38)
+            
+            SmallImage(image: profileImages.first ?? UIImage(), size: 38, isCircle: true)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
                 .offset(x: 16, y: 14)
         }
@@ -43,11 +49,8 @@ extension EventTimer {
     }
 }
 
-
-
-
-//All Logic for the clock
-extension EventTimer {
+//All Logic relating to the clock view
+extension EventImageCard {
     
     private var clockView: some View {
         CountdownTimer(targetTime: targetTime) { timeRemaining in
@@ -58,16 +61,16 @@ extension EventTimer {
             
             HStack(alignment: .top) {
                 timeSection(time: days, type: "DAYS")
-                divider
+                timeDivider
                 timeSection(time: hours, type: "HRS")
-                divider
+                timeDivider
                 timeSection(time: minutes, type: "MIN")
-                divider
+                timeDivider
                 timeSection(time: seconds, type: "SEC")
             }
         }
     }
-    
+
     private func timeSection(time: Int, type: String) -> some View {
         VStack(spacing: 0) {
             Text("\(time)")
@@ -82,8 +85,8 @@ extension EventTimer {
         }
         .frame(width: 37, height: 21)
     }
-    
-    private var divider: some View {
+
+    private var timeDivider: some View {
         Capsule()
             .fill(Color.fillGray)
             .frame(width: 0.85, height: 14)
@@ -91,4 +94,3 @@ extension EventTimer {
             .frame(maxWidth: .infinity)
     }
 }
-

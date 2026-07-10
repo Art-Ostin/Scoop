@@ -9,14 +9,14 @@ import SwiftUI
 
 struct PreferredMapsView: View {
     
+    //Injected
     @Bindable var vm: SettingsViewModel
-    
-    @Namespace private var savedToIconTransition
-    
+
+    //Local view state
     @State private var showSavedIcon: Bool = false
-    @State private var isFlashing: Bool = false
     @State private var savedIconTask: Task<Void, Never>?
     @State private var showInfoText: Bool = false
+    @Namespace private var savedToIconTransition
     
     var body: some View {
         
@@ -68,11 +68,10 @@ extension PreferredMapsView {
     
     private func mapOption(mapType: PreferredMapType) -> some View {
         let isAppleMaps = mapType == .appleMaps
-        var isSelected = mapType == vm.preferredMapType
-        
+        let isSelected = mapType == vm.preferredMapType
+
         return Button {
             vm.updatePreferredMapType(mapType)
-            isSelected = true
             flashSavedIcon()
         } label: {
             HStack(spacing: 10) {
@@ -90,7 +89,6 @@ extension PreferredMapsView {
     
     private func flashSavedIcon() {
         savedIconTask?.cancel()
-        isFlashing = true
         savedIconTask = Task {
             if showSavedIcon {
                 withAnimation(.easeInOut(duration: 0.15)) { showSavedIcon = false }
@@ -100,10 +98,7 @@ extension PreferredMapsView {
             withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = true }
             try? await Task.sleep(for: .milliseconds(1000))
             if Task.isCancelled { return }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showSavedIcon = false
-                isFlashing = false
-            }
+            withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = false }
         }
     }
 }

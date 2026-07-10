@@ -9,8 +9,8 @@ import SwiftUI
 
 struct LimitedAccessPage: View {
     
+    //Injected
     let page: OnboardingPage
-    
     @Binding var showOnboarding: Bool
     @Binding var showLogout: Bool
     let onboardingStep: Int

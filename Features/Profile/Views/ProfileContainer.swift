@@ -11,19 +11,17 @@ enum ProfileMode {
 
 struct ProfileContainer: View {
 
-    // Environment
+    //Injected
     @Environment(\.dismiss) var dismiss
     @Environment(ProfileMorphState.self) var morph: ProfileMorphState?
-
-    // State
     @State var vm: ProfileViewModel
-    @State var ui = ProfileUIState()
-
     let mode: ProfileMode
     let profileImages: [UIImage]
     let onDismiss: (() -> Void)?
-    //When starting to dismiss trigger back button to expand (needed for chatContainer)
-    let onDismissStart: (() -> Void)?
+    let onDismissStart: (() -> Void)? //When starting to dismiss trigger back button to expand (needed for ChatContainer)
+
+    //Local view state
+    @State var ui = ProfileUIState()
 
     var displayProfile: UserProfile {if case .ownProfile(let draft) = mode { draft } else { vm.profile }}
 

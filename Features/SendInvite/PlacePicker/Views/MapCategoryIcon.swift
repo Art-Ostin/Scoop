@@ -10,17 +10,18 @@ import Lottie
 
 struct MapCategoryIcon: View {
     
-    @State var hitMaxSearches: Bool = false
+    //Injected
     @Binding var sheet: MapSheets
-    
-    var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
     let category: MapCategory
     let isMap: Bool
-    var size: CGFloat { isMap ? 60 : 35 }
-
     @Bindable var vm: MapViewModel
     @Binding var useSelectedDetent: Bool
-    
+
+    //Local view state
+    @State private var hitMaxSearches: Bool = false
+
+    var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
+    var size: CGFloat { isMap ? 60 : 35 }
     var isSelected: Bool { vm.selectedMapCategory == category }
     
     

@@ -10,9 +10,12 @@ import SwiftUIFlowLayout
 import FirebaseFirestore
 
 struct OnboardingInterests: View {
+    //Injected
     let vm: OnboardingViewModel
-    @State var selected: [String] = []
-    
+
+    //Local view state
+    @State private var selected: [String] = []
+
     var body: some View {
         GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
             .nextButton(isValid: selected.count >= 6, padding: 120) {
@@ -29,13 +32,15 @@ struct OnboardingInterests: View {
 }
 
 struct EditInterests: View {
-    let vm: EditProfileViewModel
-    @State var selected: [String]
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @State var showEmptyAlert = false
-    
-    
-    init(vm: EditProfileViewModel, ) {
+    let vm: EditProfileViewModel
+
+    //Local view state
+    @State private var selected: [String]
+    @State private var showEmptyAlert = false
+
+    init(vm: EditProfileViewModel) {
         self.vm = vm
         _selected = .init(wrappedValue: vm.draft.interests)
     }
@@ -53,15 +58,18 @@ struct EditInterests: View {
 
 struct GenericInterests: View {
     
+    //Injected
     @Binding var selected: [String]
-    @State var currentScroll: Int? = 0
-    @State var selectedScroll: Int? = 0
+    let onInterestTap: (String) -> ()
+
+    //Local view state
+    @State private var currentScroll: Int? = 0
+    @State private var selectedScroll: Int? = 0
     @State private var selectedScrollPos = ScrollPosition()
     @Namespace private var tabNamespace
-    
+
     var selectedMax: Bool {selected.count >= 10}
-    let onInterestTap: (String) -> ()
-    
+
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
         return [

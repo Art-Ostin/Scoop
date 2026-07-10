@@ -9,13 +9,14 @@ import SwiftUI
 
 struct EventDetails: View {
     
+    //Injected
     let type: Event.EventType
     let message: String?
     let time: Date
     let place: EventLocation
-
     let openMaps: () -> ()
 
+    //Local view state
     @State private var showBack = false
 
     var body: some View {
@@ -123,26 +124,6 @@ struct DetailsBackground: ViewModifier {
         content
             .padding(.horizontal, 32)
             .padding(.vertical, 24)
-            .eventCardShadowBackground()
+            .eventCardBackground()
     }
 }
-
-
-/*
- if title == "WHERE" {
-     Button {
-         openMaps()
-     } label: {
-         VStack(alignment: .leading, spacing: 8) {
-             Text(title)
-                 .font(.body(12, .medium))
-                 .foregroundStyle(Color.textSecondary)
-             
-             Text(mainText)
-                 .font(.body(17, .bold))
-                 .foregroundStyle(Color.textAccent)
-         }
-     }
- } else {
-
- */

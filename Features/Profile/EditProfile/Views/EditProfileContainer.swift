@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct EditProfileContainer: View {
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @State var isEdit: Bool = false
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
-    @State var selectedImage: ImageSlot? = nil
-    @State var showSavingScreen: Bool = false
 
-    @State var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
-    
-    @State var path: [EditProfileRoute] = [] //To track if empty or not. If not empty (i.e. edit Profile screen) hide certain views.
+    //Local view state
+    @State private var isEdit: Bool = false
+    @State private var selectedImage: ImageSlot? = nil
+    @State private var showSavingScreen: Bool = false
+    @State private var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
+    @State private var path: [EditProfileRoute] = [] //Non-empty (an edit screen is pushed) hides certain views
+
     var body: some View {
         ZStack {
             if isEdit {

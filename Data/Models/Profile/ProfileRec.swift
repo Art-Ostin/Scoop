@@ -19,9 +19,9 @@ struct ProfileRec: Identifiable, Codable, Sendable{
         case pending, invited, declined, invitedDeclined, invitedAccepted
     }
     
-    @ServerTimestamp var addedDay: Timestamp?
     @DocumentID var id: String?
     var profileViews: Int
     var status: Status
+    @ServerTimestamp var addedDay: Timestamp?
     var updatedDay: Timestamp?
 }

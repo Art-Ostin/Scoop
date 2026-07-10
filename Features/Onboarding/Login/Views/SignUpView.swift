@@ -10,12 +10,13 @@ import SwiftUI
 
 struct SignUpView: View {
     
+    //Injected
     @Environment(AppDependencies.self) private var dep
-    @State var showCover: Bool = false
-    @State var tabSelection: Int? = 0
-    
-    @State var isShowing: Bool = false
-    
+
+    //Local view state
+    @State private var showCover: Bool = false
+    @State private var tabSelection: Int? = 0
+
     var body: some View {
         VStack(spacing: 48){
             
@@ -33,10 +34,6 @@ struct SignUpView: View {
         .background(Color.appCanvas)
         .fullScreenCover(isPresented: $showCover) {
             EnterEmailView(vm: VerifyEmailViewModel(session: dep.session, defaultsManager: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo))
-
-
-
-
         }
     }
 }
@@ -92,8 +89,7 @@ extension SignUpView {
             Text("By signing up, you agree to the")
             
             Text(" Terms")
-                .underline()
-                .onTapGesture { print("Paste T & Cs here")}
+                .underline() // TODO: wire up the Terms & Conditions link
         }
         .font(.body(10, .medium))
         .padding(.horizontal, 12)

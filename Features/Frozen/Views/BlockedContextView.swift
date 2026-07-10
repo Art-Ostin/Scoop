@@ -9,11 +9,13 @@ import SwiftUI
 
 struct BlockedContextView: View {
     
+    //Injected
     let frozenContext: BlockedContext
     let vm: FrozenViewModel
-    
-    @State private var profileImage: UIImage?
     let isBlock: Bool
+
+    //Local view state
+    @State private var profileImage: UIImage?
     
     var body: some View {
         
@@ -62,11 +64,7 @@ struct BlockedContextView: View {
                     .offset(y: 6)
             }
             .task {
-                do {
-                    profileImage = try await fetchImage()
-                } catch {
-                    print(error)
-                }
+                profileImage = try? await fetchImage() //Optional read: card just omits the avatar on failure
             }
         }
     }
@@ -77,11 +75,7 @@ extension BlockedContextView {
         guard let url = URL(string: frozenContext.profileImage) else {
             return nil
         }
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return UIImage(data: data)
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return UIImage(data: data)
     }
 }
-
-//#Preview {
-//    TestScreen()
-//}

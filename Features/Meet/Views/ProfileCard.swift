@@ -9,17 +9,17 @@ import SwiftUI
 
 struct ProfileCard : View {
     
-    @State private var nameFrame: CGRect = .zero
-    @State private var detailsFrame: CGRect = .zero
-    
-    let cardSpace = "ProfileCard"
-    
+    //Injected
     let profile: PendingProfile
     let quickInviteHidden: Bool
-
     let onTap: (UIImage) -> Void
     let onQuickInvite: (UIImage) -> Void
-    
+
+    //Local view state
+    @State private var nameFrame: CGRect = .zero
+    @State private var detailsFrame: CGRect = .zero
+    private let cardSpace = "ProfileCard"
+
     var body: some View {
         ScoopImage(image: profile.image, showShadow: true)
             .opacity(quickInviteHidden ? 0 : 1)

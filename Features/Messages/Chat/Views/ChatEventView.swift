@@ -10,9 +10,12 @@ import SwiftUI
 
 struct ChatEventView: View {
     
-    private static let locationURL = URL(string: "scoop://event-location")!
-    @State private var isLocationPressed = false
+    //Injected
     let event: UserEvent?
+
+    //Local view state
+    @State private var isLocationPressed = false
+    private static let locationURL = URL(string: "scoop://event-location")!
     
     var body: some View {
         

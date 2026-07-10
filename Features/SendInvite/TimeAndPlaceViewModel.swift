@@ -11,10 +11,11 @@ import SwiftUI
 @Observable
 class TimeAndPlaceViewModel {
     
+    //Injected
     let inviteModel: InviteContext
     let defaults: DefaultsManaging
-    
-    
+
+    //Draft state (persisted to defaults on every edit)
     var event: EventFieldsDraft {
         didSet { updateEventDraft()}
     }
@@ -45,14 +46,17 @@ class TimeAndPlaceViewModel {
 
 
 @Observable class TimeAndPlaceUIState {
-    
-    //1. Logic to deal with the popup open
+
     enum Popup: Equatable { case type, time }
-    
+
     ///Track if the time or type popup is open on the screen
     var activePopup: Popup?
     private(set) var delayedPopup: Popup?
-    
+    var showMessageScreen: Bool = false
+    var showMapView: Bool = false
+    var showInfoScreen: Bool = false
+    var messageLineCount: Int = 0
+
     ///Check a specific popup, or whether any popup is open when called with no argument.
     func isPopupOpen(_ popup: Popup? = nil) -> Bool {
         popup == nil ? activePopup != nil : popup == activePopup
@@ -74,9 +78,4 @@ class TimeAndPlaceViewModel {
             set: { self.activePopup = $0 ? popup : nil }
         )
     }
-        
-    var showMessageScreen: Bool = false
-    var showMapView: Bool = false
-    var showInfoScreen: Bool = false
-    var messageLineCount: Int = 0
 }

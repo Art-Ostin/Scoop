@@ -10,15 +10,18 @@ import MapKit
 
 struct MapSearchView: View {
     
-    @State var service = LocationSearchService()
-    
+    //Injected
     @Bindable var vm: MapViewModel
     @Binding var sheet: MapSheets
     @FocusState.Binding var isFocused: Bool
+    @Binding var useSelectedDetent: Bool
+
+    //Local view state
+    @State private var service = LocationSearchService()
+
     var showSuggestions: Bool {!service.suggestions.isEmpty && service.showSuggestions && !vm.searchText.isEmpty}
     var showRecentSearches: Bool { !vm.recentMapSearches.isEmpty  }
-    
-    @Binding var useSelectedDetent: Bool
+
     var body: some View {
         ScrollView {
             ClearRectangle(size: showSuggestions ? 68 : 80 )

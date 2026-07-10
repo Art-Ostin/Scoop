@@ -9,15 +9,14 @@ import SwiftUI
 
 struct OnboardingContainer: View {
     
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.flowMode) private var mode
     let vm: OnboardingViewModel
     let storage: StorageServicing
-    @State private var enlargenStep: Bool = false
+
+    //Local view state
     @State private var showSaved: Bool = false
-    
-    
-    
+
     @ViewBuilder
     private var stepView: some View {
             switch vm.onboardingStep {
@@ -38,7 +37,6 @@ struct OnboardingContainer: View {
         }
     }
     
-    @State private var bounce = false
     var body: some View {
         NavigationStack {
             ZStack(alignment: .topLeading) {
@@ -86,7 +84,7 @@ extension OnboardingContainer {
     private var onboardingStepTracker: some View {
         Text("\(vm.onboardingStep)/\(12)")
             .font(.body(12, .bold))
-            .foregroundStyle(bounce ? .accent : .accent)
+            .foregroundStyle(.accent)
             .opacity(showSaved ? 0 : 1)
     }
     

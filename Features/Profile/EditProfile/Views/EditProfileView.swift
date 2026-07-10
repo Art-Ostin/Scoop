@@ -9,12 +9,11 @@ import SwiftUI
 
 struct EditProfileView: View {
     
+    //Injected
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
-    
-    @State var callDismiss = false
     @Binding var selectedImage: ImageSlot?
-    
+
     var body: some View {
         AppScrollView(title: "Edit Profile") {
             VStack(spacing: 48) {

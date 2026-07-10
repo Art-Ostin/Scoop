@@ -21,15 +21,4 @@ struct ChatState: Codable {
     }
 }
 
-//When constructing the message
-struct ChatDraftMessage {
-    let text: String
-    let authorId: String
-    let recipientId: String
-    let eventId: String
-}
 
-//For Pagination
-struct ChatMessageCursor {
-    let lastMessageId: String
-}

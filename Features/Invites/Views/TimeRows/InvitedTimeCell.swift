@@ -4,26 +4,24 @@
 //
 //  Created by Art Ostin on 23/03/2026.
 
-//Don't make InvitedTimeCell a button
-
 import SwiftUI
 
 struct InvitedTimeCell: View {
-    
-    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
 
+    //Injected
+    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
     @Binding var selectedDay: Date?
     @Binding var responseType: ResponseType
-    
     let status: TimeStatus
     let date: Date
     let idx: Int
-    var isSelected: Bool { selectedDay == date}
-    
-    //Shaking animation
+
+    //Local view state
     @State private var shake = false        // toggled to fire a shake
     @State private var isShaking = false    // true while the warning text flashes yellow
-    
+
+    private var isSelected: Bool { selectedDay == date }
+
     var body: some View {
         
         Button {

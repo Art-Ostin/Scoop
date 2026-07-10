@@ -9,12 +9,14 @@ import SwiftUI
 
 struct RespondAcceptContainer: View {
     
+    //Injected
     @Bindable var vm: RespondViewModel
     @Binding var confirmNewTimeInvite: Bool
     @Binding var confirmAcceptInvite: Bool
-    @State var ui = RespondUIState()
-    
     let onDecline: () -> Void
+
+    //Local view state
+    @State private var ui = RespondUIState()
     
     var body: some View {
         CardFlipContainer(showBack: $ui.showMeetInfo) {

@@ -143,7 +143,6 @@ extension DefaultsManager {
     
     func deleteRespondDraft(eventId: String) {
         respondDrafts.removeValue(forKey: eventId)
-        print("Preferred Map Type")
         persistResponseDrafts()
     }
 }
@@ -238,12 +237,4 @@ struct RecentPlace: Codable, Equatable, Hashable {
     let title: String
     let town: String
 }
-
-
-/*
- guard let preferredMapType else {
-     defaults.removeObject(forKey: Keys.preferredMapType.rawValue)
-     return
- }
- */
 

@@ -12,6 +12,7 @@ import SwiftUI
 //chrome when settled, so both handoffs are invisible.
 struct SendInviteFlight: View {
 
+    //Injected
     let image: UIImage
     let name: String
     let details: String
@@ -23,6 +24,7 @@ struct SendInviteFlight: View {
     var optionsVisible: Bool = true //Flips at drag release (not spring completion) so the menu pops back in riding the spring-back
     let hideInvite: () -> Void
 
+    //Local view state
     @State private var detailsHeight: CGFloat = 0
     @State private var topNameSize: CGSize = .zero
     @State private var inviteButtonPopped = false

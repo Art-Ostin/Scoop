@@ -4,26 +4,25 @@
 //
 //  Created by Art Ostin on 04/08/2025.
 
-
 import SwiftUI
 
 struct EventsContainer: View {
 
+    //Injected
     @State var vm: EventsViewModel
-    @State private var ui = EventsUIState()
-
     @Binding var showMessageScreen: String?
+    @Binding var path: NavigationPath
+
+    //Local View state
+    @State private var ui = EventsUIState()
+    @State private var morph = ProfileMorphState()
+    @State private var userImage: UIImage? = nil
+    @Namespace var zoomNS
 
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
-
-    @Namespace var zoomNS
-    @Binding var path: NavigationPath
-
-    @State var userImage: UIImage? = nil
-    @State private var morph = ProfileMorphState()
-
+    
     var body: some View {
         NavigationStack(path: $path) {
             eventsRootView
@@ -34,9 +33,6 @@ struct EventsContainer: View {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-        
-        
-        
         .hideTabBar(hideBar: !path.isEmpty) //Chat: path-based, so it reappears the moment you pop (no flicker)
         .onChange(of: showMessageScreen) { _, newValue in
             handleDeepLink(eventId: newValue)
@@ -135,7 +131,6 @@ extension EventsContainer {
     }
 
     //If the async profile images haven't landed yet, seed the pager with the tapped
-    //card image so the morph destination exists (and is identical) on frame one.
     private func seedImages(for profile: UserProfile) -> [UIImage] {
         vm.event(forProfile: profile.id)?.image.map { [$0] } ?? []
     }
@@ -147,7 +142,7 @@ extension EventsContainer {
 
     //1. Load Images
     private func loadProfileImages(_ profile: UserProfile) async {
-        let loadedImages = await vm.loadImages(profile: profile)
+        let loadedImages = await vm.loadProfileImages(profile: profile)
         ui.profileImages[profile.id] = loadedImages
     }
 
@@ -162,9 +157,3 @@ extension EventsContainer {
         MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
     }
 }
-
-
-/*
- .getImageSize(imageSize: $ui.imageSize, horizontalPadding: 22) //16 padding, /6 inside padding on card
-
- */

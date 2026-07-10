@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MessageInputBar: View {
     @Bindable var vm: ChatViewModel
-    @State var text = ""
+    @State private var text = ""
     private let messageAnimation = Animation.spring(response: 0.32, dampingFraction: 0.86)
 
     var isFocused: FocusState<Bool>.Binding

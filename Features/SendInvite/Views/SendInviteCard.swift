@@ -26,8 +26,8 @@ struct SendInviteCard: View {
     static let dismissThreshold: CGFloat = 0.3 //Release past this progress (or a downward flick) dismisses
     static let minDragScale: CGFloat = 0.82 //Progressive shrink of the whole card at full collapse
 
+    //Injected
     @State var vm: TimeAndPlaceViewModel
-
     let image: UIImage
     let images: [UIImage]
     let details: String
@@ -37,6 +37,7 @@ struct SendInviteCard: View {
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
 
+    //Local view state
     @State private var cardFrame: CGRect = .zero
     @State private var imageFrame: CGRect = .zero
     @State private var hasOpened = false
@@ -109,10 +110,10 @@ extension SendInviteCard {
         InviteImageCarousel(
             images: gallery,
             name: vm.inviteModel.name,
-            dragDisabled: dragging,
-            optionsVisible: expanded && dragOffset == .zero,
             scrollProgress: $scrollProgress,
-            vm: vm
+            vm: vm,
+            dragDisabled: dragging,
+            optionsVisible: expanded && dragOffset == .zero
         )
         .opacity(settled ? 1 : 0)
         .allowsHitTesting(settled)

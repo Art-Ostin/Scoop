@@ -9,9 +9,10 @@ import SwiftUI
 
 struct InvitePlaceRow: View {
     
+    //Injected
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var eventLocation: EventLocation?
-        
+
     var body: some View {
         HStack {
             RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))

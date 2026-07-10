@@ -10,19 +10,21 @@ import SwiftUI
 //The settled invite image: paged profile photos with the name and options menu.
 //Lives under the flight copy and takes over once it lands.
 struct InviteImageCarousel: View {
+    //Injected
     let images: [UIImage]
     let name: String
-    var dragDisabled: Bool = false //Swipe-dismiss owns the touch: no paging, even mid-pan
-    var optionsVisible: Bool = true //Flips at drag release so the menu is already popped in when the settle swap lands
     @Binding var scrollProgress: Double
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
+    var dragDisabled: Bool = false //Swipe-dismiss owns the touch: no paging, even mid-pan
+    var optionsVisible: Bool = true //Flips at drag release so the menu is already popped in when the settle swap lands
 
+    //Local view state
     @State private var meetFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
     @State private var showInfoScreen = false //"How Invites Work" sheet, opened from the options menu
 
     private static let imageSpace = "InviteImageCarousel.image"
-    //Name inset from the image edge; the flight matches these so the settle handoff lands (see cardOverlay padding).
+    //Name inset from the image edge; the flight matches these so the settle handoff lands (see cardOverlay padding)
     static let nameLeadingInset: CGFloat = 17
     static let nameTopInset: CGFloat = 12
 

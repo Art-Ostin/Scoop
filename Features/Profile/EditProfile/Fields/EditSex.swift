@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OnboardingSex: View {
     @Bindable var vm: OnboardingViewModel
-    @State var text: String = ""
+    @State private var text: String = ""
     var body: some View {
         GenericSex(isOnboarding: true, selectedOption: $text) {_ in
             vm.saveAndNextStep(kp: \.sex, to: text)
@@ -29,20 +29,22 @@ struct EditSex: View {
 
 struct GenericSex: View {
     
-    let grid = [GridItem(.flexible()), GridItem(.flexible())]
-    let options = ["Male", "Female", "Type my Sex"]
+    //Injected
     let isOnboarding: Bool
     @Binding var selectedOption: String
-    @State var showTypeSexField : Bool = false
-    
+    let onTap: (String) -> Void
+
+    //Local view state
+    @State private var showTypeSexField : Bool = false
+    @State private var keyPressToken = 0
+    @State private var hasEditedThisSession = false
+    @State private var showSaved: Bool = false
+    private let options = ["Male", "Female", "Type my Sex"]
+
     var customisedSex: Bool {
         return !selectedOption.isEmpty && !options.contains(selectedOption)
     }
-    @State private var keyPressToken = 0
-    @State private var hasEditedThisSession = false
-    @State var showSaved: Bool = false
-    let onTap: (String) -> Void
-    
+
     var body: some View {
         
         VStack(alignment: .leading, spacing: 84) {

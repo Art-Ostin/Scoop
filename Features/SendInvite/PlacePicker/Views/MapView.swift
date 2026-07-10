@@ -19,7 +19,7 @@ struct MapView: View {
     
     @State private var sheet: MapSheets = .optionsAndSearchBar
     
-    @State var useSelectedDetent =  false
+    @State private var useSelectedDetent =  false
     @State private var isExitingSelectedSheet = false
     @State private var selectedSheetExitTask: Task<Void, Never>?
     

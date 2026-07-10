@@ -9,12 +9,9 @@ import SwiftUI
 
 struct InviteCardInfo: View {
     
+    //Injected
     @Environment(\.timeCustomMenuDismiss) private var timeMenuDismiss
-    
     @Binding var draft: RespondDraft
-
-    let lineIconWidth: CGFloat = 20
-    
     let eventProfile: EventProfile
     let onRespond: () -> ()
     

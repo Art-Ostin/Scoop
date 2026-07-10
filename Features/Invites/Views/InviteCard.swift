@@ -9,27 +9,20 @@ import SwiftUI
 
 struct InviteCard: View {
 
-    //1. Open and close profile and morph
+    //Injected
     @Environment(ProfileMorphState.self) private var profileMorph: ProfileMorphState?
-
-    //2. Store captured ImageSize
     @Binding var selectedProfile: UserProfile?
-    
-    //4. Logic to update in container
     @Binding var draft: RespondDraft
-
-    
-    //3. Profile to pass in and dimiss logic
     let eventProfile: EventProfile
     let onRespond: () -> Void
-    
-    @State var profileNameBounds: CGRect = .zero
-    
+
+    //Local view state
+    @State private var profileNameBounds: CGRect = .zero
 
     private var mainImage: UIImage {
         eventProfile.image ?? UIImage()
     }
-    
+
     var body: some View {
         VStack(spacing: 36) {
             ScoopImage(image: eventProfile.image ?? UIImage(), aspectRatio: .inviteCard, showShadow: true)

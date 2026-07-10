@@ -23,7 +23,7 @@ class EventsRepo: EventsRepository {
     init(fs: FirestoreService) { self.fs = fs}
     
     //PART 1: Setting up Event Paths
-    private func EventPath(eventId: String) -> String {
+    private func eventPath(eventId: String) -> String {
         "events/\(eventId)"
     }
     
@@ -32,7 +32,7 @@ class EventsRepo: EventsRepository {
     }
     
     private func fetchEvent(eventId: String) async throws -> Event {
-        try await fs.get(EventPath(eventId: eventId))
+        try await fs.get(eventPath(eventId: eventId))
     }
     
     private func fetchUserEvent(userId: String, userEventId: String) async throws -> UserEvent {
@@ -135,7 +135,7 @@ extension EventsRepo {
         let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
         
         try await updateEventStatus(eventId: eventId, to: .cancelled)
-        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(eventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         
@@ -155,7 +155,7 @@ extension EventsRepo {
     
     private func deleteEvent(eventId: String) async throws {
         let event = try await fetchEvent(eventId: eventId)
-        async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
+        async let deleteEventDoc: Void = fs.delete(eventPath(eventId: eventId))
         async let deleteInitiator: Void = fs.delete(userEventPath(userId: event.initiatorId, userEventId: eventId))
         async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
@@ -315,7 +315,7 @@ extension EventsRepo {
     ) async throws {
         async let updateInitiator: Void = fs.update(userEventPath(userId: initId, userEventId: eventId), fields: initFields)
         async let updateRecipient: Void = fs.update(userEventPath(userId: recipId, userEventId: eventId), fields: recipFields)
-        async let updateEvent: Void = fs.update(EventPath(eventId: eventId) , fields: eventFields)
+        async let updateEvent: Void = fs.update(eventPath(eventId: eventId) , fields: eventFields)
         _ = try await (updateInitiator, updateRecipient, updateEvent)
     }
     

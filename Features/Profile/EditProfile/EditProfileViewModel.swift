@@ -13,7 +13,7 @@ import FirebaseFirestore
 @MainActor
 @Observable class EditProfileViewModel {
     
-    @ObservationIgnored private let s: Session
+    @ObservationIgnored private let session: Session
     @ObservationIgnored private let storageService: StorageServicing
     @ObservationIgnored private let userRepo: UserRepository
     @ObservationIgnored let imageLoader: ImageLoading
@@ -24,17 +24,17 @@ import FirebaseFirestore
     var updatedFields: [UserProfile.Field : Any] = [:]
     var updatedImages: [Int: Data] = [:]
         
-    init(s: Session, storageService: StorageServicing, userRepo: UserRepository, imageLoader: ImageLoading, importedImages: [UIImage]) {
-        self.s = s
+    init(session: Session, storageService: StorageServicing, userRepo: UserRepository, imageLoader: ImageLoading, importedImages: [UIImage]) {
+        self.session = session
         self.storageService = storageService
         self.userRepo = userRepo
         self.imageLoader = imageLoader
-        self.draft = s.user
+        self.draft = session.user
         self.images = importedImages
     }
 
     
-    var user: UserProfile { s.user }
+    var user: UserProfile { session.user }
     
     var showSaveButton: Bool { !updatedFields.isEmpty || !updatedImages.isEmpty}
     
@@ -127,25 +127,3 @@ extension EditProfileViewModel {
         self.images = await imageLoader.loadProfileImages(user)
     }
 }
-
-
-/*
- !updatedFieldsArray.isEmpty ||
- 
- var updatedFieldsArray: [(field: UserProfile.Field, value: [String], add: Bool)] = []
- 
- try await saveUserArray()
-
- func saveUserArray() async throws {
-     guard !updatedFieldsArray.isEmpty else {
-         print("UpdatedFields Array empty not calling this function!")
-         return
-     }
-     for (field, value, add) in updatedFieldsArray {
-         let data: [UserProfile.Field : [String]] = [field: value]
-         try await userRepo.updateUserArray(userId: user.id, values: data, add: add)
-     }
- }
- 
- 
- */

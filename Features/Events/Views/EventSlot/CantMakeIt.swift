@@ -9,21 +9,21 @@ import SwiftUI
 
 struct CantMakeIt: View {
     
-    @Environment(\.dismiss) private var dismiss
-    @State var showCancelAlert: Bool = false
-    
+    //Injected
     let vm: EventsViewModel
-    
     let eventProfile: EventProfile
-    
-    var fullTime: String {
+
+    //Local view state
+    @State private var showCancelAlert: Bool = false
+
+    private var fullTime: String {
         FormatEvent.dayAndTime(eventProfile.event.acceptedTime ?? Date())
     }
-    
-    var hour: String {
+
+    private var hour: String {
         return eventProfile.event.acceptedTime?.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)) ?? "22"
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24){
             Text("Can’t Make It?")
@@ -74,11 +74,9 @@ struct CantMakeIt: View {
             Task {
                 do {
                     try await vm.cancelEvent(event: eventProfile.event)
-                    print("Updated")
                     vm.session.appState = .frozen
                 } catch {
-                    print("cancelEvent failed:", error)
-                    Thread.callStackSymbols.forEach { print($0) }
+                    // TODO: route cancel failure to InAppNotificationCenter
                 }
             }
         }
@@ -99,15 +97,6 @@ extension CantMakeIt {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 24)
         }
-    }
-    
-    private var frozenUntilDate: String {
-        let frozenUntil = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
-        let full = FormatEvent.dayAndTime(frozenUntil)
-        let monthText = frozenUntil.formatted(.dateTime.month(.wide))
-        let secondWord = full.split(whereSeparator: \.isWhitespace).dropFirst().first.map(String.init) ?? ""
-        
-        return "the \(secondWord) of \(monthText)"
     }
     
 }

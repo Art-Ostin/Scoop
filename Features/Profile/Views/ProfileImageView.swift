@@ -9,14 +9,15 @@ import SwiftUI
 
 struct ProfileImageView: View {
 
+    //Injected
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
-
-    @State private var scrollProgress: Double = 0
-    @State private var pagerPosition = ScrollPosition()
-    @State var scrollPosition = ScrollPosition()
-
     let disableScroll: Bool
     let images: [UIImage]
+
+    //Local view state
+    @State private var scrollProgress: Double = 0
+    @State private var pagerPosition = ScrollPosition()
+    @State private var scrollPosition = ScrollPosition()
 
     //trackScrollProgress reports the page index as a float; the settled page drives the thumb strip.
     private var selection: Int { Int(scrollProgress.rounded()) }

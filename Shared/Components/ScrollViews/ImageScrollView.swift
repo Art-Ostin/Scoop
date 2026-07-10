@@ -80,8 +80,14 @@ struct CardImageScrollView: View {
     static let bottomRadius = CornerRadius.sm //Card content continues below the image
     static var topRadius: CGFloat { CornerRadius.concentric(in: parentCornerRadius, inset: imagePadding) }
 
+    //Injected (scrollProgress: pass a binding when the parent tracks paging, e.g. InviteImageCarousel's blur)
     let images: [UIImage]
-    @Binding var scrollProgress: Double
+    var scrollProgress: Binding<Double>? = nil
+
+    //Local view state
+    @State private var internalProgress: Double = 0
+
+    private var progress: Binding<Double> { scrollProgress ?? $internalProgress }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -91,10 +97,10 @@ struct CardImageScrollView: View {
                 topRadius: Self.topRadius,
                 bottomRadius: Self.bottomRadius,
                 aspectRatio: Self.aspectRatio,
-                scrollProgress: $scrollProgress
+                scrollProgress: progress
             )
-            
-            AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+
+            AnimatedPageIndicator(count: images.count, progress: progress.wrappedValue)
                 .scaleEffect(0.7, anchor: .top)
         }
         .padding(.top, Self.imagePadding) //Horizontal padding applied inside ImageCarousel

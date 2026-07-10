@@ -12,24 +12,20 @@ enum TimeStatus: String {
 
 struct RespondTimePopup: View {
     
-    //1. To Dismiss the screen
+    //Injected
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
-
-    //2. Modify the draft
     @Binding var draft: RespondDraft
-    
-    //3.Card Layout Logic
+
+    //Local view state — which face is showing: invited times or the custom new-time picker
+    @State private var showCustomTime: Bool = false
+
     private let contentWidth: CGFloat = 280
     private let horizontalInset: CGFloat = 18
     private var cardWidth: CGFloat {
         contentWidth + (horizontalInset * 2)
     }
-    
-    //4. Tracks which view is showing: the invited times, or the custom new-time picker.
-    @State private var showCustomTime: Bool = false
-    
 
-    var noAvailableDates: Bool {
+    private var noAvailableDates: Bool {
         !draft.originalInvite.event.proposedTimes.dates.contains { getTimeStatus($0) == .available }
     }
     
@@ -191,6 +187,4 @@ struct RespondTimeBackground: ViewModifier {
             .rectangleStroke(radius: 16, lineWidth: 1, color: Color.border)
     }
 }
-
-//            .background(Color.appCanvas, in: .rect(cornerRadius: 16))
 

@@ -10,13 +10,13 @@ import SwiftUIFlowLayout
 
 
 struct ProfileDetailsView: View {
+    //Injected
     @Bindable var vm: ProfileViewModel
     @Bindable var ui: ProfileUIState
-
     let p: UserProfile
-
     let event: UserEvent?
 
+    //Local view state
     @State private var scrollPosition = ScrollPosition(edge: .top)
 
     var body: some View {

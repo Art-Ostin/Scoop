@@ -11,9 +11,9 @@ import Foundation
 @MainActor
 @Observable class SettingsViewModel {
     
-    var authService: AuthServicing
-    var session: Session
-    
+    //Injected
+    let authService: AuthServicing
+    let session: Session
     let user: UserProfile
     let defaults: DefaultsManaging
     

@@ -10,23 +10,23 @@ import FirebaseAuth
 
 @Observable class OnboardingViewModel {
     
+    //Injected
     @ObservationIgnored let authService: AuthServicing
     @ObservationIgnored var defaultManager: DefaultsManaging
     @ObservationIgnored private let session: Session
     @ObservationIgnored private let userRepo: UserRepository
-    
-    @ObservationIgnored private var canAdvance = true //Variable to prevent double tapping
-    
-    
+
+    //Local state
+    @ObservationIgnored private var canAdvance = true //Prevents quick double-tap advances
+    var direction: TransitionDirection = .forward
+
     init(authService: AuthServicing, defaultManager: DefaultsManaging, session: Session, userRepo: UserRepository) {
         self.authService = authService
         self.defaultManager = defaultManager
         self.session = session
         self.userRepo = userRepo
     }
-    
-    //Method to decide which direction to go if forward or back
-    var direction: TransitionDirection = .forward
+
     var transitionStep: AnyTransition {
         switch direction {
         case .forward: .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
@@ -34,11 +34,19 @@ import FirebaseAuth
         }
     }
 
+    var onboardingStep: Int {
+        defaultManager.onboardingStep
+    }
+
+    var draftProfile: DraftProfile? {
+        defaultManager.signUpDraft
+    }
+
     func signOut() async throws {
         try await authService.deleteAuthUser()
         defaultManager.deleteDefaults()
     }
-        
+
     func isLoggedIn () async -> Bool {
         guard let user = await authService.fetchAuthUser() else { return false }
         if defaultManager.signUpDraft == nil {
@@ -49,23 +57,12 @@ import FirebaseAuth
     }
 
     func createProfile() async throws {
-        guard let signUpDraft = defaultManager.signUpDraft else {
-            print("No draft")
-            return
-        }
+        guard let signUpDraft = defaultManager.signUpDraft else { return }
         let profile = try userRepo.createUser(draft: signUpDraft)
         await session.startSession(user: profile)
     }
-    
-    var onboardingStep: Int {
-        defaultManager.onboardingStep
-    }
-    
-    var draftProfile: DraftProfile? {
-        defaultManager.signUpDraft
-    }
-    
-    
+
+
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
         //1. Prevent quick double tapping logic
         guard canAdvance else { return }

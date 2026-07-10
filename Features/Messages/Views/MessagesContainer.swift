@@ -12,18 +12,17 @@ enum PastEventsRoute: Hashable {
 //1. Need to user overlay, not toolbar, for messages, as toolbar does not allow zoomTransition
 struct MessagesContainer: View {
     
+    //Injected (path owned by the parent so it can jump tabs)
     @State private var vm: MessagesViewModel
-    @State private var userProfileImages: [UIImage] = []
-    
-    @State private var showSettings = false
-    @Namespace private var settingsZoom
+    @Binding var path: NavigationPath
 
+    //Local view state
+    @State private var userProfileImages: [UIImage] = []
+    @State private var showSettings = false
     @State private var showProfile = false
+    @Namespace private var settingsZoom
     @Namespace private var profileZoom
 
-    //Path owned by parent to jump
-    @Binding var path: NavigationPath
-    
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
         _path = path
@@ -136,7 +135,7 @@ extension MessagesContainer {
     private func userProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(
-                s: vm.s,
+                session: vm.session,
                 storageService: vm.storageService,
                 userRepo: vm.userRepo,
                 imageLoader: vm.imageLoader,
@@ -152,14 +151,14 @@ extension MessagesContainer {
     }
     
     private func settingScreen() -> some View {
-        SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+        SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
             .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     
     private func chatScreen(for eventProfile: EventProfile) -> some View {
         ChatContainer(
             defaults: vm.defaults,
-            session: vm.s,
+            session: vm.session,
             chatRepo: vm.chatRepo,
             imageLoader: vm.imageLoader,
             eventProfile: eventProfile,

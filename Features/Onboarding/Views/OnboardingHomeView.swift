@@ -2,11 +2,13 @@ import SwiftUI
 import FirebaseAuth
 
 struct OnboardingHomeView: View {
+    //Injected
     @Environment(AppDependencies.self) private var dep
+
+    //Local view state
     @State private var vm: OnboardingViewModel?
-    @State var showOnboarding = false
-    @State var current: Int = 0
-    @State var showAlert: Bool = false
+    @State private var showOnboarding = false
+    @State private var showAlert: Bool = false
     @State private var tabSelection: AppTab = .meet
     
     var body: some View {

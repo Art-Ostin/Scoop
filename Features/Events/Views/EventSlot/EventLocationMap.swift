@@ -9,33 +9,31 @@ import MapKit
 
 struct EventLocationMap: View {
 
-    
+    //Injected
     let location: EventLocation
-
-
     let imageSize: CGFloat
     @Binding var disableMap: Bool
     let openMaps: () -> ()
-    
+
+    //Local view state
     @State private var cameraPosition: MapCameraPosition = .automatic
-    
     private let toggleAnimation = Animation.easeInOut(duration: 0.2)
-    
+
     private var mapHeight: CGFloat {
         imageSize > 50 ? imageSize - 36 : imageSize
     }
-    
+
     private var defaultCamera: MapCamera {
         MapCamera(centerCoordinate: coord, distance: 1300)
     }
-    
-    var coord: CLLocationCoordinate2D {
+
+    private var coord: CLLocationCoordinate2D {
         CLLocationCoordinate2D(
             latitude: location.latitude,
             longitude: location.longitude
         )
     }
-    
+
     var body: some View {
         ZStack {
             Map(position: $cameraPosition) {
@@ -80,12 +78,6 @@ struct EventLocationMap: View {
 extension EventLocationMap {
     private var enableMapButton: some View {
         Button {
-            if disableMap == true {
-                //1. Slow animation to the mapViw
-//                withAnimation(.easeInOut(duration: 1)) {
-//                    proxy.scrollTo("MapsView", anchor: .center)
-//                }
-            }
             withAnimation(toggleAnimation) {
                 disableMap.toggle()
             }

@@ -13,18 +13,18 @@ enum RespondScrollType {
 
 struct RespondContainer: View {
 
-    //Gap from each screen edge to the card. The respond card owns its width, so its margin
-    //lives here as the scroll peek. Adjust the respond card's screen margin here.
+    //Gap from each screen edge to the card — the scroll peek owns the card's screen margin
     static let screenMargin: CGFloat = 32
 
-    @State var cardBottomY: CGFloat = 0
-
+    //Injected
     @Bindable var vm: RespondViewModel
     @Bindable var ui: RespondPopupUIState
-
     let onHide: () -> Void
     let onResponse: (ProfileResponse) -> Void
-    
+
+    //Local view state
+    @State private var cardBottomY: CGFloat = 0
+
     var body: some View {
         HorizontalScrollView(peek: Self.screenMargin) {
             

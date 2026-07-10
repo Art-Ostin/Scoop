@@ -11,30 +11,24 @@ import UIKit
 
 struct AddMessageView: View {
     
-    //1. Dismiss Logic
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    
-    //2.Message which bound to 
     @Binding var message: String?
-    
-    //3. UI Display Logic
-    @State var showSaved: Bool = false
-    @State var hasEditedThisSession: Bool = false
+    let isRespondMessage: Bool
+    var name: String? = nil
+    @Binding var eventType: Event.EventType
+
+    //Local view state
+    @State private var showSaved: Bool = false
+    @State private var hasEditedThisSession: Bool = false
     @State private var keyPressToken = 0
+    @State private var showTypePopup: Bool = false
+    @State private var openTypes: Set<Event.EventType> = []
 
     private let messageLimit = 130
     private let warningThreshold = 25
 
-    //4. Key parameters to update
-    let isRespondMessage: Bool
-    var name: String? = nil
 
-    //5. Logic for choosing type here
-    @State var showTypePopup: Bool = false
-    @State private var openTypes: Set<Event.EventType> = []
-    @Binding var eventType: Event.EventType
-    
-    
     var body: some View {
         
         VStack(alignment: .leading, spacing: 36) {

@@ -64,18 +64,3 @@ final class ProfileLoader: ProfileLoading {
         return EventProfile(event: event, profile: profile, image: img)
     }
 }
-
-/*
- 
- private func fetchPendingProfile(_ profileId: String) async throws -> PendingProfile {
-     let clock = ContinuousClock()
-     let start = clock.now
-     
-     let profile = try await self.userRepo.fetchProfile(userId: profileId)
-     let img = try await self.imageLoader.fetchFirstImage(profile: profile) ?? UIImage()
-     let duration = start.duration(to: clock.now)
-     print("Time taken to fetch Pending Profile: \(duration)")
-     return PendingProfile(profile: profile, image: img)
- }
-
- */

@@ -11,12 +11,14 @@ import SwiftyCrop
 
 struct ProfileImageEditor: View {
     
+    //Injected
+    @Environment(\.dismiss) var dismiss
+    let onSave: (ImageSlot) -> Void
+
+    //Local view state
     @State private var importedImage: ImageSlot
-    @Environment(\.dismiss)  var dismiss
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
-    
-    let onSave: (ImageSlot) -> Void
     
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
@@ -115,13 +117,10 @@ extension ProfileImageEditor {
     
     private func loadImage () async {
         guard let item = item else { return }
-        do {
-            if let data = try await item.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                importedImage.image = uiImage
-            }
-        } catch {
-            print(error)
+        //Optional read: a failed pick keeps the current image
+        if let data = try? await item.loadTransferable(type: Data.self),
+           let uiImage = UIImage(data: data) {
+            importedImage.image = uiImage
         }
     }
 }

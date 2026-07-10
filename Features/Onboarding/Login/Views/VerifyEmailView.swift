@@ -68,12 +68,12 @@ import FirebaseAuth
 
 struct VerifyEmailView: View {
     
-    @State var UILogic = VerifyEmailUILogic()
+    //Injected
     @Bindable var vm: VerifyEmailViewModel
-    
-    @FocusState var focused: Bool
-    
-    @State var code = ""
+
+    //Local view state
+    @State private var uiLogic = VerifyEmailUILogic()
+    @State private var code = ""
     
     var body: some View {
         VStack(spacing: 24) {
@@ -82,7 +82,7 @@ struct VerifyEmailView: View {
             HStack(spacing: 48) {
                 Text("\(vm.email)")
                     .foregroundStyle(Color.textSecondary)
-                UILogic.resendEmail()
+                uiLogic.resendEmail()
             }
             .font(.body())
             .frame(maxWidth: .infinity, alignment: .leading)

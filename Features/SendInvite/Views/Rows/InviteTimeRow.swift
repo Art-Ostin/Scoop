@@ -9,12 +9,12 @@ import SwiftUI
 
 struct InviteTimeRow: View {
 
+    //Injected
     var ui: TimeAndPlaceUIState
     @Binding var proposedTimes: ProposedTimes
 
-    //Edited live inside the open menu; committed to `proposedTimes` on dismiss.
+    //Local view state — draft is edited live inside the open menu; committed to `proposedTimes` on dismiss
     @State private var draft = ProposedTimes()
-
     @State private var scrollProgress: Double = 0
     @State private var scrolledPageID: Int?
 

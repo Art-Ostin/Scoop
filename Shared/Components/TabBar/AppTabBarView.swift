@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppTabBarView: View {
-    @State var tabSelection: AppTab = .meet
+    @State private var tabSelection: AppTab = .meet
 
     var body: some View {
         CustomTabBarContainerView(selection: $tabSelection, tabs: [.meet, .events, .pastEvents]) { _ in

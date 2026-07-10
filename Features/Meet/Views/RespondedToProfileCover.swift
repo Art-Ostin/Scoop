@@ -29,7 +29,7 @@ struct RespondedToProfileCover: View {
                 Image("DancingCats")
                 Text("NEW TIME SENT")
                     .font(.body(16, .bold))
-                    .foregroundStyle(Color(Color.accent))
+                    .foregroundStyle(Color.accent)
             case .newInvite:
                 Image("CoolGuys")
                 Text("Invite Sent")

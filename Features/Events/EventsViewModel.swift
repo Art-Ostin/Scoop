@@ -51,7 +51,7 @@ import FirebaseFirestore
         try await eventRepo.updateEventStatus(eventId: eventId, to: status)
     }
     
-    func loadImages(profile: UserProfile) async -> [UIImage] {
+    func loadProfileImages(profile: UserProfile) async -> [UIImage] {
         return await imageLoader.loadProfileImages(profile)
     }
     
@@ -80,13 +80,8 @@ import FirebaseFirestore
 
 @Observable
 final class EventsUIState {
-    var showEventDetails: UserEvent? = nil
     var showCantMakeIt: EventProfile? = nil
     var selectedProfile: UserProfile? = nil
-    var deleteLater: Bool = false
-
-    var messageProfile: EventProfile?  = nil
-
     var selectedEventId: String?
     var imageSize: CGFloat = 0
     var profileImages: [String: [UIImage]] = [:]

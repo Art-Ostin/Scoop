@@ -4,17 +4,17 @@ struct SendInviteContainer: View {
 
     static let screenMargin: CGFloat = 8
     static let contentPadding: CGFloat = 24
-        
-    @State var ui = TimeAndPlaceUIState()
 
+    //Injected
     @Binding var draft: EventFieldsDraft
-    
     let name: String
     let isInviteResponse: Bool
     let defaults: DefaultsManaging
-
     let onSendInvite: () -> Void
-    
+
+    //Local view state
+    @State private var ui = TimeAndPlaceUIState()
+
     var body: some View {
         VStack(spacing: 0) {
             InviteRowContainer(ui: ui, draft: $draft)

@@ -32,10 +32,7 @@ enum ChangeValue: Equatable {
 
 extension ChangeValue: Codable {
 
-    //Custom Encoder and Decoder — write the payload directly with no
-    //case-name wrapper. The sibling `ChangeItem.field` already carries
-    //the discriminator (e.g. "proposedTimes"), so we don't need to
-    //repeat it here.
+    //Writes the payload with no case-name wrapper — ChangeItem.changeType already carries the discriminator
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {

@@ -10,9 +10,7 @@ struct AppContainer: View {
     @Environment(AppDependencies.self) private var dep
     @Environment(AppRouter.self) private var router
 
-    //Profiles present here, above the TabView, so the real tab bar sits behind
-    //them — covered while open, revealed and dimmed during the zoom dismissal
-    //(see ProfileOverlayPresenter in ProfileMorph.swift).
+    //Local view state — profiles present here, above the TabView, so the real tab bar stays behind them (see ProfileMorph.swift)
     @State private var profileOverlay = ProfileOverlayPresenter()
 
     var body: some View {
@@ -54,7 +52,7 @@ extension AppContainer {
 
     private var meetView: some View {
         MeetContainer(vm: MeetViewModel(
-            s: dep.session, defaults: dep.defaultsManager,
+            session: dep.session, defaults: dep.defaultsManager,
             userRepo: dep.userRepo,
             profileRepo: dep.profilesRepo,
             eventRepo: dep.eventRepo,
@@ -77,7 +75,7 @@ extension AppContainer {
     private var pastEventsView: some View {
         @Bindable var router = router
         return MessagesContainer(
-            vm: MessagesViewModel(s: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader), path: $router.pastEventPath
+            vm: MessagesViewModel(session: dep.session, storageService: dep.storageService, defaults: dep.defaultsManager, authService: dep.authService, chatRepo: dep.chatRepo, userRepo: dep.userRepo, profilesRepo: dep.profilesRepo, eventsRepo: dep.eventRepo, imageLoader: dep.imageLoader), path: $router.pastEventPath
         )
     }
 }

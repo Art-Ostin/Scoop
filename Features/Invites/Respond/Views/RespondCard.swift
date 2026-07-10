@@ -9,18 +9,14 @@ import SwiftUI
 
 struct RespondCard: View {
     
-    //1. Fetch from vm, the respond draft, what respond mode its in etc.
+    //Injected — actions are controlled in the container so passed up
     @Bindable var vm: RespondViewModel
-    
-    //2. UI holds which views, and popups are showing
     @Bindable var ui: RespondUIState
-    
-    //3. Actions are controlled in the container so passed up
     @Binding var confirmNewTimePopup: Bool
     @Binding var confirmAcceptInvite: Bool
     let onDecline: () -> ()
-    
-    
+
+
     var body: some View {
         VStack(spacing: 22) {
             respondTitle
@@ -143,7 +139,3 @@ struct RespondCardBackground: ViewModifier {
             .padding(.horizontal, 24)
     }
 }
-
-
-
-

@@ -10,10 +10,15 @@ import SwiftUI
 @MainActor
 @Observable class InvitesViewModel {
 
+    //Injected
     let session: Session
     let defaults: DefaultsManaging
     let imageLoader: ImageLoading
     let eventRepo: EventsRepository
+
+    //Cached per-invite state
+    var respondVMs: [String: RespondViewModel] = [:]
+    private(set) var profileImages: [String: [UIImage]] = [:]
 
     init(session: Session, defaults: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
         self.session = session
@@ -21,16 +26,9 @@ import SwiftUI
         self.imageLoader = imageLoader
         self.eventRepo = eventRepo
     }
-    
+
     var invites: [EventProfile] {session.invites}
     var userId: String {session.user.id}
-    var respondVMs: [String: RespondViewModel] = [:]
-    
-    private(set) var profileImages: [String: [UIImage]] = [:]
-
-    
-    
-    
 
     func ensureImagesLoaded(for profile: UserProfile) async {
         if profileImages[profile.id] != nil { return }
@@ -55,14 +53,7 @@ extension InvitesViewModel {
         respondVMs[invite.event.id] = new
         return new
     }
-    
-    
-    
-    
-    
-    
-    
-    
+
     func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {
         let vm = respondVM(for: invite)
         return Binding(get: { vm.respondDraft }, set: { vm.respondDraft = $0 })
@@ -146,13 +137,7 @@ extension InvitesViewModel {
 
 
 @Observable final class InvitesUIState {
-    //1. To open the profile
     var selectedProfile: UserProfile? = nil
-
-    //2. Respond-popup driver (event id; nil = closed)
-    var showRespondPopup: String?
-
-    
-    //3. Show the respond Popup Screen
+    var showRespondPopup: String? //Respond-popup driver (event id; nil = closed)
     var respondedToProfile: ProfileResponse?
 }

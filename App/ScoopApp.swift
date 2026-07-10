@@ -22,9 +22,7 @@ struct ScoopApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
-//            InviteTimeRowTest()
-            
+        WindowGroup {            
             RootView()
                 .environment(dep)
                 .environment(router)

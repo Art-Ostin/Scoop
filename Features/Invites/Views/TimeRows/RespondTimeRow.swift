@@ -9,20 +9,15 @@ import SwiftUI
 
 struct RespondTimeRow: View {
     
-    //1. What I am reading and updating
+    //Injected
     @Binding var draft: RespondDraft
-
     var rowHasIcon = false
 
     var body: some View {
         TimeCustomMenu {
             RespondTimePopup(draft: $draft)
         } label: {
-            if draft.respondType == .original {
-                originalRowLabel
-            } else {
-                originalRowLabel //Update later
-            }
+            originalRowLabel //TODO: dedicated label once respondType == .modified gets its own design
         }
     }
 }
@@ -59,14 +54,9 @@ extension RespondTimeRow {
         }
     }
     
-    var clockIcon: some View {
+    private var clockIcon: some View {
         Image("MiniClockIcon")
             .scaleEffect(1.1, anchor: .bottom)
             .frame(width: 20, alignment: .leading)
     }
-}
-
-//Selecting New Time Row
-extension RespondTimeRow {
-    
 }

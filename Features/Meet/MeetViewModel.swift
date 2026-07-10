@@ -12,27 +12,29 @@ import SwiftUI
 @MainActor
 @Observable final class MeetViewModel {
 
-    let s: Session
+    //Injected
+    let session: Session
     let defaults: DefaultsManaging
     let userRepo: UserRepository
     let profileRepo: ProfilesRepository
     let eventRepo: EventsRepository
     let imageLoader: ImageLoading
 
+    //Cached profile images
     var profileImages: [String: [UIImage]] = [:]
 
-    init(s: Session, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
-        self.imageLoader = imageLoader
-        self.s = s
+    init(session: Session, defaults: DefaultsManaging, userRepo: UserRepository, profileRepo: ProfilesRepository, eventRepo: EventsRepository, imageLoader: ImageLoading) {
+        self.session = session
+        self.defaults = defaults
         self.userRepo = userRepo
         self.profileRepo = profileRepo
         self.eventRepo = eventRepo
-        self.defaults = defaults
+        self.imageLoader = imageLoader
     }
-        
-    var profiles: [PendingProfile] { s.profiles }
-    var pendingInvites: [PendingProfile] { s.profiles} // Change later
-    var user: UserProfile {s.user}
+
+    var profiles: [PendingProfile] { session.profiles }
+    var pendingInvites: [PendingProfile] { session.profiles } // TODO: back with real pending invites
+    var user: UserProfile { session.user }
     
     func sendInvite(event: EventFieldsDraft, profile: UserProfile) async throws {
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .invited)

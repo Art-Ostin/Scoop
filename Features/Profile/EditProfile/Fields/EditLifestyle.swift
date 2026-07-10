@@ -11,10 +11,10 @@ struct OnboardingLifestyle: View {
     
     @Bindable var vm: OnboardingViewModel
     
-    @State var drinking: String?
-    @State var smoking: String?
-    @State var marijuana: String?
-    @State var drugs: String?
+    @State private var drinking: String?
+    @State private var smoking: String?
+    @State private var marijuana: String?
+    @State private var drugs: String?
     
     var body: some View {
         GenericLifestyle(drinking: $drinking, smoking: $smoking, marijuana: $marijuana, drugs: $drugs)

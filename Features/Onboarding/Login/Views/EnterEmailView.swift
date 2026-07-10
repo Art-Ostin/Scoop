@@ -8,11 +8,14 @@ import Foundation
 import SwiftUI
 
 struct EnterEmailView: View {
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @State var showVerification: Bool = false
     @State var vm: VerifyEmailViewModel
+
+    //Local view state
+    @State private var showVerification: Bool = false
     @FocusState private var isFocused: Bool
-    
+
     init(vm: VerifyEmailViewModel) { self._vm = State(initialValue: vm)}
     
     var body: some View {

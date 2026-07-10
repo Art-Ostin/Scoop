@@ -13,16 +13,20 @@ struct PromptResponse: Codable, Equatable  {
 }
 
 struct OnboardingPrompt: View {
+    //Injected
     @Bindable var vm: OnboardingViewModel
     let promptIndex: Int
+
+    //Local view state
+    @State private var prompt = PromptResponse(prompt: "", response: "")
+
     private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
     private var keyPath: WritableKeyPath<DraftProfile, PromptResponse> {
         [\DraftProfile.prompt1, \DraftProfile.prompt2] [promptIndex]
     }
-    @State var prompt = PromptResponse(prompt: "", response: "")
-    
+
     var body: some View {
         PromptGeneric(prompt: $prompt, promptIndex: promptIndex)
             .nextButton(isValid: prompt.response.count > 3, padding: 24) {
@@ -38,7 +42,7 @@ struct OnboardingPrompt: View {
                     } else if promptIndex == 1 {
                         if !draft.prompt2.response.isEmpty {
                             prompt.prompt = draft.prompt2.prompt
-                            prompt.prompt = draft.prompt2.response
+                            prompt.response = draft.prompt2.response
                         }
                     }
                 }
@@ -47,10 +51,14 @@ struct OnboardingPrompt: View {
 }
 
 struct EditPrompt: View {
-    @Bindable var vm: EditProfileViewModel
+    //Injected
     @Environment(\.dismiss) private var dismiss
+    @Bindable var vm: EditProfileViewModel
     let promptIndex: Int
-    @State var showEmptyAlert: Bool = false
+
+    //Local view state
+    @State private var showEmptyAlert: Bool = false
+
     private var key: UserProfile.Field {
         [.prompt1, .prompt2, .prompt3] [promptIndex]
     }
@@ -74,18 +82,20 @@ struct EditPrompt: View {
 }
 
 struct PromptGeneric: View {
-    @FocusState var isFocused: Bool
+    //Injected
     @Binding var prompt: PromptResponse
-    @State var showPrompts = false
     let promptIndex: Int
-    let maxChars = 110
+
+    //Local view state
+    @FocusState var isFocused: Bool
+    @State private var showPrompts = false
+    private let maxChars = 110
+    private let promptTitle: [String] = ["Prompt 1", "Prompt 2", "Prompt 3"]
 
     private var prompts: [String] {
         let p = Prompts.instance
         return [p.prompts1, p.prompts2, p.prompts3] [promptIndex]
     }
-    
-    let promptTitle: [String] = ["Prompt 1", "Prompt 2", "Prompt 3"]
 
     var body: some View {
         VStack(spacing: 60) {

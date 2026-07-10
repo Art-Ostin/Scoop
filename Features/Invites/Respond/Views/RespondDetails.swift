@@ -38,10 +38,11 @@ enum DetailInfo: CaseIterable {
 
 struct RespondDetails: View {
     
+    //Injected
     let event: UserEvent
     @Binding var showInfo: Bool
     let image: UIImage
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             title

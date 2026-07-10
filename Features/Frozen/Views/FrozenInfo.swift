@@ -9,16 +9,15 @@ import SwiftUI
 
 struct FrozenInfo: View {
     
-    //Turn this into a tab view. 
-    
+    //Injected
     let vm: FrozenViewModel
     let name: String
     let frozenUntilDate: Date
     let isBlocked: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 36) {
-            Text("Account" + (isBlocked ? "Blocked" : "Frozen"))
+            Text("Account " + (isBlocked ? "Blocked" : "Frozen"))
                 .font(.body(24, .bold))
             
             VStack(alignment: .leading, spacing: 16) {

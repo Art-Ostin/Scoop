@@ -10,7 +10,7 @@ import SwiftUI
 struct OnboardingTextField: View  {
     @Bindable var vm: OnboardingViewModel
     let field: TextFieldOptions
-    @State var text = ""
+    @State private var text = ""
 
     var body: some View {
         TextFieldGeneric(text: $text, field: field.title)
@@ -25,7 +25,7 @@ struct OnboardingTextField: View  {
                         }
                     }
                     if field == .hometown {
-                        if !draft.degree.isEmpty {
+                        if !draft.hometown.isEmpty {
                             text = draft.hometown
                         }
                     }
@@ -35,12 +35,14 @@ struct OnboardingTextField: View  {
 }
 
 struct EditTextfield : View {
+    //Injected
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
-    @State private var showEmptyAlert = false
-    
-    @State private var initialValue = ""
     let field: TextFieldOptions
+
+    //Local view state
+    @State private var showEmptyAlert = false
+
     var selection: Binding<String> {
         Binding {vm.draft[keyPath: field.keyPath]} set: {vm.set(field.key, field.keyPath, to: $0)}
     }

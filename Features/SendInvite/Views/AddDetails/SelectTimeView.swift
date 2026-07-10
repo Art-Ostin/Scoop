@@ -9,31 +9,23 @@ import SwiftUI
 
 struct SelectTimeView: View {
 
+    //Injected
+    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
     @Binding var proposedTimes: ProposedTimes
     var isRespondMode = false
 
-    @Environment(\.timeCustomMenuDismiss) private var dismissMenu
+    //Local view state
     @State private var selectedHour = 22
     @State private var selectedMinute = 30
     @State private var warning: DayWarning?
     @State private var showSaved = false
     @State private var savedTask: Task<Void, Never>?
-
     @State private var suppressSavedFlash = false
     @State private var displayedCount = 0
-    @State private var displayedDates: [ProposedTime] = []
+    @Namespace private var countNS
 
     private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7)
     private let dayCount = 11
-    private let cellWidth: CGFloat = 30
-
-    // Selected-times list: 2 cells across, then wrap → [date1] [date2] / [date3]
-//    private let selectedColumns = Array(
-//        repeating: GridItem(.fixed(50), spacing: 24, alignment: .trailing),
-//        count: 2
-//    )
-//    
-    @Namespace private var countNS
 
     var body: some View {
         VStack(spacing: 18) {
@@ -47,7 +39,6 @@ struct SelectTimeView: View {
         .onAppear {
             loadSelectedHourAndMinute()
             displayedCount = proposedTimes.dates.count
-            displayedDates = proposedTimes.dates
         }
         .onChange(of: selectedHour * 60 + selectedMinute) {
             proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
@@ -284,67 +275,3 @@ private struct DayCell: View {
         .showShakeAnimation(bool: shake)
     }
 }
-
-
-
-/*
- private var titleSection: some View {
-     
-     VStack(alignment: .leading, spacing: 4) {
-         HStack {
-             Text("Choose Time")
-                 .font(.body(17, .bold))
-                 .foregroundStyle(Color.textPrimary)
-             Spacer()
-             timeCountAndWarningSign
-         }
-         
-         Text("Propose up to 3 days to Meet")
-             .font(.body(12, .regular))
-             .foregroundStyle(Color.textTertiary)
-     }
- }
- 
- @ViewBuilder
- var dayUnavailablePopup: some View {
-     if let warning {
-         Text(warning.rawValue)
-             .font(.body(12, .bold))
-             .foregroundStyle(Color.warningYellow)
-             .padding(.horizontal).background(Color.appCanvas).padding(.top, 98)
-     }
- }
-
- 
- 
- //Code for updating and listing selected Times
- .overlay(alignment: .bottomLeading) { selectedTimes}
-
- private var selectedTimes: some View {
-     VStack(alignment: .leading, spacing: 4) {
-         ForEach(displayedDates, id: \.self) { proposedTime in
-             Text(FormatEvent.shortDayAndTime(proposedTime.date, withHour: false))
-                 .font(.body(10, .bold))
-                 .foregroundStyle(Color.textTertiary)
-                 .transition(.blurReplace)
-         }
-     }
-     .padding(.horizontal, 20)
-     .padding(.bottom, 20)
- }
-
- .onChange(of: proposedTimes.dates) { old, new in
-     // The mutation in selectDay disables animations; re-introduce them here
-     // (like displayedCount) so the selectedTimes list can blur in/out.
-     if old.count != new.count {
-         withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
-             displayedCount = new.count
-             displayedDates = new
-         }
-     } else {
-         displayedDates = new   // time edit: same count, keep mirror in sync silently
-     }
- }
-
-
- */

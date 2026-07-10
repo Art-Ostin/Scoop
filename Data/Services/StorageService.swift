@@ -36,7 +36,6 @@ class StorageService: StorageServicing {
         for attempt in 0..<10 { // delays: 0.5s, 1s, 2s, 4s, 8s, 16s
             do {
                 let url = try await vRef.downloadURL()
-                print(attempt)
                 return (vPath, url)
             } catch {
                 let delaySeconds =  pow(2.0, Double(attempt))

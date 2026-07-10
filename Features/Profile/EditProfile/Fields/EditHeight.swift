@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct OnboardingHeight: View {
-    @State private var height = "5' 8"
+    //Injected
     @Bindable var vm: OnboardingViewModel
-    
+
+    //Local view state
+    @State private var height = "5' 8"
+
     var body: some View {
         HeightGeneric(selection: $height)
             .nextButton(isValid: true) {

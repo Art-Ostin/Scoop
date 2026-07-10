@@ -31,11 +31,14 @@ struct ImageCell: View {
 
 struct OnboardingPhotoCell: View {
 
+    //Injected
     @Binding var selectedImage: ImageSlot?
-    @State var pickerItem: PhotosPickerItem?
     let index: Int
     @Binding var image: UIImage?
-    
+
+    //Local view state
+    @State private var pickerItem: PhotosPickerItem?
+
     var body: some View {
         Group {
             if let image {
@@ -67,16 +70,12 @@ extension OnboardingPhotoCell {
     
     func loadPickedImage () async {
         guard let item = pickerItem else { return }
-        do {
-            if let data = try await item.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                self.image = uiImage
-            }
-        } catch {
-            print(error)
+        //Optional read: a failed pick just leaves the placeholder
+        if let data = try? await item.loadTransferable(type: Data.self),
+           let uiImage = UIImage(data: data) {
+            self.image = uiImage
         }
     }
-    
 }
 
 struct ImageEditButton: View {
@@ -89,17 +88,6 @@ struct ImageEditButton: View {
        }
    }
    var body: some View {
-       // TEMP: glass button commented out for ButtonTest preview
-       EmptyView()
-       /*
-       GlassButton {
-
-       } buttonLabel: {
-           Image(editButton)
-               .resizable()
-               .scaledToFit()
-               .frame(width: 11, height: 11)
-       }
-       */
+       EmptyView() // TODO: restore the glass edit badge (removed during ButtonTest preview work)
    }
 }

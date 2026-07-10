@@ -15,15 +15,14 @@ enum ProfileViewType {
 @MainActor
 @Observable class ProfileViewModel {
 
+    //Injected
     let profile: UserProfile
     let event: UserEvent?
-
     let imageLoader: ImageLoading
-    let defaults: DefaultsManaging //Profile View Passes on defaults manager for invites, and maps (simplifies architecture for invite popups)
+    let defaults: DefaultsManaging //Passed on for invites and maps (simplifies architecture for invite popups)
 
+    //State
     var viewProfileType: ProfileViewType
-
-    //Profile Images
     private(set) var images: [UIImage]
     private var hasLoaded = false
 

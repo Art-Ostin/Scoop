@@ -9,11 +9,13 @@ import SwiftUI
 
  struct EnterOTP: View {
      
+     //Injected
      @Binding var code: String
+
+     //Local view state
      @FocusState private var isFocused: Bool
-     @State private var showCursor = false
-     
-     
+
+
      var body: some View {
          ZStack {
              HStack(spacing: 36) {

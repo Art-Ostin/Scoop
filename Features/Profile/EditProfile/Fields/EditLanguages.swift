@@ -11,9 +11,9 @@ import SwiftUIFlowLayout
 struct EditLanguages: View {
     @Bindable var vm: EditProfileViewModel
     @FocusState var isFocused: Bool
-    @State var searchText: String = ""
-    @State var selected: [String]
-    @State var isTopOfScroll: Bool = false
+    @State private var searchText: String = ""
+    @State private var selected: [String]
+    @State private var isTopOfScroll: Bool = false
     @State private var isScrolling = false
     @State private var flashMaxText: Set<String> = []
     @State private var selectedScrollPos = ScrollPosition()

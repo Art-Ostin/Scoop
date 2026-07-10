@@ -9,21 +9,13 @@ import SwiftUI
 
 struct MeetContainer: View {
     
+    //Injected
     let vm: MeetViewModel
+
+    //Local view state
     @State private var ui = MeetUIState()
-
-    // Holds the pending send action while the morph's confirm alert is up. Hoisted here
-    // so the alert can be presented full-screen above the (frame-clamped) morph card.
-    @State private var pendingInvite: (() -> Void)?
-
-    //Card image → profile pager hero morph (see ProfileMorph.swift)
     @State private var profileMorph = ProfileMorphState()
-    
-    //Logic for showing
     @State private var isAtTopOfScroll = true
-
-    init(vm: MeetViewModel) { self.vm = vm }
-    
 
     var body: some View {
         ZStack {

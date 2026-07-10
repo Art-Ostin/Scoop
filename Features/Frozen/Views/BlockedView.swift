@@ -9,11 +9,14 @@ import SwiftUI
 
 struct BlockedView: View {
     
+    //Injected
     let vm: FrozenViewModel
-    var email: String {vm.session.user.email}
-    
-    @State var showSettings: Bool = false
-    @State var showBlockedInfo = false
+
+    //Local view state
+    @State private var showSettings: Bool = false
+    @State private var showBlockedInfo = false
+
+    private var email: String { vm.session.user.email }
 
     var body: some View {
         if let blockedContext = vm.user.blockedContext {
@@ -50,7 +53,6 @@ struct BlockedView: View {
             }
             .overlay(alignment: .topLeading) {
                 HStack {
-//                    SettingsButton { showSettings = true }
                     Spacer()
                     InfoButton(showScreen: $showBlockedInfo)
                 }

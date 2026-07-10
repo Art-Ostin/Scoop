@@ -9,11 +9,13 @@ import SwiftUI
 
 struct FrozenView: View {
     
+    //Injected
     let vm: FrozenViewModel
-    
-    @State var showInfo: Bool = false
-    @State var showSettings : Bool = false
-    @State var tabSelection: Int? = 0
+
+    //Local view state
+    @State private var showInfo: Bool = false
+    @State private var showSettings: Bool = false
+    @State private var tabSelection: Int? = 0
 
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
@@ -99,15 +101,9 @@ extension FrozenView {
     
     private var actionBar: some View {
         HStack {
-//            SettingsButton { showSettings = true }
             Spacer()
             InfoButton(showScreen: $showInfo, isAtTopOfScroll: true)
         }
         .padding(.horizontal)
     }
 }
-
-/*
- //            .frame(width: 245, alignment: .leading)
- //            .frame(maxWidth: .infinity, alignment: .center)
- */

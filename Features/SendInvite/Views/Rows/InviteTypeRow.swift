@@ -9,11 +9,12 @@ import SwiftUI
 
 struct InviteTypeRow: View {
 
+    //Injected
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var type: Event.EventType
     @Binding var unparsedMessage: String?
 
-    //Snapshot of the message when the editor opens, so we can tell if it changed on close.
+    //Local view state — messageBeforeEdit: snapshot when the editor opens, to tell if it changed on close
     @State private var messageBeforeEdit: String?
     @State private var messageHeight: CGFloat = 0
     @State private var lastCountedMessage = ""
@@ -46,9 +47,6 @@ struct InviteTypeRow: View {
             rowTitle
             Spacer(minLength: 0)
             typeMenu
-        }
-        .overlay(alignment: .trailing) {
-
         }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
@@ -167,13 +165,6 @@ extension InviteTypeRow {
         }
     }
 
-    private var pageIndicator: some View {
-        AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
-            .scaleEffect(0.6, anchor: .bottom)
-            .padding(.bottom, 8)
-            .offset(x: 6)
-            .opacity(ui.isPopupOpen(.type) ? 0 : 1)
-    }
 }
 
 //Message bookkeeping: editor round-trips and line count
