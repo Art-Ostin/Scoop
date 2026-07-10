@@ -37,7 +37,7 @@ struct InviteOptionsIcon: View {
             .font(.body(16, .bold))
             .foregroundStyle(Color.textSecondary)
             .frame(width: 30, height: 30)
-            .glassBackgroundIfAvailable(shape: Circle(), isClear: false)
+            .glassEffectIfAvailable(shape: Circle())
             .scaleEffect(0.9, anchor: .bottom)
     }
 }

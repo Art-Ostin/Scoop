@@ -44,7 +44,6 @@ struct EditHeight: View {
 }
 
 struct HeightGeneric: View {
-    @Environment(\.flowMode) private var mode
     @Binding var selection: String
     let heightOptions = (45...84).map {"\($0 / 12)' \($0 % 12)"}
     

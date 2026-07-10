@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here
+//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here.
 struct ScoopImage: View {
     let image: UIImage
 
@@ -46,13 +46,11 @@ struct ImageCarousel: View {
 
     @Binding var scrollProgress: Double
     @Binding var scrollPosition: ScrollPosition
-    var hiddenIndex: Int? = nil //Page hidden while the profile-morph flight copy covers it
 
     var body: some View {
         PagerScrollView(progress: $scrollProgress) {
             ForEach(images.indices, id: \.self) { index in
                 carouselImage(images[index])
-                    .opacity(index == hiddenIndex ? 0 : 1)
             }
         }
         .scrollPosition($scrollPosition)
@@ -69,7 +67,6 @@ struct ImageCarousel: View {
         )
     }
 }
-
 
 struct CardImageCarousel: View {
     let images: [UIImage]
@@ -93,22 +90,13 @@ struct CardImageCarousel: View {
             )
             .overlay(alignment: .bottom) {
                 AnimatedPageIndicator(count: images.count, progress: scrollProgress)
-                    .scaleEffect(0.7, anchor: .top)
+                    .scaleEffect(0.7)
                     .offset(y: 12)
             }
             .padding(.top, imagePadding)
         }
     }
 }
-
-
-
-
-
-
-
-
-
 
 struct SmallImage: View {
     let image: UIImage

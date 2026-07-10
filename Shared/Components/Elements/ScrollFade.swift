@@ -104,8 +104,3 @@ extension View {
         self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite))
     }
 }
-
-//Glass ScrollFade
-
-
-

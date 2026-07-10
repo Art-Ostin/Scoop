@@ -91,7 +91,7 @@ extension EditProfileContainer {
                     .foregroundStyle(.accent)
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .glassBackgroundIfAvailable(shape: .capsule)
+                    .glassEffectIfAvailable(shape: .capsule)
             }
             .opacity(path.isEmpty ? 1 : 0)
             .allowsHitTesting(path.isEmpty ? true : false)

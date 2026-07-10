@@ -15,24 +15,10 @@ struct CustomCaption: ViewModifier {
     }
 }
 
-struct BackgroundFill: ViewModifier {
-    let color: Color
-    let top: Bool
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: top ? .top : .center )
-            .background(color)
-    }
-}
-
 extension View {
 
     func customCaption() -> some View {
         modifier(CustomCaption())
-    }
-
-    func colorBackground(_ color: Color, top: Bool = false) -> some View {
-        modifier(BackgroundFill(color: color, top: top))
     }
 
     //Applies default colour background and hides scrollIndicator
@@ -57,27 +43,14 @@ extension View {
         .padding(-inset)
     }
 
-    //Applies glass background if available
-    func glassBackgroundIfAvailable< S: InsettableShape>(shape: S, isClear: Bool = false) -> some View {
-        return Group {
-            if #available(iOS 26.0, *) {
-                self.glassEffect(isClear ? .clear : .regular, in: shape)
-            } else {
-                self
-                    .background(shape.fill(Color.appCanvas))
-            }
-        }
-    }
-
     //Configurable glass effect; falls back to a filled shape pre-iOS 26.
+    @ViewBuilder
     func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, shape: S) -> some View {
-        return Group {
-            if #available(iOS 26.0, *) {
-                let glass: Glass = clear ? .clear : .regular
-                self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
-            } else {
-                self.background(shape.fill(Color.appCanvas))
-            }
+        if #available(iOS 26.0, *) {
+            let glass: Glass = clear ? .clear : .regular
+            self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
+        } else {
+            self.background(shape.fill(Color.appCanvas))
         }
     }
 }

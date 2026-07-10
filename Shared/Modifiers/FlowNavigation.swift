@@ -7,41 +7,12 @@
 
 import SwiftUI
 
-//File Creates an environment to track for the "Edit Screens" if i am on onboarding or in the app.
-enum FlowMode {
-    case onboarding
-    case profile
-}
-
-struct FlowModeKey: EnvironmentKey {
-    static var defaultValue: FlowMode = .profile
-}
-
-extension EnvironmentValues {
-    var flowMode: FlowMode {
-        get { self[FlowModeKey.self]}
-        set { self[FlowModeKey.self] = newValue }
-    }
-}
-
+//Replaces the system back button with the app's own back chevron.
 struct FlowNavigation: ViewModifier {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.flowMode) private var mode
-
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden()
-            .toolbar {
-                switch mode {
-                case .onboarding:
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("SAVE") { dismiss()}
-                            .font(.body(12, .bold))
-                    }
-                case .profile:
-                    DismissToolbarItem(type: .back)
-                }
-            }
+            .toolbar { DismissToolbarItem(type: .back) }
     }
 }
 
@@ -50,4 +21,3 @@ extension View {
         modifier(FlowNavigation())
     }
 }
-

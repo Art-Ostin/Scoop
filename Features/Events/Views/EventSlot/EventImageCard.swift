@@ -11,14 +11,13 @@ struct EventImageCard: View {
 
     let profileImages: [UIImage]
     let userImage: UIImage
-    
     let targetTime: Date
-        
     let openProfile: () -> ()
-    
+
     var body: some View {
         VStack(spacing: 6) {
-            CardImageScrollView(images: profileImages).onTapGesture {openProfile()}
+            CardImageScrollView(images: profileImages, scrollProgress: .constant(0))
+                .onTapGesture {openProfile()}
             timerSection
         }
         .eventCardBackground()

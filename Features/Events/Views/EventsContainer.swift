@@ -89,7 +89,7 @@ extension EventsContainer {
                     .scaledToFit()
                     .frame(width: 22, height: 22)
                     .padding(10)
-                    .glassBackgroundIfAvailable(shape: Circle())
+                    .glassEffectIfAvailable(shape: Circle())
                     .expandHitArea(24)
             }
             .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
