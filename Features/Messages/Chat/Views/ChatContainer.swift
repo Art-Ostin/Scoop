@@ -134,7 +134,7 @@ extension ChatContainer {
             onProfileTap()
         } label: {
             HStack(spacing: 6) {
-                SmallPhoto(image: profileImages.first ?? UIImage(), size: 35, isCircle: true)
+                SmallImage(image: profileImages.first ?? UIImage(), size: 35, isCircle: true)
                     .scaleEffect(0.9)
                     .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: 35 / 2, visualScale: 0.9)
 

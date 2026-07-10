@@ -59,10 +59,10 @@ struct ImageCarousel: View {
     private func carouselImage(_ image: UIImage) -> some View {
         ScoopImage(
             image: image,
-            hPadding: hPadding,
+            aspectRatio: aspectRatio,
             radius: topRadius,
             bottomRadius: bottomRadius,
-            aspectRatio: aspectRatio,
+            hPadding: hPadding,
             isCarousel: true
         )
     }

@@ -71,11 +71,7 @@ extension ProfileImageView {
     }
 
     private func scrollImage(index: Int) -> some View {
-        Image(uiImage: images[index])
-            .resizable()
-            .scaledToFill()
-            .frame(width: 60, height: 60)
-            .imageClip(CornerRadius.thumb)
+        SmallImage(image: images[index], size: 60)
             .customShadow(.card, strength: selection == index ? 1 : 0)
             .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { pagerPosition.scrollTo(id: index) } }
     }

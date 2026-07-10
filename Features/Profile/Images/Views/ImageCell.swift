@@ -13,22 +13,11 @@ struct ImageCell: View {
     let size: CGFloat
     var body: some View {
         ZStack {
-            SmallPhoto(image: <#T##UIImage#>, size: <#T##CGFloat#>, radius: <#T##CGFloat#>, isCircle: <#T##Bool#>)
             
-            
-            
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: size, height: size)
-                .imageClip(CornerRadius.thumb)
+            SmallImage(image: image, size: size)
                 .customShadow(.floating)
             
-            
-            
-            
-            
-            RoundedRectangle(cornerRadius: CornerRadius.thumb)
+            RoundedRectangle(cornerRadius: CornerRadius.smallImage)
                 .frame(width: size, height: size)
                 .foregroundStyle(Color.clear)
                 .overlay(alignment: .topTrailing) {

@@ -32,7 +32,7 @@ struct InviteCard: View {
     
     var body: some View {
         VStack(spacing: 36) {
-            ScoopImage(image: eventProfile.image ?? UIImage(), showShadow: true, aspectRatio: .inviteCard)
+            ScoopImage(image: eventProfile.image ?? UIImage(), aspectRatio: .inviteCard, showShadow: true)
                 .onTapGesture {openProfile()}
                 .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: CornerRadius.image))
                 .overlay {BackgroundBlur(image: mainImage, frames: [profileNameBounds])}

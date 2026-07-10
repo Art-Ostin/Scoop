@@ -32,10 +32,10 @@ struct EventTimer: View {
 extension EventTimer {    
     var photoOverlap: some View {
         ZStack(alignment: .topLeading) {
-            SmallPhoto(image: userImage, size: 38)
+            SmallImage(image: userImage, size: 38)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
 
-            SmallPhoto(image: profileImage, size: 38)
+            SmallImage(image: profileImage, size: 38)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
                 .offset(x: 16, y: 14)
         }

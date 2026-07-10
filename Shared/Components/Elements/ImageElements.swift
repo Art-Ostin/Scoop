@@ -10,13 +10,13 @@ import SwiftUI
 //All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here
 struct ScoopImage: View {
     let image: UIImage
-
-    var hPadding: CGFloat = 16
+    
+    var aspectRatio: AspectRatio = .default
     var radius: CGFloat = CornerRadius.image
     var bottomRadius: CGFloat? = nil
-    var showShadow = false
-    var aspectRatio: AspectRatio = .default
+    var hPadding: CGFloat = 16
     var isCarousel = false
+    var showShadow = false
     
     var body: some View {
         Color.clear
@@ -52,10 +52,12 @@ extension View {
     }
 }
 
+
 struct SmallImage: View {
     
     let image: UIImage
     let size: CGFloat
+    
     var radius: CGFloat = CornerRadius.smallImage
     var isCircle: Bool = false
         
