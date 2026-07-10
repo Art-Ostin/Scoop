@@ -20,7 +20,7 @@ struct EnterEmailView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 72) {
+            VStack(spacing: Spacing.titleGap) {
                 SignUpTitle(text: "McGill Email")
                 enterEmailSection
                 NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, Spacing.md)
@@ -28,7 +28,7 @@ struct EnterEmailView: View {
             .padding(.horizontal)
             .onAppear {isFocused = true}
             .frame(maxHeight: .infinity, alignment:.top)
-            .padding(.top, 96)
+            .padding(.top, Spacing.clearance)
             .padding(.horizontal)
             .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
@@ -65,7 +65,7 @@ extension EnterEmailView {
                 
                 Text("@mail.mcgill.ca")
                     .font(.body(20, .medium))
-                    .padding(.trailing, 2)
+                    .padding(.trailing, Spacing.hairline)
             }
             HStack {
                 Rectangle()

@@ -31,15 +31,15 @@ struct CustomList<Content: View> : View {
                 Text(title)
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.textTertiary)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Spacing.md)
 
                 if showInfoText {
                     Text("Choose which map app opens for seeing the locations of events")
                         .infoText()
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, Spacing.md)
                 }
             }
-            VStack(spacing: 6) {
+            VStack(spacing: Spacing.xs) {
                 content()
             }
             .padding(.vertical, Spacing.sm)
@@ -69,7 +69,7 @@ struct ListItem<Value: Hashable>: View {
         
         NavigationLink(value: value) {
             HStack {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(title)
                         .font(.body(.bold))
                         .foregroundStyle(Color.textPrimary)
@@ -84,8 +84,8 @@ struct ListItem<Value: Hashable>: View {
                     .font(.body(13, .bold))
                     .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 6)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.xs)
         }
     }
 }

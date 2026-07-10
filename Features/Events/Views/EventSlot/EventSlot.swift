@@ -105,10 +105,10 @@ extension View {
         self
             .frame(maxWidth: .infinity)
             .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.lg))
-            .padding(.horizontal, Spacing.gutter)
             .compositingGroup()
-            .shadow(.card)
+            .padding(.horizontal, Spacing.gutter)
             .stroke(CornerRadius.md, lineWidth: 0.85)
+            .shadow(.card)
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view

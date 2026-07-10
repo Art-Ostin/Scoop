@@ -24,11 +24,11 @@ struct SelectTimeView: View {
     @State private var displayedCount = 0
     @Namespace private var countNS
 
-    private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7)
+    private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
     private let dayCount = 11
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: Spacing.md) {
             titleSection
             dayPicker
             timePicker
@@ -104,8 +104,8 @@ private extension SelectTimeView {
                 .circleStroke(lineWidth: 1, color: .black)
         }
         .shrinkButton()
-        .padding(.bottom, 96)
-        .padding(.horizontal, 24)
+        .padding(.bottom, Spacing.clearance)
+        .padding(.horizontal, Spacing.margin)
     }
 }
 
@@ -114,9 +114,9 @@ private extension SelectTimeView {
 private extension SelectTimeView {
     
     var dayPicker: some View {
-        VStack(spacing: 10) {                                          // (3) weekday header → numbers
+        VStack(spacing: 10) {                                          // Geometry: (3) weekday header → numbers
             LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
-            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // (4) row → row
+            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // Geometry: (4) row → row
         }
     }
     
@@ -239,8 +239,8 @@ private struct SelectTimeBackground: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 24)
-            .padding(.top, 20)
+            .padding(.horizontal, Spacing.margin)
+            .padding(.top, Spacing.lg)
             .padding(.bottom, 0) //Low bottom as scroll view on Bottom
     }
 }

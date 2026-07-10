@@ -32,7 +32,7 @@ struct OnboardingLoadingScreen: View {
                     .font(.body(17, .bold))
                 Text(facts[textIndex])
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, Spacing.margin)
             }
         }
         .padding(.horizontal)

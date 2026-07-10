@@ -53,7 +53,7 @@ extension EditProfileContainer {
             Spacer()
             saveButton
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Spacing.md)
     }
     
     @ViewBuilder

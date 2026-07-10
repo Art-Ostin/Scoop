@@ -91,7 +91,7 @@ extension SettingsContainer {
             .frame(height: 1)
             .frame(maxWidth:.infinity)
             .foregroundStyle(Color.border)
-            .padding(.leading, 16)
+            .padding(.leading, Spacing.md)
     }
     
     private var keySettingsSection: some View {
@@ -117,7 +117,7 @@ extension SettingsContainer {
             .frame(height: 1)
             .frame(maxWidth:.infinity)
             .foregroundStyle(Color.border)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Spacing.margin)
     }
     
     private func customRow(text: String, role: String? = "") -> some View {
@@ -133,7 +133,7 @@ extension SettingsContainer {
             Image(systemName: "chevron.right")
                 .font(.body(15, .medium))
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Spacing.md)
         .font(.body(15, .bold))
         .frame(height: 40)
     }

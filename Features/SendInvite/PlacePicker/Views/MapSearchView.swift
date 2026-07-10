@@ -28,7 +28,7 @@ struct MapSearchView: View {
             if showSuggestions {
                 MapSearchBox { searchSuggestionList }
             } else {
-                VStack(spacing: 28) {
+                VStack(spacing: Spacing.lg) {
                     if showRecentSearches {
                         MapSearchBox(text: "Recents") {recentSearchView }
                     }
@@ -54,13 +54,13 @@ extension MapSearchView {
         VStack(spacing: 0) {
             ForEach(Array(vm.recentMapSearches.enumerated()), id: \.offset) { index, search in
                 recentSearchRow(search: search)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Spacing.md)
                     .padding(.vertical, Spacing.xxs)
 
                 if index < vm.recentMapSearches.count - 1 {
                     MapDivider()
-                        .padding(.leading, 53)
-                        .padding(.trailing, 16)
+                        .padding(.leading, 53) //Geometry: aligns the divider with the row's text column
+                        .padding(.trailing, Spacing.md)
                 }
             }
         }
@@ -73,8 +73,8 @@ extension MapSearchView {
             
             if index < service.suggestions.count - 1 {
                 MapDivider()
-                    .padding(.leading, 62)
-                    .padding(.trailing, 16)
+                    .padding(.leading, 62) //Geometry: aligns the divider with the row's text column
+                    .padding(.trailing, Spacing.md)
             }
         }
     }
@@ -128,8 +128,8 @@ extension MapSearchView {
                 .padding(Spacing.md)
                 if category != MapCategory.allCases.last {
                     MapDivider()
-                        .padding(.leading, 64)
-                        .padding(.trailing, 16)
+                        .padding(.leading, 64) //Geometry: aligns the divider with the row's text column
+                        .padding(.trailing, Spacing.md)
                 }
             }
             .foregroundStyle(Color.textPrimary)
@@ -155,8 +155,8 @@ extension MapSearchView {
             */
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 15)
-        .padding(.horizontal, 16)
+        .padding(.vertical, Spacing.md)
+        .padding(.horizontal, Spacing.md)
     }
     
     private func searchLocation(suggestion :MKLocalSearchCompletion) async {
@@ -224,7 +224,7 @@ private struct MapSearchBox<Content: View>: View {
                 Text(text)
                     .font(.system(size: 20, weight: .semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, Spacing.lg)
             }
             LazyVStack(spacing: 0) {
                 content
@@ -235,7 +235,7 @@ private struct MapSearchBox<Content: View>: View {
                 RoundedRectangle(cornerRadius: CornerRadius.xl)
                     .stroke(Color.border.opacity(0.2), lineWidth: 0.5)
             )
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Spacing.gutter)
         }
     }
 }
@@ -283,8 +283,8 @@ private struct SearchSuggestionRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.sm)
     }
     
     private var searchImageIcon: some View {

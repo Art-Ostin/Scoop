@@ -91,14 +91,6 @@ enum Spacing {
 
 
 
-
-
-
-
-
-
-
-
 // MARK:  Aspect Ratio
 enum AspectRatio {
     case square, card, `default`, inviteCard
@@ -112,8 +104,6 @@ enum AspectRatio {
         }
     }
 }
-
-
 
 
 

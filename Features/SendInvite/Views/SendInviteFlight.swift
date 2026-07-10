@@ -107,8 +107,8 @@ extension SendInviteFlight {
         Text(name)
             .font(.title(26))
             .foregroundStyle(Color.white)
-            .padding(.leading, 16)
-            .padding(.bottom, 16 + detailsHeight + 8)
+            .padding(.leading, Spacing.md)
+            .padding(.bottom, Spacing.md + detailsHeight + Spacing.xs)
             .opacity(expanded ? 0 : 1)
             .blur(radius: expanded ? 6 : 0)
     }
@@ -116,7 +116,7 @@ extension SendInviteFlight {
     //The expanded name: pops in over the flight as the card opens and lands exactly on the carousel's
     //top-leading copy at settle. Same HStack structure as the carousel so the glyph layout matches at the handoff.
     private var topName: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: Spacing.hairline) { //Must match the carousel's name HStack for the handoff
             Text("Meet")
             Text(name)
         }
@@ -142,7 +142,7 @@ extension SendInviteFlight {
             .font(.body(14, .medium))
             .foregroundStyle(Color.white)
             .getHeight($detailsHeight)
-            .padding(.leading, 16)
+            .padding(.leading, Spacing.md)
             .padding(.bottom, Spacing.md)
             .opacity(expanded ? 0 : 1)
             .blur(radius: expanded ? 6 : 0)

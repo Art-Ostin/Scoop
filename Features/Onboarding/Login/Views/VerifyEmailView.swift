@@ -86,7 +86,7 @@ struct VerifyEmailView: View {
             }
             .font(.body())
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 72)
+            .padding(.bottom, Spacing.titleGap)
             
             EnterOTP(code: $code)
         }

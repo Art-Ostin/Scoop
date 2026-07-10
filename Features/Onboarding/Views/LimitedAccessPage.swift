@@ -16,7 +16,7 @@ struct LimitedAccessPage: View {
     let onboardingStep: Int
     
     var body: some View {
-        VStack(spacing: 60) {
+        VStack(spacing: Spacing.xxl) {
             Text(page.title)
                 .font(.title())
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -29,18 +29,18 @@ struct LimitedAccessPage: View {
             Text(page.description)
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, Spacing.xl)
                 .font(.body(18, .medium))
             
             if !showOnboarding { //fixes bug where it sometimes appears 'underneath' prompt view.
-                ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12", hPadding: 24) {
+                ActionButton(text: onboardingStep == 0 ? "Create Profile" : "Complete \(onboardingStep)/12", hPadding: Spacing.margin) {
                     showOnboarding = true
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal, 24)
-        .padding(.top, 60)
+        .padding(.horizontal, Spacing.margin)
+        .padding(.top, Spacing.xxl)
         .overlay(alignment: .topTrailing) {
                 signOutButton
                     .padding(.top, Spacing.lg)
@@ -67,7 +67,7 @@ extension LimitedAccessPage {
                     RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .stroke(.black, lineWidth: 1)
                 )
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Spacing.md)
         }
     }
 }

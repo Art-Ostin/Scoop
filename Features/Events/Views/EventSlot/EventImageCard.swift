@@ -20,8 +20,8 @@ struct EventImageCard: View {
                 .onTapGesture {openProfile()}
             timerSection
         }
+        .clipShape(.rect(cornerRadius: CornerRadius.image))
         .eventCardBackground()
-        .clipped()
     }
 }
 

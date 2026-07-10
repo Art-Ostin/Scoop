@@ -28,7 +28,7 @@ struct PreferencesView: View {
                     ListItem(title: info.title, response: info.response, value: info.route)
                     if info.title != "Age Preference" {
                         MapDivider()
-                            .padding(.leading, 24)
+                            .padding(.leading, Spacing.lg)
                             .foregroundStyle(.red)
                     }
                 }

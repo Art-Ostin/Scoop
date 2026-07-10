@@ -73,7 +73,7 @@ extension EditMyLifeAs {
 
          var tabs: some View {
             CustomScrollTab(height: 20) {
-                HStack(spacing: 64) {
+                HStack(spacing: Spacing.xxxl) {
                     ForEach(Field.allCases) { field in
                         let isSelected = field == selection
 
@@ -98,11 +98,11 @@ extension EditMyLifeAs {
                     }
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Spacing.margin)
         }
     
     func page(for field: Field) -> some View {
-        VStack(alignment: .leading, spacing: 72) {
+        VStack(alignment: .leading, spacing: Spacing.titleGap) {
             Text("Favourite \(field.title)")
                 .font(.title())
             
@@ -124,8 +124,8 @@ extension EditMyLifeAs {
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 36)
-        .padding(.top, 96)
+        .padding(.horizontal, Spacing.xl)
+        .padding(.top, Spacing.clearance)
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }

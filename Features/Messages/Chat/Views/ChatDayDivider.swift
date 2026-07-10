@@ -13,7 +13,7 @@ struct ChatDayDivider: View {
     
     var body: some View {
         if let date {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xs) {
                 Text(formatDay(day: date))
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.textTertiary)

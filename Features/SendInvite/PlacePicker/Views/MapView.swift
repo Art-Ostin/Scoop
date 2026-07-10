@@ -221,7 +221,7 @@ extension MapView {
             userLocationButton
         }
         .padding(.bottom, actionMenuBottomPadding(containerHeight: containerHeight, bottomSafeArea: bottomSafeArea))
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Spacing.gutter)
         .animation(.easeInOut(duration: 0.2), value: sheet)
     }
     

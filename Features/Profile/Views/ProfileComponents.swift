@@ -24,24 +24,24 @@ struct DetailsSection<Content: View>: View {
     }
     
     var body: some View {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: Spacing.md) {
                 content
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Spacing.lg)
             .padding(.vertical, padding)
             .frame(maxWidth: .infinity, alignment: .center)
             .frame(height: adaptivePadding ? nil : 169)
-            .padding(.vertical, adaptivePadding ? 12 : 0)
+            .padding(.vertical, adaptivePadding ? Spacing.sm : 0)
             .stroke(CornerRadius.lg, lineWidth: 1, color: color)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Spacing.gutter)
             .overlay(alignment: .topLeading) {
                 if let title = self.title {
                     Text(title)
                         .customCaption()
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, Spacing.xs)
                         .background(Color.appCanvas)
                         .offset(y: -6)
-                        .padding(.horizontal, 36)
+                        .padding(.horizontal, Spacing.xl)//Indents the floating label in from the card edge
                 }
             }
     }
@@ -52,7 +52,7 @@ struct InfoItem: View {
     let info: String
     
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
+        HStack(alignment: .center, spacing: Spacing.sm) {
             //Overlay method, ensures all images take up same space
             Rectangle()
                 .fill(Color.clear)
@@ -76,7 +76,7 @@ struct PromptView: View {
     var count: Int {prompt.response.count}
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             Text(prompt.prompt)
                 .font(.body(14, .italic))
             
@@ -88,6 +88,6 @@ struct PromptView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(Spacing.lg)
-        .padding(.vertical, 6)
+        .padding(.vertical, Spacing.xs)
     }
 }

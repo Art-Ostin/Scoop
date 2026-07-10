@@ -98,7 +98,7 @@ struct PromptGeneric: View {
     }
 
     var body: some View {
-        VStack(spacing: 60) {
+        VStack(spacing: Spacing.titleGap) {
             SignUpTitle(text: promptTitle[promptIndex])
             VStack(spacing: Spacing.xl) {
                 selector
@@ -110,7 +110,7 @@ struct PromptGeneric: View {
             if prompt.prompt.isEmpty {prompt.prompt = prompts.randomElement() ?? "My Ideal Date"}
         }
         .padding(.top, Spacing.lg)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.margin)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fullScreenCover(isPresented: $showPrompts) {SelectPrompt(prompts: prompts, userPrompt: $prompt, promptIndex: promptIndex)}
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -159,8 +159,8 @@ extension PromptGeneric {
                         Text("\(remaining)")
                             .font(.body(14))
                             .foregroundStyle(Color.warningYellow)
-                            .padding(.trailing, 12)
-                            .padding(.bottom, 10)
+                            .padding(.trailing, Spacing.sm)
+                            .padding(.bottom, Spacing.sm)
                     }
                 }
             
@@ -169,7 +169,7 @@ extension PromptGeneric {
                 Text("Type your response here")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPlaceholder)
-                // Match the TextEditor’s visual inset
+                // Geometry: match the TextEditor’s visual inset
                     .padding(.horizontal, 22)
                     .padding(.vertical, Spacing.lg)
                     .allowsHitTesting(false)

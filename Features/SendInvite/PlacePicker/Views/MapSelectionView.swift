@@ -29,7 +29,7 @@ struct MapSelectionView: View {
             VStack(spacing: Spacing.xs) {
                 title
                 locationActions
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, Spacing.xxs)
             }
             locationLookAround
             addLocationButton
@@ -66,7 +66,7 @@ extension MapSelectionView {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 36)
+        .padding(.horizontal, Spacing.xl)
     }
     
     private var addLocationButton: some View {
@@ -229,7 +229,7 @@ private struct MapSelectionAction<Icon: View>: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.sm) {
                 icon()
                 Text(text)
                     .font(.body(14, .bold))

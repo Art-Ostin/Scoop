@@ -92,6 +92,18 @@ Features/<Name>/
   `Circle()` — never a radius the frame clamps. A rounded view inset in a rounded parent uses
   `CornerRadius.concentric(in:inset:)`. Borders go through `Shared/Design/Strokes.swift`
   (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
+- Spacing: only `Spacing` tokens from `Shared/Design/GeneralParameters.swift` — a 4pt grid up
+  to 16 with a 12pt rhythm above: `xxs 4 / xs 8 / sm 12 / md 16 / lg 24 / xl 36 / xxl 48 /
+  xxxl 72`, plus roles: `hairline` (2, optical nudge), `gutter` (= md, full-bleed surface ↔
+  screen edge), `margin` (= lg, content column ↔ screen edge), `titleGap` (= xxxl, screen
+  title → its first content), `clearance` (96, content ↔ the screen edge or floating chrome
+  it must clear). Author top-down: pick the role token when one fits, else the scale step.
+  `spacing: 0` and bare `.padding()` are fine as-is. A numeric spacing literal is allowed only
+  for **geometry** — a value that aligns to or compensates another measurement (divider ↔
+  text-column alignment, grid pitch, hit-area expansion, negative optical pulls) — and must
+  carry a `//Geometry:` comment. Measured system replications (`CustomAlert`, the custom
+  menus) keep their measured literals. A negative padding that negates a token is written as
+  the token's negation (`-Spacing.gutter`) so the pair can't drift apart.
 - Shadows: only `Elevation` levels from `Shared/Design/Shadows.swift`, worn via the
   `.shadow(.card)` overload — the ramp is `card → image → button → softFloating →
   floating` (plus the `glass` role alias of `card` for pre-26 glass stand-ins).

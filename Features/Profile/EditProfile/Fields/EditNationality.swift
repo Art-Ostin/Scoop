@@ -60,7 +60,7 @@ struct GenericNationality: View {
     @State private var scrollPosition: String? = "A"
     @Namespace private var alphabetUnderline
     private let columns = Array(repeating: GridItem(.flexible(), spacing: Spacing.sm), count: 4)
-    private let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13)
+    private let alphabetColumns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 13) //Geometry: 13-column strip pitch
     private let countries = CountryDataServices.shared.allCountries
     var availableLetters: Set<String> {
         Set(countries.map { String($0.name.prefix(1)) })
@@ -103,7 +103,7 @@ extension GenericNationality {
             Spacer()
         }
         .frame(height: 35)
-        .padding(.top, 10)
+        .padding(.top, Spacing.sm)
     }
     
 
@@ -168,7 +168,7 @@ extension GenericNationality {
                     .scrollTargetLayout()
                 }
             }
-            .padding(.bottom, 200)
+            .padding(.bottom, 200) //Geometry: lets the last letter group scroll up to the anchor
         }
         .scrollPosition(id: $scrollPosition, anchor: scrollAnchor)
         .frame(maxHeight: .infinity, alignment: .top)
@@ -188,10 +188,10 @@ private struct FlagItem: View {
     private var isSelected: Bool { countriesSelected.contains(country.flag) }
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: Spacing.xs) {
             Text(country.flag)
                 .font(.system(size: 24))
-                .padding(6)
+                .padding(Spacing.xs)
                 .background(
                     RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .stroke(Color.border, lineWidth: 1)
@@ -257,7 +257,7 @@ struct scrollFader: View {
             )
             .frame(height: 48)
             .frame(maxWidth: .infinity)
-            .padding(.top, 60)
+            .padding(.top, 60) //Geometry: positions the fade just below the header
     }
 }
 
@@ -308,7 +308,7 @@ struct CustomScrollTab<Content: View>: View {
             .shadow(.floating)
             .contentShape(Rectangle())
             .frame(maxHeight: .infinity, alignment: .bottom)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, Spacing.xs)
             .padding(.vertical, Spacing.sm)
     }
 }

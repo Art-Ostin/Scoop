@@ -15,7 +15,7 @@ struct SelectPrompt: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
                 ForEach(prompts, id: \.self) {text in
                     PromptRow(text: text, prompt: $userPrompt)
                 }
@@ -23,7 +23,7 @@ struct SelectPrompt: View {
             .padding(.top, Spacing.xxl)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .scrollContentBackground(.hidden)
-            .padding(.leading, 24)
+            .padding(.leading, Spacing.margin)
             .background(Color.white)
             .toolbar {
                 DismissToolbarItem(type: .cross, isLeading: false)
@@ -43,7 +43,7 @@ struct PromptRow : View {
     @Binding var prompt: PromptResponse
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.lg) {
             Text(text)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundStyle(isSelected ? Color.textAccent : Color.textPrimary)

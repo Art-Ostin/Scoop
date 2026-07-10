@@ -14,7 +14,7 @@ struct ProfileImages: View {
 
     @Bindable var vm: EditProfileViewModel
     @Binding var selectedImage: ImageSlot?
-    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
+    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3) //Geometry: photo-grid pitch (cell + gap)
     
     var body: some View {
             LazyVGrid(columns: columns, spacing: Spacing.lg) {

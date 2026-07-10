@@ -45,7 +45,7 @@ extension SignUpView {
             Image("CoolGuys")
                 .resizable()
                 .scaledToFit()
-                .padding(.horizontal, 72)
+                .padding(.horizontal, Spacing.xxxl)
                 .containerRelativeFrame([.horizontal, .vertical])
                 .id(0)
 
@@ -56,7 +56,7 @@ extension SignUpView {
             .font(.body(.regular))
             .lineSpacing(12)
             .multilineTextAlignment(.center)
-            .padding(.horizontal, 48)
+            .padding(.horizontal, Spacing.xxl)
             .containerRelativeFrame([.horizontal, .vertical])
             .id(1)
         }
@@ -86,7 +86,7 @@ extension SignUpView {
                 .underline() // TODO: wire up the Terms & Conditions link
         }
         .font(.body(10, .medium))
-        .padding(.horizontal, 12)
+        .padding(.horizontal, Spacing.sm)
         .foregroundStyle(Color.textSecondary)
     }
 }

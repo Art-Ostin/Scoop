@@ -16,10 +16,10 @@ struct EditPreferredYears: View {
     let options = ["U0", "U1", "U2", "U3", "U4"]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 84) {
+        VStack(alignment: .leading, spacing: Spacing.titleGap) {
             Text("Preferred Years")
                 .font(.title(32))
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
             LazyVGrid(columns: grid, spacing: Spacing.xxl) {
                 ForEach(options, id: \.self) { option in
                     YearPill(title: option, selection: selection)
@@ -54,7 +54,7 @@ private struct YearPill: View {
                         Cross()
                             .stroke(style: .init(lineWidth: 1, lineCap: .round))
                             .foregroundStyle(Color.textPlaceholder)
-                            .padding(6)
+                            .padding(Spacing.xs)
                     }
                 }
                 .showShakeAnimation(bool: shake)

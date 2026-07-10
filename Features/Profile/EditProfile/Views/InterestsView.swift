@@ -31,7 +31,7 @@ struct InterestsHolder<Content: View, Value: Hashable>: View {
                         .offset(x: -8)
                         .offset(y: -4)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Spacing.md)
                 content
             }
         }

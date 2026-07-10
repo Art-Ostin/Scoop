@@ -48,7 +48,7 @@ struct HeightGeneric: View {
     let heightOptions = (45...84).map {"\($0 / 12)' \($0 % 12)"}
     
     var body: some View {
-        VStack(spacing: 84) {
+        VStack(spacing: Spacing.titleGap) {
             SignUpTitle(text: "Height")
             Picker("Height", selection: $selection) {
                 ForEach(heightOptions, id: \.self) { option in
@@ -56,11 +56,11 @@ struct HeightGeneric: View {
                 }
             }
             .pickerStyle(.wheel)
-            .padding(.horizontal, 36)
+            .padding(.horizontal, Spacing.xl)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 144)
-        .padding(.horizontal, 24)
+        .padding(.top, 144) //Geometry: drops the wheel to sit under the pushed-down title
+        .padding(.horizontal, Spacing.margin)
         .background(Color.appCanvas)
     }
 }

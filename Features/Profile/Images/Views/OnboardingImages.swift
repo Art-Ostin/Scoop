@@ -20,7 +20,7 @@ struct OnboardingImages: View {
     @State private var images: [UIImage?] = Array(repeating: nil, count: 6)
     @State private var selectedImage: ImageSlot? = nil
     @State private var showSavingScreen: Bool = false
-    private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
+    private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3) //Geometry: photo-grid pitch (cell + gap)
 
     init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing, authService: AuthServicing) {
         self.vm = vm
@@ -31,7 +31,7 @@ struct OnboardingImages: View {
         VStack(spacing: Spacing.xl) {
             
             SignUpTitle(text: "Add 6 Photos")
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Spacing.sm)
             
             Text("Ensure you're in all")
                 .font(.body())
@@ -56,8 +56,8 @@ struct OnboardingImages: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 84)
-        .padding(.horizontal, 24)
+        .padding(.top, Spacing.clearance)
+        .padding(.horizontal, Spacing.margin)
         .background(Color.appCanvas)
         .fullScreenCover(item: $selectedImage) {localImage in
             ProfileImageEditor(importedImage: localImage) { updatedImage in

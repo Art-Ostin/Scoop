@@ -17,7 +17,7 @@ struct MapSearchBar: View {
     
     var body: some View {
             TextField("",text: $vm.searchText, prompt: searchPrompt)
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 40) //Geometry: clears the leading icon & trailing clear-button overlays
                 .font(.system(size: 17))
                 .overlay(alignment: .leading) { searchIcon }
                 .overlay(alignment: .trailing) {deleteSearchButton}
@@ -43,7 +43,7 @@ extension MapSearchBar {
         Image(systemName: "magnifyingglass")
             .font(.system(size: 17, weight: .medium))
             .foregroundStyle(Color.textPrimary)
-            .padding(.leading, 12)
+            .padding(.leading, Spacing.sm)
     }
         
     @ViewBuilder
@@ -61,7 +61,7 @@ extension MapSearchBar {
                             .foregroundStyle(Color.textSecondary)
                     )
                     .scaleEffect(0.8)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, Spacing.sm)
             }
         }
     }

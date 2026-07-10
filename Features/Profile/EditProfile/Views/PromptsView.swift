@@ -24,7 +24,7 @@ struct PromptsView: View {
                 }
             }
             .padding(.vertical, Spacing.xs)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Spacing.md)
         }
     }
 }

@@ -30,7 +30,7 @@ struct PreferredMapsView: View {
                     Spacer()
                     mapOption(mapType: .appleMaps)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.xs)
             }
         }
@@ -74,7 +74,7 @@ extension PreferredMapsView {
             vm.updatePreferredMapType(mapType)
             flashSavedIcon()
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.sm) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
                     .opacity(isSelected ? 1 : 0.4)
                 Text(isAppleMaps ? "Apple Maps" : "Google Maps")

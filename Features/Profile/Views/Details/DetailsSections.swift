@@ -57,10 +57,10 @@ struct UserInterests: View {
     let p: UserProfile
 
     var body: some View {
-        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: 6) { text in
+        FlowLayout(mode: .vstack, items: p.interests, itemSpacing: Spacing.xs) { text in
             Text(text)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 10)
+                .padding(.horizontal, Spacing.xs)
+                .padding(.vertical, Spacing.sm)
                 .font(.body(16))
                 .stroke(CornerRadius.sm)
         }

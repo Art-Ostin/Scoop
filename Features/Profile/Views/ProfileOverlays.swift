@@ -50,7 +50,7 @@ extension ProfileContainer {
             profileDismissButton
         }
         .font(.title(24))
-        .padding(.horizontal, 12)
+        .padding(.horizontal, Spacing.sm)
     }
     
     
@@ -71,8 +71,8 @@ extension ProfileContainer {
         if canInvite {
             InviteButton(isInviting: vm.viewProfileType == .invite) { ui.showPopup.toggle() }
                 .opacity(ui.showPopup ? 0 : 1)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 144)
+                .padding(.horizontal, Spacing.margin)
+                .padding(.bottom, 144) //Geometry: floats the invite button above the details drawer
                 .modifier(InviteButtonDragEffect(ui: ui))
         }
     }

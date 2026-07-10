@@ -34,7 +34,7 @@ struct EditProfileButton: View {
             }
         }
         .padding(.horizontal)
-        .padding(.vertical, 10)
+        .padding(.vertical, Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill(Color.white)

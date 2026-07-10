@@ -65,7 +65,7 @@ extension MessagesContainer {
     }
 
     private var messagesPlaceholder: some View {
-        VStack(spacing: 96) {
+        VStack(spacing: Spacing.titleGap) {
             Text("Message your past matches here")
                 .font(.title(20, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -77,7 +77,7 @@ extension MessagesContainer {
                 .frame(maxWidth: .infinity)
                 .frame(width: 250, height: 250)
         }
-        .padding(.top, 72)
+        .padding(.top, Spacing.titleGap)
     }
 }
     

@@ -47,7 +47,7 @@ struct GenericSex: View {
 
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 84) {
+        VStack(alignment: .leading, spacing: Spacing.titleGap) {
             SignUpTitle(text: "Sex")
             
             VStack(alignment: .leading, spacing: Spacing.xxl) {
@@ -82,7 +82,7 @@ struct GenericSex: View {
                 }
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.margin)
         .padding(.bottom, Spacing.lg)
         .sheet(isPresented: $showTypeSexField) {
             TextFieldGeneric(text: $selectedOption, field: "Your Gender")
@@ -95,7 +95,7 @@ struct GenericSex: View {
                     
                 }
                 .overlay(alignment: .top) {
-                    doneButton //96 is how much padding the text field has, then position done button 72 beneath
+                    doneButton //Geometry: 96 is how much padding the text field has, then position done button 72 beneath
                         .padding(.top, 396)
                 }
                 .onAppear {
@@ -152,7 +152,7 @@ extension GenericSex {
                         .stroke(CornerRadius.sm, lineWidth: 1, color: .black)
                 )
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.horizontal, 36)
+                .padding(.horizontal, Spacing.xl)
         }
     }
 }

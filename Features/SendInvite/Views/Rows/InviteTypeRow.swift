@@ -226,11 +226,11 @@ private struct TypeRowMenuLabel: View {
 
                     messageView
                         .getRect($messageFrame)
-                        .padding(.leading, 12)
+                        .padding(.leading, Spacing.sm)
                         .frame(width: pageWidth, alignment: .trailing)
                         .id(1)
                 }
-                .offset(x: -12) //Align with the rest of the content
+                .offset(x: -Spacing.sm) //Align with the rest of the content
                 .frame(height: InviteRowMetrics.rowHeight)
                 .scrollTargetLayout()
             }

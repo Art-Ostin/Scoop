@@ -40,7 +40,7 @@ struct ClearIcon: View {
                     if let type {
                         labelClear(category: type)
                     } else {
-                        VStack(spacing: 2) {
+                        VStack(spacing: Spacing.hairline) {
                             Image("RandomPlace")
                                 .scaleEffect(0.90)
                             Text("Random")

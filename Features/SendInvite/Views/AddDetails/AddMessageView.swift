@@ -32,19 +32,19 @@ struct AddMessageView: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: Spacing.xl) {
-            VStack(spacing: 28) {
+            VStack(spacing: Spacing.lg) {
                 dropdownTitle
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 textFieldSection
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-            .padding(.top, 28)
+            .padding(.top, Spacing.lg)
             
             doneButton
         }
         .navigationTitle("Add Message")
         .navSubTitle("Improve your invite with a message")
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.margin)
         .frame(maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.keyboard, edges: .bottom) 
         .overlay(alignment: .topTrailing) {savedOverlayIcon}
@@ -95,8 +95,8 @@ extension AddMessageView {
                     Text("\(remaining)")
                         .font(.body(14))
                         .foregroundStyle(Color.warningYellow)
-                        .padding(.trailing, 12)
-                        .padding(.bottom, 10)
+                        .padding(.trailing, Spacing.sm)
+                        .padding(.bottom, Spacing.sm)
                 }
             }
         }
@@ -105,7 +105,7 @@ extension AddMessageView {
         if showSaved {
             SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: false)
                 .offset(y: -36)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
         }
     }
     
@@ -114,7 +114,7 @@ extension AddMessageView {
             Text("Done")
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
+                .padding(.vertical, Spacing.sm)
                 .geometryGroup()
 
         }

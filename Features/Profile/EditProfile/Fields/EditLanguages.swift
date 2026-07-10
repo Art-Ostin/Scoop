@@ -33,17 +33,17 @@ struct EditLanguages: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 32)  {
+        VStack(alignment: .leading, spacing: Spacing.xl)  {
             VStack(spacing: Spacing.xs) {
                 SignUpTitle(text: "Languages Spoken")
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, Spacing.margin)
                 selectedView
             }
             VStack(spacing: 0) {
                 customTextField
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, Spacing.margin)
                 languagesView
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, Spacing.margin)
             }
         }
         .focusable()
@@ -134,7 +134,7 @@ extension EditLanguages {
     
     private var selectedView: some View {
             ScrollView(.horizontal) {
-                HStack(alignment: .bottom, spacing: 23) {
+                HStack(alignment: .bottom, spacing: Spacing.lg) {
                     ClearRectangle(size: 1)
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, fillColour: false) { text in

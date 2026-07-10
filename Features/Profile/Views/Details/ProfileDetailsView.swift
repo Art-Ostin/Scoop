@@ -83,11 +83,11 @@ extension ProfileDetailsView {
                 color: .successGreen,
                 title: "event with \(event.otherUserName)",
                 adaptivePadding: true,
-                padding: 12
+                padding: Spacing.sm
             ) {
                 ProfileInviteView(event: event)
             }
-            .padding(.bottom, 32)
+            .padding(.bottom, Spacing.xl)
         }
     }
 

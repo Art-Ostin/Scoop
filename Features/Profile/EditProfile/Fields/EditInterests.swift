@@ -141,7 +141,7 @@ extension GenericInterests {
                 }
             }
             .scrollTargetLayout()
-            .padding(.bottom, 118)
+            .padding(.bottom, Spacing.clearance)
         }
         .scrollContentBackground(.hidden)
         .scrollPosition(id: $currentScroll, anchor: .leading)
@@ -214,13 +214,13 @@ struct InterestSection: View {
                         .offset(y: 1)
                 }
             }
-            .padding(.horizontal, 5)
+            .padding(.horizontal, Spacing.xxs)
             .padding(.bottom, Spacing.md)
-            
-            FlowLayout(mode: .scrollable, items: options, itemSpacing: 6) { input in
+
+            FlowLayout(mode: .scrollable, items: options, itemSpacing: Spacing.xs) { input in
                 InterestOptionCell(text: input, selected: $selected, onInterestTap: onInterestTap)
             }
-            .offset(x: -5)
+            .offset(x: -Spacing.xxs) //Keeps the chips aligned with the section header
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
     }
@@ -278,8 +278,8 @@ struct OptionCell: View {
         let isSelected = selection.contains(text)
 
         Text(text)
-            .padding(.horizontal, isLanguages ? 12 : 8)
-            .padding(.vertical, 10)
+            .padding(.horizontal, isLanguages ? Spacing.sm : Spacing.xs)
+            .padding(.vertical, Spacing.sm)
             .font(.body(isLanguages ? 15 : 14))
             .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
             .background (

@@ -51,7 +51,7 @@ extension InviteImageCarousel {
 
     //Two Texts (not one string) so the glyph layout matches the flight's copy at the handoff.
     private var nameOverlay: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: Spacing.hairline) { //Must match the flight's name HStack for the handoff
             Text("Meet")
                 .getRect($meetFrame, coordSpace: Self.imageSpace)
             Text(name)

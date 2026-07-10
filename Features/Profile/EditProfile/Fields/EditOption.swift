@@ -46,10 +46,10 @@ struct OptionGeneric: View {
     private let grid = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 84) {
+        VStack(alignment: .leading, spacing: Spacing.titleGap) {
             Text(field.title)
                 .font(.title(32))
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
             LazyVGrid(columns: grid, spacing: Spacing.xxl) {
                 ForEach(field.options, id: \.self) { option in
                     OptionPill(title: option, isSelected: $selection) {

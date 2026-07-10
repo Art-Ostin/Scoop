@@ -64,7 +64,7 @@ struct TextFieldGeneric: View {
     let field: String
     
     var body: some View {
-        VStack(spacing: 72)  {
+        VStack(spacing: Spacing.titleGap)  {
             SignUpTitle(text: field)
             customTextField
         }
@@ -72,7 +72,7 @@ struct TextFieldGeneric: View {
         .padding(.horizontal)
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
-        .padding(.top, 96)
+        .padding(.top, Spacing.clearance)
         .padding(.horizontal)
         .background(Color.appCanvas)
         .ignoresSafeArea(.keyboard)

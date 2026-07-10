@@ -18,12 +18,12 @@ struct MapOptionsView: View {
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xs) {
                 MapSearchBar(isFocused: $isFocused, vm: vm, sheet: $sheet)
-                
+
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Spacing.gutter)
             
             mapCategoryIcons
         }

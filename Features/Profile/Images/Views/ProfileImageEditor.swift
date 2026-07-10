@@ -39,7 +39,7 @@ struct ProfileImageEditor: View {
                 saveButton
                     .padding(.top, Spacing.lg)
             }
-            .padding(.top, 120)
+            .padding(.top, 120) //Geometry: drops the editor block clear of the status/cancel zone
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             
             cancelButton
@@ -60,11 +60,11 @@ extension ProfileImageEditor {
                 .foregroundStyle(Color.textTertiary)
                 .font(.body(14, .medium))
                 .frame(minWidth: 50, minHeight: 50, alignment: .center)   //Fixes bug so Icon is in centre of its tappable area
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Spacing.md)
                 .contentShape(Rectangle())
         }
         .padding(.top, Spacing.md)
-        .padding(.trailing, 6)
+        .padding(.trailing, Spacing.xs)
         .zIndex(1)
     }
     

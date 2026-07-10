@@ -135,7 +135,7 @@ extension SendInviteCard {
         .blurPop(visible: expanded && dragOffset == .zero)
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, Self.screenGap)
-        .padding(.horizontal, 12) //12 extra padding beyond screen padding
+        .padding(.horizontal, Spacing.sm) //extra padding beyond screen padding
         .allowsHitTesting(settled)
     }
 }

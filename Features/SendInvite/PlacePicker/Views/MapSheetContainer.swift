@@ -67,16 +67,16 @@ extension MapSheetContainer {
     }
     
     private var mapSearchBar: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: Spacing.xs) {
             MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
             if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Spacing.gutter)
     }
     
     private var selectedLoadingScreen: some View {
-        VStack(spacing: 120) {
-            HStack(spacing: 6) {
+        VStack(spacing: 120) { //Geometry: drops the spinner to mid-sheet while loading
+            HStack(spacing: Spacing.xs) {
                 MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
                 
                 if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }

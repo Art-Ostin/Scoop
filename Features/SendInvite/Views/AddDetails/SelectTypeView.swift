@@ -50,7 +50,7 @@ struct SelectTypeView: View {
 
                     if eventType != Event.EventType.allCases.last {
                         thinDivider
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, Spacing.lg)
                     }
             }
         }
@@ -67,16 +67,16 @@ extension SelectTypeView {
             typeText(type)
             typeInfo(type)
         }
-        .padding(.top, 20)
-        .padding(.bottom, openTypes.contains(type) ? 12 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
-        .padding(.horizontal, 24)
+        .padding(.top, Spacing.md)
+        .padding(.bottom, openTypes.contains(type) ? Spacing.sm : Spacing.md) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.horizontal, Spacing.lg)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
-        .padding(.top, type == Event.EventType.allCases.first ? 2 : 0) //extra padding for the first one
+        .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
     }
     
     private func typeText(_ type: Event.EventType) -> some View {
-        HStack(spacing: 6) {
+        HStack(spacing: Spacing.xs) {
             Text(type.emoji)
                 .font(.body(16))
                 .frame(width: 25, alignment: .leading) //So all same width
@@ -99,10 +99,10 @@ extension SelectTypeView {
             }
         } label: {
             SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
-                .padding(.trailing, 16)
+                .padding(.trailing, Spacing.md)
                 .padding(.top, Spacing.xs)
-                .padding(.leading, 10)
-                .padding(.bottom, 10)
+                .padding(.leading, Spacing.sm)
+                .padding(.bottom, Spacing.sm)
                 .contentShape(Rectangle())
         }
         .shrinkButton()

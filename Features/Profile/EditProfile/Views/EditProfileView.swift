@@ -23,7 +23,7 @@ struct EditProfileView: View {
                 InterestsView(vm: vm)
                 PreferencesView(vm: vm)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Spacing.gutter)
             .padding(.top, Spacing.lg)
         }
     }
