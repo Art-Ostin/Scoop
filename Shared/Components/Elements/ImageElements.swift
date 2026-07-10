@@ -13,7 +13,7 @@ struct ScoopImage: View {
 
     var hPadding: CGFloat = 16
     var radius: CGFloat = CornerRadius.image
-    var bottomRadius: CGFloat? = nil //nil = match radius
+    var bottomRadius: CGFloat? = nil
     var showShadow = false
     var aspectRatio: AspectRatio = .default
     var isCarousel = false
@@ -33,6 +33,7 @@ struct ScoopImage: View {
 }
 
 extension View {
+    
     func imagePadding(_ isCarousel: Bool, hPadding: CGFloat) -> some View {
         padding(.horizontal, isCarousel ? hPadding : 0)
         .containerRelativeFrame(.horizontal) { length, _ in
@@ -40,10 +41,6 @@ extension View {
         }
     }
     
-    func imageClip(_ radius: CGFloat = CornerRadius.image) -> some View {
-        imageClip(top: radius, bottom: radius)
-    }
-
     func imageClip(top: CGFloat, bottom: CGFloat) -> some View {
         clipShape(.rect(
             topLeadingRadius: top,
@@ -55,11 +52,11 @@ extension View {
     }
 }
 
-struct SmallPhoto: View {
+struct SmallImage: View {
     
     let image: UIImage
     let size: CGFloat
-    var radius: CGFloat = CornerRadius.thumb
+    var radius: CGFloat = CornerRadius.smallImage
     var isCircle: Bool = false
         
     var body: some View {

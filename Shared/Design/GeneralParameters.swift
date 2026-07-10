@@ -18,8 +18,9 @@ enum CornerRadius {
     static let xl: CGFloat = 24
 
     // Key elements used throughout the app
-    static let image = xl
-    static let thumb = sm
+    static let smallImage = sm
+    static let image = lg
+    static let card = xl
     static let alert: CGFloat = 36 //System .alert panel (measured on iOS 26); its buttons are Capsules
 
     // Radius for a view inset inside a rounded parent, so both curves share a center.

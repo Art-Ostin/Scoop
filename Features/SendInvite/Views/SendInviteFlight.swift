@@ -151,7 +151,7 @@ extension SendInviteFlight {
     //the real button mid-press, so the replica starts at the pressed scale and plays the release
     //bounce. On expand it fades out in place.
     private var inviteButtonReplica: some View {
-        InviteButton(isInviting: true, morphId: "quick-invite-flight-copy", action: {})
+        InviteButton(isInviting: true, action: {})
             .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
             .opacityPop(visible: !expanded)
             .padding([.trailing, .bottom], 16)

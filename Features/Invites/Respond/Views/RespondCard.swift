@@ -141,7 +141,6 @@ struct RespondCardBackground: ViewModifier {
         content
             .padding(.vertical, 18)
             .padding(.horizontal, 24)
-//            .inviteCardBackground() //Slight green tint for shadow
     }
 }
 

@@ -68,11 +68,7 @@ extension InviteCardInfo {
     }
     
     private var inviteButton: some View {
-        InviteButton(
-            isInviting: false,
-            morphId: eventProfile.event.id,
-            isInviteCard: true
-        ) {
+        InviteButton(isInviting: false, isInviteCard: true) {
             onRespond()
         }
         .padding(12)

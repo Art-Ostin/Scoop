@@ -13,12 +13,21 @@ struct ImageCell: View {
     let size: CGFloat
     var body: some View {
         ZStack {
+            SmallPhoto(image: <#T##UIImage#>, size: <#T##CGFloat#>, radius: <#T##CGFloat#>, isCircle: <#T##Bool#>)
+            
+            
+            
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)
                 .imageClip(CornerRadius.thumb)
                 .customShadow(.floating)
+            
+            
+            
+            
+            
             RoundedRectangle(cornerRadius: CornerRadius.thumb)
                 .frame(width: size, height: size)
                 .foregroundStyle(Color.clear)
@@ -55,13 +64,18 @@ struct OnboardingPhotoCell: View {
 extension OnboardingPhotoCell {
     private var placeHolderView: some View {
         PhotosPicker(selection: $pickerItem, matching: .images) {
-            Image("ImagePlaceholder")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 120, height: 120)
-                .imageClip(CornerRadius.thumb)
+            imagePlaceholder
         }
     }
+        
+    private var imagePlaceholder: some View {
+        Image("ImagePlaceholder")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 120, height: 120)
+            .clipShape(.rect(cornerRadius: CornerRadius.smallImage))
+    }
+    
     func loadPickedImage () async {
         guard let item = pickerItem else { return }
         do {
@@ -73,6 +87,7 @@ extension OnboardingPhotoCell {
             print(error)
         }
     }
+    
 }
 
 struct ImageEditButton: View {

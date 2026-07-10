@@ -69,7 +69,7 @@ extension ProfileContainer {
     @ViewBuilder var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
-            InviteButton(isInviting: vm.viewProfileType == .invite, morphId: vm.profile.id) { ui.showPopup.toggle() }
+            InviteButton(isInviting: vm.viewProfileType == .invite) { ui.showPopup.toggle() }
                 .opacity(ui.showPopup ? 0 : 1)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 144)

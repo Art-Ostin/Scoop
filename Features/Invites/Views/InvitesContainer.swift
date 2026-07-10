@@ -13,13 +13,10 @@ struct InvitesContainer: View {
     @State var ui = InvitesUIState()
     @State var vm: InvitesViewModel
 
-    // Respond-flow popup state, shared by the morph card (the pager) and its confirm alerts.
-    @State private var respondUI = RespondPopupUIState()
-
     //Invite-card image → profile pager hero morph (see ProfileMorph.swift)
     @State private var profileMorph = ProfileMorphState()
 
-    
+
     var body: some View {
         NavigationStack {
             AppScrollView(title: "Invites") {
@@ -29,13 +26,7 @@ struct InvitesContainer: View {
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
-        
-        
-        .quickInvite(openPopupId: $ui.showRespondPopup, style: .respond) { eventId in
-            respondContainer(eventId)
-        } overlay: {
-            respondOverlay
-        }
+        //TODO: Present the respond popup (RespondContainer, driven by ui.showRespondPopup) — presentation removed with the invite morph.
     }
 }
 
@@ -74,29 +65,6 @@ extension InvitesContainer {
 
         return ProfileMode.respondToInvite(respondVM: respondVM) { type in
             respond(eventProfile.event.id, type)
-        }
-    }
-}
-
-
-//2. RespondContainer Logic
-extension InvitesContainer {
-    @ViewBuilder
-    private func respondContainer(_ eventId: String) -> some View {
-        if let eventProfile = vm.eventProfile(forEventId: eventId) {
-            RespondContainer(
-                vm: vm.respondVM(for: eventProfile),
-                ui: respondUI,
-                onHide: {ui.showRespondPopup = nil},
-                onResponse: { type in respond(eventId, type)}
-            )
-        }
-    }
-    
-    @ViewBuilder
-    private var respondOverlay: some View {
-        Color.clear.respondConfirmAlerts(ui: respondUI) { type in
-            if let id = ui.showRespondPopup { respond(id, type) }
         }
     }
 }

@@ -149,7 +149,7 @@ extension InvitesViewModel {
     //1. To open the profile
     var selectedProfile: UserProfile? = nil
 
-    //2. Respond-popup morph driver (event id; nil = closed)
+    //2. Respond-popup driver (event id; nil = closed)
     var showRespondPopup: String?
 
     

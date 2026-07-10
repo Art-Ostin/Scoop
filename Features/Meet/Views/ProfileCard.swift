@@ -47,7 +47,7 @@ extension ProfileCard {
     }
 
     private var inviteButton: some View {
-        InviteButton(isInviting: true, morphId: profile.profile.id) {
+        InviteButton(isInviting: true) {
             onQuickInvite(profile.image)
         }
     }

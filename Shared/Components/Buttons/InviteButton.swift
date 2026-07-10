@@ -13,7 +13,6 @@ struct InviteButton: View {
     static let diameter: CGFloat = 40
 
     let isInviting: Bool
-    let morphId: String
     var isInviteCard: Bool = false
 
     let action: () -> Void

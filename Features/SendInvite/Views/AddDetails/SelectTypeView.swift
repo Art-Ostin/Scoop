@@ -94,7 +94,7 @@ extension SelectTypeView {
             
     private func infoButton(_ type: Event.EventType) -> some View {
         Button {
-            withAnimation(.snappy(duration: 0.3)) { //Changing animation here, causes bug with the stroke, which must be updated in the inviteMorph. Be careful
+            withAnimation(.snappy(duration: 0.3)) {
                 toggleTypeInfo(type)
             }
         } label: {

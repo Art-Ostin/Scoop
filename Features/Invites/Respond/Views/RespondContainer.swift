@@ -13,9 +13,8 @@ enum RespondScrollType {
 
 struct RespondContainer: View {
 
-    //Gap from each screen edge to the card. The respond card owns its width (content-owns-
-    //background morph), so its margin lives here as the scroll peek — not in the morph's
-    //sideMargin. Adjust the respond card's screen margin here.
+    //Gap from each screen edge to the card. The respond card owns its width, so its margin
+    //lives here as the scroll peek. Adjust the respond card's screen margin here.
     static let screenMargin: CGFloat = 32
 
     @State var cardBottomY: CGFloat = 0
