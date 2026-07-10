@@ -17,7 +17,7 @@ struct SendInviteCard: View {
     static let imageRadius = CardImageScrollView.topRadius //Expanded image top corners
     static let imageBottomRadius = CardImageScrollView.bottomRadius //Expanded image bottom corners
     static let screenGap: CGFloat = 10
-    static let sourceRadius = CornerRadius.photoCard //Profile card image clip radius (collapsed state)
+    static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let imageHeightRatio: CGFloat = 1.05
     static let nameBlurInset: CGFloat = 10
 

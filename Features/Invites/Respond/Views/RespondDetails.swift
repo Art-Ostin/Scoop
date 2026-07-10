@@ -107,26 +107,3 @@ struct DetailSection: View {
         }
     }
 }
-
-
-
-
-/*
- Button {
-     showInfo.toggle()
- } label: {
-     HStack(spacing: 8) {
-         CirclePhoto(image: image, showShadow: false, height: 24)
-         
-         Text("Invite")
-             .font(.title(14, .bold))
-             .foregroundStyle(Color.successGreen)
-     }
-     .padding(.leading, 6)
-     .padding(.trailing, 8)
-     .padding(.vertical, 3)
-     .background(Color.white.opacity(0.7), in: .rect(cornerRadius: 24))
-     .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-     .stroke(100, lineWidth: 1, color: .green.opacity(0.1))
- }
- */

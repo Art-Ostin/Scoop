@@ -12,7 +12,7 @@ struct ScoopImage: View {
     let image: UIImage
 
     var hPadding: CGFloat = 16
-    var radius: CGFloat = Corner.image
+    var radius: CGFloat = CornerRadius.image
     var bottomRadius: CGFloat? = nil //nil = match radius
     var showShadow = false
     var aspectRatio: AspectRatio = .default
@@ -40,6 +40,10 @@ extension View {
         }
     }
     
+    func imageClip(_ radius: CGFloat = CornerRadius.image) -> some View {
+        imageClip(top: radius, bottom: radius)
+    }
+
     func imageClip(top: CGFloat, bottom: CGFloat) -> some View {
         clipShape(.rect(
             topLeadingRadius: top,
@@ -55,7 +59,7 @@ struct SmallPhoto: View {
     
     let image: UIImage
     let size: CGFloat
-    var radius: CGFloat = Corner.thumb
+    var radius: CGFloat = CornerRadius.thumb
     var isCircle: Bool = false
         
     var body: some View {
@@ -63,6 +67,9 @@ struct SmallPhoto: View {
             .resizable()
             .scaledToFill()
             .frame(width: size, height: size)
-            .clipShape(.rect(cornerRadius: isCircle ? 1000 : radius, style: isCircle ? .circular : .continuous))
+            .clipShape(.rect(
+                cornerRadius: isCircle ? size / 2 : radius,
+                style: isCircle ? .circular : .continuous
+            ))
     }
 }

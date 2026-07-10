@@ -61,7 +61,7 @@ extension LimitedAccessPage {
                 .background (
                     RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.white )
-                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 2)
+                        .chipShadow()
                 )
                 .overlay (
                     RoundedRectangle(cornerRadius: CornerRadius.sm)

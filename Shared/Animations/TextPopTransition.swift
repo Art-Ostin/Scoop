@@ -11,7 +11,6 @@ import SwiftUI
 //To Use:
 
 /* TO USE
- 
  //1. Wrap text in ZStack and give it a and position it
  ZStack {
      Text(text)

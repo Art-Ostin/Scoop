@@ -84,7 +84,7 @@ extension EventTimer {
     }
     
     private var divider: some View {
-        RoundedRectangle(cornerRadius: 2)
+        Capsule()
             .fill(Color.fillGray)
             .frame(width: 0.85, height: 14)
             .offset(y: -4)

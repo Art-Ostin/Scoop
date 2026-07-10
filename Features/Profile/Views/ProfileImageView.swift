@@ -36,8 +36,8 @@ extension ProfileImageView {
         ImageCarousel(
             images: images,
             hPadding: 8,
-            topRadius: CornerRadius.photoCard,
-            bottomRadius: CornerRadius.photoCard,
+            topRadius: CornerRadius.image,
+            bottomRadius: CornerRadius.image,
             aspectRatio: .default,
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,
@@ -76,7 +76,7 @@ extension ProfileImageView {
             .scaledToFill()
             .frame(width: 60, height: 60)
             .imageClip(CornerRadius.thumb)
-            .customShadow(.card, strength: selection == index ? 4 : 0)
+            .customShadow(.card, strength: selection == index ? 1 : 0)
             .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { pagerPosition.scrollTo(id: index) } }
     }
 

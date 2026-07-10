@@ -45,8 +45,8 @@ final class ProfileMorphState {
     }
 
     static let duration: Double = 0.2 //Key determines speed.
-    static let cardRadii = RectangleCornerRadii(uniform: CornerRadius.nested(in: CornerRadius.md, inset: 6)) //Concentric inside the 16pt event card
-    static let pagerRadii = RectangleCornerRadii(uniform: CornerRadius.photoCard) //Must match the profile pager's image clip
+    static let cardRadii = RectangleCornerRadii(uniform: CornerRadius.concentric(in: CornerRadius.md, inset: 6)) //Concentric inside the 16pt event card
+    static let pagerRadii = RectangleCornerRadii(uniform: CornerRadius.image) //Must match the profile pager's image clip
 
     private(set) var phase: Phase = .inactive
 

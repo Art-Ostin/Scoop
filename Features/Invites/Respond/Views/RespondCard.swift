@@ -45,7 +45,7 @@ extension RespondCard {
     
     private var titleNameAndPhoto: some View {
         HStack(spacing: 12) {
-            CirclePhoto(image: vm.image, showShadow: false, height: 25).offset(x: -2)
+            SmallPhoto(image: vm.image, size: 25, isCircle: true).offset(x: -2)
             Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
                 .font(.title(22))
                 .lineLimit(1)

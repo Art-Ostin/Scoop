@@ -27,7 +27,7 @@ struct AddMessageButton: View {
                         .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
                 )
                 .circleStroke(lineWidth: 0.5, color: Color.border.opacity(0.5))
-                .shadow(color: .black.opacity(hasEventMessage ? 0 : 0.05), radius: 1, x: 0, y: 1.5)
+                .microShadow(!hasEventMessage)
         }
     }
 }

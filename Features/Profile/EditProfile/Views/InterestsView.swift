@@ -77,7 +77,6 @@ struct InterestsLayout: View {
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill( Color.white)
-                .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
         )
     }
 }

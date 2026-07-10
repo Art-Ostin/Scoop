@@ -86,6 +86,6 @@ struct InviteCardInfoBackground: ViewModifier {
             .padding(16)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.nested(in: CornerRadius.photoCard, inset: 12), style: .continuous))
+            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.concentric(in: CornerRadius.image, inset: 12), style: .continuous))
     }
 }

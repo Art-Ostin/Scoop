@@ -43,56 +43,12 @@ struct DropDownChevron: View {
                         Circle()
                             .strokeBorder(Color.border.opacity(0.3), lineWidth: 0.5)
                     }
-                    .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+                    .microShadow()
                     .contentShape(Rectangle())
                     .padding(14)
             }
             .buttonStyle(.plain)
             .padding(-14)
-    }
-}
-
-
-
-struct DropDownButtonOld: View {
-    
-    @Binding var isExpanded: Bool
-    
-    var isAccept: Bool = false
-    var color: Color = .accent
-    var showGlass: Bool = false
-    
-    var body: some View {
-        Button {
-            withAnimation(.spring(duration: 0.25)) {
-                isExpanded.toggle()
-            }
-        } label: {
-            buttonImage
-        }
-        .buttonStyle(.plain)
-    }
-    
-    @ViewBuilder
-    private var buttonImage: some View {
-        let base = Image(systemName: "chevron.down")
-            .font(.body(isAccept ? 15 : 17, .bold))
-            .rotationEffect(.degrees(isExpanded ? 180 : 0))
-            .foregroundStyle(isAccept ? .black : color)
-            .padding(12)
-            .contentShape(Rectangle())
-            .padding(-12)
-        
-        if showGlass {
-            base
-                .padding(6)
-                .buttonBackground(.circle, color: .clear)
-                .padding(-6)
-                .padding(.vertical, -3)
-            
-        } else {
-            base
-        }
     }
 }
 

@@ -73,12 +73,7 @@ extension EventSlot {
         }
     }
     
-    
-    private var howItWorksView: some View {
-        EventCoreInfoPage(event: eventProfile.event)
-            .dimWhenMapActive($disableMap)
-    }
-    
+
     private func disableMapOnScroll(_ oldY: CGFloat, _ newY: CGFloat) {
         guard let enabledAt = mapEnabledAt, Date.now.timeIntervalSince(enabledAt) > 1,
               abs(newY - oldY) > 1 else { return }
@@ -88,7 +83,7 @@ extension EventSlot {
     }
     
     private var eventDivider: some View {
-        RoundedRectangle(cornerRadius: 1)
+        Capsule()
             .fill(Color.border)
             .frame(maxWidth: .infinity, maxHeight: 1)
             .padding(.horizontal, 72)

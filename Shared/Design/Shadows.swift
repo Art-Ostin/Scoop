@@ -1,5 +1,5 @@
 //
-//  ScoopShadows.swift
+//  Shadows.swift
 //  Scoop
 //
 //  Created by Art Ostin on 14/06/2026.
@@ -10,12 +10,6 @@ import SwiftUI
 
 extension View {
 
-    func cardShadow(color: Color) -> some View {
-        self
-        .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
-        .shadow(color: color.opacity(0.04), radius: 20, x: 0, y: 0)
-    }
-    
     @ViewBuilder
     func cardShadow(showShadow: Bool) -> some View {
         if showShadow {
@@ -26,30 +20,34 @@ extension View {
             self
         }
     }
+
+    // Tight lift that anchors small solid controls (chips, pill buttons, the clock).
+    func chipShadow(_ show: Bool = true) -> some View {
+        shadow(color: .black.opacity(show ? 0.15 : 0), radius: 1, x: 0, y: 2)
+    }
+
+    // Barely-there lift for hairline-stroked icon buttons.
+    func microShadow(_ show: Bool = true) -> some View {
+        shadow(color: .black.opacity(show ? 0.05 : 0), radius: 1, x: 0, y: 1.5)
+    }
 }
 
 enum ShadowStyle {
     case card
-    case cardBottom
     case floating
-    case even
 
     // (opacity, radius, yOffset)
     var contact: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .card:       (0.05, 4, 0)
-        case .cardBottom: (0.05, 4, 5)   // y ≥ radius ⇒ blur no longer reaches the top edge
-        case .floating:   (0.06, 10, 2)
-        case .even:       (0.05, 6, 0)
+        case .card:     (0.05, 4, 0)
+        case .floating: (0.06, 10, 2)
         }
     }
 
     var ambient: (opacity: Double, radius: CGFloat, y: CGFloat) {
         switch self {
-        case .card:       (0.07, 6, 7)
-        case .cardBottom: (0.07, 6, 7)   // unchanged — already clears the top
-        case .floating:   (0.14, 24, 14)
-        case .even:       (0.08, 16, 0)
+        case .card:     (0.07, 6, 7)
+        case .floating: (0.14, 24, 14)
         }
     }
 }

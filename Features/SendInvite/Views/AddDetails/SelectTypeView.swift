@@ -41,7 +41,7 @@ struct SelectTypeView: View {
 
     //Card corners. Default uniform 16; the invite menu passes top 16 / bottom 10 so it
     //pairs with the "Add a Message" footer beneath it.
-    var cardCorners: RectangleCornerRadii = RectangleCornerRadii(uniform: 16)
+    var cardCorners: RectangleCornerRadii = RectangleCornerRadii(uniform: CornerRadius.md)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -115,7 +115,7 @@ extension SelectTypeView {
     private var thinDivider: some View {
         //Display scale gives 1 point height. Must do this method to get half height consistently
         let thickness = (0.5 * displayScale).rounded() / displayScale
-        return RoundedRectangle(cornerRadius: 10)
+        return Capsule()
             .frame(maxWidth: .infinity)
             .frame(height: thickness)
             .foregroundStyle(Color.fillGray)
@@ -207,7 +207,7 @@ struct SelectTypeCardBackground: ViewModifier {
 
     //Defaults to a uniform 16 so existing uses are unchanged; the invite menu passes
     //uneven corners to pair the card with its footer.
-    var corners: RectangleCornerRadii = RectangleCornerRadii(uniform: 16)
+    var corners: RectangleCornerRadii = RectangleCornerRadii(uniform: CornerRadius.md)
 
     //The 'Menu' takes care of background, this simply give it the parameters
     func body(content: Content) -> some View {

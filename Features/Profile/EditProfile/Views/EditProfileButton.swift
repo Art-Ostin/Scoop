@@ -38,7 +38,7 @@ struct EditProfileButton: View {
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill(Color.white)
-                .shadow(color: .black.opacity(0.1), radius: 10, y: 10)
+                .customShadow(.floating)
                 .stroke(CornerRadius.lg, lineWidth: 1, color: .accent)
         )
         .padding(.bottom)

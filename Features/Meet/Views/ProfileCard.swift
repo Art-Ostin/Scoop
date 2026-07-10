@@ -27,7 +27,7 @@ struct ProfileCard : View {
             .overlay(alignment: .bottomLeading) {cardOverlay}
             .profileShrinkPress {onTap(profile.image)}
             .coordinateSpace(name: cardSpace)
-            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.photoCard)
+            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.image)
     }
 }
 

@@ -75,7 +75,7 @@ struct CardImageScrollView: View {
     //Standardised card-image geometry. SendInviteCard derives its card/flight radii
     //from these so the flight copy always matches the settled carousel.
     static let imagePadding: CGFloat = 3
-    static let parentCornerRadius = CornerRadius.photoCard
+    static let parentCornerRadius = CornerRadius.image
     static let aspectRatio: AspectRatio = .card
     static let bottomRadius = CornerRadius.sm //Card content continues below the image
     static var topRadius: CGFloat { CornerRadius.concentric(in: parentCornerRadius, inset: imagePadding) }

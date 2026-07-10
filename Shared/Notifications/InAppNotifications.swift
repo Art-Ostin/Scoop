@@ -115,7 +115,7 @@ private struct MessageBannerView: View {
         Group {
             if let image {
                 HStack(spacing: 16) {
-                    CirclePhoto(image: image, showShadow: false, height: 40)
+                    SmallPhoto(image: image, size: 40, isCircle: true)
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(model.authorName)

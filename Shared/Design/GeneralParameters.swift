@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-// MARK: - Corner Radius
-enum Corner {
+
+// MARK: Corner Radius
+enum CornerRadius {
     // Standardised scale
     static let xs: CGFloat = 8
     static let sm: CGFloat = 12
@@ -19,7 +20,7 @@ enum Corner {
     // Key elements used throughout the app
     static let image = xl
     static let thumb = sm
-    static let alert: CGFloat = 36
+    static let alert: CGFloat = 36 //System .alert panel (measured on iOS 26); its buttons are Capsules
 
     // Radius for a view inset inside a rounded parent, so both curves share a center.
     static func concentric(in parent: CGFloat, inset: CGFloat) -> CGFloat {
@@ -27,14 +28,20 @@ enum Corner {
     }
 }
 
-// MARK: - Spacing
+
+// MARK: Spacing
 
 enum Spacing {
     
 }
 
-// MARK: - Aspect Ratio
+// MARK: Shadows
 
+
+
+
+
+// MARK:  Aspect Ratio
 enum AspectRatio {
     case square, card, `default`, inviteCard
 
@@ -49,8 +56,19 @@ enum AspectRatio {
 }
 
 
+
+
+
+
+
+
+
 // MARK: - View Conveniences
 extension View {
+    
+    
+    
+    
     /// `.aspectRatio(.card, contentMode: .fit)`
     func aspectRatio(_ aspect: AspectRatio, contentMode: ContentMode) -> some View {
         aspectRatio(aspect.ratio, contentMode: contentMode)

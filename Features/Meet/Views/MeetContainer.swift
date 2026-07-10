@@ -115,7 +115,7 @@ extension MeetContainer {
             onQuickInvite: {image in openQuickInvite(profile, image: image)}
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
-        .customShadow(.card, strength: 4)//Shadow works Nicely Keep!
+        .customShadow(.card) //Shadow works Nicely Keep!
     }
 }
 

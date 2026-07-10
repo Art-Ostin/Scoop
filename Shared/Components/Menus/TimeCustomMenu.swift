@@ -211,10 +211,6 @@ enum TimeCustomMenuSpec {
     /// glass left to pop. 0.35 lines the fade up with the start of the expand;
     /// smaller concentrates it later / quicker near the very end.
     static let closeGlassFadeProgress: CGFloat = 0.35
-    /// Platter shadow at full bloom (native casts a wide soft shadow).
-    static let platterShadowOpacity: CGFloat = 0.0 //0.1
-    static let platterShadowRadius: CGFloat = 24
-    static let platterShadowY: CGFloat = 10
 
     static var platterShape: RoundedRectangle {
         RoundedRectangle(cornerRadius: platterCornerRadius, style: .continuous)
@@ -1046,11 +1042,6 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                     .frame(width: w, height: h, alignment: .topLeading)
                     .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius, style: .continuous))
-                    // Native platters cast a wide soft shadow; it grows with the
-                    // bloom so the resting button state casts none.
-                    .shadow(color: .black.opacity(TimeCustomMenuSpec.platterShadowOpacity * p.clamped(to: 0...1)),
-                            radius: TimeCustomMenuSpec.platterShadowRadius * p.clamped(to: 0...1),
-                            y: TimeCustomMenuSpec.platterShadowY * p.clamped(to: 0...1))
                     .opacity(glassOpacity)
 
                 // The swallowed label, layered ON TOP of the glass so on close it

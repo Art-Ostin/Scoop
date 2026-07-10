@@ -40,8 +40,6 @@ struct RespondedToProfileCover: View {
                     .font(.body(16, .bold))
             }
         }
-        //Presented at the app root (see ProfileOverlayPresenter): the full-screen
-        //canvas physically covers the tab bar, so no toolbar hiding is needed.
         .transition(.opacity.animation(.easeInOut(duration: 0.18)))
         .colorBackground()
         .zIndex(10)
