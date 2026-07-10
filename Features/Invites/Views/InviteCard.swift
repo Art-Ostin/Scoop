@@ -32,7 +32,7 @@ struct InviteCard: View {
     
     var body: some View {
         VStack(spacing: 36) {
-            GreedyImage(image: eventProfile.image ?? UIImage(), hPadding: 16, aspectRatio: .inviteCard)
+            ScoopImage(image: eventProfile.image ?? UIImage(), showShadow: true, aspectRatio: .inviteCard)
                 .onTapGesture {openProfile()}
                 .profileMorphSource(id: eventProfile.profile.id, radii: .init(uniform: CornerRadius.photoCard))
                 .overlay {BackgroundBlur(image: mainImage, frames: [profileNameBounds])}

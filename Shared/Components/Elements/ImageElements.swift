@@ -7,17 +7,18 @@
 
 import SwiftUI
 
-//Expands full width of view, and height set proportional
+//The app-standard image: container width minus hPadding, height set by the aspect ratio.
 //All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow
-struct GreedyImage: View {
+struct ScoopImage: View {
 
     let image: UIImage
-    
-    var hPadding: CGFloat = 0
-    var radius: CGFloat = 12
-    var bottomRadius: CGFloat? = nil
+
+    var hPadding: CGFloat = 16
+    var radius: CGFloat = Corner.photoCard
+    var bottomRadius: CGFloat? = nil //nil = match radius
     var showShadow = false
     var aspectRatio: AspectRatio = .default
+    var isCarousel = false
     
     var body: some View {
         Color.clear
@@ -28,39 +29,28 @@ struct GreedyImage: View {
                     .scaledToFill()
             }
             .imageClip(top: radius, bottom: bottomRadius ?? radius)
-            .padding(.horizontal, hPadding)
-            .containerRelativeFrame(.horizontal)
+            .imagePadding(isCarousel, hPadding: hPadding)
             .cardShadow(showShadow: showShadow)
     }
 }
 
-//Profile image carousel at top of a card
-struct CardImageScrollView: View {
-
-    //Standardised card-image geometry. SendInviteCard derives its card/flight radii
-    //from these so the flight copy always matches the settled carousel.
-    static let imagePadding: CGFloat = 3
-    static let parentCornerRadius = CornerRadius.photoCard
-    static let aspectRatio: AspectRatio = .card
-    static let bottomRadius = CornerRadius.sm //Card content continues below the image
-    static var topRadius: CGFloat { CornerRadius.nested(in: parentCornerRadius, inset: imagePadding) }
-
-    let images: [UIImage]
-    @Binding var scrollProgress: Double
-
-    var body: some View {
-        VStack(spacing: 8) {
-            ImageCarousel(
-                images: images,
-                hPadding: Self.imagePadding,
-                topRadius: Self.topRadius,
-                bottomRadius: Self.bottomRadius,
-                aspectRatio: Self.aspectRatio,
-                scrollProgress: $scrollProgress
-            )
-            AnimatedPageIndicator(count: images.count, progress: scrollProgress)
-                .scaleEffect(0.7, anchor: .top)
-        }
-        .padding(.top, Self.imagePadding) //Horizontal padding applied inside ImageCarousel
+extension View {
+    
+    func imagePadding(_ isCarousel: Bool, hPadding: CGFloat) -> some View {
+        padding(.horizontal, isCarousel ? hPadding : 0)
+            .containerRelativeFrame(.horizontal) { length, _ in
+                isCarousel ? length : length - hPadding * 2
+            }
+    }
+    
+    
+    func imageClip(top: CGFloat, bottom: CGFloat) -> some View {
+        clipShape(.rect(
+            topLeadingRadius: top,
+            bottomLeadingRadius: bottom,
+            bottomTrailingRadius: bottom,
+            topTrailingRadius: top,
+            style: .continuous
+        ))
     }
 }

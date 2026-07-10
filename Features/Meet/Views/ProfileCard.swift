@@ -21,7 +21,8 @@ struct ProfileCard : View {
     let onQuickInvite: (UIImage) -> Void
     
     var body: some View {
-        profileCardImage
+        ScoopImage(image: profile.image, showShadow: true)
+            .opacity(quickInviteHidden ? 0 : 1)
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) {cardOverlay}
             .profileShrinkPress {onTap(profile.image)}
@@ -32,10 +33,6 @@ struct ProfileCard : View {
 
 extension ProfileCard {
     
-    private var profileCardImage: some View {
-        GreedyImage(image: profile.image, hPadding: 16, radius: 20, showShadow: true)
-            .opacity(quickInviteHidden ? 0 : 1)
-    }
 
     private var cardOverlay: some View {
         HStack(alignment: .bottom) {
@@ -76,13 +73,3 @@ extension ProfileCard {
             .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
     }
 }
-
-
-/*
- GreedyImage(image: profile.image, hPadding: 16, aspectRatio: .default)
-     .imageClip()
-     .opacity(quickInviteHidden ? 0 : 1)
-     .background(quickInviteHidden ? Color.clear : Color.appCanvas, in: .rect(cornerRadius: CornerRadius.photoCard, style: .continuous))
-     .customShadow(.card, strength: 4) //Keep Shadow here. Works Nicely
-
- */
