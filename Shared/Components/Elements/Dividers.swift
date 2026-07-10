@@ -17,7 +17,6 @@ struct CustomDivider: View {
 }
 
 struct LightDivider: View {
-
     @Environment(\.displayScale) private var displayScale
 
     var body: some View {

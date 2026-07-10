@@ -21,13 +21,21 @@ extension Font {
         case semibold = "SFProRounded-Semibold"
         case medium = "SFProRounded-Medium"
     }
-
+    
     static func body(_ size: CGFloat = 16, _ weight: bodyFontWeight = .medium) -> Font {
         .custom(weight.rawValue, size: size)
     }
-
+    
+    static func body(_ weight: bodyFontWeight) -> Font {
+        .body(16, weight)
+    }
+    
     static func title(_ size: CGFloat = 32, _ weight: titleFontWeight = .bold) -> Font {
         .custom(weight.rawValue, size: size)
+    }
+    
+    static func title(_ weight: titleFontWeight) -> Font {
+        .title(32, weight)
     }
 }
 
