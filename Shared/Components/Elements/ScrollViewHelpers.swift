@@ -7,7 +7,6 @@
 import SwiftUI
 
 struct AppScrollView<Content: View>: View {
-    
     let title: String
     let content: Content
 
