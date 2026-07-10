@@ -42,7 +42,6 @@ extension ProfileImageView {
             aspectRatio: .card,
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,
-            hiddenIndex: morph?.hiddenDestIndex
         )
         .scrollDisabled(disableScroll)
         .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in

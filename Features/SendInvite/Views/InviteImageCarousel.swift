@@ -29,7 +29,7 @@ struct InviteImageCarousel: View {
     static let nameTopInset: CGFloat = 12
 
     var body: some View {
-        CardImageScrollView(images: images, scrollProgress: $scrollProgress)
+        CardImageCarousel(images: images, scrollProgress: $scrollProgress)
             .scrollDisabled(images.count <= 1 || dragDisabled)
             .overlay { backgroundBlur }
             .overlay(alignment: .top) { cardOverlay }

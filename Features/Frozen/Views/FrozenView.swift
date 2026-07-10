@@ -66,7 +66,7 @@ extension FrozenView {
                 .id(0)
 
             VStack(spacing: 48) {
-                LargeClockView(targetTime: frozenUntilDate)
+                Text("Put large clock view here")
                     .frame(maxWidth: .infinity)
                     .onTapGesture {
                         showInfo.toggle()

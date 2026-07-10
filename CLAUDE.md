@@ -93,7 +93,7 @@ Features/<Name>/
   `CornerRadius.concentric(in:inset:)`. Borders go through `Shared/Design/Strokes.swift`
   (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
 - Shadows: only `Elevation` levels from `Shared/Design/Shadows.swift`, worn via the
-  `.shadow(.card)` overload — the ramp is `chip → card → image → button → floating`
+  `.shadow(.card)` overload — the ramp is `card → image → button → floating`
   (plus the `glass` role alias of `card` for pre-26 glass stand-ins).
   Light always falls from straight above (x is 0); each level is a
   tight contact layer plus a wide faint ambient layer. `tint:` colors only the ambient

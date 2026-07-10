@@ -26,7 +26,7 @@ struct ProposedTimesRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, -12)
             
-            DropDownChevron(showTimePopup: $showTimePopup)
+            DropDownButton(isOpen: showTimePopup)
                 .offset(x: isAccept ? 2.6 : 4)
                 .fixedSize()
         }

@@ -21,14 +21,12 @@ import SwiftUI
 /// shadows, distant things cast broad soft ones.
 enum Elevation {
 
-    /// Tight anchor for small controls: chips, pills, icon buttons, the clock.
-    case chip
-    /// A whisper for stroked content cards — the stroke provides the definition,
-    /// the shadow only hints at depth.
+    /// A whisper for stroked surfaces — the stroke provides the definition,
+    /// the shadow only hints at depth. Content cards and small stroked icons.
     case card
     /// Resting image cards: profile and invite imagery.
     case image
-    /// Lifted controls: tinted CTA buttons, picked-up or selected elements.
+    /// Lifted controls: CTA buttons, chips, picked-up or selected elements.
     case button
     /// The top of the ramp — surfaces hovering over content: alerts, dropdowns,
     /// notifications, map controls, the tab bar, prominent CTAs, menu platters
@@ -47,7 +45,6 @@ enum Elevation {
 
     var contact: Layer {
         switch self {
-        case .chip:     Layer(opacity: 0.15, radius: 1, y: 2)
         case .card:     Layer(opacity: 0.03, radius: 8, y: 3)
         case .image:    Layer(opacity: 0.05, radius: 4, y: 0)
         case .button:   Layer(opacity: 0.12, radius: 4, y: 2)
@@ -55,10 +52,8 @@ enum Elevation {
         }
     }
 
-    /// nil on the micro level — a second layer adds nothing at that scale.
-    var ambient: Layer? {
+    var ambient: Layer {
         switch self {
-        case .chip: nil
         case .card:     Layer(opacity: 0.01, radius: 24, y: 9)
         case .image:    Layer(opacity: 0.07, radius: 6, y: 7)
         case .button:   Layer(opacity: 0.08, radius: 16, y: 8)
@@ -79,12 +74,9 @@ extension View {
         if let elevation {
             let s = min(max(strength, 0), 1)
             let contact = elevation.contact
-            let anchored = shadow(color: .black.opacity(contact.opacity * s), radius: contact.radius, x: 0, y: contact.y)
-            if let ambient = elevation.ambient {
-                anchored.shadow(color: tint.opacity(ambient.opacity * s), radius: ambient.radius, x: 0, y: ambient.y)
-            } else {
-                anchored
-            }
+            let ambient = elevation.ambient
+            shadow(color: .black.opacity(contact.opacity * s), radius: contact.radius, x: 0, y: contact.y)
+                .shadow(color: tint.opacity(ambient.opacity * s), radius: ambient.radius, x: 0, y: ambient.y)
         } else {
             self
         }

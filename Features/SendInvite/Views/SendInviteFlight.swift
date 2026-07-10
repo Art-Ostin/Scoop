@@ -36,10 +36,10 @@ struct SendInviteFlight: View {
             .frame(width: rect.width, height: rect.height)
             .overlay { dragImageOverlay }
             .clipShape(.rect(
-                topLeadingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius,
-                bottomLeadingRadius: expanded ? SendInviteCard.imageBottomRadius : SendInviteCard.sourceRadius,
-                bottomTrailingRadius: expanded ? SendInviteCard.imageBottomRadius : SendInviteCard.sourceRadius,
-                topTrailingRadius: expanded ? SendInviteCard.imageRadius : SendInviteCard.sourceRadius
+                topLeadingRadius: expanded ? 24 : SendInviteCard.sourceRadius,
+                bottomLeadingRadius: expanded ? 24 : SendInviteCard.sourceRadius,
+                bottomTrailingRadius: expanded ? 24 : SendInviteCard.sourceRadius,
+                topTrailingRadius: expanded ? 24 : SendInviteCard.sourceRadius
             ))
             .onTapGesture { hideInvite() }
             .allowsHitTesting(expanded && !settled && !dragging)
@@ -71,7 +71,7 @@ extension SendInviteFlight {
             .frame(width: size.width, height: size.height)
             .blur(radius: BackgroundBlur.imageBlurRadius)
             .mask { topBlurHalo }
-            .clipShape(.rect(cornerRadius: SendInviteCard.imageBottomRadius))
+            .clipShape(.rect(cornerRadius: 24))
             .allowsHitTesting(false)
             .opacity(expanded ? 1 : 0)
     }

@@ -30,10 +30,10 @@ struct RespondContainer: View {
             
             respondCard
                 .getBottom(coordinateSpace: "RespondSpace", bottom: $cardBottomY) //Bottom of card needed for positioning the 'hide button'
-                .horizontalScrollSlot(id: RespondScrollType.acceptPage, shrinkAnchor: .trailing)
+//                .horizontalScrollSlot(id: RespondScrollType.acceptPage, shrinkAnchor: .trailing)
             
             newInviteCard
-                .horizontalScrollSlot(id: RespondScrollType.counterInvitePage, shrinkAnchor: .leading)
+//                .horizontalScrollSlot(id: RespondScrollType.counterInvitePage, shrinkAnchor: .leading)
         }
         .scrollPosition(id: $ui.scrollPosition)
         .coordinateSpace(.named("RespondSpace"))
