@@ -181,7 +181,7 @@ enum TimeCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
-    static let platterCornerRadius = CornerRadius.menuPlatter
+    static let platterCornerRadius = CornerRadius.customMenu
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
     /// Peak refraction blur while content is being swallowed/materialized
@@ -228,11 +228,6 @@ enum TimeCustomMenuSpec {
     static let closeFade = Animation.easeIn(duration: 0.18)
     /// Window teardown after the classic close animation has finished.
     static let teardownDelay: TimeInterval = 0.32
-    static let legacyCornerRadius = CornerRadius.legacyMenuPlatter
-
-    static var legacyShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: legacyCornerRadius)
-    }
 
     // ── Shared metrics ──
     /// Standard native menu width; opt in with .frame(width:) on your content.
@@ -250,7 +245,7 @@ enum TimeCustomMenuSpec {
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
-    static let highlightCornerRadius = CornerRadius.menuHighlight
+    static let highlightCornerRadius = CornerRadius.customMenuRowHighlight
     static let pressedLabelOpacity: CGFloat = 0.5
 }
 
@@ -877,12 +872,11 @@ private struct TimeCustomMenuOverlayRoot: View {
 
         chromeCore(content: content, metrics: metrics)
             .background {
-                TimeCustomMenuSpec.legacyShape
+                TimeCustomMenuSpec.platterShape
                     .fill(.regularMaterial)
-                    .shadow(color: .black.opacity(0.12), radius: 32, y: 16)
-                    .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
+                    .shadow(.floating)
             }
-            .clipShape(TimeCustomMenuSpec.legacyShape)
+            .clipShape(TimeCustomMenuSpec.platterShape)
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in

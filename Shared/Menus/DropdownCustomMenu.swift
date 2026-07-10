@@ -194,7 +194,7 @@ enum DropdownCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
-    static let platterCornerRadius = CornerRadius.menuPlatter
+    static let platterCornerRadius = CornerRadius.customMenu
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
     /// Peak refraction blur while the menu content is materializing as the
@@ -229,7 +229,9 @@ enum DropdownCustomMenuSpec {
     /// fade earlier / while the platter is still big (0.35 washed it out mid-shrink);
     /// smaller keeps it solid longer and concentrates the fade right at the button.
     static let closeGlassFadeProgress: CGFloat = 0.05
-    /// Platter shadow at full bloom (native casts a wide soft shadow).
+    /// Platter shadow at full bloom, measured from the native platter — a system
+    /// stand-in kept outside the Elevation ramp (it scales radius/offset with the
+    /// bloom progress, which `.shadow(_:strength:)` deliberately doesn't do).
     static let platterShadowOpacity: CGFloat = 0.1
     static let platterShadowRadius: CGFloat = 24
     static let platterShadowY: CGFloat = 10
@@ -330,7 +332,6 @@ enum DropdownCustomMenuSpec {
     static let closeFade = Animation.easeIn(duration: 0.18)
     /// Window teardown after the classic close animation has finished.
     static let teardownDelay: TimeInterval = 0.32
-    static let legacyCornerRadius = CornerRadius.legacyMenuPlatter
 
     // ── Shared metrics ──
     /// Standard native menu width; opt in with .frame(width:) on your content.
@@ -362,7 +363,7 @@ enum DropdownCustomMenuSpec {
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
-    static let highlightCornerRadius = CornerRadius.menuHighlight
+    static let highlightCornerRadius = CornerRadius.customMenuRowHighlight
 }
 
 // MARK: - DropdownCustomMenu
@@ -682,7 +683,7 @@ struct DropdownCustomMenuFooterPlatter: ViewModifier {
             content
                 .background(shape.fill(.regularMaterial))
                 .clipShape(shape)
-                .shadow(color: .black.opacity(0.12), radius: 24, y: 16)
+                .shadow(.floating)
         }
     }
 }
@@ -1484,15 +1485,14 @@ private struct DropdownCustomMenuOverlayRoot: View {
         let placement = metrics.placement(for: menuSize ?? .zero)
         let platterShape = UnevenRoundedRectangle(
             cornerRadii: controller.cornerRadii
-                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.legacyCornerRadius)
+                ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.platterCornerRadius)
         )
 
         chromeCore(content: content, metrics: metrics)
             .background {
                 platterShape
                     .fill(.regularMaterial)
-                    .shadow(color: .black.opacity(0.12), radius: 32, y: 16)
-                    .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
+                    .shadow(.floating)
             }
             .clipShape(platterShape)
             .onGeometryChange(for: CGSize.self) { proxy in

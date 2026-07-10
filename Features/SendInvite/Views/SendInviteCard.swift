@@ -13,9 +13,9 @@ struct SendInviteCard: View {
 
     //Concentric geometry, derived from CardImageScrollView so the flight radii always match the settled carousel.
     //TODO: flight pass — the settled carousel insets its image by imagePadding and blurs at a different radius; the flight copy doesn't match yet.
-    static let cardRadius = CardImageScrollView.parentCornerRadius
-    static let imageRadius = CardImageScrollView.topRadius //Expanded image top corners
-    static let imageBottomRadius = CardImageScrollView.bottomRadius //Expanded image bottom corners
+    static let cardRadius = 24
+    static let imageRadius = 24 //Expanded image top corners
+    static let imageBottomRadius = 24 //Expanded image bottom corners
     static let screenGap: CGFloat = 10
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let imageHeightRatio: CGFloat = 1.05
@@ -60,7 +60,7 @@ struct SendInviteCard: View {
             ZStack(alignment: .top) {
                 cardBackground(origin)
                 VStack(spacing: 0) {
-                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + CardImageScrollView.imagePadding))
+                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + 24))
                     backButton
                 }
                 flight(origin)
@@ -160,22 +160,23 @@ extension SendInviteCard {
 
     private func cardBackground(_ origin: CGPoint) -> some View {
         backgroundShape(origin)
-            .shadow(color: .black.opacity(expanded ? 0.05 : 0), radius: 3, x: 0, y: 1)
-            .shadow(color: .black.opacity(expanded ? 0.04 : 0), radius: 20, x: 0, y: 0)
-            //ProfileCard's resting shadow (its customShadow(.card) + MeetContainer's wrapper = twice),
+            //Expanded, the card is a modal surface: top-of-ramp elevation, halved so
+            //the near-fullscreen sheet keeps only a hint of edge while dragged.
+            .shadow(.floating, strength: expanded ? 0.5 : 0)
+            //ProfileCard's resting shadow (its .shadow(.image) + MeetContainer's wrapper = twice),
             //worn by the flight while collapsed: the shadow morphs in DURING the close and is already
             //complete the frame the card lands, so the unmount handoff to the real ProfileCard (which
             //waits for the spring's .removed tail) swaps pixel-identically instead of popping in late.
             //Same fix in reverse on open: the slot's shadow hands off to the flight with no gap.
-            .customShadow(.card, strength: expanded ? 0 : 1)
-            .customShadow(.card, strength: expanded ? 0 : 1)
+            .shadow(.image, strength: expanded ? 0 : 1)
+            .shadow(.image, strength: expanded ? 0 : 1)
             .allowsHitTesting(false)
     }
 
     private func backgroundShape(_ origin: CGPoint) -> some View {
         let expandedRect = lerp(cardFrame, imageFrame, dragProgress)
         let rect = local(expanded ? expandedRect : sourceFrame, origin)
-        let radius = expanded ? Self.cardRadius : Self.sourceRadius
+        let radius = expanded ? 24 : Self.sourceRadius
         return RoundedRectangle(cornerRadius: radius)
             .fill(Color.appCanvas)
             .frame(width: rect.width, height: rect.height)

@@ -59,7 +59,7 @@ struct EventDetails: View {
                 }
                 .foregroundStyle(Color.textAccent)
             }
-            .shrinkButton(shadow: .medium, shadowColor: .accent)
+            .shrinkButton(shadow: .button, tint: .accent)
         }
         .modifier(DetailsBackground())
         .overlay(alignment: .topLeading) {

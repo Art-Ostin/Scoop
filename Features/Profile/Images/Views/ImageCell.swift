@@ -15,7 +15,7 @@ struct ImageCell: View {
         ZStack {
             
             SmallImage(image: image, size: size)
-                .customShadow(.floating)
+                .shadow(.floating)
             
             RoundedRectangle(cornerRadius: CornerRadius.smallImage)
                 .frame(width: size, height: size)
@@ -48,7 +48,7 @@ struct OnboardingPhotoCell: View {
                 placeHolderView
             }
         }
-        .shadow(color: selectedImage?.index == index ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
+        .shadow(.button, strength: selectedImage?.index == index ? 1 : 0)
         .task(id: pickerItem) {await loadPickedImage()}
     }
 }

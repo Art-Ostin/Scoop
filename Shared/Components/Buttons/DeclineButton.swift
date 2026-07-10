@@ -11,18 +11,18 @@ struct DeclineButton: View {
     let image: String = "DeclineIcon"
     let onTap: () -> ()
     var body: some View {
-                Image(image)
-                .frame(width: 40, height: 40)
-                .background(
-                    Circle()
-                        .fill(Color.appCanvas)
-                )
-                .circleStroke(lineWidth: 1, color: Color.border)
-                .contentShape(Circle())
-                .microShadow()
-                .onTapGesture {onTap()}
-                .scaleEffect(1.1)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 6)
-        }
+        Image(image)
+            .frame(width: 40, height: 40)
+            .background(
+                Circle()
+                    .fill(Color.appCanvas)
+            )
+            .circleStroke(lineWidth: 1, color: Color.border)
+            .contentShape(Circle())
+            .shadow(.floating)
+            .onTapGesture {onTap()}
+            .scaleEffect(1.1)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 6)
+    }
 }

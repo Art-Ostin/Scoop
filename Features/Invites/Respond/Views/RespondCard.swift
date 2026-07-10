@@ -79,7 +79,7 @@ extension RespondCard {
             Text(location.name ?? "LocationEvent")
                 .foregroundStyle(Color.successGreen)
         }
-        .shrinkButton(shadow: nil)
+        .shrinkButton()
     }
 }
 

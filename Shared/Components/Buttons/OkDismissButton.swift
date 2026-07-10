@@ -11,7 +11,7 @@ struct OkDismissButton: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         ScoopButton(
-            style: .tinted(.accent, shadow: .medium),
+            style: .tinted(.accent),
             shape: RoundedRectangle(cornerRadius: CornerRadius.md)
         ) {
             dismiss()

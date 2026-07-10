@@ -34,7 +34,7 @@ struct ClearIcon: View {
                     .overlay(
                         Circle().stroke(gradient, lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.12), radius: 4, x: 0, y: 2)
+                    .shadow(.floating)
 
                 VStack(spacing: 0) {
                     if let type {

@@ -49,7 +49,7 @@ struct BlockedContextView: View {
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.md)
                     .foregroundStyle(Color.appCanvas)
-                    .shadow(color: .accent.opacity(0.15), radius: 4, y: 2)
+                    .shadow(.button, tint: .accent)
             )
             .stroke(CornerRadius.md)
             .overlay(alignment: .bottomTrailing) {

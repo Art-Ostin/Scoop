@@ -18,7 +18,7 @@ struct InviteButton: View {
     let action: () -> Void
 
     var body: some View {
-        ScoopButton(style: .tinted(isInviting ? Color.accent : Color.successGreen, shadow:  isInviteCard ? nil : .high), shape: Circle(), action: action) {
+        ScoopButton(style: .tinted(isInviting ? Color.accent : Color.successGreen, shadow: isInviteCard ? nil : .floating), shape: Circle(), action: action) {
             Image("LetterIconProfile")
                 .resizable()
                 .scaledToFit()

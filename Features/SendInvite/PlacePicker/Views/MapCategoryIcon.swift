@@ -47,7 +47,7 @@ struct MapCategoryIcon: View {
                             .offset(x: category == .pub ? 1 : 0)
 
                 }
-                .shadow(color: isSelected && isMap ? .black.opacity(0.22) : .clear, radius: 10, x: 0, y: 6)
+                .shadow(.floating, strength: isSelected && isMap ? 1 : 0)
                 .foregroundStyle(Color.white) //For the systemNameIcons
                 .font(.body(20))
 

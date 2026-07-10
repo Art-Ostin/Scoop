@@ -20,7 +20,7 @@ struct ActionButton: View {
         isValid ? (isInvite ? Color.successGreen : Color.accent) : Color.fillGray
     }
     
-    var shadow: Elevation? { isValid && showShadow ? .high : nil}
+    var shadow: Elevation? { isValid && showShadow ? .floating : nil}
 
     var body: some View {
         ScoopButton(style: .tinted(color, shadow: shadow), shape: Capsule(), action: onTap) {

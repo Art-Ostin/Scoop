@@ -26,17 +26,17 @@ struct PressEffect {
 struct PressButtonStyle: ButtonStyle {
     var effect: PressEffect
     var elevation: Elevation?
-    var shadowColor: Color = .accent
+    var tint: Color = .accent
 
     func makeBody(configuration: Configuration) -> some View {
-        PressableLabel(configuration: configuration, effect: effect, elevation: elevation, shadowColor: shadowColor)
+        PressableLabel(configuration: configuration, effect: effect, elevation: elevation, tint: tint)
     }
 
     private struct PressableLabel: View {
         let configuration: Configuration
         let effect: PressEffect
         let elevation: Elevation?
-        let shadowColor: Color
+        let tint: Color
         @State private var scale: CGFloat = 1
         @State private var opacity: Double = 1
         @State private var brightness: Double = 0
@@ -48,7 +48,7 @@ struct PressButtonStyle: ButtonStyle {
                 .scaleEffect(scale)
                 .opacity(opacity)
                 .brightness(brightness)
-                .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
+                .shadow(elevation, tint: tint, strength: shadowStrength)
                 .onChange(of: configuration.isPressed) { _, isPressed in onPressed(isPressed) }
         }
 
@@ -78,7 +78,7 @@ struct PressButtonStyle: ButtonStyle {
 struct PressEffectModifier: ViewModifier {
     var effect: PressEffect
     var elevation: Elevation?
-    var shadowColor: Color = .accent
+    var tint: Color = .accent
     var action: (() -> Void)?
 
     @State private var isPressed = false
@@ -93,7 +93,7 @@ struct PressEffectModifier: ViewModifier {
             .scaleEffect(scale)
             .opacity(opacity)
             .brightness(brightness)
-            .buttonShadow(elevation, color: shadowColor, strength: shadowStrength)
+            .shadow(elevation, tint: tint, strength: shadowStrength)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -137,30 +137,30 @@ struct PressEffectModifier: ViewModifier {
 
 extension View {
 
-    func shrinkButton(shadow: Elevation? = nil, shadowColor: Color = .accent) -> some View {
-        pressButton(.shrink, shadow: shadow, shadowColor: shadowColor)
+    func shrinkButton(shadow: Elevation? = nil, tint: Color = .accent) -> some View {
+        pressButton(.shrink, shadow: shadow, tint: tint)
     }
 
-    func growButton(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, brightness: Double? = nil) -> some View {
+    func growButton(shadow: Elevation? = .glass, tint: Color = .accent, brightness: Double? = nil) -> some View {
         var effect = PressEffect.grow
         if let brightness { effect.brightness = brightness }
-        return pressButton(effect, shadow: shadow, shadowColor: shadowColor)
+        return pressButton(effect, shadow: shadow, tint: tint)
     }
 
-    private func pressButton(_ effect: PressEffect, shadow: Elevation?, shadowColor: Color) -> some View {
-        buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, shadowColor: shadowColor))
+    private func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {
+        buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, tint: tint))
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }
 
     // Apply the press effect directly to any view (e.g. an Image).
-    func growPress(shadow: Elevation? = .customGlassShadow, shadowColor: Color = .accent, brightness: Double? = nil, action: (() -> Void)? = nil) -> some View {
+    func growPress(shadow: Elevation? = .glass, tint: Color = .accent, brightness: Double? = nil, action: (() -> Void)? = nil) -> some View {
         var effect = PressEffect.grow
         if let brightness { effect.brightness = brightness }
-        return modifier(PressEffectModifier(effect: effect, elevation: shadow, shadowColor: shadowColor, action: action))
+        return modifier(PressEffectModifier(effect: effect, elevation: shadow, tint: tint, action: action))
     }
-    
+
     //Same for the shrink Press
-    func shrinkPress(shadow: Elevation? = nil, shadowColor: Color = .accent, action: (() -> Void)? = nil) -> some View {
-        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, shadowColor: shadowColor, action: action))
+    func shrinkPress(shadow: Elevation? = nil, tint: Color = .accent, action: (() -> Void)? = nil) -> some View {
+        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, tint: tint, action: action))
     }
 }

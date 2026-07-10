@@ -59,7 +59,7 @@ struct CustomMapAnnotation: View {
                 }
             }
             .foregroundStyle(.white)
-            .customShadow(.floating)
+            .shadow(.floating)
             
             ZStack {
                 Circle()
@@ -155,7 +155,7 @@ struct SmallDot: View {
                  .frame(width: 7, height: 7)
                  .foregroundStyle(color)
          }
-         .shadow(color: .black.opacity(0.22), radius: 6, x: 0, y: 4)
+         .shadow(.floating)
      }
  }
 

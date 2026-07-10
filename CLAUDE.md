@@ -92,6 +92,17 @@ Features/<Name>/
   `Circle()` — never a radius the frame clamps. A rounded view inset in a rounded parent uses
   `CornerRadius.concentric(in:inset:)`. Borders go through `Shared/Design/Strokes.swift`
   (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
+- Shadows: only `Elevation` levels from `Shared/Design/Shadows.swift`, worn via the
+  `.shadow(.card)` overload — the ramp is `chip → card → image → button → floating`
+  (plus the `glass` role alias of `card` for pre-26 glass stand-ins).
+  Light always falls from straight above (x is 0); each level is a
+  tight contact layer plus a wide faint ambient layer. `tint:` colors only the ambient
+  glow (tinted CTAs glow their own color — `.shadow(.button, tint: .accent)`); `strength:`
+  fades a shadow in/out without restructuring the view (press states animate it to
+  `Elevation.pressedStrength`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
+  Shadows.swift**, plus the measured system-replication specs that interpolate geometry
+  (menu platter bloom in `DropdownCustomMenu.swift`/`TypeCustomMenu.swift`,
+  `ProfileMorph.swift`). Need a new look? Add or adjust a level, not a call site.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
 

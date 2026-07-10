@@ -107,8 +107,7 @@ extension View {
             .background (Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
             .padding(.horizontal, 16)
             .compositingGroup()
-            .shadow(color: Color.black.opacity(0.0125), radius: 4, x: 0, y: 1)
-            .shadow(color: Color.black.opacity(0.0075), radius: 12, x: 0, y: 0)
+            .shadow(.card)
             .stroke(CornerRadius.md, lineWidth: 0.85)
     }
     

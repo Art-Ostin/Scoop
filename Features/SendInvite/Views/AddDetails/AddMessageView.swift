@@ -110,7 +110,7 @@ extension AddMessageView {
     }
     
     private var doneButton: some View {
-        ScoopButton(style: .tinted(.accent, shadow: .low), shape: .rect(cornerRadius: CornerRadius.xl), action: {dismiss()}) {
+        ScoopButton(style: .tinted(.accent), shape: .rect(cornerRadius: CornerRadius.xl), action: {dismiss()}) {
             Text("Done")
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)

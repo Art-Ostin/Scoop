@@ -103,7 +103,7 @@ private extension SelectTimeView {
                 .frame(width: 33, height: 33)
                 .circleStroke(lineWidth: 1, color: .black)
         }
-        .shrinkButton(shadow: nil, shadowColor: .clear)
+        .shrinkButton()
         .padding(.bottom, 96)
         .padding(.horizontal, 24)
     }

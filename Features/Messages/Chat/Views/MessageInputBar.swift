@@ -49,7 +49,7 @@ extension MessageInputBar {
     @ViewBuilder
     private var sendMessageView: some View {
         let color = text.isEmpty ? Color.fillGray : Color.accent
-        let elevation: Elevation? = text.isEmpty ? nil : .customGlassShadow
+        let elevation: Elevation? = text.isEmpty ? nil : .glass
 
         ScoopButton(style: .tinted(color, shadow: elevation), shape: Circle(), size: .large) {
             Task { try await sendMessage() }

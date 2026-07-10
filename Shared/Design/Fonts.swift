@@ -22,6 +22,7 @@ extension Font {
         case medium = "SFProRounded-Medium"
     }
     
+    //Keep duplicate of body and title. Allows complete freedom when filling out
     static func body(_ size: CGFloat = 16, _ weight: bodyFontWeight = .medium) -> Font {
         .custom(weight.rawValue, size: size)
     }
@@ -40,10 +41,12 @@ extension Font {
 }
 
 extension UIFont {
+    //Needed to measure text height in message bubble etc
     static func body(_ size: CGFloat = 16, _ weight: Font.bodyFontWeight = .medium) -> UIFont {
         UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size)
     }
 
+    //Needed for changing navigation title
     static func title(_ size: CGFloat = 32, _ weight: Font.titleFontWeight = .bold) -> UIFont {
         UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size, weight: .bold)
     }

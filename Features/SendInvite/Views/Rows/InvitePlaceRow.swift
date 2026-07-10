@@ -43,7 +43,7 @@ extension InvitePlaceRow {
             .frame(height: InviteRowMetrics.rowHeight)
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
-        .shrinkButton(shadow: nil, shadowColor: .clear)
+        .shrinkButton()
     }
     
     private var noLocationPlaceholder: some View {

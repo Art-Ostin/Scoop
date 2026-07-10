@@ -31,7 +31,7 @@ struct ScoopImage: View {
             .containerRelativeFrame(.horizontal) { length, _ in
                 fillsPageWidth ? length : length - hPadding * 2
             }
-            .cardShadow(showShadow: showShadow)
+            .shadow(showShadow ? .image : nil)
     }
 }
 

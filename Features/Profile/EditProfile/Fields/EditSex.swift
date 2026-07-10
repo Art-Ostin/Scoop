@@ -148,7 +148,7 @@ extension GenericSex {
                 .background(
                     RoundedRectangle(cornerRadius: CornerRadius.sm)
                         .fill(Color.appCanvas)
-                        .chipShadow()
+                        .shadow(.chip)
                         .stroke(CornerRadius.sm, lineWidth: 1, color: .black)
                 )
                 .frame(maxWidth: .infinity, alignment: .center)

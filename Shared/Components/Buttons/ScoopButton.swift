@@ -10,8 +10,8 @@ import SwiftUI
 enum ScoopButtonStyle: Equatable {
     case glass, clearGlass
     // Shadow is a tinted-only concern: glass draws its own (native on iOS 26,
-    // replicated via .customGlassShadow on the fallback), so it isn't configurable there.
-    case tinted(Color, shadow: Elevation? = .medium)
+    // replicated via Elevation.glass on the fallback), so it isn't configurable there.
+    case tinted(Color, shadow: Elevation? = .button)
 }
 
 struct ScoopButton<Content: View, S: Shape>: View {
@@ -61,7 +61,7 @@ extension ScoopButton {
                         .background(shape.fill(.ultraThinMaterial).brightness(0.06))
                         .expandHitArea(hitInset)
                 }
-                .growButton(shadowColor: .black)
+                .growButton(tint: .black)
             }
         }
         .foregroundStyle(Color.textPrimary)
@@ -77,14 +77,14 @@ extension ScoopButton {
                         .contentShape(shape) //Fixes bug keep!
                         .expandHitArea(hitInset)
                 }
-                .shrinkButton(shadow: shadow, shadowColor: color)
+                .shrinkButton(shadow: shadow, tint: color)
             } else {
                 Button(action: action) {
                     sizedLabel()
                         .background(shape.fill(color))
                         .expandHitArea(hitInset)
                 }
-                .shrinkButton(shadow: shadow, shadowColor: color)
+                .shrinkButton(shadow: shadow, tint: color)
             }
         }
         .foregroundStyle(Color.white)
@@ -103,7 +103,7 @@ extension View {
             } else {
                 base
                     .background(shape.fill(color))
-                    .buttonShadow(.customGlassShadow)
+                    .shadow(.glass)
             }
         }
         .padding(16)

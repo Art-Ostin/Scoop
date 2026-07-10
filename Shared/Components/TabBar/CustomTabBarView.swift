@@ -25,7 +25,7 @@ struct CustomTabBarView: View {
         .background(.ultraThinMaterial,
                     in: RoundedRectangle(cornerRadius: CornerRadius.xl))
         .compositingGroup()
-        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 8)
+        .shadow(.floating)
         .padding(.horizontal, 36)
         .padding(.bottom, 12)
         .animation(.snappy(duration: 0.2), value: selection)

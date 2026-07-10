@@ -11,7 +11,7 @@ struct NextButton: View {
     let isValid: Bool
     let onTap: () -> Void
         
-    var shadow: Elevation? { isValid ? .medium : nil }
+    var shadow: Elevation? { isValid ? .button : nil }
     var color: Color { isValid ? .accent : .fillGray}
 
     var body: some View {

@@ -305,7 +305,7 @@ struct CustomScrollTab<Content: View>: View {
             .padding(.vertical, 16)
             .font(.body(16, .bold))
             .glassRectangle()
-            .customShadow(.floating)
+            .shadow(.floating)
             .contentShape(Rectangle())
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.horizontal, 8)

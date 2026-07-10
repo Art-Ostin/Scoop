@@ -136,7 +136,7 @@ private struct MessageBannerView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
                 .padding(.horizontal, 16)
-                .customShadow(.floating, strength: 0.5)
+                .shadow(.floating, strength: 0.5)
                 .offset(y: dragOffset)
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .contentShape(Rectangle())

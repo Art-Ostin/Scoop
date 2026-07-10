@@ -38,7 +38,7 @@ struct LargeClockView: View {
         .frame(width: 253, height: 52)
         .background( Color.accent)
         .clipShape(.rect(cornerRadius: CornerRadius.md))
-        .chipShadow(showShadow)
+        .shadow(.chip, strength: showShadow ? 1 : 0)
     }
     func clockSection(time: Int, sign: String) -> some View {
         HStack(spacing: 5) {

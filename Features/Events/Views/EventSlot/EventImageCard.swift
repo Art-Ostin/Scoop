@@ -16,11 +16,12 @@ struct EventImageCard: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            CardImageScrollView(images: profileImages, scrollProgress: .constant(0))
+            CardImageCarousel(images: profileImages, scrollProgress: .constant(0))
                 .onTapGesture {openProfile()}
             timerSection
         }
         .eventCardBackground()
+        .clipped()
     }
 }
 

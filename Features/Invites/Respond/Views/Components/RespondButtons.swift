@@ -27,7 +27,7 @@ struct AddMessageButton: View {
                         .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
                 )
                 .circleStroke(lineWidth: 0.5, color: Color.border.opacity(0.5))
-                .microShadow(!hasEventMessage)
+                .shadow(.chip, strength: hasEventMessage ? 0 : 1)
         }
     }
 }
@@ -86,6 +86,6 @@ struct EventTypeButton: View {
                     .offset(x: 6, y: -3) // so goes slightly outside view
             }
         }
-        .shrinkButton(shadow: nil)
+        .shrinkButton()
     }
 }
