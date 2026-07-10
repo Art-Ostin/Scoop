@@ -6,89 +6,43 @@
 
 import SwiftUI
 
-
-
-
 struct CardImageScrollView: View {
-    
-    let images: [UIImage]
-    let imagePadding: CGFloat = 3
-    
-    
+    //Card geometry, static so SendInviteCard's flight radii always match the settled carousel.
+    static let parentCornerRadius: CGFloat = CornerRadius.image
+    static let imagePadding: CGFloat = 3
+    static let bottomRadius: CGFloat = CornerRadius.sm
     static var topRadius: CGFloat { CornerRadius.concentric(in: parentCornerRadius, inset: imagePadding) }
 
-    
-    //Injected (scrollProgress: pass a binding when the parent tracks paging, e.g. InviteImageCarousel's blur)
-    var scrollProgress: Binding<Double>? = nil
+    let images: [UIImage]
 
-    //Local view state
-    @State private var internalProgress: Double = 0
-    
-    var topRadius: CGFloat { CornerRadius.concentric(in: 24, inset: 3)}
-    
-    
-    
-
-    private var progress: Binding<Double> { scrollProgress ?? $internalProgress }
+    //Scroll progress passed up as parent tracks paging InviteImageCarousel blur
+    @Binding var scrollProgress: Double
 
     var body: some View {
         VStack(spacing: 8) {
             ImageCarousel(
                 images: images,
                 hPadding: Self.imagePadding,
-                topRadius: topRadius,
-                bottomRadius: CornerRadius.sm,
+                topRadius: Self.topRadius,
+                bottomRadius: Self.bottomRadius,
                 aspectRatio: AspectRatio.card,
-                scrollProgress: progress,
+                scrollProgress: $scrollProgress,
                 scrollPosition: .constant(ScrollPosition())
             )
-            AnimatedPageIndicator(count: images.count, progress: progress.wrappedValue)
-                .scaleEffect(0.7, anchor: .top)
-        }
-        .padding(.top, Self.imagePadding) //Horizontal padding applied inside ImageCarousel
-    }
-}
-
-
-
-
-
-//Free-page pager. Still used by RespondContainer; ImageCarousel replaces it for image paging.
-struct HorizontalScrollView<Content: View>: View {
-    var peek: CGFloat = 0
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                content
+            .overlay(alignment: .bottom) {
+                AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+                    .scaleEffect(0.7, anchor: .top)
+                    .offset(y: 12)
             }
-            .scrollTargetLayout()
-        }
-        .contentMargins(.horizontal, peek, for: .scrollContent)
-        .pagedScroll()
-    }
-}
-
-
-extension View {
-    @ViewBuilder
-    func pagedScroll(progress: Binding<Double>? = nil) -> some View {
-        let base = self
-            .scrollTargetBehavior(.paging)
-            .scrollIndicators(.hidden)
-        if let progress {
-            base.trackScrollProgress(scrollProgress: progress)
-        } else {
-            base
+            .padding(.top, Self.imagePadding)
         }
     }
 }
+
 
 extension View {
     //Shared pager defaults. .paging over .viewAligned is deliberate: viewAligned settles too soft.
     //Position tracking and clip behaviour vary per pager, so they stay at the call site.
-
     @ViewBuilder
     func horizontalScrollSlot(id: some Hashable, shrinkAnchor: UnitPoint? = nil) -> some View {
         let page = self

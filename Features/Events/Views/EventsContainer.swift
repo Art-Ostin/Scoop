@@ -56,20 +56,16 @@ extension EventsContainer {
     }
 
     private var eventsPager: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(vm.events) { eventProfile in
-                    eventSlot(eventProfile)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 32)
-                        .padding(.bottom, 84)
-                        .containerRelativeFrame(.horizontal)
-                        .id(eventProfile.id)
-                }
+        PagerScrollView {
+            ForEach(vm.events) { eventProfile in
+                eventSlot(eventProfile)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 32)
+                    .padding(.bottom, 84)
+                    .containerRelativeFrame(.horizontal)
+                    .id(eventProfile.id)
             }
-            .scrollTargetLayout()
         }
-        .pagedScroll()
         .scrollPosition(id: $ui.selectedEventId)
     }
 

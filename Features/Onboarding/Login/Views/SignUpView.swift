@@ -41,31 +41,26 @@ struct SignUpView: View {
 extension SignUpView {
     
     private var tabSection: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                Image("CoolGuys")
-                    .resizable()
-                    .scaledToFit()
-//                    .frame(width: 250, height: 250)
-                    .padding(.horizontal, 72)
-                    .containerRelativeFrame([.horizontal, .vertical])
-                    .id(0)
-
-                VStack(spacing: 36) {
-                    (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
-                    (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
-                }
-                .font(.body(.regular))
-                .lineSpacing(12)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 48)
+        PagerScrollView {
+            Image("CoolGuys")
+                .resizable()
+                .scaledToFit()
+                .padding(.horizontal, 72)
                 .containerRelativeFrame([.horizontal, .vertical])
-                .id(1)
+                .id(0)
+
+            VStack(spacing: 36) {
+                (Text("Skip small talk: ").bold() + Text("No 'likes'. Match, then send a time & place to meet."))
+                (Text("Social Scoop: ").bold() + Text("Meet amongst each other's friends, or a double date!"))
             }
-            .scrollTargetLayout()
+            .font(.body(.regular))
+            .lineSpacing(12)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 48)
+            .containerRelativeFrame([.horizontal, .vertical])
+            .id(1)
         }
         .frame(height: 200)
-        .pagedScroll()
         .scrollPosition(id: $tabSelection)
     }
     

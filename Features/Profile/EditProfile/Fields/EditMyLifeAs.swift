@@ -38,17 +38,13 @@ struct EditMyLifeAs: View {
     }
     
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(Field.allCases) { field in
-                    page(for: field)
-                        .containerRelativeFrame([.horizontal, .vertical])
-                        .id(field)
-                }
+        PagerScrollView {
+            ForEach(Field.allCases) { field in
+                page(for: field)
+                    .containerRelativeFrame([.horizontal, .vertical])
+                    .id(field)
             }
-            .scrollTargetLayout()
         }
-        .pagedScroll()
         .scrollPosition(id: $selection)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .bottom) {

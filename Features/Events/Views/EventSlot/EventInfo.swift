@@ -32,15 +32,11 @@ struct EventInfo: View {
 extension EventInfo {
     
     var scrollSection: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(EventInfoData.allCases, id: \.self) { infoType in
-                    eventInfoSlot(type: infoType)
-                }
+        PagerScrollView(progress: $scrollProgress) {
+            ForEach(EventInfoData.allCases, id: \.self) { infoType in
+                eventInfoSlot(type: infoType)
             }
-            .scrollTargetLayout()
         }
-        .pagedScroll(progress: $scrollProgress)
         .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
     }
     

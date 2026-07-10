@@ -28,16 +28,12 @@ struct MeetInfoCoverScrollView: View {
 extension MeetInfoCoverScrollView {
 
     private var scrollView: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(Event.EventType.allCases, id: \.self) {type in
-                    scrollSection(type: type)
-                        .containerRelativeFrame(.horizontal)
-                }
+        PagerScrollView(progress: $scrollProgress) {
+            ForEach(Event.EventType.allCases, id: \.self) {type in
+                scrollSection(type: type)
+                    .containerRelativeFrame(.horizontal)
             }
-            .scrollTargetLayout()
         }
-        .pagedScroll(progress: $scrollProgress)
     }
     
     func scrollSection(type: Event.EventType) -> some View {

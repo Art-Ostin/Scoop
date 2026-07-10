@@ -35,7 +35,6 @@ struct ScoopImage: View {
     }
 }
 
-
 struct ImageCarousel: View {
     let images: [UIImage]
 
@@ -50,16 +49,12 @@ struct ImageCarousel: View {
     var hiddenIndex: Int? = nil //Page hidden while the profile-morph flight copy covers it
 
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(images.indices, id: \.self) { index in
-                    carouselImage(images[index])
-                        .opacity(index == hiddenIndex ? 0 : 1)
-                }
+        PagerScrollView(progress: $scrollProgress) {
+            ForEach(images.indices, id: \.self) { index in
+                carouselImage(images[index])
+                    .opacity(index == hiddenIndex ? 0 : 1)
             }
-            .scrollTargetLayout()
         }
-        .pagedScroll(progress: $scrollProgress)
         .scrollPosition($scrollPosition)
         .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them
     }
@@ -76,7 +71,35 @@ struct ImageCarousel: View {
 }
 
 
-
+struct CardImageCarousel: View {
+    let images: [UIImage]
+    let imagePadding: CGFloat = 3
+    
+    var topRadius: CGFloat { CornerRadius.concentric(in: CornerRadius.image, inset: 3)}
+    
+    //Scroll progress passed up as parent tracks paging InviteImageCarousel blur
+    @Binding var scrollProgress: Double
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ImageCarousel(
+                images: images,
+                hPadding: imagePadding,
+                topRadius: topRadius,
+                bottomRadius: CornerRadius.sm,
+                aspectRatio: AspectRatio.card,
+                scrollProgress: $scrollProgress,
+                scrollPosition: .constant(ScrollPosition())
+            )
+            .overlay(alignment: .bottom) {
+                AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+                    .scaleEffect(0.7, anchor: .top)
+                    .offset(y: 12)
+            }
+            .padding(.top, imagePadding)
+        }
+    }
+}
 
 
 

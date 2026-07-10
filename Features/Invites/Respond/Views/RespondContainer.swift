@@ -26,7 +26,7 @@ struct RespondContainer: View {
     @State private var cardBottomY: CGFloat = 0
 
     var body: some View {
-        HorizontalScrollView(peek: Self.screenMargin) {
+        PagerScrollView(peek: Self.screenMargin) {
             
             respondCard
                 .getBottom(coordinateSpace: "RespondSpace", bottom: $cardBottomY) //Bottom of card needed for positioning the 'hide button'

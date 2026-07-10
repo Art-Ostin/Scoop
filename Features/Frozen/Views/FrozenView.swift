@@ -56,35 +56,31 @@ extension FrozenView {
     }
     
     private func tabSection(frozenContext: BlockedContext, frozenUntilDate: Date) -> some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .containerRelativeFrame(.horizontal)
+        PagerScrollView {
+            BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .containerRelativeFrame(.horizontal)
+                .onTapGesture {
+                    showInfo.toggle()
+                }
+                .id(0)
+
+            VStack(spacing: 48) {
+                LargeClockView(targetTime: frozenUntilDate)
+                    .frame(maxWidth: .infinity)
                     .onTapGesture {
                         showInfo.toggle()
                     }
-                    .id(0)
 
-                VStack(spacing: 48) {
-                    LargeClockView(targetTime: frozenUntilDate)
-                        .frame(maxWidth: .infinity)
-                        .onTapGesture {
-                            showInfo.toggle()
-                        }
-
-                    Text(verbatim: vm.user.email)
-                        .font(.body(14, .medium))
-                        .foregroundStyle(Color.textSecondary)
-                }
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, 24)
-                .containerRelativeFrame(.horizontal)
-                .id(1)
+                Text(verbatim: vm.user.email)
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color.textSecondary)
             }
-            .scrollTargetLayout()
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, 24)
+            .containerRelativeFrame(.horizontal)
+            .id(1)
         }
-        .pagedScroll()
         .scrollPosition(id: $tabSelection)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
