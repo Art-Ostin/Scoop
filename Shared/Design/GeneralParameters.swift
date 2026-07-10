@@ -17,7 +17,7 @@ enum Corner {
     static let xl: CGFloat = 24
 
     // Key elements used throughout the app
-    static let photoCard = xl
+    static let image = xl
     static let thumb = sm
     static let alert: CGFloat = 36
 

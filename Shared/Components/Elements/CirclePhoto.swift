@@ -7,20 +7,6 @@
 
 import SwiftUI
 
-struct CirclePhoto: View {
-    let image: UIImage
-    var showShadow: Bool = true
-    var height: CGFloat = 35
-    
-    var body: some View {
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFill()
-            .frame(width: height, height: height)
-            .clipShape(Circle())
-            .shadow(color: .black.opacity(showShadow ? 0.15 : 0), radius: 1, x: 0, y: 2)
-    }
-}
 
 
 struct ChangeIcon: View {

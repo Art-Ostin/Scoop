@@ -7,14 +7,12 @@
 
 import SwiftUI
 
-//The app-standard image: container width minus hPadding, height set by the aspect ratio.
-//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow
+//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here
 struct ScoopImage: View {
-
     let image: UIImage
 
     var hPadding: CGFloat = 16
-    var radius: CGFloat = Corner.photoCard
+    var radius: CGFloat = Corner.image
     var bottomRadius: CGFloat? = nil //nil = match radius
     var showShadow = false
     var aspectRatio: AspectRatio = .default
@@ -35,14 +33,12 @@ struct ScoopImage: View {
 }
 
 extension View {
-    
     func imagePadding(_ isCarousel: Bool, hPadding: CGFloat) -> some View {
         padding(.horizontal, isCarousel ? hPadding : 0)
-            .containerRelativeFrame(.horizontal) { length, _ in
-                isCarousel ? length : length - hPadding * 2
-            }
+        .containerRelativeFrame(.horizontal) { length, _ in
+            isCarousel ? length : length - hPadding * 2
+        }
     }
-    
     
     func imageClip(top: CGFloat, bottom: CGFloat) -> some View {
         clipShape(.rect(
@@ -52,5 +48,21 @@ extension View {
             topTrailingRadius: top,
             style: .continuous
         ))
+    }
+}
+
+struct SmallPhoto: View {
+    
+    let image: UIImage
+    let size: CGFloat
+    var radius: CGFloat = Corner.thumb
+    var isCircle: Bool = false
+        
+    var body: some View {
+        Image(uiImage: image)
+            .resizable()
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(.rect(cornerRadius: isCircle ? 1000 : radius, style: isCircle ? .circular : .continuous))
     }
 }

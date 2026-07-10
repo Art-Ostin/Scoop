@@ -18,7 +18,6 @@ struct EventTimer: View {
     var body: some View {
         
         HStack(spacing: 20) {
-            
             photoOverlap
             
             clockView
@@ -33,21 +32,14 @@ struct EventTimer: View {
 extension EventTimer {    
     var photoOverlap: some View {
         ZStack(alignment: .topLeading) {
-            circlePhoto(image: userImage)        // back photo
+            SmallPhoto(image: userImage, size: 38)
+                .circleStroke(lineWidth: 1.5, color: .appCanvas)
 
-            circlePhoto(image: profileImage)       // front photo, overlaps
+            SmallPhoto(image: profileImage, size: 38)
+                .circleStroke(lineWidth: 1.5, color: .appCanvas)
                 .offset(x: 16, y: 14)
         }
         .frame(width: 60, height: 56, alignment: .topLeading)
-    }
-
-    
-    func circlePhoto(image: UIImage) -> some View {
-        CirclePhoto(image: image, showShadow: false, height: 38)
-            .overlay {
-                Circle()
-                    .stroke(Color.appCanvas, lineWidth: 1.5)
-            }
     }
 }
 

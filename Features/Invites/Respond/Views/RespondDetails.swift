@@ -70,7 +70,7 @@ extension RespondDetails {
             showInfo.toggle()
         } label: {
             HStack(spacing: 8) {
-                CirclePhoto(image: image, showShadow: false, height: 24)
+                SmallPhoto(image: image, size: 24, isCircle: true)
                 
                 Text("Invite")
                     .font(.title(14, .bold))

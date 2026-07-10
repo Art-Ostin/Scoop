@@ -134,10 +134,8 @@ extension ChatContainer {
             onProfileTap()
         } label: {
             HStack(spacing: 6) {
-                CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+                SmallPhoto(image: profileImages.first ?? UIImage(), size: 35, isCircle: true)
                     .scaleEffect(0.9)
-                    //Flight source. The circle is drawn at 0.9 scale, which geometry
-                    //can't see — visualScale shrinks the reported frame to match.
                     .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: 35 / 2, visualScale: 0.9)
 
                 Text(vm.eventProfile.profile.name)
@@ -162,15 +160,3 @@ extension ChatContainer {
         .padding(.horizontal)
     }
 }
-
-
-/*
- //                    .overlay(alignment: .bottom) {
- //                        LinearGradient.appCanvasFade(startPoint: .bottom, endPoint: .top)
- //                            .frame(height: 100)
- //                            .frame(maxWidth: .infinity)
- //                            .allowsHitTesting(false)
- //                            .offset(y: 35)
- //                    }
-
- */
