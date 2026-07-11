@@ -17,24 +17,11 @@ struct AppContainer: View {
         @Bindable var router = router
 
         ZStack {
-            Group {
-                if #available(iOS 26.0, *) {
-                    TabView(selection: $router.selectedTab) {
-                        Tab("", image: icon(.meet), value: AppTab.meet) { meetView }
-                        Tab("", image: icon(.invites),value: AppTab.invites) { invitesView }
-                        Tab("", image: icon(.events),value: AppTab.events) { eventsView }
-                        Tab("", image: icon(.pastEvents), value: AppTab.pastEvents) { pastEventsView }
-                    }
-                } else {
-                    CustomTabBarContainerView(selection: $router.selectedTab) { tab in
-                        switch tab {
-                        case .meet:       meetView
-                        case .invites:    invitesView
-                        case .events:     eventsView
-                        case .pastEvents: pastEventsView
-                        }
-                    }
-                }
+            TabView(selection: $router.selectedTab) {
+                Tab("", image: icon(.meet), value: AppTab.meet) { meetView }
+                Tab("", image: icon(.invites), value: AppTab.invites) { invitesView }
+                Tab("", image: icon(.events), value: AppTab.events) { eventsView }
+                Tab("", image: icon(.messages), value: AppTab.messages) { pastEventsView }
             }
 
             ProfileOverlayLayer(presenter: profileOverlay)

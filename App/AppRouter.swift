@@ -36,7 +36,7 @@ extension AppRouter {
             showMessageScreen = eventProfile.id
             selectedTab = .events
         } else {
-            selectedTab = .pastEvents
+            selectedTab = .messages
         }
     }
 }

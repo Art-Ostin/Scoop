@@ -1,6 +1,6 @@
 # Scoop — Project Conventions
 
-Scoop is a SwiftUI iOS app (iOS 17+, with iOS 26 glass/material paths) backed by Firebase.
+Scoop is a SwiftUI iOS app (iOS 18+, with iOS 26 glass/material paths) backed by Firebase.
 This file is the contract for all code changes — human or AI. When code and this document
 disagree, either fix the code or update the document in the same PR. Never let them drift silently.
 

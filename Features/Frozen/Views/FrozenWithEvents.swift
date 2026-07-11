@@ -17,30 +17,21 @@ struct FrozenWithEvents: View {
     @State private var showFrozenInfo: Bool = false
     
     var body: some View {
-        if #available(iOS 26.0, *) {
-            TabView(selection: $tabSelection) {
-                eventsView
-                    .coordinateSpace(name: "EventsSpace")
-                    .tag(AppTab.events)
-                    .tabItem {
-                        Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
-                    }
-                    .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
-
-                frozenView
-                    .tag(AppTab.pastEvents)
-                    .tabItem {
-                        Label("", image: tabSelection == .pastEvents ? "Snowflake" : "SnowflakeGray")
-                    }
-            } }  else {
-                CustomTabBarContainerView(selection: $tabSelection, tabs: [.events, .pastEvents]) { tab in
-                    switch tab {
-                    case .events:     eventsView
-                    case .pastEvents: frozenView
-                    default:          EmptyView()
-                    }
+        TabView(selection: $tabSelection) {
+            eventsView
+                .coordinateSpace(name: "EventsSpace")
+                .tag(AppTab.events)
+                .tabItem {
+                    Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                 }
-            }
+                .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
+
+            frozenView
+                .tag(AppTab.messages)
+                .tabItem {
+                    Label("", image: tabSelection == .messages ? "Snowflake" : "SnowflakeGray")
+                }
+        }
     }
 }
 
@@ -67,4 +58,3 @@ extension FrozenWithEvents {
             FrozenView(vm: vm)
     }
 }
-

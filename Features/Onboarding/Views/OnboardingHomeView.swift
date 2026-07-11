@@ -1,5 +1,4 @@
 import SwiftUI
-import FirebaseAuth
 
 struct OnboardingHomeView: View {
     //Injected
@@ -13,26 +12,18 @@ struct OnboardingHomeView: View {
     
     var body: some View {
         ZStack {
-            if #available(iOS 26.0, *) {TabView(selection: $tabSelection) {
+            TabView(selection: $tabSelection) {
                 limitedAccessView(page: .meet)
                     .tag(AppTab.meet)
-                    .tabItem { Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack")}
+                    .tabItem { Label("", image: tabSelection == .meet ? "BlackLogo" : "AppLogoBlack") }
+
                 limitedAccessView(page: .meeting)
                     .tag(AppTab.events)
-                    .tabItem {Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")}
+                    .tabItem { Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon") }
                 
                 limitedAccessView(page: .message)
-                    .tag(AppTab.pastEvents)
-                    .tabItem {Label("", image: tabSelection == .pastEvents ? "BlackMessage" : "MessageIcon")}
-            }} else {
-                CustomTabBarContainerView(selection: $tabSelection, tabs: [.meet, .events, .pastEvents]) { tab in
-                    switch tab {
-                    case .meet:       limitedAccessView(page: .meet)
-                    case .events:     limitedAccessView(page: .meeting)
-                    case .pastEvents: limitedAccessView(page: .message)
-                    default:          EmptyView()
-                    }
-                }
+                    .tag(AppTab.messages)
+                    .tabItem { Label("", image: tabSelection == .messages ? "BlackMessage" : "MessageIcon") }
             }
         }
         .task {

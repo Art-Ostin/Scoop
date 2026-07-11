@@ -10,8 +10,6 @@
 		05F0471151EE465582F267BE /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67217298F46C4A47A5AC62DF /* ViewModifiers.swift */; };
 		650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 650135682E4A41F400630CF3 /* AsyncAlgorithms */; };
 		650321332F9DF07F002852BA /* EventResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650321322F9DF07F002852BA /* EventResponse.swift */; };
-		650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */; };
-		650383E32E6B89C90053DDB2 /* CustomTabBarContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
 		6506F0292FBAED6200058A84 /* ChatPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6506F0282FBAED6200058A84 /* ChatPreview.swift */; };
 		6508A0BA2DF209B600312AFD /* SwiftUIFlowLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 6508A0B92DF209B600312AFD /* SwiftUIFlowLayout */; };
@@ -85,8 +83,6 @@
 		655814BA2FED7FF200AC2336 /* ShrinkPressButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
-		655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4A92E6B901000AE626D /* AppTabBarView.swift */; };
-		655EF4AC2E6B90E800AE626D /* TabBarVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AB2E6B90E800AE626D /* TabBarVisibility.swift */; };
 		655EF4AE2E6B94AA00AE626D /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AD2E6B94AA00AE626D /* AppTab.swift */; };
 		655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655F51FC2E3B7CE700E67534 /* ImageLoader.swift */; };
 		655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */; };
@@ -287,8 +283,6 @@
 
 /* Begin PBXFileReference section */
 		650321322F9DF07F002852BA /* EventResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventResponse.swift; sourceTree = "<group>"; };
-		650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarView.swift; sourceTree = "<group>"; };
-		650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBarContainerView.swift; sourceTree = "<group>"; };
 		6506F0282FBAED6200058A84 /* ChatPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPreview.swift; sourceTree = "<group>"; };
 		6509DCEA2F1D78C000455AB5 /* Languages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Languages.swift; sourceTree = "<group>"; };
 		6509DCEC2F1D79AE00455AB5 /* EditLanguages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLanguages.swift; sourceTree = "<group>"; };
@@ -354,8 +348,6 @@
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		65566B802FD05A6800F88933 /* HideToolbarBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideToolbarBackground.swift; sourceTree = "<group>"; };
 		655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShrinkPressButtonStyle.swift; sourceTree = "<group>"; };
-		655EF4A92E6B901000AE626D /* AppTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarView.swift; sourceTree = "<group>"; };
-		655EF4AB2E6B90E800AE626D /* TabBarVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarVisibility.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		655F51FC2E3B7CE700E67534 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContainer.swift; sourceTree = "<group>"; };
@@ -594,17 +586,6 @@
 				652528362FC57DEA005B47BE /* InAppNotifications.swift */,
 			);
 			path = Notifications;
-			sourceTree = "<group>";
-		};
-		650383DF2E6B84A80053DDB2 /* CustomTabBar */ = {
-			isa = PBXGroup;
-			children = (
-				655EF4A92E6B901000AE626D /* AppTabBarView.swift */,
-				650383E02E6B84C30053DDB2 /* CustomTabBarView.swift */,
-				650383E22E6B89C90053DDB2 /* CustomTabBarContainerView.swift */,
-				655EF4AB2E6B90E800AE626D /* TabBarVisibility.swift */,
-			);
-			path = CustomTabBar;
 			sourceTree = "<group>";
 		};
 		65058E8C2E1C4080009AD7FD /* Frameworks */ = {
@@ -1287,7 +1268,6 @@
 				6566B96D2FEAD7460075C3B2 /* InvitesPlaceholder.swift */,
 				65FAF9872E4140740015E231 /* EventsPlaceholder.swift */,
 				656B9B3E30022817000BE57D /* MessagesPlaceholder.swift */,
-				650383DF2E6B84A80053DDB2 /* CustomTabBar */,
 			);
 			path = TabNavigation;
 			sourceTree = "<group>";
@@ -1661,7 +1641,6 @@
 				657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */,
 				657683222F5913F70094A02D /* ChatDayDivider.swift in Sources */,
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
-				650383E32E6B89C90053DDB2 /* CustomTabBarContainerView.swift in Sources */,
 				6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */,
 				654982BC2E2E66A500CA335F /* VerifyEmailViewModel.swift in Sources */,
 				65B86D372FFCBBE80076683A /* SendInviteCard.swift in Sources */,
@@ -1699,7 +1678,6 @@
 				656B31D12F2501A3008641C1 /* ToolbarButtons.swift in Sources */,
 				65D366C42FC95887000180B3 /* ScrollViewHelpers.swift in Sources */,
 				6560FD2E2FD9630A00518BD9 /* EventImageCard.swift in Sources */,
-				650383E12E6B84C30053DDB2 /* CustomTabBarView.swift in Sources */,
 				6576B7F22E69082F004217A4 /* ProfileLoader.swift in Sources */,
 				65BFE7D12E3EA9B200B31A58 /* SelectTimeView.swift in Sources */,
 				6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */,
@@ -1744,7 +1722,6 @@
 				65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				652528432FC7F90D005B47BE /* MeetInfo.swift in Sources */,
-				655EF4AC2E6B90E800AE626D /* TabBarVisibility.swift in Sources */,
 				65140B252F55F05C00ED1DDE /* ChatContainer.swift in Sources */,
 				6561C8B22E035BE2006A72DF /* RootView.swift in Sources */,
 				653A78C62E15DC130098747F /* MapViewModel.swift in Sources */,
@@ -1803,7 +1780,6 @@
 				65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */,
 				65F450CB2E463E7900AE3503 /* MeetContainer.swift in Sources */,
 				651D09BF2F3BC64F008773E8 /* CustomMapAnnotation.swift in Sources */,
-				655EF4AA2E6B901000AE626D /* AppTabBarView.swift in Sources */,
 				65F660C82F23EF9E00AF791F /* BlockedContext.swift in Sources */,
 				6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */,
 				6577D7EB2E2077A200FFCF82 /* EditMyLifeAs.swift in Sources */,
