@@ -1,6 +1,6 @@
 //
 //  EmailVerificationPage.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 05/07/2025.
 //
@@ -29,7 +29,7 @@ import FirebaseAuth
             else if timeRemaining > countdownDuration {
                 Image(systemName: "checkmark")
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.appGreen)
+                    .foregroundStyle(Color.successGreen)
             }
             else {
                 Text("\(timeRemaining)")
@@ -68,29 +68,29 @@ import FirebaseAuth
 
 struct VerifyEmailView: View {
     
-    @State var UILogic = VerifyEmailUILogic()
+    //Injected
     @Bindable var vm: VerifyEmailViewModel
-    
-    @FocusState var focused: Bool
-    
-    @State var code = ""
+
+    //Local view state
+    @State private var uiLogic = VerifyEmailUILogic()
+    @State private var code = ""
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             SignUpTitle(text: "Check Your email")
             
-            HStack(spacing: 48) {
+            HStack(spacing: Spacing.xxl) {
                 Text("\(vm.email)")
-                    .foregroundStyle(Color.grayText)
-                UILogic.resendEmail()
+                    .foregroundStyle(Color.textSecondary)
+                uiLogic.resendEmail()
             }
             .font(.body())
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 72)
+            .padding(.bottom, Spacing.titleGap)
             
             EnterOTP(code: $code)
         }
-        .padding(.top, 48)
+        .padding(.top, Spacing.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .top)
         .padding(.horizontal)
         .background(Color.appCanvas)

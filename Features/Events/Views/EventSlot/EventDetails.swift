@@ -1,6 +1,6 @@
 //
 //  EventDetails.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 
@@ -9,13 +9,14 @@ import SwiftUI
 
 struct EventDetails: View {
     
+    //Injected
     let type: Event.EventType
     let message: String?
     let time: Date
     let place: EventLocation
-
     let openMaps: () -> ()
 
+    //Local view state
     @State private var showBack = false
 
     var body: some View {
@@ -36,7 +37,7 @@ struct EventDetails: View {
     }
 
     private var frontFace: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: Spacing.md) {
             detailSection(title: "WHAT", mainText: type.longTitle, image: type.emoji, isType: true)
             LightDivider()
             detailSection(title: "WHEN", mainText: FormatEvent.dayAndTime(time), image: "EventClockIcon")
@@ -50,15 +51,15 @@ struct EventDetails: View {
             Button {
                 openMaps()
             } label: {
-                VStack(spacing: 4) {
+                VStack(spacing: Spacing.xxs) {
                     Image(systemName: "location.fill")
                         .font(.body(12))
                     Text("Maps")
                         .font(.body(10, .bold))
                 }
-                .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
+                .foregroundStyle(Color.textAccent)
             }
-            .shrinkButton(shadow: .medium, shadowColor: .accent)
+            .shrinkButton(shadow: .button, tint: .accent)
         }
         .modifier(DetailsBackground())
         .overlay(alignment: .topLeading) {
@@ -70,7 +71,7 @@ struct EventDetails: View {
 extension EventDetails {
     
     private func detailSection(title: String, mainText: String, image: String, isType: Bool = false) -> some View {
-        HStack(spacing: 24) {
+        HStack(spacing: Spacing.lg) {
             detailIcon(image: image, isType: isType)
             detailText(title: title, mainText: mainText)
             Spacer()//Pushes content to the left
@@ -91,10 +92,10 @@ extension EventDetails {
     
     @ViewBuilder
     private func detailText(title: String, mainText: String) -> some View {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(title)
                     .font(.body(12, .medium))
-                    .foregroundStyle(Color(red: 0.77, green: 0.77, blue: 0.83))
+                    .foregroundStyle(Color.textTertiary)
                 
                 Text(mainText)
                     .font(.body(17, .bold))
@@ -111,7 +112,7 @@ extension EventDetails {
             showBack = toBack
         } label: {
             Image(systemName: "info.circle")
-                .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 0.7))
+                .foregroundStyle(Color.textTertiary)
                 .font(.body(14, .medium))
         }
         .growButton()
@@ -121,28 +122,8 @@ extension EventDetails {
 struct DetailsBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 32)
-            .padding(.vertical, 24)
-            .eventCardShadowBackground()
+            .padding(.horizontal, Spacing.xl)
+            .padding(.vertical, Spacing.lg)
+            .eventCardBackground()
     }
 }
-
-
-/*
- if title == "WHERE" {
-     Button {
-         openMaps()
-     } label: {
-         VStack(alignment: .leading, spacing: 8) {
-             Text(title)
-                 .font(.body(12, .medium))
-                 .foregroundStyle(Color(red: 0.51, green: 0.51, blue: 0.55))
-             
-             Text(mainText)
-                 .font(.body(17, .bold))
-                 .foregroundStyle(Color(red: 0.55, green: 0, blue: 0.25))
-         }
-     }
- } else {
-
- */

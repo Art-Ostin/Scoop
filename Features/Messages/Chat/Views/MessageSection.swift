@@ -10,10 +10,10 @@ import SwiftUI
 struct MessageSection: View {
 
     @Bindable var vm: ChatViewModel
-    let message: MessageModel
+    let message: ChatMessage
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Spacing.md) {
             if vm.isNewDay(for: message) {
                 ChatDayDivider(date: message.dateCreated ?? Date())
                     .transition(.move(edge: .bottom).combined(with: .opacity))

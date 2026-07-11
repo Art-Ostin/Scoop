@@ -9,12 +9,14 @@ import SwiftUI
 
 struct RespondAcceptContainer: View {
     
+    //Injected
     @Bindable var vm: RespondViewModel
     @Binding var confirmNewTimeInvite: Bool
     @Binding var confirmAcceptInvite: Bool
-    @State var ui = NewRespondUIState()
-    
     let onDecline: () -> Void
+
+    //Local view state
+    @State private var ui = RespondUIState()
     
     var body: some View {
         CardFlipContainer(showBack: $ui.showMeetInfo) {
@@ -23,7 +25,7 @@ struct RespondAcceptContainer: View {
         } backCard: {
             respondDetails
         }
-        .padding(.top, 32)
+        .padding(.top, Spacing.xl)
     }
 }
 
@@ -39,7 +41,7 @@ extension RespondAcceptContainer {
     }
     
     private var respondDetails: some View {
-        RespondDetailsView(
+        RespondDetails(
             event: vm.respondDraft.originalInvite.event,
             showInfo: $ui.showMeetInfo, image: vm.image
         )

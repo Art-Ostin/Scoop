@@ -1,12 +1,11 @@
 //
 //  ProfileInvite.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 18/08/2025.
 //
-
 import Foundation
-@preconcurrency import FirebaseFirestore
+import UIKit
 
 //User Facing Information about profiles
 struct PendingProfile: Identifiable, Equatable, Hashable {

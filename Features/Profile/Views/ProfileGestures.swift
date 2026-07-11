@@ -1,6 +1,6 @@
 //
 //  ProfileGestures.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/05/2026.
 //
@@ -20,7 +20,7 @@ enum DragType {
 //(page images / scroll details / move the card / dismiss the profile) and from then
 //on only writes detailsOffset or profileOffset — both transform-only leaves — so
 //tracking never triggers a layout pass.
-extension ProfileView {
+extension ProfileContainer {
 
     //Measured in .global to match restingCardTopGlobal, the card-boundary reference.
     func profileDrag() -> some Gesture {

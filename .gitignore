@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Xcode build output
+build/
+DerivedData/
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+
+# Debug logs
+*.log
+
+# Python (admin-tools)
+__pycache__/

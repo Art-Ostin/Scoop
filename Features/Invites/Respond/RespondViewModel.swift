@@ -12,15 +12,17 @@ import SwiftUI
 @Observable
 class RespondViewModel {
     
-    var image: UIImage
+    //Injected
     let defaults: DefaultsManaging
     let session: Session
     let profile: UserProfile
-    
+
+    //Draft state (persisted to defaults on every edit)
+    var image: UIImage
     var respondDraft: RespondDraft {
         didSet {updateDefaults()}
     }
-    
+
     var responseType: ResponseType {respondDraft.respondType}
     
     init(image: UIImage, invite: EventProfile , defaults: DefaultsManaging, session: Session) {
@@ -51,13 +53,14 @@ class RespondViewModel {
     }
 }
 
-@Observable final class NewRespondUIState {
-    
-    //1. Determine if 0, 1 or 2 messages
+@Observable final class RespondUIState {
+
+    var showMeetInfo: Bool = false
+
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
         respondDraft.originalInvite.event.message?.isEmpty == false
     }
-    
+
     func hasRespondMessage(_ respondDraft: RespondDraft) -> Bool {
         respondDraft.respondMessage?.isEmpty == false
     }
@@ -65,8 +68,6 @@ class RespondViewModel {
     func hasBothMessages(_ respondDraft: RespondDraft) -> Bool {
         return hasEventMessage(respondDraft) && hasRespondMessage(respondDraft)
     }
-    
-    var showMeetInfo: Bool = false
 }
 
 
@@ -89,9 +90,9 @@ enum RespondPopupInfo {
 
     var title: String {
         switch self {
-            case .newInvite: return "Event Commitment"
-            case .acceptInvite: return "Event Commitment"
-            case .sendNewTimes: return "New Times Proposed"
+        case .newInvite: "Event Commitment"
+        case .acceptInvite: "Event Commitment"
+        case .sendNewTimes: "New Times Proposed"
         }
     }
     var cancel: String {"Cancel"}
@@ -99,9 +100,9 @@ enum RespondPopupInfo {
     
     func message(dates: [Date] = [], placeName: String = "") -> String {
         switch self {
-        case .newInvite: return "If they accept & you don't show, you'll be blocked from Scoop"
-        case .acceptInvite: return "You are committing to meeting on x. If you don't show, you'll be blocked from Scoop"
-        case .sendNewTimes: return "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
+        case .newInvite: "If they accept & you don't show, you'll be blocked from Scoop"
+        case .acceptInvite: "You are committing to meeting on x. If you don't show, you'll be blocked from Scoop"
+        case .sendNewTimes: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
         }
     }
 }

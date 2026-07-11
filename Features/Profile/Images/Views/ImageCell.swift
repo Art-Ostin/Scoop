@@ -13,18 +13,16 @@ struct ImageCell: View {
     let size: CGFloat
     var body: some View {
         ZStack {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: size, height: size)
-                .clipShape(.rect(cornerRadius: 10))
-                .customShadow(.floating)
-            RoundedRectangle(cornerRadius: 10)
+            
+            SmallImage(image: image, size: size)
+                .shadow(.floating)
+            
+            RoundedRectangle(cornerRadius: CornerRadius.smallImage)
                 .frame(width: size, height: size)
                 .foregroundStyle(Color.clear)
                 .overlay(alignment: .topTrailing) {
                     ImageEditButton()
-                        .padding(4)
+                        .padding(Spacing.xxs)
                 }
         }
         .contentShape(Rectangle())
@@ -33,11 +31,14 @@ struct ImageCell: View {
 
 struct OnboardingPhotoCell: View {
 
+    //Injected
     @Binding var selectedImage: ImageSlot?
-    @State var pickerItem: PhotosPickerItem?
     let index: Int
     @Binding var image: UIImage?
-    
+
+    //Local view state
+    @State private var pickerItem: PhotosPickerItem?
+
     var body: some View {
         Group {
             if let image {
@@ -47,7 +48,7 @@ struct OnboardingPhotoCell: View {
                 placeHolderView
             }
         }
-        .shadow(color: selectedImage?.index == index ? .black.opacity(0.2) : .clear, radius: 4, x: 0, y: 5)
+        .shadow(.button, strength: selectedImage?.index == index ? 1 : 0)
         .task(id: pickerItem) {await loadPickedImage()}
     }
 }
@@ -55,22 +56,24 @@ struct OnboardingPhotoCell: View {
 extension OnboardingPhotoCell {
     private var placeHolderView: some View {
         PhotosPicker(selection: $pickerItem, matching: .images) {
-            Image("ImagePlaceholder")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 120, height: 120)
-                .clipShape(.rect(cornerRadius: 10))
+            imagePlaceholder
         }
     }
+        
+    private var imagePlaceholder: some View {
+        Image("ImagePlaceholder")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 120, height: 120)
+            .clipShape(.rect(cornerRadius: CornerRadius.smallImage))
+    }
+    
     func loadPickedImage () async {
         guard let item = pickerItem else { return }
-        do {
-            if let data = try await item.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                self.image = uiImage
-            }
-        } catch {
-            print(error)
+        //Optional read: a failed pick just leaves the placeholder
+        if let data = try? await item.loadTransferable(type: Data.self),
+           let uiImage = UIImage(data: data) {
+            self.image = uiImage
         }
     }
 }
@@ -85,17 +88,6 @@ struct ImageEditButton: View {
        }
    }
    var body: some View {
-       // TEMP: glass button commented out for ButtonTest preview
-       EmptyView()
-       /*
-       GlassButton {
-
-       } buttonLabel: {
-           Image(editButton)
-               .resizable()
-               .scaledToFit()
-               .frame(width: 11, height: 11)
-       }
-       */
+       EmptyView() // TODO: restore the glass edit badge (removed during ButtonTest preview work)
    }
 }

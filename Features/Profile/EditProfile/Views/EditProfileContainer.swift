@@ -1,6 +1,6 @@
 //
 //  EditProfileContainer.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 29/07/2025.
 //
@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct EditProfileContainer: View {
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @State var isEdit: Bool = false
     @State var vm: EditProfileViewModel
     let profileVM: ProfileViewModel
-    @State var selectedImage: ImageSlot? = nil
-    @State var showSavingScreen: Bool = false
 
-    @State var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
-    
-    @State var path: [EditProfileRoute] = [] //To track if empty or not. If not empty (i.e. edit Profile screen) hide certain views.
+    //Local view state
+    @State private var isEdit: Bool = false
+    @State private var selectedImage: ImageSlot? = nil
+    @State private var showSavingScreen: Bool = false
+    @State private var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
+    @State private var path: [EditProfileRoute] = [] //Non-empty (an edit screen is pushed) hides certain views
+
     var body: some View {
         ZStack {
             if isEdit {
@@ -27,7 +29,7 @@ struct EditProfileContainer: View {
                         .transition(.move(edge: .trailing))
                 }
             } else {
-                ProfileView(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
+                ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
 //                    .clipped() //Fixes bug of content over extending
                     .transition(.move(edge: .leading))
             }
@@ -51,7 +53,7 @@ extension EditProfileContainer {
             Spacer()
             saveButton
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Spacing.md)
     }
     
     @ViewBuilder
@@ -88,8 +90,8 @@ extension EditProfileContainer {
                     .font(.body(14, .bold))
                     .foregroundStyle(.accent)
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .glassBackgroundIfAvailable(shape: .capsule)
+                    .padding(.vertical, Spacing.xs)
+                    .glassEffectIfAvailable(shape: .capsule)
             }
             .opacity(path.isEmpty ? 1 : 0)
             .allowsHitTesting(path.isEmpty ? true : false)
@@ -97,7 +99,7 @@ extension EditProfileContainer {
     }
     
     private func imageEditScreen(_ slot: ImageSlot) -> some View {
-        ProfileImagesEditing(importedImage: slot) {updatedImage in
+        ProfileImageEditor(importedImage: slot) {updatedImage in
             Task { try await vm.changeImage(image: updatedImage) }
         }
     }

@@ -1,6 +1,6 @@
 //
 //  ImageView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 23/07/2025.
 // Allow Editing on their profile and the option to cancel it. To
@@ -10,14 +10,14 @@ import SwiftUI
 import PhotosUI
 
 
-struct ImagesView: View {
+struct ProfileImages: View {
 
     @Bindable var vm: EditProfileViewModel
     @Binding var selectedImage: ImageSlot?
-    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3)
+    private let columns = Array(repeating: GridItem(.fixed(105), spacing: 22), count: 3) //Geometry: photo-grid pitch (cell + gap)
     
     var body: some View {
-            LazyVGrid(columns: columns, spacing: 24) {
+            LazyVGrid(columns: columns, spacing: Spacing.lg) {
                 ForEach(0..<6) {index in
                     let image = vm.images[index]
                     ImageCell(image: image, size: 112)
@@ -26,17 +26,3 @@ struct ImagesView: View {
             }
     }
 }
-
-
-/*
- EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-     try await vm.changeImage(at: idx)
- }
- */
-
-/*
- EditPhotoCell(picker: $vm.slots[idx].pickerItem, image: vm.images[idx]) {
-     try await vm.changeImage(at: idx)
- }
-
- */

@@ -1,0 +1,137 @@
+//
+//  MapSearchView.swift
+//  Scoop
+//
+//  Created by Art Ostin on 02/07/2025.
+//
+
+import SwiftUI
+import MapKit
+
+struct MapSheetContainer: View {
+    //Injected
+    @Bindable var vm: MapViewModel
+    @Binding var sheet: MapSheets
+    @Binding var useSelectedDetent: Bool
+    let onExitSelection: (MapSheets) -> Void
+    let selectedLocation: (MKMapItem) -> Void
+
+    //Local view state
+    @FocusState private var searchFocused: Bool
+
+    var body: some View {
+        sheetContent
+        .animation(.easeInOut(duration: 0.16), value: sheet)
+        .animation(.easeInOut(duration: 0.22), value: vm.selectedMapItem != nil)
+        // Keep keyboard + focus “linked” to large search mode.
+        .task(id: shouldAutoFocusSearch) {
+            if shouldAutoFocusSearch {
+                await Task.yield()                 // wait until large content is in hierarchy
+                await MainActor.run { searchFocused = true }
+            } else {
+                await MainActor.run { searchFocused = false }
+            }
+        }
+        .onChange(of: vm.selectedMapItem) { _, newValue in
+            if newValue != nil { searchFocused = false }
+        }
+    }
+}
+
+extension MapSheetContainer {
+    @ViewBuilder
+    private var sheetContent: some View {
+        if let mapItem = vm.selectedMapItem {
+            MapSelectionView(vm: vm, mapItem: mapItem, onExitSelection: onExitSelection, selectedLocation: selectedLocation)
+        } else if useSelectedDetent /*&& sheet != .large*/ {
+            selectedLoadingScreen
+        } else {
+            // Powerful way to flick between content use again (I.e. in ZStack and animate).
+            ZStack(alignment: .top) {
+                if sheet == .searchBar {
+                    mapSearchBar
+                }
+                if sheet == .optionsAndSearchBar {
+                    MapOptionsView(vm: vm, isFocused: $searchFocused, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+                }
+                if sheet == .large {
+                    MapSearchView(vm: vm, sheet: $sheet, isFocused: $searchFocused, useSelectedDetent: $useSelectedDetent)
+                }
+            }
+            .transition(.opacity)
+        }
+    }
+
+    private var shouldAutoFocusSearch: Bool {
+        sheet == .large && vm.selectedMapItem == nil && !useSelectedDetent
+    }
+    
+    private var mapSearchBar: some View {
+        HStack(spacing: Spacing.xs) {
+            MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+            if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+        }
+        .padding(.horizontal, Spacing.gutter)
+    }
+    
+    private var selectedLoadingScreen: some View {
+        VStack(spacing: 120) { //Geometry: drops the spinner to mid-sheet while loading
+            HStack(spacing: Spacing.xs) {
+                MapSearchBar(isFocused: $searchFocused, vm: vm, sheet: $sheet)
+                
+                if !vm.searchText.isEmpty { DeleteSearchButton(vm: vm) }
+            }
+            .padding(.horizontal)
+            .padding(.top, Spacing.xl)
+
+            VStack {
+                ProgressView()
+                    .tint(Color.textTertiary)
+                
+                Text("Searching...")
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.textTertiary)
+            }
+            
+            Spacer()
+        }
+    }
+}
+
+
+
+//Different Screen Detents
+enum MapSheets: CaseIterable, Equatable {
+    
+    case searchBar, optionsAndSearchBar, large
+
+    static let searchDetent: PresentationDetent = .fraction(0.10)
+    static let optionsDetent: PresentationDetent = .fraction(0.22)
+    static let selectedDetent: PresentationDetent = .fraction(0.46)
+    static let largeDetent: PresentationDetent = .large
+
+    var detent: PresentationDetent {
+        switch self {
+        case .searchBar:           Self.searchDetent
+        case .optionsAndSearchBar: Self.optionsDetent
+        case .large:               Self.largeDetent
+        }
+    }
+
+    static func detents(hasSelection: Bool) -> Set<PresentationDetent> {
+        if hasSelection {
+            return [searchDetent, optionsDetent, selectedDetent, largeDetent]
+        } else {
+            return [searchDetent, optionsDetent, largeDetent]
+        }
+    }
+
+    static func from(detent: PresentationDetent) -> Self {
+        switch detent {
+        case searchDetent:  .searchBar
+        case optionsDetent: .optionsAndSearchBar
+        case selectedDetent: .optionsAndSearchBar
+        default:            .large
+        }
+    }
+}

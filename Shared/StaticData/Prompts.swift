@@ -1,6 +1,6 @@
 //
 //  Prompts.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 23/06/2025.
 //

@@ -1,6 +1,6 @@
 //
 //  RegisterEmailView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/05/2025.
 //
@@ -8,24 +8,27 @@ import Foundation
 import SwiftUI
 
 struct EnterEmailView: View {
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @State var showVerification: Bool = false
     @State var vm: VerifyEmailViewModel
+
+    //Local view state
+    @State private var showVerification: Bool = false
     @FocusState private var isFocused: Bool
-    
+
     init(vm: VerifyEmailViewModel) { self._vm = State(initialValue: vm)}
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 72) {
+            VStack(spacing: Spacing.titleGap) {
                 SignUpTitle(text: "McGill Email")
                 enterEmailSection
-                NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, 16)
+                NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, Spacing.md)
             }
             .padding(.horizontal)
             .onAppear {isFocused = true}
             .frame(maxHeight: .infinity, alignment:.top)
-            .padding(.top, 96)
+            .padding(.top, Spacing.clearance)
             .padding(.horizontal)
             .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
@@ -39,7 +42,7 @@ struct EnterEmailView: View {
 extension EnterEmailView {
     
     private var enterEmailSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             HStack {
                 ZStack{
                     if vm.username.isEmpty {
@@ -55,23 +58,23 @@ extension EnterEmailView {
                         .disableAutocorrection(true)
                         .tint(.blue)
                         .kerning(0.5)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color.textPrimary)
                 }
                 
                 Spacer()
                 
                 Text("@mail.mcgill.ca")
                     .font(.body(20, .medium))
-                    .padding(.trailing, 2)
+                    .padding(.trailing, Spacing.hairline)
             }
             HStack {
                 Rectangle()
                     .frame(width: 182, height: 1)
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.textPlaceholder)
                 Spacer()
                 Rectangle()
                     .frame(width: 140, height: 1)
-                    .foregroundStyle(Color.grayPlaceholder)
+                    .foregroundStyle(Color.textPlaceholder)
             }
             Text("We'll send a confirmation code")
                 .font(.caption2)

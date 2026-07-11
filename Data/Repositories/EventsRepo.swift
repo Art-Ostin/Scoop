@@ -1,6 +1,6 @@
 //
 //  eventRepo.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 03/08/2025.
 //
@@ -23,7 +23,7 @@ class EventsRepo: EventsRepository {
     init(fs: FirestoreService) { self.fs = fs}
     
     //PART 1: Setting up Event Paths
-    private func EventPath(eventId: String) -> String {
+    private func eventPath(eventId: String) -> String {
         "events/\(eventId)"
     }
     
@@ -32,7 +32,7 @@ class EventsRepo: EventsRepository {
     }
     
     private func fetchEvent(eventId: String) async throws -> Event {
-        try await fs.get(EventPath(eventId: eventId))
+        try await fs.get(eventPath(eventId: eventId))
     }
     
     private func fetchUserEvent(userId: String, userEventId: String) async throws -> UserEvent {
@@ -75,9 +75,9 @@ class EventsRepo: EventsRepository {
         return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue, in: statuses)}
     }
     
-    //Streams MessagePopupModel events for incoming messages from the other user.
+    //Streams MessagePopup events for incoming messages from the other user.
     //Filters out doc updates where chatState didn't change (status/location/etc. edits don't trigger a popup).
-    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopupModel>, Error> {
+    func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopup>, Error> {
         let userEventPath = "users/\(userId)/user_events"
         let source: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(userEventPath) {
             $0.whereField(self.chatStateField(.lastMessageAuthor), isNotEqualTo: userId)
@@ -135,7 +135,7 @@ extension EventsRepo {
         let otherUserId = (cancelledById == event.initiatorId) ? event.recipientId : event.initiatorId
         
         try await updateEventStatus(eventId: eventId, to: .cancelled)
-        try await fs.update(EventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
+        try await fs.update(eventPath(eventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: cancelledById, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         try await fs.update(userEventPath(userId: otherUserId, userEventId: eventId), fields: [Event.Field.earlyTerminatorID.rawValue : cancelledById])
         
@@ -155,7 +155,7 @@ extension EventsRepo {
     
     private func deleteEvent(eventId: String) async throws {
         let event = try await fetchEvent(eventId: eventId)
-        async let deleteEventDoc: Void = fs.delete(EventPath(eventId: eventId))
+        async let deleteEventDoc: Void = fs.delete(eventPath(eventId: eventId))
         async let deleteInitiator: Void = fs.delete(userEventPath(userId: event.initiatorId, userEventId: eventId))
         async let deleteRecipient: Void = fs.delete(userEventPath(userId: event.recipientId, userEventId: eventId))
         _ = try await (deleteEventDoc, deleteInitiator, deleteRecipient)
@@ -173,7 +173,7 @@ extension EventsRepo {
 //Logic regarding the 'recentMessageState' in the events
 extension EventsRepo {
         
-    private func recentChatFields(message: MessageModel, unreadCount: Any) -> [String: Any] {
+    private func recentChatFields(message: ChatMessage, unreadCount: Any) -> [String: Any] {
         [
             chatStateField(.lastMessageAuthor): message.authorId,
             chatStateField(.lastMessagePreview): String(message.content.prefix(40)),
@@ -182,7 +182,7 @@ extension EventsRepo {
         ]
     }
     
-    func updateRecentChat(message: MessageModel, eventId: String) async throws {
+    func updateRecentChat(message: ChatMessage, eventId: String) async throws {
         async let updateAuthor: Void = fs.update(
             userEventPath(userId: message.authorId, userEventId: eventId),
             fields: recentChatFields(message: message, unreadCount: 0)
@@ -214,7 +214,7 @@ extension EventsRepo {
         userFields[UserEvent.Field.chatState.rawValue] = try fs.encodeFields(ChatState())
         try await updateEvent(initId: senderId, recipId: userId, eventId: eventId, initFields: userFields, recipFields: userFields, eventFields: eventFields)
         //Chat Model
-        let chatModel = ChatModel(participantIds: [senderId, userId], lastMessageAt: nil)
+        let chatModel = ChatThread(participantIds: [senderId, userId], lastMessageAt: nil)
         try fs.set("chats/\(eventId)", value: chatModel, merge: false)
     }
     
@@ -315,7 +315,7 @@ extension EventsRepo {
     ) async throws {
         async let updateInitiator: Void = fs.update(userEventPath(userId: initId, userEventId: eventId), fields: initFields)
         async let updateRecipient: Void = fs.update(userEventPath(userId: recipId, userEventId: eventId), fields: recipFields)
-        async let updateEvent: Void = fs.update(EventPath(eventId: eventId) , fields: eventFields)
+        async let updateEvent: Void = fs.update(eventPath(eventId: eventId) , fields: eventFields)
         _ = try await (updateInitiator, updateRecipient, updateEvent)
     }
     

@@ -1,4 +1,0 @@
-module FirebaseMessagingInterop {
-umbrella "/Users/napoleon/Library/Developer/Xcode/DerivedData/Scoop-ancfnxnejftkcxgszsuxdfatuvcb/SourcePackages/checkouts/firebase-ios-sdk/FirebaseMessaging/Interop"
-export *
-}

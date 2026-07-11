@@ -12,19 +12,17 @@ enum PastEventsRoute: Hashable {
 //1. Need to user overlay, not toolbar, for messages, as toolbar does not allow zoomTransition
 struct MessagesContainer: View {
     
+    //Injected (path owned by the parent so it can jump tabs)
     @State private var vm: MessagesViewModel
+    @Binding var path: NavigationPath
+
+    //Local view state
     @State private var userProfileImages: [UIImage] = []
-    
     @State private var showSettings = false
-    @Namespace private var settingsZoom
-
-
     @State private var showProfile = false
+    @Namespace private var settingsZoom
     @Namespace private var profileZoom
 
-    //Path owned by parent to jump
-    @Binding var path: NavigationPath
-    
     init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
         _vm = State(initialValue: vm)
         _path = path
@@ -60,14 +58,14 @@ extension MessagesContainer {
     
     private func chatRow(for eventProfile: EventProfile) -> some View {
         NavigationLink(value: PastEventsRoute.chat(eventProfile)) {
-            let chatPreview = ChatPreviewModel(eventProfile: eventProfile)
+            let chatPreview = ChatPreview(eventProfile: eventProfile)
             ChatRowView(chatPreview: chatPreview)
                 .id(eventProfile.id)
         }
     }
 
     private var messagesPlaceholder: some View {
-        VStack(spacing: 96) {
+        VStack(spacing: Spacing.titleGap) {
             Text("Message your past matches here")
                 .font(.title(20, .medium))
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -79,7 +77,7 @@ extension MessagesContainer {
                 .frame(maxWidth: .infinity)
                 .frame(width: 250, height: 250)
         }
-        .padding(.top, 72)
+        .padding(.top, Spacing.titleGap)
     }
 }
     
@@ -92,7 +90,7 @@ extension MessagesContainer {
             SettingsButton { showSettings = true }
                 .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
                     source
-                        .clipShape(.rect(cornerRadius: 27)) // small performance improvement
+                        .clipShape(.rect(cornerRadius: 27, style: .circular)) //Circle in disguise: matchedTransitionSource only accepts RoundedRectangle
                         .background(Color.appCanvas)
                 }
                 .padding(.leading, -10) //So it anchors to the left
@@ -116,7 +114,7 @@ extension MessagesContainer {
                 .matchedTransitionSource(id: "profile", in: profileZoom)
             } else {
                 Circle()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.fillGray)
                     .frame(width: 35, height: 35)
             }
         }
@@ -137,7 +135,7 @@ extension MessagesContainer {
     private func userProfileScreen() -> some View {
         EditProfileContainer(
             vm: EditProfileViewModel(
-                s: vm.s,
+                session: vm.session,
                 storageService: vm.storageService,
                 userRepo: vm.userRepo,
                 imageLoader: vm.imageLoader,
@@ -153,14 +151,14 @@ extension MessagesContainer {
     }
     
     private func settingScreen() -> some View {
-        SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.s, defaults: vm.defaults))
+        SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
             .navigationTransition(.zoom(sourceID: "settings", in: settingsZoom))
     }
     
     private func chatScreen(for eventProfile: EventProfile) -> some View {
         ChatContainer(
             defaults: vm.defaults,
-            session: vm.s,
+            session: vm.session,
             chatRepo: vm.chatRepo,
             imageLoader: vm.imageLoader,
             eventProfile: eventProfile,

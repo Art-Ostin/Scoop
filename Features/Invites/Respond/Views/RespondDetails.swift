@@ -13,40 +13,38 @@ enum DetailInfo: CaseIterable {
     
     func title(_ event: UserEvent) -> String {
         switch self {
-        case .time: return "Time"
-        case .message: return "Message"
-        case .event: return "Meet"
+        case .time: "Time"
+        case .message: "Message"
+        case .event: "Meet"
         }
     }
-    
+
     func message(_ event: UserEvent) -> String {
         switch self {
-        case .time:
-            return "Choose a time, or suggest a new one, or send \(event.otherUserName) a new invite."
-        case .message:
-            return "Once accepted, you can message to coordinate details and find each other."
-        case .event:
-            return event.type.howItWorksWithEvent(event)
+        case .time: "Choose a time, or suggest a new one, or send \(event.otherUserName) a new invite."
+        case .message: "Once accepted, you can message to coordinate details and find each other."
+        case .event: event.type.howItWorksWithEvent(event)
         }
     }
-    
+
     var image: String {
         switch self {
-        case .time: return "MiniClockIcon"
-        case .message: return "SmallMessageIcon"
-        case .event: return "FilledCup"
+        case .time: "MiniClockIcon"
+        case .message: "SmallMessageIcon"
+        case .event: "FilledCup"
         }
     }
 }
 
-struct RespondDetailsView: View {
+struct RespondDetails: View {
     
+    //Injected
     let event: UserEvent
     @Binding var showInfo: Bool
     let image: UIImage
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             title
             ForEach(DetailInfo.allCases, id: \.self) {detail in
                 DetailSection(event: event, type: detail)
@@ -60,7 +58,7 @@ struct RespondDetailsView: View {
     }
 }
 
-extension RespondDetailsView {
+extension RespondDetails {
     
     private var title: some View {
         Text(event.type.emoji + " " + event.type.longTitle)
@@ -72,16 +70,16 @@ extension RespondDetailsView {
         ScoopButton(shape: Capsule()) {
             showInfo.toggle()
         } label: {
-            HStack(spacing: 8) {
-                CirclePhoto(image: image, showShadow: false, height: 24)
+            HStack(spacing: Spacing.xs) {
+                SmallImage(image: image, size: 24, isCircle: true)
                 
                 Text("Invite")
                     .font(.title(14, .bold))
-                    .foregroundStyle(Color.appGreen)
+                    .foregroundStyle(Color.successGreen)
             }
-            .padding(.leading, 2) //As Image
-            .padding(.trailing, 6)
-            .padding(.vertical, 2) //As Image so smalle
+            .padding(.leading, Spacing.hairline) //Optical: image carries its own inset
+            .padding(.trailing, Spacing.xs)
+            .padding(.vertical, Spacing.hairline) //Optical: image carries its own inset
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
@@ -93,16 +91,16 @@ struct DetailSection: View {
     let type: DetailInfo
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             Image(type.image)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(type.title(event))
                     .font(.body(16, .medium))
                 
                 Text(type.message(event))
                     .font(.footnote)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(Color.textSecondary)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -110,26 +108,3 @@ struct DetailSection: View {
         }
     }
 }
-
-
-
-
-/*
- Button {
-     showInfo.toggle()
- } label: {
-     HStack(spacing: 8) {
-         CirclePhoto(image: image, showShadow: false, height: 24)
-         
-         Text("Invite")
-             .font(.title(14, .bold))
-             .foregroundStyle(Color.appGreen)
-     }
-     .padding(.leading, 6)
-     .padding(.trailing, 8)
-     .padding(.vertical, 3)
-     .background(Color.white.opacity(0.7), in: .rect(cornerRadius: 24))
-     .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
-     .stroke(100, lineWidth: 1, color: .green.opacity(0.1))
- }
- */

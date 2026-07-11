@@ -18,16 +18,16 @@ struct AddMessageButton: View {
             showMessageScreen = true
         } label : {
             Image("AddMessageIcon")
-                .padding(12)
+                .padding(Spacing.sm)
                 .contentShape(Rectangle())
-                .padding(-12)
-                .padding(6)
+                .padding(-Spacing.sm)
+                .padding(Spacing.xs)
                 .background(
                     Circle()
                         .foregroundStyle(Color.white).opacity(hasEventMessage ? 0.7 : 0.3)
                 )
-                .stroke(100, lineWidth: 0.5, color: Color.grayPlaceholder.opacity(0.5))
-                .shadow(color: .black.opacity(hasEventMessage ? 0 : 0.05), radius: 1, x: 0, y: 1.5)
+                .circleStroke(lineWidth: 0.5, color: Color.border.opacity(0.5))
+                .shadow(.card, strength: hasEventMessage ? 0 : 1)
         }
     }
 }
@@ -50,7 +50,7 @@ struct InviteRespondButton: View {
                 
                 Image(systemName: "info.circle")
                     .font(.body(10, .medium))
-                    .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                    .foregroundStyle(Color.textTertiary)
                     .offset(y: -3)
             }
             .lineLimit(1)
@@ -77,15 +77,15 @@ struct EventTypeButton: View {
         Button {
             showInfo.toggle()
         } label: {
-            HStack(spacing: 2) {
+            HStack(spacing: Spacing.hairline) {
                 Text("\(type.emoji) \(longTitle ? type.longTitle : type.title)")
                     .font(.body(17, .bold))
                 Image(systemName: "info.circle")
                     .font(.body(12, .medium))
-                    .foregroundStyle(Color(white: 0.8))
+                    .foregroundStyle(Color.textPlaceholder)
                     .offset(x: 6, y: -3) // so goes slightly outside view
             }
         }
-        .shrinkButton(shadow: nil)
+        .shrinkButton()
     }
 }

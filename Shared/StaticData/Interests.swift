@@ -1,6 +1,6 @@
 //
 //  Interests.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //

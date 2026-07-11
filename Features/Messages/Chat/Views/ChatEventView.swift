@@ -10,14 +10,17 @@ import SwiftUI
 
 struct ChatEventView: View {
     
-    private static let locationURL = URL(string: "scoop://event-location")!
-    @State private var isLocationPressed = false
+    //Injected
     let event: UserEvent?
+
+    //Local view state
+    @State private var isLocationPressed = false
+    private static let locationURL = URL(string: "scoop://event-location")!
     
     var body: some View {
         
         if let event = event {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 HStack {
                     Text("\(event.otherUserName) Meeting")
                         .font(.body(18, .bold))
@@ -30,23 +33,23 @@ struct ChatEventView: View {
                         .lineLimit(1)
                 }
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
                     eventDetails(event: event)
                     if let message = event.message {
                         Text(message)
                             .font(.body(14, .italic))
-                            .foregroundStyle(Color.grayText)
+                            .foregroundStyle(Color.textSecondary)
                             .lineLimit(2)
                             .lineSpacing(2)
                     }
                 }
             }
-            .padding(.horizontal, 22)
-            .padding(.top, 22)
-            .padding(.bottom, 18)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.top, Spacing.lg)
+            .padding(.bottom, Spacing.md)
             .frame(maxWidth: .infinity)
-            .stroke(16, lineWidth: 1, color: Color.accent.opacity(0.15))
-            .padding(.horizontal, 32)
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.15))
+            .padding(.horizontal, Spacing.xl)
         }
     }
 }
@@ -57,7 +60,7 @@ extension ChatEventView {
         .font(.body(16, .medium))
         .lineLimit(2)
         .lineSpacing(6)
-        .foregroundStyle(Color.black.opacity(0.8))
+        .foregroundStyle(Color.textPrimary)
         .tint(Color.accent)
         .environment(\.openURL, OpenURLAction { url in
             guard url == Self.locationURL else {
@@ -80,7 +83,7 @@ extension ChatEventView {
         var details = AttributedString("\(FormatEvent.dayAndTime(event.acceptedTime ?? Date())) · ")
         var location = AttributedString(event.location.name ?? event.location.address ?? "")
         location.link = Self.locationURL
-        location.foregroundColor = isLocationPressed ? Color.grayText.opacity(0.5) : Color.accent
+        location.foregroundColor = isLocationPressed ? Color.textAccent.opacity(0.5) : Color.textAccent
         details += location
         return details
     }

@@ -1,6 +1,6 @@
 //
 //  InfoView2.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 
@@ -49,7 +49,7 @@ struct InfoView: View {
         let sections: [(title: String, data: [EditPreview])] = [
             ("Core", coreInfo), ("About", aboutMe)]
         
-            VStack(spacing: 36) {
+            VStack(spacing: Spacing.xl) {
                 ForEach(sections, id: \.title) {section in
                     CustomList(title: section.title) {
                         ForEach(section.data) { info in
@@ -57,7 +57,7 @@ struct InfoView: View {
                                 ListItem(title: info.title, response: info.response, value: info.route)
                                 if info.id != section.data.last?.id {
                                         MapDivider()
-                                            .padding(.leading, 24)
+                                            .padding(.leading, Spacing.lg)
                                             .foregroundStyle(.red)
                                     }
                             }

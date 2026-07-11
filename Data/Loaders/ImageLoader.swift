@@ -1,6 +1,6 @@
 //
 //  imageLoader.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 31/07/2025.
 //
@@ -10,10 +10,9 @@ import UIKit
 import SwiftUI
 import CryptoKit
 
-//Injecting ImageLoader around the app as don't want to have multiple Caches open
+//Injected around the app so there is only ever one image cache
 actor ImageLoader: ImageLoading  {
 
-    //Warning Claude Code up to 'removeImage' for improving image load time. 
     private let cache: NSCache<NSURL, UIImage>
     private var inFlight: [NSURL: Task<UIImage, Error>] = [:]
     private nonisolated let diskCacheURL: URL
@@ -29,6 +28,84 @@ actor ImageLoader: ImageLoading  {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         diskCacheURL = dir
     }
+
+    func fetchImage(for url: URL) async throws -> UIImage {
+        let key = url as NSURL
+
+        if let image = cache.object(forKey: key) { return image }
+
+        if let task = inFlight[key] {
+            return try await task.value
+        }
+
+        let task = Task<UIImage, Error> {
+            try await self.loadImage(url: url)
+        }
+
+        inFlight[key] = task
+        defer { inFlight[key] = nil }
+
+        return try await task.value
+    }
+
+    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
+        if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
+            let image =  try await fetchImage(for: url)
+            return image
+        } else {
+            return nil
+        }
+    }
+
+    func loadProfileImages(_ profile: UserProfile) async -> [UIImage] {
+
+        //1. Fetch the imageurls from the profile
+        let urls = profile.imagePathURL.compactMap { URL(string: $0) }
+
+        //2. Open task group so more efficient
+        return await withTaskGroup(of: (Int, UIImage?).self) { group in
+
+            //3. Create an empty array of six images
+            var images = Array<UIImage?>(repeating: nil, count: urls.count)
+
+            //4. For each url get the Index and Image
+            for (index, url) in urls.enumerated() {
+                group.addTask {
+                    let image = try? await self.fetchImage(for: url)
+                    return (index, image)
+                }
+            }
+            //5. Add the image back at the specific index (so order retained)
+            for await (index, img) in group {
+                if let img {
+                    images[index] = img
+                }
+            }
+            //6. Return the images back
+            return images.compactMap { $0 }
+        }
+    }
+
+    func addProfileImagesToCache(for profiles: [UserProfile]) {
+        let urls = profiles.flatMap(\.imagePathURL).compactMap(URL.init(string:))
+
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for url in urls {
+                    group.addTask { _ = try? await self.fetchImage(for: url) }
+                }
+            }
+        }
+    }
+
+    func removeImage(for url: URL) {
+        cache.removeObject(forKey: url as NSURL)
+        try? FileManager.default.removeItem(at: diskFile(for: url))
+    }
+}
+
+//Private memory + disk cache plumbing
+extension ImageLoader {
 
     private func loadImage(url: URL) async throws -> UIImage {
         if let (image, cost) = readDisk(for: url) {
@@ -95,79 +172,4 @@ actor ImageLoader: ImageLoading  {
             total -= entry.size
         }
     }
-
-    func removeImage(for url: URL) {
-        cache.removeObject(forKey: url as NSURL)
-        try? FileManager.default.removeItem(at: diskFile(for: url))
-    }
-
-    func fetchImage(for url: URL) async throws -> UIImage {
-        let key = url as NSURL
-
-        if let image = cache.object(forKey: key) { return image }
-
-        if let task = inFlight[key] {
-            return try await task.value
-        }
-
-        let task = Task<UIImage, Error> {
-            try await self.loadImage(url: url)
-        }
-
-        inFlight[key] = task
-        defer { inFlight[key] = nil }
-
-        return try await task.value
-    }
-    func fetchFirstImage(profile: UserProfile) async throws -> UIImage? {
-        if let urlString = profile.imagePathURL.first, let url = URL(string: urlString) {
-            let image =  try await fetchImage(for: url)
-            return image
-        } else {
-            return nil
-        }
-    }
-    
-    func loadProfileImages(_ profile: UserProfile) async -> [UIImage] {
-        
-        //1. Fetch the imageurls from the profile
-        let urls = profile.imagePathURL.compactMap { URL(string: $0) }
-        
-        //2. Open task group so more efficient
-        return await withTaskGroup(of: (Int, UIImage?).self) { group in
-            
-            //3. Create an empty array of six images
-            var images = Array<UIImage?>(repeating: nil, count: urls.count)
-            
-            //4. For each url get the Index and Image
-            for (index, url) in urls.enumerated() {
-                group.addTask {
-                    let image = try? await self.fetchImage(for: url)
-                    return (index, image)
-                }
-            }
-            //5. Add the image back at the specific index (so order retained)
-            for await (index, img) in group {
-                if let img {
-                    images[index] = img
-                }
-            }
-            //6. Return the images back
-            return images.compactMap { $0 }
-        }
-    }
-    
-    func addProfileImagesToCache(for profiles: [UserProfile]) {
-        let urls = profiles.flatMap(\.imagePathURL).compactMap(URL.init(string:))
-        
-        Task {
-            await withTaskGroup(of: Void.self) { group in
-                for url in urls {
-                    group.addTask { _ = try? await self.fetchImage(for: url) }
-                }
-            }
-        }
-    }
 }
-
-

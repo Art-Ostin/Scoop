@@ -1,6 +1,6 @@
 //
 //  AddImageView3.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 23/07/2025.
 //
@@ -10,36 +10,34 @@ import PhotosUI
 
 struct OnboardingImages: View {
     
+    //Injected
     @Environment(AppDependencies.self) private var dep
     @Environment(\.dismiss) private var dismiss
-    
     let vm: OnboardingViewModel
-    @State private var imageVM: OnboardingImageViewModel
 
-    @State var images: [UIImage?] = Array(repeating: nil, count: 6)
+    //Local view state
+    @State private var imageVM: ProfileImagesViewModel
+    @State private var images: [UIImage?] = Array(repeating: nil, count: 6)
+    @State private var selectedImage: ImageSlot? = nil
+    @State private var showSavingScreen: Bool = false
+    private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3) //Geometry: photo-grid pitch (cell + gap)
 
-    @State var selectedImage: ImageSlot? = nil
-    
-    private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3)
-    
-    @State var showSavingScreen: Bool = false
-    
     init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing, authService: AuthServicing) {
         self.vm = vm
-        _imageVM = State(wrappedValue: OnboardingImageViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
+        _imageVM = State(wrappedValue: ProfileImagesViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
     }
 
     var body: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             
             SignUpTitle(text: "Add 6 Photos")
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Spacing.sm)
             
             Text("Ensure you're in all")
                 .font(.body())
-                .foregroundStyle(Color.grayText)
+                .foregroundStyle(Color.textTertiary)
             
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVGrid(columns: columns, spacing: Spacing.sm) {
                 ForEach(images.indices, id: \.self) { index in
                     OnboardingPhotoCell(selectedImage: $selectedImage, index: index, image: $images[index])
                 }
@@ -52,17 +50,17 @@ struct OnboardingImages: View {
                          try await vm.createProfile()
                          dep.session.appState = .app
                     } catch {
-                        print(error)
+                        showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 84)
-        .padding(.horizontal, 24)
+        .padding(.top, Spacing.clearance)
+        .padding(.horizontal, Spacing.margin)
         .background(Color.appCanvas)
         .fullScreenCover(item: $selectedImage) {localImage in
-            ProfileImagesEditing(importedImage: localImage) { updatedImage in
+            ProfileImageEditor(importedImage: localImage) { updatedImage in
                 images[updatedImage.index] = updatedImage.image
             }
         }

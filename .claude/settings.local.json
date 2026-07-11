@@ -159,7 +159,8 @@
       "Bash(xcrun -sdk iphonesimulator swiftc -target arm64-apple-ios26.0-simulator -parse-as-library main.swift -o AlertProbe.app/AlertProbe)",
       "Bash(echo \"BUILD_EXIT:$?\")",
       "Bash(grep -nED 'ScrollView|scrollTo|ScrollViewReader|scrollPosition|scrollTarget|TabView|HStack|offset|horizontal')",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(ls -la \"/Users/napoleon/Desktop/ScreenRecording_07-10-2026 22-01-38_1.MP4\" && which ffmpeg; echo \"---\"; xcrun simctl list devices available | head -40)"
     ]
   }
 }

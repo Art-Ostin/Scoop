@@ -1,6 +1,6 @@
 //
 //  AuthenticationManager.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 06/07/2025.
 //

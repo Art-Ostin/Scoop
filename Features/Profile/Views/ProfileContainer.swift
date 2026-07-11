@@ -9,32 +9,24 @@ enum ProfileMode {
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 
-struct ProfileView: View {
+struct ProfileContainer: View {
 
-    // Environment
+    //Injected
     @Environment(\.dismiss) var dismiss
     @Environment(ProfileMorphState.self) var morph: ProfileMorphState?
-
-    // State
     @State var vm: ProfileViewModel
-    @State var ui = ProfileUIState()
-    @State var pendingInvite: (() -> Void)?
-    @State var respondUI = RespondPopupUIState()
-
     let mode: ProfileMode
     let profileImages: [UIImage]
     let onDismiss: (() -> Void)?
-    //When starting to dismiss trigger back button to expand (needed for chatContainer)
-    let onDismissStart: (() -> Void)?
+    let onDismissStart: (() -> Void)? //When starting to dismiss trigger back button to expand (needed for ChatContainer)
+
+    //Local view state
+    @State var ui = ProfileUIState()
 
     var displayProfile: UserProfile {if case .ownProfile(let draft) = mode { draft } else { vm.profile }}
 
     var displayImages: [UIImage] {
         isUserProfile ? profileImages : vm.images
-    }
-    
-    var isRespondMode: Bool {
-        if case .respondToInvite = mode {true} else {false}
     }
     
     var isUserProfile: Bool {
@@ -64,11 +56,7 @@ struct ProfileView: View {
             }
             .background(Color.appCanvas)
             
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.size.height
-            } action: { height in
-                ui.containerHeight = height
-            }
+            .getHeight($ui.containerHeight)
             .simultaneousGesture(profileDrag())
             .coordinateSpace(name: "profileZStack")
             .onAppear { if isUserProfile { vm.viewProfileType = .view } }
@@ -77,40 +65,21 @@ struct ProfileView: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
-        .quickInvite(
-            openPopupId: sendInviteMorphId,
-            hideCard: pendingInvite != nil,
-            // ProfileView already covers the tab bar, so present as an overlay to skip the
-            // cover-presentation latency that makes the morph pop in collapsed before opening.
-            style: (isRespondMode ? QuickInviteMorphStyle.respond : .send)
-                .presentedAsOverlay()
-                .tinted(vm.viewProfileType == .invite ? .accent : .appGreen)
-                .sideMargin(SendInviteContainer.screenMargin),
-            image: { _ in displayImages.first }
-        ) { _ in
-            sendInviteMorphCard
-        } overlay: {
-            morphOverlay
-        }
     }
 }
 
-extension ProfileView {
+extension ProfileContainer {
     
     private var titleAndImage: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Spacing.lg) {
             profileTitle
                 .modifier(DetailsFadeEffect(ui: ui, from: 1, to: 0, impactEnd: 0.75))
 
-            ProfileImageView(disableScroll: ui.isDismissDragging, importedImages: displayImages)
+            ProfileImageView(disableScroll: ui.isDismissDragging, images: displayImages)
                 .task { await vm.loadImagesIfNeeded() }
                 .overlay(alignment: .topLeading) {overlayTitle}
         }
-        .onGeometryChange(for: CGFloat.self) { geo in
-            geo.size.height
-        } action: { height in
-            ui.headerHeight = height
-        }
+        .getHeight($ui.headerHeight)
         .padding(.top, ui.headerTopPadding)
         .modifier(ProfileHeaderDragEffect(ui: ui))
     }

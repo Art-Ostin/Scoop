@@ -1,0 +1,69 @@
+//
+//  MapCategoryIcon.swift
+//  Scoop
+//
+//  Created by Art Ostin on 10/02/2026.
+//
+
+import SwiftUI
+import Lottie
+
+struct MapCategoryIcon: View {
+    
+    //Injected
+    @Binding var sheet: MapSheets
+    let category: MapCategory
+    let isMap: Bool
+    @Bindable var vm: MapViewModel
+    @Binding var useSelectedDetent: Bool
+
+    //Local view state
+    @State private var hitMaxSearches: Bool = false
+
+    var showHitMaxSearch: Bool { hitMaxSearches && isSelected}
+    var size: CGFloat { isMap ? 60 : 35 }
+    var isSelected: Bool { vm.selectedMapCategory == category }
+    
+    
+    private var showSearchArea: Bool {
+        isMap
+        && isSelected
+        && vm.lastSearchRegion != nil
+        && vm.hasMovedSinceSearch()
+    }
+    var body: some View {
+        Button {
+            vm.selectCategory(category, fromSearchArea: showSearchArea)
+            useSelectedDetent = true
+        } label : {
+            VStack(spacing: Spacing.sm) {
+                ZStack {
+                    Circle()
+                        .fill(category.gradient)
+                        .frame(width: size, height: size)
+                    
+                        category.image
+                            .scaleEffect(isMap ? 0.95 : 0.55)
+                            .offset(x: category == .pub ? 1 : 0)
+
+                }
+                .shadow(.floating, strength: isSelected && isMap ? 1 : 0)
+                .foregroundStyle(Color.white) //For the systemNameIcons
+                .font(.body(20))
+
+                if isMap {
+                    Group {
+                        if showSearchArea {
+                            Text("Search Area")
+                        } else {
+                            Text(category.description)
+                        }
+                    }
+                    .font(.body(12, .bold))
+                    .frame(width: 75)
+                    .foregroundStyle(isSelected ? Color.accent : Color.textTertiary.opacity(0.8))
+                }
+            }
+        }
+    }
+}

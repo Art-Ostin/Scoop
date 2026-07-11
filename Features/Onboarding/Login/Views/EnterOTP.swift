@@ -1,6 +1,6 @@
 //
 //  EnterOTP.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 03/08/2025.
 //
@@ -9,21 +9,23 @@ import SwiftUI
 
  struct EnterOTP: View {
      
+     //Injected
      @Binding var code: String
+
+     //Local view state
      @FocusState private var isFocused: Bool
-     @State private var showCursor = false
-     
-     
+
+
      var body: some View {
          ZStack {
-             HStack(spacing: 36) {
+             HStack(spacing: Spacing.xl) {
                  ForEach(0..<6, id: \.self) { index in
                      ZStack {
                          Text(digit(at: index).isEmpty ? "\u{00A0}" : digit(at: index)) //Bug fix of offseting down when start typing
                              .font(.title)
                          Rectangle()
                              .frame(width: 24, height: 2)
-                             .foregroundStyle(Color.grayPlaceholder)
+                             .foregroundStyle(Color.textPlaceholder)
                              .offset(y: 24)
                          
                          if code.count == index {

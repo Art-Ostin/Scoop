@@ -1,6 +1,6 @@
 //
 //  OptionCellNoCount.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
 //
@@ -27,7 +27,7 @@ struct OptionPill: View {
         
         Text(title)
             .frame(width: width, height: 44)
-            .background (selected ? Color.accent : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
+            .background (selected ? Color.accent : Color.fillGray, in: Capsule())
             .font(.body(16, .bold))
             .foregroundStyle(selected ? Color.white : Color.black)
             .onTapGesture {
@@ -56,7 +56,7 @@ struct SexStandardPill: View {
     var body: some View {
         Text(title)
             .frame(width: 148, height: 44)
-            .background (isSelected ? Color.accentColor : Color.grayBackground, in: RoundedRectangle(cornerRadius: 20))
+            .background (isSelected ? Color.accent : Color.fillGray, in: Capsule())
             .font(.body(16, .bold))
             .foregroundStyle(isSelected ? Color.white : Color.black)
             .onTapGesture {
@@ -73,12 +73,12 @@ struct SexOptionPill: View {
     
     var body: some View {
         
-        HStack(spacing: 16) {
+        HStack(spacing: Spacing.md) {
             Text(gender)
                 .font(.body(16, .bold))
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.lg)
                 .frame(width: 148, height: 44)
-                .stroke(20, lineWidth: 2, color: .accent)
+                .capsuleStroke(lineWidth: 2, color: .accent)
                 .overlay(alignment: .topTrailing) {
                     Image("EditButton")
                         .scaleEffect(0.7)

@@ -1,0 +1,89 @@
+//
+//  EventsViewModel.swift
+//  Scoop
+//
+//  Created by Art Ostin on 05/08/2025.
+//
+
+import Foundation
+import SwiftUI
+import MapKit
+import FirebaseFirestore
+
+
+
+@MainActor
+@Observable class EventsViewModel {
+    
+    let session: Session
+    let userRepo: UserRepository
+    let defaults: DefaultsManaging
+    let eventRepo: EventsRepository
+    let chatRepo: ChatRepository
+    let imageLoader: ImageLoading
+    
+    init(session: Session, userRepo: UserRepository, defaults: DefaultsManaging, eventRepo: EventsRepository, chatRepo: ChatRepository, imageLoader: ImageLoading) {
+        self.session = session
+        self.userRepo = userRepo
+        self.eventRepo = eventRepo
+        self.imageLoader = imageLoader
+        self.chatRepo = chatRepo
+        self.defaults = defaults
+    }
+
+    var events: [EventProfile] { session.events}
+    
+    
+    func fetchUserImage() async throws -> UIImage? {
+        try await imageLoader.fetchFirstImage(profile: session.user)
+    }
+
+    func event(id: String?) -> EventProfile? {
+        guard let id else { return nil }
+        return events.first { $0.id == id }
+    }
+
+    func event(forProfile profileId: String) -> EventProfile? {
+        events.first { $0.profile.id == profileId }
+    }
+
+    func updateEventStatus(eventId: String, status: Event.EventStatus) async throws {
+        try await eventRepo.updateEventStatus(eventId: eventId, to: status)
+    }
+    
+    func loadProfileImages(profile: UserProfile) async -> [UIImage] {
+        return await imageLoader.loadProfileImages(profile)
+    }
+    
+    func cancelEvent(event: UserEvent) async throws {
+        //Get the fields for the 'blockedContext'
+        guard let acceptedTime = event.acceptedTime else {return}
+        let profileName = event.otherUserName
+        let eventTime = "\(FormatEvent.dayAndTime(acceptedTime))"
+        let eventPlace = event.location.name ?? event.location.address.map { String($0.suffix(10)) }  ?? ""
+        let blockedContext = BlockedContext(profileImage: event.otherUserPhoto, profileName: profileName, eventPlace: eventPlace, eventTime: eventTime, eventMessage: event.message, eventType: event.type)
+        let userId = session.user.id
+        
+        //Update event Status and the user
+        try await applyCancellationPenalty(blockedContext: blockedContext, userId: userId)
+        try await eventRepo.cancelEvent(eventId: event.id, cancelledById: userId, blockedContext: blockedContext)
+    }
+    
+    private func applyCancellationPenalty(blockedContext: BlockedContext, userId: String) async throws {
+        let encodedBlockedContext = try Firestore.Encoder().encode(blockedContext)
+        let twoWeeksFromNow = Calendar.current.date(byAdding: .day, value: 14, to: Date())!
+        try await userRepo.updateUser(userId: userId, values: [.blockedContext : encodedBlockedContext] )
+        try await userRepo.updateUser(userId: userId, values: [.frozenUntil : twoWeeksFromNow] )
+        try await userRepo.updateUser(userId: userId, values: [.cancelCount: FieldValue.increment(Int64(1))])
+    }
+}
+
+@Observable
+final class EventsUIState {
+    var showCantMakeIt: EventProfile? = nil
+    var selectedProfile: UserProfile? = nil
+    var selectedEventId: String?
+    var imageSize: CGFloat = 0
+    var profileImages: [String: [UIImage]] = [:]
+}
+

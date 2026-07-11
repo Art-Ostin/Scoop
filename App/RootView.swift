@@ -1,6 +1,6 @@
 //
 //  AppState.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 18/06/2025.
 

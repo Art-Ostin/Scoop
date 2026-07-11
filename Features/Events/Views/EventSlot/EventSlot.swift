@@ -9,27 +9,28 @@ import SwiftUI
 
 struct EventSlot: View {
     
-    @State private var disableMap: Bool = true
-    @State private var mapEnabledAt: Date?
-    
-    @Bindable var ui: EventUIState
+    //Injected
+    @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let userImage: UIImage
-
     let openMaps: () -> ()
-    
+
+    //Local view state
+    @State private var disableMap: Bool = true
+    @State private var mapEnabledAt: Date?
+
     var body: some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             eventImageCard
             eventDetailsContainer
-                .padding(.top, 4)//Looks more natural as detailTitle pokes up a top.
+                .padding(.top, Spacing.xxs)//Looks more natural as detailTitle pokes up a top.
             eventDivider
             eventInfoSection
             eventDivider
             EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
         }
-        .padding(.bottom, 72)
+        .padding(.bottom, Spacing.xxl)
     }
 }
 
@@ -40,16 +41,15 @@ extension EventSlot {
     private var eventImageCard: some View {
         eventProfile.event.acceptedTime.map { targetTime in
             EventImageCard(
-                ui: ui,
-                eventProfile: eventProfile,
-                imageSize: imageSize,
+                profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
                 userImage: userImage,
-                targetTime: targetTime
+                targetTime: targetTime,
+                openProfile: { ui.selectedProfile = eventProfile.profile }
             )
         }
     }
-    
-    
+
+
     @ViewBuilder
     private var eventInfoSection: some View {
         let e = eventProfile.event
@@ -73,12 +73,7 @@ extension EventSlot {
         }
     }
     
-    
-    private var howItWorksView: some View {
-        CoreInfoPage(event: eventProfile.event)
-            .dimWhenMapActive($disableMap)
-    }
-    
+
     private func disableMapOnScroll(_ oldY: CGFloat, _ newY: CGFloat) {
         guard let enabledAt = mapEnabledAt, Date.now.timeIntervalSince(enabledAt) > 1,
               abs(newY - oldY) > 1 else { return }
@@ -88,11 +83,11 @@ extension EventSlot {
     }
     
     private var eventDivider: some View {
-        RoundedRectangle(cornerRadius: 1)
-            .fill(Color(white: 0.8))
+        Capsule()
+            .fill(Color.border)
             .frame(maxWidth: .infinity, maxHeight: 1)
-            .padding(.horizontal, 72)
-            .padding(.vertical, 4)//add tad more padding here than default
+            .padding(.horizontal, 72) //Geometry: sets the divider's length, not a rhythm gap
+            .padding(.vertical, Spacing.xxs)//add tad more padding here than default
     }
 }
 
@@ -106,52 +101,25 @@ extension View {
     }
     
     //Used on all the cards
-    func eventCardShadowBackground() -> some View {
+    func eventCardBackground() -> some View {
         self
-            .background (Color.appCanvas, in: .rect(cornerRadius: 16))
+            .frame(maxWidth: .infinity)
+            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.lg))
             .compositingGroup()
-            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0125), radius: 4, x: 0, y: 1)
-            .shadow(color: Color(red: 0.15, green: 0.15, blue: 0.15).opacity(0.0075), radius: 12, x: 0, y: 0)
-            .stroke(16, lineWidth: 0.85, color: Color(white: 0.94))
+            .padding(.horizontal, Spacing.gutter)
+            .stroke(CornerRadius.md, lineWidth: 0.85)
+            .shadow(.card)
     }
     
     //Put eventTextOverlay as viewExtension as used also in details view
     func eventTextOverlay(isDetails: Bool = false) -> some View {
         self
             .font(.title(13, .semibold))
-            .foregroundStyle(isDetails ? Color(red: 0.55, green: 0, blue: 0.25) : Color(white: 0.68))
-            .padding(.horizontal, 4)
-            .padding(.vertical, 2)
+            .foregroundStyle(isDetails ? Color.textAccent : Color.textTertiary)
+            .padding(.horizontal, Spacing.xxs)
+            .padding(.vertical, Spacing.hairline)
             .background(Color.appCanvas)
-            .padding(.horizontal, 36)//Indent in by 16
+            .padding(.horizontal, Spacing.xl)//Indents the floating label in from the card edge
             .offset(y: -10)//Shifts it up
     }
 }
-
-
-
-/*
- cantMakeItButton
-
- private var cantMakeItButton: some View {
-     Button {
-         ui.showCantMakeIt = eventProfile
-     } label: {
-         Text("Can't Make It?")
-             .font(.body(14, .bold))
-             .contentShape(Rectangle())
-             .foregroundStyle(Color.accent)
-             .padding(.trailing, 24)
-     }
-     .frame(maxWidth: .infinity, alignment: .leading)
- }
- 
- 
- private var clockView: some View {
-     eventProfile.event.acceptedTime.map {
-         EventClock(targetTime: $0)
-     }
- }
-
-
- */

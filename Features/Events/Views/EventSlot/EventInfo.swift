@@ -1,6 +1,6 @@
 //
 //  EventInfo.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 //
@@ -9,18 +9,18 @@ import SwiftUI
 
 struct EventInfo: View {
     
+    //Injected
     let location: EventLocation
     let eventTime: Date
     let otherUserName: String
     let eventType: Event.EventType
-    
-    
-    @State var scrollProgress: Double = 0
-    
-    
-    
+
+    //Local view state
+    @State private var scrollProgress: Double = 0
+
+
     var body: some View {
-        VStack(spacing: 36){
+        VStack(spacing: Spacing.xl){
             Text("\(eventType.emoji) \(eventType.longTitle)")
                 .font(.system(size: 24, weight: .medium, design: .serif))
             scrollSection
@@ -32,27 +32,16 @@ struct EventInfo: View {
 extension EventInfo {
     
     var scrollSection: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(EventInfoData.allCases, id: \.self) { infoType in
-                    eventInfoSlot(type: infoType)
-                }
+        PagerScrollView(progress: $scrollProgress) {
+            ForEach(EventInfoData.allCases, id: \.self) { infoType in
+                eventInfoSlot(type: infoType)
             }
-            .scrollTargetLayout()
         }
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.paging) // Makes scroll view snap to each place.
-        .padding(.horizontal, -16) // Negates parent's 16pt inset so carousel is full-bleed
-        .onScrollGeometryChange(for: Double.self) { geo in
-            let width = geo.containerSize.width
-            return width > 0 ? geo.contentOffset.x / width : 0
-        } action: { _, newValue in
-            scrollProgress = newValue
-        } //Updates the scrollView
+        .padding(.horizontal, -Spacing.gutter) // Negates the card gutter so the carousel is full-bleed
     }
     
     private func eventInfoSlot(type: EventInfoData) -> some View {
-        VStack(spacing: 36) {
+        VStack(spacing: Spacing.xl) {
             Image(type.image)
                 .resizable()
                 .scaledToFill()
@@ -61,7 +50,7 @@ extension EventInfo {
                 .font(.body(17, .medium))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
         }
         .containerRelativeFrame(.horizontal)
     }
@@ -74,14 +63,10 @@ enum EventInfoData: CaseIterable {
     //Update when I actually have an image to add
     var image: String {
         switch self {
-        case .confirmed:
-            return "CoolGuys"
-        case .eventType:
-            return "CoolGuys"
-        case .message:
-            return "CoolGuys"
-        case .noShow:
-            return "CoolGuys"
+        case .confirmed: "CoolGuys"
+        case .eventType: "CoolGuys"
+        case .message: "CoolGuys"
+        case .noShow: "CoolGuys"
         }
     }
     

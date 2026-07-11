@@ -1,6 +1,6 @@
 //
 //  NewOnboardingContainer.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
@@ -9,15 +9,14 @@ import SwiftUI
 
 struct OnboardingContainer: View {
     
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.flowMode) private var mode
     let vm: OnboardingViewModel
     let storage: StorageServicing
-    @State private var enlargenStep: Bool = false
+
+    //Local view state
     @State private var showSaved: Bool = false
-    
-    
-    
+
     @ViewBuilder
     private var stepView: some View {
             switch vm.onboardingStep {
@@ -38,7 +37,6 @@ struct OnboardingContainer: View {
         }
     }
     
-    @State private var bounce = false
     var body: some View {
         NavigationStack {
             ZStack(alignment: .topLeading) {
@@ -73,10 +71,10 @@ extension OnboardingContainer {
     }
     
     private var saveButton: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text("Saved")
                 .font(.body(14, .bold))
-                .foregroundStyle(Color(red: 0.16, green: 0.65, blue: 0.27))
+                .foregroundStyle(Color.successGreen)
             
             Image("GreenTick")
         }
@@ -86,7 +84,7 @@ extension OnboardingContainer {
     private var onboardingStepTracker: some View {
         Text("\(vm.onboardingStep)/\(12)")
             .font(.body(12, .bold))
-            .foregroundStyle(bounce ? .accent : .accent)
+            .foregroundStyle(.accent)
             .opacity(showSaved ? 0 : 1)
     }
     
@@ -96,9 +94,9 @@ extension OnboardingContainer {
         } label: {
             Image(systemName: "xmark")
                 .font(.body(16, .bold))
-                .padding(24)
+                .padding(Spacing.lg)
                 .contentShape(Rectangle())
-                .padding(-24)
+                .padding(-Spacing.lg)
         }
     }
     

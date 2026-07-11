@@ -1,6 +1,6 @@
 //
 //  CustomList.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 12/07/2025.
 //
@@ -26,26 +26,25 @@ struct CustomList<Content: View> : View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             if let title = title {
                 Text(title)
                     .font(.body(12, .bold))
-                    .foregroundStyle(Color.grayText)
-                    .padding(.horizontal, 16)
+                    .foregroundStyle(Color.textTertiary)
+                    .padding(.horizontal, Spacing.md)
 
                 if showInfoText {
                     Text("Choose which map app opens for seeing the locations of events")
                         .infoText()
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, Spacing.md)
                 }
             }
-            VStack(spacing: 6) {
+            VStack(spacing: Spacing.xs) {
                 content()
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, Spacing.sm)
             .background(Color.white)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: .white.opacity(0.02), radius: 8, x: 0, y: 0.05)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: CornerRadius.lg))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -70,12 +69,12 @@ struct ListItem<Value: Hashable>: View {
         
         NavigationLink(value: value) {
             HStack {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(title)
                         .font(.body(.bold))
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(Color.textPrimary)
                     Text(isEmpty ? "Add Info" : (writeAll ? "All" : response.joined(separator: ", ")))
-                        .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                        .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
                         .font(.body(15))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
@@ -83,10 +82,10 @@ struct ListItem<Value: Hashable>: View {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.body(13, .bold))
-                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                    .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 6)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.xs)
         }
     }
 }

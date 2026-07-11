@@ -1,6 +1,6 @@
 //
 //  EventMap.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 09/06/2026.
 //
@@ -15,32 +15,32 @@ struct EventMap: View {
     let openMaps: () -> ()
     
     var body: some View {
-        VStack(spacing: 12) {
-            EventMapView(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+        VStack(spacing: Spacing.sm) {
+            EventLocationMap(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
             locationInfo
         }
         .padding([.horizontal, .top], 4)
-        .padding(.bottom, 16)
-        .stroke(16, lineWidth: disableMap ? 1 : 0, color: Color.grayBackground)
-        .customShadow(.floating, strength: !disableMap  ? 0.6 : 0)
-        .eventCardShadowBackground()
+        .padding(.bottom, Spacing.md)
+        .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0)
+        .shadow(.image, strength: !disableMap ? 1 : 0)
+        .eventCardBackground()
     }
 }
 
 extension EventMap {
 
     private var locationInfo: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             locationTextSection
             locationButtonSection
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.lg)
     }
     
     @ViewBuilder
     private var locationTextSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             HStack {
                 Text(location.name ?? "")
                     .font(.body(19, .bold))
@@ -48,19 +48,15 @@ extension EventMap {
                 Text("1.3km")
                     .font(.body(15, .bold))
             }
-            .foregroundStyle(Color(white: 0.07))
+            .foregroundStyle(Color.textPrimary)
             
-            Text("Nightclub")   // update later so actually shows location
+            Text("Nightclub")   // TODO: show the real place category
                 .font(.body(15, .regular))
-                .foregroundStyle(Color(white: 0.12))
-            
-            if let category = location.mapItem.pointOfInterestCategory {
-                
-            }
-            
+                .foregroundStyle(Color.textPrimary)
+
             Text(location.address ?? "")
                 .font(.body(15, .regular))
-                .foregroundStyle(Color(white: 0.5))
+                .foregroundStyle(Color.textSecondary)
         }
     }
     
@@ -82,7 +78,7 @@ extension EventMap {
                 .font(.system(size: 11, weight: .bold))
         }
         .frame(width: 75, height: 40)
-        .background(Color.white, in: .rect(cornerRadius: 10.5))
-        .stroke(10.5, lineWidth: 1, color: isMap ? Color(red: 0.26, green: 0.52, blue: 0.96) : Color(white: 0.92))
+        .background(Color.white, in: .rect(cornerRadius: CornerRadius.sm))
+        .stroke(CornerRadius.sm, lineWidth: 1, color: isMap ? Color.accent : Color.border)
     }
 }

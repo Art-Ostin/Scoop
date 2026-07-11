@@ -1,0 +1,327 @@
+//
+//  MapViewModel.swift
+//  Scoop
+//
+//  Created by Art Ostin on 02/07/2025.
+
+import SwiftUI
+import MapKit
+import UIKit
+
+
+@MainActor
+@Observable class MapViewModel {
+    
+    let defaults: DefaultsManaging
+
+    let locationManager = CLLocationManager()
+    var searchText: String = ""
+    var results: [MKMapItem] = []
+    var selection: MapSelection<MKMapItem>? {
+        didSet {
+            showAnimation = oldValue != nil && selection != nil
+        }
+    }
+    var selectedMapItem: MKMapItem? {
+        didSet {
+            showAnimation = oldValue != nil && selection != nil
+        }
+    }
+    
+    var visibleRegion: MKCoordinateRegion?
+    var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    private var categorySearchTask: Task<Void, Never>?
+    private var categorySelectionFromSearchArea = false
+    
+    var showAnimation = false
+    
+    var markerTint: Color = Color.accent
+    
+    
+    var selectedMapCategory: MapCategory? {
+        didSet {onCategorySelect()}
+    }
+    
+    var lastSearchRegion: MKCoordinateRegion?
+    
+    var recentMapSearches: [RecentPlace]
+    
+    
+    init(defaults: DefaultsManaging) {
+        self.defaults = defaults
+        self.recentMapSearches = defaults.recentMapSearches
+    }
+    
+    func updateSelectedMapItem(from selection: MapSelection<MKMapItem>?) async {
+        guard let selection else {
+            selectedMapItem = nil
+            return
+        }
+        
+        if let value = selection.value {
+            selectedMapItem = value
+            return
+        }
+        guard let feature = selection.feature else { selectedMapItem = nil; return }
+        do {
+            selectedMapItem = try await MKMapItemRequest(feature: feature).mapItem
+        } catch {
+            selectedMapItem = nil
+        }
+    }
+    
+    func searchPlaces() async {
+        if let selectedMapCategory {
+            await searchCategory(category: selectedMapCategory, query: searchText)
+            return
+        }
+
+        let req = MKLocalSearch.Request()
+        req.naturalLanguageQuery = searchText
+        let res = try? await MKLocalSearch(request: req).start()
+        results = res?.mapItems ?? []
+    }
+
+    func selectCategory(_ category: MapCategory, fromSearchArea: Bool = false) {
+        categorySelectionFromSearchArea = fromSearchArea
+        selectedMapCategory = category
+    }
+    
+    private func onCategorySelect() {
+        categorySearchTask?.cancel()
+        let fromSearchArea = categorySelectionFromSearchArea
+        categorySelectionFromSearchArea = false
+
+        if let category = selectedMapCategory {
+            categorySearchTask = Task { [weak self] in
+                await self?.searchCategory(category: category, query: nil, fromSearchArea: fromSearchArea)
+                self?.searchText = category.description
+                self?.markerTint = category.mainColor
+            }
+        } else {
+            //If categorySelect set to nil, delete all the existing values
+            results.removeAll()
+            searchText = ""
+            markerTint = .accent
+        }
+    }
+    
+    //Search and assign all the categories
+    private func searchCategory(category: MapCategory, query: String?, fromSearchArea: Bool = false) async {
+        guard let region = visibleRegion else { return }
+        let spec = Self.categorySpec(category: category)
+        let plans = Self.makeSearchPlans(from: spec, with: query)
+        let foundItems = await Self.search(region: region, plans: plans)
+        guard !Task.isCancelled else { return }
+        results = Self.applyCategoryFilter(foundItems, spec: spec)
+        lastSearchRegion = region
+        let origin = fromSearchArea ? region.center : preferredSelectionOrigin()
+        if let nearest = nearestMapItem(from: results, origin: origin) {
+            selection = MapSelection(nearest)
+        }
+    }
+    
+    //Go to the nearest Location Not a Random Map 
+    private func nearestMapItem(from items: [MKMapItem], origin: CLLocationCoordinate2D?) -> MKMapItem? {
+        guard !items.isEmpty else { return nil }
+        guard let origin else { return items.first }
+        
+        let originLocation = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
+        
+        return items.min { lhs, rhs in
+            let lhsCoordinate = lhs.placemark.coordinate
+            let rhsCoordinate = rhs.placemark.coordinate
+            
+            let lhsDistance = originLocation.distance(from: CLLocation(latitude: lhsCoordinate.latitude, longitude: lhsCoordinate.longitude))
+            let rhsDistance = originLocation.distance(from: CLLocation(latitude: rhsCoordinate.latitude, longitude: rhsCoordinate.longitude))
+            return lhsDistance < rhsDistance
+        }
+    }
+    private func preferredSelectionOrigin() -> CLLocationCoordinate2D? {
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            if let coordinate = locationManager.location?.coordinate {
+                return coordinate
+            }
+            return visibleRegion?.center
+        default:
+            return visibleRegion?.center
+        }
+    }
+
+    private static func search(region: MKCoordinateRegion, plans: [SearchPlan]) async -> [MKMapItem] {
+        
+        return await withTaskGroup(of: [MKMapItem].self) { group in
+                for plan in plans {
+                    group.addTask {
+                        guard !Task.isCancelled else { return [] }
+                        let request = MKLocalSearch.Request()
+                        request.region = region
+                        request.naturalLanguageQuery = plan.query
+                        if plan.pointOfInterestOnly { request.resultTypes = .pointOfInterest }
+                        if let categories = plan.categories, !categories.isEmpty {
+                            request.pointOfInterestFilter = MKPointOfInterestFilter(including: categories)
+                        }
+                        return (try? await MKLocalSearch(request: request).start().mapItems) ?? []
+                    }
+                }
+                var aggregated: [MKMapItem] = []
+                for await items in group {
+                    aggregated.append(contentsOf: items)
+                }
+                let deduped = deduplicated(aggregated)
+                return deduped
+            }
+        }
+    
+    //Helps Identify equivalency and avoid duplicates
+    private static func deduplicated(_ items: [MKMapItem]) -> [MKMapItem] {
+        var seen = Set<String>()
+        return items.filter {
+            let coordinate = $0.placemark.coordinate
+            let key = "\(normalized($0.name ?? $0.placemark.title ?? ""))|\(Int((coordinate.latitude * 100_000).rounded()))|\(Int((coordinate.longitude * 100_000).rounded()))"
+            return seen.insert(key).inserted
+        }
+    }
+    
+    private static func normalized(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func makeSearchPlans(from spec: CategorySpec, with query: String?) -> [SearchPlan] {
+        let mergedQueries = deduplicateQueries((query.map { [$0] } ?? []) + spec.queries)
+        return [SearchPlan(query: nil, categories: spec.categories)] +
+        mergedQueries.map { SearchPlan(query: $0, categories: spec.categories) } +
+        mergedQueries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
+    }
+
+    private static func deduplicateQueries(_ queries: [String]) -> [String] {
+        var seen = Set<String>()
+        var deduplicated: [String] = []
+
+        for query in queries {
+            let normalizedQuery = normalized(query)
+            guard !normalizedQuery.isEmpty else { continue }
+            if seen.insert(normalizedQuery).inserted {
+                deduplicated.append(query)
+            }
+        }
+        return deduplicated
+    }
+
+    private static func applyCategoryFilter(_ items: [MKMapItem], spec: CategorySpec) -> [MKMapItem] {
+        items.filter { item in
+            if let category = item.pointOfInterestCategory, spec.excludedCategories.contains(category) {
+                return false
+            }
+
+            guard !spec.excludedKeywords.isEmpty else { return true }
+            let searchableText = normalized("\(item.name ?? "") \(item.placemark.title ?? "")")
+            return !spec.excludedKeywords.contains { keyword in
+                searchableText.contains(normalized(keyword))
+            }
+        }
+    }
+        
+    //What to search specifically for Each one
+    private static func categorySpec(category: MapCategory) -> CategorySpec {
+        let exclusions: Set<MKPointOfInterestCategory> = [.beauty, .spa]
+        let excludedKeywords = ["hairdresser", "hair salon", "barber", "coiffeur", "coiffeuse"]
+
+        switch category {
+        case .food:
+            return .init(
+                categories: [.restaurant, .foodMarket, .cafe],
+                queries: ["restaurant", "food", "dining", "eat"],
+                excludedCategories: [.cafe],
+                excludedKeywords: ["cafe", "café", "bar"]
+            )
+        case .cafe:
+            return .init(
+                categories: [.cafe],
+                queries: ["cafe", "coffee", "espresso", "tea"],
+                excludedCategories: exclusions,
+                excludedKeywords: excludedKeywords
+            )
+        case .bar:
+            return .init(
+                categories: [.nightlife, .distillery, .winery],
+                queries: ["bar", "cocktail", "drinks", "lounge"],
+                excludedCategories: exclusions,
+                excludedKeywords: excludedKeywords + ["pub", "cafe"]
+            )
+        case .pub:
+            return .init(
+                categories: [.brewery],
+                queries: ["pub", "Microbrasserie", "tavern", "alehouse", "beer"],
+                excludedCategories: exclusions,
+                excludedKeywords: excludedKeywords + ["bar", "cocktail"]
+            )
+        case .club:
+            return .init(
+                categories: [.nightlife, .musicVenue],
+                queries: ["nightclub", "dance", "dj", "music"],
+                excludedCategories: exclusions,
+                excludedKeywords: ["bar", "cocktail", "resaurant", "pub"]
+            )
+        case .park:
+            return .init(
+                categories: [.park, .nationalPark, .beach, .campground],
+                queries: ["public park", "city park", "state park", "nature reserve", "trail"],
+                excludedCategories: exclusions.union([.parking, .carRental, .gasStation, .evCharger, .automotiveRepair]),
+                excludedKeywords: excludedKeywords + [
+                    "parking", "parking lot", "parking garage", "car park", "carpark",
+                    "park and ride", "park&ride", "parkade", "valet", "mcLean"
+                ]
+            )
+        case .activity:
+            return .init(
+                categories: [.amusementPark, .fairground, .landmark, .movieTheater, .museum, .musicVenue, .rockClimbing, .skating, .stadium],
+                queries: ["activity", "things to do", "fun", "attractions"],
+                excludedCategories: exclusions,
+                excludedKeywords: excludedKeywords
+            )
+        }
+    }
+
+    private struct CategorySpec {
+        let categories: [MKPointOfInterestCategory]
+        let queries: [String]
+        let excludedCategories: Set<MKPointOfInterestCategory>
+        let excludedKeywords: [String]
+    }
+
+    private struct SearchPlan {
+        let query: String?
+        let categories: [MKPointOfInterestCategory]?
+        let pointOfInterestOnly: Bool
+        
+        init(query: String?, categories: [MKPointOfInterestCategory]?, pointOfInterestOnly: Bool = true) {
+            self.query = query
+            self.categories = categories
+            self.pointOfInterestOnly = pointOfInterestOnly
+        }
+    }
+    
+    func hasMovedSinceSearch() -> Bool {
+        guard let lastCenter = lastSearchRegion?.center,
+              let currentCenter = visibleRegion?.center else { return false }
+
+        let last = CLLocation(latitude: lastCenter.latitude, longitude: lastCenter.longitude)
+        let current = CLLocation(latitude: currentCenter.latitude, longitude: currentCenter.longitude)
+        return last.distance(from: current) > 600
+    }
+    
+    func addSearchToDefaults(title: String, town: String) {
+        defaults.updateRecentMapSearches(title: title, town: town)
+        recentMapSearches = defaults.recentMapSearches.reversed() // So most recent appears at the top.
+    }
+    
+    func deleteSearchFromDefaults(place: RecentPlace) {
+        defaults.removeFromRecentMapSearches(place: place)
+        recentMapSearches = defaults.recentMapSearches.reversed() // So most recent appears at the top
+    }
+}
+

@@ -1,0 +1,113 @@
+//
+//  GlassIfAvailable.swift
+//  Scoop
+//
+//  Created by Art Ostin on 31/05/2026.
+//
+
+import SwiftUI
+
+enum ScoopButtonStyle: Equatable {
+    case glass, clearGlass
+    // Shadow is a tinted-only concern: glass draws its own (native on iOS 26,
+    // replicated via Elevation.glass on the fallback), so it isn't configurable there.
+    case tinted(Color, shadow: Elevation? = .button)
+}
+
+struct ScoopButton<Content: View, S: Shape>: View {
+
+    var style: ScoopButtonStyle = .glass
+    let shape: S
+    
+    var size: ButtonSize? = nil
+    var weight: Font.Weight = .heavy
+    var hitInset: CGFloat = 16 //Tappable margin beyond the visible shape, matching the pre-26 paths
+
+    let action: () -> Void
+    @ViewBuilder var label: () -> Content
+
+    var body: some View {
+        if case .tinted(let color, let shadow) = style {
+            coloredButton(color: color, shadow: shadow)
+        } else {
+            glassButton()
+        }
+    }
+
+    @ViewBuilder
+    func sizedLabel() -> some View {
+        if let size {
+            label().buttonSize(size, weight: weight)
+        } else {
+            label()
+        }
+    }
+}
+
+extension ScoopButton {
+    private func glassButton() -> some View {
+        Group {
+            if #available(iOS 26.0, *) {
+                Button(action: action) {
+                    sizedLabel()
+                        .glassEffect(style == .clearGlass ? .clear.interactive() : .regular.interactive(), in: shape)
+                        //Must sit above the glass: interactive glass overrides any contentShape
+                        //beneath it (same hit-shape bug as the tinted path's contentShape fix).
+                        .expandHitArea(hitInset)
+                }
+            } else {
+                Button(action: action) {
+                    sizedLabel()
+                        .background(shape.fill(.ultraThinMaterial).brightness(0.06))
+                        .expandHitArea(hitInset)
+                }
+                .growButton(tint: .black)
+            }
+        }
+        .foregroundStyle(Color.textPrimary)
+    }
+    
+    @ViewBuilder
+    private func coloredButton(color: Color, shadow: Elevation?) -> some View {
+        Group {
+            if #available(iOS 26.0, *) { //opted-in shadowless tints fall through to the flat fill below
+                Button(action: action) {
+                    sizedLabel()
+                        .glassEffect(.regular.tint(color), in: shape)
+                        .contentShape(shape) //Fixes bug keep!
+                        .expandHitArea(hitInset)
+                }
+                .shrinkButton(shadow: shadow, tint: color)
+            } else {
+                Button(action: action) {
+                    sizedLabel()
+                        .background(shape.fill(color))
+                        .expandHitArea(hitInset)
+                }
+                .shrinkButton(shadow: shadow, tint: color)
+            }
+        }
+        .foregroundStyle(Color.white)
+    }
+}
+
+
+// TEMP: original button background, kept so callers compile. Remove when updating.
+extension View {
+
+    func buttonBackground<S: InsettableShape>(_ shape: S, color: Color = .accent) -> some View {
+        let base = foregroundStyle(.white)
+        return Group {
+            if #available(iOS 26.0, *) {
+                base.glassEffect(.regular.tint(color), in: shape)
+            } else {
+                base
+                    .background(shape.fill(color))
+                    .shadow(.glass)
+            }
+        }
+        .padding(16)
+        .contentShape(Rectangle())
+        .padding(-16)
+    }
+}

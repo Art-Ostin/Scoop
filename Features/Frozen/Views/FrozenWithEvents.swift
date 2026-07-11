@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct FrozenWithEvents: View {
+    //Injected
     @Environment(AppRouter.self) private var router
-    
     let vm: FrozenViewModel
-    
-    @State var tabSelection: AppTab = .events
-    @State var topRightOfTitle: CGPoint = .zero
-    @State var showFrozenInfo: Bool = false
+
+    //Local view state
+    @State private var tabSelection: AppTab = .events
+    @State private var showFrozenInfo: Bool = false
     
     var body: some View {
         if #available(iOS 26.0, *) {
@@ -50,7 +50,7 @@ extension FrozenWithEvents {
         @Bindable var router = router
         
         return EventsContainer(
-            vm: EventViewModel(
+            vm: EventsViewModel(
                 session: vm.session,
                 userRepo: vm.userRepo,
                 defaults: vm.defaults,

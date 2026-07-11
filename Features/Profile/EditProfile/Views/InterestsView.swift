@@ -1,6 +1,6 @@
 //
 //  InterestsTest.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
@@ -21,17 +21,17 @@ struct InterestsHolder<Content: View, Value: Hashable>: View {
     
     var body: some View {
         NavigationLink(value: value) {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.xs) {
                 HStack {
                     Text("Interests & Character")
                         .font(.body(12, .bold))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textTertiary)
                     Spacer()
                     Image("EditGray")
                         .offset(x: -8)
                         .offset(y: -4)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Spacing.md)
                 content
             }
         }
@@ -75,9 +75,8 @@ struct InterestsLayout: View {
         .font(.body())
         .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill( Color.white)
-                .shadow(color: .black.opacity(0.02), radius: 8, x: 0, y: 0.05)
         )
     }
 }

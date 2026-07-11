@@ -1,6 +1,6 @@
 //
 //  ProfileViewModel.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 10/08/2025.
 //
@@ -15,15 +15,14 @@ enum ProfileViewType {
 @MainActor
 @Observable class ProfileViewModel {
 
+    //Injected
     let profile: UserProfile
     let event: UserEvent?
-
     let imageLoader: ImageLoading
-    let defaults: DefaultsManaging //Profile View Passes on defaults manager for invites, and maps (simplifies architecture for invite popups)
+    let defaults: DefaultsManaging //Passed on for invites and maps (simplifies architecture for invite popups)
 
+    //State
     var viewProfileType: ProfileViewType
-
-    //Profile Images
     private(set) var images: [UIImage]
     private var hasLoaded = false
 
@@ -69,7 +68,7 @@ enum ProfileViewType {
 @Observable final class ProfileUIState {
 
     //1. Details card position. Written every frame of a drag — read ONLY by the
-    //drag-effect leaf modifiers in ProfileGestures.swift, never by ProfileView.body,
+    //drag-effect leaf modifiers in ProfileGestures.swift, never by ProfileContainer.body,
     //so a moving card invalidates a handful of transforms instead of the whole tree.
     var detailsOffset: CGFloat = 0
     let detailsOpenOffset: CGFloat = -240

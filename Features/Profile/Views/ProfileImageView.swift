@@ -1,6 +1,6 @@
 //
 //  ProfileImageView.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 25/06/2025.
 
@@ -9,77 +9,71 @@ import SwiftUI
 
 struct ProfileImageView: View {
 
+    //Injected
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
-    @State private var imageSize: CGFloat = 0
-    @State private var selection: Int? = 0
-    @State var scrollPosition = ScrollPosition()
-
     let disableScroll: Bool
-    let importedImages: [UIImage]
-    
+    let images: [UIImage]
+
+    //Local view state
+    @State private var scrollProgress: Double = 0
+    @State private var pagerPosition = ScrollPosition()
+    @State private var scrollPosition = ScrollPosition()
+
+    //trackScrollProgress reports the page index as a float; the settled page drives the thumb strip.
+    private var selection: Int { Int(scrollProgress.rounded()) }
+
     var body: some View {
-        
-        VStack(spacing: 24) {
-            largeImageScrollView
+        VStack(spacing: Spacing.lg) {
+            imageCarousel
             imageScroller
         }
-        .getImageSize(imageSize: $imageSize, horizontalPadding: 6)
-        
     }
 }
 
-//All Logic for large images
-extension ProfileImageView {    
-    
-    private var largeImageScrollView: some View {
-        HorizontalScrollView {
-            ForEach(importedImages.indices, id: \.self) { index in
-                largeImage(index: index)
-            }
-        }
-        .frame(height: imageSize)
+//The full-width image pager (profile-morph destination)
+extension ProfileImageView {
+
+    private var imageCarousel: some View {
+        ImageCarousel(
+            images: images,
+            hPadding: 8,
+            topRadius: CornerRadius.image,
+            bottomRadius: CornerRadius.image,
+            aspectRatio: .card,
+            scrollProgress: $scrollProgress,
+            scrollPosition: $pagerPosition,
+        )
         .scrollDisabled(disableScroll)
-        .scrollPosition(id: $selection)
         .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
             morph?.reportDestination(containerRect: rect)
         }
     }
-    
-    private func largeImage(index: Int) -> some View {
-        Image(uiImage: importedImages[index])
-            .defaultImage(imageSize, 16)
-            .pinchZoom()
-            .opacity(morph?.hiddenDestIndex == index ? 0 : 1) //Hidden while the floating morph copy covers this frame.
-            .horizontalScrollSlot(id: index)
-    }
 }
 
-//All Logic for the imageScrollView
+//The thumbnail strip that mirrors and drives the pager
 extension ProfileImageView {
-    
+
     private var imageScroller : some View {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 48) {
-                    ForEach(importedImages.indices, id: \.self) {index in
+                HStack(spacing: Spacing.xxl) {
+                    ForEach(images.indices, id: \.self) {index in
                         scrollImage(index: index)
                     }
                     ClearRectangle(size: 0)
                 }
-                .offset(x: 18) // Gives ScrollView padding initially
             }
+            .contentMargins(12)
             .frame(height: 60)
             .scrollPosition($scrollPosition)
             .scrollDisabled(disableScroll)
             .scrollClipDisabled() //
-            .onChange(of: selection ?? 0) {scrollToImage(oldIndex: $0, newIndex: $1)}
+            .onChange(of: selection) {scrollToImage(oldIndex: $0, newIndex: $1)}
     }
-    
+
     private func scrollImage(index: Int) -> some View {
-        let image = importedImages[index]
-        return Image(uiImage: image)
-            .defaultImage(60, 10)
-            .customShadow(.card, strength: selection == index ? 4 : 0)
-            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { self.selection = index } }
+        SmallImage(image: images[index], size: 60)
+            .shadow(.image, strength: selection == index ? 1 : 0)
+            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { pagerPosition.scrollTo(id: index) } }
     }
 
     private func scrollToImage(oldIndex: Int, newIndex: Int) {
@@ -93,4 +87,3 @@ extension ProfileImageView {
         }
     }
 }
-

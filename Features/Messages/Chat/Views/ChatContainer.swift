@@ -11,28 +11,17 @@ import UIKit
 
 struct ChatContainer: View {
     
-    //0. Dismiss Profile
+    //Injected
     @Environment(\.dismiss) private var dismiss
-    
-    //1. View Model
     @State private var vm: ChatViewModel
-
-    //2. Different states either: (1) Profile Open (2) isFocused
-    @State var profileOpen: Bool = false
-    @State var profileRendered: Bool = false
-    @FocusState private var isFocused
-
-    //3. Load Profile Images
-    @State var profileImages: [UIImage] = []
-
-    //Header circle photo → profile pager hero morph (see ProfileMorph.swift).
-    //Owned here so it shadows any morph injected by a presenting container.
-    @State private var profileMorph = ProfileMorphState()
-    
-    //4.if ChatContainer for events its different
     let isEvent: Bool
-    
-    let buttonHeight: CGFloat = 39
+
+    //Local view state (profileMorph owned here so it shadows any morph injected by a presenting container)
+    @State private var profileOpen: Bool = false
+    @State private var profileRendered: Bool = false
+    @State private var profileImages: [UIImage] = []
+    @State private var profileMorph = ProfileMorphState()
+    @FocusState private var isFocused
 
     init(
         defaults: DefaultsManaging,
@@ -55,7 +44,7 @@ struct ChatContainer: View {
     var body: some View {
         ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                TypeMessageView(vm: vm, isFocused: $isFocused)
+                MessageInputBar(vm: vm, isFocused: $isFocused)
             }
             .zIndex(2)
 
@@ -92,7 +81,7 @@ struct ChatContainer: View {
 extension ChatContainer {
 
     private var profileView: some View {
-        ProfileView(
+        ProfileContainer(
             vm: ProfileViewModel(
                 profile: vm.eventProfile.profile,
                 event: vm.eventProfile.event,
@@ -130,23 +119,22 @@ extension ChatContainer {
     }
 
     private var profileButton: some View {
-        ScoopButton(shape: .rect(cornerRadius: 24)) {
+        let avatarSize: CGFloat = 35
+        return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
             onProfileTap()
         } label: {
-            HStack(spacing: 6) {
-                CirclePhoto(image: profileImages.first ?? UIImage(), showShadow: false)
+            HStack(spacing: Spacing.xs) {
+                SmallImage(image: profileImages.first ?? UIImage(), size: avatarSize, isCircle: true)
                     .scaleEffect(0.9)
-                    //Flight source. The circle is drawn at 0.9 scale, which geometry
-                    //can't see — visualScale shrinks the reported frame to match.
-                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: 35 / 2, visualScale: 0.9)
+                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: avatarSize / 2, visualScale: 0.9)
 
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(Color.textPrimary)
             }
             .frame(height: 39) //Same height as medium buttons keeps consistency
-            .padding(.trailing, 8)
-            .padding(.leading, 2)
+            .padding(.trailing, Spacing.xs)
+            .padding(.leading, Spacing.hairline)
         }
         .padding(.horizontal)
     }
@@ -162,15 +150,3 @@ extension ChatContainer {
         .padding(.horizontal)
     }
 }
-
-
-/*
- //                    .overlay(alignment: .bottom) {
- //                        LinearGradient.appCanvasFade(startPoint: .bottom, endPoint: .top)
- //                            .frame(height: 100)
- //                            .frame(maxWidth: .infinity)
- //                            .allowsHitTesting(false)
- //                            .offset(y: 35)
- //                    }
-
- */

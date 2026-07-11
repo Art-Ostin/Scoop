@@ -1,6 +1,6 @@
 //
 //  Prompts.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 12/07/2025.
 //
@@ -14,17 +14,17 @@ struct PromptsView: View {
     var body: some View {
         let prompts: [PromptResponse] = [ vm.draft.prompt1, vm.draft.prompt2, vm.draft.prompt3,]
         CustomList(title: "Prompts") {
-            VStack(spacing: 12) {
+            VStack(spacing: Spacing.sm) {
                 ForEach(prompts.indices, id: \.self) { i in
                     NavigationLink(value: EditProfileRoute.prompt(i)) {
                         promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(Color.textPrimary)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
+            .padding(.vertical, Spacing.xs)
+            .padding(.horizontal, Spacing.md)
         }
     }
 }
@@ -34,9 +34,9 @@ extension PromptsView {
     @ViewBuilder
     private func promptResponse (prompt: String, response: String) -> some View {
         let isEmpty = response.isEmpty
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text(isEmpty ? "Add Prompt" : prompt)
-                    .foregroundStyle(isEmpty ? .accent : Color.grayText)
+                    .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
                     .font(.body(14))
 
                 Text(response)
@@ -45,8 +45,8 @@ extension PromptsView {
             .font(.body())
             .padding()
             .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
-            .background(Color.white, in: .rect(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke( isEmpty ? .accent : Color(red: 0.85, green: 0.85, blue: 0.85), lineWidth: 0.5))
+            .background(Color.white, in: .rect(cornerRadius: CornerRadius.sm))
+            .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm).stroke( isEmpty ? .accent : Color.border, lineWidth: 0.5))
             .overlay(alignment: .topTrailing, content: {
                 Image(isEmpty ? "EditButton" : "EditGray")
                     .padding()

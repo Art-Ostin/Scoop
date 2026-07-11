@@ -1,6 +1,6 @@
 //
 //  AppsRouter.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 25/05/2026.
 //

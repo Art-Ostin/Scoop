@@ -14,7 +14,7 @@ struct LoadingScreenAnimation: View {
     let fact = Facts.oneLineFacts.randomElement() ?? "Choose Life"
     
     var body: some View {
-            VStack(spacing: 48){
+            VStack(spacing: Spacing.xxl){
                 Text(text)
                     .font(.body(18, .bold))
                 
@@ -25,7 +25,7 @@ struct LoadingScreenAnimation: View {
                     .frame(width: 250, height: 250)
                     .offset(y: -24)
                 
-                VStack(spacing: 8) {
+                VStack(spacing: Spacing.xs) {
                     Text("Random Astronomy Fact ")
                         .font(.body(17, .bold))
                     Text(fact)

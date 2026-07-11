@@ -9,32 +9,34 @@ import SwiftUI
 
 struct FrozenView: View {
     
+    //Injected
     let vm: FrozenViewModel
-    
-    @State var showInfo: Bool = false
-    @State var showSettings : Bool = false
-    @State var tabSelection: Int? = 0
+
+    //Local view state
+    @State private var showInfo: Bool = false
+    @State private var showSettings: Bool = false
+    @State private var tabSelection: Int? = 0
 
     var body: some View {
         if let frozenContext = vm.user.blockedContext, let frozenUntilDate = vm.user.frozenUntil {
-            VStack(spacing: 72) {
+            VStack(spacing: Spacing.titleGap) {
                 frozenHeader(frozenUntilDate)
                 
                 Image("Monkey")
                 
-                VStack(spacing: 12) {
+                VStack(spacing: Spacing.sm) {
                     tabTitle
                     tabSection(frozenContext: frozenContext, frozenUntilDate: frozenUntilDate)
                 }
             }
-            .padding(.top, 72)
+            .padding(.top, Spacing.xxxl) //Clears the floating actionBar overlay
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .overlay (alignment: .top) {actionBar}
-            .sheet(isPresented: $showInfo) {FrozenExplainedScreen(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
+            .sheet(isPresented: $showInfo) {FrozenInfo(vm: vm, name: frozenContext.profileName, frozenUntilDate: frozenUntilDate, isBlocked: false)}
             .background(Color.appCanvas)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
+                    SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: tabSelection)
@@ -44,7 +46,7 @@ struct FrozenView: View {
 
 extension FrozenView {
     private func frozenHeader(_ date: Date) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             Text("Account Frozen Until")
                 .font(.body(17, .medium))
             
@@ -54,48 +56,39 @@ extension FrozenView {
     }
     
     private func tabSection(frozenContext: BlockedContext, frozenUntilDate: Date) -> some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .containerRelativeFrame(.horizontal)
+        PagerScrollView {
+            BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .containerRelativeFrame(.horizontal)
+                .onTapGesture {
+                    showInfo.toggle()
+                }
+                .id(0)
+
+            VStack(spacing: Spacing.xxl) {
+                Text("Put large clock view here")
+                    .frame(maxWidth: .infinity)
                     .onTapGesture {
                         showInfo.toggle()
                     }
-                    .id(0)
 
-                VStack(spacing: 48) {
-                    LargeClockView(targetTime: frozenUntilDate)
-                        .frame(maxWidth: .infinity)
-                        .onTapGesture {
-                            showInfo.toggle()
-                        }
-
-                    Text(verbatim: vm.user.email)
-                        .font(.body(14, .medium))
-                        .foregroundStyle(Color.grayText)
-                }
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, 24)
-                .containerRelativeFrame(.horizontal)
-                .id(1)
+                Text(verbatim: vm.user.email)
+                    .font(.body(14, .medium))
+                    .foregroundStyle(Color.textSecondary)
             }
-            .scrollTargetLayout()
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, Spacing.lg)
+            .containerRelativeFrame(.horizontal)
+            .id(1)
         }
-        .scrollTargetBehavior(.paging)
         .scrollPosition(id: $tabSelection)
-        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) {
-            PageIndicator(count: 2, selection: tabSelection ?? 0)
-                .padding(.bottom, 36)
-        }
     }
     
     private var tabTitle: some View {
         Text("Account frozen for" +  (tabSelection == 0 ? " cancelling" : ":"))
             .font(.body(17, .italic))
-            .foregroundStyle(Color.grayText)
+            .foregroundStyle(Color.textSecondary)
             .lineSpacing(6)
             .multilineTextAlignment(.center)
             .transition(.opacity)
@@ -103,15 +96,9 @@ extension FrozenView {
     
     private var actionBar: some View {
         HStack {
-//            SettingsButton { showSettings = true }
             Spacer()
             InfoButton(showScreen: $showInfo, isAtTopOfScroll: true)
         }
         .padding(.horizontal)
     }
 }
-
-/*
- //            .frame(width: 245, alignment: .leading)
- //            .frame(maxWidth: .infinity, alignment: .center)
- */

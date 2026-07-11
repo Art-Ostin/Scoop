@@ -29,40 +29,40 @@ class ChatRepo: ChatRepository {
     
     func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
         //1. Create the textMessage Model and add it to the right document
-        let textMessage = MessageModel(authorId: userId, recipientId: recipientId, content: text)
+        let textMessage = ChatMessage(authorId: userId, recipientId: recipientId, content: text)
         _ = try fs.add(chatMessagePath(eventId: eventId), value: textMessage)
         
         //2. Update the chatDocuments to reflect most recent
-        let fields: [String : Any ] = [ChatModel.Field.lastMessageAt.rawValue : FieldValue.serverTimestamp()]
+        let fields: [String : Any ] = [ChatThread.Field.lastMessageAt.rawValue : FieldValue.serverTimestamp()]
         async let updateThread: Void = fs.update(chatThreadPath(eventId: eventId), fields: fields)
         async let updateRecentChat: Void = eventsRepo.updateRecentChat(message: textMessage, eventId: eventId)
         _ = try await (updateThread, updateRecentChat)
     }
     
-    func fetchMessages(eventId: String) async throws -> [MessageModel] {
+    func fetchMessages(eventId: String) async throws -> [ChatMessage] {
         let path = chatMessagePath(eventId: eventId)
-        let messages: [MessageModel] = try await fs.fetchFromCollection(path) { query in
+        let messages: [ChatMessage] = try await fs.fetchFromCollection(path) { query in
             query
-                .order(by: MessageModel.Field.dateCreated.rawValue, descending: true)
+                .order(by: ChatMessage.Field.dateCreated.rawValue, descending: true)
                 .limit(to: 100)
         }
         return Array(messages.reversed())
     }
     
     //To track any updates to the user's chat folder
-    func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatModel>, Error>  {
+    func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatThread>, Error>  {
         let path = "chats"
         return fs.streamCollection(path) { query in
-            query.whereField(ChatModel.Field.participantIds.rawValue, arrayContains: userId)
+            query.whereField(ChatThread.Field.participantIds.rawValue, arrayContains: userId)
         }
     }
     
     //To track any updates to a message (when opened)
-    func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<MessageModel>, Error> {
+    func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatMessage>, Error> {
         let path = chatMessagePath(eventId: eventId)
         return fs.streamCollection(path) { query in
             query
-                .order(by: MessageModel.Field.dateCreated.rawValue, descending: true)
+                .order(by: ChatMessage.Field.dateCreated.rawValue, descending: true)
                 .limit(to: 100)
         }
     }

@@ -1,6 +1,6 @@
 //
 //  NewRespondAcceptCard.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 12/06/2026.
 //
@@ -9,20 +9,16 @@ import SwiftUI
 
 struct RespondCard: View {
     
-    //1. Fetch from vm, the respond draft, what respond mode its in etc.
+    //Injected — actions are controlled in the container so passed up
     @Bindable var vm: RespondViewModel
-    
-    //2. UI holds which views, and popups are showing
-    @Bindable var ui: NewRespondUIState
-    
-    //3. Actions are controlled in the container so passed up
+    @Bindable var ui: RespondUIState
     @Binding var confirmNewTimePopup: Bool
     @Binding var confirmAcceptInvite: Bool
     let onDecline: () -> ()
-    
-    
+
+
     var body: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: Spacing.lg) {
             respondTitle
             timeAndPlaceSection
             actionSection
@@ -35,7 +31,7 @@ struct RespondCard: View {
 extension RespondCard {
     
     private var respondTitle: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             titleNameAndPhoto
             Spacer()
             EventTypeButton(type: .drink, showInfo: $ui.showMeetInfo)
@@ -44,8 +40,8 @@ extension RespondCard {
     }
     
     private var titleNameAndPhoto: some View {
-        HStack(spacing: 12) {
-            CirclePhoto(image: vm.image, showShadow: false, height: 25).offset(x: -2)
+        HStack(spacing: Spacing.sm) {
+            SmallImage(image: vm.image, size: 25, isCircle: true).offset(x: -2)
             Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
                 .font(.title(22))
                 .lineLimit(1)
@@ -60,7 +56,7 @@ extension RespondCard {
 extension RespondCard {
     
     private var timeAndPlaceSection: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: Spacing.md) {
             timeRow
             placeRow
         }
@@ -81,9 +77,9 @@ extension RespondCard {
             MapsRouter.openMaps(defaults: vm.defaults, item: location.mapItem, withDirections: true)
         } label: {
             Text(location.name ?? "LocationEvent")
-                .foregroundStyle(Color.appGreen)
+                .foregroundStyle(Color.successGreen)
         }
-        .shrinkButton(shadow: nil)
+        .shrinkButton()
     }
 }
 
@@ -96,16 +92,16 @@ extension RespondCard {
             Spacer()
             acceptButton
         }
-        .padding(.top, 4) //As Image in title, to look equal distance from 'meeting x' and buttons add extra padding.
+        .padding(.top, Spacing.xxs) //As Image in title, to look equal distance from 'meeting x' and buttons add extra padding.
     }
         
     private var acceptButton: some View {
         let isModified = vm.respondDraft.respondType != .original
         let isValid = vm.respondDraft.originalInvite.selectedDay != nil
 
-        let colour: Color = isModified ? .accent : (isValid ? .appGreen : .grayPlaceholder)
+        let colour: Color = isModified ? .accent : (isValid ? .successGreen : .fillGray)
 
-        return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: 16)) {
+        return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: CornerRadius.md)) {
             if isModified {
                 confirmNewTimePopup = true
             } else {
@@ -126,10 +122,10 @@ extension RespondCard {
         } label: {
             Text("Decline")
                 .font(.body(16, .bold))
-                .foregroundStyle(Color(red: 0.36, green: 0.36, blue: 0.36))
+                .foregroundStyle(Color.textSecondary)
                 .frame(width: 135)
                 .frame(height: 40)
-                .stroke(16, lineWidth: 1.5, color: Color(red: 0.84, green: 0.84, blue: 0.84))
+                .stroke(CornerRadius.md, lineWidth: 1.5)
         }
     }
 }
@@ -139,33 +135,7 @@ struct RespondCardBackground: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(.vertical, 18)
-            .padding(.horizontal, 24)
-            .inviteCardBackground() //Slight green tint for shadow
+            .padding(.vertical, Spacing.md)
+            .padding(.horizontal, Spacing.lg)
     }
 }
-
-extension View {
-    func inviteCardBackground() -> some View {
-        let base = Color.white // single source of truth for the card's opaque fill
-        return self
-//            .glassBackgroundIfAvailable(shape: .rect(cornerRadius: 36, style: .continuous), isClear: <#T##Bool#>)
-        
-        
-        
-            .background(base, in: .rect(cornerRadius: 36, style: .continuous))
-        
-        
-        
-        
-        
-            .environment(\.inviteCardBase, base) //so edge fades inside the card dissolve into this exact color
-            .containerShape(RoundedRectangle(cornerRadius: 36, style: .continuous))
-            .compositingGroup()
-            .morphCardAnchor() //Sets it as destination view
-    }
-}
-
-
-
-

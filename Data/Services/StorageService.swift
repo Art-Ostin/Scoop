@@ -1,6 +1,6 @@
 //
 //  StorageManager.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2025.
 // Cannot Update Path Here as I need it for the DownloadURL and breaks if I update path before downloadURL
@@ -36,7 +36,6 @@ class StorageService: StorageServicing {
         for attempt in 0..<10 { // delays: 0.5s, 1s, 2s, 4s, 8s, 16s
             do {
                 let url = try await vRef.downloadURL()
-                print(attempt)
                 return (vPath, url)
             } catch {
                 let delaySeconds =  pow(2.0, Double(attempt))

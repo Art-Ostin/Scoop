@@ -1,5 +1,5 @@
 //
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 26/07/2025.
 
@@ -26,12 +26,7 @@ class UserRepo: UserRepository {
     }
     
     func fetchProfile(userId: String) async throws -> UserProfile {
-        let clock = ContinuousClock()
-        let now = clock.now
-        let user: UserProfile = try await fs.getCacheFirst(userPath(userId))
-        let duration = now.duration(to: clock.now)
-        print("Time Taken to fetch user: \(duration)")
-        return user
+        try await fs.getCacheFirst(userPath(userId))
     }
     
     func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws {

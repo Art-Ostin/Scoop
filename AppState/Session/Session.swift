@@ -1,6 +1,6 @@
 //
 //  Session.swift
-//  ScoopTest
+//  Scoop
 //
 //  Created by Art Ostin on 16/08/2025.
 //
@@ -13,7 +13,7 @@ enum ShowProfilesState {
 }
 
 @MainActor
-//Creat a 'Task Bag' to hold all the stream Tasks. Then can cancel them later
+//Holds all the stream Tasks so they can be cancelled later
 final class TaskBag {
     private var tasks: [String: Task<Void, Never>] = [:]
     func insert(_ key: String, _ task: Task<Void, Never>) {
@@ -32,7 +32,7 @@ final class TaskBag {
 @MainActor
 @Observable class Session {
 
-    var appState: AppState = .booting
+    //Injected
     let authService: AuthServicing
     let defaultsManager: DefaultsManaging
     let userRepo: UserRepository
@@ -43,25 +43,26 @@ final class TaskBag {
     let imageLoader: ImageLoading
     let notifications: InAppNotificationCenter
 
-    //2. The listeners the app holds. Deleted when session stops. (Need seperate listener for App State)
+    //Listeners the app holds — cancelled when the session stops
     private let streams = TaskBag()
     private var authStreamTask: Task<Void, Never>?
-    
-    //3. All the properties used throughout the app. (1) User (2) Profils Recommmended (3) Events upcoming, (4) past events...
+
+    //Session state
+    var appState: AppState = .booting
     private(set) var sessionUser: UserProfile?
+    var profiles: [PendingProfile] = []
+    var profilesHaveLoaded: Bool = false
+    private(set) var invites: [EventProfile] = []
+    private(set) var events: [EventProfile] = []
+    private(set) var pastEvents: [EventProfile] = []
+
+    //The chat currently on screen, so its banners are suppressed
+    var activeChatEventId: String?
+
     var user: UserProfile {
         guard let sessionUser else { fatalError("Session not started") }
         return sessionUser
     }
-    var profiles: [PendingProfile] = []
-    private(set) var invites: [EventProfile] = []
-    private(set) var events: [EventProfile] = []
-    private(set) var pastEvents: [EventProfile] = []
-    
-    //4. Tracks the chat the user is currently viewing, so we can suppress banners for that chat
-    var activeChatEventId: String?
-
-    var profilesHaveLoaded: Bool = false
 
     init(
         authService: AuthServicing,
@@ -161,7 +162,7 @@ extension Session {
         }
     }
 
-    private func presentPopup(_ popup: MessagePopupModel) {
+    private func presentPopup(_ popup: MessagePopup) {
         guard popup.eventId != activeChatEventId else { return }
         notifications.push(.newMessage(popup))
     }

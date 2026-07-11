@@ -9,31 +9,34 @@ import SwiftUI
 
 struct BlockedView: View {
     
+    //Injected
     let vm: FrozenViewModel
-    var email: String {vm.session.user.email}
-    
-    @State var showSettings: Bool = false
-    @State var showBlockedInfo = false
+
+    //Local view state
+    @State private var showSettings: Bool = false
+    @State private var showBlockedInfo = false
+
+    private var email: String { vm.session.user.email }
 
     var body: some View {
         if let blockedContext = vm.user.blockedContext {
-            VStack(spacing: 48) {
-                VStack(spacing: 10) {
+            VStack(spacing: Spacing.xxl) {
+                VStack(spacing: Spacing.sm) {
                     Text("Account Blocked")
                         .font(.title())
                     
                     Text(verbatim: email)
                         .font(.body(14, .medium))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                 }
                 Image("Monkey")
                     .onTapGesture {
                         showBlockedInfo = true
                     }
-                VStack(spacing: 12) {
+                VStack(spacing: Spacing.sm) {
                     Text("Account blocked for not showing")
                         .font(.body(17, .italic))
-                        .foregroundStyle(Color.grayText)
+                        .foregroundStyle(Color.textSecondary)
                         .lineSpacing(6)
                         .multilineTextAlignment(.center)
                     
@@ -41,23 +44,22 @@ struct BlockedView: View {
                         .onTapGesture { showBlockedInfo  = true }
                 }
             }
-            .padding(.top, 96)
+            .padding(.top, Spacing.clearance)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .fullScreenCover(isPresented: $showSettings) {
                 NavigationStack {
-                    SettingsView(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
+                    SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
             .overlay(alignment: .topLeading) {
                 HStack {
-//                    SettingsButton { showSettings = true }
                     Spacer()
                     InfoButton(showScreen: $showBlockedInfo)
                 }
                 .padding(.horizontal)
             }
             .sheet(isPresented: $showBlockedInfo) {
-                FrozenExplainedScreen(vm: vm, name: blockedContext.profileName, frozenUntilDate: Date(), isBlocked: true)
+                FrozenInfo(vm: vm, name: blockedContext.profileName, frozenUntilDate: Date(), isBlocked: true)
             }
         }
     }
