@@ -114,6 +114,7 @@
 		656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D42F252E90008641C1 /* FrozenContainer.swift */; };
 		656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */; };
 		656B9B2930020999000BE57D /* InviteCardDragLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B2830020999000BE57D /* InviteCardDragLogic.swift */; };
+		656B9B3D300219EC000BE57D /* MeetPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */; };
 		656BA6952FE560C300475776 /* TimeCustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656BA6922FE560C300475776 /* TimeCustomMenu.swift */; };
 		656BA6972FE560C300475776 /* TimeCustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656BA6922FE560C300475776 /* TimeCustomMenu.swift */; };
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
@@ -380,6 +381,7 @@
 		656B31D42F252E90008641C1 /* FrozenContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenContainer.swift; sourceTree = "<group>"; };
 		656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenWithEvents.swift; sourceTree = "<group>"; };
 		656B9B2830020999000BE57D /* InviteCardDragLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardDragLogic.swift; sourceTree = "<group>"; };
+		656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPlaceholder.swift; sourceTree = "<group>"; };
 		656BA6922FE560C300475776 /* TimeCustomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeCustomMenu.swift; sourceTree = "<group>"; };
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
 		6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownButton.swift; sourceTree = "<group>"; };
@@ -838,6 +840,7 @@
 			isa = PBXGroup;
 			children = (
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
+				656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
 				65E963D52F3F7C090022595F /* RespondedToProfileCover.swift */,
 				655814BB2FED874900AC2336 /* MeetInfo */,
@@ -1734,6 +1737,7 @@
 				65E963D62F3F7C090022595F /* RespondedToProfileCover.swift in Sources */,
 				65CA5E212F210CDA00694981 /* OnboardingLoadingScreen.swift in Sources */,
 				65FAF9902E418A1D0015E231 /* CountdownTimer.swift in Sources */,
+				656B9B3D300219EC000BE57D /* MeetPlaceholder.swift in Sources */,
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
 				657B8D532F2D41C300583ADA /* InviteTimeRow.swift in Sources */,
 				65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */,

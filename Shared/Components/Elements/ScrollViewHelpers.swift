@@ -26,6 +26,17 @@ struct AppScrollView<Content: View>: View {
     }
 }
 
+struct ContainerScrollView<Content: View>: View {
+    
+    
+    var body: some View {
+        
+    }
+}
+
+
+
+
 struct PagerScrollView<Content: View>: View {
     var peek: CGFloat = 0
     var progress: Binding<Double>? = nil

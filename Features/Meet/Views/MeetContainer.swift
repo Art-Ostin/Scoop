@@ -18,15 +18,23 @@ struct MeetContainer: View {
     @State private var isAtTopOfScroll = true
 
     var body: some View {
-        ZStack {
-            Color.appCanvas.ignoresSafeArea()
-            NavigationStack {
-                meetView
-                    .navigationTitle("Meet")
+        NavigationStack {
+            ScrollView {
+                if vm.profiles.isEmpty {
+                    MeetPlaceholder()
+                } else {
+                    profileCardsSection
+                }
             }
-            .overlay(alignment: .topTrailing) {infoButton}
-            .allowsHitTesting(!ui.quickInviteExpanded)
+            .trackTopOfScroll($isAtTopOfScroll)
+            .scrollDisabled(ui.quickInvite != nil) //The flight's source frame must not move
+            .transition(.opacity)
+            .id(vm.profiles.count)
+            .scrollIndicators(.hidden)
+            .navigationTitle("Meet")
         }
+        .overlay(alignment: .topTrailing) {infoButton}
+        .allowsHitTesting(!ui.quickInviteExpanded)
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
@@ -60,34 +68,13 @@ extension MeetContainer {
     private func profileImages(_ profile: UserProfile) -> [UIImage] {
         vm.profileImages[profile.id] ?? seedImages(for: profile)
     }
-    
-    private func sendInvite(_ profile: UserProfile) -> ProfileMode {
-        return .sendInvite { draft in
-            Task {await respondToProfile(event: draft, profile: profile)}
-        } onDecline: {
-            Task { await respondToProfile(profile: profile) }
-        }
-    }
 }
 
 //2. Profile Card Section Logic
 extension MeetContainer {
     
-    private var meetView: some View {
-        ScrollView {
-            if vm.profiles.isEmpty {
-                meetPlaceholder
-            } else {
-                profileCardsSection
-            }
-        }
-        .trackTopOfScroll($isAtTopOfScroll)
-        .scrollDisabled(ui.quickInvite != nil) //The flight's source frame must not move
-        .transition(.opacity)
-        .id(vm.profiles.count)
-        .scrollIndicators(.hidden)
-    }
 
+    
     private var profileCardsSection: some View {
         LazyVStack(spacing: Spacing.xxxl) {
             ForEach(vm.profiles) { profile in
@@ -194,6 +181,11 @@ extension MeetContainer {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
+    
+    
+    
+    
+    
     //Quick-invite guard keys on `expanded`, not mount state: during the close
     //tail the card lingers (`.removed` unmount) but must not block profile taps.
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
@@ -201,6 +193,17 @@ extension MeetContainer {
         profileMorph.beginOpen(id: profile.profile.id, image: image)
         ui.openProfile = profile.profile
     }
+    
+    
+    
+    private func sendInvite(_ profile: UserProfile) -> ProfileMode {
+        return .sendInvite { draft in
+            Task {await respondToProfile(event: draft, profile: profile)}
+        } onDecline: {
+            Task { await respondToProfile(profile: profile) }
+        }
+    }
+
 
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         //Step 1: Min time for whole process 0.85 seconds
@@ -236,16 +239,13 @@ extension MeetContainer {
             try? await vm.declineProfile(profile: profile)
         }
     }
-    
 }
+
+
+
 
 //Other Views
 extension MeetContainer {
-    private var meetPlaceholder: some View {
-        VStack {
-            Text("Hello World")
-        }
-    }
 
     private var infoButton: some View {
         InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
