@@ -30,7 +30,7 @@ extension EnvironmentValues {
     @Entry var isLiveInviteRow: Bool = false
 }
 
-//One definition for the flight replica and the settled carousel's menu label, so the settle handoff renders identically.
+//The invite carousel's options-menu label.
 struct InviteOptionsIcon: View {
     var body: some View {
         Image(systemName: "ellipsis")

@@ -10,15 +10,10 @@ import SwiftUI
 //Soft blurred-image halo revealed behind text overlaid on a photo (card names/details).
 struct BackgroundBlur: View {
 
-    //Halo metrics shared with SendInviteFlight, which re-creates this treatment on animated anchors.
-    //TODO: flight pass — the flight blurs at `imageBlurRadius` while this body blurs at 40,
-    //and the mask insets differ; reconcile so the settle handoff is identical.
-    static let imageBlurRadius: CGFloat = 22
     static let haloCornerRadius: CGFloat = 12
-    static let haloWidthOutset: CGFloat = 4
     static let haloBlurRadius: CGFloat = 4
 
-    
+
     let image: UIImage
     // Label frames to reveal blur behind — in the base image's coordinate space.
     let frames: [CGRect]

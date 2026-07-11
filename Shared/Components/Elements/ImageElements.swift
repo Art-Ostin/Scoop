@@ -16,11 +16,11 @@ struct ScoopImage: View {
     var hPadding: CGFloat = Spacing.gutter
 
     var fillsPageWidth = false
+    var fillsContainerHeight = false //Height from the proposed container (animated slots), not the aspect ratio
     var showShadow = false
 
     var body: some View {
-        Color.clear
-            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
+        base
             .overlay {
                 Image(uiImage: image)
                     .resizable()
@@ -32,7 +32,16 @@ struct ScoopImage: View {
                 fillsPageWidth ? length : length - hPadding * 2
             }
             .shadow(showShadow ? .image : nil)
-        
+
+    }
+
+    @ViewBuilder
+    private var base: some View {
+        if fillsContainerHeight {
+            Color.clear
+        } else {
+            Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
+        }
     }
 }
 
@@ -44,6 +53,7 @@ struct ImageCarousel: View {
     let topRadius: CGFloat
     let bottomRadius: CGFloat
     var aspectRatio: AspectRatio
+    var fillsContainerHeight = false
 
     @Binding var scrollProgress: Double
     @Binding var scrollPosition: ScrollPosition
@@ -64,7 +74,8 @@ struct ImageCarousel: View {
             aspectRatio: aspectRatio,
             radii: .init(top: topRadius, bottom: bottomRadius),
             hPadding: hPadding,
-            fillsPageWidth: true
+            fillsPageWidth: true,
+            fillsContainerHeight: fillsContainerHeight
         )
     }
 }
@@ -75,7 +86,7 @@ struct CardImageCarousel: View {
     
     var topRadius: CGFloat { CornerRadius.concentric(in: CornerRadius.image, inset: 3)}
     
-    //Scroll progress passed up as parent tracks paging InviteImageCarousel blur
+    //Drives the built-in page indicator
     @Binding var scrollProgress: Double
     
     var body: some View {
