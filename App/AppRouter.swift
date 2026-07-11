@@ -7,8 +7,9 @@
 
 import SwiftUI
 
+@MainActor
 @Observable
-class AppRouter {
+final class AppRouter {
     var selectedTab: AppTab = .meet
     
     var eventsPath = NavigationPath()
@@ -19,7 +20,6 @@ class AppRouter {
 
 extension AppRouter {
 
-    @MainActor
     func handle(_ notification: InAppNotification, session: Session) {
         switch notification {
         case .newMessage(let model):
@@ -27,7 +27,6 @@ extension AppRouter {
         }
     }
 
-    @MainActor
     private func openMessage(eventId: String, session: Session) {
         let candidates = session.pastEvents + session.events + session.invites
         guard let eventProfile = candidates.first(where: { $0.id == eventId }) else { return }

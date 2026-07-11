@@ -27,6 +27,7 @@ struct InfoButton: View {
     }
 }
 
+
 //Created here as frozen & Blocked view need it
 struct SettingsButton: View {
     let action: () -> ()
@@ -34,6 +35,19 @@ struct SettingsButton: View {
         ScoopButton(shape: Circle(), size: .medium, action: action) {
             Image(systemName: "gear")
                 .font(.body(14, .medium))
+        }
+    }
+}
+
+
+extension ToolbarContent {
+    @ToolbarContentBuilder
+    func hideToolbarBackground() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            self
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            self
         }
     }
 }

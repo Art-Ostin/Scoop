@@ -9,7 +9,7 @@ import SwiftUI
 struct EventsContainer: View {
 
     //Injected
-    @State var vm: EventsViewModel
+    let vm: EventsViewModel
     @Binding var showMessageScreen: String?
     @Binding var path: NavigationPath
 

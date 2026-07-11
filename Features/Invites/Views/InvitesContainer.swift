@@ -10,7 +10,7 @@ import SwiftUI
 struct InvitesContainer: View {
     //Injected
     @Environment(AppRouter.self) private var router
-    @State var vm: InvitesViewModel
+    let vm: InvitesViewModel
 
     //Local view state (profileMorph: invite-card image → profile pager hero morph, see ProfileMorph.swift)
     @State private var ui = InvitesUIState()
@@ -25,7 +25,6 @@ struct InvitesContainer: View {
         .profileMorphHost(profileMorph)
         .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
-        //TODO: Present the respond popup (RespondContainer, driven by ui.showRespondPopup) — presentation removed with the invite morph.
     }
 }
 

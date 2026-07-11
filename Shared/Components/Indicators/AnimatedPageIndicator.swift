@@ -112,15 +112,3 @@ struct AnimatedPageIndicator: View {
         return CGFloat(min(max(edge, 0), 1))
     }
 }
-
-extension View {
-    
-    func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
-        self
-            .onScrollGeometryChange(for: Double.self) { geo in
-                geo.containerSize.width > 0 ? geo.contentOffset.x / geo.containerSize.width : 0
-            } action: { _, newValue in
-                scrollProgress.wrappedValue = newValue
-            }
-    }
-}

@@ -13,7 +13,7 @@ enum PastEventsRoute: Hashable {
 struct MessagesContainer: View {
     
     //Injected (path owned by the parent so it can jump tabs)
-    @State private var vm: MessagesViewModel
+    let vm: MessagesViewModel
     @Binding var path: NavigationPath
 
     //Local view state
@@ -23,11 +23,6 @@ struct MessagesContainer: View {
     @Namespace private var settingsZoom
     @Namespace private var profileZoom
 
-    init(vm: MessagesViewModel, path: Binding<NavigationPath>) {
-        _vm = State(initialValue: vm)
-        _path = path
-    }
-    
     var body: some View {
         NavigationStack(path: $path) {
             AppScrollView(title: "Messages") {

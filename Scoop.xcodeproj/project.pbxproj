@@ -79,7 +79,6 @@
 		655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655441482FE9769100425CBF /* InviteCardInfo.swift */; };
 		6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
-		65566B812FD05A6800F88933 /* HideToolbarBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65566B802FD05A6800F88933 /* HideToolbarBackground.swift */; };
 		655814BA2FED7FF200AC2336 /* ShrinkPressButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
@@ -105,7 +104,6 @@
 		6566B96C2FEAD33C0075C3B2 /* HidePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */; };
 		6566B96E2FEAD7460075C3B2 /* InvitesPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6566B96D2FEAD7460075C3B2 /* InvitesPlaceholder.swift */; };
 		6569964B2FA613D1009299A5 /* ProfilesSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6569964A2FA613D1009299A5 /* ProfilesSession.swift */; };
-		656B31D12F2501A3008641C1 /* ToolbarButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D02F2501A3008641C1 /* ToolbarButtons.swift */; };
 		656B31D32F251501008641C1 /* FrozenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D22F251501008641C1 /* FrozenViewModel.swift */; };
 		656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D42F252E90008641C1 /* FrozenContainer.swift */; };
 		656B31D72F257DC7008641C1 /* FrozenWithEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */; };
@@ -347,7 +345,6 @@
 		655441482FE9769100425CBF /* InviteCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfo.swift; sourceTree = "<group>"; };
 		6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimeRow.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
-		65566B802FD05A6800F88933 /* HideToolbarBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideToolbarBackground.swift; sourceTree = "<group>"; };
 		655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShrinkPressButtonStyle.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		655F51FC2E3B7CE700E67534 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
@@ -371,7 +368,6 @@
 		6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidePopup.swift; sourceTree = "<group>"; };
 		6566B96D2FEAD7460075C3B2 /* InvitesPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesPlaceholder.swift; sourceTree = "<group>"; };
 		6569964A2FA613D1009299A5 /* ProfilesSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesSession.swift; sourceTree = "<group>"; };
-		656B31D02F2501A3008641C1 /* ToolbarButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtons.swift; sourceTree = "<group>"; };
 		656B31D22F251501008641C1 /* FrozenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenViewModel.swift; sourceTree = "<group>"; };
 		656B31D42F252E90008641C1 /* FrozenContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenContainer.swift; sourceTree = "<group>"; };
 		656B31D62F257DC7008641C1 /* FrozenWithEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenWithEvents.swift; sourceTree = "<group>"; };
@@ -624,12 +620,12 @@
 			isa = PBXGroup;
 			children = (
 				65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */,
-				65566B802FD05A6800F88933 /* HideToolbarBackground.swift */,
 				65E1EC9E2F19706D004C9236 /* PinchZoom.swift */,
 				6509DDC82E37A87B0042917B /* FlowNavigation.swift */,
 				6579F19A2FE2CEA1005F8CD7 /* InfoComponents.swift */,
 				657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */,
 				67217298F46C4A47A5AC62DF /* ViewModifiers.swift */,
+				65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -656,12 +652,12 @@
 		652B15542F30D3630042A3E1 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
-				65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */,
 				659568232ED26A350091163E /* ClearRectangle.swift */,
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				657B8D4A2F2CFA5F00583ADA /* AppIcons.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
 				B3108AEE959743E3BD472413 /* Dividers.swift */,
+				65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				657210C02FFFAC38001CF670 /* ImageElements.swift */,
 			);
@@ -1176,7 +1172,6 @@
 			children = (
 				6549DA8A2F9E916A00C89DF2 /* Buttons */,
 				652B15522F30D1810042A3E1 /* Indicators */,
-				65FAF99C2E42BAC30015E231 /* Timers */,
 				656B9B403002295F000BE57D /* TabNavigation */,
 				652B15542F30D3630042A3E1 /* Elements */,
 			);
@@ -1189,7 +1184,6 @@
 				65BA061A2FCC99B000295AC6 /* Styles */,
 				657F303A2F68B61C0057D42C /* DismissButtons.swift */,
 				6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */,
-				656B31D02F2501A3008641C1 /* ToolbarButtons.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
@@ -1409,15 +1403,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		65FAF99C2E42BAC30015E231 /* Timers */ = {
-			isa = PBXGroup;
-			children = (
-				65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */,
-				65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */,
-			);
-			path = Timers;
-			sourceTree = "<group>";
-		};
 		94EB8C868F394971976B05AD /* Menus */ = {
 			isa = PBXGroup;
 			children = (
@@ -1430,6 +1415,7 @@
 		BF0E389A6CB54C9CB5A3EF08 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				65FAF98F2E418A1D0015E231 /* CountdownTimer.swift */,
 				65CA5E342F2263A600694981 /* EventFormatting.swift */,
 				652D6FAF2F3D022900B08F6F /* MapsRouter.swift */,
 			);
@@ -1657,7 +1643,6 @@
 				65B86D372FFCBBE80076683A /* SendInviteCard.swift in Sources */,
 				65F115AE2FEBF5D000AC5463 /* PopEffects.swift in Sources */,
 				6527357E2F9DE54D0048F2B0 /* RescheduleResponse.swift in Sources */,
-				65566B812FD05A6800F88933 /* HideToolbarBackground.swift in Sources */,
 				65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */,
 				65E5C8FA2E4EAAE70093410B /* TimeAndPlaceSection.swift in Sources */,
 				657F61B32FDF0CB600B2F903 /* Strokes.swift in Sources */,
@@ -1686,7 +1671,6 @@
 				6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */,
 				65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */,
 				6591092D2E19B0810065696F /* Prompts.swift in Sources */,
-				656B31D12F2501A3008641C1 /* ToolbarButtons.swift in Sources */,
 				65D366C42FC95887000180B3 /* ScrollViewHelpers.swift in Sources */,
 				6560FD2E2FD9630A00518BD9 /* EventImageCard.swift in Sources */,
 				6576B7F22E69082F004217A4 /* ProfileLoader.swift in Sources */,

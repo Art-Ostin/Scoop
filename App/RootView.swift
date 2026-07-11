@@ -20,10 +20,9 @@ struct RootView : View {
             case .booting: BootingScreen()
             case .login: SignUpView()
             case .createAccount: OnboardingHomeView()
-            case .app: AppContainer()
+            case .app: AppContainer(dependencies: dep)
             case .frozen: FrozenContainer()
             }
         }
     }
 }
-
