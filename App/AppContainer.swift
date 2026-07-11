@@ -34,7 +34,7 @@ struct AppContainer: View {
 extension AppContainer {
 
     private func icon(_ tab: AppTab) -> String {
-        tab.nativeIcon(selected: router.selectedTab == tab)
+        tab.tabIcon(selected: router.selectedTab == tab)
     }
 
     private var meetView: some View {

@@ -51,7 +51,7 @@
 		652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652FC9722E1AD7360034A387 /* AuthService.swift */; };
 		6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063E2F239E02006334D6 /* CantMakeIt.swift */; };
 		653606412F23CBD2006334D6 /* FrozenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606402F23CBD2006334D6 /* FrozenView.swift */; };
-		65376D7A2E05A7B50058D225 /* NavigationBarStyling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* NavigationBarStyling.swift */; };
+		65376D7A2E05A7B50058D225 /* CustomNavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* CustomNavigationTitle.swift */; };
 		653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653770612E0ACA600058D225 /* SelectTypeView.swift */; };
 		6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6537706D2E0B08DE0058D225 /* AddMessageView.swift */; };
 		653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653A78582E1340BA0098747F /* MessagesContainer.swift */; };
@@ -321,7 +321,7 @@
 		652FC9722E1AD7360034A387 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		6536063E2F239E02006334D6 /* CantMakeIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantMakeIt.swift; sourceTree = "<group>"; };
 		653606402F23CBD2006334D6 /* FrozenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenView.swift; sourceTree = "<group>"; };
-		65376D792E05A7AF0058D225 /* NavigationBarStyling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarStyling.swift; sourceTree = "<group>"; };
+		65376D792E05A7AF0058D225 /* CustomNavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationTitle.swift; sourceTree = "<group>"; };
 		653770612E0ACA600058D225 /* SelectTypeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTypeView.swift; sourceTree = "<group>"; };
 		6537706D2E0B08DE0058D225 /* AddMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageView.swift; sourceTree = "<group>"; };
 		653A78582E1340BA0098747F /* MessagesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesContainer.swift; sourceTree = "<group>"; };
@@ -1207,7 +1207,7 @@
 				657F61B62FDF127600B2F903 /* Fonts.swift */,
 				659BF89F2FF6CA5500B3E3FF /* GeneralParameters.swift */,
 				657F61B22FDF0CB600B2F903 /* Strokes.swift */,
-				65376D792E05A7AF0058D225 /* NavigationBarStyling.swift */,
+				65376D792E05A7AF0058D225 /* CustomNavigationTitle.swift */,
 			);
 			path = Design;
 			sourceTree = "<group>";
@@ -1718,7 +1718,7 @@
 				65E5C9262E51FBB10093410B /* MeetViewModel.swift in Sources */,
 				6566B96E2FEAD7460075C3B2 /* InvitesPlaceholder.swift in Sources */,
 				6523E5342F3B8F0100271C8F /* MapCategoryIcon.swift in Sources */,
-				65376D7A2E05A7B50058D225 /* NavigationBarStyling.swift in Sources */,
+				65376D7A2E05A7B50058D225 /* CustomNavigationTitle.swift in Sources */,
 				65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */,
 				6537706E2E0B08DE0058D225 /* AddMessageView.swift in Sources */,
 				652528432FC7F90D005B47BE /* MeetInfo.swift in Sources */,

@@ -23,32 +23,55 @@ extension Comparable {
 
 extension UINavigationBar {
 
-    static let scoopAppearance: UINavigationBarAppearance = {
+    static func scoopAppearance(largeTitleSize: CGFloat = 32) -> UINavigationBarAppearance {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithDefaultBackground()
-        appearance.largeTitleTextAttributes = [.font: UIFont.title(32, .bold)]
+        appearance.largeTitleTextAttributes = [.font: UIFont.title(largeTitleSize, .bold)]
         appearance.titleTextAttributes      = [.font: UIFont.title(17, .semibold)]
         return appearance
-    }()
+    }
 
     static func applyScoopAppearance() {
-        UINavigationBar.appearance().standardAppearance   = scoopAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = scoopAppearance
+        let appearance = scoopAppearance()
+        UINavigationBar.appearance().standardAppearance   = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
 }
 
 private struct NavigationBarFontEnforcer: UIViewControllerRepresentable {
 
-    func makeUIViewController(context: Context) -> EnforcerController { EnforcerController() }
-    func updateUIViewController(_ vc: EnforcerController, context: Context) {}
+    let largeTitleSize: CGFloat
+
+    func makeUIViewController(context: Context) -> EnforcerController {
+        let controller = EnforcerController()
+        controller.update(largeTitleSize: largeTitleSize)
+        return controller
+    }
+
+    func updateUIViewController(_ vc: EnforcerController, context: Context) {
+        vc.update(largeTitleSize: largeTitleSize)
+    }
 
     final class EnforcerController: UIViewController {
 
         private var observations: [NSKeyValueObservation] = []
         private var ticker: Timer?
+        private weak var ownerItem: UINavigationItem?
+        private var largeTitleSize: CGFloat = 32
+        private var scoopAppearance = UINavigationBar.scoopAppearance()
+
+        func update(largeTitleSize: CGFloat) {
+            guard self.largeTitleSize != largeTitleSize else { return }
+            self.largeTitleSize = largeTitleSize
+            scoopAppearance = UINavigationBar.scoopAppearance(largeTitleSize: largeTitleSize)
+            enforce()
+        }
 
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
+            if ownerItem == nil {
+                ownerItem = navigationController?.topViewController?.navigationItem
+            }
             enforce()
         }
 
@@ -95,29 +118,29 @@ private struct NavigationBarFontEnforcer: UIViewControllerRepresentable {
 
         private func enforce() {
             guard let nav = navigationController else { return }
-            let scoop = UINavigationBar.scoopAppearance
-            let target = scoop.largeTitleTextAttributes[.font] as? UIFont
+            let barAppearance = UINavigationBar.scoopAppearance()
+            let barTarget = barAppearance.largeTitleTextAttributes[.font] as? UIFont
 
             let bar = nav.navigationBar
-            if (bar.standardAppearance.largeTitleTextAttributes[.font] as? UIFont) != target {
-                bar.standardAppearance   = scoop
-                bar.scrollEdgeAppearance = scoop
-                bar.compactAppearance    = scoop
+            if (bar.standardAppearance.largeTitleTextAttributes[.font] as? UIFont) != barTarget {
+                bar.standardAppearance   = barAppearance
+                bar.scrollEdgeAppearance = barAppearance
+                bar.compactAppearance    = barAppearance
             }
 
-            //Per-item appearances beat the bar's — restyle any the system installed.
-            guard let item = nav.topViewController?.navigationItem else { return }
-            if let installed = item.standardAppearance,
-               (installed.largeTitleTextAttributes[.font] as? UIFont) != target {
-                item.standardAppearance = scoop
+            //Keep this override on the owning screen so pushed destinations use the default size.
+            guard let item = ownerItem else { return }
+            let itemAppearance = scoopAppearance
+            let itemTarget = itemAppearance.largeTitleTextAttributes[.font] as? UIFont
+
+            if (item.standardAppearance?.largeTitleTextAttributes[.font] as? UIFont) != itemTarget {
+                item.standardAppearance = itemAppearance
             }
-            if let installed = item.scrollEdgeAppearance,
-               (installed.largeTitleTextAttributes[.font] as? UIFont) != target {
-                item.scrollEdgeAppearance = scoop
+            if (item.scrollEdgeAppearance?.largeTitleTextAttributes[.font] as? UIFont) != itemTarget {
+                item.scrollEdgeAppearance = itemAppearance
             }
-            if let installed = item.compactAppearance,
-               (installed.largeTitleTextAttributes[.font] as? UIFont) != target {
-                item.compactAppearance = scoop
+            if (item.compactAppearance?.largeTitleTextAttributes[.font] as? UIFont) != itemTarget {
+                item.compactAppearance = itemAppearance
             }
         }
     }
@@ -126,7 +149,7 @@ private struct NavigationBarFontEnforcer: UIViewControllerRepresentable {
 extension View {
     //Apply inside a NavigationStack's root content (a sibling outside the stack
     //cannot reach the navigation controller).
-    func scoopNavigationBarFonts() -> some View {
-        background(NavigationBarFontEnforcer())
+    func scoopNavigationBarFonts(largeTitleSize: CGFloat = 32) -> some View {
+        background(NavigationBarFontEnforcer(largeTitleSize: largeTitleSize))
     }
 }

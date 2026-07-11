@@ -31,11 +31,7 @@ struct EventsContainer: View {
     
     
     var body: some View {
-        TabScrollView(title: eventsTitle, path: $path) {
-            
-            
-            
-        }
+
         
         
         NavigationStack(path: $path) {

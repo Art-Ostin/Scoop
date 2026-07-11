@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-enum AppTab: Hashable {
+enum AppTab: String, Hashable {
     
     case meet, invites, events, messages
     
     // Native tab bar icons.
-    func nativeIcon(selected: Bool) -> String {
+    func tabIcon(selected: Bool) -> String {
         switch (self, selected) {
         case (.meet,       true):  "BlackLogo"
         case (.meet,       false): "AppLogoBlack"
@@ -36,6 +36,15 @@ enum AppTab: Hashable {
             EventsPlaceholder()
         case .messages:
             MessagesPlaceholder()
+        }
+    }
+    
+    func title(name: String = "", isEmpty: Bool = true) -> String {
+        switch self {
+        case .events:
+            return isEmpty ? "Events" : "Meeting \(name)"
+        default:
+            return self.rawValue.capitalized
         }
     }
 }
