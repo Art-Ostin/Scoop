@@ -113,6 +113,7 @@
 		656B9B3D300219EC000BE57D /* MeetPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */; };
 		656B9B3F30022817000BE57D /* MessagesPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B3E30022817000BE57D /* MessagesPlaceholder.swift */; };
 		656B9B4230022982000BE57D /* TabScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B4130022982000BE57D /* TabScrollView.swift */; };
+		656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656B9B49300237EF000BE57D /* ToolbarButtons.swift */; };
 		656BA6952FE560C300475776 /* TimeCustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656BA6922FE560C300475776 /* TimeCustomMenu.swift */; };
 		656BA6972FE560C300475776 /* TimeCustomMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656BA6922FE560C300475776 /* TimeCustomMenu.swift */; };
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
@@ -378,6 +379,7 @@
 		656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPlaceholder.swift; sourceTree = "<group>"; };
 		656B9B3E30022817000BE57D /* MessagesPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesPlaceholder.swift; sourceTree = "<group>"; };
 		656B9B4130022982000BE57D /* TabScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabScrollView.swift; sourceTree = "<group>"; };
+		656B9B49300237EF000BE57D /* ToolbarButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtons.swift; sourceTree = "<group>"; };
 		656BA6922FE560C300475776 /* TimeCustomMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeCustomMenu.swift; sourceTree = "<group>"; };
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
 		6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownButton.swift; sourceTree = "<group>"; };
@@ -1264,12 +1266,21 @@
 			children = (
 				656B9B4130022982000BE57D /* TabScrollView.swift */,
 				655EF4AD2E6B94AA00AE626D /* AppTab.swift */,
+				656B9B49300237EF000BE57D /* ToolbarButtons.swift */,
+				656B9B4B30023895000BE57D /* ViewPlaceholders */,
+			);
+			path = TabNavigation;
+			sourceTree = "<group>";
+		};
+		656B9B4B30023895000BE57D /* ViewPlaceholders */ = {
+			isa = PBXGroup;
+			children = (
 				656B9B3C300219EC000BE57D /* MeetPlaceholder.swift */,
 				6566B96D2FEAD7460075C3B2 /* InvitesPlaceholder.swift */,
 				65FAF9872E4140740015E231 /* EventsPlaceholder.swift */,
 				656B9B3E30022817000BE57D /* MessagesPlaceholder.swift */,
 			);
-			path = TabNavigation;
+			path = ViewPlaceholders;
 			sourceTree = "<group>";
 		};
 		657838232DE773CC00770B49 = {
@@ -1690,6 +1701,7 @@
 				65F993D52F5893B200EC810B /* ChatState.swift in Sources */,
 				65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
+				656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
 				65D13D622FF69DAB00F4006F /* InviteComponents.swift in Sources */,

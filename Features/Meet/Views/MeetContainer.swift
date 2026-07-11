@@ -18,25 +18,18 @@ struct MeetContainer: View {
     @State private var isAtTopOfScroll = true
 
     var body: some View {
-        
-        
-        
-        
-        NavigationStack {
-            ScrollView {
-                if vm.profiles.isEmpty {
-                    MeetPlaceholder()
-                } else {
-                    profileCardsSection
-                }
-            }
-            .trackTopOfScroll($isAtTopOfScroll)
-            .scrollDisabled(ui.quickInvite != nil) //The flight's source frame must not move
-            .transition(.opacity)
-            .id(vm.profiles.count)
-            .scrollIndicators(.hidden)
-            .navigationTitle("Meet")
+        TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
+            profileCardsSection
+                .trackTopOfScroll($isAtTopOfScroll)
+                .scrollDisabled(ui.quickInvite != nil)
+                .transition(.opacity)
         }
+        
+        
+        
+        
+        
+        
         .overlay(alignment: .topTrailing) {infoButton}
         .allowsHitTesting(!ui.quickInviteExpanded)
         .profileMorphHost(profileMorph)
@@ -256,3 +249,25 @@ extension MeetContainer {
     }
 }
 
+
+
+/*
+ 
+ 
+ 
+ NavigationStack {
+     ScrollView {
+         if vm.profiles.isEmpty {
+             MeetPlaceholder()
+         } else {
+             profileCardsSection
+         }
+     }
+     .trackTopOfScroll($isAtTopOfScroll)
+     .scrollDisabled(ui.quickInvite != nil) //The flight's source frame must not move
+     .transition(.opacity)
+     .id(vm.profiles.count)
+     .scrollIndicators(.hidden)
+     .navigationTitle("Meet")
+ }
+ */

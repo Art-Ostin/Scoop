@@ -13,14 +13,15 @@ struct TabScrollView<Content: View>: View {
     let type: AppTab
     let showEmptyView: Bool
     
-    @Binding var path: NavigationPath
+    var path: Binding<NavigationPath>?
     var eventName: String = ""
     
     @ViewBuilder let content: Content
     
+    @State var localPath = NavigationPath()
     
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: path ?? $localPath) {
             ScrollView {
                 if showEmptyView {
                     type.placeholderView()
