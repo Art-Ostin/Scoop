@@ -15,7 +15,7 @@ struct EditProfileView: View {
     @Binding var selectedImage: ImageSlot?
 
     var body: some View {
-        AppScrollView(title: "Edit Profile") {
+        TabScrollView(title: "Edit Profile") {
             VStack(spacing: Spacing.xxl) {
                 ProfileImages(vm: vm, selectedImage: $selectedImage)
                 PromptsView(vm: vm)

@@ -19,11 +19,25 @@ struct EventsContainer: View {
     @State private var userImage: UIImage? = nil
     @Namespace var zoomNS
 
+    
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
     
+    private var eventsTitle: String {
+        vm.events.isEmpty ? "Events" : "Meeting \(currentProfile?.profile.name ?? "")"
+    }
+    
+    
+    
     var body: some View {
+        TabScrollView(title: eventsTitle, path: $path) {
+            
+            
+            
+        }
+        
+        
         NavigationStack(path: $path) {
             eventsRootView
                 .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}

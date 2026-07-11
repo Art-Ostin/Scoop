@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 
 enum AppTab: Hashable, CaseIterable, Identifiable {
-
-    case meet, invites, events, pastEvents
-
+    
+    case meet, invites, events, messages
+    
     var id: Self { self }
-
+    
     // Native (iOS 26+) tab bar icons.
     func nativeIcon(selected: Bool) -> String {
         switch (self, selected) {
@@ -23,11 +23,10 @@ enum AppTab: Hashable, CaseIterable, Identifiable {
         case (.invites,    false): "TabLetterGray"
         case (.events,     true):  "EventBlack"
         case (.events,     false): "EventIcon"
-        case (.pastEvents, true):  "BlackMessage"
-        case (.pastEvents, false): "MessageIcon"
+        case (.messages, true):  "BlackMessage"
+        case (.messages, false): "MessageIcon"
         }
     }
-
     // Custom tab bar (iOS<26) icons.
     func customIcon(selected: Bool) -> Image {
         switch (self, selected) {
@@ -37,8 +36,26 @@ enum AppTab: Hashable, CaseIterable, Identifiable {
         case (.invites,    false): Image("TabLetterBlack")
         case (.events,     true):  Image("EventApp")
         case (.events,     false): Image("EventIcon")
-        case (.pastEvents, true):  Image("MessageApp")
-        case (.pastEvents, false): Image("MessageIcon")
+        case (.messages, true):  Image("MessageApp")
+        case (.messages, false): Image("MessageIcon")
         }
+    }
+    
+    @ViewBuilder
+    func placeholderView() -> some View {
+        switch self {
+        case .meet:
+            MeetPlaceholder()
+        case .invites:
+            InvitesPlaceholder()
+        case .events:
+            EventsPlaceholder()
+        case .messages:
+            MessagesPlaceholder()
+        }
+    }
+    
+    func title() -> some View {
+        
     }
 }

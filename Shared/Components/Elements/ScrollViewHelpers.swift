@@ -6,36 +6,6 @@
 
 import SwiftUI
 
-struct AppScrollView<Content: View>: View {
-    let title: String
-    let content: Content
-
-    init(title: String, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.content = content()
-    }
-
-    var body: some View {
-        ScrollView {
-            content
-        }
-        .colorBackground()
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
-        .scoopNavigationBarFonts()
-    }
-}
-
-struct ContainerScrollView<Content: View>: View {
-    
-    
-    var body: some View {
-        
-    }
-}
-
-
-
 
 struct PagerScrollView<Content: View>: View {
     var peek: CGFloat = 0
@@ -71,3 +41,28 @@ extension View {
 
 
 
+
+
+ struct AppScrollView<Content: View>: View {
+         
+     // Inputs
+      let title: String
+      var path: Binding<NavigationPath>? = nil
+      @ViewBuilder let content: Content
+
+      // Local state - either take a path as binding if needed or pass one in here
+      @State private var localPath = NavigationPath()
+     
+     var body: some View {
+         NavigationStack(path: path ?? $localPath) {
+             ScrollView {
+                 content
+             }
+             .colorBackground()
+             .navigationTitle(title)
+             .scoopNavigationBarFonts()
+             .scrollIndicators(.hidden)
+         }
+     }
+ }
+ 
