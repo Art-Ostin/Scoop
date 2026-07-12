@@ -108,8 +108,8 @@ extension MapSelectionView {
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(.rect(cornerRadius: CornerRadius.xl))
         } else {
-            //Replace with cool design when made
-            ClearRectangle(size: 140)
+            Color.clear
+                .frame(width: 140) //Replace with cool design when made
                 .frame(maxHeight: .infinity)
                 .overlay(alignment: .center) {
                     Text("No Preview Available")

@@ -15,15 +15,13 @@ struct MeetInfo: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Spacing.xxl) {
-                    ClearRectangle(size: 36)
                     MeetInfoCoverScrollView()
                     responseInfo
-                        .padding(.horizontal, Spacing.margin)
                     meetInfo
-                        .padding(.horizontal, Spacing.margin)
-                    ClearRectangle(size: 48)
                 }
             }
+            .contentMargins(.top, Spacing.xl, for: .scrollContent)
+            .contentMargins(.bottom, Spacing.titleGap, for: .scrollContent)
             .scrollIndicators(.hidden)
             .navigationTitle("How it Works")
             .navigationBarTitleDisplayMode(.inline)
@@ -52,6 +50,7 @@ extension MeetInfo {
             }
             Image("CoolGuys")
         }
+        .padding(.horizontal, Spacing.margin)
     }
     
     
@@ -69,6 +68,7 @@ extension MeetInfo {
             Image("CoolGuys")
                 .font(.body(15, .regular))
         }
+        .padding(.horizontal, Spacing.margin)
     }
 }
 

@@ -100,7 +100,6 @@ extension GenericInterests {
     private var selectedInterestsView: some View {
             ScrollView(.horizontal) {
                 HStack(alignment: .top) {
-                    ClearRectangle(size: 10)
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, fillColour: false) { text in
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -109,10 +108,10 @@ extension GenericInterests {
                         }
                         .offset(y: 5)
                     }
-                    ClearRectangle(size: 30)
                 }
                 .frame(height: 45)
             }
+            .contentMargins(.all, EdgeInsets(top: 0, leading: Spacing.md, bottom: 0, trailing: Spacing.xl), for: .scrollContent)
             .scrollPosition($selectedScrollPos)
             .onChange(of: selected.count) { oldValue, newValue in
                 if newValue > oldValue {
@@ -131,8 +130,6 @@ extension GenericInterests {
     private var interestsSections: some View {
         ScrollView(.vertical) {
             VStack(spacing: 0) {
-                ClearRectangle(size: 32)
-                
                 ForEach(sections.indices, id: \.self) { idx in
                     let section = sections[idx]
                     InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected) { text in
@@ -140,6 +137,7 @@ extension GenericInterests {
                     }
                 }
             }
+            .contentMargins(.top, Spacing.xl)
             .scrollTargetLayout()
             .padding(.bottom, Spacing.clearance)
         }

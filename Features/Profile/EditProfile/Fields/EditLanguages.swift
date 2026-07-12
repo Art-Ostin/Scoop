@@ -135,7 +135,6 @@ extension EditLanguages {
     private var selectedView: some View {
             ScrollView(.horizontal) {
                 HStack(alignment: .bottom, spacing: Spacing.lg) {
-                    ClearRectangle(size: 1)
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, fillColour: false) { text in
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -143,10 +142,10 @@ extension EditLanguages {
                             }
                         }
                     }
-                    ClearRectangle(size: 30)
                 }
                 .frame(height: 48)
             }
+            .contentMargins(.all, EdgeInsets(top: 0, leading: Spacing.lg, bottom: 0, trailing: Spacing.xxl), for: .scrollContent)
             .scrollPosition($selectedScrollPos)
             .onChange(of: selected.count) {oldValue, newValue in
                 if newValue > oldValue {

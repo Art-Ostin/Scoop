@@ -59,10 +59,9 @@ extension ProfileImageView {
                     ForEach(images.indices, id: \.self) {index in
                         scrollImage(index: index)
                     }
-                    ClearRectangle(size: 0)
                 }
             }
-            .contentMargins(12)
+            .contentMargins(.horizontal, Spacing.lg)
             .frame(height: 60)
             .scrollPosition($scrollPosition)
             .scrollDisabled(disableScroll)

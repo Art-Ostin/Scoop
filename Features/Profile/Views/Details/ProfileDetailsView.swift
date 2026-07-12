@@ -22,7 +22,6 @@ struct ProfileDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Spacing.lg) {
-                ClearRectangle(size: 24)
                 eventInvite
                 DetailsSection(color: keyInfoStrokeColour, title: "About") {UserKeyInfo(p: p)}
                     .animation(.spring(duration: 0.42, bounce: 0), value: ui.detailsOpen)
@@ -31,8 +30,9 @@ struct ProfileDetailsView: View {
                 PromptView(prompt: p.prompt2)
                 DetailsSection(title: "Extra Info", adaptivePadding: true) {DetailsExtraInfo(p: p)}
                 if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
-                ClearRectangle(size: 200)
             }
+            .contentMargins(.top, Spacing.lg)
+            .contentMargins(.bottom, Spacing.clearance)
             .contentShape(Rectangle())
             .onTapGesture { toggleDetails() }
         }

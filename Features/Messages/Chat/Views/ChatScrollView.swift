@@ -24,7 +24,6 @@ struct ChatScrollView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: Spacing.xxs) {
-                ClearRectangle(size: 72)
                 ChatEventView(event: vm.eventProfile.event)
                 messageScrollSection
             }
@@ -38,6 +37,7 @@ struct ChatScrollView: View {
 
 //        .customScrollFade(height: 100, showFade: true, edge: .top)
         .background(Color.appCanvas)
+        .contentMargins(.top, Spacing.xxxl, for: .scrollContent)
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
 

@@ -57,7 +57,9 @@ private struct IsAtTopOfScroll: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onScrollGeometryChange(for: CGFloat.self) { $0.contentInsets.top } action: { _, inset in
+            .onScrollGeometryChange(for: CGFloat.self) {
+                $0.contentInsets.top
+            } action: { _, inset in
                 expandedInset = max(expandedInset, inset)
                 isAtTop = inset >= expandedInset - 1
             }
@@ -67,6 +69,20 @@ private struct IsAtTopOfScroll: ViewModifier {
             }
     }
 }
+
+private struct isAtTopScrolling: ViewModifier {
+    @Binding var isAtTop: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .onScrollGeometryChange(for: Bool.self) { $0.contentOffset.y < 12 } action: { oldValue, newValue in
+                isAtTop = newValue
+            }
+
+    }
+}
+
+
 
 
 //MARK:
@@ -96,10 +112,9 @@ extension View {
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
         self
             .onScrollGeometryChange(for: Double.self) { geo in
-                geo.containerSize.width > 0 ? geo.contentOffset.x / geo.containerSize.width : 0
+                min(geo.contentOffset.x / geo.containerSize.width, 0)
             } action: { _, newValue in
                 scrollProgress.wrappedValue = newValue
-                print("scrollProgress IS: \(scrollProgress))")
             }
     }
 }
@@ -110,7 +125,7 @@ extension View {
 
 extension View {
     func trackTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
-        modifier(ScrollTopTracker(isAtTop: isAtTop))
+        modifier(IsAtTopOfScroll(isAtTop: isAtTop))
     }
 }
 

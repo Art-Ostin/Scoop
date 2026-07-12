@@ -141,7 +141,6 @@ extension GenericNationality {
     private var nationalitiesView: some View {
         let scrollAnchor = UnitPoint(x: 0.5, y: 0.12)
         ScrollView {
-            ClearRectangle(size: 6)
             VStack(spacing: Spacing.xxl) {
                 LazyVGrid(columns: columns, spacing: Spacing.xl) {
                     ForEach(CountryDataServices.shared.popularCountries) { country in
@@ -170,6 +169,7 @@ extension GenericNationality {
             }
             .padding(.bottom, 200) //Geometry: lets the last letter group scroll up to the anchor
         }
+        .contentMargins(.top, Spacing.md, for: .scrollContent)
         .scrollPosition(id: $scrollPosition, anchor: scrollAnchor)
         .frame(maxHeight: .infinity, alignment: .top)
         .customScrollFade(height: 30, showFade: true)

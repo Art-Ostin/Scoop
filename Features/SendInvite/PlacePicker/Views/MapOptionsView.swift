@@ -34,18 +34,17 @@ struct MapOptionsView: View {
     private var mapCategoryIcons: some View {
         ScrollView(.horizontal) {
             HStack(spacing: Spacing.xl) {
-                ClearRectangle(size: 0)
                 ForEach(MapCategory.allCases) { category in
                     if category != .park {
                         MapCategoryIcon(sheet: $sheet, category: category, isMap: true, vm: vm, useSelectedDetent: $useSelectedDetent)
                             .id(category)
                     }
                 }
-                ClearRectangle(size: 0)
             }
             .scrollTargetLayout()
             .offset(x: -12)
         }
+        .contentMargins(.horizontal, Spacing.xl)
         .scrollPosition($scrollPos)
         .onAppear {
             guard let selected = vm.selectedMapCategory, MapCategory.allCases.contains(selected) else {return }

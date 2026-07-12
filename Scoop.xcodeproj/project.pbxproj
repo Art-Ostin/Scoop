@@ -169,7 +169,6 @@
 		6594972B2E01DD4000880921 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497122E01DD4000880921 /* SignUpView.swift */; };
 		6594972C2E01DD4000880921 /* ScoopApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659497172E01DD4000880921 /* ScoopApp.swift */; };
 		659497332E01DD4000880921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 659497152E01DD4000880921 /* Assets.xcassets */; };
-		659568242ED26A350091163E /* ClearRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568232ED26A350091163E /* ClearRectangle.swift */; };
 		659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568252ED28BBA0091163E /* ShakeEffect.swift */; };
 		6598527D2FD7FDDB00D75CA5 /* EventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6598527C2FD7FDDB00D75CA5 /* EventDetails.swift */; };
 		659852822FD7FDFA00D75CA5 /* EventMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659852812FD7FDFA00D75CA5 /* EventMap.swift */; };
@@ -434,7 +433,6 @@
 		659497152E01DD4000880921 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		659497162E01DD4000880921 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		659497172E01DD4000880921 /* ScoopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopApp.swift; sourceTree = "<group>"; };
-		659568232ED26A350091163E /* ClearRectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearRectangle.swift; sourceTree = "<group>"; };
 		659568252ED28BBA0091163E /* ShakeEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEffect.swift; sourceTree = "<group>"; };
 		6598527C2FD7FDDB00D75CA5 /* EventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetails.swift; sourceTree = "<group>"; };
 		659852812FD7FDFA00D75CA5 /* EventMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMap.swift; sourceTree = "<group>"; };
@@ -652,7 +650,6 @@
 		652B15542F30D3630042A3E1 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
-				659568232ED26A350091163E /* ClearRectangle.swift */,
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				657B8D4A2F2CFA5F00583ADA /* AppIcons.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
@@ -1649,7 +1646,6 @@
 				654982D82E3152C000CA335F /* ProfileImages.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				657683202F59111C0094A02D /* MessageInputBar.swift in Sources */,
-				659568242ED26A350091163E /* ClearRectangle.swift in Sources */,
 				657B8D592F2D73EE00583ADA /* ProposedTimes.swift in Sources */,
 				65FAF9962E42960A0015E231 /* EventsViewModel.swift in Sources */,
 				65C7D6362E54EE1600B726B8 /* MessagesViewModel.swift in Sources */,
