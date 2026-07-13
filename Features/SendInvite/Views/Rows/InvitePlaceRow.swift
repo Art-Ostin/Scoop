@@ -63,7 +63,7 @@ extension InvitePlaceRow {
             
             Text(FormatEvent.addressBeforeFirstComma(location.address))
                 .font(.body(12, .regular))
-                .foregroundStyle(Color.textSecondary)
+                .foregroundStyle(Color.textPlaceholder)
                 .lineLimit(1)
         }
     }

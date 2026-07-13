@@ -38,11 +38,12 @@ struct ProfileImageView: View {
 //The full-width image pager (profile-morph destination)
 extension ProfileImageView {
 
-    @ViewBuilder
+    private static let heroHPadding: CGFloat = 8 //Inset of the hero image inside the pager; the invite source matches it so the collapse lands edge-aligned
+
     private var imageCarousel: some View {
-        let carousel = ImageCarousel(
+        ImageCarousel(
             images: images,
-            hPadding: 8,
+            hPadding: Self.heroHPadding,
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
             aspectRatio: .card,
@@ -55,11 +56,19 @@ extension ProfileImageView {
             morph?.reportDestination(containerRect: rect)
         }
         .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
+        .overlay { inviteSource } //Reports the visible image rect (inset, image height only) as the flight origin
+    }
 
+    //A clear proxy matching the on-screen image — inset like the pager pages and clipped to the
+    //image height — so the invite card collapses onto the hero exactly, not the full-width container
+    //or the thumbnail strip below it.
+    @ViewBuilder
+    private var inviteSource: some View {
         if let inviteSourceID {
-            carousel.sendInviteSource(id: inviteSourceID) //Image frame only — the flight collapses back onto the hero, not the thumbnail strip
-        } else {
-            carousel
+            Color.clear
+                .sendInviteSource(id: inviteSourceID) //On the inset clear view, so it reports the image rect (not the full-width padded frame)
+                .padding(.horizontal, Self.heroHPadding)
+                .allowsHitTesting(false)
         }
     }
 }

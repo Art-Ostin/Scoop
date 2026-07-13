@@ -23,7 +23,6 @@ struct SelectTimeView: View {
     @State private var suppressSavedFlash = false
     @State private var displayedCount = 0
     @Namespace private var countNS
-    @Namespace private var datesNS
 
     private let columns = Array(repeating: GridItem(.fixed(28), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
     private let dayCount = 11
@@ -70,7 +69,7 @@ private extension SelectTimeView {
                     .foregroundStyle(Color.textPrimary)
                 Text("Propose 1-3 days to meet")
                     .font(.body(11, .regular))
-                    .foregroundStyle(Color.textPlaceholder)
+                    .foregroundStyle(Color.textTertiary)
             }
             Spacer()
         }
@@ -89,45 +88,11 @@ private extension SelectTimeView {
                     )
             } else if let warning {
                 warningText(warning: warning)
-            } else if proposedTimes.dates.isEmpty {
-                zeroDayCount
             } else {
-                dates
+                dayCountDisplay
             }
         }
         .fixedSize()
-        .animation(.toggle, value: proposedTimes.dates.map(\.dayID))
-    }
-    
-    
-    @ViewBuilder
-    private var dates: some View {
-        if proposedTimes.dates.count == 3 {
-            VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                HStack(spacing: Spacing.xs) {
-                    dateLabel(proposedTimes.dates[0])
-                    dateLabel(proposedTimes.dates[1])
-                }
-                dateLabel(proposedTimes.dates[2])
-            }
-        } else {
-            VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                ForEach(proposedTimes.dates, id: \.dayID) { time in
-                    dateLabel(time)
-                }
-            }
-        }
-    }
-
-    private func dateLabel(_ time: ProposedTime) -> some View {
-        Text(FormatEvent.shortDayAndTime(time.date, withHour: false))
-            .font(.body(12, .regular))
-            .foregroundStyle(Color.textTertiary)
-            .matchedGeometryEffect(id: time.dayID, in: datesNS, properties: .position)
-            .transition(
-                .scale(scale: 0.4)
-                .combined(with: .opacity)
-            )
     }
     
     private func warningText(warning: SelectTimeView.DayWarning) -> some View {
@@ -141,8 +106,8 @@ private extension SelectTimeView {
             )
     }
     
-    private var zeroDayCount: some View {
-        Text("0/3")
+    private var dayCountDisplay: some View {
+        Text("\(displayedCount)/\(ProposedTimes.maxCount)")
             .contentTransition(.numericText(value: Double(displayedCount)))
             .foregroundStyle(Color.textPrimary)
             .font(.body(12, .bold))

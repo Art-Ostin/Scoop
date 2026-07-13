@@ -29,6 +29,7 @@ struct MessagesContainer: View {
                 VStack(spacing: 0) {
                     ForEach(vm.events) { chatRow(for: $0) }
                 }
+                .padding(.top, -24)
             }
             .toolbar {settingsButton ; profileButton}
             .navigationDestination(for: PastEventsRoute.self, destination: destination)

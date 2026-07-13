@@ -162,7 +162,7 @@ extension InviteTypeRow {
                 }
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line
-            .frame(width: 47, alignment: .leading)
+            .frame(width: 50, alignment: .leading)
             .lineSpacing(2)
             .id(rowTitleTransitionID)
             .transition(.blurReplace)
