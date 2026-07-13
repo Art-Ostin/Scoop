@@ -18,6 +18,7 @@ struct InvitePlaceRow: View {
             RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))
             chooseButton
         }
+        .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
     }
 }
 

@@ -49,13 +49,13 @@ struct InviteTimeRow: View {
 //The time menu and what anchors it
 extension InviteTimeRow {
 
-    private var timeMenuWidth: CGFloat { 320 }
+    private var timeMenuWidth: CGFloat { 325 }
 
     private var timeMenu: some View {
         TimeCustomMenu(morphAnchor: morphAnchor,
                        estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
                        placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 20,
-                       placementOffsetY: TimeCustomMenuSpec.placementOffsetY - 12,
+                       placementOffsetY: TimeCustomMenuSpec.placementOffsetY + 12,
                        onOpen: openMenu, onClose: closeMenu) {
             SelectTimeView(proposedTimes: $draft)
                 .frame(width: timeMenuWidth)
@@ -123,6 +123,7 @@ extension InviteTimeRow {
         }
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
+        .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
     }
 
     private var isWhenLabel: Bool { scrolledPageID == nil || scrolledPageID == 0 }

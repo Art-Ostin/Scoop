@@ -24,15 +24,16 @@ struct SelectTimeView: View {
     @State private var displayedCount = 0
     @Namespace private var countNS
 
-    private let columns = Array(repeating: GridItem(.fixed(27), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
+    private let columns = Array(repeating: GridItem(.fixed(30), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
     private let dayCount = 11
 
     var body: some View {
-        VStack(spacing: Spacing.md) {
+        VStack(spacing: Spacing.sm) {
             titleSection
             dayPicker
+                .padding(.top, Spacing.xxs)
             timePicker
-                .padding(.top, -8)
+                .padding(.top, -Spacing.xs)
         }
         .modifier(SelectTimeBackground(isRespond: isRespondMode))
         .overlay(alignment: .bottomTrailing) { doneButton }
@@ -124,11 +125,11 @@ private extension SelectTimeView {
 private extension SelectTimeView {
     
     var dayPicker: some View {
-        VStack(spacing: 10) {                                          // Geometry: (3) weekday header → numbers
+        VStack(spacing: Spacing.xxs) {                                          // Geometry: (3) weekday header → numbers
             LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
-            LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // Geometry: (4) row → row
+            LazyVGrid(columns: columns, spacing: Spacing.xxs) { daysOfMonthText } // Geometry: (4) row → row
         }
-        .padding(.horizontal, -Spacing.xxs)
+        .padding(.horizontal, -Spacing.sm)
     }
     
     var dayOfWeekText: some View {
@@ -252,7 +253,7 @@ private struct SelectTimeBackground: ViewModifier {
         content
             .padding(.horizontal, Spacing.margin)
             .padding(.top, Spacing.md)
-            .padding(.bottom, 0) //Low bottom as scroll view on Bottom
+            .padding(.bottom, -Spacing.xs) //Low bottom as scroll view on Bottom
     }
 }
 
@@ -282,7 +283,7 @@ private struct DayCell: View {
                 }
                 .animation(.toggle, value: isSelected)
         }
-        .frame(width: 27, alignment: .center)
+        .frame(width: 28, alignment: .center)
         .showShakeAnimation(bool: shake)
     }
 }

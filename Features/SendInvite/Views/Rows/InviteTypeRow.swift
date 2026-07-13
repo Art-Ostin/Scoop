@@ -52,12 +52,12 @@ struct InviteTypeRow: View {
             pageIndicator
                 .offset(y: 20)
                 .offset(x: -22)
-                .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
         }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: ui.showMessageScreen) { messageScreenChanged() }
+        .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
     }
 }
 
@@ -172,7 +172,6 @@ extension InviteTypeRow {
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
-        .opacity(ui.isPopupOpen(.time) ? 0.3 : 1)
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }

@@ -47,7 +47,7 @@ extension SendInviteContainer {
             .frame(height: 48)
 
         return Group {
-            if draft.isComplete {
+            if draft.isComplete && !ui.isPopupOpen() {
                 ScoopButton(style: .tinted(.textAccent, shadow: nil), shape: Capsule(), action: onSendInvite) {
                     label
                 }
