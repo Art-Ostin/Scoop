@@ -101,6 +101,9 @@ enum ProfileViewType {
     var isDraggingDetails: Bool = false
     var isAtTopOfScroll = true
 
+    //Current page of the header image pager — the invite card zooms up from this image.
+    var selectedImageIndex: Int = 0
+
     //3. Resting layout of the card. Header height is a size (transform-independent),
     //so it never changes while a drag transform is active.
     let headerTopPadding: CGFloat = 36

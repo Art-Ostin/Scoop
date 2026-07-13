@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectTypeView: View {
 
-    static let cardWidth: CGFloat = 290
+    static let cardWidth: CGFloat = 300
     
     //1. Needed to sharply display a divider under 1 CGFloat
     @Environment(\.displayScale) private var displayScale

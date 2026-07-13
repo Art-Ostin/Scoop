@@ -10,6 +10,8 @@ import Foundation
 struct ProposedTime: Codable, Equatable, Hashable {
     var date: Date
     var stillAvailable: Bool = true
+
+    var dayID: Date { Calendar.current.startOfDay(for: date) }
 }
 
 struct ProposedTimes: Codable, Equatable  {

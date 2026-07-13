@@ -230,6 +230,7 @@ private struct TypeRowMenuLabel: View {
 
     //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
+    @State private var showScrollFades = false
 
     var body: some View {
         if isLive { liveLabel } else { collapsedLabel }
@@ -260,6 +261,12 @@ private struct TypeRowMenuLabel: View {
                 scrollProgress: $scrollProgress,
                 pageCount: 2
             ))
+            .onScrollPhaseChange { _, phase in
+                showScrollFades = phase.isScrolling && phase != .tracking
+            }
+            .customHorizontalScrollFade(width: showScrollFades ? 40 : 0, showFade: true)
+            .customHorizontalScrollFade(width: showScrollFades ? 12 : 0, showFade: true, fromLeading: false)
+            .animation(.quick, value: showScrollFades)
             chevron
                 .getRect($chevronFrame)
         }

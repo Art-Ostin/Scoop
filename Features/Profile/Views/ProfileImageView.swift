@@ -14,6 +14,7 @@ struct ProfileImageView: View {
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
     let disableScroll: Bool
     let images: [UIImage]
+    var selectedIndex: Binding<Int>? = nil //Reports the settled page so the invite card can zoom from it
 
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -29,6 +30,7 @@ struct ProfileImageView: View {
             imageCarousel
             imageScroller
         }
+        .onChange(of: selection) { _, new in selectedIndex?.wrappedValue = new }
     }
 }
 

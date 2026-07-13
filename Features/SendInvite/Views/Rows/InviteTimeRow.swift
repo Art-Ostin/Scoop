@@ -175,6 +175,7 @@ private struct TimeRowMenuLabel: View {
 
     //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
+    @State private var showScrollFades = false
 
     private var activeIndex: Int {
         guard !times.isEmpty else { return 0 }
@@ -188,7 +189,7 @@ private struct TimeRowMenuLabel: View {
     }
 
     private var liveLabel: some View {
-        HStack(spacing: times.isEmpty ? 12 : 0) {
+        HStack(spacing: Spacing.sm) {
             if times.isEmpty {
                 chooseTimeText
                     .getRect($chooseTimeFrame)
@@ -221,7 +222,6 @@ private struct TimeRowMenuLabel: View {
                     page(time, isActive: index == activeIndex)
                 }
             }
-            .offset(x: -12) //Align with the rest of the content
             .frame(height: InviteRowMetrics.rowHeight)
             .scrollTargetLayout()
         }
@@ -231,12 +231,19 @@ private struct TimeRowMenuLabel: View {
             scrollProgress: $scrollProgress,
             pageCount: times.count
         ))
+        .onScrollPhaseChange { _, phase in
+            showScrollFades = phase.isScrolling && phase != .tracking
+        }
+        .customHorizontalScrollFade(width: showScrollFades ? 40 : 0, showFade: true)
+        .customHorizontalScrollFade(width: showScrollFades ? 12 : 0, showFade: true, fromLeading: false)
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {
-        Text(FormatEvent.dayAndTime(time, wide: true, withHour: true, monthWide: false))
+        Text(FormatEvent.dayAndTime(time, wide: true, withHour: true, monthWide: true))
             .font(.body(17, .medium))
+            .minimumScaleFactor(0.9)
             .lineLimit(1)
+            .truncationMode(.middle)
             .background { if isActive { Color.clear.getRect($activeTimeFrame) } }
             .frame(width: pageWidth, alignment: .trailing)
     }
@@ -249,7 +256,7 @@ private struct TimeRowMenuLabel: View {
     @ViewBuilder
     private var activeTimeText: some View {
         if times.indices.contains(activeIndex) {
-            Text(FormatEvent.dayAndTime(times[activeIndex], wide: true, withHour: true, monthWide: false))
+            Text(FormatEvent.dayAndTime(times[activeIndex], wide: true, withHour: true, monthWide: true))
                 .font(.body(17, .medium))
         } else {
             chooseTimeText

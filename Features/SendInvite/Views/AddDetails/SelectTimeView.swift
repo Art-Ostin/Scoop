@@ -23,8 +23,9 @@ struct SelectTimeView: View {
     @State private var suppressSavedFlash = false
     @State private var displayedCount = 0
     @Namespace private var countNS
+    @Namespace private var datesNS
 
-    private let columns = Array(repeating: GridItem(.fixed(30), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
+    private let columns = Array(repeating: GridItem(.fixed(28), spacing: 14), count: 7) //Geometry: calendar pitch (cell + gap), sized to the card
     private let dayCount = 11
 
     var body: some View {
@@ -72,38 +73,86 @@ private extension SelectTimeView {
                     .foregroundStyle(Color.textPlaceholder)
             }
             Spacer()
-            timeCountAndWarningSign
         }
+        .overlay(alignment: .topTrailing) { timeAndWarningSign }
     }
     
-    private var timeCountAndWarningSign: some View {
-        Text("0/3")
-            .font(.body(12, .bold))
-            .hidden()
-            .overlay(alignment: .trailing) {
-                ZStack(alignment: .trailing) {
-                    if showSaved {
-                        SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
-                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
-                            .transition(.opacity)
-                    } else if let warning {
-                        Text(warning.rawValue)
-                            .font(.body(12, .bold))
-                            .foregroundStyle(Color.warningYellow)
-                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
-                            .transition(.opacity)
-                    } else {
-                        Text("\(displayedCount)/3")
-                            .contentTransition(.numericText(value: Double(displayedCount)))
-                            .foregroundStyle(Color.textPrimary)
-                            .font(.body(12, .bold))
-                            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
-                            .transition(.opacity)
-                    }
-                }
-                .fixedSize()
+    
+    private var timeAndWarningSign: some View {
+        ZStack(alignment: .trailing) {
+            if showSaved {
+                SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
+                    .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                    .transition(
+                        .scale(scale: 0.4)
+                        .combined(with: .opacity)
+                    )
+            } else if let warning {
+                warningText(warning: warning)
+            } else if proposedTimes.dates.isEmpty {
+                zeroDayCount
+            } else {
+                dates
             }
+        }
+        .fixedSize()
+        .animation(.toggle, value: proposedTimes.dates.map(\.dayID))
     }
+    
+    
+    @ViewBuilder
+    private var dates: some View {
+        if proposedTimes.dates.count == 3 {
+            VStack(alignment: .trailing, spacing: Spacing.xxs) {
+                HStack(spacing: Spacing.xs) {
+                    dateLabel(proposedTimes.dates[0])
+                    dateLabel(proposedTimes.dates[1])
+                }
+                dateLabel(proposedTimes.dates[2])
+            }
+        } else {
+            VStack(alignment: .trailing, spacing: Spacing.xxs) {
+                ForEach(proposedTimes.dates, id: \.dayID) { time in
+                    dateLabel(time)
+                }
+            }
+        }
+    }
+
+    private func dateLabel(_ time: ProposedTime) -> some View {
+        Text(FormatEvent.shortDayAndTime(time.date, withHour: false))
+            .font(.body(12, .regular))
+            .foregroundStyle(Color.textTertiary)
+            .matchedGeometryEffect(id: time.dayID, in: datesNS, properties: .position)
+            .transition(
+                .scale(scale: 0.4)
+                .combined(with: .opacity)
+            )
+    }
+    
+    private func warningText(warning: SelectTimeView.DayWarning) -> some View {
+        Text(warning.rawValue)
+            .font(.body(12, .bold))
+            .foregroundStyle(Color.warningYellow)
+            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+            .transition(
+                .scale(scale: 0.4)
+                .combined(with: .opacity)
+            )
+    }
+    
+    private var zeroDayCount: some View {
+        Text("0/3")
+            .contentTransition(.numericText(value: Double(displayedCount)))
+            .foregroundStyle(Color.textPrimary)
+            .font(.body(12, .bold))
+            .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+            .transition(
+                .scale(scale: 0.4)
+                .combined(with: .opacity)
+            )
+    }
+    
     
     private var doneButton: some View {
         Button {
@@ -111,11 +160,11 @@ private extension SelectTimeView {
         } label: {
             Image("TickButton")
                 .scaleEffect(0.9)
-                .frame(width: 33, height: 33)
+                .frame(width: 30, height: 30)
                 .circleStroke(lineWidth: 1, color: .black)
         }
         .shrinkButton()
-        .padding(.bottom, Spacing.clearance)
+        .padding(.bottom, Spacing.clearance - 14) //Positions it at top of time view
         .padding(.horizontal, Spacing.margin)
     }
 }
@@ -129,7 +178,7 @@ private extension SelectTimeView {
             LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
             LazyVGrid(columns: columns, spacing: Spacing.xxs) { daysOfMonthText } // Geometry: (4) row → row
         }
-        .padding(.horizontal, -Spacing.sm)
+        .padding(.horizontal, -Spacing.xxs)
     }
     
     var dayOfWeekText: some View {
@@ -187,14 +236,7 @@ private extension SelectTimeView {
 private extension SelectTimeView {
 
     func selectDay(day: Date) -> Bool {
-        var t = Transaction()
-        t.disablesAnimations = true
-
-        // Only the count/day swap is animation-free; the warning is set outside the
-        // transaction so the body's .animation(value: warning) still fades it in.
-        let hitMax = withTransaction(t) {
-            proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
-        }
+        let hitMax = proposedTimes.updateDate(day: day, hour: selectedHour, minute: selectedMinute)
         if hitMax { warning = .maxReached }
         return hitMax
     }
@@ -281,9 +323,41 @@ private struct DayCell: View {
                         .fill(isSelected ? Color.accent : Color.clear)
                         .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
                 }
-                .animation(.toggle, value: isSelected)
         }
         .frame(width: 28, alignment: .center)
         .showShakeAnimation(bool: shake)
     }
 }
+
+/*
+ 
+ 
+ private var timeCountAndWarningSign: some View {
+     Text("0/3")
+         .font(.body(12, .bold))
+         .hidden()
+         .overlay(alignment: .trailing) {
+             ZStack(alignment: .trailing) {
+                 if showSaved {
+                     SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: true)
+                         .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                         .transition(.opacity)
+                 } else if let warning {
+                     Text(warning.rawValue)
+                         .font(.body(12, .bold))
+                         .foregroundStyle(Color.warningYellow)
+                         .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                         .transition(.opacity)
+                 } else {
+                     Text("\(displayedCount)/3")
+                         .contentTransition(.numericText(value: Double(displayedCount)))
+                         .foregroundStyle(Color.textPrimary)
+                         .font(.body(12, .bold))
+                         .matchedGeometryEffect(id: "icon", in: countNS, properties: .position)
+                         .transition(.opacity)
+                 }
+             }
+             .fixedSize()
+         }
+ }
+ */

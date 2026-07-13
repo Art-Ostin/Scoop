@@ -71,6 +71,7 @@ extension ProfileContainer {
         if canInvite {
             InviteButton(isInviting: vm.viewProfileType == .invite) { openInvite() }
                 .opacity(invite.pending == nil ? 1 : 0) //The button becomes the card while it's presented
+                .allowsHitTesting(invite.pending == nil) //opacity(0) alone stays tappable: block the invisible button through the collapse window
                 .padding(.horizontal, Spacing.margin)
                 .padding(.bottom, 144) //Geometry: floats the invite button above the details drawer
                 .modifier(InviteButtonDragEffect(ui: ui))
@@ -86,6 +87,7 @@ extension ProfileContainer {
             .padding(.horizontal, Spacing.margin)
             .padding(.bottom, Spacing.xs)
             .opacity(invite.pending == nil ? 1 : 0)
+            .allowsHitTesting(invite.pending == nil) //Same: an invisible decline must not fire during the collapse
         }
     }
 }
@@ -102,9 +104,20 @@ extension ProfileContainer {
     }
 
     //Only the send-invite flow presents this card; respond/accept modes leave the button inert.
+    //Zooms up from whichever image the header pager is currently showing (not always the first).
     func openInvite() {
-        guard onSendInvite != nil, let image = displayImages.first else { return }
-        invite.open(PendingProfile(profile: vm.profile, image: image), image: image)
+        guard onSendInvite != nil, let selected = invitedImages.first else { return }
+        invite.open(PendingProfile(profile: vm.profile, image: selected), image: selected)
+    }
+
+    //The card's gallery, rotated so the selected header image is page 0. A page-0 flight sits at
+    //scroll offset 0 (width-invariant), so it grows cleanly with the animating card — a non-zero
+    //start page drifts because the pager is scroll-disabled mid-flight and its offset can't re-anchor.
+    private var invitedImages: [UIImage] {
+        let imgs = displayImages
+        let i = ui.selectedImageIndex
+        guard imgs.indices.contains(i) else { return imgs }
+        return Array(imgs[i...] + imgs[..<i])
     }
 
     @ViewBuilder var inviteOverlay: some View {
@@ -116,11 +129,12 @@ extension ProfileContainer {
                     defaults: vm.defaults
                 ),
                 image: image,
-                images: displayImages.isEmpty ? [image] : displayImages,
+                images: invitedImages.isEmpty ? [image] : invitedImages,
                 details: profileDetails(pending.profile),
                 sendInvite: onSend
             )
-            .ignoresSafeArea() //Full-screen card, matching the Meet presentation's edge-to-edge bounds
+            //No .ignoresSafeArea(): like Meet's root presentation, the card lives inside the safe area
+            //(its own backdrop bleeds to the edges); ignoring it pushed the image under the status bar.
         }
     }
 

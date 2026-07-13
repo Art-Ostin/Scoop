@@ -78,7 +78,7 @@ extension ProfileContainer {
             profileTitle
                 .modifier(DetailsFadeEffect(ui: ui, from: 1, to: 0, impactEnd: 0.75))
 
-            ProfileImageView(disableScroll: ui.isDismissDragging, images: displayImages)
+            ProfileImageView(disableScroll: ui.isDismissDragging, images: displayImages, selectedIndex: $ui.selectedImageIndex)
                 .task { await vm.loadImagesIfNeeded() }
                 .overlay(alignment: .topLeading) {overlayTitle}
                 .sendInviteSource(id: vm.profile.id) //Flight origin: the invite card grows from / collapses back into this image
