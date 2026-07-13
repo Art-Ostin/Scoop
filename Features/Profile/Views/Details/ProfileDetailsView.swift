@@ -62,15 +62,9 @@ struct ProfileDetailsView: View {
         .customScrollFade(height: 80, showFade: !ui.isAtTopOfScroll, isDetails: true)
         .scrollDisabled(ui.isDraggingDetails || !ui.detailsOpen)
         .overlay(alignment: .topTrailing) {
-            Group {
-                if !ui.isAtTopOfScroll && ui.detailsFullyOpen {
-                    dismissDetailsButton
-                        .transition(.scoopPop)
-                        .padding()
-                }
-            }
-            .animation(.scoopPop, value: ui.detailsFullyOpen)
-            .animation(.scoopPop, value: ui.isAtTopOfScroll)
+            dismissDetailsButton
+                .blurPop(visible: !ui.isAtTopOfScroll && ui.detailsFullyOpen)
+                .padding()
         }
     }
 }

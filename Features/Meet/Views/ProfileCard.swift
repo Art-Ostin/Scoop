@@ -32,7 +32,6 @@ struct ProfileCard : View {
 }
 
 extension ProfileCard {
-    
 
     private var cardOverlay: some View {
         HStack(alignment: .bottom) {

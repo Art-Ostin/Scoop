@@ -12,18 +12,13 @@ struct InfoButton: View {
     var isAtTopOfScroll: Bool = true
     
     var body: some View {
-        Group {
-            if isAtTopOfScroll {
-                ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
-                    Image(systemName: "info.circle")
-                        .font(.body(18, .medium))
-                }
-                .transition(.scoopPop)
-                .padding(.top, Spacing.md) //As its small icon, sits in correct position
-                .padding(.horizontal, Spacing.margin)
-            }
+        ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
+            Image(systemName: "info.circle")
+                .font(.body(18, .medium))
         }
-        .animation(.scoopPop, value: isAtTopOfScroll)
+        .blurPop(visible: isAtTopOfScroll)
+        .padding(.top, Spacing.md) //As its small icon, sits in correct position
+        .padding(.horizontal, Spacing.margin)
     }
 }
 

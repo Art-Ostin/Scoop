@@ -82,6 +82,7 @@ enum Spacing {
 
     //Specific uses
     static let hairline: CGFloat = 2   //optical nudge between touching glyphs
+    static let titlePadding = xl        //Bettween navigation title and start of content
     static let gutter = md             //full-bleed surface (card, notification) ↔ screen edge
     static let margin = lg             //text/content column ↔ screen edge
     static let titleGap = xxxl         //screen title → its first content block

@@ -18,21 +18,19 @@ struct MeetContainer: View {
     @State private var isAtTopOfScroll = true
 
     var body: some View {
-        TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
-            profileCardsSection
-                .trackTopOfScroll($isAtTopOfScroll)
-                .scrollDisabled(ui.quickInvite != nil)
-                .transition(.opacity)
+        TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty, isAtTopOfScroll: $isAtTopOfScroll) {
+            LazyVStack(spacing: Spacing.xxxl) {
+                ForEach(vm.profiles) { profile in
+                    profileCard(profile)
+                }
+            }
+            .padding(.top, Spacing.titlePadding)
+            .padding(.bottom, Spacing.clearance)
         }
-        
-        
-        
-        
-        
-        
         .overlay(alignment: .topTrailing) {infoButton}
-        .allowsHitTesting(!ui.quickInviteExpanded)
         .profileMorphHost(profileMorph)
+        
+        //Different sub views of meetContainer
         .profileView(presentedID: ui.openProfile?.id) {profileView()}
         .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
@@ -47,8 +45,8 @@ extension MeetContainer {
     private func profileView() -> some View {
         if let profile = ui.openProfile {
             ProfileContainer(
-                vm: profileVM(profile),
-                profileImages: profileImages(profile),
+                vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
+                profileImages: vm.profileImages[profile.id] ?? seedImages(for: profile),
                 mode: sendInvite(profile),
                 onDismiss: { ui.openProfile = nil }
             )
@@ -56,31 +54,6 @@ extension MeetContainer {
             .opacity(profileMorph.contentOpacity)
             .environment(profileMorph)
         }
-    }
-    
-    private func profileVM(_ profile: UserProfile) -> ProfileViewModel {
-        ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults)
-    }
-    
-    private func profileImages(_ profile: UserProfile) -> [UIImage] {
-        vm.profileImages[profile.id] ?? seedImages(for: profile)
-    }
-}
-
-//2. Profile Card Section Logic
-extension MeetContainer {
-    
-
-    
-    private var profileCardsSection: some View {
-        LazyVStack(spacing: Spacing.xxxl) {
-            ForEach(vm.profiles) { profile in
-                profileCard(profile)
-            }
-        }
-        .padding(.horizontal, Spacing.gutter)
-        .padding(.bottom, Spacing.xxl)
-        .padding(.top, Spacing.xl)
     }
     
     private func profileCard(_ profile: PendingProfile)-> some View {
@@ -92,6 +65,10 @@ extension MeetContainer {
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
         .shadow(.image)
+    }
+
+    private var infoButton: some View {
+        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
     }
 }
 
@@ -179,10 +156,6 @@ extension MeetContainer {
     }
     
     
-    
-    
-    
-    
     //Quick-invite guard keys on `expanded`, not mount state: during the close
     //tail the card lingers (`.removed` unmount) but must not block profile taps.
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
@@ -237,37 +210,3 @@ extension MeetContainer {
         }
     }
 }
-
-
-
-
-//Other Views
-extension MeetContainer {
-
-    private var infoButton: some View {
-        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
-    }
-}
-
-
-
-/*
- 
- 
- 
- NavigationStack {
-     ScrollView {
-         if vm.profiles.isEmpty {
-             MeetPlaceholder()
-         } else {
-             profileCardsSection
-         }
-     }
-     .trackTopOfScroll($isAtTopOfScroll)
-     .scrollDisabled(ui.quickInvite != nil) //The flight's source frame must not move
-     .transition(.opacity)
-     .id(vm.profiles.count)
-     .scrollIndicators(.hidden)
-     .navigationTitle("Meet")
- }
- */

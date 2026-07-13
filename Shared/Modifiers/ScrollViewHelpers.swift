@@ -31,7 +31,6 @@ struct AppScrollView<Content: View>: View {
 }
 
 //MARK: Horizontal Scroll default Layout
-
 struct PagerScrollView<Content: View>: View {
     var peek: CGFloat = 0
     var progress: Binding<Double>? = nil
@@ -49,44 +48,29 @@ struct PagerScrollView<Content: View>: View {
     }
 }
 
-//MARK: Track if User At Top of ScrollView
 
 private struct IsAtTopOfScroll: ViewModifier {
     @Binding var isAtTop: Bool
-    @State private var expandedInset: CGFloat = 0
-
-    func body(content: Content) -> some View {
-        content
-            .onScrollGeometryChange(for: CGFloat.self) {
-                $0.contentInsets.top
-            } action: { _, inset in
-                expandedInset = max(expandedInset, inset)
-                isAtTop = inset >= expandedInset - 1
-            }
-            .onAppear {
-                expandedInset = 0
-                isAtTop = true
-            }
-    }
-}
-
-private struct isAtTopScrolling: ViewModifier {
-    @Binding var isAtTop: Bool
+    @State private var expandedInset: CGFloat = 0        // fully-expanded (large-title) inset
+    
+    private struct Geo: Equatable { var offsetY, insetTop: CGFloat }
     
     func body(content: Content) -> some View {
         content
-            .onScrollGeometryChange(for: Bool.self) { $0.contentOffset.y < 12 } action: { oldValue, newValue in
-                isAtTop = newValue
+            .onScrollGeometryChange(for: Geo.self) { geo in
+                Geo(offsetY: geo.contentOffset.y, insetTop: geo.contentInsets.top)
+            } action: { _, g in
+                expandedInset = max(expandedInset, g.insetTop)   // learn the expanded inset
+                isAtTop = g.offsetY <= -expandedInset + 1        //Geometry: 1pt float-jitter tolerance
             }
-
     }
 }
 
-
-
-
-//MARK:
-
+extension View {
+    func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
+        modifier(IsAtTopOfScroll(isAtTop: isAtTop))
+    }
+}
 
 
 
@@ -118,16 +102,3 @@ extension View {
             }
     }
 }
-
-
-
-
-
-extension View {
-    func trackTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
-        modifier(IsAtTopOfScroll(isAtTop: isAtTop))
-    }
-}
-
-
-

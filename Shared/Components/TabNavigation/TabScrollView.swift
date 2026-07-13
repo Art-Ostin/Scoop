@@ -14,6 +14,8 @@ struct TabScrollView<Content: View>: View {
     let showEmptyView: Bool
     
     var path: Binding<NavigationPath>?
+    var isAtTopOfScroll: Binding<Bool>?
+    
     var eventName: String = ""
     
     @ViewBuilder let content: Content
@@ -30,10 +32,12 @@ struct TabScrollView<Content: View>: View {
                 }
             }
             .background(type == .meet && !showEmptyView ? Color.appCanvas.ignoresSafeArea() : Color.clear.ignoresSafeArea())
+            .isAtTopOfScroll(isAtTopOfScroll ?? .constant(false))
             .scrollIndicators(.never)
             .navigationTitle(type.title(name: eventName, isEmpty: showEmptyView))
             .scoopNavigationBarFonts(largeTitleSize: type == .events && !showEmptyView ? 26 : 32)
         }
     }
 }
+
 
