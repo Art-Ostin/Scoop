@@ -105,9 +105,8 @@ extension View {
         self
             .frame(maxWidth: .infinity)
             .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.lg))
+            .stroke(CornerRadius.lg, lineWidth: 0.85)//Shares the fill's radius so it hugs the edge
             .compositingGroup()
-            .padding(.horizontal, Spacing.gutter)
-            .stroke(CornerRadius.md, lineWidth: 0.85)
             .shadow(.card)
     }
     

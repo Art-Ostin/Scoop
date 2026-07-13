@@ -117,11 +117,6 @@ extension View {
     }
 }
 
-
-
-
-
-
 struct SendInviteSourceModifier: ViewModifier {
     
     @Environment(SendInvitePresenter.self) private var presenter: SendInvitePresenter?

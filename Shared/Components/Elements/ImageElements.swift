@@ -64,7 +64,9 @@ struct ImageCarousel: View {
             }
         }
         .scrollPosition($scrollPosition)
-        .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them
+        .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them]
+        .customHorizontalScrollFade(width: 3, showFade: true, fromLeading: true)
+        .customHorizontalScrollFade(width: 3, showFade: true, fromLeading: false)
     }
 
     private func carouselImage(_ image: UIImage) -> some View {

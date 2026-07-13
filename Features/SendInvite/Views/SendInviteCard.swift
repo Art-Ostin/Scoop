@@ -60,7 +60,7 @@ struct SendInviteCard: View {
             ZStack(alignment: .top) {
                 cardBackground(origin)
                 VStack(spacing: 0) {
-                    cardContent(imageWidth: geo.size.width - 2 * (Self.screenGap + 24))
+                    cardContent(imageWidth: geo.size.width - 2 * Self.screenGap)
                     backButton
                 }
                 carouselLayer(origin)
@@ -171,10 +171,6 @@ extension SendInviteCard {
 
     private func cardBackground(_ origin: CGPoint) -> some View {
         backgroundShape(origin)
-            //Expanded: the modal surface's own top-of-ramp shadow. Collapsed: ProfileCard's
-            //resting shadow, which is itself 2×.image (ScoopImage's own + MeetContainer's
-            //wrapper) — replicated here (hence two calls) so the card collapses back onto the
-            //real ProfileCard pixel-identically. strength animates each in/out with `expanded`.
             .shadow(.softFloating, strength: expanded ? 1 : 0)
             .shadow(.image, strength: expanded ? 0 : 1)
             .shadow(.image, strength: expanded ? 0 : 1)
@@ -204,7 +200,7 @@ extension SendInviteCard {
         hasOpened = true
         let generation = flightGeneration
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(30))
+//            try? await Task.sleep(for: .milliseconds(30))
             //.removed: the interactivity latch must wait for the spring's true end, not its perceptual duration.
             withAnimation(sourceFrame.width > 1 ? Self.openFlight : nil, completionCriteria: .removed) {
                 expanded = true
