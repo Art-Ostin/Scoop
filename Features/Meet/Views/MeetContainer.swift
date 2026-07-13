@@ -78,10 +78,15 @@ extension MeetContainer {
 //3. Quick Invite Logic
 extension MeetContainer {
 
-    //Rendered in the root overlay slot (above the TabView). The backdrop stands in for
-    //the old meet-chrome fade AND the tab-bar hide: opaque while the card is open, it
-    //rides the open/close flights via `expanded` and the dismiss drag via progress, so
-    //the live bar and the meet list fade gradually — no native visibility flips.
+    
+    
+    private var inviteOverlay: some View {
+        
+        
+        
+        
+        
+    }
     @ViewBuilder
     private func inviteOverlay() -> some View {
         if let invite = ui.quickInvite, let image = ui.quickInviteImage {

@@ -592,31 +592,9 @@ struct ProfileOverlayLayer: View {
     }
 }
 
-//Mirrors a host's presentation state into a root slot: a non-nil presentedID
-//shows the content, nil clears it. The content closure captures the host's state
-//objects, so it stays live across root re-evaluations. Private routing detail —
-//hosts call the .profileView / .responseCover wrappers below, never this directly.
-private struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
-    @Environment(ProfileOverlayPresenter.self) private var presenter: ProfileOverlayPresenter?
-    let slot: ProfileOverlaySlotKind
-    let presentedID: String?
-    @ViewBuilder let overlay: () -> Overlay
 
-    func body(content: Content) -> some View {
-        content
-            .onChange(of: presentedID, initial: true) { oldID, newID in
-                guard let presenter else { return }
-                if let newID {
-                    presenter.show(slot, id: newID) { AnyView(overlay()) }
-                } else if let oldID {
-                    presenter.clear(slot, id: oldID)
-                }
-            }
-            .onDisappear {
-                if let presentedID { presenter?.clear(slot, id: presentedID) }
-            }
-    }
-}
+
+
 
 extension View {
 
@@ -639,12 +617,6 @@ extension View {
         })
     }
 
-    //Presents the quick-invite card at the app root, above the TabView — the tab
-    //bar never hides; the content's own backdrop covers it and the swipe-dismiss
-    //scrubs that backdrop away (the same recipe as the profile zoom dismissal).
-    func inviteView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
-        modifier(ProfileOverlayModifier(slot: .invite, presentedID: presentedID, overlay: content))
-    }
 
     //Presents a full-screen response cover above the profile slot, used while a
     //respond flow tears the profile down behind it. Driven by the response itself:

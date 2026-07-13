@@ -35,10 +35,10 @@ struct TabScrollView<Content: View>: View {
         .navigationTitle(title)
         .colorBackground()
         .animation(.transition, value: showEmptyView)
+        .scrollIndicators(.hidden)
         .scoopNavigationBarFonts(largeTitleSize:titleSize)
     }
 }
-
 
 //Used for EditProfile and Settings View screens
 struct PageScrollView<Content: View>: View {
