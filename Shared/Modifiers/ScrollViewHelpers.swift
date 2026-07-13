@@ -24,12 +24,15 @@ struct AppScrollView<Content: View>: View {
         ScrollView {
             if showEmptyView {
                 type.placeholderView()
+                    .transition(.blurReplace)
             } else {
                 content
                     .padding(.top, Spacing.titlePadding)
                     .padding(.bottom, Spacing.clearance)
+                    .transition(.blurReplace)
             }
         }
+        .animation(.transition, value: showEmptyView)
         .colorBackground()
         .navigationTitle(type.title(name: name, isEmpty: showEmptyView))
         .scoopNavigationBarFonts(largeTitleSize:titleSize)
