@@ -40,6 +40,7 @@ extension ProfileImageView {
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
             aspectRatio: .card,
+            zoomablePages: true,
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,
         )

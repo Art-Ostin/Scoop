@@ -9,15 +9,22 @@ import SwiftUI
 
 struct EventImageCard: View {
 
+    //Injected
+    let profileID: String
     let profileImages: [UIImage]
     let userImage: UIImage
     let targetTime: Date
     let openProfile: () -> ()
 
+    //Local view state
+    @State private var scrollProgress: Double = 0
+
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            CardImageCarousel(images: profileImages, scrollProgress: .constant(0))
+            CardImageCarousel(images: profileImages, scrollProgress: $scrollProgress)
                 .onTapGesture {openProfile()}
+                //The morph flies a copy of this image, so the real one hides while the copy is on screen.
+                .profileMorphSource(id: profileID, radii: .init(uniform: CornerRadius.image))
             timerSection
         }
         .clipShape(.rect(cornerRadius: CornerRadius.image))
@@ -33,7 +40,7 @@ extension EventImageCard {
             clockView
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, Spacing.lg)
+        .padding(.horizontal, Spacing.md)
     }
     
     var photoOverlap: some View {
@@ -43,7 +50,7 @@ extension EventImageCard {
             
             SmallImage(image: profileImages.first ?? UIImage(), size: 38, isCircle: true)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
-                .offset(x: 16, y: 14)
+                .offset(x: 18, y: 15)
         }
         .frame(width: 60, height: 56, alignment: .topLeading)
     }

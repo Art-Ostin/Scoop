@@ -47,11 +47,6 @@ struct SelectTypeView: View {
         VStack(spacing: 0) {
             ForEach(Event.EventType.allCases, id: \.self) {eventType in
                     typeRow(eventType)
-
-                    if eventType != Event.EventType.allCases.last {
-                        thinDivider
-                            .padding(.horizontal, Spacing.lg)
-                    }
             }
         }
         .modifier(SelectTypeCardBackground(corners: cardCorners))
@@ -67,8 +62,8 @@ extension SelectTypeView {
             typeText(type)
             typeInfo(type)
         }
-        .padding(.top, Spacing.md)
-        .padding(.bottom, openTypes.contains(type) ? Spacing.sm : Spacing.md) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.top, Spacing.lg)
+        .padding(.bottom, openTypes.contains(type) ? Spacing.md : Spacing.lg) //All padding for view done within each row, so it is incorporated into the tap region. Key
         .padding(.horizontal, Spacing.lg)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
         .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
@@ -83,7 +78,7 @@ extension SelectTypeView {
             
             
             Text(type.longTitle)
-                .font(.body(18, type == selectedType ? .bold : .medium))
+                .font(.body(17, type == selectedType ? .bold : .medium))
                 .kerning(kerningAmount(type)) //Fine tuned kerning so all same width
                 .kerning(type == selectedType && type != .custom ? -0.55 : 0)
                 .foregroundStyle(type == selectedType ? Color.accent : Color.black)
@@ -212,7 +207,7 @@ struct SelectTypeCardBackground: ViewModifier {
     //The 'Menu' takes care of background, this simply give it the parameters
     func body(content: Content) -> some View {
         content
-            .frame(width: 270)
+            .frame(width: 300, alignment: .leading)
             .stroke(corners)
     }
 }

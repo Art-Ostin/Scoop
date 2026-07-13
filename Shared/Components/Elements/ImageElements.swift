@@ -53,6 +53,8 @@ struct ImageCarousel: View {
     let bottomRadius: CGFloat
     var aspectRatio: AspectRatio
     var fillsContainerHeight = false
+    var showFade = true //Horizontal edge fade; off collapses the invite endpoint to a plain edge-to-edge image (matches ProfileCard)
+    var onImageTap: ((Int) -> Void)? = nil //Opt-in per-page tap (profile pager → full-screen zoom viewer); nil elsewhere
 
     @Binding var scrollProgress: Double
     @Binding var scrollPosition: ScrollPosition
@@ -60,17 +62,18 @@ struct ImageCarousel: View {
     var body: some View {
         PagerScrollView(progress: $scrollProgress) {
             ForEach(images.indices, id: \.self) { index in
-                carouselImage(images[index])
+                carouselImage(images[index], index: index)
             }
         }
         .scrollPosition($scrollPosition)
         .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them]
-        .customHorizontalScrollFade(width: 3, showFade: true, fromLeading: true)
-        .customHorizontalScrollFade(width: 3, showFade: true, fromLeading: false)
+        .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: true)
+        .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: false)
     }
 
-    private func carouselImage(_ image: UIImage) -> some View {
-        ScoopImage(
+    @ViewBuilder
+    private func carouselImage(_ image: UIImage, index: Int) -> some View {
+        let base = ScoopImage(
             image: image,
             aspectRatio: aspectRatio,
             radii: .init(top: topRadius, bottom: bottomRadius),
@@ -78,6 +81,11 @@ struct ImageCarousel: View {
             fillsPageWidth: true,
             fillsContainerHeight: fillsContainerHeight
         )
+        if let onImageTap {
+            base.contentShape(Rectangle()).onTapGesture { onImageTap(index) }
+        } else {
+            base
+        }
     }
 }
 

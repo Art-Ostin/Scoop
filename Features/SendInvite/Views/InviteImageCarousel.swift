@@ -46,6 +46,7 @@ struct InviteImageCarousel: View {
             bottomRadius: bottomRadius,
             aspectRatio: .card,
             fillsContainerHeight: true, //The animated frame owns the height at both endpoints
+            showFade: expanded, //Collapsed: no edge fade, so the close lands on ProfileCard's plain image (no appCanvas sliver)
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition
         )

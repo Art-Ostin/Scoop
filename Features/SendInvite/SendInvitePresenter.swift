@@ -40,7 +40,8 @@ final class SendInvitePresenter {
 
     func close() {
         guard expanded else { return }
-        withAnimation(SendInviteCard.closeFlight, completionCriteria: .removed) {
+        //.logicallyComplete: tear down at the visual landing, not the spring's settling tail (the tail froze the collapsed card before the reveal)
+        withAnimation(SendInviteCard.closeFlight, completionCriteria: .logicallyComplete) {
             expanded = false
         } completion: { [weak self] in
             guard let self, !expanded else { return }        //A reopen mid-close owns the card now

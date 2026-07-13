@@ -31,7 +31,7 @@ extension View {
         self
             .overlay {
                 Circle()
-                    .strokeBorder(color, lineWidth: lineWidth)
+                    .stroke(color, lineWidth: lineWidth)
             }
     }
 
