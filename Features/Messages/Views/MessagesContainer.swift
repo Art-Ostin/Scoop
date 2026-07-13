@@ -15,28 +15,22 @@ struct MessagesContainer: View {
     //Injected (path owned by the parent so it can jump tabs)
     let vm: MessagesViewModel
     @Binding var path: NavigationPath
-
+    
     //Local view state
     @State private var userProfileImages: [UIImage] = []
     @State private var showSettings = false
     @State private var showProfile = false
     @Namespace private var settingsZoom
     @Namespace private var profileZoom
-
+    
     var body: some View {
         NavigationStack(path: $path) {
-            AppScrollView(title: "Messages") {
-                if vm.events.isEmpty {          
-                    messagesPlaceholder
-                } else {
-                    VStack(spacing: 0) {
-                        ForEach(vm.events) { chatRow(for: $0) }
-                    }
+            AppScrollView(type: .meet, showEmptyView: vm.events.isEmpty) {
+                VStack(spacing: 0) {
+                    ForEach(vm.events) { chatRow(for: $0) }
                 }
             }
             .toolbar {settingsButton ; profileButton}
-            
-            
             .navigationDestination(for: PastEventsRoute.self, destination: destination)
             .fullScreenCover(isPresented: $showSettings) {settingScreen()}
             .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}

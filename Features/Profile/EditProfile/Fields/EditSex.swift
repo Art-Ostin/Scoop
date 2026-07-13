@@ -52,12 +52,14 @@ struct GenericSex: View {
             
             VStack(alignment: .leading, spacing: Spacing.xxl) {
                 HStack {
-                    SexStandardPill(title: options[0], selectedOption: $selectedOption) {
-                        onTap(selectedOption)
+                    OptionPill(title: options[0], isSelected: selectedOption == options[0]) {
+                        selectedOption = options[0]
+                        onTap(options[0])
                     }
                     Spacer()
-                    SexStandardPill(title: options[1], selectedOption: $selectedOption) {
-                        onTap(selectedOption)
+                    OptionPill(title: options[1], isSelected: selectedOption == options[1]) {
+                        selectedOption = options[1]
+                        onTap(options[1])
                     }
                 }
                 
@@ -68,7 +70,7 @@ struct GenericSex: View {
                             rubbishBin
                         }
                     } else {
-                        SexStandardPill(title: options[2], selectedOption: $selectedOption) {
+                        OptionPill(title: options[2], isSelected: selectedOption == options[2]) {
                             selectedOption = ""
                             showSaved = false
                             showTypeSexField = true

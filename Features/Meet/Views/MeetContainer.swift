@@ -19,18 +19,14 @@ struct MeetContainer: View {
 
     var body: some View {
         NavigationStack {
-            AppScrollView(title: "Meet", isAtTop: $isAtTopOfScroll) {
-                if vm.profiles.isEmpty {
-                    MeetPlaceholder()
-                } else {
-                    LazyVStack(spacing: Spacing.xxxl) {
-                        ForEach(vm.profiles) { profile in
-                            profileCard(profile)
-                        }
+            AppScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
+                LazyVStack(spacing: Spacing.xxxl) {
+                    ForEach(vm.profiles) { profile in
+                        profileCard(profile)
                     }
-                    .tabContentInsets()
                 }
             }
+            .isAtTopOfScroll($isAtTopOfScroll)
         }
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)

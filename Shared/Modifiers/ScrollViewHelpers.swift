@@ -11,38 +11,28 @@ import SwiftUI
 
 struct AppScrollView<Content: View>: View {
 
-    let title: String
-    var largeTitleSize: CGFloat = 32       // Events passes 26 for its longer "Meeting {name}" title
-    var isAtTop: Binding<Bool>? = nil       // opt-in scroll-top hook (Meet's InfoButton); a no-op otherwise
-    let content: Content
-
-    init(title: String,
-         largeTitleSize: CGFloat = 32,
-         isAtTop: Binding<Bool>? = nil,
-         @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.largeTitleSize = largeTitleSize
-        self.isAtTop = isAtTop
-        self.content = content()
+    let type: AppTab
+    let showEmptyView: Bool
+    var name: String = ""
+    @ViewBuilder let content: Content
+    
+    var titleSize: CGFloat {
+        type == .events && !showEmptyView ? 28 : 32
     }
 
     var body: some View {
         ScrollView {
-            content
+            if showEmptyView {
+                type.placeholderView()
+            } else {
+                content
+                    .padding(.top, Spacing.titlePadding)
+                    .padding(.bottom, Spacing.clearance)
+            }
         }
-        .isAtTopOfScroll(isAtTop ?? .constant(false))
         .colorBackground()
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
-        .scoopNavigationBarFonts(largeTitleSize: largeTitleSize)
-    }
-}
-
-extension View {
-    //Standard tab-content insets: gap below the large title, clearance above the tab bar / floating chrome.
-    func tabContentInsets() -> some View {
-        padding(.top, Spacing.titlePadding)
-        .padding(.bottom, Spacing.clearance)
+        .navigationTitle(type.title(name: name, isEmpty: showEmptyView))
+        .scoopNavigationBarFonts(largeTitleSize:titleSize)
     }
 }
 

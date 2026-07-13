@@ -81,10 +81,10 @@ struct GenericLifestyle: View {
     var body: some View {
 
         VStack(spacing: Spacing.xxl) {
-            vicesOptions(title: "Drinking", isSelected: $drinking)
-            vicesOptions(title: "Smoking", isSelected: $smoking)
-            vicesOptions(title: "Marijuana", isSelected: $marijuana)
-            vicesOptions(title: "Drugs", isSelected: $drugs)
+            vicesOptions(title: "Drinking", selection: $drinking)
+            vicesOptions(title: "Smoking", selection: $smoking)
+            vicesOptions(title: "Marijuana", selection: $marijuana)
+            vicesOptions(title: "Drugs", selection: $drugs)
         }
         .padding(.horizontal)
         .padding(.bottom, Spacing.xxl)
@@ -92,17 +92,23 @@ struct GenericLifestyle: View {
         .background(Color.appCanvas)
     }
     
-    private func vicesOptions(title: String, isSelected: Binding<String?>) -> some View {
+    private func vicesOptions(title: String, selection: Binding<String?>) -> some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             Text(title)
                 .font(.title(28))
             HStack {
-                OptionPill(title: "Yes", width: 75, isSelected: isSelected, onTap: {})
+                vicePill("Yes", width: 75, selection: selection)
                 Spacer()
-                OptionPill(title: "No", width: 75, isSelected: isSelected, onTap: {})
+                vicePill("No", width: 75, selection: selection)
                 Spacer()
-                OptionPill(title: "Occasionally", isSelected: isSelected, onTap: {})
+                vicePill("Occasionally", selection: selection)
             }
+        }
+    }
+
+    private func vicePill(_ option: String, width: CGFloat = 148, selection: Binding<String?>) -> some View {
+        OptionPill(title: option, width: width, isSelected: selection.wrappedValue == option) {
+            selection.wrappedValue = option
         }
     }
 }

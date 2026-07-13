@@ -18,14 +18,9 @@ struct InvitesContainer: View {
 
     var body: some View {
         NavigationStack {
-            AppScrollView(title: "Invites") {
-                if vm.invites.isEmpty {
-                    InvitesPlaceholder()
-                } else {
-                    ForEach(vm.invites, id: \.self) { invite in
-                        inviteCard(invite)
-                    }
-                    .tabContentInsets()
+            AppScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
+                ForEach(vm.invites, id: \.self) { invite in
+                    inviteCard(invite)
                 }
             }
         }

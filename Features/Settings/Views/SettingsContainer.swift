@@ -15,19 +15,25 @@ struct SettingsContainer: View {
 
     var body: some View {
         NavigationStack { //As Settings appears in full screen cover
-            AppScrollView(title: "Settings") {
+            ScrollView {
                 VStack(spacing: Spacing.xl) {
-                    meetTheTeam
-                    
-                    keySettingsSection
-                    
-                    PreferredMapsView(vm: vm)
-                    signOutSection
+                        meetTheTeam
+                        keySettingsSection
+                        PreferredMapsView(vm: vm)
+                        signOutSection
                 }
                 .toolbar { DismissToolbarItem(type: .cross, isLeading: false) }
                 .padding(Spacing.lg)
                 .navigationBarBackButtonHidden()
             }
+            .navigationTitle("Settings")
+            .colorBackground()
+            .padding(.top, Spacing.titlePadding)
+            .padding(.bottom, Spacing.clearance)
+
+            
+            
+            
         }
     }
 }

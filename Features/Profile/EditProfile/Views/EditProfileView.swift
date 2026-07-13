@@ -13,18 +13,23 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
     @Binding var selectedImage: ImageSlot?
-
+    
     var body: some View {
-        AppScrollView(title: "Edit Profile") {
-            VStack(spacing: Spacing.xxl) {
-                ProfileImages(vm: vm, selectedImage: $selectedImage)
-                PromptsView(vm: vm)
-                InfoView(vm: vm)
-                InterestsView(vm: vm)
-                PreferencesView(vm: vm)
+        NavigationStack { //As Settings appears in full screen cover
+            ScrollView {
+                VStack(spacing: Spacing.xxl) {
+                    ProfileImages(vm: vm, selectedImage: $selectedImage)
+                    PromptsView(vm: vm)
+                    InfoView(vm: vm)
+                    InterestsView(vm: vm)
+                    PreferencesView(vm: vm)
+                }
+                .padding(.horizontal, Spacing.gutter)
             }
-            .padding(.horizontal, Spacing.gutter)
-            .padding(.top, Spacing.lg)
         }
+        .navigationTitle("Edit Profile")
+        .colorBackground()
+        .padding(.top, Spacing.titlePadding)
+        .padding(.bottom, Spacing.clearance)
     }
 }

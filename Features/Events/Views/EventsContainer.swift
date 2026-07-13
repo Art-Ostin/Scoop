@@ -24,27 +24,21 @@ struct EventsContainer: View {
     }
     
     private var eventsTitle: String {
-        vm.events.isEmpty ? "Events" : "Meeting \(currentProfile?.profile.name ?? "")"
+        vm.events.isEmpty ? "Events" : "\(currentProfile?.profile.name ?? "")"
     }
     
     
     var body: some View {
         NavigationStack(path: $path) {
-            AppScrollView(title: eventsTitle,
-                          largeTitleSize: vm.events.isEmpty ? 32 : 26) {
-                if vm.events.isEmpty {
-                    EventsPlaceholder()
-                } else {
-                    PagerScrollView {
-                        ForEach(vm.events) { eventProfile in
-                            eventSlot(eventProfile)
-                        }
+            AppScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle) {
+                PagerScrollView {
+                    ForEach(vm.events) { eventProfile in
+                        eventSlot(eventProfile)
                     }
-                    .scrollPosition(id: $ui.selectedEventId)
-                    .overlay(alignment: .bottomTrailing) { messageButton }
-                    .tabContentInsets()
                 }
+                .scrollPosition(id: $ui.selectedEventId)
             }
+            .overlay(alignment: .bottomTrailing) { messageButton }
             .navigationDestination(for: EventProfile.self) { chatView(eventProfile: $0) }
         }
         .profileMorphHost(morph)

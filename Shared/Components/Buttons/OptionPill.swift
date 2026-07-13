@@ -1,5 +1,5 @@
 //
-//  OptionCellNoCount.swift
+//  OptionPill.swift
 //  Scoop
 //
 //  Created by Art Ostin on 10/07/2025.
@@ -7,87 +7,53 @@
 
 import SwiftUI
 
+/// A selectable capsule pill. The caller owns the selection state and resolves
+/// `isSelected`, so one pill serves every option list (String, String?, enum…).
 struct OptionPill: View {
-    
+
     let title: String
-    @Binding var isSelected: String?
-    let width: CGFloat
-    var onTap: () -> Void
-    
-    init(title: String, width: CGFloat = 148, isSelected: Binding<String?>, onTap: @escaping () -> ()) {
-        self.title = title
-        self._isSelected = isSelected
-        self.width = width
-        self.onTap = onTap
-    }
-    
+    var width: CGFloat = 148 //Geometry: default pill width
+    let isSelected: Bool
+    let onTap: () -> Void
+
     var body: some View {
-        
-        let selected = title == isSelected
-        
-        Text(title)
-            .frame(width: width, height: 44)
-            .background (selected ? Color.accent : Color.fillGray, in: Capsule())
-            .font(.body(16, .bold))
-            .foregroundStyle(selected ? Color.white : Color.black)
-            .onTapGesture {
-                self.isSelected = title
-                onTap()
-            }
+        Button(action: onTap) {
+            Text(title)
+                .font(.body(16, .bold))
+                .foregroundStyle(isSelected ? Color.white : Color.textPrimary)
+                .frame(width: width, height: 44) //Geometry: pill height / min tap target
+                .background(isSelected ? Color.accent : Color.fillGray, in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
-    OptionPill(title: "Sex", isSelected: .constant("Sex"), onTap: {})
+    OptionPill(title: "Sex", isSelected: true, onTap: {})
 }
 
-
-struct SexStandardPill: View {
-    
-    let title: String
-
-    @Binding var selectedOption: String
-    
-    var isSelected: Bool {
-        title == selectedOption
-    }
-    var onTap: () -> Void
-    
-    var body: some View {
-        Text(title)
-            .frame(width: 148, height: 44)
-            .background (isSelected ? Color.accent : Color.fillGray, in: Capsule())
-            .font(.body(16, .bold))
-            .foregroundStyle(isSelected ? Color.white : Color.black)
-            .onTapGesture {
-                selectedOption = title
-                onTap()
-            }
-    }
-}
-
+/// The "custom sex" pill: a stroked, non-selecting capsule that opens the editor.
 struct SexOptionPill: View {
-    
+
     @Binding var gender: String
     @Binding var editText: Bool
-    
+
     var body: some View {
-        
-        HStack(spacing: Spacing.md) {
+        Button { editText = true } label: {
             Text(gender)
                 .font(.body(16, .bold))
                 .padding(.horizontal, Spacing.lg)
-                .frame(width: 148, height: 44)
+                .frame(width: 148, height: 44) //Geometry: matches OptionPill footprint
                 .capsuleStroke(lineWidth: 2, color: .accent)
                 .overlay(alignment: .topTrailing) {
                     Image("EditButton")
                         .scaleEffect(0.7)
                         .frame(width: 20, height: 20)
                         .background(Color.appCanvas)
-                        .offset(x: 4, y: -4)
+                        .offset(x: 4, y: -4) //Geometry: nudge edit badge onto the corner
                 }
-                .onTapGesture { editText = true }
-                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
     }
 }

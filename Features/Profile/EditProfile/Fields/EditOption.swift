@@ -52,7 +52,8 @@ struct OptionGeneric: View {
                 .padding(.horizontal, Spacing.margin)
             LazyVGrid(columns: grid, spacing: Spacing.xxl) {
                 ForEach(field.options, id: \.self) { option in
-                    OptionPill(title: option, isSelected: $selection) {
+                    OptionPill(title: option, isSelected: selection == option) {
+                        selection = option
                         onTap(option)
                     }
                 }
