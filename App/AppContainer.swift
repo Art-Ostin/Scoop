@@ -18,6 +18,8 @@ struct AppContainer: View {
 
     //Profiles present here, above the TabView, so the real tab bar stays behind them (see ProfileMorph.swift).
     @State private var profileOverlay = ProfileOverlayPresenter()
+    //The quick-invite card presents at the root too, in its own overlay below the profile layer.
+    @State private var inviteOverlay = InviteOverlayPresenter()
 
     init(dependencies dep: AppDependencies) {
         _meetVM = State(initialValue: MeetViewModel(
@@ -88,10 +90,12 @@ struct AppContainer: View {
                 .accessibilityLabel("Messages")
             }
 
+            InviteOverlayLayer(presenter: inviteOverlay)
             ProfileOverlayLayer(presenter: profileOverlay)
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(profileOverlay)
+        .environment(inviteOverlay)
     }
 }
 

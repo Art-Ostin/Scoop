@@ -117,39 +117,3 @@ extension InvitesContainer {
         profileMorph.reset()
     }
 }
-
-
-
-
-
-
-
-extension View {
-    
-    func inviteView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
-        modifier(ProfileOverlayModifier(slot: .invite, presentedID: presentedID, overlay: content))
-    }
-}
-
-
-private struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
-    @Environment(ProfileOverlayPresenter.self) private var presenter: ProfileOverlayPresenter?
-    let slot: ProfileOverlaySlotKind
-    let presentedID: String?
-    @ViewBuilder let overlay: () -> Overlay
-
-    func body(content: Content) -> some View {
-        content
-            .onChange(of: presentedID, initial: true) { oldID, newID in
-                guard let presenter else { return }
-                if let newID {
-                    presenter.show(slot, id: newID) { AnyView(overlay()) }
-                } else if let oldID {
-                    presenter.clear(slot, id: oldID)
-                }
-            }
-            .onDisappear {
-                if let presentedID { presenter?.clear(slot, id: presentedID) }
-            }
-    }
-}

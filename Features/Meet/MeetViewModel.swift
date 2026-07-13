@@ -58,11 +58,6 @@ import SwiftUI
 
 @Observable final class MeetUIState {
     var openProfile: UserProfile? = nil
-    var quickInvite: PendingProfile? //Mounted quick-invite card; nil only once the close flight lands
-    var quickInviteImage: UIImage?
-    var quickInviteSource: CGRect = .zero //Profile card image frame the flight departs from and returns to
-    var quickInviteExpanded = false //Drives the open/close flight (see SendInviteCard)
-    var quickInviteDismissProgress: Double = 0 //Swipe-dismiss collapse 0→1; fades the meet list back in behind the dragged card
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false

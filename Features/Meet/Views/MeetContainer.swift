@@ -15,6 +15,7 @@ struct MeetContainer: View {
     //Local view state
     @State private var ui = MeetUIState()
     @State private var profileMorph = ProfileMorphState()
+    @State private var invite = SendInvitePresenter() //Owns the quick-invite card open/close flight
     @State private var isAtTopOfScroll = true
 
     
@@ -27,10 +28,11 @@ struct MeetContainer: View {
         }
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
-        
+        .environment(invite) //So each ProfileCard's .sendInviteSource reports its frame to the presenter
+
         //Different sub views of meetContainer
         .profileView(presentedID: ui.openProfile?.id, morph: profileMorph) {profileView()}
-        .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
+        .inviteView(presentedID: invite.presentedID) {inviteOverlay}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
@@ -53,7 +55,7 @@ extension MeetContainer {
             ProfileContainer(
                 vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
                 profileImages: vm.profileImages[profile.id] ?? seedImages(for: profile),
-                mode: sendInvite(profile),
+                mode: inviteMode(for: profile),
                 onDismiss: { ui.openProfile = nil }
             )
         }
@@ -62,7 +64,7 @@ extension MeetContainer {
     private func profileCard(_ profile: PendingProfile)-> some View {
         ProfileCard(
             profile: profile,
-            quickInviteHidden: ui.quickInvite?.id == profile.id,
+            quickInviteHidden: invite.isPresenting(profile.id),
             onTap: {image in openProfile(profile, image: image)},
             onQuickInvite: {image in openQuickInvite(profile, image: image)}
         )
@@ -71,77 +73,32 @@ extension MeetContainer {
     }
 
     private var infoButton: some View {
-        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !ui.quickInviteExpanded)
+        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !invite.expanded)
     }
 }
 
+
 //3. Quick Invite Logic
 extension MeetContainer {
-
-    
-    
-    private var inviteOverlay: some View {
-        
-        
-        
-        
-        
-    }
-    @ViewBuilder
-    private func inviteOverlay() -> some View {
-        if let invite = ui.quickInvite, let image = ui.quickInviteImage {
-            ZStack {
-                Color.appCanvas.ignoresSafeArea()
-                    .opacity(ui.quickInviteExpanded ? 1 - ui.quickInviteDismissProgress : 0)
-                    .allowsHitTesting(ui.quickInviteExpanded)
-                timeAndPlaceView(invite, image)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func timeAndPlaceView(_ pendingProfile: PendingProfile, _ image: UIImage) -> some View {
-        InviteTimeAndPlaceView(
-            vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pendingProfile), defaults: vm.defaults),
-            image: image,
-            images: vm.profileImages[pendingProfile.profile.id] ?? [image],
-            details: profileDetails(pendingProfile.profile),
-            expanded: $ui.quickInviteExpanded,
-            sourceFrame: ui.quickInviteSource,
-            onDismissProgress: {ui.quickInviteDismissProgress = $0},
-            hideInvite: {closeQuickInvite()},
-            sendInvite: {sendInvite(pendingProfile, draft: $0)}
-        )
-    }
     
     private func openQuickInvite(_ profile: PendingProfile, image: UIImage) {
-        if ui.quickInvite?.id == profile.id { //Reopen mid-close: retarget the spring
-            withAnimation(SendInviteCard.openFlight) { ui.quickInviteExpanded = true }
-            return
-        }
-        guard ui.quickInvite == nil, ui.openProfile == nil else { return }
-        ui.quickInviteDismissProgress = 0
-        ui.quickInviteSource = profileMorph.sourceRect(id: profile.profile.id) ?? .zero
-        ui.quickInviteImage = image
-        ui.quickInvite = profile
-    }
-
-    //Reverse flight; unmounts only once the spring FULLY settles (`.removed` —
-    //the default `.logicallyComplete` fires while the spring tail is still moving,
-    //so unmounting there cuts off the last points of travel: an end-of-close snap).
-    //Skipped if reopened mid-close.
-    private func closeQuickInvite() {
-        guard ui.quickInviteExpanded else { return }
-        withAnimation(SendInviteCard.closeFlight, completionCriteria: .removed) {
-            ui.quickInviteExpanded = false
-        } completion: {
-            guard !ui.quickInviteExpanded else { return }
-            ui.quickInvite = nil
-            ui.quickInviteImage = nil
-            ui.quickInviteSource = .zero
-        }
+        invite.open(profile, image: image) //Presenter looks up the source frame from .sendInviteSource reports
     }
     
+    @ViewBuilder
+    private var inviteOverlay: some View {
+        if let pending = invite.pending, let image = invite.image {
+            SendInviteOverlay(
+                presenter: invite,
+                vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pending), defaults: vm.defaults),
+                image: image,
+                images: vm.profileImages[pending.profile.id] ?? [image],
+                details: profileDetails(pending.profile),
+                sendInvite: {sendInvite(pending, draft: $0)}
+            )
+        }
+    }
+
     //Must match ProfileCard's info line exactly — the flight chrome fades it out in place.
     private func profileDetails(_ p: UserProfile) -> String {
         "\(p.year) | \(p.degree) | \(p.hometown)"
@@ -150,39 +107,55 @@ extension MeetContainer {
     private func inviteModel(_ profileEvent: PendingProfile) -> InviteContext {
         InviteContext(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
     }
-    
-    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {
-        Task {await respondToProfile(event: draft, profile: profileEvent.profile)}
-    }
 }
 
 //Key Functions
 extension MeetContainer {
 
+    
     private func seedImages(for profile: UserProfile) -> [UIImage] {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
     
-    //Quick-invite guard keys on `expanded`, not mount state: during the close
-    //tail the card lingers (`.removed` unmount) but must not block profile taps.
     private func openProfile(_ profile: PendingProfile, image: UIImage) {
-        guard ui.openProfile == nil, !ui.quickInviteExpanded else { return }
+        guard ui.openProfile == nil, !invite.expanded else { return }
         profileMorph.beginOpen(id: profile.profile.id, image: image)
         ui.openProfile = profile.profile
     }
+        
+    private func hideProfileAndInviteInBackground() {
+        ui.openProfile = nil
+        invite.reset()
+        profileMorph.reset()
+    }
+        
+}
+
+//Logic of actually responding to a profile
+extension MeetContainer {
     
+    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {
+        Task {await respondToProfile(event: draft, profile: profileEvent.profile)}
+    }
     
-    
-    private func sendInvite(_ profile: UserProfile) -> ProfileMode {
+    private func inviteMode(for profile: UserProfile) -> ProfileMode {
         return .sendInvite { draft in
             Task {await respondToProfile(event: draft, profile: profile)}
         } onDecline: {
             Task { await respondToProfile(profile: profile) }
         }
     }
+    
+    private func submitResponse(event: EventFieldsDraft? = nil, profile: UserProfile) async {
+        if let event {
+            try? await vm.sendInvite(event: event, profile: profile)
+        } else {
+            try? await vm.declineProfile(profile: profile)
+        }
+    }
 
-
+    
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         //Step 1: Min time for whole process 0.85 seconds
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
@@ -201,20 +174,6 @@ extension MeetContainer {
         try? await minDelay
         ui.respondedToProfile = nil
     }
-    
-    private func hideProfileAndInviteInBackground() {
-        ui.openProfile = nil
-        ui.quickInvite = nil
-        ui.quickInviteImage = nil
-        ui.quickInviteExpanded = false
-        profileMorph.reset()
-    }
-    
-    private func submitResponse(event: EventFieldsDraft? = nil, profile: UserProfile) async {
-        if let event {
-            try? await vm.sendInvite(event: event, profile: profile)
-        } else {
-            try? await vm.declineProfile(profile: profile)
-        }
-    }
 }
+
+

@@ -92,10 +92,6 @@ final class ProfileMorphState {
         sourceRadii[id] = radii
     }
 
-    //Live frame of a reported source image — the quick-invite flight departs
-    //from and returns to it (read-only reuse of the sources' geometry reports).
-    func sourceRect(id: String) -> CGRect? { sourceRects[id] }
-
     //The settled page image sits 6pt inside the pager container.
     func reportDestination(containerRect: CGRect) {
         destRect = containerRect.insetBy(dx: 6, dy: 0)
@@ -548,9 +544,6 @@ final class ProfileOverlayPresenter {
 
     //The presented profile surface (one app-wide at a time).
     private(set) var profile: Slot?
-    //The quick-invite card + its canvas backdrop (never open at the same time as a
-    //profile). The backdrop covers the live tab bar; the swipe-dismiss scrubs it away.
-    private(set) var invite: Slot?
     //Full-screen response cover — sits above the profile while a respond flow
     //tears the profile down behind it.
     private(set) var cover: Slot?
@@ -561,7 +554,6 @@ final class ProfileOverlayPresenter {
     func show(_ slot: ProfileOverlaySlotKind, id: String, view: @escaping () -> AnyView) {
         switch slot {
         case .profile: profile = Slot(id: id, view: view)
-        case .invite: invite = Slot(id: id, view: view)
         case .cover: cover = Slot(id: id, view: view)
         }
     }
@@ -570,13 +562,38 @@ final class ProfileOverlayPresenter {
     func clear(_ slot: ProfileOverlaySlotKind, id: String) {
         switch slot {
         case .profile: if profile?.id == id { profile = nil }
-        case .invite: if invite?.id == id { invite = nil }
         case .cover: if cover?.id == id { cover = nil }
         }
     }
 }
 
-enum ProfileOverlaySlotKind { case profile, invite, cover }
+enum ProfileOverlaySlotKind { case profile, cover }
+
+//Mirrors a host-built surface into one of the root presenter's slots, keyed on the
+//presented id (a stale clear from one host can't drop another's content). Drives the
+//profile and response-cover slots below; the invite feature presents its own card
+//through its own modifier (see InviteOverlayModifier).
+private struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
+    @Environment(ProfileOverlayPresenter.self) private var presenter: ProfileOverlayPresenter?
+    let slot: ProfileOverlaySlotKind
+    let presentedID: String?
+    @ViewBuilder let overlay: () -> Overlay
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: presentedID, initial: true) { oldID, newID in
+                guard let presenter else { return }
+                if let newID {
+                    presenter.show(slot, id: newID) { AnyView(overlay()) }
+                } else if let oldID {
+                    presenter.clear(slot, id: oldID)
+                }
+            }
+            .onDisappear {
+                if let presentedID { presenter?.clear(slot, id: presentedID) }
+            }
+    }
+}
 
 //Renders the presenter's slots. Place as the TabView's sibling at the app root.
 struct ProfileOverlayLayer: View {
@@ -584,7 +601,6 @@ struct ProfileOverlayLayer: View {
 
     var body: some View {
         ZStack {
-            if let i = presenter.invite { i.view().id(i.id).zIndex(0.5) }
             if let p = presenter.profile { p.view().id(p.id).zIndex(1) }
             if let c = presenter.cover { c.view().id(c.id).zIndex(2) }
             if let m = presenter.flightMorph { ProfileMorphLayer(morph: m).zIndex(3) }

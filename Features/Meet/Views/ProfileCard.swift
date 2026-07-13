@@ -28,6 +28,7 @@ struct ProfileCard : View {
             .profileShrinkPress {onTap(profile.image)}
             .coordinateSpace(name: cardSpace)
             .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.image)
+            .sendInviteSource(id: profile.profile.id) //Reports this card's frame as the quick-invite flight source
     }
 }
 
