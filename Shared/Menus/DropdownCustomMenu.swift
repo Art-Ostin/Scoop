@@ -1145,7 +1145,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 if let footer = controller.footer, let size = menuSize, !popExit {
                     let platterRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
                     footerCard(footer(), platterRect: platterRect)
-                        .transition(.scoopPop)
+                        .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
                 }
 
                 // `.pop` dismiss removes this with the `.scoopPop` transition; the morph
@@ -1153,10 +1153,10 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 if let content = controller.content, !popExit {
                     if #available(iOS 26.0, *) {
                         glassPresentation(content: content(), metrics: metrics)
-                            .transition(.scoopPop)
+                            .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
                     } else {
                         legacyPresentation(content: content(), metrics: metrics)
-                            .transition(.scoopPop)
+                            .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
                     }
                 }
             }
@@ -1168,7 +1168,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 if controller.dismissStyle == .pop || controller.dismissStyle == .flex {
                     // Remove the platter + footer with the scoopPop transition. (`.flex` also
                     // pulses the label, driven by the controller — see `flexLabel()`.)
-                    withAnimation(.scoopPop) { popExit = true }
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { popExit = true }
                 } else if #available(iOS 26.0, *) {
                     runMorphDismiss()
                 }

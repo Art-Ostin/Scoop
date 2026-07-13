@@ -24,8 +24,6 @@ struct MeetContainer: View {
                     profileCard(profile)
                 }
             }
-            .padding(.top, Spacing.titlePadding)
-            .padding(.bottom, Spacing.clearance)
         }
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)

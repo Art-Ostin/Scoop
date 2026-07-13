@@ -8,18 +8,6 @@
 import SwiftUI
 
 
-// MARK:  Default show / dismiss animation
-extension Animation {
-    static let scoopPop: Animation = .spring(response: 0.35, dampingFraction: 0.7)
-}
-
-extension AnyTransition {
-    static var scoopPop: AnyTransition {
-        AnyTransition(.blurReplace).combined(with: .scale(scale: 0.8, anchor: .top))
-    }
-}
-
-
 private struct OpacityPop: ViewModifier {
     var visible: Bool
     var shrunkScale: CGFloat
@@ -48,7 +36,7 @@ private struct BlurPop: ViewModifier {
             .scaleEffect(visible ? 1 : shrunkScale)
             .opacity(visible ? 1 : 0)
             .allowsHitTesting(visible) //Stays mounted while hidden, so gate taps
-            .animation(.scoopPop, value: visible)
+            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: visible)
     }
 }
 

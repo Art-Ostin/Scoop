@@ -29,15 +29,21 @@ struct EventsContainer: View {
     }
     
     
-    
     var body: some View {
 
+        TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, eventName: eventsTitle) {
+            
+            
+            
+        }
+        
         
         
         NavigationStack(path: $path) {
             eventsRootView
                 .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
         }
+        
         .profileMorphHost(morph)
         .profileView(presentedID: ui.selectedProfile?.id) {
             if let profile = ui.selectedProfile { profileView(profile: profile) }

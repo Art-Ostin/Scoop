@@ -35,13 +35,11 @@ struct MessagesContainer: View {
                 }
             }
             .toolbar {settingsButton ; profileButton}
+            
+            
             .navigationDestination(for: PastEventsRoute.self, destination: destination)
-            .fullScreenCover(isPresented: $showSettings) {
-                settingScreen()
-            }
-            .fullScreenCover(isPresented: $showProfile) {
-                userProfileScreen()
-            }
+            .fullScreenCover(isPresented: $showSettings) {settingScreen()}
+            .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
         }
         .task { await prepareUserImages() }
         .hideTabBar(hideBar: !path.isEmpty)

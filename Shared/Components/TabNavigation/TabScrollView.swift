@@ -29,6 +29,8 @@ struct TabScrollView<Content: View>: View {
                     type.placeholderView()
                 } else {
                     content
+                        .padding(.top, Spacing.titlePadding) //Always same padding from title and content, same at bottom
+                        .padding(.bottom, Spacing.clearance)
                 }
             }
             .background(type == .meet && !showEmptyView ? Color.appCanvas.ignoresSafeArea() : Color.clear.ignoresSafeArea())

@@ -17,12 +17,13 @@ struct InvitesContainer: View {
     @State private var profileMorph = ProfileMorphState()
 
     var body: some View {
-        NavigationStack {
-            AppScrollView(title: "Invites") {
-                invitesView
+        TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
+            ForEach(vm.invites, id: \.self) { invite in
+                inviteCard(invite)
             }
         }
         .profileMorphHost(profileMorph)
+        
         .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
     }
@@ -71,25 +72,6 @@ extension InvitesContainer {
 //Logic for Invite Card
 extension InvitesContainer {
 
-    @ViewBuilder
-    private var invitesView: some View {
-        if vm.invites.isEmpty {
-            InvitesPlaceholder()
-        } else {
-            invitesCardView
-                .padding(.top, Spacing.lg)
-        }
-    }
-    
-    private var invitesCardView: some View {
-        ForEach(vm.invites, id: \.self) { invite in
-            VStack {
-                inviteCard(invite)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-    
     private func inviteCard(_ invite: EventProfile) -> some View {
         InviteCard(
             selectedProfile: $ui.selectedProfile,
