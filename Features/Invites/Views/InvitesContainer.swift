@@ -26,26 +26,27 @@ struct InvitesContainer: View {
         }
         .profileMorphHost(profileMorph)
         
-        .profileView(presentedID: ui.selectedProfile?.id, morph: profileMorph) {profileView()}
+        .profileView(presentedID: ui.selectedProfile?.id, morph: profileMorph) {profileView}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
     }
 }
 
 //1. Logic for ProfileContainer
 extension InvitesContainer {
+    
     @ViewBuilder
-    private func profileView() -> some View {
-        if let profile = ui.selectedProfile, let eventProfile = vm.eventProfile(for: profile.id) {
+    private var profileView: some View {
+        if let profileID = ui.selectedProfile?.id, let eventProfile = vm.eventProfile(for: profileID) {
             ProfileContainer(
-                vm: profileVM(eventProfile),
-                profileImages: fetchProfileImages(eventProfile),
-                mode: respondMode(eventProfile),
-                onDismiss: { ui.selectedProfile = nil}
+                vm: profileVM(for: eventProfile),
+                profileImages: profileImages(for: eventProfile),
+                mode: responseMode(eventProfile),
+                onDismiss: {ui.selectedProfile = nil }
             )
         }
     }
     
-    private func profileVM(_ eventProfile: EventProfile) -> ProfileViewModel {
+    private func profileVM(for eventProfile: EventProfile) -> ProfileViewModel {
         ProfileViewModel(
             profile: eventProfile.profile,
             event: eventProfile.event,
@@ -54,23 +55,18 @@ extension InvitesContainer {
         )
     }
     
-    private func fetchProfileImages(_ eventProfile: EventProfile) -> [UIImage] {
+    private func profileImages(for eventProfile: EventProfile) -> [UIImage] {
         vm.profileImages[eventProfile.profile.id] ?? eventProfile.image.map { [$0] } ?? []
     }
     
-    private func respondMode(_ eventProfile: EventProfile) -> ProfileMode {
+    private func responseMode(_ eventProfile: EventProfile) -> ProfileMode {
         let respondVM = vm.respondVM(for: eventProfile)
 
         return ProfileMode.respondToInvite(respondVM: respondVM) { type in
             respond(eventProfile.event.id, type)
         }
     }
-}
-
-
-//Logic for Invite Card
-extension InvitesContainer {
-
+    
     private func inviteCard(_ invite: EventProfile) -> some View {
         InviteCard(
             selectedProfile: $ui.selectedProfile,
@@ -81,7 +77,6 @@ extension InvitesContainer {
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
 }
-
 
 
 //Logic to respond to an Invite

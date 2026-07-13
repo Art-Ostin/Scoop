@@ -25,7 +25,7 @@ struct MessagesContainer: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            TabScrollView(type: .meet, showEmptyView: vm.events.isEmpty) {
+            TabScrollView(type: .messages, showEmptyView: vm.events.isEmpty) {
                 VStack(spacing: 0) {
                     ForEach(vm.events) { chatRow(for: $0) }
                 }

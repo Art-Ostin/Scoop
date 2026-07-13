@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MeetContainer: View {
     
-    //Injected
+    //Inject Dependencies
     let vm: MeetViewModel
 
     //Local view state
@@ -17,19 +17,20 @@ struct MeetContainer: View {
     @State private var profileMorph = ProfileMorphState()
     @State private var isAtTopOfScroll = true
 
+    
     var body: some View {
         NavigationStack {
             TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
-                LazyVStack(spacing: Spacing.xxxl) {
-                    ForEach(vm.profiles) { profile in
-                        profileCard(profile)
-                    }
-                }
+                profileList
             }
             .isAtTopOfScroll($isAtTopOfScroll)
         }
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
+        
+        
+        
+        
         
         //Different sub views of meetContainer
         .profileView(presentedID: ui.openProfile?.id, morph: profileMorph) {profileView()}
@@ -42,6 +43,14 @@ struct MeetContainer: View {
 //1. Profile View Logic
 extension MeetContainer {
     
+    private var profileList: some View {
+        LazyVStack(spacing: Spacing.xxxl) {
+            ForEach(vm.profiles) { profile in
+                profileCard(profile)
+            }
+        }
+    }
+        
     @ViewBuilder
     private func profileView() -> some View {
         if let profile = ui.openProfile {

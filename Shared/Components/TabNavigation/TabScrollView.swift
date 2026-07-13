@@ -7,8 +7,7 @@
 import SwiftUI
 
 
-//MARK: Vertical Scroll default Layout
-
+//Used for TabScrollView, and EditProfile and Settings View screens
 struct PageScrollView<Content: View>: View {
     
     let title: String
@@ -25,6 +24,7 @@ struct PageScrollView<Content: View>: View {
     }
 }
 
+//The reusable structure of all TabViews extracted
 struct TabScrollView<Content: View>: View {
     let type: AppTab
     let showEmptyView: Bool
@@ -43,8 +43,6 @@ struct TabScrollView<Content: View>: View {
                     .transition(.blurReplace)
             } else {
                 content
-                    .padding(.top, Spacing.titlePadding)
-                    .padding(.bottom, Spacing.clearance)
                     .transition(.blurReplace)
             }
         }

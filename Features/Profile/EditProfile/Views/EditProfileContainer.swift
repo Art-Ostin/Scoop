@@ -25,7 +25,7 @@ struct EditProfileContainer: View {
             if isEdit {
                 NavigationStack(path: $path) {
                     EditProfileView(vm: vm, selectedImage: $selectedImage)
-//                        .clipped()  //Fixes bug of content over extending
+                        .clipped()
                         .transition(.move(edge: .trailing))
                 }
             } else {
@@ -36,6 +36,9 @@ struct EditProfileContainer: View {
         }
         .navigationDestination(for: EditProfileRoute.self, destination: destination)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+        
+        
         .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty) }
         .overlay(alignment: .top) { editProfileHeader }
         .toolbar(.hidden, for: .navigationBar)
