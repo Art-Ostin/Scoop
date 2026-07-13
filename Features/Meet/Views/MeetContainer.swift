@@ -19,7 +19,7 @@ struct MeetContainer: View {
 
     var body: some View {
         NavigationStack {
-            AppScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
+            TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
                 LazyVStack(spacing: Spacing.xxxl) {
                     ForEach(vm.profiles) { profile in
                         profileCard(profile)

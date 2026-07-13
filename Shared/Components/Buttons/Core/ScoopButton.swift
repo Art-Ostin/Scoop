@@ -46,9 +46,6 @@ struct ScoopButton<Content: View, S: Shape>: View {
 }
 
 extension ScoopButton {
-    // One Button body per style: the iOS-26 glass vs pre-26 fallback split lives
-    // inside the surface modifiers below, so the label and hit-area wiring can't
-    // drift across availability branches.
     private func glassButton() -> some View {
         Button(action: action) {
             sizedLabel()

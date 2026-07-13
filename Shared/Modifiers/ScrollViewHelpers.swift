@@ -6,39 +6,6 @@
 
 import SwiftUI
 
-
-//MARK: Vertical Scroll default Layout
-
-struct AppScrollView<Content: View>: View {
-
-    let type: AppTab
-    let showEmptyView: Bool
-    var name: String = ""
-    @ViewBuilder let content: Content
-    
-    var titleSize: CGFloat {
-        type == .events && !showEmptyView ? 28 : 32
-    }
-
-    var body: some View {
-        ScrollView {
-            if showEmptyView {
-                type.placeholderView()
-                    .transition(.blurReplace)
-            } else {
-                content
-                    .padding(.top, Spacing.titlePadding)
-                    .padding(.bottom, Spacing.clearance)
-                    .transition(.blurReplace)
-            }
-        }
-        .animation(.transition, value: showEmptyView)
-        .colorBackground()
-        .navigationTitle(type.title(name: name, isEmpty: showEmptyView))
-        .scoopNavigationBarFonts(largeTitleSize:titleSize)
-    }
-}
-
 //MARK: Horizontal Scroll default Layout
 struct PagerScrollView<Content: View>: View {
     var peek: CGFloat = 0
@@ -56,7 +23,6 @@ struct PagerScrollView<Content: View>: View {
         .pagedScroll(progress: progress)
     }
 }
-
 
 private struct IsAtTopOfScroll: ViewModifier {
     @Binding var isAtTop: Bool

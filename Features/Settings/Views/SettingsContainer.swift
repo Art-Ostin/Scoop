@@ -15,7 +15,7 @@ struct SettingsContainer: View {
 
     var body: some View {
         NavigationStack { //As Settings appears in full screen cover
-            ScrollView {
+            PageScrollView(title: "Settings") {
                 VStack(spacing: Spacing.xl) {
                         meetTheTeam
                         keySettingsSection
@@ -26,14 +26,6 @@ struct SettingsContainer: View {
                 .padding(Spacing.lg)
                 .navigationBarBackButtonHidden()
             }
-            .navigationTitle("Settings")
-            .colorBackground()
-            .padding(.top, Spacing.titlePadding)
-            .padding(.bottom, Spacing.clearance)
-
-            
-            
-            
         }
     }
 }

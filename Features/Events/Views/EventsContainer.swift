@@ -30,7 +30,7 @@ struct EventsContainer: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            AppScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle) {
+            TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle) {
                 PagerScrollView {
                     ForEach(vm.events) { eventProfile in
                         eventSlot(eventProfile)

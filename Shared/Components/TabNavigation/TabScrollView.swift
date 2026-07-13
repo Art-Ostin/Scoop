@@ -6,40 +6,49 @@
 
 import SwiftUI
 
-//1. All Tab Views have (1) A Navigation Stack (2) A Scroll View (3) Generic modifiers (like title)
-//4. An If else statement to show placeholder or not. This structure standardises the pattern
-struct TabScrollView<Content: View>: View {
-    //Inputs
-    let type: AppTab
-    let showEmptyView: Bool
+
+//MARK: Vertical Scroll default Layout
+
+struct PageScrollView<Content: View>: View {
     
-    var path: Binding<NavigationPath>?
-    var isAtTopOfScroll: Binding<Bool>?
-    
-    var eventName: String = ""
-    
+    let title: String
     @ViewBuilder let content: Content
     
-    @State var localPath = NavigationPath()
-    
     var body: some View {
-        NavigationStack(path: path ?? $localPath) {
-            ScrollView {
-                if showEmptyView {
-                    type.placeholderView()
-                } else {
-                    content
-                        .padding(.top, Spacing.titlePadding) //Always same padding from title and content, same at bottom
-                        .padding(.bottom, Spacing.clearance)
-                }
-            }
-            .background(type == .meet && !showEmptyView ? Color.appCanvas.ignoresSafeArea() : Color.clear.ignoresSafeArea())
-            .isAtTopOfScroll(isAtTopOfScroll ?? .constant(false))
-            .scrollIndicators(.never)
-            .navigationTitle(type.title(name: eventName, isEmpty: showEmptyView))
-            .scoopNavigationBarFonts(largeTitleSize: type == .events && !showEmptyView ? 26 : 32)
+        ScrollView {
+            content
         }
+        .navigationTitle(title)
+        .colorBackground()
+        .padding(.top, Spacing.titlePadding)
+        .padding(.bottom, Spacing.clearance)
     }
 }
 
+struct TabScrollView<Content: View>: View {
+    let type: AppTab
+    let showEmptyView: Bool
+    var name: String = ""
+    @ViewBuilder let content: Content
+    
+    
+    var titleSize: CGFloat {type == .events && !showEmptyView ? 28 : 32}
+    var title: String { type.title(name: name, isEmpty: showEmptyView)}
 
+    var body: some View {
+        
+        PageScrollView(title: title) {
+            if showEmptyView {
+                type.placeholderView()
+                    .transition(.blurReplace)
+            } else {
+                content
+                    .padding(.top, Spacing.titlePadding)
+                    .padding(.bottom, Spacing.clearance)
+                    .transition(.blurReplace)
+            }
+        }
+        .animation(.transition, value: showEmptyView)
+        .scoopNavigationBarFonts(largeTitleSize:titleSize)
+    }
+}

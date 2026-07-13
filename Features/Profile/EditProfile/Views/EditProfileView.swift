@@ -16,7 +16,7 @@ struct EditProfileView: View {
     
     var body: some View {
         NavigationStack { //As Settings appears in full screen cover
-            ScrollView {
+            PageScrollView(title: "Edit Profile") {
                 VStack(spacing: Spacing.xxl) {
                     ProfileImages(vm: vm, selectedImage: $selectedImage)
                     PromptsView(vm: vm)
@@ -26,10 +26,10 @@ struct EditProfileView: View {
                 }
                 .padding(.horizontal, Spacing.gutter)
             }
+            .navigationTitle("Edit Profile")
+            .colorBackground()
+            .padding(.top, Spacing.titlePadding)
+            .padding(.bottom, Spacing.clearance)
         }
-        .navigationTitle("Edit Profile")
-        .colorBackground()
-        .padding(.top, Spacing.titlePadding)
-        .padding(.bottom, Spacing.clearance)
     }
 }

@@ -79,7 +79,6 @@
 		655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655441482FE9769100425CBF /* InviteCardInfo.swift */; };
 		6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
-		655814BA2FED7FF200AC2336 /* ShrinkPressButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
 		655E5E292F1AD12D006ADA24 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 655E5E282F1AD12D006ADA24 /* Zoomable */; };
 		655EF4AE2E6B94AA00AE626D /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AD2E6B94AA00AE626D /* AppTab.swift */; };
@@ -343,7 +342,6 @@
 		655441482FE9769100425CBF /* InviteCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfo.swift; sourceTree = "<group>"; };
 		6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimeRow.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
-		655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShrinkPressButtonStyle.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		655F51FC2E3B7CE700E67534 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContainer.swift; sourceTree = "<group>"; };
@@ -1019,7 +1017,7 @@
 				65F704532F6EE15400CE29C5 /* RespondAcceptContainer.swift */,
 				65ADAE4B2FDC5CFB00095248 /* RespondCard.swift */,
 				65F7044D2F6EDA4100CE29C5 /* RespondDetails.swift */,
-				6549DA7E2F9E8E9E00C89DF2 /* Components */,
+				654C58942F6B5021002060C5 /* RespondButtons.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1033,14 +1031,6 @@
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
 			);
 			path = TimeRows;
-			sourceTree = "<group>";
-		};
-		6549DA7E2F9E8E9E00C89DF2 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				654C58942F6B5021002060C5 /* RespondButtons.swift */,
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 		6549DA7F2F9E8ED100C89DF2 /* Profile */ = {
@@ -1176,14 +1166,13 @@
 		6549DA8A2F9E916A00C89DF2 /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
-				65BA061A2FCC99B000295AC6 /* Styles */,
+				65BA061A2FCC99B000295AC6 /* Core */,
 				657F303A2F68B61C0057D42C /* DismissButtons.swift */,
 				6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,
 				657F61C02FDF18CC00B2F903 /* DeclineButton.swift */,
-				65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 				65939C4F2FCAE78900B24D11 /* InviteButton.swift */,
 				659109232E19AEC00065696F /* NextButton.swift */,
@@ -1342,14 +1331,14 @@
 			path = Session;
 			sourceTree = "<group>";
 		};
-		65BA061A2FCC99B000295AC6 /* Styles */ = {
+		65BA061A2FCC99B000295AC6 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */,
 				651702DD2FCEB14500CB0D3E /* ButtonSizing.swift */,
 				65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */,
-				655814B92FED7FF200AC2336 /* ShrinkPressButtonStyle.swift */,
 			);
-			path = Styles;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		65C0339E2FAAA1B80075D511 /* Details */ = {
@@ -1769,7 +1758,6 @@
 				656B31D32F251501008641C1 /* FrozenViewModel.swift in Sources */,
 				65E820A92E3836CA0098CC36 /* InfoView.swift in Sources */,
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
-				655814BA2FED7FF200AC2336 /* ShrinkPressButtonStyle.swift in Sources */,
 				650DA3692F6C25750013EB30 /* ProfileInviteView.swift in Sources */,
 				656373B72F502457003A922D /* ChatRowView.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* Event.swift in Sources */,
