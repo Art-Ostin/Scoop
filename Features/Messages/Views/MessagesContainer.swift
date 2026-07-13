@@ -36,7 +36,7 @@ struct MessagesContainer: View {
             .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
         }
         .task { await prepareUserImages() }
-        .hideTabBar(hideBar: !path.isEmpty)
+        .hideTabBar(!path.isEmpty)
     }
 }
 
@@ -111,6 +111,7 @@ extension MessagesContainer {
     
 //2. screens to go to, and navigation wiring where to go
 extension MessagesContainer {
+    
     @ViewBuilder
     private func destination(for route: PastEventsRoute) -> some View {
         switch route {

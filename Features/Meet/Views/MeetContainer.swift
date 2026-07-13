@@ -28,10 +28,6 @@ struct MeetContainer: View {
         .overlay(alignment: .topTrailing) {infoButton}
         .profileMorphHost(profileMorph)
         
-        
-        
-        
-        
         //Different sub views of meetContainer
         .profileView(presentedID: ui.openProfile?.id, morph: profileMorph) {profileView()}
         .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}

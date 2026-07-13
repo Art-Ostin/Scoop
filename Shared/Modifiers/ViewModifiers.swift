@@ -29,11 +29,6 @@ extension View {
             .scrollIndicators(.never)
     }
 
-    // Hides the native tab bar when the condition is true.
-    func hideTabBar(hideBar: Bool = true) -> some View {
-        self
-            .toolbar(hideBar ? .hidden : .visible, for: .tabBar)
-    }
 
     //Expands the tap area of the view, by adding padding around it, but without affecting the layout
     func expandHitArea(_ inset: CGFloat = 16) -> some View {

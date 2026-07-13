@@ -48,3 +48,10 @@ enum AppTab: String, Hashable {
         }
     }
 }
+
+extension View {
+    func hideTabBar(_ hideBar: Bool = true) -> some View {
+        self
+            .toolbar(hideBar ? .hidden : .visible, for: .tabBar)
+    }
+}

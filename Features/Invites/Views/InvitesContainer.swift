@@ -26,6 +26,7 @@ struct InvitesContainer: View {
         }
         .profileMorphHost(profileMorph)
         
+        //Different sub views of meetContainer
         .profileView(presentedID: ui.selectedProfile?.id, morph: profileMorph) {profileView}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
     }

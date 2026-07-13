@@ -27,37 +27,37 @@ struct EventsContainer: View {
         vm.events.isEmpty ? "Events" : "\(currentProfile?.profile.name ?? "")"
     }
     
-    
     var body: some View {
         NavigationStack(path: $path) {
             TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle) {
-                PagerScrollView {
-                    ForEach(vm.events) { eventProfile in
-                        eventSlot(eventProfile)
-                    }
-                }
-                .scrollPosition(id: $ui.selectedEventId)
+                eventsList
             }
             .overlay(alignment: .bottomTrailing) { messageButton }
             .navigationDestination(for: EventProfile.self) { chatView(eventProfile: $0) }
         }
         .profileMorphHost(morph)
-        .profileView(presentedID: ui.selectedProfile?.id, morph: morph) {
-            if let profile = ui.selectedProfile { profileView(profile: profile) }
-        }
-        .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
-        .hideTabBar(hideBar: !path.isEmpty) //Chat: path-based, so it reappears the moment you pop (no flicker)
-        .onChange(of: showMessageScreen) { _, newValue in
-            handleDeepLink(eventId: newValue)
-        }
+        .hideTabBar(!path.isEmpty)
+        .onChange(of: showMessageScreen) {handleDeepLink(eventId: $1)}
         .task {userImage = try? await vm.fetchUserImage() }
+        
+        .profileView(presentedID: ui.selectedProfile?.id, morph: morph) {profileView}
+        .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
     }
 }
 
 //The Event Slots screens
 extension EventsContainer {
 
-
+    private var eventsList: some View {
+        PagerScrollView {
+            ForEach(vm.events) { eventProfile in
+                eventSlot(eventProfile)
+            }
+        }
+        .scrollPosition(id: $ui.selectedEventId)
+    }
+    
+    
     @ViewBuilder
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
         if let userImage {
@@ -106,12 +106,19 @@ extension EventsContainer {
         .navigationTransition(.zoom(sourceID: eventProfile.id, in: zoomNS))
     }
 
-    private func profileView(profile: UserProfile) -> some View {
-        ProfileContainer(
-            vm:ProfileViewModel(profile: profile, event: vm.event(forProfile: profile.id)?.event, imageLoader: vm.imageLoader, defaults: vm.defaults),
-            profileImages: ui.profileImages[profile.id] ?? seedImages(for: profile),
-            mode: .viewProfile,
-            onDismiss: { ui.selectedProfile = nil })
+    @ViewBuilder
+    private var profileView: some View {
+        if let profile = ui.selectedProfile {
+            ProfileContainer(
+                vm:ProfileViewModel(
+                    profile: profile,
+                    event: vm.event(forProfile: profile.id)?.event,
+                    imageLoader: vm.imageLoader, defaults: vm.defaults
+                ),
+                profileImages: ui.profileImages[profile.id] ?? seedImages(for: profile),
+                mode: .viewProfile,
+                onDismiss: { ui.selectedProfile = nil })
+        }
     }
 
     //If the async profile images haven't landed yet, seed the pager with the tapped
