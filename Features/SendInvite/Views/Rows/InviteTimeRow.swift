@@ -49,11 +49,17 @@ struct InviteTimeRow: View {
 //The time menu and what anchors it
 extension InviteTimeRow {
 
+    private var timeMenuWidth: CGFloat { 320 }
+
     private var timeMenu: some View {
         TimeCustomMenu(morphAnchor: morphAnchor,
-                       estimatedContentSize: CGSize(width: 320, height: 270),
+                       estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
+                       placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 20,
+                       placementOffsetY: TimeCustomMenuSpec.placementOffsetY - 12,
                        onOpen: openMenu, onClose: closeMenu) {
-            SelectTimeView(proposedTimes: $draft).zIndex(2)
+            SelectTimeView(proposedTimes: $draft)
+                .frame(width: timeMenuWidth)
+                .zIndex(2)
         } label: {
             TimeRowMenuLabel(
                 times: times,

@@ -61,10 +61,15 @@ struct SelectTimeView: View {
 private extension SelectTimeView {
     
     private var titleSection: some View {
-        HStack {
-            Text("Propose 1-3 days to meet") //"Propose up to 3 days"
-                .font(.body(17, .medium))
-                .foregroundStyle(Color.textPrimary)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Choose Time") //"Propose up to 3 days"
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.textPrimary)
+                Text("Propose 1-3 days to meet")
+                    .font(.body(11, .regular))
+                    .foregroundStyle(Color.textPlaceholder)
+            }
             Spacer()
             timeCountAndWarningSign
         }
@@ -123,6 +128,7 @@ private extension SelectTimeView {
             LazyVGrid(columns: columns, spacing: 0) { dayOfWeekText }  // SAME columns → centers always align
             LazyVGrid(columns: columns, spacing: 10) { daysOfMonthText } // Geometry: (4) row → row
         }
+        .padding(.horizontal, -Spacing.xxs)
     }
     
     var dayOfWeekText: some View {
@@ -245,7 +251,7 @@ private struct SelectTimeBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, Spacing.margin)
-            .padding(.top, Spacing.lg)
+            .padding(.top, Spacing.md)
             .padding(.bottom, 0) //Low bottom as scroll view on Bottom
     }
 }

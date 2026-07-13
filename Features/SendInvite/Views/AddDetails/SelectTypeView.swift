@@ -18,10 +18,6 @@ struct SelectTypeView: View {
     @Environment(\.dropdownCustomMenuDismiss) private var dismissMenu
     @Environment(\.timeCustomMenuDismiss) private var dismissTimeMenu
 
-    //2b. Snapshots the label to its CURRENT (old) value before we change the selection, so the
-    //dismiss morph shrinks the OLD type into the circle and only swaps to the new one on expand.
-    //These rows select via .shrinkPress (not .dropdownCustomMenuItem), so the menu's own freeze
-    //inside dismiss() would run after the mutation and capture the new value — we freeze first here.
     @Environment(\.dropdownCustomMenuFreezeLabel) private var freezeMenuLabel
     
     //3. types with info open given in a binding, as needed to pass up to
@@ -34,11 +30,6 @@ struct SelectTypeView: View {
 
     let message: String
 
-    //True when the type row's pager is parked on its MESSAGE page (so the on-screen label is
-    //the message, not the type). A type switch from here can't use the circle-reveal morph —
-    //the menu's label copy is the type icon, which would flash over the message and snap the
-    //pager back — so we close with `.morphPlatterOnly` and let the row's own title morph.
-    //Defaults false (e.g. AddMessageView, which has no pager/message page).
     var onMessagePage: Bool = false
 
     var body: some View {
@@ -62,7 +53,7 @@ extension SelectTypeView {
         }
         .padding(.top, 20)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
-        .padding(.bottom, openTypes.contains(type) ? 0 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.bottom, (openTypes.contains(type) && type != .custom) ? 0 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
         .padding(.horizontal, Spacing.lg)
         .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
@@ -93,10 +84,6 @@ extension SelectTypeView {
         } label: {
             SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
                 .padding(.top, 20)
-//                .padding(.trailing, Spacing.md)
-//                .padding(.top, Spacing.xs)
-//                .padding(.leading, Spacing.sm)
-//                .padding(.bottom, Spacing.sm)
                 .contentShape(Rectangle())
         }
         .shrinkButton()

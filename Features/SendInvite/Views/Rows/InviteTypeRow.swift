@@ -48,6 +48,12 @@ struct InviteTypeRow: View {
             Spacer(minLength: 0)
             typeMenu
         }
+        .overlay(alignment: .trailing) {
+            pageIndicator
+                .offset(y: 20)
+                .offset(x: -22)
+                .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
+        }
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
@@ -122,6 +128,16 @@ extension InviteTypeRow {
             ui.showMessageScreen = true
         }
     }
+
+    @ViewBuilder
+    private var pageIndicator: some View {
+        if !message.isEmpty {
+            AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
+                .scaleEffect(0.6, anchor: .bottom)
+                .padding(.bottom, Spacing.xs)
+                .offset(x: 6)
+        }
+    }
 }
 
 //Row title: "WHAT" caption ↔ selected type swap
@@ -139,7 +155,7 @@ extension InviteTypeRow {
                         .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
                 } else {
                     Text("What")
-                        .font(.body(15, .medium))
+                        .font(.body(15, isTypeOpen ? .medium : .regular))
                         .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
                         .scaleEffect(isTypeOpen ? 1 : 0.8, anchor: .leading)
                         .animation(.smooth(duration: 0.2), value: isTypeOpen)
@@ -266,7 +282,7 @@ private struct TypeRowMenuLabel: View {
     }
 
     private var chevron: some View {
-        DropDownButton(isOpen: ui.isPopupOpen(.type))
+        DropDownButton(isOpen: ui.isPopupOpen(.type) || ui.showMessageScreen)
     }
 
     @ViewBuilder
