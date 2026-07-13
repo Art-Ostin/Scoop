@@ -25,6 +25,7 @@ struct InviteImageCarousel: View {
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
     var pagingDisabled: Bool = false //Locked while the frame animates or a swipe-dismiss owns the touch
     var optionsVisible: Bool = true //Flips at drag release (not spring completion) so the menu pops back riding the spring-back
+    var showsCollapsedChrome: Bool = true //The collapsed ProfileCard look (name/details caption + button replica). Off when the source is a plain image (profile hero).
 
     //Local view state
     @State private var meetFrame: CGRect = .zero
@@ -156,37 +157,43 @@ extension InviteImageCarousel {
 //exact rendering.
 extension InviteImageCarousel {
 
+    @ViewBuilder
     private var collapsedInfo: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(name)
-                .font(.title(26))
-            Text(details)
-                .font(.body(14, .medium))
+        if showsCollapsedChrome {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(name)
+                    .font(.title(26))
+                Text(details)
+                    .font(.body(14, .medium))
+            }
+            .foregroundStyle(Color.white)
+            .padding(.vertical, Spacing.md)
+            .padding(.horizontal)
+            .opacity(expanded ? 0 : 1)
+            .blur(radius: expanded ? 6 : 0)
+            .allowsHitTesting(false)
         }
-        .foregroundStyle(Color.white)
-        .padding(.vertical, Spacing.md)
-        .padding(.horizontal)
-        .opacity(expanded ? 0 : 1)
-        .blur(radius: expanded ? 6 : 0)
-        .allowsHitTesting(false)
     }
 
     //Decorative copy of ProfileCard's invite button: the tap that opened the invite covered
     //the real button mid-press, so the replica starts at the pressed scale and plays the
     //release bounce on mount. On expand it fades out in place; taps land on SendInviteCard's
     //reopen target, never here.
+    @ViewBuilder
     private var inviteButtonReplica: some View {
-        InviteButton(isInviting: true, action: {})
-            .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
-            .opacityPop(visible: !expanded)
-            .padding([.trailing, .bottom], Spacing.md)
-            .allowsHitTesting(false)
-            .task {
-                withAnimation(.spring(response: PressEffect.shrink.release.response,
-                                      dampingFraction: PressEffect.shrink.release.damping)) {
-                    inviteButtonPopped = true
+        if showsCollapsedChrome {
+            InviteButton(isInviting: true, action: {})
+                .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
+                .opacityPop(visible: !expanded)
+                .padding([.trailing, .bottom], Spacing.md)
+                .allowsHitTesting(false)
+                .task {
+                    withAnimation(.spring(response: PressEffect.shrink.release.response,
+                                          dampingFraction: PressEffect.shrink.release.damping)) {
+                        inviteButtonPopped = true
+                    }
                 }
-            }
+        }
     }
 
     //Always present (never inserted mid-animation): opaque only while a close carries a

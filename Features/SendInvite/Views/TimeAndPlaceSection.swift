@@ -47,8 +47,8 @@ extension SendInviteContainer {
             .frame(height: 48)
 
         return Group {
-            if draft.isComplete && !ui.isPopupOpen() {
-                ScoopButton(style: .tinted(.textAccent, shadow: nil), shape: Capsule(), action: onSendInvite) {
+            if draft.isComplete {
+                ScoopButton(style: .tinted( ui.isPopupOpenDelayed() ? .fillGray : .textAccent, shadow: nil), shape: Capsule(), action: onSendInvite) {
                     label
                 }
             } else {
@@ -56,6 +56,7 @@ extension SendInviteContainer {
                     .background(Color.fillGray, in: Capsule())
             }
         }
+        .animation(.smooth, value: ui.isPopupOpenDelayed())
         .opacity(ui.isPopupOpenDelayed() ? 0.4 : 1)
         .allowsHitTesting(draft.isComplete)
         .padding(.top, Spacing.xxs)

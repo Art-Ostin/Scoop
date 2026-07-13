@@ -15,6 +15,7 @@ struct ProfileImageView: View {
     let disableScroll: Bool
     let images: [UIImage]
     var selectedIndex: Binding<Int>? = nil //Reports the settled page so the invite card can zoom from it
+    var inviteSourceID: String? = nil //When set, the hero image reports its frame as the invite flight's source (image only, not the thumbnail strip)
 
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -37,8 +38,9 @@ struct ProfileImageView: View {
 //The full-width image pager (profile-morph destination)
 extension ProfileImageView {
 
+    @ViewBuilder
     private var imageCarousel: some View {
-        ImageCarousel(
+        let carousel = ImageCarousel(
             images: images,
             hPadding: 8,
             topRadius: CornerRadius.image,
@@ -53,6 +55,12 @@ extension ProfileImageView {
             morph?.reportDestination(containerRect: rect)
         }
         .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
+
+        if let inviteSourceID {
+            carousel.sendInviteSource(id: inviteSourceID) //Image frame only — the flight collapses back onto the hero, not the thumbnail strip
+        } else {
+            carousel
+        }
     }
 }
 

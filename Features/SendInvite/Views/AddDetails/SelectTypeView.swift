@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectTypeView: View {
 
-    static let cardWidth: CGFloat = 300
+    static let cardWidth: CGFloat = 290
     
     //1. Needed to sharply display a divider under 1 CGFloat
     @Environment(\.displayScale) private var displayScale
@@ -17,7 +17,6 @@ struct SelectTypeView: View {
     //2. Needed to dismiss menu
     @Environment(\.dropdownCustomMenuDismiss) private var dismissMenu
     @Environment(\.timeCustomMenuDismiss) private var dismissTimeMenu
-
     @Environment(\.dropdownCustomMenuFreezeLabel) private var freezeMenuLabel
     
     //3. types with info open given in a binding, as needed to pass up to

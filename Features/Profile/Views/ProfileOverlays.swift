@@ -131,7 +131,8 @@ extension ProfileContainer {
                 image: image,
                 images: invitedImages.isEmpty ? [image] : invitedImages,
                 details: profileDetails(pending.profile),
-                sendInvite: onSend
+                sendInvite: onSend,
+                showsCollapsedChrome: false //Grows from the plain hero image, not a ProfileCard — no caption/button chrome at the endpoints
             )
             //No .ignoresSafeArea(): like Meet's root presentation, the card lives inside the safe area
             //(its own backdrop bleeds to the edges); ignoring it pushed the image under the status bar.

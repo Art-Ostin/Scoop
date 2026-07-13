@@ -85,7 +85,7 @@ extension EventsContainer {
                     .expandHitArea(24)
             }
             .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
-            .padding(.bottom, Spacing.clearance)
+            .padding(.bottom, Spacing.xxl)
             .padding(.horizontal, Spacing.margin)
         }
     }

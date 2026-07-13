@@ -31,6 +31,7 @@ struct SendInviteCard: View {
     var onDismissProgress: ((Double) -> Void)? = nil //Drag collapse 0→1; the parent fades its chrome back in behind the card
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
+    var showsCollapsedChrome: Bool = true //Meet grows from a ProfileCard (caption + button); the profile grows from a plain image, so it opts out.
 
     //Local view state
     @State private var cardFrame: CGRect = .zero
@@ -142,7 +143,8 @@ extension SendInviteCard {
             coverImage: coverImage,
             vm: vm,
             pagingDisabled: dragging || !landed,
-            optionsVisible: expanded && dragOffset == .zero
+            optionsVisible: expanded && dragOffset == .zero,
+            showsCollapsedChrome: showsCollapsedChrome
         )
         .frame(width: rect.width, height: rect.height)
         .geometryGroup() //Children resolve geometry against the in-flight frame, not the destination
