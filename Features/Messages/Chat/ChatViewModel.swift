@@ -11,8 +11,6 @@ import SwiftUI
 @Observable
 class ChatViewModel {
 
-    static let messageAnimation: Animation = .spring(response: 0.32, dampingFraction: 0.86)
-
     let defaults: DefaultsManaging
     let session: Session
     let chatRepo: ChatRepository
@@ -62,14 +60,14 @@ class ChatViewModel {
         optimistic.id = tempId
         optimistic.dateCreated = Date()
         pendingTempIds.insert(tempId)
-        withAnimation(Self.messageAnimation) {
+        withAnimation(.move) {
             self.messages.append(optimistic)
         }
         do {
             try await chatRepo.sendMessage(text: text, eventId: eventProfile.id, userId: userId, recipientId: eventProfile.profile.id)
         } catch {
             pendingTempIds.remove(tempId)
-            withAnimation(Self.messageAnimation) {
+            withAnimation(.move) {
                 self.messages.removeAll { $0.id == tempId }
             }
             throw error
@@ -97,7 +95,7 @@ class ChatViewModel {
                         }
                         self.messages[tempIdx] = message
                     } else {
-                        withAnimation(Self.messageAnimation) {
+                        withAnimation(.move) {
                             self.messages.append(message)
                         }
                     }
@@ -106,7 +104,7 @@ class ChatViewModel {
                         self.messages[idx] = message
                     }
                 case .removed(let id):
-                    withAnimation(Self.messageAnimation) {
+                    withAnimation(.move) {
                         self.messages.removeAll { $0.id == id }
                     }
                 }

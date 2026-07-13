@@ -23,7 +23,7 @@ struct NextButton: View {
         }
         .frame(maxWidth: .infinity, alignment: .trailing) //Positioning on screen
         .disabled(!isValid)
-        .animation(.spring(.snappy), value: isValid)
+        .animation(.toggle, value: isValid)
     }
 }
 

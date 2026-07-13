@@ -23,7 +23,7 @@ import FirebaseAuth
                     .font(.body(12, .bold))
                     .foregroundStyle(Color.accent)
                     .onTapGesture {
-                        withAnimation { self.timeRemaining = self.totalDuration }
+                        withAnimation(.transition) { self.timeRemaining = self.totalDuration }
                     }
             }
             else if timeRemaining > countdownDuration {
@@ -38,7 +38,7 @@ import FirebaseAuth
         .onReceive(timer) { [self] _ in
             if self.timeRemaining > 0 {
                 if timeRemaining == countdownDuration + 1 {
-                    withAnimation {timeRemaining -= 1}
+                    withAnimation(.transition) {timeRemaining -= 1}
                 } else {
                     timeRemaining -= 1
                 }

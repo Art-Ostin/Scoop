@@ -42,7 +42,7 @@ struct InviteTimeRow: View {
         }
         .background { pickerWarmUp }
         .offset(y: 1.5)
-        .transition(.opacity.animation(.smooth(duration: 0.2)))
+        .transition(.opacity.animation(.transition))
     }
 }
 
@@ -115,8 +115,8 @@ extension InviteTimeRow {
             .id(rowTitleTransitionID)
             .transition(.blurReplace)
         }
-        .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
-        .animation(.snappy, value: scrolledPageID)
+        .animation(.transition, value: rowTitleTransitionID)
+        .animation(.transition, value: scrolledPageID)
     }
 
     private var isWhenLabel: Bool { scrolledPageID == nil || scrolledPageID == 0 }
@@ -254,6 +254,6 @@ private struct TimeRowMenuLabel: View {
             .kerning(0.32)
             .font(.body(16, .regular))
             .foregroundStyle(Color.textSecondary)
-            .transition(.opacity.animation(.smooth(duration: 0.2)))
+            .transition(.opacity.animation(.transition))
     }
 }

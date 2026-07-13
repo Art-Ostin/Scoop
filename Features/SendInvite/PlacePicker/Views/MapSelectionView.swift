@@ -40,14 +40,13 @@ struct MapSelectionView: View {
         .padding(.vertical, Spacing.md)
         .padding(.horizontal)
         .ignoresSafeArea(.container, edges: .bottom)
-        .animation(.easeInOut(duration: 0.3), value: vm.showAnimation ?  isLoadingLookAround : nil) //Fixes Bug -> fades in when transition but not when first selected
+        .animation(.transition, value: vm.showAnimation ?  isLoadingLookAround : nil) //Fixes Bug -> fades in when transition but not when first selected
         .task(id: lookAroundRequestID) {
             await loadLookAroundScene()
         }
         .onAppear {
             writeMaps = mapItem.pointOfInterestCategory == nil
         }
-//        .animation(.easeInOut(duration: 0.3), value: shouldPinContentToTop)
     }
 }
 

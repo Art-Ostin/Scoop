@@ -151,7 +151,7 @@ private struct MessageBannerView: View {
                                 dragOffset = 0
                                 onDismiss()
                             } else {
-                                withAnimation(.spring(duration: 0.3)) { dragOffset = 0 }
+                                withAnimation(.move) { dragOffset = 0 }
                             }
                         }
                 )

@@ -18,7 +18,7 @@ struct OkDismissButton: View {
         } label: {
             Text("OK")
                 .font(.body(17, .bold))
-                .frame(width: 100, height: 40)
+                .frame(width: 100, height: 40) //Geometry: fixed OK-button footprint
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, Spacing.lg)

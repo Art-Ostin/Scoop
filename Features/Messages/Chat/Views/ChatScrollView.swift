@@ -11,7 +11,6 @@ struct ChatScrollView: View {
     @Bindable var vm: ChatViewModel
     var isFocused: FocusState<Bool>.Binding
     let isEvent: Bool
-    private let messageAnimation = ChatViewModel.messageAnimation
     private let keyboardCompensationPadding: CGFloat = 72
 
     @State private var isFirstAppear: Bool = true
@@ -105,7 +104,7 @@ extension ChatScrollView {
     
     //5. Scrolling to bottom edge
     private func scrollToBottomEdge(animated: Bool = false) {
-        withAnimation(animated ? messageAnimation : nil) {
+        withAnimation(animated ? .move : nil) {
             scrollPosition.scrollTo(edge: .bottom)
         }
     }

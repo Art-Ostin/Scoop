@@ -39,7 +39,7 @@ struct OnboardingLoadingScreen: View {
         .task(id: textIndex) {
             try? await Task.sleep(for: .seconds(4))
             if textIndex < 3 {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.transition) {
                     textIndex += 1
                 }
             }

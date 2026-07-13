@@ -17,7 +17,6 @@ struct EventLocationMap: View {
 
     //Local view state
     @State private var cameraPosition: MapCameraPosition = .automatic
-    private let toggleAnimation = Animation.easeInOut(duration: 0.2)
 
     private var mapHeight: CGFloat {
         imageSize > 50 ? imageSize - 36 : imageSize
@@ -61,7 +60,7 @@ struct EventLocationMap: View {
         .onAppear {
             cameraPosition = .camera(defaultCamera)
         }
-        .animation(toggleAnimation, value: disableMap)
+        .animation(.toggle, value: disableMap)
         .task(id: disableMap) {
             guard disableMap else { return }
             await Task.yield()
@@ -79,7 +78,7 @@ struct EventLocationMap: View {
 extension EventLocationMap {
     private var enableMapButton: some View {
         Button {
-            withAnimation(toggleAnimation) {
+            withAnimation(.toggle) {
                 disableMap.toggle()
             }
         } label: {

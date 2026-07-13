@@ -42,8 +42,8 @@ struct EditProfileButton: View {
                 .stroke(CornerRadius.lg, lineWidth: 1, color: .accent)
         )
         .padding(.bottom)
-        .onTapGesture {withAnimation (.easeInOut(duration: 0.3)) {isEdit.toggle()}}
-        .animation(.spring(), value: isEdit)
+        .onTapGesture {withAnimation (.transition) {isEdit.toggle()}}
+        .animation(.toggle, value: isEdit)
         .opacity(pathIsEmpty ? 1 : 0)
         .allowsHitTesting(pathIsEmpty ? true : false)
     }

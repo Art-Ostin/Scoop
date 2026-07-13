@@ -50,7 +50,7 @@ struct MapView: View {
                 if useSelectedDetent && newDetent != MapSheets.selectedDetent {
                     useSelectedDetent = false
                 }
-                withAnimation(.easeInOut(duration: 0.15)) {
+                withAnimation(.quick) {
                     sheet = MapSheets.from(detent: newDetent)
                 }
             }
@@ -129,10 +129,10 @@ struct MapView: View {
                 }
             }
             .onDisappear { selectedSheetExitTask?.cancel() }
-            .animation(.easeInOut(duration: 0.3), value: vm.selection)
+            .animation(.toggle, value: vm.selection)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .sheet(isPresented: .constant(true)) { mapSheet }
-            .animation(.easeInOut(duration: 0.3), value: useSelectedDetent)
+            .animation(.transition, value: useSelectedDetent)
             .overlay(alignment: .bottomTrailing) {
                 GeometryReader { proxy in
                     actionMenu(containerHeight: proxy.size.height, bottomSafeArea: proxy.safeAreaInsets.bottom)
@@ -173,7 +173,7 @@ extension MapView {
     private func transitionFromSelectedSheet(to destination: MapSheets) {
         selectedSheetExitTask?.cancel()
         
-        withAnimation(.easeInOut(duration: selectedSheetTransitionDuration)) {
+        withAnimation(.quick) {
             vm.selection = nil
             vm.selectedMapItem = nil
             isExitingSelectedSheet = true
@@ -186,7 +186,7 @@ extension MapView {
             try? await Task.sleep(nanoseconds: delay)
             guard !Task.isCancelled else { return }
             
-            withAnimation(.easeInOut(duration: 0.12)) {
+            withAnimation(.quick) {
                 useSelectedDetent = false
                 isExitingSelectedSheet = false
             }
@@ -222,7 +222,7 @@ extension MapView {
         }
         .padding(.bottom, actionMenuBottomPadding(containerHeight: containerHeight, bottomSafeArea: bottomSafeArea))
         .padding(.horizontal, Spacing.gutter)
-        .animation(.easeInOut(duration: 0.2), value: sheet)
+        .animation(.move, value: sheet)
     }
     
     private var mapsButton: some View {

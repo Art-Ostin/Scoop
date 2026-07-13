@@ -19,7 +19,6 @@ struct EventsContainer: View {
     @State private var userImage: UIImage? = nil
     @Namespace var zoomNS
 
-    
     private var currentProfile: EventProfile? {
         vm.event(id: ui.selectedEventId) ?? vm.events.first
     }
@@ -30,22 +29,26 @@ struct EventsContainer: View {
     
     
     var body: some View {
-
-        TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, eventName: eventsTitle) {
-            
-            
-            
-        }
-        
-        
-        
         NavigationStack(path: $path) {
-            eventsRootView
-                .navigationDestination(for: EventProfile.self) {chatView(eventProfile: $0)}
+            AppScrollView(title: eventsTitle,
+                          largeTitleSize: vm.events.isEmpty ? 32 : 26) {
+                if vm.events.isEmpty {
+                    EventsPlaceholder()
+                } else {
+                    PagerScrollView {
+                        ForEach(vm.events) { eventProfile in
+                            eventSlot(eventProfile)
+                        }
+                    }
+                    .scrollPosition(id: $ui.selectedEventId)
+                    .overlay(alignment: .bottomTrailing) { messageButton }
+                    .tabContentInsets()
+                }
+            }
+            .navigationDestination(for: EventProfile.self) { chatView(eventProfile: $0) }
         }
-        
         .profileMorphHost(morph)
-        .profileView(presentedID: ui.selectedProfile?.id) {
+        .profileView(presentedID: ui.selectedProfile?.id, morph: morph) {
             if let profile = ui.selectedProfile { profileView(profile: profile) }
         }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
@@ -60,30 +63,6 @@ struct EventsContainer: View {
 //The Event Slots screens
 extension EventsContainer {
 
-    private var eventsRootView: some View {
-        AppScrollView(title: vm.events.isEmpty ? "Events" : "Meeting \(currentProfile?.profile.name ?? "")") {
-            if vm.events.isEmpty {
-                EventsPlaceholder()
-            } else {
-                eventsPager
-            }
-        }
-        .overlay(alignment: .bottomTrailing) { messageButton }
-    }
-
-    private var eventsPager: some View {
-        PagerScrollView {
-            ForEach(vm.events) { eventProfile in
-                eventSlot(eventProfile)
-                    .padding(.horizontal, Spacing.gutter)
-                    .padding(.top, Spacing.xl)
-                    .padding(.bottom, Spacing.clearance)
-                    .containerRelativeFrame(.horizontal)
-                    .id(eventProfile.id)
-            }
-        }
-        .scrollPosition(id: $ui.selectedEventId)
-    }
 
     @ViewBuilder
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
@@ -91,6 +70,9 @@ extension EventsContainer {
             EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, userImage: userImage) {
                 openMaps(eventProfile)
             }
+            .padding(.horizontal, Spacing.gutter)
+            .containerRelativeFrame(.horizontal)
+            .id(eventProfile.id)
             .task {await loadProfileImages(eventProfile.profile)}
         }
     }
@@ -136,9 +118,6 @@ extension EventsContainer {
             profileImages: ui.profileImages[profile.id] ?? seedImages(for: profile),
             mode: .viewProfile,
             onDismiss: { ui.selectedProfile = nil })
-        .id(profile.id)
-        .opacity(morph.contentOpacity)
-        .environment(morph)
     }
 
     //If the async profile images haven't landed yet, seed the pager with the tapped

@@ -77,14 +77,14 @@ struct CustomMapAnnotation: View {
         .offset(y: isSelected ? -24 : 0)
 
         .onTapGesture {
-            withAnimation (.easeInOut(duration: 0.2)) {
+            withAnimation (.toggle) {
                 vm.selectedMapItem = item
                 vm.selection = MapSelection(item)
             }
         }
         .scaleEffect(isSelected ? 1 : 0.5, anchor: .bottom)
         .zIndex(isSelected ? 1 : 0)
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        .animation(.toggle, value: isSelected)
     }
 }
 

@@ -57,7 +57,7 @@ extension PreferredMapsView {
     
     private var infoButton: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.expand) {
                 showInfoText.toggle()
             }
         } label: {
@@ -91,14 +91,14 @@ extension PreferredMapsView {
         savedIconTask?.cancel()
         savedIconTask = Task {
             if showSavedIcon {
-                withAnimation(.easeInOut(duration: 0.15)) { showSavedIcon = false }
+                withAnimation(.quick) { showSavedIcon = false }
                 try? await Task.sleep(for: .milliseconds(120))
                 if Task.isCancelled { return }
             }
-            withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = true }
+            withAnimation(.transition) { showSavedIcon = true }
             try? await Task.sleep(for: .milliseconds(1000))
             if Task.isCancelled { return }
-            withAnimation(.easeInOut(duration: 0.2)) { showSavedIcon = false }
+            withAnimation(.transition) { showSavedIcon = false }
         }
     }
 }

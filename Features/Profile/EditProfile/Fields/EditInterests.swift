@@ -102,7 +102,7 @@ extension GenericInterests {
                 HStack(alignment: .top) {
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                            withAnimation(.toggle) {
                                 selected.removeAll { $0 == text }
                             }
                         }
@@ -117,7 +117,7 @@ extension GenericInterests {
                 if newValue > oldValue {
                     Task {
                         try? await Task.sleep(nanoseconds: 50_000_000)
-                        withAnimation(.easeInOut(duration: 0.4)) { selectedScrollPos.scrollTo(edge: .trailing) }
+                        withAnimation(.move) { selectedScrollPos.scrollTo(edge: .trailing) }
                     }
                 }
             }
@@ -145,7 +145,7 @@ extension GenericInterests {
         .scrollPosition(id: $currentScroll, anchor: .leading)
         .scrollIndicators(.never)
         .padding(.horizontal)
-        .animation(.easeInOut(duration: 0.4), value: currentScroll)
+        .animation(.move, value: currentScroll)
         .customScrollFade(height: 50, showFade: true)
     }
     
@@ -158,7 +158,7 @@ extension GenericInterests {
                     let isSelected = scroll == idx
                     Text(section.title ?? "")
                         .onTapGesture {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            withAnimation(.toggle) {
                                 currentScroll = idx
                             }
                         }
@@ -177,7 +177,7 @@ extension GenericInterests {
                     }
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentScroll)
+            .animation(.toggle, value: currentScroll)
         }
         .padding(.bottom, Spacing.sm)
         .padding(.horizontal)
@@ -250,7 +250,7 @@ private struct InterestOptionCell: View {
             }
         }
         .showShakeAnimation(bool: shake)
-        .animation(.easeInOut(duration: 0.4), value: flashMax)
+        .animation(.transition, value: flashMax)
     }
 }
 
@@ -301,7 +301,7 @@ struct OptionCell: View {
                 }
             }
             .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.2)) {
+                withAnimation(.toggle) {
                     onTap(text)
                 }
             }

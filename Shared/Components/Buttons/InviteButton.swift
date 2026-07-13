@@ -10,7 +10,7 @@ import SwiftUI
 
 struct InviteButton: View {
 
-    static let diameter: CGFloat = 40
+    static let diameter: CGFloat = 40 //Geometry: circular tap-target diameter
 
     let isInviting: Bool
     var isInviteCard: Bool = false

@@ -38,6 +38,13 @@ extension Font {
     static func title(_ weight: titleFontWeight) -> Font {
         .title(32, weight)
     }
+
+    // SF Symbols size off the system font's point size + weight; a custom text
+    // token (ModernEra/SFProRounded) would mis-render them, so symbol sizing keeps
+    // its system font here — the one sanctioned home for it, never called in features.
+    static func icon(_ size: CGFloat, _ weight: Font.Weight = .heavy) -> Font {
+        .system(size: size, weight: weight)
+    }
 }
 
 extension UIFont {

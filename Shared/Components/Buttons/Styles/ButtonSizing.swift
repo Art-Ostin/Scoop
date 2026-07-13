@@ -1,5 +1,5 @@
 //
-//  DefaultButtons.swift
+//  ButtonSizing.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/06/2026.
@@ -28,9 +28,9 @@ enum ButtonSize {
 }
 
 extension View {
-    func buttonSize(_ buttonSize: ButtonSize, weight: Font.Weight = .heavy) -> some View {
+    func buttonSize(_ buttonSize: ButtonSize) -> some View {
         self
-            .font(.system(size: buttonSize.fontSize, weight: weight)) //Only applies if systemName font
+            .font(.icon(buttonSize.fontSize)) //Sizes SF Symbol labels; no effect on Text
             .frame(width: buttonSize.size, height: buttonSize.size)
     }
 }

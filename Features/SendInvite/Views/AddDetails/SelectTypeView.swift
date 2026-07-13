@@ -94,7 +94,7 @@ extension SelectTypeView {
             
     private func infoButton(_ type: Event.EventType) -> some View {
         Button {
-            withAnimation(.snappy(duration: 0.3)) {
+            withAnimation(.expand) {
                 toggleTypeInfo(type)
             }
         } label: {

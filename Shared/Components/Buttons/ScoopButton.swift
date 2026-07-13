@@ -1,5 +1,5 @@
 //
-//  GlassIfAvailable.swift
+//  ScoopButton.swift
 //  Scoop
 //
 //  Created by Art Ostin on 31/05/2026.
@@ -18,13 +18,14 @@ struct ScoopButton<Content: View, S: Shape>: View {
 
     var style: ScoopButtonStyle = .glass
     let shape: S
-    
+
     var size: ButtonSize? = nil
-    var weight: Font.Weight = .heavy
-    var hitInset: CGFloat = 16 //Tappable margin beyond the visible shape, matching the pre-26 paths
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
+
+    //Geometry: tappable margin expanded beyond the visible shape, matching the pre-26 paths.
+    private let hitInset: CGFloat = 16
 
     var body: some View {
         if case .tinted(let color, let shadow) = style {
@@ -35,9 +36,9 @@ struct ScoopButton<Content: View, S: Shape>: View {
     }
 
     @ViewBuilder
-    func sizedLabel() -> some View {
+    private func sizedLabel() -> some View {
         if let size {
-            label().buttonSize(size, weight: weight)
+            label().buttonSize(size)
         } else {
             label()
         }
@@ -45,54 +46,75 @@ struct ScoopButton<Content: View, S: Shape>: View {
 }
 
 extension ScoopButton {
+    // One Button body per style: the iOS-26 glass vs pre-26 fallback split lives
+    // inside the surface modifiers below, so the label and hit-area wiring can't
+    // drift across availability branches.
     private func glassButton() -> some View {
-        Group {
-            if #available(iOS 26.0, *) {
-                Button(action: action) {
-                    sizedLabel()
-                        .glassEffect(style == .clearGlass ? .clear.interactive() : .regular.interactive(), in: shape)
-                        //Must sit above the glass: interactive glass overrides any contentShape
-                        //beneath it (same hit-shape bug as the tinted path's contentShape fix).
-                        .expandHitArea(hitInset)
-                }
-            } else {
-                Button(action: action) {
-                    sizedLabel()
-                        .background(shape.fill(.ultraThinMaterial).brightness(0.06))
-                        .expandHitArea(hitInset)
-                }
-                .growButton(tint: .black)
-            }
+        Button(action: action) {
+            sizedLabel()
+                .modifier(ScoopGlassSurface(clear: style == .clearGlass, shape: shape))
+                .expandHitArea(hitInset)
         }
+        .modifier(GlassFallbackPress())
         .foregroundStyle(Color.textPrimary)
     }
-    
-    @ViewBuilder
+
     private func coloredButton(color: Color, shadow: Elevation?) -> some View {
-        Group {
-            if #available(iOS 26.0, *) { //opted-in shadowless tints fall through to the flat fill below
-                Button(action: action) {
-                    sizedLabel()
-                        .glassEffect(.regular.tint(color), in: shape)
-                        .contentShape(shape) //Fixes bug keep!
-                        .expandHitArea(hitInset)
-                }
-                .shrinkButton(shadow: shadow, tint: color)
-            } else {
-                Button(action: action) {
-                    sizedLabel()
-                        .background(shape.fill(color))
-                        .expandHitArea(hitInset)
-                }
-                .shrinkButton(shadow: shadow, tint: color)
-            }
+        Button(action: action) {
+            sizedLabel()
+                .modifier(ScoopTintSurface(color: color, shape: shape))
+                .expandHitArea(hitInset)
         }
+        .shrinkButton(shadow: shadow, tint: color)
         .foregroundStyle(Color.white)
     }
 }
 
+// The iOS-26 Liquid Glass surface, with a pre-26 material fallback. No contentShape
+// on the glass path: interactive glass overrides any contentShape beneath it, so the
+// tappable area is set by expandHitArea sitting above the glass.
+private struct ScoopGlassSurface<S: Shape>: ViewModifier {
+    let clear: Bool
+    let shape: S
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(clear ? .clear.interactive() : .regular.interactive(), in: shape)
+        } else {
+            content.background(shape.fill(.ultraThinMaterial).brightness(0.06))
+        }
+    }
+}
 
-// TEMP: original button background, kept so callers compile. Remove when updating.
+// The iOS-26 tinted-glass surface, with a pre-26 flat fill fallback.
+private struct ScoopTintSurface<S: Shape>: ViewModifier {
+    let color: Color
+    let shape: S
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular.tint(color), in: shape)
+                .contentShape(shape) //Fixes interactive-glass hit-shape bug — keep!
+        } else {
+            content.background(shape.fill(color))
+        }
+    }
+}
+
+// The grow-on-press feel only exists on the pre-26 glass fallback; iOS 26 glass
+// is interactive on its own.
+private struct GlassFallbackPress: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+        } else {
+            content.growButton(tint: .black)
+        }
+    }
+}
+
+
+// Glass/tinted background for the map search field. It's applied to a TextField,
+// not a Button, so it lives as a standalone modifier rather than folding into ScoopButton.
 extension View {
 
     func buttonBackground<S: InsettableShape>(_ shape: S, color: Color = .accent) -> some View {
@@ -106,8 +128,6 @@ extension View {
                     .shadow(.glass)
             }
         }
-        .padding(16)
-        .contentShape(Rectangle())
-        .padding(-16)
+        .expandHitArea()
     }
 }

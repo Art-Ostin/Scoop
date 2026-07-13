@@ -46,7 +46,7 @@ struct SelectTimeView: View {
             else { flashSaved() }
         }
         .task(id: warning) { await clickedUnavailableDay() }
-        .animation(.easeInOut(duration: 0.2), value: warning)
+        .animation(.transition, value: warning)
     }
 
     private enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unavailable" }
@@ -190,21 +190,21 @@ private extension SelectTimeView {
     func clickedUnavailableDay() async {
         guard warning != nil else { return }
         try? await Task.sleep(for: .seconds(1))
-        withAnimation(.easeInOut(duration: 0.2)) { warning = nil }
+        withAnimation(.transition) { warning = nil }
     }
 
     func flashSaved() {
         savedTask?.cancel()
         savedTask = Task {
             if showSaved {
-                withAnimation(.easeInOut(duration: 0.15)) { showSaved = false }
+                withAnimation(.quick) { showSaved = false }
                 try? await Task.sleep(for: .milliseconds(120))
                 if Task.isCancelled { return }
             }
-            withAnimation(.easeInOut(duration: 0.2)) { showSaved = true }
+            withAnimation(.toggle) { showSaved = true }
             try? await Task.sleep(for: .milliseconds(1000))
             if Task.isCancelled { return }
-            withAnimation(.easeInOut(duration: 0.2)) { showSaved = false }
+            withAnimation(.toggle) { showSaved = false }
         }
     }
 }
@@ -269,7 +269,7 @@ private struct DayCell: View {
                         .fill(isSelected ? Color.accent : Color.clear)
                         .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
                 }
-                .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .animation(.toggle, value: isSelected)
         }
         .frame(width: 27, alignment: .center)
         .showShakeAnimation(bool: shake)

@@ -621,10 +621,22 @@ private struct ProfileOverlayModifier<Overlay: View>: ViewModifier {
 extension View {
 
     //Presents a profile surface at the app root, above the TabView. Pass the id of
-    //the profile to show; nil dismisses it. Shares the root presenter with
-    //responseCover, which layers above this slot.
-    func profileView(presentedID: String?, @ViewBuilder content: @escaping () -> some View) -> some View {
-        modifier(ProfileOverlayModifier(slot: .profile, presentedID: presentedID, overlay: content))
+    //the profile to show; nil dismisses it. `presentedID` MUST be the presented
+    //profile's own identity — the slot keys `.id` off it and the morph flight matches
+    //source⇄destination on that same id. Shares the root presenter with responseCover,
+    //which layers above this slot.
+    //
+    //The content is evaluated at the ROOT, outside the host's environment, so the morph
+    //is re-injected here (and drives the open-flight cross-fade). `morph` is required,
+    //not looked up: that makes the re-injection impossible to forget — omitting it would
+    //silently degrade the reverse-zoom dismissal (nil morph → no flight, source never hides).
+    func profileView(presentedID: String?, morph: ProfileMorphState,
+                     @ViewBuilder content: @escaping () -> some View) -> some View {
+        modifier(ProfileOverlayModifier(slot: .profile, presentedID: presentedID) {
+            content()
+                .opacity(morph.contentOpacity)   //Same easeInOut transaction as the open flight.
+                .environment(morph)              //Re-injected at the root — required, hence non-optional.
+        })
     }
 
     //Presents the quick-invite card at the app root, above the TabView — the tab

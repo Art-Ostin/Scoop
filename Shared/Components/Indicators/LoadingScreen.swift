@@ -59,7 +59,7 @@ struct LoadingScreen: ViewModifier {
                 }
             }
             .allowsHitTesting(!isPresented)
-            .animation(.easeInOut(duration: 0.18), value: isPresented)
+            .animation(.transition, value: isPresented)
     }
 }
 

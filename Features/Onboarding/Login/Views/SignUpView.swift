@@ -73,7 +73,7 @@ extension SignUpView {
             (Text(tabSelection == 0 ? "Made by and for " : "Only available to ")
              + Text("Students"))
               .contentTransition(.opacity)
-              .animation(.easeInOut(duration: 0.25), value: tabSelection)
+              .animation(.transition, value: tabSelection)
               .font(.body())
         }
     }

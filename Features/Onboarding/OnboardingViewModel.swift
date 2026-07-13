@@ -71,14 +71,14 @@ import FirebaseAuth
         
         //2. Actually move forward
         direction = .forward
-        if !updateOnly { withAnimation(.easeInOut) { defaultManager.advanceOnboarding() } }
+        if !updateOnly { withAnimation(.transition) { defaultManager.advanceOnboarding() } }
         defaultManager.update(kp, to: value)
     }
     
     func goBackStep() {
         guard defaultManager.onboardingStep > 0 else { return }
         direction = .back
-        withAnimation(.easeInOut) {
+        withAnimation(.transition) {
             defaultManager.retreatOnboarding()
         }
     }

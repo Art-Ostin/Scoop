@@ -26,7 +26,7 @@ extension InvitePlaceRow {
     
     private var chooseButton: some View {
         Button {
-            withAnimation(.snappy) { ui.showMapView.toggle() }
+            withAnimation(.present) { ui.showMapView.toggle() }
         } label: {
             HStack(spacing: Spacing.sm) {
                 Group {

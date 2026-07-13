@@ -109,6 +109,48 @@ enum AspectRatio {
 
 
 
+// MARK: - Motion
+//
+// One closed vocabulary for every animation in the app, named by the ROLE the
+// motion plays — never by its duration. Call sites read `.animation(.toggle, value:)`
+// or `withAnimation(.present) { … }`; the *feel* of a role is retuned here, once.
+//
+// Spring-first, per Apple's guidance ("Animate with springs"): `.smooth` carries no
+// bounce, `.snappy` a small one, `.bouncy` more. A duration-based ease survives only
+// where a precise, bounce-free timing is the whole point (micro-feedback ticks).
+//
+// This is the vocabulary for generic chrome. Measured system replications
+// (CustomAlert, the in-app banner, the Liquid-Glass menu morphs) and geometry-matched
+// hero flights (ProfileMorph, SendInviteCard) keep their own measured curves in their
+// own files — never flatten those into a role. Press feedback is owned by
+// `PressEffect`. Need a curve that isn't one of these roles? Add a role here; never
+// inline a one-off.
+extension Animation {
+
+    /// Discrete state flips — selection fills, chips, validity, checkmarks, small on/off toggles. Crisp, faintly sprung.
+    static let toggle = Animation.snappy(duration: 0.2)
+
+    /// Content swaps & crossfades — opacity, `.blurReplace`, `.id` content, text/number swaps. Even, never bounces.
+    static let transition = Animation.smooth(duration: 0.25)
+
+    /// Disclosure & grow-in-place — info rows, height reveals, content reflow inside a container.
+    static let expand = Animation.snappy(duration: 0.3)
+
+    /// Overlays, sheets, menus and cards appearing. Gentle settle on arrival.
+    static let present = Animation.spring(duration: 0.42, bounce: 0.12)
+
+    /// …and their dismissal. Quicker than `.present`, flat, never bounces — gets out of the way.
+    static let dismiss = Animation.smooth(duration: 0.22)
+
+    /// Position & offset settles — drag-release, programmatic scroll, layout shifts, list insert/remove. Physical, lightly sprung.
+    static let move = Animation.spring(duration: 0.4, bounce: 0.08)
+
+    /// Micro-feedback below the `.toggle` threshold — near-instant dims and per-tick updates.
+    static let quick = Animation.easeOut(duration: 0.12)
+}
+
+
+
 // MARK: - View Conveniences
 extension View {
     

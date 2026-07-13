@@ -69,7 +69,7 @@ extension EditProfileContainer {
         .offset(x: !isEdit ? -1 : 0, y: !isEdit ? -1 : 0)
         .offset(x: shrinkDismiss ? -2 : 0) // Put it in top corner if shrink mode
         .scaleEffect(shrinkDismiss ? 0.7 : !isEdit ? 0.7 :  1, anchor: .topLeading)
-        .animation(.snappy, value: shrinkDismiss)
+        .animation(.move, value: shrinkDismiss)
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
         .allowsHitTesting(path.isEmpty ? true  : false)
     }

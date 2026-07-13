@@ -64,7 +64,7 @@ struct GenericSex: View {
                 HStack(spacing: 0) {
                     if customisedSex {
                         SexOptionPill(gender: $selectedOption, editText: $showTypeSexField)
-                        Button { withAnimation { selectedOption = ""} } label: {
+                        Button { withAnimation(.transition) { selectedOption = ""} } label: {
                             rubbishBin
                         }
                     } else {
@@ -107,11 +107,11 @@ struct GenericSex: View {
                     keyPressToken &+= 1
                 }
                 .task(id: selectedOption) {
-                    withAnimation(.smooth()) { showSaved = false }
+                    withAnimation(.toggle) { showSaved = false }
                     guard hasEditedThisSession else { return }
                     if keyPressToken != 0 {
                         try? await Task.sleep(nanoseconds: 300_000_000)
-                        withAnimation(.smooth()) { showSaved = true }
+                        withAnimation(.toggle) { showSaved = true }
                     }
                 }
         }

@@ -117,6 +117,20 @@ Features/<Name>/
   (`softFloating`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
   Shadows.swift**, plus the measured system-replication specs that interpolate geometry
   (menu platter bloom in `DropdownCustomMenu.swift`, `ProfileMorph.swift`).
+- Motion: only named roles from the `extension Animation` in
+  `Shared/Design/GeneralParameters.swift` — the vocabulary is `.toggle` (discrete state
+  flips: selection, chips, validity, checkmarks, enable/disable), `.transition` (content
+  swaps & crossfades: opacity/blurReplace, text/number swaps, warning fades, tab changes),
+  `.expand` (disclosure / height reveals), `.present`/`.dismiss` (overlays, menus, cards
+  in/out), `.move` (position settles: scroll, drag-release, layout shifts, list
+  insert/remove), `.quick` (sub-`.toggle` micro-feedback: near-instant dims, per-tick
+  updates). Call sites read `.animation(.toggle, value:)` / `withAnimation(.move) { }`.
+  Spring-first (`.smooth`/`.snappy`/`.bouncy`); a role is retuned once, here. A bare
+  `withAnimation { }`, an inline `.easeInOut(0.2)`/`.spring(response:…)` at a call site, or
+  `.spring(.snappy)`-style nesting is drift — use a role or add one. Press feedback stays in
+  `PressEffect`. Measured system replications (`CustomAlert`, the in-app banner, the
+  Liquid-Glass menu morphs) and geometry-matched hero flights (`ProfileMorph`,
+  `SendInviteCard`) keep their own measured curves in-file — never flatten those into a role.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
 

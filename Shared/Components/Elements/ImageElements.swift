@@ -32,7 +32,6 @@ struct ScoopImage: View {
                 fillsPageWidth ? length : length - hPadding * 2
             }
             .shadow(showShadow ? .image : nil)
-
     }
 
     @ViewBuilder

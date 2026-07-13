@@ -98,7 +98,7 @@ extension GenericNationality {
                     }
                     .padding()
                     .contentShape(Rectangle())
-                    .onTapGesture { withAnimation(.smooth(duration: 0.2)) {onCountryTap(country)}}
+                    .onTapGesture { withAnimation(.toggle) {onCountryTap(country)}}
             }
             Spacer()
         }
@@ -112,7 +112,7 @@ extension GenericNationality {
             LazyVGrid(columns: alphabetColumns, spacing: Spacing.lg) {
                 ForEach(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), id: \.self) { char in
                     Button {
-                        withAnimation(.easeInOut) { scrollPosition = String(char) }
+                        withAnimation(.move) { scrollPosition = String(char) }
                     } label: {
                         Text(String(char))
                             .font(.body(20, .bold))
@@ -129,7 +129,7 @@ extension GenericNationality {
                 }
             }
         }
-        .animation(.smooth(duration: 0.25, extraBounce: 0), value: scrollPosition)
+        .animation(.toggle, value: scrollPosition)
     }
 
     private func letterColor(_ letter: String) -> Color {
@@ -214,9 +214,9 @@ private struct FlagItem: View {
             }
         }
         .offset(y: country.name.count > 15 ? 5 : 0)
-        .animation(.easeInOut(duration: 0.3), value: flashMax)
+        .animation(.transition, value: flashMax)
         .onTapGesture {
-            withAnimation(.smooth(duration: 0.2)) {
+            withAnimation(.toggle) {
                 if countriesSelected.contains(country.flag) {
                     countriesSelected.removeAll { $0 == country.flag }
                 } else if countriesSelected.count >= 3 {

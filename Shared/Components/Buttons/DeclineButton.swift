@@ -8,21 +8,17 @@
 import SwiftUI
 
 struct DeclineButton: View {
-    let image: String = "DeclineIcon"
-    let onTap: () -> ()
+    private let image = "DeclineIcon"
+    let onTap: () -> Void
+
     var body: some View {
-        Image(image)
-            .frame(width: 40, height: 40)
-            .background(
-                Circle()
-                    .fill(Color.appCanvas)
-            )
-            .circleStroke(lineWidth: 1, color: Color.border)
-            .contentShape(Circle())
-            .shadow(.button)
-            .onTapGesture {onTap()}
-            .scaleEffect(1.1)
-            .padding(.horizontal, Spacing.margin)
-            .padding(.bottom, Spacing.xs)
+        Button(action: onTap) {
+            Image(image)
+                .frame(width: 44, height: 44) //Geometry: circular tap-target diameter
+                .background(Circle().fill(Color.appCanvas))
+                .circleStroke(lineWidth: 1, color: Color.border)
+                .contentShape(Circle())
+        }
+        .shrinkButton(shadow: .button, tint: .black)
     }
 }

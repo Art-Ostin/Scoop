@@ -110,7 +110,7 @@ extension EditLanguages {
                                 flashMaxText.remove(text)
                             }
                         } else {
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                            withAnimation(.toggle) {
                                 selected.append(text)
                             }
                         }
@@ -137,7 +137,7 @@ extension EditLanguages {
                 HStack(alignment: .bottom, spacing: Spacing.lg) {
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                            withAnimation(.toggle) {
                                 selected.removeAll { $0 == text }
                             }
                         }
@@ -151,7 +151,7 @@ extension EditLanguages {
                 if newValue > oldValue {
                     Task {
                         try? await Task.sleep(nanoseconds: 50_000_000)
-                        withAnimation(.easeInOut(duration: 0.4)) { selectedScrollPos.scrollTo(edge: .trailing) }
+                        withAnimation(.move) { selectedScrollPos.scrollTo(edge: .trailing) }
                     }
                 }
             }

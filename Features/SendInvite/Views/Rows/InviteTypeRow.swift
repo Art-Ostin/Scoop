@@ -149,8 +149,8 @@ extension InviteTypeRow {
         .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
         .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
-        .animation(.snappy(duration: 0.32, extraBounce: 0), value: rowTitleTransitionID)
-        .animation(.snappy, value: scrolledPageID)
+        .animation(.transition, value: rowTitleTransitionID)
+        .animation(.transition, value: scrolledPageID)
         .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
     }
 
@@ -175,7 +175,7 @@ extension InviteTypeRow {
         if ui.showMessageScreen {
             messageBeforeEdit = unparsedMessage
         } else if unparsedMessage != messageBeforeEdit, !message.isEmpty {
-            withAnimation(.snappy(duration: 0.3)) { scrolledPageID = 1 }
+            withAnimation(.move) { scrolledPageID = 1 }
         }
     }
 
@@ -273,14 +273,14 @@ private struct TypeRowMenuLabel: View {
                 .lineLimit(3)
                 .multilineTextAlignment(.trailing)
                 .getHeight($messageHeight)
-                .transition(.opacity.animation(.smooth(duration: 0.2)))
+                .transition(.opacity.animation(.transition))
                 .fixedSize(horizontal: false, vertical: true)
                 .offset(y: ui.messageLineCount == 3 ? -4 : 0)
         } else {
             Text("Add Message")
                 .font(.body(16, .regular))
                 .foregroundStyle(Color.textSecondary)
-                .transition(.opacity.animation(.smooth(duration: 0.2)))
+                .transition(.opacity.animation(.transition))
         }
     }
 }

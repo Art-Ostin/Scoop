@@ -12,10 +12,17 @@ import SwiftUI
 struct AppScrollView<Content: View>: View {
 
     let title: String
+    var largeTitleSize: CGFloat = 32       // Events passes 26 for its longer "Meeting {name}" title
+    var isAtTop: Binding<Bool>? = nil       // opt-in scroll-top hook (Meet's InfoButton); a no-op otherwise
     let content: Content
 
-    init(title: String, @ViewBuilder content: () -> Content) {
+    init(title: String,
+         largeTitleSize: CGFloat = 32,
+         isAtTop: Binding<Bool>? = nil,
+         @ViewBuilder content: () -> Content) {
         self.title = title
+        self.largeTitleSize = largeTitleSize
+        self.isAtTop = isAtTop
         self.content = content()
     }
 
@@ -23,10 +30,19 @@ struct AppScrollView<Content: View>: View {
         ScrollView {
             content
         }
+        .isAtTopOfScroll(isAtTop ?? .constant(false))
         .colorBackground()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
-        .scoopNavigationBarFonts()
+        .scoopNavigationBarFonts(largeTitleSize: largeTitleSize)
+    }
+}
+
+extension View {
+    //Standard tab-content insets: gap below the large title, clearance above the tab bar / floating chrome.
+    func tabContentInsets() -> some View {
+        padding(.top, Spacing.titlePadding)
+        .padding(.bottom, Spacing.clearance)
     }
 }
 

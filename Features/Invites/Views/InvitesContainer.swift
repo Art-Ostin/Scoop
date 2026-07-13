@@ -17,14 +17,21 @@ struct InvitesContainer: View {
     @State private var profileMorph = ProfileMorphState()
 
     var body: some View {
-        TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
-            ForEach(vm.invites, id: \.self) { invite in
-                inviteCard(invite)
+        NavigationStack {
+            AppScrollView(title: "Invites") {
+                if vm.invites.isEmpty {
+                    InvitesPlaceholder()
+                } else {
+                    ForEach(vm.invites, id: \.self) { invite in
+                        inviteCard(invite)
+                    }
+                    .tabContentInsets()
+                }
             }
         }
         .profileMorphHost(profileMorph)
         
-        .profileView(presentedID: ui.selectedProfile?.id) {profileView()}
+        .profileView(presentedID: ui.selectedProfile?.id, morph: profileMorph) {profileView()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
     }
 }
@@ -40,9 +47,6 @@ extension InvitesContainer {
                 mode: respondMode(eventProfile),
                 onDismiss: { ui.selectedProfile = nil}
             )
-            .id(eventProfile.profile.id)
-            .opacity(profileMorph.contentOpacity)
-            .environment(profileMorph)
         }
     }
     

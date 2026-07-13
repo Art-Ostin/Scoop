@@ -18,10 +18,17 @@ struct MeetContainer: View {
     @State private var isAtTopOfScroll = true
 
     var body: some View {
-        TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty, isAtTopOfScroll: $isAtTopOfScroll) {
-            LazyVStack(spacing: Spacing.xxxl) {
-                ForEach(vm.profiles) { profile in
-                    profileCard(profile)
+        NavigationStack {
+            AppScrollView(title: "Meet", isAtTop: $isAtTopOfScroll) {
+                if vm.profiles.isEmpty {
+                    MeetPlaceholder()
+                } else {
+                    LazyVStack(spacing: Spacing.xxxl) {
+                        ForEach(vm.profiles) { profile in
+                            profileCard(profile)
+                        }
+                    }
+                    .tabContentInsets()
                 }
             }
         }
@@ -29,7 +36,7 @@ struct MeetContainer: View {
         .profileMorphHost(profileMorph)
         
         //Different sub views of meetContainer
-        .profileView(presentedID: ui.openProfile?.id) {profileView()}
+        .profileView(presentedID: ui.openProfile?.id, morph: profileMorph) {profileView()}
         .inviteView(presentedID: ui.quickInvite?.id) {inviteOverlay()}
         .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
@@ -48,9 +55,6 @@ extension MeetContainer {
                 mode: sendInvite(profile),
                 onDismiss: { ui.openProfile = nil }
             )
-            .id(profile.id)
-            .opacity(profileMorph.contentOpacity)
-            .environment(profileMorph)
         }
     }
     

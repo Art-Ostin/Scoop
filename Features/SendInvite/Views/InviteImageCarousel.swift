@@ -105,7 +105,7 @@ extension InviteImageCarousel {
         Menu {
             if vm.event.hasChanges {
                 Button("Clear Draft", systemImage: "trash", role: .destructive) {
-                    withAnimation(.spring(duration: 0.2)) { vm.deleteEventDefault() }
+                    withAnimation(.transition) { vm.deleteEventDefault() }
                 }
             }
             Button("How Invites Work", systemImage: "info.circle") {

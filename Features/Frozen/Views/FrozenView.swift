@@ -39,7 +39,7 @@ struct FrozenView: View {
                     SettingsContainer(vm: SettingsViewModel(authService: vm.authService, session: vm.session, defaults: vm.defaults))
                 }
             }
-            .animation(.easeInOut(duration: 0.3), value: tabSelection)
+            .animation(.transition, value: tabSelection)
         }
     }
 }

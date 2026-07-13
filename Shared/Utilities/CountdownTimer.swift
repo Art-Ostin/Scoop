@@ -25,7 +25,7 @@ struct CountdownTimer<Content: View>: View {
     
     var body: some View {
         content(timeRemaining)
-            .onReceive(timer) { _ in withAnimation(.easeOut(duration: 0.08)) { updateTimeRemaining() } }
+            .onReceive(timer) { _ in withAnimation(.quick) { updateTimeRemaining() } }
             .onAppear { updateTimeRemaining() }
     }
 

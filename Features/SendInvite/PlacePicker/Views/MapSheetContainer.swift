@@ -21,8 +21,8 @@ struct MapSheetContainer: View {
 
     var body: some View {
         sheetContent
-        .animation(.easeInOut(duration: 0.16), value: sheet)
-        .animation(.easeInOut(duration: 0.22), value: vm.selectedMapItem != nil)
+        .animation(.transition, value: sheet)
+        .animation(.transition, value: vm.selectedMapItem != nil)
         // Keep keyboard + focus “linked” to large search mode.
         .task(id: shouldAutoFocusSearch) {
             if shouldAutoFocusSearch {

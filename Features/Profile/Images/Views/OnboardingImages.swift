@@ -64,7 +64,7 @@ struct OnboardingImages: View {
                 images[updatedImage.index] = updatedImage.image
             }
         }
-        .animation(.easeInOut(duration: 0.18), value: showSavingScreen)
+        .animation(.transition, value: showSavingScreen)
         .overlay {
             if showSavingScreen {
                 ZStack {

@@ -81,7 +81,7 @@ extension EditMyLifeAs {
                             .font(.body(17, .bold))
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                withAnimation(.toggle) {
                                     selection = field
                                 }
                             }

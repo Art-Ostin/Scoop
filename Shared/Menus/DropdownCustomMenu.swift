@@ -1168,7 +1168,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 if controller.dismissStyle == .pop || controller.dismissStyle == .flex {
                     // Remove the platter + footer with the scoopPop transition. (`.flex` also
                     // pulses the label, driven by the controller — see `flexLabel()`.)
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { popExit = true }
+                    withAnimation(.dismiss) { popExit = true }
                 } else if #available(iOS 26.0, *) {
                     runMorphDismiss()
                 }
@@ -1262,7 +1262,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 .frame(width: frame.width)
                 .opacity(visible ? 1 : 0)
                 .scaleEffect(visible ? 1 : 0.96, anchor: .top)
-                .animation(.easeOut(duration: 0.18), value: visible)
+                .animation(.transition, value: visible)
                 .offset(x: frame.minX, y: frame.maxY + DropdownCustomMenuSpec.footerGap)
         }
     }

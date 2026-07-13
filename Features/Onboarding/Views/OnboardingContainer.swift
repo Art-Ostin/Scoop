@@ -67,7 +67,7 @@ extension OnboardingContainer {
             onboardingStepTracker
             saveButton
         }
-        .animation(.easeInOut(duration: 0.25), value: showSaved)
+        .animation(.transition, value: showSaved)
     }
     
     private var saveButton: some View {

@@ -83,6 +83,8 @@ extension ProfileContainer {
             DeclineButton {
                 if case .sendInvite(_, let onDecline) = mode { onDecline() }
             }
+            .padding(.horizontal, Spacing.margin)
+            .padding(.bottom, Spacing.xs)
             .opacity(ui.showPopup ? 0 : 1)
         }
     }

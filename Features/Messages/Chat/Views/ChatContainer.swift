@@ -57,7 +57,7 @@ struct ChatContainer: View {
             //2. The profile presents above the root TabView (behind it here, the
             //chat is what's revealed during the zoom dismissal — the bar stays
             //hidden path-based while a chat is pushed).
-            .profileView(presentedID: profileRendered ? vm.eventProfile.profile.id : nil) {
+            .profileView(presentedID: profileRendered ? vm.eventProfile.profile.id : nil, morph: profileMorph) {
                 if profileRendered { profileView }
             }
         
@@ -92,11 +92,6 @@ extension ChatContainer {
             onDismiss: { profileRendered = false },
             onDismissStart: { profileOpen = false }
         )
-        .id(vm.eventProfile.profile.id)
-        //Cross-fades in the same 0.3s transaction as the circle-photo flight.
-        .opacity(profileMorph.contentOpacity)
-        //Rendered at the app root, outside this container's environment.
-        .environment(profileMorph)
     }
         
     private func messageAppearCode() {

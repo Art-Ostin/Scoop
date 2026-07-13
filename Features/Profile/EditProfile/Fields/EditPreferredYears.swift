@@ -70,7 +70,7 @@ private struct YearPill: View {
                         .font(.body(12, .bold))
                 }
             }
-            .animation(.easeInOut(duration: 0.5), value: showMessage)
+            .animation(.transition, value: showMessage)
         }
         .onTapGesture {
             var current = selection

@@ -77,7 +77,7 @@ extension EventSlot {
     private func disableMapOnScroll(_ oldY: CGFloat, _ newY: CGFloat) {
         guard let enabledAt = mapEnabledAt, Date.now.timeIntervalSince(enabledAt) > 1,
               abs(newY - oldY) > 1 else { return }
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(.toggle) {
             disableMap = true
         }
     }

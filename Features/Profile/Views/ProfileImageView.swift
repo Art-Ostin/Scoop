@@ -72,15 +72,15 @@ extension ProfileImageView {
     private func scrollImage(index: Int) -> some View {
         SmallImage(image: images[index], size: 60)
             .shadow(.image, strength: selection == index ? 1 : 0)
-            .onTapGesture { withAnimation(.easeInOut(duration: 0.4)) { pagerPosition.scrollTo(id: index) } }
+            .onTapGesture { withAnimation(.move) { pagerPosition.scrollTo(id: index) } }
     }
 
     private func scrollToImage(oldIndex: Int, newIndex: Int) {
         if oldIndex < 3 && newIndex == 3 {
-            withAnimation { scrollPosition.scrollTo(id: newIndex, anchor: .leading) }
+            withAnimation(.move) { scrollPosition.scrollTo(id: newIndex, anchor: .leading) }
         }
         if oldIndex >= 3 && newIndex == 2 {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.move) {
                 scrollPosition.scrollTo(id: newIndex, anchor: .trailing)
             }
         }

@@ -154,9 +154,9 @@ extension AddMessageView {
     private func showSakedButton() async {
         guard hasEditedThisSession else { return }
         if keyPressToken != 0 {
-            withAnimation(.smooth()) { showSaved = true }
+            withAnimation(.toggle) { showSaved = true }
             try? await Task.sleep(nanoseconds: 1_000_000_000)
-            withAnimation(.snappy()) { showSaved = false}
+            withAnimation(.toggle) { showSaved = false}
         }
     }
 }

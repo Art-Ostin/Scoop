@@ -75,7 +75,7 @@ extension InvitedTimeCell {
             Text(status.rawValue)
                 .font(.body(12, .italic))
                 .foregroundStyle(isShaking ? Color.warningYellow : Color.textTertiary)
-                .animation(.easeInOut(duration: 0.2), value: isShaking)
+                .animation(.transition, value: isShaking)
                 .padding(.horizontal)
                 .padding(.top, Spacing.sm)
         }
@@ -100,7 +100,7 @@ extension InvitedTimeCell {
     }
     
     private func updateTimeAndDismissPopup() {
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.toggle) {
             selectedDay = date
             responseType = .original
             dismissMenu()
@@ -110,7 +110,7 @@ extension InvitedTimeCell {
     private func resetShakeFlag()  async  {
         guard isShaking else { return }
         try? await Task.sleep(for: .seconds(1))
-        withAnimation { isShaking = false }
+        withAnimation(.transition) { isShaking = false }
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  NavigationButtons.swift
+//  DismissButtons.swift
 //  Scoop
 //
 //  Created by Art Ostin on 16/03/2026.
@@ -10,6 +10,11 @@ import SwiftUI
 enum DismissType {
     case back, cross
     var symbolName: String { self == .cross ? "xmark" : "chevron.left" }
+}
+
+private extension Image {
+    /// Shared size/weight for the toolbar dismiss & close glyphs, so the two can't drift.
+    func dismissGlyphStyle() -> some View { font(.icon(14)) }
 }
 
 ///Dismiss Button when Toolbar is available
@@ -23,7 +28,7 @@ struct DismissToolbarItem: ToolbarContent {
         ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
             Button(action: dismiss.callAsFunction) {
                 Image(systemName: type.symbolName)
-                    .font(.system(size: 14, weight: .heavy))
+                    .dismissGlyphStyle()
             }
         }
     }
@@ -55,7 +60,7 @@ struct CloseAndCheckNavButton: ViewModifier {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { check ? (triggerAlert = true) : dismiss() } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 14, weight: .heavy))
+                            .dismissGlyphStyle()
                     }
                 }
             }

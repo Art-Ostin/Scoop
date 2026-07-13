@@ -113,10 +113,8 @@ extension View {
         pressButton(.shrink, shadow: shadow, tint: tint)
     }
 
-    func growButton(shadow: Elevation? = .glass, tint: Color = .accent, brightness: Double? = nil) -> some View {
-        var effect = PressEffect.grow
-        if let brightness { effect.brightness = brightness }
-        return pressButton(effect, shadow: shadow, tint: tint)
+    func growButton(shadow: Elevation? = .glass, tint: Color = .accent) -> some View {
+        pressButton(.grow, shadow: shadow, tint: tint)
     }
 
     private func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {
@@ -124,14 +122,7 @@ extension View {
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }
 
-    // Apply the press effect directly to any view (e.g. an Image).
-    func growPress(shadow: Elevation? = .glass, tint: Color = .accent, brightness: Double? = nil, action: (() -> Void)? = nil) -> some View {
-        var effect = PressEffect.grow
-        if let brightness { effect.brightness = brightness }
-        return modifier(PressEffectModifier(effect: effect, elevation: shadow, tint: tint, action: action))
-    }
-
-    //Same for the shrink Press
+    // Apply the shrink press directly to any view (e.g. an Image) without wrapping it in a Button.
     func shrinkPress(shadow: Elevation? = nil, tint: Color = .accent, action: (() -> Void)? = nil) -> some View {
         modifier(PressEffectModifier(effect: .shrink, elevation: shadow, tint: tint, action: action))
     }
