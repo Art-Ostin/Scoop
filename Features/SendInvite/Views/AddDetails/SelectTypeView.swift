@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SelectTypeView: View {
+
+    static let cardWidth: CGFloat = 290
     
     //1. Needed to sharply display a divider under 1 CGFloat
     @Environment(\.displayScale) private var displayScale
@@ -39,17 +41,13 @@ struct SelectTypeView: View {
     //Defaults false (e.g. AddMessageView, which has no pager/message page).
     var onMessagePage: Bool = false
 
-    //Card corners. Default uniform 16; the invite menu passes top 16 / bottom 10 so it
-    //pairs with the "Add a Message" footer beneath it.
-    var cardCorners: RectangleCornerRadii = RectangleCornerRadii(uniform: CornerRadius.md)
-
     var body: some View {
         VStack(spacing: 0) {
             ForEach(Event.EventType.allCases, id: \.self) {eventType in
                     typeRow(eventType)
             }
         }
-        .modifier(SelectTypeCardBackground(corners: cardCorners))
+        .frame(width: Self.cardWidth, alignment: .leading)
     }
 }
 
@@ -62,16 +60,16 @@ extension SelectTypeView {
             typeText(type)
             typeInfo(type)
         }
-        .padding(.top, Spacing.lg)
-        .padding(.bottom, openTypes.contains(type) ? Spacing.md : Spacing.lg) //All padding for view done within each row, so it is incorporated into the tap region. Key
-        .padding(.horizontal, Spacing.lg)
+        .padding(.top, 20)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
+        .padding(.bottom, openTypes.contains(type) ? 0 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.horizontal, Spacing.lg)
         .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
     }
     
     private func typeText(_ type: Event.EventType) -> some View {
-        HStack(spacing: Spacing.xs) {
+        HStack(spacing: Spacing.sm) {
             Text(type.emoji)
                 .font(.body(16))
                 .frame(width: 25, alignment: .leading) //So all same width
@@ -94,10 +92,11 @@ extension SelectTypeView {
             }
         } label: {
             SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
-                .padding(.trailing, Spacing.md)
-                .padding(.top, Spacing.xs)
-                .padding(.leading, Spacing.sm)
-                .padding(.bottom, Spacing.sm)
+                .padding(.top, 20)
+//                .padding(.trailing, Spacing.md)
+//                .padding(.top, Spacing.xs)
+//                .padding(.leading, Spacing.sm)
+//                .padding(.bottom, Spacing.sm)
                 .contentShape(Rectangle())
         }
         .shrinkButton()
@@ -195,19 +194,5 @@ private struct RevealingInfoText: View {
             .getHeight($contentHeight)
             .frame(height: isOpen ? contentHeight : 0, alignment: .top)
             .clipped()
-    }
-}
-
-struct SelectTypeCardBackground: ViewModifier {
-
-    //Defaults to a uniform 16 so existing uses are unchanged; the invite menu passes
-    //uneven corners to pair the card with its footer.
-    var corners: RectangleCornerRadii = RectangleCornerRadii(uniform: CornerRadius.md)
-
-    //The 'Menu' takes care of background, this simply give it the parameters
-    func body(content: Content) -> some View {
-        content
-            .frame(width: 300, alignment: .leading)
-            .stroke(corners)
     }
 }

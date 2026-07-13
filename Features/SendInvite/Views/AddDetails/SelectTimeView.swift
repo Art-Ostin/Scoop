@@ -40,6 +40,11 @@ struct SelectTimeView: View {
             loadSelectedHourAndMinute()
             displayedCount = proposedTimes.dates.count
         }
+        .onChange(of: proposedTimes.dates.count) {
+            withAnimation(.toggle) {
+                displayedCount = proposedTimes.dates.count
+            }
+        }
         .onChange(of: selectedHour * 60 + selectedMinute) {
             proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
             if suppressSavedFlash { suppressSavedFlash = false }

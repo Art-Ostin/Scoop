@@ -153,6 +153,14 @@ struct SendInviteOverlay: View {
         ZStack {
             Color.appCanvas.ignoresSafeArea()
                 .opacity(presenter.expanded ? 1 - presenter.dismissProgress : 0)
+                //The backdrop fades on its own value-keyed scope so the close reveal LEADS the
+                //card collapse. Keyed on `expanded` (not dismissProgress): an active drag still
+                //scrubs the screen behind in 1:1, but a close fades the white out over .dismiss
+                //(0.22s) — fully transparent before clear() unmounts the overlay at closeFlight's
+                //.logicallyComplete (0.28s), so the tab behind shows through the collapse instead
+                //of snapping in at teardown. Open keeps the flight curve.
+                .animation(presenter.expanded ? SendInviteCard.openFlight : .dismiss,
+                           value: presenter.expanded)
                 .allowsHitTesting(presenter.expanded)
             SendInviteCard(
                 vm: vm,

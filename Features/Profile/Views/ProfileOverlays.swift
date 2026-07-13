@@ -69,15 +69,15 @@ extension ProfileContainer {
     @ViewBuilder var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
-            InviteButton(isInviting: vm.viewProfileType == .invite) { ui.showPopup.toggle() }
-                .opacity(ui.showPopup ? 0 : 1)
+            InviteButton(isInviting: vm.viewProfileType == .invite) { openInvite() }
+                .opacity(invite.pending == nil ? 1 : 0) //The button becomes the card while it's presented
                 .padding(.horizontal, Spacing.margin)
                 .padding(.bottom, 144) //Geometry: floats the invite button above the details drawer
                 .modifier(InviteButtonDragEffect(ui: ui))
         }
     }
 
-    
+
     @ViewBuilder var declineButton: some View {
         if vm.viewProfileType == .invite {
             DeclineButton {
@@ -85,8 +85,48 @@ extension ProfileContainer {
             }
             .padding(.horizontal, Spacing.margin)
             .padding(.bottom, Spacing.xs)
-            .opacity(ui.showPopup ? 0 : 1)
+            .opacity(invite.pending == nil ? 1 : 0)
         }
+    }
+}
+
+//Invite card presentation. The card presents above the profile through this feature-local
+//presenter (the root InviteOverlayLayer sits *below* the profile layer, so it can't be reused
+//here). Mirrors MeetContainer's SendInviteOverlay construction; the flight origin is the hero
+//image, reported via .sendInviteSource in the header.
+extension ProfileContainer {
+
+    //The mode's send handler — present only when this profile can actually send an invite.
+    private var onSendInvite: ((EventFieldsDraft) -> Void)? {
+        if case .sendInvite(let onSend, _) = mode { onSend } else { nil }
+    }
+
+    //Only the send-invite flow presents this card; respond/accept modes leave the button inert.
+    func openInvite() {
+        guard onSendInvite != nil, let image = displayImages.first else { return }
+        invite.open(PendingProfile(profile: vm.profile, image: image), image: image)
+    }
+
+    @ViewBuilder var inviteOverlay: some View {
+        if let pending = invite.pending, let image = invite.image, let onSend = onSendInvite {
+            SendInviteOverlay(
+                presenter: invite,
+                vm: TimeAndPlaceViewModel(
+                    inviteModel: InviteContext(profileId: pending.id, name: pending.profile.name, image: image),
+                    defaults: vm.defaults
+                ),
+                image: image,
+                images: displayImages.isEmpty ? [image] : displayImages,
+                details: profileDetails(pending.profile),
+                sendInvite: onSend
+            )
+            .ignoresSafeArea() //Full-screen card, matching the Meet presentation's edge-to-edge bounds
+        }
+    }
+
+    //The card's collapsed caption line — same shape as MeetContainer's ProfileCard info line.
+    private func profileDetails(_ p: UserProfile) -> String {
+        "\(p.year) | \(p.degree) | \(p.hometown)"
     }
 }
 

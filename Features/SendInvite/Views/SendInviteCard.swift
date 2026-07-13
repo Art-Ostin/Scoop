@@ -42,6 +42,7 @@ struct SendInviteCard: View {
     @State private var pagerPosition = ScrollPosition()
     @State private var coverImage: UIImage? //Close-from-page-N: the page flying home, fading to page 0 mid-flight
     @State var coverPage: Int? //Restores the pager if a reopen retargets that close
+    @State private var invitePopupOpen = false
     
     
     //Drag Logic
@@ -112,17 +113,18 @@ extension SendInviteCard {
             name: vm.inviteModel.name,
             isInviteResponse: false,
             defaults: vm.defaults,
-            onSendInvite: { sendInvite(vm.event) }
+            onSendInvite: { sendInvite(vm.event) },
+            onPopupOpenChange: { invitePopupOpen = $0 }
         )
     }
 
     private var backButton: some View {
         BottomBackButton(action: closeInvite)
-            .blurPop(visible: expanded && dragOffset == .zero)
+            .blurPop(visible: expanded && dragOffset == .zero && !invitePopupOpen)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.horizontal, Self.screenGap)
             .padding(.horizontal, Spacing.sm) //extra padding beyond screen padding
-            .allowsHitTesting(landed && !dragging)
+            .allowsHitTesting(landed && !dragging && !invitePopupOpen)
     }
 }
 

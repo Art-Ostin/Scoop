@@ -65,6 +65,7 @@ extension InviteTypeRow {
             morphsFromTrailingPoint: onMessagePage,
             morphAnchor: morphAnchor,
             flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
+            placementOffsetX: -6,
             placementOffsetY: 24,
             onOpen: { ui.activePopup = .type },
             onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
@@ -112,8 +113,7 @@ extension InviteTypeRow {
             showMessageScreen: $ui.showMessageScreen,
             showTypePopup: ui.binding(for: .type),
             message: message,
-            onMessagePage: onMessagePage,
-            cardCorners: menuCorners
+            onMessagePage: onMessagePage
         )
     }
 
@@ -130,14 +130,19 @@ extension InviteTypeRow {
     //ZStack + the .animation(value:) modifiers form a stable ancestor for the .id swap;
     //without one the .blurReplace transition rebuilds and swaps instantly.
     private var rowTitle: some View {
-        ZStack(alignment: .leading) {
+        let isTypeOpen = ui.isPopupOpen(.type)
+        return ZStack(alignment: .leading) {
             Group {
                 if onMessagePage {
                     Text(type.title.capitalized)
-                        .font(.body(13, .regular))
-                        .foregroundStyle(Color.textTertiary)
+                        .font(.body(isTypeOpen ? 15 : 13, .regular))
+                        .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
                 } else {
-                    RowCaption(label: .what, dimmed: false)
+                    Text("What")
+                        .font(.body(15, .medium))
+                        .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
+                        .scaleEffect(isTypeOpen ? 1 : 0.8, anchor: .leading)
+                        .animation(.smooth(duration: 0.2), value: isTypeOpen)
                 }
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line
@@ -151,7 +156,7 @@ extension InviteTypeRow {
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
-        .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
+        .opacity(ui.isPopupOpen(.time) ? 0.3 : 1)
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
@@ -297,10 +302,11 @@ private struct AddMessageFooter: View {
     var body: some View {
         Text(message.isEmpty ? "Add a Message" : "Edit Message")
             .foregroundStyle(Color.textPrimary)
+            .frame(maxWidth: .infinity, alignment: .center)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
-            .modifier(SelectTypeCardBackground(corners: corners)) //same stroked card as the type list
+            .frame(width: SelectTypeView.cardWidth, alignment: .leading)
             .dropdownCustomMenuFooterPlatter(corners: corners)    //own the glass platter so the press scales it
             .contentShape(.rect)
             .shrinkPress {

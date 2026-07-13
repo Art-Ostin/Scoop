@@ -22,6 +22,7 @@ struct ProfileContainer: View {
 
     //Local view state
     @State var ui = ProfileUIState()
+    @State var invite = SendInvitePresenter() //Owns the invite card's open/close flight, presented above this profile
 
     var displayProfile: UserProfile {if case .ownProfile(let draft) = mode { draft } else { vm.profile }}
 
@@ -65,6 +66,8 @@ struct ProfileContainer: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
+        .overlay { inviteOverlay } //Above the zoom-dismissed profile — the card is its own surface
+        .environment(invite) //So the hero image's .sendInviteSource reports its frame as the flight origin
     }
 }
 
@@ -78,6 +81,7 @@ extension ProfileContainer {
             ProfileImageView(disableScroll: ui.isDismissDragging, images: displayImages)
                 .task { await vm.loadImagesIfNeeded() }
                 .overlay(alignment: .topLeading) {overlayTitle}
+                .sendInviteSource(id: vm.profile.id) //Flight origin: the invite card grows from / collapses back into this image
         }
         .getHeight($ui.headerHeight)
         .padding(.top, ui.headerTopPadding)

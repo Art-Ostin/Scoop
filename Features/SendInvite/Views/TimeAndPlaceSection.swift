@@ -11,6 +11,7 @@ struct SendInviteContainer: View {
     let isInviteResponse: Bool
     let defaults: DefaultsManaging
     let onSendInvite: () -> Void
+    var onPopupOpenChange: (Bool) -> Void = { _ in }
 
     //Local view state
     @State private var ui = TimeAndPlaceUIState()
@@ -21,6 +22,9 @@ struct SendInviteContainer: View {
             sendButton
         }
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
+        .onChange(of: ui.activePopup, initial: true) { _, popup in
+            onPopupOpenChange(popup != nil)
+        }
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
         .sheet(isPresented: $ui.showMessageScreen) {
             NavigationStack {

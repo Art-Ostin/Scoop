@@ -134,10 +134,7 @@ enum ProfileViewType {
         }
     }
 
-    //5. Logic with what screen showing
-    var showPopup: Bool = false
-
-    //6. Logic with Profile dismiss. The drag is 2D: profileOffset (y) drives the
+    //5. Logic with Profile dismiss. The drag is 2D: profileOffset (y) drives the
     //native-style shrink, profileOffsetX is the damped horizontal follow. The
     //presented* mirrors track the on-screen values through springs (same pattern
     //as presentedDetailsOffset) so a regrab catches a snap-back mid-flight.

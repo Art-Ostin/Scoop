@@ -138,8 +138,7 @@ extension AddMessageView {
             selectedType: $eventType,
             showMessageScreen: .constant(false),
             showTypePopup: $showTypePopup,
-            message: "",
-            cardCorners: RectangleCornerRadii(uniform: CornerRadius.lg)
+            message: ""
         )
         // Opaque backing so the menu's translucent glass platter can't lens the
         // red (accent) Done button sitting behind this popup's floating window.

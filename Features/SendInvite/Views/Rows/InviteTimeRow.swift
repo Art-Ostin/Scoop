@@ -30,7 +30,7 @@ struct InviteTimeRow: View {
 
     var body: some View {
         HStack {
-            rowTitle.opacity(typePopupOpen ? 0.3 : 1)
+            rowTitle.opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
         }

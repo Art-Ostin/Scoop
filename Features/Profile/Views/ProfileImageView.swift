@@ -5,6 +5,7 @@
 //  Created by Art Ostin on 25/06/2025.
 
 import SwiftUI
+import Zoomable
 
 
 struct ProfileImageView: View {
@@ -18,6 +19,7 @@ struct ProfileImageView: View {
     @State private var scrollProgress: Double = 0
     @State private var pagerPosition = ScrollPosition()
     @State private var scrollPosition = ScrollPosition()
+    @State private var zoomedPhoto: PhotoViewerSource?
 
     //trackScrollProgress reports the page index as a float; the settled page drives the thumb strip.
     private var selection: Int { Int(scrollProgress.rounded()) }
@@ -40,7 +42,7 @@ extension ProfileImageView {
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
             aspectRatio: .card,
-            zoomablePages: true,
+            onImageTap: { zoomedPhoto = PhotoViewerSource(id: $0) },
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,
         )
@@ -48,6 +50,7 @@ extension ProfileImageView {
         .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
             morph?.reportDestination(containerRect: rect)
         }
+        .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
     }
 }
 
@@ -84,6 +87,77 @@ extension ProfileImageView {
             withAnimation(.move) {
                 scrollPosition.scrollTo(id: newIndex, anchor: .trailing)
             }
+        }
+    }
+}
+
+//MARK: - Full-screen photo viewer
+
+//A photo id wrapper so fullScreenCover(item:) can seed the viewer at the tapped index.
+private struct PhotoViewerSource: Identifiable { let id: Int }
+
+//Immersive full-screen photo viewer: pinch / double-tap to zoom (ryohey/Zoomable),
+//tappable dots to switch photos. Presented as its own modal, so the zoom gestures are
+//isolated from the profile pager and the reverse-zoom dismiss drag underneath it.
+struct PhotoZoomViewer: View {
+
+    //Injected
+    let images: [UIImage]
+
+    //Local view state
+    @Environment(\.dismiss) private var dismiss
+    @State private var index: Int
+
+    init(images: [UIImage], startIndex: Int) {
+        self.images = images
+        _index = State(initialValue: min(max(startIndex, 0), max(images.count - 1, 0)))
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea() //Immersive lightbox backdrop.
+
+            if images.indices.contains(index) {
+                Image(uiImage: images[index])
+                    .resizable()
+                    .scaledToFit()
+                    .zoomable(minZoomScale: 1, maxZoomScale: 5)
+                    .id(index) //Remount on switch → zoom resets to fit.
+            }
+        }
+        .overlay(alignment: .topTrailing) { closeButton }
+        .overlay(alignment: .bottom) { photoDots }
+    }
+}
+
+extension PhotoZoomViewer {
+
+    private var closeButton: some View {
+        Button { dismiss() } label: {
+            Image(systemName: "xmark")
+                .font(.icon(15, .semibold))
+                .foregroundStyle(Color.white)
+                .padding(Spacing.sm)
+                .background(.ultraThinMaterial, in: Circle())
+        }
+        .padding(Spacing.margin)
+    }
+
+    //Tappable dots switch photos without a swipe gesture, so nothing competes with zoom pan.
+    @ViewBuilder
+    private var photoDots: some View {
+        if images.count > 1 {
+            HStack(spacing: Spacing.xs) {
+                ForEach(images.indices, id: \.self) { i in
+                    Circle()
+                        .fill(Color.white.opacity(i == index ? 1 : 0.4))
+                        .frame(width: 7, height: 7) //Geometry: fixed dot size, not a spacing rhythm
+                        .onTapGesture { withAnimation(.toggle) { index = i } }
+                }
+            }
+            .padding(Spacing.sm)
+            .background(.ultraThinMaterial, in: Capsule())
+            .padding(.bottom, Spacing.clearance)
         }
     }
 }
