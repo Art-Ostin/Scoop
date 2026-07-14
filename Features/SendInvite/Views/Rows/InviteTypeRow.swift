@@ -295,8 +295,8 @@ private struct TypeRowMenuLabel: View {
     private var messageView: some View {
         if !message.isEmpty {
             Text(message)
-                .font(.footnote)
-                .foregroundStyle(Color.textSecondary)
+                .font(.body(12, .regular))
+                .foregroundStyle(Color.textTertiary)
                 .lineLimit(3)
                 .multilineTextAlignment(.trailing)
                 .getHeight($messageHeight)
