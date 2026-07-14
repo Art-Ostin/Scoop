@@ -109,13 +109,12 @@ extension SendInviteCard {
     }
 
     private var sendInviteContainer: some View {
-        SendInviteContainer(
-            draft: $vm.event,
+        InviteSectionContainer(
             name: vm.inviteModel.name,
-            isInviteResponse: false,
             defaults: vm.defaults,
-            onSendInvite: { sendInvite(vm.event) },
-            onPopupOpenChange: { invitePopupOpen = $0 }
+            draft: $vm.event,
+            invitePopupOpen: $invitePopupOpen,
+            onSendInvite: {sendInvite(vm.event)}
         )
     }
 

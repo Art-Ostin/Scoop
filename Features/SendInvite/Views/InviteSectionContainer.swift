@@ -18,21 +18,21 @@ struct InviteSectionContainer: View {
     @Binding var draft: EventFieldsDraft
     @Binding var invitePopupOpen: Bool
     
-    let onSendInvite: (EventFieldsDraft) -> ()
-    
-    
-    
+    let onSendInvite: () -> ()
     
     var body: some View {
         
         ZStack {
-            
-        }
-        .sheet(isPresented: $showMessageScreen) {
-            NavigationStack {
-                AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
+            if showConfirmScreen {
+                confirmInviteScreen
+                    .transition(.move(edge: .bottom))
+                    .zIndex(1)
+            } else {
+                selectTimeAndPlaceView
             }
         }
+        .sheet(isPresented: $showMessageScreen) {addMessageView}
+        .animation(Animation.move, value: showConfirmScreen)
     }
 }
 
@@ -42,6 +42,7 @@ extension InviteSectionContainer {
         SelectTimeAndPlace(
             draft: $draft,
             showConfirmScreen: $showConfirmScreen,
+            showMessageScreen: $showMessageScreen,
             name: name,
             isInviteResponse: false,
             defaults: defaults,
@@ -51,15 +52,17 @@ extension InviteSectionContainer {
     
     private var confirmInviteScreen: some View {
         ConfirmInviteScreen(
-            name: <#T##String#>,
-            event: <#T##Binding<EventFieldsDraft>#>,
-            showMessageScreen: <#T##Binding<Bool>#>,
-            showConfirmScreen: <#T##Binding<Bool>#>,
-            onSendInvite: <#T##() -> ()#>
+            name: name,
+            event: $draft,
+            showMessageScreen: $showMessageScreen,
+            showConfirmScreen: $showConfirmScreen,
+            onSendInvite: onSendInvite
         )
     }
     
-    
-    
-    
+    private var addMessageView: some View {
+        NavigationStack { //NavStack added for navigationTitle -> stack don't persist in sheets
+            AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
+        }
+    }
 }

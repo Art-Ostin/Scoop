@@ -11,7 +11,7 @@ struct InviteRowContainer: View {
 
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var draft: EventFieldsDraft
-    @Binding var showMessageScreen
+    @Binding var showMessageScreen: Bool
     
     var body: some View {
         VStack(spacing: 0) {

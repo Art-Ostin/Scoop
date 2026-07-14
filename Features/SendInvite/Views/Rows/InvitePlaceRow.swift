@@ -39,7 +39,7 @@ extension InvitePlaceRow {
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
 
-                DropDownButton(isOpen: ui.showMessageScreen)
+                DropDownButton(isOpen: ui.showMapView)
             }
             .frame(height: InviteRowMetrics.rowHeight)
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
@@ -68,4 +68,3 @@ extension InvitePlaceRow {
         }
     }
 }
-

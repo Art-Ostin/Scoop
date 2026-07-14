@@ -191,7 +191,6 @@
 		65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14912F64456000031513 /* InvitesViewModel.swift */; };
 		65AF14942F6445EB00031513 /* InvitesContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF14932F6445EB00031513 /* InvitesContainer.swift */; };
 		65AF6CB8300664170028A4C2 /* ConfirmInviteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF6CB7300664170028A4C2 /* ConfirmInviteScreen.swift */; };
-		65AF6CBA3006674C0028A4C2 /* WideActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF6CB93006674C0028A4C2 /* WideActionButton.swift */; };
 		65AF6CBD3006744A0028A4C2 /* InviteSectionContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF6CBC3006744A0028A4C2 /* InviteSectionContainer.swift */; };
 		65B4E3992FA606A40044EE9A /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E3982FA606A40044EE9A /* UserSession.swift */; };
 		65B4E39B2FA606D60044EE9A /* EventsSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4E39A2FA606D60044EE9A /* EventsSession.swift */; };
@@ -457,7 +456,6 @@
 		65AF14912F64456000031513 /* InvitesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesViewModel.swift; sourceTree = "<group>"; };
 		65AF14932F6445EB00031513 /* InvitesContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitesContainer.swift; sourceTree = "<group>"; };
 		65AF6CB7300664170028A4C2 /* ConfirmInviteScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmInviteScreen.swift; sourceTree = "<group>"; };
-		65AF6CB93006674C0028A4C2 /* WideActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideActionButton.swift; sourceTree = "<group>"; };
 		65AF6CBC3006744A0028A4C2 /* InviteSectionContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSectionContainer.swift; sourceTree = "<group>"; };
 		65B4E3982FA606A40044EE9A /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		65B4E39A2FA606D60044EE9A /* EventsSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsSession.swift; sourceTree = "<group>"; };
@@ -1184,7 +1182,6 @@
 				657F61C02FDF18CC00B2F903 /* DeclineButton.swift */,
 				65A8BF9E2E02E0400054BD63 /* ActionButton.swift */,
 				65939C4F2FCAE78900B24D11 /* InviteButton.swift */,
-				65AF6CB93006674C0028A4C2 /* WideActionButton.swift */,
 				659109232E19AEC00065696F /* NextButton.swift */,
 			);
 			path = Buttons;
@@ -1619,7 +1616,6 @@
 				65F660CA2F23F46300AF791F /* BlockedContextView.swift in Sources */,
 				65E820A12E37F3460098CC36 /* Interests.swift in Sources */,
 				657683262F59CA380094A02D /* MessageBubbleShape.swift in Sources */,
-				65AF6CBA3006674C0028A4C2 /* WideActionButton.swift in Sources */,
 				657B8D4B2F2CFA5F00583ADA /* AppIcons.swift in Sources */,
 				652882D42F707331000B724D /* RespondTimePopup.swift in Sources */,
 				657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */,

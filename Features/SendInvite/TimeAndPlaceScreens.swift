@@ -16,12 +16,13 @@ struct RespondTimeAndPlaceView: View {
     var event: UserEvent { vm.respondDraft.originalInvite.event }
 
     var body: some View {
-        SendInviteContainer(
-            draft: $vm.respondDraft.newEvent,
-            name: event.otherUserName,
-            isInviteResponse: true,
-            defaults: vm.defaults,
-            onSendInvite: sendInvite
-        )
+        Text("Hello World")
+//        SendInviteContainer(
+//            draft: $vm.respondDraft.newEvent,
+//            name: event.otherUserName,
+//            isInviteResponse: true,
+//            defaults: vm.defaults,
+//            onSendInvite: sendInvite
+//        )
     }
 }

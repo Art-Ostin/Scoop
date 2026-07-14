@@ -89,6 +89,7 @@ extension InviteTypeRow {
             type: type,
             message: message,
             ui: ui,
+            showMessageScreen: showMessageScreen,
             scrollProgress: $scrollProgress,
             scrolledPageID: $scrolledPageID,
             messageHeight: $messageHeight,
@@ -219,6 +220,7 @@ private struct TypeRowMenuLabel: View {
     let type: Event.EventType
     let message: String
     let ui: TimeAndPlaceUIState
+    let showMessageScreen: Bool
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
     @Binding var messageHeight: CGFloat
