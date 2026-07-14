@@ -25,7 +25,6 @@ struct SelectTypeView: View {
 
     @Binding var selectedType: Event.EventType
     @Binding var showMessageScreen: Bool
-    @Binding var showTypePopup: Bool
 
     let message: String
 
@@ -134,7 +133,6 @@ extension SelectTypeView {
             //the row's left title carries the type change with its own blur-morph + flex.
             if changed && onMessagePage {
                 selectedType = eventType
-                showTypePopup = false
                 dismissMenu(.morphPlatterOnly)
                 dismissTimeMenu()
                 return
@@ -147,7 +145,6 @@ extension SelectTypeView {
                 freezeMenuLabel()
                 selectedType = eventType
             }
-            showTypePopup = false
             dismissMenu(changed ? .morph : .flex)
             dismissTimeMenu()
         }

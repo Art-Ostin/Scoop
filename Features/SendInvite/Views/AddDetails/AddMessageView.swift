@@ -65,7 +65,10 @@ struct AddMessageView: View {
 extension AddMessageView {
     @ViewBuilder
     private var dropdownTitle: some View {
-        TimeCustomMenu {
+        TimeCustomMenu(
+            onOpen: { showTypePopup = true },
+            onClose: { showTypePopup = false }
+        ) {
             selectTypeView
         } label: {
             selectTypeTitle
@@ -137,7 +140,6 @@ extension AddMessageView {
             openTypes: $openTypes,
             selectedType: $eventType,
             showMessageScreen: .constant(false),
-            showTypePopup: $showTypePopup,
             message: ""
         )
         // Opaque backing so the menu's translucent glass platter can't lens the

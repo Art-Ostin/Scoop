@@ -128,7 +128,7 @@ extension InviteImageCarousel {
         AnimatedPageIndicator(count: images.count, progress: scrollProgress)
             .scaleEffect(0.7)
             .offset(y: 12) //Geometry: straddles the image's bottom edge
-            .opacity(expanded ? 1 : 0)
+            .opacity(expanded ? 0 : 1)
     }
 
     //Cross-fades the two neighbouring pages' halos so the blur tracks the scroll progressively.

@@ -11,10 +11,11 @@ struct InviteRowContainer: View {
 
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var draft: EventFieldsDraft
+    @Binding var showMessageScreen
     
     var body: some View {
         VStack(spacing: 0) {
-            InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message)
+            InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message, showMessageScreen: $showMessageScreen)
             LightDivider()
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
             LightDivider()

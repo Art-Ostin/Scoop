@@ -52,7 +52,6 @@ class TimeAndPlaceViewModel {
     ///Track if the time or type popup is open on the screen
     var activePopup: Popup?
     private(set) var delayedPopup: Popup?
-    var showMessageScreen: Bool = false
     var showMapView: Bool = false
     var showInfoScreen: Bool = false
     var messageLineCount: Int = 0
@@ -61,6 +60,7 @@ class TimeAndPlaceViewModel {
     func isPopupOpen(_ popup: Popup? = nil) -> Bool {
         popup == nil ? activePopup != nil : popup == activePopup
     }
+    
     func isPopupOpenDelayed(_ popup: Popup? = nil) -> Bool {
         popup == nil ? delayedPopup != nil : popup == delayedPopup
     }
@@ -70,12 +70,5 @@ class TimeAndPlaceViewModel {
         try? await Task.sleep(for: .milliseconds(target == nil ? 40 : 150))
         guard !Task.isCancelled else { return }   // sleep's error was swallowed; don't commit a stale value
         delayedPopup = target
-    }
-    
-    func binding(for popup: Popup) -> Binding<Bool> {
-        Binding(
-            get: { self.activePopup == popup },
-            set: { self.activePopup = $0 ? popup : nil }
-        )
     }
 }

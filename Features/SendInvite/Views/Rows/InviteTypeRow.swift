@@ -13,6 +13,7 @@ struct InviteTypeRow: View {
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var type: Event.EventType
     @Binding var unparsedMessage: String?
+    @Binding var showMessageScreen: Bool
 
     //Local view state — messageBeforeEdit: snapshot when the editor opens, to tell if it changed on close
     @State private var messageBeforeEdit: String?
@@ -56,7 +57,7 @@ struct InviteTypeRow: View {
         .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
-        .onChange(of: ui.showMessageScreen) { messageScreenChanged() }
+        .onChange(of: showMessageScreen) { messageScreenChanged() }
         .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
     }
 }
@@ -108,7 +109,7 @@ extension InviteTypeRow {
     //including the empty "Add Message" placeholder. The type page (id 0) falls through to the menu.
     private func handleLabelTap() -> Bool {
         guard (scrolledPageID ?? 0) >= 1 else { return false }
-        ui.showMessageScreen = true
+        showMessageScreen = true
         return true
     }
 
@@ -116,8 +117,7 @@ extension InviteTypeRow {
         SelectTypeView(
             openTypes: $openInfoTypes,
             selectedType: $type,
-            showMessageScreen: $ui.showMessageScreen,
-            showTypePopup: ui.binding(for: .type),
+            showMessageScreen: $showMessageScreen,
             message: message,
             onMessagePage: onMessagePage
         )
@@ -125,7 +125,7 @@ extension InviteTypeRow {
 
     private var addMessageFooter: some View {
         AddMessageFooter(message: message, corners: footerCorners) {
-            ui.showMessageScreen = true
+            showMessageScreen = true
         }
     }
 
@@ -192,7 +192,7 @@ extension InviteTypeRow {
 
     //Editor opened: snapshot the message. Editor closed: if it changed, park the pager on it.
     private func messageScreenChanged() {
-        if ui.showMessageScreen {
+        if showMessageScreen {
             messageBeforeEdit = unparsedMessage
         } else if unparsedMessage != messageBeforeEdit, !message.isEmpty {
             withAnimation(.move) { scrolledPageID = 1 }
@@ -288,7 +288,7 @@ private struct TypeRowMenuLabel: View {
     }
 
     private var chevron: some View {
-        DropDownButton(isOpen: ui.isPopupOpen(.type) || ui.showMessageScreen)
+        DropDownButton(isOpen: ui.isPopupOpen(.type) || showMessageScreen)
     }
 
     @ViewBuilder

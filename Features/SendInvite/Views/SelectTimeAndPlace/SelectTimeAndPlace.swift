@@ -1,16 +1,17 @@
 import SwiftUI
 
-struct SendInviteContainer: View {
+struct SelectTimeAndPlace: View {
 
     static let screenMargin: CGFloat = 8
     static let contentPadding: CGFloat = 24
 
     //Injected
     @Binding var draft: EventFieldsDraft
+    @Binding var showConfirmScreen: Bool
+    @Binding var showMessageScreen: Bool
     let name: String
     let isInviteResponse: Bool
     let defaults: DefaultsManaging
-    let onSendInvite: () -> Void
     var onPopupOpenChange: (Bool) -> Void = { _ in }
 
     //Local view state
@@ -18,7 +19,7 @@ struct SendInviteContainer: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            InviteRowContainer(ui: ui, draft: $draft)
+            InviteRowContainer(ui: ui, draft: $draft, showMessageScreen: $showMessageScreen) 
             sendButton
         }
         .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
@@ -26,18 +27,13 @@ struct SendInviteContainer: View {
             onPopupOpenChange(popup != nil)
         }
         .fullScreenCover(isPresented: $ui.showMapView) {MapView(defaults: defaults, eventLocation: $draft.place)}
-        .sheet(isPresented: $ui.showMessageScreen) {
-            NavigationStack {
-                AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
-            }
-        }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
         .padding(.horizontal, Self.contentPadding)
     }
 }
 
 //Key Components
-extension SendInviteContainer {
+extension SelectTimeAndPlace {
     
     private var sendButton: some View {
         let label = Text("Invite \(name)")
@@ -46,9 +42,11 @@ extension SendInviteContainer {
             .frame(maxWidth: .infinity)
             .frame(height: 48)
 
+        let color = Color(red: 0.55, green: 0, blue: 0.25)
+
         return Group {
             if draft.isComplete {
-                ScoopButton(style: .tinted( ui.isPopupOpenDelayed() ? .fillGray : .accent, shadow: nil), shape: Capsule(), action: onSendInvite) {
+                ScoopButton(style: .tinted( ui.isPopupOpenDelayed() ? .fillGray : color, shadow: nil), shape: Capsule(), action: {showConfirmScreen = true}) {
                     label
                 }
             } else {
