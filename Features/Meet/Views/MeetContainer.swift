@@ -69,7 +69,6 @@ extension MeetContainer {
             onQuickInvite: {image in openQuickInvite(profile, image: image)}
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
-        .shadow(.image)
     }
 
     private var infoButton: some View {

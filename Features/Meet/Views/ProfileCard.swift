@@ -21,7 +21,7 @@ struct ProfileCard : View {
     private let cardSpace = "ProfileCard"
 
     var body: some View {
-        ScoopImage(image: profile.image, showShadow: true)
+        ScoopImage(image: profile.image, showShadow: false)
             .opacity(quickInviteHidden ? 0 : 1)
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) {cardOverlay}

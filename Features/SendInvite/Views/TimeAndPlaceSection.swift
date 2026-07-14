@@ -48,7 +48,7 @@ extension SendInviteContainer {
 
         return Group {
             if draft.isComplete {
-                ScoopButton(style: .tinted( ui.isPopupOpenDelayed() ? .fillGray : .textAccent, shadow: nil), shape: Capsule(), action: onSendInvite) {
+                ScoopButton(style: .tinted( ui.isPopupOpenDelayed() ? .fillGray : .accent, shadow: nil), shape: Capsule(), action: onSendInvite) {
                     label
                 }
             } else {
