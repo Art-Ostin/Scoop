@@ -10,6 +10,7 @@ struct SendInviteCard: View {
 
     static let openFlight = Animation.smooth(duration: 0.3)
     static let closeFlight = Animation.smooth(duration: 0.28)
+    static let confirmTransition = Animation.smooth(duration: 0.3)
 
     static let screenGap: CGFloat = 10
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
@@ -74,17 +75,17 @@ struct SendInviteCard: View {
                     cardContent(imageWidth: geo.size.width - 2 * Self.screenGap)
                     backButton
                 }
+                .padding(.top, currentCardTopPadding)
                 carouselLayer(origin)
                 flightTapCatcher(origin)
                 reopenTapTarget(origin)
             }
             .scaleEffect(1 - (1 - Self.minDragScale) * dragProgress, anchor: dragAnchor(geo.size, origin))
             .offset(dragOffset)
-            .offset(y: currentCardTopPadding)
             .simultaneousGesture(dismissDrag)
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
         }
-        .animation(.expand, value: confirmInviteScreen)
+        .animation(Self.confirmTransition, value: confirmInviteScreen)
         .task {
             guard ProcessInfo.processInfo.arguments.contains("-invite-animation-autoplay") else { return }
             try? await Task.sleep(for: .seconds(3))
@@ -107,9 +108,9 @@ extension SendInviteCard {
         }
         .padding(.bottom, Spacing.sm)
         .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
-        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
             guard !dragging else { return } //Frames are the drag's model space; frozen while it owns them
-            cardFrame = $0.offsetBy(dx: 0, dy: -currentCardTopPadding)
+            withAnimation(landed ? Self.confirmTransition : nil) { cardFrame = newFrame }
             openWhenMeasured()
         }
         .opacity(cardFrame.height > 1 ? 1 : 0) //Rows hidden until measured (the carousel, valid from frame 1, covers ProfileCard meanwhile)
@@ -121,9 +122,9 @@ extension SendInviteCard {
     private func imageSlot(_ width: CGFloat) -> some View {
         return Color.clear
             .frame(width: max(width, 0), height: max(width, 0) * currentImageHeightRatio)
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
                 guard !dragging else { return }
-                imageFrame = $0.offsetBy(dx: 0, dy: -currentCardTopPadding)
+                withAnimation(landed ? Self.confirmTransition : nil) { imageFrame = newFrame }
                 openWhenMeasured()
             }
     }
