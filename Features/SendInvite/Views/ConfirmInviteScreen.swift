@@ -29,8 +29,10 @@ struct ConfirmInviteScreen: View {
             }
             warningLabel
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Spacing.margin)
-        .overlay(alignment: .topTrailing) {backButton}
+        .overlay(alignment: .topTrailing) {infoButton}
+        .padding(.top, 20)
     }
 }
 
@@ -57,14 +59,25 @@ extension ConfirmInviteScreen {
     }
     
     private var warningLabel: some View {
-        Text("If they accept & I don't show I'll be blocked")
-            .font(.body(12, .regular))
-            .foregroundStyle(Color.textPlaceholder)
+        HStack(spacing: Spacing.md){
+            Image("ConfirmIcon")
+            
+            
+            Text("No-shows will result in your account being blocked")
+                .font(.body(14, .regular))
+                .foregroundStyle(Color.textSecondary)
+                .multilineTextAlignment(.leading)
+                .lineSpacing(6)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color.accent.opacity(0.04), in: .rect(cornerRadius: CornerRadius.sm))
     }
 
-    private var backButton: some View {
-        Image(systemName: "chevron.down")
-            .font(.body(12, .bold))
+    private var infoButton: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.textSecondary)
+            .font(.body(12, .regular))
             .frame(width: 28, height: 28)
             .background(Color.fillGray, in: Circle())
             .expandHitArea()

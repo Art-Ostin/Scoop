@@ -93,7 +93,7 @@ extension SendInviteCard {
             openWhenMeasured()
         }
         .opacity(cardFrame.height > 1 ? 1 : 0) //Rows hidden until measured (the carousel, valid from frame 1, covers ProfileCard meanwhile)
-        .mask { backgroundShape(cardFrame.origin) } //Revealed by the expanding background
+        .mask { backgroundShape(cardFrame.origin)} //Revealed by the expanding background
         .allowsHitTesting(expanded && !dragging)
         .padding(.horizontal, Self.screenGap)
     }

@@ -82,7 +82,7 @@ extension InviteSectionContainer {
         let tint: Color = popupDim || !interactive ? .fillGray : .textAccent
 
         return ScoopButton(
-            style: .tinted(tint, shadow: showConfirmScreen ? .button : nil),
+            style: .tinted(tint, shadow: nil),
             shape: Capsule(),
             action: buttonTapped
         ) {

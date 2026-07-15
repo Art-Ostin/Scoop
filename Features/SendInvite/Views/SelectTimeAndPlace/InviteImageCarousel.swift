@@ -11,7 +11,7 @@ import SwiftUI
 //profile card's rect and the expanded image slot, and everything here rides that same
 //transaction, keyed on `expanded`. Collapsed it renders exactly as ProfileCard's image
 //(uniform edge-to-edge clip, name/details/invite-button chrome); expanded it is the
-//settled carousel (inset pages, "Meet <name>", options menu, page dots). There is no
+//settled carousel (edge-to-edge pages, "Meet <name>", options menu, page dots). There is no
 //separate flight copy, so both endpoints are exact by construction.
 struct InviteImageCarousel: View {
     //Injected
@@ -37,7 +37,7 @@ struct InviteImageCarousel: View {
     //Name inset from the image edge (the halo mask measures against these)
     static let nameLeadingInset: CGFloat = 17
     static let nameTopInset: CGFloat = 12
-    static let imagePadding: CGFloat = 3 //Geometry: concentric inset of the pages inside the image slot (pairs with CardImageCarousel.imagePadding)
+    static let imagePadding: CGFloat = 0
 
     var body: some View {
         ImageCarousel(
@@ -47,7 +47,7 @@ struct InviteImageCarousel: View {
             bottomRadius: bottomRadius,
             aspectRatio: .card,
             fillsContainerHeight: true, //The animated frame owns the height at both endpoints
-            showFade: expanded, //Collapsed: no edge fade, so the close lands on ProfileCard's plain image (no appCanvas sliver)
+            showFade: false,
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition
         )
@@ -64,7 +64,7 @@ struct InviteImageCarousel: View {
 }
 
 //State-driven page geometry: ProfileCard's uniform edge-to-edge clip collapsed, the
-//settled card's concentric top / sm bottom with the 3pt inset expanded. The values flip
+//settled card's edge-to-edge top / square bottom expanded. The values flip
 //with `expanded` and interpolate inside the flight transaction (clip radii and padding
 //are animatable).
 extension InviteImageCarousel {
@@ -75,7 +75,7 @@ extension InviteImageCarousel {
         expanded ? CornerRadius.concentric(in: CornerRadius.image, inset: Self.imagePadding) : CornerRadius.image
     }
 
-    private var bottomRadius: CGFloat { expanded ? CornerRadius.sm : CornerRadius.image }
+    private var bottomRadius: CGFloat { expanded ? 0 : CornerRadius.image }
 }
 
 //Expanded chrome: fades in with the open flight, out with the close.
