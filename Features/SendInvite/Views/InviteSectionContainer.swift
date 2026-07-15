@@ -124,7 +124,8 @@ extension InviteSectionContainer {
         ConfirmInviteScreen(
             name: name,
             event: $draft,
-            showConfirmScreen: $confirmInviteScreen
+            showConfirmScreen: $confirmInviteScreen,
+            showMessageScreen: $showMessageScreen
         )
     }
 

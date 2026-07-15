@@ -713,6 +713,7 @@
 				6549DA612F9E83AB00C89DF2 /* Repositories */,
 				652D3D2C2F2E976D00AE491D /* Loaders */,
 				6549DA5C2F9E7C4A00C89DF2 /* Models */,
+				6549DA5A2F9E7B4300C89DF2 /* AppState */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1263,7 +1264,6 @@
 			isa = PBXGroup;
 			children = (
 				652B15482F301B770042A3E1 /* App */,
-				6549DA5A2F9E7B4300C89DF2 /* AppState */,
 				6549DA5B2F9E7C3300C89DF2 /* Data */,
 				659497012E01DD4000880921 /* Features */,
 				65E820B02E3901080098CC36 /* Shared */,

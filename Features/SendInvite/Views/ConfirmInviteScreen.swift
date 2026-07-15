@@ -14,13 +14,17 @@ struct ConfirmInviteScreen: View {
 
     @Binding var event: EventFieldsDraft
     @Binding var showConfirmScreen: Bool
+    @Binding var showMessageScreen: Bool
     
     @State var scrollProgress: Double = 0
     @State private var messageHeight: CGFloat = 0
     
     
     //Local Properties
+    @State var showInfoSheet = false
+    
     var hasMessage: Bool { event.message?.isEmpty == false }
+    
     private var messageLineCount: Int {
         guard messageHeight > 0 else { return 0 }
         let lineHeight = UIFont.systemFont(ofSize: 14).lineHeight
@@ -37,13 +41,12 @@ struct ConfirmInviteScreen: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 20)
+        .sheet(isPresented: $showInfoSheet) {
+            Text(event.type.longTitle)
+                .presentationDetents([.medium])
+        }
     }
 }
-
-
-
-
-
 
 
 //Components
@@ -54,17 +57,9 @@ extension ConfirmInviteScreen {
             .font(.title(24, .bold))
             .foregroundStyle(Color.textPrimary)
     }
-    
-    
-
-    
-    
-    
-    
     private var warningLabel: some View {
         HStack(spacing: Spacing.md){
             Image("ConfirmIcon")
-            
             
             Text("Not showing will result in your account being blocked")
                 .font(.body(14, .regular))
@@ -89,12 +84,10 @@ extension ConfirmInviteScreen {
                 .padding(.horizontal, Spacing.margin)
                 .padding(.vertical, 28)                 // pure hit-area; won't scale the type
                 .containerRelativeFrame(.horizontal, alignment: .leading)
-
-            if hasMessage {
-                textView
-                    .padding(.horizontal, Spacing.margin)
-                    .containerRelativeFrame(.horizontal, alignment: .leading)
-            }
+            
+            messageSection
+                .padding(.horizontal, Spacing.margin)
+                .containerRelativeFrame(.horizontal, alignment: .leading)
         }
         .overlay(alignment: .bottomTrailing) {
             AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
@@ -107,16 +100,35 @@ extension ConfirmInviteScreen {
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
     }
     
-    private var textView: some View {
-        Text(event.message ?? "" )
-            .font(.system(size: 14, weight: .regular, design: .default))
-            .italic()
-            .foregroundStyle(Color.textSecondary)
-            .lineSpacing(6)
-            .getHeight($messageHeight)
-            .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
+    @ViewBuilder
+    private var messageSection: some View {
+        if hasMessage {
+            Text(event.message ?? "" )
+                .font(.system(size: 14, weight: .regular, design: .default))
+                .italic()
+                .foregroundStyle(Color.textSecondary)
+                .lineSpacing(6)
+                .getHeight($messageHeight)
+                .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Improve your invite with a message")
+                    .font(.body(13, .medium))
+                    .foregroundStyle(Color.textSecondary)
+                
+                Text("Add a message")
+                    .foregroundStyle(Color.textSecondary)
+                    .font(.body(14, .regular))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color.fillGray, in: .rect(cornerRadius: 12))
+                    .shrinkPress {
+                        showMessageScreen = true
+                    }
+            }
+            .offset(y: -Spacing.xxs)
+        }
     }
-    
     
     private var timePlaceTypeSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -141,7 +153,7 @@ extension ConfirmInviteScreen {
                     .offset(y: -4)
             }
             .shrinkPress {
-                print("hello")
+                showInfoSheet.toggle()
             }
         }
         .font(.body(19, .medium))
