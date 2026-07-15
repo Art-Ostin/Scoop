@@ -8,17 +8,17 @@
 import SwiftUI
 
 //Edit ⇄ Confirm is one card morphing in place, not two screens swapping. The pill and the
-//card frame are persistent; only the content between them crossfades. Both content bodies stay
-//mounted so their heights are known before the toggle — the card can then tween between them and
-//clip the outgoing one, instead of sliding two transparent layouts past each other.
+//card frame are persistent; only the content between them slides. Both content bodies stay
+//mounted so their heights are known before the toggle — the card can tween its height while the
+//content slides within the clipped card bounds.
 struct InviteSectionContainer: View {
 
     //Local view state
     @State private var ui = TimeAndPlaceUIState()
-    @State private var showConfirmScreen = false
     @State private var showMessageScreen = false
     @State private var rowsHeight: CGFloat = 0     //ideal height of the edit rows
     @State private var confirmHeight: CGFloat = 0  //ideal height of the confirm summary
+    @State private var contentWidth: CGFloat = 0   //slide distance between the edit and confirm screens
 
     //Injected
     let name: String
@@ -26,11 +26,12 @@ struct InviteSectionContainer: View {
 
     @Binding var draft: EventFieldsDraft
     @Binding var invitePopupOpen: Bool
+    @Binding var confirmInviteScreen: Bool
 
     let onSendInvite: () -> ()
 
     //The pill recedes to grey while a picker is open — only meaningful on the edit side.
-    private var popupDim: Bool { !showConfirmScreen && ui.isPopupOpenDelayed() }
+    private var popupDim: Bool { !confirmInviteScreen && ui.isPopupOpenDelayed() }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,47 +39,44 @@ struct InviteSectionContainer: View {
             sendButton
         }
         .sheet(isPresented: $showMessageScreen) { addMessageView }
-        .animation(.expand, value: showConfirmScreen)
     }
 }
 
-//The morph: two bodies stacked, both measured, crossfading over an animating height
+//The morph: two bodies stacked, both measured, sliding over an animating height
 extension InviteSectionContainer {
 
-    //Both bodies are always present (the hidden one at opacity 0), so the card knows both heights
-    //up front and tweens cleanly between them. The taller body is clipped, never shown through.
+    //Both bodies are always present, so the card knows both heights up front and tweens cleanly
+    //between them. The inactive body sits just outside the clipped content bounds.
     private var morphingContent: some View {
         ZStack(alignment: .top) {
             selectRows
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
-                .opacity(showConfirmScreen ? 0 : 1)
-                .blur(radius: showConfirmScreen ? Self.crossfadeBlur : 0)
-                .allowsHitTesting(!showConfirmScreen)
+                .offset(x: confirmInviteScreen ? -contentWidth : 0)
+                .allowsHitTesting(!confirmInviteScreen)
 
             confirmScreen
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { confirmHeight = $0 }
-                .opacity(showConfirmScreen ? 1 : 0)
-                .blur(radius: showConfirmScreen ? 0 : Self.crossfadeBlur)
-                .allowsHitTesting(showConfirmScreen)
+                .offset(x: confirmInviteScreen ? 0 : contentWidth)
+                .opacity(contentWidth > 0 ? 1 : 0)
+                .allowsHitTesting(confirmInviteScreen)
         }
         .frame(height: contentHeight, alignment: .top)
         .clipped()
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { contentWidth = $0 }
     }
 
     //nil until first measured, so the card opens at its natural height instead of snapping from 0.
     private var contentHeight: CGFloat? {
-        let height = showConfirmScreen ? confirmHeight : rowsHeight
+        let height = confirmInviteScreen ? confirmHeight : rowsHeight
         return height > 0 ? height : nil
     }
-
-    private static let crossfadeBlur: CGFloat = 6
 }
 
 //The one persistent pill: label, tint and action morph across the two states
 extension InviteSectionContainer {
 
     private var sendButton: some View {
-        let interactive = showConfirmScreen || draft.isComplete
+        let interactive = confirmInviteScreen || draft.isComplete
         let tint: Color = popupDim || !interactive ? .fillGray : .textAccent
 
         return ScoopButton(
@@ -86,7 +84,7 @@ extension InviteSectionContainer {
             shape: Capsule(),
             action: buttonTapped
         ) {
-            Text(showConfirmScreen ? "Confirm & Send" : "Invite \(name)")
+            Text(confirmInviteScreen ? "Confirm & Send" : "Invite \(name)")
                 .font(.body(18, .bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -95,16 +93,16 @@ extension InviteSectionContainer {
         }
         .opacity(popupDim ? 0.4 : 1)
         .allowsHitTesting(interactive)
-        .padding(.top, showConfirmScreen ? Spacing.md : Spacing.xxs)
+        .padding(.top, confirmInviteScreen ? Spacing.md : Spacing.xxs)
         .padding(.horizontal, Spacing.margin)
         .animation(.smooth, value: popupDim)
     }
 
     private func buttonTapped() {
-        if showConfirmScreen {
+        if confirmInviteScreen {
             onSendInvite()
         } else {
-            showConfirmScreen = true
+            confirmInviteScreen = true
         }
     }
 }
@@ -126,7 +124,7 @@ extension InviteSectionContainer {
         ConfirmInviteScreen(
             name: name,
             event: $draft,
-            showConfirmScreen: $showConfirmScreen
+            showConfirmScreen: $confirmInviteScreen
         )
     }
 

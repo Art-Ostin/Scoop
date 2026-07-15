@@ -15,6 +15,8 @@ struct SendInviteCard: View {
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let cardRadius = CornerRadius.xl //Expanded card surface radius
     static let imageHeightRatio: CGFloat = 1.05
+    static let confirmImageHeightRatio: CGFloat = 360.0 / 386.0
+    static let confirmCardTopPadding: CGFloat = 36
 
     //Interactive dismiss tuning (see dismissDrag)
     static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the chrome collapse 0→1
@@ -44,6 +46,7 @@ struct SendInviteCard: View {
     @State private var coverImage: UIImage? //Close-from-page-N: the page flying home, fading to page 0 mid-flight
     @State var coverPage: Int? //Restores the pager if a reopen retargets that close
     @State private var invitePopupOpen = false
+    @State private var confirmInviteScreen = false
     
     
     //Drag Logic
@@ -55,6 +58,12 @@ struct SendInviteCard: View {
 
 
     private var gallery: [UIImage] { images.isEmpty ? [image] : images }
+    private var currentImageHeightRatio: CGFloat {
+        confirmInviteScreen ? Self.confirmImageHeightRatio : Self.imageHeightRatio
+    }
+    private var currentCardTopPadding: CGFloat {
+        expanded && confirmInviteScreen ? Self.confirmCardTopPadding : 0
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -71,15 +80,26 @@ struct SendInviteCard: View {
             }
             .scaleEffect(1 - (1 - Self.minDragScale) * dragProgress, anchor: dragAnchor(geo.size, origin))
             .offset(dragOffset)
+            .offset(y: currentCardTopPadding)
             .simultaneousGesture(dismissDrag)
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
+        }
+        .animation(.expand, value: confirmInviteScreen)
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("-invite-animation-autoplay") else { return }
+            try? await Task.sleep(for: .seconds(3))
+            confirmInviteScreen = true
+            try? await Task.sleep(for: .seconds(2))
+            confirmInviteScreen = false
         }
     }
 }
 
 //Card layout
 extension SendInviteCard {
-
+    
+    
+    
     private func cardContent(imageWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
             imageSlot(imageWidth)
@@ -89,7 +109,7 @@ extension SendInviteCard {
         .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
             guard !dragging else { return } //Frames are the drag's model space; frozen while it owns them
-            cardFrame = $0
+            cardFrame = $0.offsetBy(dx: 0, dy: -currentCardTopPadding)
             openWhenMeasured()
         }
         .opacity(cardFrame.height > 1 ? 1 : 0) //Rows hidden until measured (the carousel, valid from frame 1, covers ProfileCard meanwhile)
@@ -99,11 +119,11 @@ extension SendInviteCard {
     }
 
     private func imageSlot(_ width: CGFloat) -> some View {
-        Color.clear
-            .frame(width: max(width, 0), height: max(width, 0) * Self.imageHeightRatio)
+        return Color.clear
+            .frame(width: max(width, 0), height: max(width, 0) * currentImageHeightRatio)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
                 guard !dragging else { return }
-                imageFrame = $0
+                imageFrame = $0.offsetBy(dx: 0, dy: -currentCardTopPadding)
                 openWhenMeasured()
             }
     }
@@ -114,13 +134,14 @@ extension SendInviteCard {
             defaults: vm.defaults,
             draft: $vm.event,
             invitePopupOpen: $invitePopupOpen,
+            confirmInviteScreen: $confirmInviteScreen,
             onSendInvite: {sendInvite(vm.event)}
         )
     }
-
+    
     private var backButton: some View {
         BottomBackButton(action: closeInvite)
-            .blurPop(visible: expanded && dragOffset == .zero && !invitePopupOpen)
+            .blurPop(visible: expanded && dragOffset == .zero && !invitePopupOpen && !confirmInviteScreen)
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.horizontal, Self.screenGap)
             .padding(.horizontal, Spacing.sm) //extra padding beyond screen padding
@@ -131,7 +152,9 @@ extension SendInviteCard {
 extension SendInviteCard {
 
     private func carouselLayer(_ origin: CGPoint) -> some View {
-        let rect = local(expanded ? imageFrame : sourceFrame, origin)
+        var targetImageFrame = imageFrame
+        targetImageFrame.size.height = imageFrame.width * currentImageHeightRatio
+        let rect = local(expanded ? targetImageFrame : sourceFrame, origin)
         return InviteImageCarousel(
             images: gallery,
             name: vm.inviteModel.name,
@@ -139,10 +162,11 @@ extension SendInviteCard {
             expanded: expanded,
             scrollProgress: $scrollProgress,
             pagerPosition: $pagerPosition,
+            confirmInviteScreen: $confirmInviteScreen,
             coverImage: coverImage,
             vm: vm,
             pagingDisabled: dragging || !landed,
-            optionsVisible: expanded && dragOffset == .zero,
+            optionsVisible: expanded && dragOffset == .zero && !confirmInviteScreen,
             showsCollapsedChrome: showsCollapsedChrome
         )
         .frame(width: rect.width, height: rect.height)
@@ -197,14 +221,17 @@ extension SendInviteCard {
 
 //Open/landing state machine
 extension SendInviteCard {
+    
+//    private var confirmBackButton: some View {
+//        
+//        
+//    }
 
     private func openWhenMeasured() {
         guard !hasOpened, imageFrame.height > 50, cardFrame.height > 50 else { return }
         hasOpened = true
         let generation = flightGeneration
         Task { @MainActor in
-//            try? await Task.sleep(for: .milliseconds(30))
-            //.removed: the interactivity latch must wait for the spring's true end, not its perceptual duration.
             withAnimation(sourceFrame.width > 1 ? Self.openFlight : nil, completionCriteria: .removed) {
                 expanded = true
             } completion: {
@@ -264,5 +291,3 @@ extension SendInviteCard {
         withTransaction(transaction) { move(&pagerPosition) }
     }
 }
-
-

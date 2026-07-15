@@ -21,10 +21,11 @@ struct ConfirmInviteScreen: View {
     var body: some View {
         //The "Confirm & Send" pill is the container's persistent button — this screen is
         //only the summary that crossfades into place above it.
-        VStack(alignment: .leading, spacing: 32) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             nameTitle
             VStack(alignment: .leading, spacing: hasMessage ? 12 : 16) {
                 typeAndPlace
+                    .padding(.top, -Spacing.hairline)
                 timeSection
             }
             warningLabel
@@ -71,6 +72,7 @@ extension ConfirmInviteScreen {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.accent.opacity(0.04), in: .rect(cornerRadius: CornerRadius.sm))
     }
 
@@ -80,6 +82,7 @@ extension ConfirmInviteScreen {
             .font(.body(12, .regular))
             .frame(width: 28, height: 28)
             .background(Color.fillGray, in: Circle())
+            .padding(.horizontal, Spacing.lg)
             .expandHitArea()
             .profileShrinkPress {showConfirmScreen = false}
     }

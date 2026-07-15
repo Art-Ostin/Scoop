@@ -21,6 +21,7 @@ struct InviteImageCarousel: View {
     let expanded: Bool
     @Binding var scrollProgress: Double
     @Binding var pagerPosition: ScrollPosition
+    @Binding var confirmInviteScreen: Bool
     let coverImage: UIImage? //Close-from-page-N: the page flying home, over the snapped-to page 0 (see SendInviteCard.prepareClose)
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
     var pagingDisabled: Bool = false //Locked while the frame animates or a swipe-dismiss owns the touch
@@ -83,12 +84,19 @@ extension InviteImageCarousel {
 
     private var cardOverlay: some View {
         HStack {
-            nameOverlay.opacityPop(visible: expanded)
+            leadingOverlay
             Spacer()
             optionsMenu
         }
         .padding(.vertical, Self.nameTopInset)
         .padding(.horizontal, Self.nameLeadingInset)
+    }
+
+    private var leadingOverlay: some View {
+        nameOverlay
+            .opacityPop(visible: expanded)
+            .blurPop(visible: !confirmInviteScreen, scale: 0.9, blur: 6)
+            .overlay(alignment: .leading) { confirmBackButton }
     }
 
     //Two Texts (not one string) so the halo mask hugs each word separately.
@@ -101,6 +109,17 @@ extension InviteImageCarousel {
         } 
         .font(.title(24))
         .foregroundStyle(Color.white)
+    }
+
+    private var confirmBackButton: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), action: {confirmInviteScreen = false}) {
+            Image(systemName: "chevron.left")
+                .font(.body(17))
+                .fontWeight(.heavy)
+                .foregroundStyle(Color.black)
+                .frame(width: 38, height: 38)
+        }
+        .blurPop(visible: expanded && confirmInviteScreen)
     }
 
     private var optionsMenu: some View {
@@ -148,7 +167,8 @@ extension InviteImageCarousel {
                     .opacity(fraction)
             }
         }
-        .opacity(expanded ? 1 : 0)
+        .opacity(expanded && !confirmInviteScreen ? 1 : 0)
+        .animation(.transition, value: confirmInviteScreen)
     }
 }
 
