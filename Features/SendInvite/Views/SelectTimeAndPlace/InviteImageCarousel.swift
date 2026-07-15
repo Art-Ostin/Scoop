@@ -89,7 +89,8 @@ extension InviteImageCarousel {
             optionsMenu
         }
         .padding(.vertical, Self.nameTopInset)
-        .padding(.horizontal, Self.nameLeadingInset)
+        .padding(.leading, confirmInviteScreen ? Self.nameTopInset : Self.nameLeadingInset)
+        .padding(.trailing, Self.nameLeadingInset)
     }
 
     private var leadingOverlay: some View {
@@ -102,8 +103,6 @@ extension InviteImageCarousel {
     //Two Texts (not one string) so the halo mask hugs each word separately.
     private var nameOverlay: some View {
         HStack(spacing: Spacing.hairline) {
-            Text("Meet ")
-                .getRect($meetFrame, coordSpace: Self.imageSpace)
             Text(name)
                 .getRect($nameFrame, coordSpace: Self.imageSpace)
         } 
@@ -234,3 +233,9 @@ extension InviteImageCarousel {
             .allowsHitTesting(false)
     }
 }
+
+
+/*
+ //            Text("Meet ")
+ //                .getRect($meetFrame, coordSpace: Self.imageSpace)
+ */

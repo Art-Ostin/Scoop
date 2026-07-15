@@ -37,7 +37,7 @@ struct EventsPlaceholder: View {
             .padding(.bottom, Spacing.md)
             MapDivider()
             VStack(spacing: Spacing.xxl) {
-                ImageSection(textTitle: "Social Meet", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
+                ImageSection(textTitle: "Social Meetup", text: "Go to the same place that evening & meet each other & their friends", image: "EventCups")
                 MapDivider()
                 ImageSection(textTitle: "Double Date ", text: "Both bring a friend along...social dating is the way", image: "DancingCats")
                 MapDivider()

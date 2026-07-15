@@ -64,7 +64,7 @@ extension SelectTypeView {
                 .frame(width: 25, alignment: .leading) //So all same width
             
             
-            Text(type.longTitle)
+            Text(type == .socialMeet ? "Social Meet" : type.longTitle)
                 .font(.body(17, type == selectedType ? .bold : .medium))
                 .kerning(kerningAmount(type)) //Fine tuned kerning so all same width
                 .kerning(type == selectedType && type != .custom ? -0.55 : 0)
