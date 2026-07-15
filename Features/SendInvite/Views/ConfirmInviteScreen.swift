@@ -1,6 +1,6 @@
 //
 //  ConfirmInviteScreen.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 14/07/2026.
 //
@@ -13,23 +13,23 @@ struct ConfirmInviteScreen: View {
     let name: String
 
     @Binding var event: EventFieldsDraft
-    @Binding var showMessageScreen: Bool
     @Binding var showConfirmScreen: Bool
-    
-    let onSendInvite: () -> ()
 
     //Local Properties
     var hasMessage: Bool { event.message?.isEmpty == false }
-    
+
     var body: some View {
+        //The "Confirm & Send" pill is the container's persistent button — this screen is
+        //only the summary that crossfades into place above it.
         VStack(alignment: .leading, spacing: 32) {
             nameTitle
             VStack(alignment: .leading, spacing: hasMessage ? 12 : 16) {
                 typeAndPlace
                 timeSection
             }
-            sendButtonAndWarning
+            warningLabel
         }
+        .padding(.horizontal, Spacing.margin)
         .overlay(alignment: .topTrailing) {backButton}
     }
 }
@@ -56,39 +56,17 @@ extension ConfirmInviteScreen {
         .lineLimit(1)
     }
     
-    private var inviteMessage: some View {
-        Text(event.message ?? "")
-            .font(.system(size: 14, weight: .regular))
-            .italic()
-            .foregroundStyle(Color.textTertiary)
+    private var warningLabel: some View {
+        Text("If they accept & I don't show I'll be blocked")
+            .font(.body(12, .regular))
+            .foregroundStyle(Color.textPlaceholder)
     }
-    
-    private var sendButtonAndWarning: some View {
-        let darkRed = Color(red: 0.55, green: 0, blue: 0.25)
-        
-        return VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("If they accept & I don't show I'll be blocked")
-                .font(.body(12, .regular))
-                .foregroundStyle(Color.textPlaceholder)
-            
-            ScoopButton(style: .tinted(darkRed), shape: Capsule()) {
-                
-            } label: {
-                Text("Confirm & Send")
-                    .font(.body(18, .bold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-            }
-        }
-    }
-    
+
     private var backButton: some View {
         Image(systemName: "chevron.down")
             .font(.body(12, .bold))
             .frame(width: 28, height: 28)
             .background(Color.fillGray, in: Circle())
-            .offset(y: -4)
             .expandHitArea()
             .profileShrinkPress {showConfirmScreen = false}
     }
