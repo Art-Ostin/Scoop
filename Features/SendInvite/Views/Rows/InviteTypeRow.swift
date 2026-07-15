@@ -18,7 +18,6 @@ struct InviteTypeRow: View {
     //Local view state — messageBeforeEdit: snapshot when the editor opens, to tell if it changed on close
     @State private var messageBeforeEdit: String?
     @State private var messageHeight: CGFloat = 0
-    @State private var lastCountedMessage = ""
 
     @State private var openInfoTypes: Set<Event.EventType> = []
     @State private var typePulse = false
@@ -204,13 +203,11 @@ extension InviteTypeRow {
         if message.isEmpty {
             ui.messageLineCount = 0
             scrolledPageID = 0
-            lastCountedMessage = ""
             return
         }
-        guard message != lastCountedMessage, messageHeight > 0 else { return }
-        let lineHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
+        guard messageHeight > 0 else { return }
+        let lineHeight = UIFont.body(12, .regular).lineHeight
         ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
-        lastCountedMessage = message
     }
 }
 
@@ -304,7 +301,7 @@ private struct TypeRowMenuLabel: View {
                 .getHeight($messageHeight)
                 .transition(.opacity.animation(.transition))
                 .fixedSize(horizontal: false, vertical: true)
-                .offset(y: ui.messageLineCount == 3 ? -4 : 0)
+                .offset(y: ui.messageLineCount == 3 ? -8 : 0)
         } else {
             Text("Add Message")
                 .font(.body(16, .regular))

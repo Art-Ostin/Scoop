@@ -16,10 +16,16 @@ struct ConfirmInviteScreen: View {
     @Binding var showConfirmScreen: Bool
     
     @State var scrollProgress: Double = 0
+    @State private var messageHeight: CGFloat = 0
     
     
     //Local Properties
     var hasMessage: Bool { event.message?.isEmpty == false }
+    private var messageLineCount: Int {
+        guard messageHeight > 0 else { return 0 }
+        let lineHeight = UIFont.systemFont(ofSize: 14).lineHeight
+        return Int(((messageHeight + 6) / (lineHeight + 6)).rounded())
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -90,25 +96,32 @@ extension ConfirmInviteScreen {
                     .containerRelativeFrame(.horizontal, alignment: .leading)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
+                .scaleEffect(0.6, anchor: .bottom)
+                .padding(.trailing, Spacing.lg)
+                .padding(.bottom, 18)
+        }
         .scrollClipDisabled()
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: true, isCardInvite: true)
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
     }
     
-    
-    
     private var textView: some View {
         Text(event.message ?? "" )
-            .font(.system(size: 12, weight: .regular, design: .default))
+            .font(.system(size: 14, weight: .regular, design: .default))
             .italic()
             .foregroundStyle(Color.textSecondary)
+            .lineSpacing(6)
+            .getHeight($messageHeight)
+            .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
     }
     
     
     private var timePlaceTypeSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             typeAndPlace
-                .padding(.top, -Spacing.hairline)
+                .padding(.top, -Spacing.xxs)
             timeSection
         }
     }
