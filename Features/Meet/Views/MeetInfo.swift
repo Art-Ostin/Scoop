@@ -85,7 +85,7 @@ private struct MeetInfoCoverScrollView: View {
 
             scrollView
 
-            AnimatedPageIndicator(
+            PageIndicator(
                 count: Event.EventType.allCases.count,
                 progress: scrollProgress)
         }

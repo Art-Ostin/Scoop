@@ -57,6 +57,7 @@ struct SendInviteCard: View {
     @State var springingBack = false
     @State var dragOffset: CGSize = .zero
     @State var dragProgress: CGFloat = 0
+    @State var sendButtonTouchActive = false
 
 
     private var gallery: [UIImage] { images.isEmpty ? [image] : images }
@@ -137,6 +138,7 @@ extension SendInviteCard {
             draft: $vm.event,
             invitePopupOpen: $invitePopupOpen,
             confirmInviteScreen: $confirmInviteScreen,
+            onSendButtonTouchChange: { sendButtonTouchActive = $0 },
             onSendInvite: {sendInvite(vm.event)}
         )
     }

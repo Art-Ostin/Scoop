@@ -14,6 +14,9 @@ extension SendInviteCard {
     var dismissDrag: some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
+                //A drag that starts as a send-button press belongs to the button until release.
+                //Dragging away cancels that press; it must not also move or dismiss the card.
+                guard !sendButtonTouchActive else { return }
                 if dragAxis == nil {
                     let vertical = abs(value.translation.height) >= abs(value.translation.width)
                     let canBegin = expanded && landed && !springingBack //Only a landed card is grabbable

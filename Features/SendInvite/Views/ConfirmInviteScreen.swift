@@ -89,7 +89,7 @@ extension ConfirmInviteScreen {
                 .font(.body(15))
             
             HStack(spacing: 2) {
-                Text(event.type == .drink ? "Drink" : event.type == .custom ? "Custom" : event.type == .socialMeet ? "Social" : event.type.longTitle)
+                Text(event.type == .drink ? "Drink" : (event.type == .socialMeet) ?  "Social Meet" : (event.type == .custom) ? "Custom" : "Double Date")
                     .font(.body(14, .bold))
                     .foregroundStyle(Color.textPrimary.mix(with: Color.accent, by: 0.2)) //Subtle Tint of accent
                     .kerning(-0.1)
@@ -127,7 +127,7 @@ extension ConfirmInviteScreen {
                 .containerRelativeFrame(.horizontal, alignment: .leading)
         }
         .overlay(alignment: .bottomTrailing) {
-            AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
+            PageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
                 .padding(.trailing, Spacing.lg)
                 .padding(.bottom, 18)

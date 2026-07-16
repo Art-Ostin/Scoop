@@ -26,7 +26,12 @@ struct FocusedTextView: UIViewRepresentable {
         tv.delegate = context.coordinator
         tv.backgroundColor = .clear
         tv.font = font
-        tv.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
+        tv.textContainerInset = UIEdgeInsets(
+            top: Spacing.lg,
+            left: Spacing.xxs,
+            bottom: Spacing.lg,
+            right: Spacing.xxs
+        )
         tv.textContainer.lineBreakMode = .byWordWrapping
         tv.textContainer.widthTracksTextView = true
         tv.text = text
@@ -189,4 +194,3 @@ struct FocusedTextView: UIViewRepresentable {
         }
     }
 }
-

@@ -255,7 +255,7 @@
 		65FAF9962E42960A0015E231 /* EventsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF9952E42960A0015E231 /* EventsViewModel.swift */; };
 		65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */; };
 		65FD66A530050B7A004865E6 /* SendInvitePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FD66A430050B7A004865E6 /* SendInvitePresenter.swift */; };
-		65FE22422FC833D200DCB65A /* AnimatedPageIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */; };
+		65FE22422FC833D200DCB65A /* PageIndicators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FE22412FC833D200DCB65A /* PageIndicators.swift */; };
 		65FEDAF32E229E19006CF3CD /* PromptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF22E229E19006CF3CD /* PromptsView.swift */; };
 		65FEDAF52E229E5F006CF3CD /* EditProfileList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDAF42E229E5F006CF3CD /* EditProfileList.swift */; };
 		65FEDBA52E2306C5006CF3CD /* EditProfileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FEDBA42E2306C5006CF3CD /* EditProfileButton.swift */; };
@@ -519,7 +519,7 @@
 		65FAF9952E42960A0015E231 /* EventsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewModel.swift; sourceTree = "<group>"; };
 		65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleClockView.swift; sourceTree = "<group>"; };
 		65FD66A430050B7A004865E6 /* SendInvitePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInvitePresenter.swift; sourceTree = "<group>"; };
-		65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedPageIndicator.swift; sourceTree = "<group>"; };
+		65FE22412FC833D200DCB65A /* PageIndicators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageIndicators.swift; sourceTree = "<group>"; };
 		65FEDAF22E229E19006CF3CD /* PromptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptsView.swift; sourceTree = "<group>"; };
 		65FEDAF42E229E5F006CF3CD /* EditProfileList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileList.swift; sourceTree = "<group>"; };
 		65FEDBA42E2306C5006CF3CD /* EditProfileButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileButton.swift; sourceTree = "<group>"; };
@@ -646,7 +646,7 @@
 			isa = PBXGroup;
 			children = (
 				651975852F1EF2DB0002F6A2 /* LoadingScreen.swift */,
-				65FE22412FC833D200DCB65A /* AnimatedPageIndicator.swift */,
+				65FE22412FC833D200DCB65A /* PageIndicators.swift */,
 			);
 			path = Indicators;
 			sourceTree = "<group>";
@@ -1693,7 +1693,7 @@
 				659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */,
 				659852842FD7FE0E00D75CA5 /* EventInfo.swift in Sources */,
 				652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */,
-				65FE22422FC833D200DCB65A /* AnimatedPageIndicator.swift in Sources */,
+				65FE22422FC833D200DCB65A /* PageIndicators.swift in Sources */,
 				657F61C12FDF18CC00B2F903 /* DeclineButton.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */,

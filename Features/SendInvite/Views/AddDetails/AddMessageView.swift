@@ -89,7 +89,7 @@ extension AddMessageView {
             maxLength: messageLimit,
             placeholder: eventType.textPlaceholder
         )
-            .padding()
+            .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .frame(height: 130)
             .stroke(CornerRadius.sm)
@@ -143,9 +143,6 @@ extension AddMessageView {
             showMessageScreen: .constant(false),
             message: ""
         )
-        // Opaque backing so the menu's translucent glass platter can't lens the
-        // red (accent) Done button sitting behind this popup's floating window.
-        // Same appCanvas fill used by RespondTimeBackground.
         .background(Color.appCanvas, in: RoundedRectangle(cornerRadius: CornerRadius.lg))
         .compositingGroup()
     }

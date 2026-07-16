@@ -19,6 +19,7 @@ struct InviteSectionContainer: View {
     @State private var rowsHeight: CGFloat = 0     //ideal height of the edit rows
     @State private var confirmHeight: CGFloat = 0  //ideal height of the confirm summary
     @State private var contentWidth: CGFloat = 0   //slide distance between the edit and confirm screens
+    @State private var isTrackingSendButtonTouch = false
 
     //Injected
     let name: String
@@ -28,6 +29,7 @@ struct InviteSectionContainer: View {
     @Binding var invitePopupOpen: Bool
     @Binding var confirmInviteScreen: Bool
 
+    let onSendButtonTouchChange: (Bool) -> Void
     let onSendInvite: () -> ()
 
     //The pill recedes to grey while a picker is open — only meaningful on the edit side.
@@ -93,6 +95,8 @@ extension InviteSectionContainer {
             ScoopButton(style: .tinted(tint, shadow: nil), shape: Capsule(), action: buttonTapped) {
                 label
             }
+            .simultaneousGesture(sendButtonTouch)
+            .onDisappear { updateSendButtonTouch(false) }
             .opacity(popupDim ? 0.4 : 1)
             .allowsHitTesting(interactive)
             .padding(.top, confirmInviteScreen ? Spacing.md : Spacing.xxs)
@@ -111,6 +115,18 @@ extension InviteSectionContainer {
         } else {
             confirmInviteScreen = true
         }
+    }
+
+    private var sendButtonTouch: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in updateSendButtonTouch(true) }
+            .onEnded { _ in updateSendButtonTouch(false) }
+    }
+
+    private func updateSendButtonTouch(_ isActive: Bool) {
+        guard isTrackingSendButtonTouch != isActive else { return }
+        isTrackingSendButtonTouch = isActive
+        onSendButtonTouchChange(isActive)
     }
 }
 

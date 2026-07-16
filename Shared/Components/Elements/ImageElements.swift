@@ -28,7 +28,6 @@ struct ScoopImage: View {
             .containerRelativeFrame(.horizontal) { length, _ in
                 fillsPageWidth ? length : length - hPadding * 2
             }
-//            .shadow(showShadow ? .card : nil)
     }
 
     @ViewBuilder
@@ -86,7 +85,7 @@ struct ImageCarousel: View {
         let base = ScoopImage(
             image: image,
             aspectRatio: aspectRatio,
-            radii: .init(top: topRadius, bottom: bottomRadius),
+            radii: .init(top: 0, bottom: 0),
             hPadding: hPadding,
             fillsPageWidth: true,
             fillsContainerHeight: fillsContainerHeight
@@ -120,7 +119,7 @@ struct CardImageCarousel: View {
                 scrollPosition: .constant(ScrollPosition())
             )
             .overlay(alignment: .bottom) {
-                AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+                ImagePageIndicator(count: images.count, progress: scrollProgress)
                     .scaleEffect(0.7)
                     .offset(y: 12)
             }

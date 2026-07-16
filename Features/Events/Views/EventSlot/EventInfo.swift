@@ -24,7 +24,7 @@ struct EventInfo: View {
             Text("\(eventType.emoji) \(eventType.longTitle)")
                 .font(.system(size: 24, weight: .medium, design: .serif))
             scrollSection
-            AnimatedPageIndicator(count: EventInfoData.allCases.count, progress: scrollProgress)
+            PageIndicator(count: EventInfoData.allCases.count, progress: scrollProgress)
         }
     }
 }

@@ -139,7 +139,7 @@ extension InviteTimeRow {
     @ViewBuilder
     private var pageIndicator: some View {
         if times.count > 1 {
-            AnimatedPageIndicator(count: times.count, progress: scrollProgress, dotSize: 5, activeWidth: 8)
+            PageIndicator(count: times.count, progress: scrollProgress, dotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
                 .padding(.bottom, Spacing.xs)
                 .offset(x: 6)

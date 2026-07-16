@@ -134,7 +134,7 @@ extension InviteTypeRow {
     @ViewBuilder
     private var pageIndicator: some View {
         if !message.isEmpty {
-            AnimatedPageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
+            PageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
                 .scaleEffect(0.6, anchor: .bottom)
                 .padding(.bottom, Spacing.xs)
                 .offset(x: 6)

@@ -166,10 +166,9 @@ extension InviteImageCarousel {
     }
 
     private var pageIndicator: some View {
-        AnimatedPageIndicator(count: images.count, progress: scrollProgress)
+        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7)
-            .offset(y: 12) //Geometry: straddles the image's bottom edge
-            .opacity(expanded ? 0 : 1)
+            .padding(.bottom, Spacing.xs)
     }
 
     //Cross-fades the two neighbouring pages' halos so the blur tracks the scroll progressively.
@@ -256,9 +255,3 @@ extension InviteImageCarousel {
             .allowsHitTesting(false)
     }
 }
-
-
-/*
- //            Text("Meet ")
- //                .getRect($meetFrame, coordSpace: Self.imageSpace)
- */
