@@ -66,6 +66,7 @@ extension AddMessageView {
     @ViewBuilder
     private var dropdownTitle: some View {
         TimeCustomMenu(
+            placementOffsetY: TimeCustomMenuSpec.placementOffsetY + Spacing.xl,
             onOpen: { showTypePopup = true },
             onClose: { showTypePopup = false }
         ) {
@@ -113,15 +114,15 @@ extension AddMessageView {
     }
     
     private var doneButton: some View {
-        ScoopButton(style: .tinted(.accent), shape: .rect(cornerRadius: CornerRadius.xl), action: {dismiss()}) {
+        ScoopButton(style: .tinted(.textAccent), shape: .rect(cornerRadius: CornerRadius.xl), action: {dismiss()}) {
             Text("Done")
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.sm)
+                .frame(height: 48)
                 .geometryGroup()
 
         }
-        .padding(.top, Spacing.lg)
+        .padding(.top, Spacing.xl)
     }
     
     
