@@ -57,7 +57,7 @@ struct InviteTypeRow: View {
         .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
-        .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
+        .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
     }
 }
 

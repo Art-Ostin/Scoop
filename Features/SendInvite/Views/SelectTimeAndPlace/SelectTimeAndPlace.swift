@@ -15,6 +15,7 @@ struct SelectTimeAndPlace: View {
     var body: some View {
         InviteRowContainer(ui: ui, draft: $draft, showMessageScreen: $showMessageScreen)
             .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
+            .task(id: ui.activePopup) { await ui.syncDelayedTimePopup() }
             .onChange(of: ui.activePopup, initial: true) { _, popup in
                 onPopupOpenChange(popup != nil)
             }

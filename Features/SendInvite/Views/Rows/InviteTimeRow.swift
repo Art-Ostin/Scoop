@@ -123,7 +123,7 @@ extension InviteTimeRow {
         }
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
-        .opacity(ui.isPopupOpenDelayed(.time) ? 0 : 1)
+        .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
     }
 
     private var isWhenLabel: Bool { scrolledPageID == nil || scrolledPageID == 0 }

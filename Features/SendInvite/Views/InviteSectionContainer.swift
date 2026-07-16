@@ -75,27 +75,34 @@ extension InviteSectionContainer {
 //The one persistent pill: label, tint and action morph across the two states
 extension InviteSectionContainer {
 
+    @ViewBuilder
     private var sendButton: some View {
         let interactive = confirmInviteScreen || draft.isComplete
         let tint: Color = popupDim || !interactive ? .fillGray : .textAccent
-
-        return ScoopButton(
-            style: .tinted(tint, shadow: nil),
-            shape: Capsule(),
-            action: buttonTapped
-        ) {
-            Text(confirmInviteScreen ? "Confirm & Send" : "Invite \(name)")
-                .font(.body(18, .bold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .contentTransition(.opacity) //label crossfades in place instead of hard-cutting
+        
+        //Don't want glass button for grayed out part of button as gives it default shadow
+        let label = Text(confirmInviteScreen ? "Confirm & Send" : "Invite \(name)")
+            .font(.body(18, .bold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .contentTransition(.opacity) //label cro
+        
+        
+        if draft.isComplete {
+            ScoopButton(style: .tinted(tint, shadow: nil), shape: Capsule(), action: buttonTapped) {
+                label
+            }
+            .opacity(popupDim ? 0.4 : 1)
+            .allowsHitTesting(interactive)
+            .padding(.top, confirmInviteScreen ? Spacing.md : Spacing.xxs)
+            .padding(.horizontal, Spacing.margin)
+            .animation(.smooth(duration: 0.25), value: popupDim)
+        } else {
+            label
+                .background(Color.fillGray, in: Capsule())
+                .padding(.horizontal, Spacing.lg)
         }
-        .opacity(popupDim ? 0.4 : 1)
-        .allowsHitTesting(interactive)
-        .padding(.top, confirmInviteScreen ? Spacing.md : Spacing.xxs)
-        .padding(.horizontal, Spacing.margin)
-        .animation(.smooth, value: popupDim)
     }
 
     private func buttonTapped() {
