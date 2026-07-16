@@ -14,6 +14,7 @@ struct ProfileContainer: View {
     //Injected
     @Environment(\.dismiss) var dismiss
     @Environment(ProfileMorphState.self) var morph: ProfileMorphState?
+    @Environment(\.zoomPresented) var zoomPresented //ImageZoom presentation: the native drag owns dismissal
     @State var vm: ProfileViewModel
     let mode: ProfileMode
     let profileImages: [UIImage]
@@ -65,7 +66,7 @@ struct ProfileContainer: View {
         }
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
-        .profileZoomDismiss(ui: ui, enabled: !isUserProfile)
+        .profileZoomDismiss(ui: ui, enabled: !isUserProfile && !zoomPresented)
         .overlay { inviteOverlay } //Above the zoom-dismissed profile — the card is its own surface
         .environment(invite) //So the hero image's .sendInviteSource reports its frame as the flight origin
     }

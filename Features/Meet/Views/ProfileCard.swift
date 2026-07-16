@@ -21,13 +21,12 @@ struct ProfileCard : View {
     private let cardSpace = "ProfileCard"
 
     var body: some View {
-        ScoopImage(image: profile.image, showShadow: false)
+        ScoopImage(image: profile.image, showShadow: false, zoomSourceID: profile.profile.id) //ImageZoom flies the profile out of this image
             .opacity(quickInviteHidden ? 0 : 1)
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) {cardOverlay}
             .profileShrinkPress {onTap(profile.image)}
             .coordinateSpace(name: cardSpace)
-            .profileMorphSource(id: profile.profile.id, cornerRadius: CornerRadius.image)
             .sendInviteSource(id: profile.profile.id) //Reports this card's frame as the quick-invite flight source
     }
 }

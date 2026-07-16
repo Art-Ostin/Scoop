@@ -55,6 +55,7 @@ extension ProfileImageView {
         .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
             morph?.reportDestination(containerRect: rect)
         }
+        .zoomHero(insetX: 6) //ImageZoom lands on the settled page image, 6pt inside the pager (same inset the morph uses)
         .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
         .overlay { inviteSource } //Reports the visible image rect (inset, image height only) as the flight origin
     }

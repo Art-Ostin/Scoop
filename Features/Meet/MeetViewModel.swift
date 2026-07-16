@@ -57,7 +57,6 @@ import SwiftUI
 }
 
 @Observable final class MeetUIState {
-    var openProfile: UserProfile? = nil
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false

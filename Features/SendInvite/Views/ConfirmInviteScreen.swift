@@ -24,6 +24,12 @@ struct ConfirmInviteScreen: View {
     @State var showInfoSheet = false
     
     var hasMessage: Bool { event.message?.isEmpty == false }
+
+    private func parseName(_ placeName: String) -> String {
+        placeName.split(whereSeparator: { $0.isWhitespace })
+            .prefix(2)
+            .joined(separator: " ")
+    }
     
     private var messageLineCount: Int {
         guard messageHeight > 0 else { return 0 }
@@ -53,7 +59,7 @@ struct ConfirmInviteScreen: View {
 extension ConfirmInviteScreen {
     
     private var nameTitle: some View {
-        Text("Meet \(name)")
+        Text(name)
             .font(.title(24, .bold))
             .foregroundStyle(Color.textPrimary)
     }
@@ -70,7 +76,7 @@ extension ConfirmInviteScreen {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.accent.opacity(0.04), in: .rect(cornerRadius: CornerRadius.sm))
+        .background(Color.fillGray.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm)) //Color.accent.opacity(0.04)
     }
 }
 
@@ -110,6 +116,18 @@ extension ConfirmInviteScreen {
                 .lineSpacing(6)
                 .getHeight($messageHeight)
                 .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .overlay(alignment: .topTrailing) {
+                    Image("EditButtonBlack")
+                        .scaleEffect(0.8, anchor: .bottom)
+                        .padding(6)
+                        .padding(.top, Spacing.md)
+                        .shrinkPress {
+                            showMessageScreen = true
+                        }
+                        .padding(-6)
+                }
+            
         } else {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Improve your invite with a message")
@@ -119,8 +137,8 @@ extension ConfirmInviteScreen {
                 Text("Add a message")
                     .foregroundStyle(Color.textSecondary)
                     .font(.body(14, .regular))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                     .background(Color.fillGray, in: .rect(cornerRadius: 12))
                     .shrinkPress {
                         showMessageScreen = true
@@ -136,29 +154,32 @@ extension ConfirmInviteScreen {
                 .padding(.top, -Spacing.xxs)
             timeSection
         }
+        .font(.body(20, .medium))
     }
     
-    
     private var typeAndPlace: some View {
-        HStack(spacing: 0) {
-            Text(event.place?.name ?? "")
-            Text(" · ")
-            
-            HStack(alignment: .top, spacing: 3) {
+        HStack(spacing: Spacing.xxs) {
+            HStack(spacing: 0) {
+                Text(parseName(event.place?.name ?? ""))
+                    .underline(color: Color.border)
+                    .italic()
+                    .shrinkPress { MapsRouter.openGoogleMaps(item: event.place?.mapItem, withDirections: false)}
+                Text(" · ")
                 Text(event.type.longTitle)
-                
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.textPlaceholder)
-                    .font(.body(10, .regular))
-                    .offset(y: -4)
             }
-            .shrinkPress {
-                showInfoSheet.toggle()
-            }
+            .minimumScaleFactor(0.8)
+            .lineLimit(1)
+
+            Image(systemName: "info.circle")
+                .foregroundStyle(Color.textPlaceholder)
+                .font(.body(10, .regular))
+                .padding(4)               // Enlarges the tap region
+                .shrinkPress {
+                    showInfoSheet = true
+                }
+                .padding(-4)              // Restores the original HStack layout
+                .offset(y: -6)             // Moves both icon and tap region
         }
-        .font(.body(19, .medium))
-        .minimumScaleFactor(0.8)
-        .lineLimit(1)
     }
 }
 
@@ -185,8 +206,7 @@ extension ConfirmInviteScreen {
         }()
         
         return Text(value)
-            .font(.body(19, .medium))
-            .foregroundStyle(Color.textPrimary)
+            .foregroundStyle(Color.primary)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .allowsTightening(true)

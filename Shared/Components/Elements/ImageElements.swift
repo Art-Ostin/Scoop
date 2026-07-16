@@ -18,14 +18,11 @@ struct ScoopImage: View {
     var fillsPageWidth = false
     var fillsContainerHeight = false //Height from the proposed container (animated slots), not the aspect ratio
     var showShadow = false
+    var zoomSourceID: String? = nil //UIKit-backs the image so ImageZoom can fly a screen out of it
 
     var body: some View {
         base
-            .overlay {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            }
+            .overlay { imageContent }
             .clipShape(.rect(cornerRadii: radii))
             .padding(.horizontal, fillsPageWidth ? hPadding : 0)
             .containerRelativeFrame(.horizontal) { length, _ in
@@ -40,6 +37,19 @@ struct ScoopImage: View {
             Color.clear
         } else {
             Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
+        }
+    }
+
+    //The zoom transition needs a real UIImageView it can hide during flight —
+    //rendered identically (fill + clip) to the plain SwiftUI image.
+    @ViewBuilder
+    private var imageContent: some View {
+        if let zoomSourceID {
+            ZoomSourceImage(id: zoomSourceID, image: image, cornerRadius: radii.topLeading)
+        } else {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
         }
     }
 }

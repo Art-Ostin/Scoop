@@ -89,9 +89,10 @@ extension ProfileContainer {
         }
         if value.translation.height < 0 { return .details } //pull up anywhere opens
         //Downward when closed: rubber-band the card if the drag started on it,
-        //dismiss the profile if it started on the header (own profile never dismisses).
+        //dismiss the profile if it started on the header (own profile never
+        //dismisses; a zoom presentation leaves the drag to the native transition).
         if startedOnCard { return .details }
-        return isUserProfile ? .horizontal : .dismiss
+        return (isUserProfile || zoomPresented) ? .horizontal : .dismiss
     }
 
     //Snapshot the gesture so the card continues from exactly where it is on screen —
