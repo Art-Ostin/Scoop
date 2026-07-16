@@ -74,8 +74,8 @@ struct ImagePageIndicator: View {
                 continue
             }
 
-            let height = max(0, dotSize - CGFloat(reduction))
-            let scale = dotSize > 0 ? height / dotSize : 0
+            let scale = 1 - CGFloat(reduction) * 0.25
+            let height = max(0, dotSize * scale)
             let width = max(0, height + (activeWidth - dotSize) * CGFloat(closeness))
             if let previousVisibleScale {
                 cursor += spacing / 2 * (previousVisibleScale + scale)
@@ -218,7 +218,7 @@ struct PageIndicator: View {
                             .strokeBorder(Color.textSecondary, lineWidth: 1.3)
                     } else {
                         Capsule()
-                            .fill(.primary)
+                            .fill(Color.textPrimary)
                     }
                 }
                 .opacity(closeness)

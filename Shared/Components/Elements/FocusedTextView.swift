@@ -19,12 +19,13 @@ struct FocusedTextView: UIViewRepresentable {
     var maxLength: Int? = nil
     var placeholder: String? = nil
     var placeholderColor: UIColor = .placeholderText
+    var backgroundColor: Color = .clear
     
     
     func makeUIView(context: Context) -> UITextView {
         let tv = UITextView()
         tv.delegate = context.coordinator
-        tv.backgroundColor = .clear
+        tv.backgroundColor = UIColor(backgroundColor)
         tv.font = font
         tv.textContainerInset = UIEdgeInsets(
             top: Spacing.lg,
@@ -60,6 +61,7 @@ struct FocusedTextView: UIViewRepresentable {
         if uiView.font != font {
             uiView.font = font
         }
+        uiView.backgroundColor = UIColor(backgroundColor)
         context.coordinator.configurePlaceholderLabel(
             in: uiView,
             placeholder: placeholder,

@@ -79,6 +79,7 @@ extension AddMessageView {
     private var textFieldSection: some View {
         
         let textFont = UIFont.body(18)
+        let textViewBackground = Color.appCanvas
 
         return FocusedTextView(
             text: $message,
@@ -87,11 +88,16 @@ extension AddMessageView {
             placeholderLineSpacing: 6,
             placeholderFont: .body(textFont.pointSize, .regular),
             maxLength: messageLimit,
-            placeholder: eventType.textPlaceholder
+            placeholder: eventType.textPlaceholder,
+            backgroundColor: textViewBackground
         )
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .frame(height: 130)
+            .background(textViewBackground)
+            .customScrollFade(height: Spacing.lg, color: textViewBackground, edge: .top)
+            .customScrollFade(height: Spacing.lg, color: textViewBackground, edge: .bottom)
+            .clipShape(.rect(cornerRadius: CornerRadius.sm))
             .stroke(CornerRadius.sm)
             .overlay(alignment: .bottomTrailing) {
                 let remaining = max(0, messageLimit - (message ?? "").count)
