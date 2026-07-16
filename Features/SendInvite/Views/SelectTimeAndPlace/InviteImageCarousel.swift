@@ -169,6 +169,7 @@ extension InviteImageCarousel {
         ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7)
             .padding(.bottom, Spacing.xs)
+            .opacityPop(visible: !confirmInviteScreen)
     }
 
     //Cross-fades the two neighbouring pages' halos so the blur tracks the scroll progressively.
