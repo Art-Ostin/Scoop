@@ -71,6 +71,10 @@ extension ProfileContainer {
         if case .sendInvite(let onSend, _) = mode { onSend } else { nil }
     }
 
+    private var onDeclineProfile: (() -> Void)? {
+        if case .sendInvite(_, let onDecline) = mode { onDecline } else { nil }
+    }
+
     //Only the send-invite flow presents this card; respond/accept modes leave the button inert.
     //Zooms up from whichever image the header pager is currently showing (not always the first).
     func openInvite() {
@@ -89,7 +93,10 @@ extension ProfileContainer {
     }
 
     @ViewBuilder var inviteOverlay: some View {
-        if let pending = invite.pending, let image = invite.image, let onSend = onSendInvite {
+        if let pending = invite.pending,
+           let image = invite.image,
+           let onSend = onSendInvite,
+           let onDecline = onDeclineProfile {
             SendInviteOverlay(
                 presenter: invite,
                 vm: TimeAndPlaceViewModel(
@@ -100,6 +107,7 @@ extension ProfileContainer {
                 images: invitedImages.isEmpty ? [image] : invitedImages,
                 details: profileDetails(pending.profile),
                 sendInvite: onSend,
+                declineProfile: onDecline,
                 showsCollapsedChrome: false //Grows from the plain hero image, not a ProfileCard — no caption/button chrome at the endpoints
             )
             //No .ignoresSafeArea(): like Meet's root presentation, the card lives inside the safe area

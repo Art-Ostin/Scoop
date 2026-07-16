@@ -67,7 +67,8 @@ private struct InviteAnimationHarness: View {
             expanded: $expanded,
             sourceFrame: .zero,
             hideInvite: {},
-            sendInvite: { _ in }
+            sendInvite: { _ in },
+            declineProfile: {}
         )
     }
 }

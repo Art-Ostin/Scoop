@@ -87,7 +87,10 @@ extension MeetContainer {
                 image: image,
                 images: vm.profileImages[pending.profile.id] ?? [image],
                 details: profileDetails(pending.profile),
-                sendInvite: {sendInvite(pending, draft: $0)}
+                sendInvite: {sendInvite(pending, draft: $0)},
+                declineProfile: {
+                    Task { await respondToProfile(profile: pending.profile) }
+                }
             )
         }
     }
@@ -168,5 +171,4 @@ extension MeetContainer {
         ui.respondedToProfile = nil
     }
 }
-
 

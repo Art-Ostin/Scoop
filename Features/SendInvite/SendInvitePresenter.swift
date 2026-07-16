@@ -148,6 +148,7 @@ struct SendInviteOverlay: View {
     let images: [UIImage]
     let details: String
     let sendInvite: (EventFieldsDraft) -> Void
+    let declineProfile: () -> Void
     var showsCollapsedChrome: Bool = true //Off when the flight grows from a plain image (profile hero) rather than a ProfileCard.
 
     var body: some View {
@@ -173,9 +174,9 @@ struct SendInviteOverlay: View {
                 onDismissProgress: { presenter.dismissProgress = $0 },
                 hideInvite: { presenter.close() },
                 sendInvite: sendInvite,
+                declineProfile: declineProfile,
                 showsCollapsedChrome: showsCollapsedChrome
             )
         }
     }
 }
-

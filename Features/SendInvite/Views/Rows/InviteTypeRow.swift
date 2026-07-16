@@ -165,7 +165,7 @@ extension InviteTypeRow {
                             Image(systemName:"info.circle")
                                 .font(.body(8, .regular))
                                 .foregroundStyle(Color.textPlaceholder) //Subtle Tint of accent
-                                .offset(x: 3, y: -1)
+                                .offset(x: 3)
                         }
                         .shrinkPress {showTypeInfoScreen = true}
 

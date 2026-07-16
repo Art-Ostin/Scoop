@@ -24,6 +24,7 @@ struct InviteImageCarousel: View {
     @Binding var confirmInviteScreen: Bool
     let coverImage: UIImage? //Close-from-page-N: the page flying home, over the snapped-to page 0 (see SendInviteCard.prepareClose)
     let vm: TimeAndPlaceViewModel //@Observable class — drives the options menu (clear draft)
+    let declineProfile: () -> Void
     var pagingDisabled: Bool = false //Locked while the frame animates or a swipe-dismiss owns the touch
     var optionsVisible: Bool = true //Flips at drag release (not spring completion) so the menu pops back riding the spring-back
     var showsCollapsedChrome: Bool = true //The collapsed ProfileCard look (name/details caption + button replica). Off when the source is a plain image (profile hero).
@@ -123,21 +124,43 @@ extension InviteImageCarousel {
 
     private var optionsMenu: some View {
         Menu {
-            if vm.event.hasChanges {
-                Button("Clear Draft", systemImage: "trash", role: .destructive) {
-                    withAnimation(.transition) { vm.deleteEventDefault() }
-                }
-            }
             Button("How Invites Work", systemImage: "info.circle") {
                 showInfoScreen = true
             }
+
+            if vm.event.hasChanges {
+                Button {
+                    withAnimation(.transition) {
+                        vm.deleteEventDefault()
+                    }
+                } label: {
+                    Label {
+                        Text("Clear Invite Draft")
+                    } icon: {
+                        Image("BinIcon")
+                            .renderingMode(.template)
+                            .scaleEffect(1.2)
+                    }
+                }
+            }
+
+            Button(role: .destructive) {
+                declineProfile()
+            } label: {
+                Label {
+                    Text("Decline Profile")
+                } icon: {
+                    Image(systemName: "xmark")
+                        .font(.body(14, .bold))
+                }
+            }
         } label: {
             InviteOptionsIcon()
-                .padding(Spacing.xs)
+                .padding(Spacing.sm)
                 .shrinkPress()
                 .contentShape(Circle())
         }
-        .padding(-Spacing.xs)
+        .padding(-Spacing.sm)
         .blurPop(visible: optionsVisible)
         .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
     }

@@ -34,6 +34,7 @@ struct SendInviteCard: View {
     var onDismissProgress: ((Double) -> Void)? = nil //Drag collapse 0→1; the parent fades its chrome back in behind the card
     let hideInvite: () -> Void
     let sendInvite: (EventFieldsDraft) -> Void
+    let declineProfile: () -> Void
     var showsCollapsedChrome: Bool = true //Meet grows from a ProfileCard (caption + button); the profile grows from a plain image, so it opts out.
 
     //Local view state
@@ -166,6 +167,7 @@ extension SendInviteCard {
             confirmInviteScreen: $confirmInviteScreen,
             coverImage: coverImage,
             vm: vm,
+            declineProfile: declineProfile,
             pagingDisabled: dragging || !landed,
             optionsVisible: expanded && dragOffset == .zero && !confirmInviteScreen,
             showsCollapsedChrome: showsCollapsedChrome
