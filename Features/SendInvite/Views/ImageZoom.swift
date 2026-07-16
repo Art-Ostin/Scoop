@@ -45,6 +45,12 @@ enum ImageZoom {
     @Observable @MainActor
     final class FlightState {
         fileprivate(set) var activeSourceID: String?
+        //True while the zoom is actually animating (opening, or an interactive/
+        //button dismissal). The destination hero matches the SOURCE's crop while
+        //true — the transition crossfades source ↔ destination, and identical
+        //content is the only thing that makes that crossfade invisible — then
+        //settles to its resting crop when this flips false (landing/cancel).
+        fileprivate(set) var inFlight = false
     }
     static let flight = FlightState()
 
@@ -63,6 +69,11 @@ enum ImageZoom {
               let window = top.viewIfLoaded?.window
         else { return }
 
+        //Before the host exists: the destination lays out (pre-warm included)
+        //in flight configuration, so `.zoomHero()` measures the flight rect.
+        flight.activeSourceID = sourceID
+        flight.inFlight = true
+
         let presentation = ZoomPresentation()
         let host = ZoomHostingController(
             rootView: AnyView(content().environment(\.zoomPresented, true)),
@@ -73,6 +84,16 @@ enum ImageZoom {
         options.alignmentRectProvider = { context in
             guard let host = context.zoomedViewController as? ZoomHostingController else { return nil }
             return host.heroAlignmentRect(fallbackSize: context.sourceView.window?.bounds.size)
+        }
+        options.interactiveDismissShouldBegin = { context in
+            //Back to flight crop for the return: animated, so the hero visibly
+            //re-crops while the card travels. Geometry readers report the END
+            //frame immediately, so the provider (queried next, layoutIfNeeded)
+            //measures the landed flight rect even though the animation runs.
+            if context.willBegin {
+                withAnimation(.zoomReturnCrop) { flight.inFlight = true }
+            }
+            return context.willBegin
         }
         host.preferredTransition = .zoom(options: options) { _ in
             ZoomSourceRegistry.view(for: sourceID)
@@ -91,7 +112,6 @@ enum ImageZoom {
         host.view.isHidden = false
 
         ZoomPresentation.current = presentation
-        flight.activeSourceID = sourceID
         //Next runloop turn: never start the transition from inside the tap's
         //gesture callout, and let the pre-warmed layout commit a frame first.
         DispatchQueue.main.async {
@@ -109,7 +129,11 @@ enum ImageZoom {
     //Zooms back into the source (animated) or tears down instantly — e.g. under
     //a response cover. Safe to call when nothing is presented.
     static func dismiss(animated: Bool = true) {
-        ZoomPresentation.current?.host?.dismiss(animated: animated)
+        guard let host = ZoomPresentation.current?.host else { return }
+        if animated {
+            withAnimation(.zoomReturnCrop) { flight.inFlight = true } //Hero re-crops during the zoom-out
+        }
+        host.dismiss(animated: animated)
     }
 }
 
@@ -222,6 +246,7 @@ private final class ZoomPresentation {
         guard current === presentation else { return }
         current = nil
         ImageZoom.flight.activeSourceID = nil
+        ImageZoom.flight.inFlight = false
     }
 }
 
@@ -254,10 +279,29 @@ private final class ZoomHostingController: UIHostingController<AnyView> {
         }
         view.layoutIfNeeded()
         let rect = presentation.heroRect
+        //The OPEN query: the alignment rect (flight crop) is captured — now the
+        //hero may start re-cropping toward its resting shape, riding the flight.
+        //Next runloop turn, so this layout pass stays in flight configuration.
+        if !hasAppeared {
+            DispatchQueue.main.async {
+                withAnimation(.zoomFlightCrop) { ImageZoom.flight.inFlight = false }
+            }
+        }
         guard !rect.isNull, rect.width > 1 else { return nil } //No hero marked: zoom to full screen.
         //Reported in global (window) coordinates; pre-presentation the view has
         //no window yet, but it is framed at the window's origin so they match.
         return view.window.map { _ in view.convert(rect, from: nil) } ?? rect
+    }
+
+    private var hasAppeared = false
+
+    //Fires when the present transition completes AND when an interactive
+    //dismissal cancels (spring-back): either way the flight is over and the
+    //hero settles to its resting crop (no-op if it already re-cropped in flight).
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        hasAppeared = true
+        withAnimation(.zoomFlightCrop) { ImageZoom.flight.inFlight = false }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -266,6 +310,14 @@ private final class ZoomHostingController: UIHostingController<AnyView> {
             ZoomPresentation.clear(presentation)
         }
     }
+}
+
+extension Animation {
+    //Measured against the zoom transition's own spring (like the morph files'
+    //measured curves): the open flight settles in ~0.45s — the crop morph rides
+    //it; the return crop runs faster so content matches the source by landing.
+    static let zoomFlightCrop: Animation = .smooth(duration: 0.35)
+    static let zoomReturnCrop: Animation = .smooth(duration: 0.25)
 }
 
 private extension UIApplication {

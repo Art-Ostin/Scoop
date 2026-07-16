@@ -9,39 +9,8 @@ import SwiftUI
 
 enum ProfileTitleStyle { case base, overlay }
 
-//Overlay title
 extension ProfileContainer {
-    
-    var overlayTitle: some View {
-    HStack {
-        overlayName
-        Spacer()
-        if !isUserProfile {overlayDismissButton} //Hide if it is
-    }
-    .padding([.top, .horizontal], 12)
-    .modifier(DetailsFadeEffect(ui: ui, from: 0, to: 1, impactStart: 0.5))
-}
-    
-    private var overlayName: some View {
-        Text(displayProfile.name)
-            .offset(x: isUserProfile ? 36 : 0)//Shifts it as back button is in right corner here
-            .font(.title(24))
-            .foregroundStyle(Color.white)
-    }
-    
-    private var overlayDismissButton: some View {
-        ScoopButton(shape: Circle(), size: .medium) {
-            dismissProfile()
-        } label: {
-            Image(systemName: "xmark")
-                .font(.body(18, .bold))
-                .foregroundStyle(Color.white)
-        }
-    }
-}
-    
-extension ProfileContainer {
-    
+
     var profileTitle: some View {
         HStack{
             Text(displayProfile.name)
@@ -52,8 +21,8 @@ extension ProfileContainer {
         .font(.title(24))
         .padding(.horizontal, Spacing.sm)
     }
-    
-    
+
+
     private var profileDismissButton: some View {
         Button {
             dismissProfile()
@@ -64,8 +33,8 @@ extension ProfileContainer {
         }
         .buttonStyle(.plain)
     }
-    
-    
+
+
     @ViewBuilder var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
@@ -73,8 +42,7 @@ extension ProfileContainer {
                 .opacity(invite.pending == nil ? 1 : 0) //The button becomes the card while it's presented
                 .allowsHitTesting(invite.pending == nil) //opacity(0) alone stays tappable: block the invisible button through the collapse window
                 .padding(.horizontal, Spacing.margin)
-                .padding(.bottom, 144) //Geometry: floats the invite button above the details drawer
-                .modifier(InviteButtonDragEffect(ui: ui))
+                .padding(.bottom, Spacing.xl)
         }
     }
 
@@ -145,29 +113,19 @@ extension ProfileContainer {
     }
 }
 
-//Details and Morph Logic
+//Dismissal
 extension ProfileContainer {
-    
-    func animateSnapBack(releaseVelocity: CGFloat) {
-        let signedDistance = -ui.profileOffset
-        let initialV: CGFloat = abs(signedDistance) > 0.001 ? releaseVelocity / signedDistance : 0
-        let spring = Animation.fluidSpring(response: 0.42, dampingRatio: 1.0, relativeVelocity: initialV)
-        withAnimation(spring) {
-            ui.profileOffset = 0
-            ui.profileOffsetX = 0
-        } completion: {
-            guard ui.dragType != .dismiss else { return }
-            ui.isDismissDragging = false
-        }
-    }
 
-    func animateDismiss(releaseVelocity: CGFloat) {
-        guard let morph else { onDismissStart?(); onDismiss?(); return }
-        guard morph.canMorphClose else { animateSnapBack(releaseVelocity: releaseVelocity); return }
-        morph.beginZoomClose(pagerVisualShift: ui.interpolate(from: 0, to: -90))
-        let travel = morph.closeTravel(currentDrag: ui.profileOffset)
-        let initialV: CGFloat = abs(travel) > 1 ? releaseVelocity / travel : 0
-        let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: initialV)
+    //Zoom-presented: hand back to ImageZoom (native zoom-out). Morph-presented:
+    //run the reverse-zoom close; without a morph, fall through to plain onDismiss.
+    func dismissProfile() {
+        guard let morph, morph.canMorphClose else {
+            onDismissStart?()
+            onDismiss?()
+            return
+        }
+        morph.beginZoomClose(pagerVisualShift: 0)
+        let spring = Animation.fluidSpring(response: 0.45, dampingRatio: 1.0, relativeVelocity: 0)
         withAnimation(spring) {
             onDismissStart?()
             morph.closeProgress = 1
@@ -178,9 +136,5 @@ extension ProfileContainer {
                 onDismiss?()
             }
         }
-    }
-    
-    func dismissProfile() {
-        animateDismiss(releaseVelocity: 0)
     }
 }

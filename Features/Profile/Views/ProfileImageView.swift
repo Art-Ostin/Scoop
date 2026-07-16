@@ -12,6 +12,7 @@ struct ProfileImageView: View {
 
     //Injected
     @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
+    @Environment(\.zoomPresented) private var zoomPresented
     let disableScroll: Bool
     let images: [UIImage]
     var selectedIndex: Binding<Int>? = nil //Reports the settled page so the invite card can zoom from it
@@ -40,13 +41,22 @@ extension ProfileImageView {
 
     private static let heroHPadding: CGFloat = 8 //Inset of the hero image inside the pager; the invite source matches it so the collapse lands edge-aligned
 
+    //While an ImageZoom flight is up, the hero shows the Meet card's exact crop
+    //(the transition crossfades source ↔ destination — identical content is the
+    //only thing that makes it invisible), then re-crops to the resting shape
+    //DURING the flight. The animations ride the flip sites in ImageZoom.swift,
+    //timed to the transition — no .animation modifier here.
+    private var pagerAspect: AspectRatio {
+        zoomPresented && ImageZoom.flight.inFlight ? .default : .card
+    }
+
     private var imageCarousel: some View {
         ImageCarousel(
             images: images,
             hPadding: Self.heroHPadding,
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
-            aspectRatio: .card,
+            aspectRatio: pagerAspect,
             onImageTap: { zoomedPhoto = PhotoViewerSource(id: $0) },
             scrollProgress: $scrollProgress,
             scrollPosition: $pagerPosition,

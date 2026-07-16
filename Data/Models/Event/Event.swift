@@ -70,7 +70,7 @@ extension Event.EventType {
         case .drink: "Drink"
         case .doubleDate: "Double Date"
         case .socialMeet: "Social"
-        case .custom: "Custom Meet"
+        case .custom: "Custom"
         }
     }
     

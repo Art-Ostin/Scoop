@@ -84,29 +84,28 @@ extension ConfirmInviteScreen {
     }
     
     private var typeButton: some View {
-        HStack(alignment: .center, spacing: 2) {
+        HStack(alignment: .center, spacing: 4) {
             Text(event.type.emoji)
                 .font(.body(15))
             
-            HStack(spacing: 1) {
-                Text(event.type.longTitle)
+            HStack(spacing: 2) {
+                Text(event.type == .drink ? "Drink" : event.type == .custom ? "Custom" : event.type == .socialMeet ? "Social" : event.type.longTitle)
                     .font(.body(14, .bold))
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.textPrimary.mix(with: Color.accent, by: 0.2)) //Subtle Tint of accent
                     .kerning(-0.1)
                 Image(systemName:"info.circle")
                     .font(.body(9, .regular))
-                    .foregroundStyle(Color.textPlaceholder)
-                    .offset(y: -2)
+                    .foregroundStyle(Color.textPlaceholder.mix(with: Color.accent, by: 0.1)) //Subtle Tint of accent
+                    .offset(y: -3)
+                    .offset(x: 1)
             }
         }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 6)
-        .background(Color.accent.opacity(0.04), in: Capsule())
+        .padding(.horizontal, 12)
+        .padding(.vertical, event.type == .drink ? 6 : 8)
+        .background(Color.accent.opacity(0.05).mix(with: Color.fillGray, by: 0.5), in: Capsule())
         .padding(.horizontal, 24)
-        .shrinkPress {
-            showInfoSheet = true
-        }
-        .offset(y: 1)
+        .shrinkPress {showInfoSheet = true}
+        .offset(y: -1 - (event.type == .drink ? 0 : 1)) //aligns it vertically for some reason
     }
 }
 
@@ -120,6 +119,7 @@ extension ConfirmInviteScreen {
                 .padding(.horizontal, Spacing.margin)
                 .padding(.vertical, 28)                 // pure hit-area; won't scale the type
                 .containerRelativeFrame(.horizontal, alignment: .leading)
+                .padding(.top, 1) //Subtle visual alignment (as type icon overlay makes it slightly closer)
             
             messageSection
                 .padding(.horizontal, Spacing.margin)
@@ -144,8 +144,8 @@ extension ConfirmInviteScreen {
                 .minimumScaleFactor(0.7)
                 .allowsTightening(true)
                 .padding(.top, -Spacing.xxs)
-            
             lineSection(image: "EventMapIcon", text: parseName(event.place?.name ?? ""))
+                .shrinkPress {MapsRouter.openGoogleMaps(item: event.place?.mapItem, withDirections: false)}
         }
         .font(.body(17, .medium))
     }
@@ -170,17 +170,17 @@ extension ConfirmInviteScreen {
                 .lineSpacing(6)
                 .getHeight($messageHeight)
                 .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
-                .overlay(alignment: .topTrailing) {
-                    Image("EditButtonBlack")
-                        .scaleEffect(0.8, anchor: .bottom)
-                        .padding(6)
-                        .padding(.top, Spacing.md)
-                        .shrinkPress {
-                            showMessageScreen = true
-                        }
-                        .padding(-6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(alignment: .bottomTrailing) {
+                    HStack(spacing: 2) {
+                        Text("Edit")
+                            .font(.body(12, .medium))
+                        
+                        Image("EditButtonBlack")
+                            .scaleEffect(0.8, anchor: .top)
+                    }
+                    .shrinkPress {showMessageScreen = true}
                 }
-            
         } else {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Improve your invite with a message")
