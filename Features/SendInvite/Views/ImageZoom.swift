@@ -39,6 +39,21 @@ enum ImageZoom {
 
     static var isPresented: Bool { ZoomPresentation.current != nil }
 
+    //Observable mirror of the live presentation, for SwiftUI chrome that must
+    //hide while its image flies: the system hides only the source image view —
+    //captions/buttons drawn OVER it stay put and would float over the flight.
+    @Observable @MainActor
+    final class FlightState {
+        fileprivate(set) var activeSourceID: String?
+    }
+    static let flight = FlightState()
+
+    //True from the moment `sourceID`'s image starts flying until its screen is
+    //fully dismissed. Overlay chrome on the source image should hide while true.
+    static func isFlying(_ sourceID: String) -> Bool {
+        flight.activeSourceID == sourceID
+    }
+
     //Presents `content` full screen, zooming out of the source image registered
     //under `sourceID`. If that source isn't on screen, falls back to a plain
     //fullscreen presentation (no flight) rather than failing.
@@ -76,10 +91,18 @@ enum ImageZoom {
         host.view.isHidden = false
 
         ZoomPresentation.current = presentation
+        flight.activeSourceID = sourceID
         //Next runloop turn: never start the transition from inside the tap's
         //gesture callout, and let the pre-warmed layout commit a frame first.
         DispatchQueue.main.async {
             top.present(host, animated: true)
+            //Insurance: if UIKit refused the presentation (another modal was
+            //mid-flight, the window died), don't leave the zoom latched shut.
+            DispatchQueue.main.async {
+                if host.presentingViewController == nil {
+                    ZoomPresentation.clear(presentation)
+                }
+            }
         }
     }
 
@@ -193,6 +216,13 @@ private final class ZoomPresentation {
 
     weak var host: UIViewController?
     var heroRect: CGRect = .null
+
+    //The single teardown path: clears the latch and unhides source chrome.
+    static func clear(_ presentation: ZoomPresentation) {
+        guard current === presentation else { return }
+        current = nil
+        ImageZoom.flight.activeSourceID = nil
+    }
 }
 
 //Hosts the presented SwiftUI screen and answers the transition's questions.
@@ -232,8 +262,8 @@ private final class ZoomHostingController: UIHostingController<AnyView> {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        if isBeingDismissed, ZoomPresentation.current === presentation {
-            ZoomPresentation.current = nil
+        if isBeingDismissed {
+            ZoomPresentation.clear(presentation)
         }
     }
 }

@@ -46,6 +46,9 @@ struct ConfirmInviteScreen: View {
                 .padding(.horizontal, Spacing.margin)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .topTrailing) {
+           typeButton
+        }
         .padding(.top, 20)
         .sheet(isPresented: $showInfoSheet) {
             Text(event.type.longTitle)
@@ -63,11 +66,12 @@ extension ConfirmInviteScreen {
             .font(.title(24, .bold))
             .foregroundStyle(Color.textPrimary)
     }
+    
     private var warningLabel: some View {
         HStack(spacing: Spacing.md){
             Image("ConfirmIcon")
             
-            Text("Not showing will result in your account being blocked")
+            Text("Not showing may result in a blocked account")
                 .font(.body(14, .regular))
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.leading)
@@ -77,6 +81,32 @@ extension ConfirmInviteScreen {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.fillGray.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm)) //Color.accent.opacity(0.04)
+    }
+    
+    private var typeButton: some View {
+        HStack(alignment: .center, spacing: 2) {
+            Text(event.type.emoji)
+                .font(.body(15))
+            
+            HStack(spacing: 1) {
+                Text(event.type.longTitle)
+                    .font(.body(14, .bold))
+                    .foregroundStyle(Color.textPrimary)
+                    .kerning(-0.1)
+                Image(systemName:"info.circle")
+                    .font(.body(9, .regular))
+                    .foregroundStyle(Color.textPlaceholder)
+                    .offset(y: -2)
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .background(Color.accent.opacity(0.04), in: Capsule())
+        .padding(.horizontal, 24)
+        .shrinkPress {
+            showInfoSheet = true
+        }
+        .offset(y: 1)
     }
 }
 
@@ -105,6 +135,30 @@ extension ConfirmInviteScreen {
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: true, isCardInvite: true)
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
     }
+        
+    private var timePlaceTypeSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            lineSection(image: "EventClockIcon", text: timeSectionString)
+                .foregroundStyle(Color.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
+                .padding(.top, -Spacing.xxs)
+            
+            lineSection(image: "EventMapIcon", text: parseName(event.place?.name ?? ""))
+        }
+        .font(.body(17, .medium))
+    }
+    
+    private func lineSection(image: String, text: String) ->  some View {
+        HStack(spacing: Spacing.md) {
+            Image(image)
+                .frame(width: 20, alignment: .leading)
+            
+            Text(text)
+                .font(.body(18, .medium))
+        }
+    }
     
     @ViewBuilder
     private var messageSection: some View {
@@ -116,7 +170,6 @@ extension ConfirmInviteScreen {
                 .lineSpacing(6)
                 .getHeight($messageHeight)
                 .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .overlay(alignment: .topTrailing) {
                     Image("EditButtonBlack")
                         .scaleEffect(0.8, anchor: .bottom)
@@ -147,46 +200,12 @@ extension ConfirmInviteScreen {
             .offset(y: -Spacing.xxs)
         }
     }
-    
-    private var timePlaceTypeSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            typeAndPlace
-                .padding(.top, -Spacing.xxs)
-            timeSection
-        }
-        .font(.body(20, .medium))
-    }
-    
-    private var typeAndPlace: some View {
-        HStack(spacing: Spacing.xxs) {
-            HStack(spacing: 0) {
-                Text(parseName(event.place?.name ?? ""))
-                    .underline(color: Color.border)
-                    .italic()
-                    .shrinkPress { MapsRouter.openGoogleMaps(item: event.place?.mapItem, withDirections: false)}
-                Text(" · ")
-                Text(event.type.longTitle)
-            }
-            .minimumScaleFactor(0.8)
-            .lineLimit(1)
-
-            Image(systemName: "info.circle")
-                .foregroundStyle(Color.textPlaceholder)
-                .font(.body(10, .regular))
-                .padding(4)               // Enlarges the tap region
-                .shrinkPress {
-                    showInfoSheet = true
-                }
-                .padding(-4)              // Restores the original HStack layout
-                .offset(y: -6)             // Moves both icon and tap region
-        }
-    }
 }
 
 //Time Section
 extension ConfirmInviteScreen {
     
-    private var timeSection: some View {
+    private var timeSectionString: String {
         let days = event.time.availableDates()
         
         let value: String = {
@@ -205,11 +224,7 @@ extension ConfirmInviteScreen {
             .joined()
         }()
         
-        return Text(value)
-            .foregroundStyle(Color.primary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .allowsTightening(true)
+        return value
     }
     
     private func daySuffix(at index: Int, dayCount: Int) -> String {
@@ -224,6 +239,7 @@ extension ConfirmInviteScreen {
 
 
 /*
+ 
  private var infoButton: some View {
      Image(systemName: "info.circle")
          .foregroundStyle(Color.textSecondary)
@@ -235,4 +251,29 @@ extension ConfirmInviteScreen {
          .profileShrinkPress {showConfirmScreen = false}
  }
 
+ 
+ private var typeAndPlace: some View {
+     HStack(spacing: Spacing.xxs) {
+         HStack(spacing: 0) {
+             Text(parseName(event.place?.name ?? ""))
+                 .underline(color: Color.border)
+                 .italic()
+                 .shrinkPress { MapsRouter.openGoogleMaps(item: event.place?.mapItem, withDirections: false)}
+             Text(" · ")
+             Text(event.type.longTitle)
+         }
+         .minimumScaleFactor(0.8)
+         .lineLimit(1)
+
+         Image(systemName: "info.circle")
+             .foregroundStyle(Color.textPlaceholder)
+             .font(.body(10, .regular))
+             .padding(4)               // Enlarges the tap region
+             .shrinkPress {
+                 showInfoSheet = true
+             }
+             .padding(-4)              // Restores the original HStack layout
+             .offset(y: -6)             // Moves both icon and tap region
+     }
+ }
  */

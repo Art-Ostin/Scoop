@@ -65,9 +65,11 @@ import FirebaseAuth
 
     func saveAndNextStep<T>(kp: WritableKeyPath<DraftProfile, T>, to value: T, updateOnly: Bool = false) {
         //1. Prevent quick double tapping logic
-        guard canAdvance else { return }
-        canAdvance = false
-        Task { try? await Task.sleep(for: .milliseconds(300)) ; canAdvance = true }
+        if !updateOnly {
+            guard canAdvance else { return }
+            canAdvance = false
+            Task { try? await Task.sleep(for: .milliseconds(300)) ; canAdvance = true }
+        }
         
         //2. Actually move forward
         direction = .forward

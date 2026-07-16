@@ -59,7 +59,10 @@ struct ProfileContainer: View {
             .background(Color.appCanvas)
             
             .getHeight($ui.containerHeight)
-            .simultaneousGesture(profileDrag())
+            //Zoom mode: mask the whole-surface drag off (a begun SwiftUI drag
+            //blocks the native dismiss pan); it re-attaches on the details
+            //subtree below, so the drawer keeps its drags.
+            .simultaneousGesture(profileDrag(), including: zoomPresented ? .subviews : .all)
             .coordinateSpace(name: "profileZStack")
             .onAppear { if isUserProfile { vm.viewProfileType = .view } }
             .preference(key: ProfileDetailsOpenKey.self, value: ui.detailsOpen)
@@ -90,6 +93,9 @@ extension ProfileContainer {
     
     private var detailsView: some View {
         ProfileDetailsView(vm: vm, ui: ui, p: displayProfile, event: vm.event)
+            //Zoom mode: the drawer owns its own drags (card move + scroll
+            //hand-off); hero/header drags belong to the native dismiss pan.
+            .simultaneousGesture(profileDrag(), including: zoomPresented ? .all : .subviews)
             .modifier(DetailsCardDragEffect(ui: ui))
             .onGeometryChange(for: CGFloat.self) { geo in
                 geo.frame(in: .global).minY
