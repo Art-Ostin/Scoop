@@ -106,6 +106,7 @@ extension ConfirmInviteScreen {
         .padding(.horizontal, 24)
         .shrinkPress {showInfoSheet = true}
         .offset(y: -1 - (event.type == .drink ? 0 : 1)) //aligns it vertically for some reason
+        .scaleEffect(0.85, anchor: .trailing)
     }
 }
 
@@ -234,46 +235,4 @@ extension ConfirmInviteScreen {
         
         return index == dayCount - 2 ? " or " : ", "
     }
-
 }
-
-
-/*
- 
- private var infoButton: some View {
-     Image(systemName: "info.circle")
-         .foregroundStyle(Color.textSecondary)
-         .font(.body(12, .regular))
-         .frame(width: 28, height: 28)
-         .background(Color.fillGray, in: Circle())
-         .padding(.horizontal, Spacing.lg)
-         .expandHitArea()
-         .profileShrinkPress {showConfirmScreen = false}
- }
-
- 
- private var typeAndPlace: some View {
-     HStack(spacing: Spacing.xxs) {
-         HStack(spacing: 0) {
-             Text(parseName(event.place?.name ?? ""))
-                 .underline(color: Color.border)
-                 .italic()
-                 .shrinkPress { MapsRouter.openGoogleMaps(item: event.place?.mapItem, withDirections: false)}
-             Text(" · ")
-             Text(event.type.longTitle)
-         }
-         .minimumScaleFactor(0.8)
-         .lineLimit(1)
-
-         Image(systemName: "info.circle")
-             .foregroundStyle(Color.textPlaceholder)
-             .font(.body(10, .regular))
-             .padding(4)               // Enlarges the tap region
-             .shrinkPress {
-                 showInfoSheet = true
-             }
-             .padding(-4)              // Restores the original HStack layout
-             .offset(y: -6)             // Moves both icon and tap region
-     }
- }
- */

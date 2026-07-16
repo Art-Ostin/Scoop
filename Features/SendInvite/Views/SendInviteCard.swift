@@ -16,8 +16,8 @@ struct SendInviteCard: View {
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let cardRadius = CornerRadius.xl //Expanded card surface radius
     static let imageHeightRatio: CGFloat = 1.05
-    static let confirmImageHeightRatio: CGFloat = 360.0 / 386.0
-    static let confirmCardTopPadding: CGFloat = 36
+    static let confirmImageHeightRatio: CGFloat = 340.0 / 386.0
+    static let confirmCardTopPadding: CGFloat = 48
 
     //Interactive dismiss tuning (see dismissDrag)
     static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the chrome collapse 0→1

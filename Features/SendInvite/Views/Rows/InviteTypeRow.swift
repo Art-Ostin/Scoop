@@ -41,6 +41,8 @@ struct InviteTypeRow: View {
         !message.isEmpty && (scrolledPageID ?? 0) >= 1
     }
 
+    @State var showTypeInfoScreen = false
+    
     var body: some View {
         //The message page sits a touch closer to the title than the type page.
         HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
@@ -159,6 +161,14 @@ extension InviteTypeRow {
                         .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
                         .scaleEffect(isTypeOpen ? 1 : 0.8, anchor: .leading)
                         .animation(.smooth(duration: 0.2), value: isTypeOpen)
+                        .overlay(alignment: .topTrailing) {
+                            Image(systemName:"info.circle")
+                                .font(.body(8, .regular))
+                                .foregroundStyle(Color.textPlaceholder) //Subtle Tint of accent
+                                .offset(x: 3, y: -1)
+                        }
+                        .shrinkPress {showTypeInfoScreen = true}
+
                 }
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line
@@ -172,6 +182,10 @@ extension InviteTypeRow {
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
+        .sheet(isPresented: $showTypeInfoScreen) {
+            Text("Type Info Here")
+        }
+
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
@@ -230,7 +244,6 @@ private struct TypeRowMenuLabel: View {
     //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
     @State private var showScrollFades = false
-
     var body: some View {
         if isLive { liveLabel } else { collapsedLabel }
     }
