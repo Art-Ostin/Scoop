@@ -6,6 +6,37 @@
 //
 
 import SwiftUI
+import Glur
+
+private struct AppleImageFadeModifier: ViewModifier {
+    let color: Color
+    let blurRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .background(color)
+            .glur(
+                radius: max(blurRadius, 0),
+                offset: 0.46,
+                interpolation: 0.34,
+                direction: .down,
+                noise: 0
+            )
+            .overlay {
+                LinearGradient(
+                    stops: [
+                        .init(color: color.opacity(0), location: 0.50),
+                        .init(color: color.opacity(0.60), location: 0.5824),
+                        .init(color: color, location: 0.78),
+                        .init(color: color, location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .allowsHitTesting(false)
+            }
+    }
+}
 
 struct CustomCaption: ViewModifier {
     func body(content: Content) -> some View {
@@ -16,6 +47,10 @@ struct CustomCaption: ViewModifier {
 }
 
 extension View {
+
+    func appleImageFade(to color: Color, blurRadius: CGFloat = 34) -> some View {
+        modifier(AppleImageFadeModifier(color: color, blurRadius: blurRadius))
+    }
 
     func customCaption() -> some View {
         modifier(CustomCaption())

@@ -45,8 +45,8 @@ struct InviteImageCarousel: View {
         ImageCarousel(
             images: images,
             hPadding: inset,
-            topRadius: topRadius,
-            bottomRadius: bottomRadius,
+            topRadius: 0,
+            bottomRadius: 0,
             aspectRatio: .card,
             fillsContainerHeight: true, //The animated frame owns the height at both endpoints
             showFade: false,

@@ -85,7 +85,7 @@ struct ImageCarousel: View {
         let base = ScoopImage(
             image: image,
             aspectRatio: aspectRatio,
-            radii: .init(top: 0, bottom: 0),
+            radii: .init(top: topRadius, bottom: bottomRadius),
             hPadding: hPadding,
             fillsPageWidth: true,
             fillsContainerHeight: fillsContainerHeight

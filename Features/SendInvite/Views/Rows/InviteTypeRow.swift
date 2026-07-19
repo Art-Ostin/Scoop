@@ -163,12 +163,11 @@ extension InviteTypeRow {
                         .animation(.smooth(duration: 0.2), value: isTypeOpen)
                         .overlay(alignment: .topTrailing) {
                             Image(systemName:"info.circle")
-                                .font(.body(8, .regular))
+                                .font(.body(6, .regular))
                                 .foregroundStyle(Color.textPlaceholder) //Subtle Tint of accent
-                                .offset(x: 3)
+                                .offset(x: 2)
                         }
                         .shrinkPress {showTypeInfoScreen = true}
-
                 }
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line

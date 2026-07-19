@@ -28,18 +28,24 @@
 //                                       call this action (or use .timeCustomMenuItem) to
 //                                       close it. Tapping outside still dismisses.
 //
-//  ── iOS 26 lens-morph mechanics (replicated from device recordings) ─────────
-//  Native iOS 26 menus do a "lens morph" that passes THROUGH A CIRCLE: on open
-//  the button squeezes into a small droplet circle at its own centre (label
-//  refracting inside), the circle inflates while travelling toward the menu's
-//  centre, then relaxes into the rounded-rect platter — which COVERS the
-//  button's rect (near edges flush, no gap) and is centred on it — while the
-//  menu content de-blurs and materializes. Dismissal is the exact reverse;
-//  the button re-materializes inside the shrinking droplet.
-//  Implementation: ONE persistent glass view whose keyframed frame/radius/
-//  content are interpolated by an Animatable modifier (MenuLensMorph) under
-//  withAnimation. The real label hides while the lens covers it (it IS the
-//  menu, like native).
+//  ── iOS 26 lens-morph mechanics (frame-matched against the native Menu in the
+//     iOS 26.0 simulator, 60fps recordings, 2026-07-19) ──────────────────────
+//  The native menu inflates a SINGLE rounded rect straight from the button's
+//  rect to the platter's rect (top-leading edges flush with the button — no
+//  droplet/circle phase in the simulator's rendering). While it grows, the
+//  label blurs/fades out in place over the first ~quarter of the morph and the
+//  menu content rides the platter scaled, materializing blur→sharp by ~70%.
+//  Open is a spring (peak +~2.5% at ~270ms, settled ~370ms); close is a
+//  ~220ms bounce-free reverse with the glass melting off late so the label
+//  alone lands on the button. The trigger matches native too: a quick tap
+//  opens on RELEASE; a still press opens at touch-down + holdOpenDelay while
+//  the finger is down (drag-select continues); the pressed label dims only —
+//  never shrinks (a scale would pop when the lens takes over). A tap during
+//  the close morph reopens the menu from wherever the collapse is (native
+//  interruptibility).
+//  Implementation: ONE persistent glass view whose frame/radius/content are
+//  interpolated by an Animatable modifier (MenuLensMorph) under withAnimation.
+//  The real label hides while the lens covers it (it IS the menu, like native).
 //  No glass transitions are used — verified broken/limited on iOS 26.0:
 //   • glassEffectID same-ID "replace" swaps render as an INSTANT swap.
 //   • The liquid metaball merge only occurs between comparably-sized glass
@@ -64,9 +70,11 @@
 //     like UIKit does, so it can never be clipped by scroll views, the nav stack
 //     or the tab bar. Anchor frames assume the app window fills the scene
 //     (always true on iPhone; iPad floating windows may offset slightly).
-//   • Opens on a completed tap (release within tapSlop), not native's touch-down,
-//     so drags that start on the label — pager swipes, the invite card's
-//     swipe-dismiss — never open the menu. Press-drag-release selection is dropped.
+//   • Opens like native: on the tap's release, or at touch-down + holdOpenDelay
+//     for a still press (drag-select then continues on the same touch). Drags
+//     that start on the label — pager swipes, the invite card's swipe-dismiss —
+//     still never open the menu: movement past tapSlop cancels both paths,
+//     which is also how native behaves under a scroll view's delayed touches.
 //
 
 import SwiftUI
@@ -179,32 +187,32 @@ struct TimeCustomMenuBuilder: View {
 
 enum TimeCustomMenuSpec {
 
-    // ── iOS 26 Liquid Glass lens morph ──
+    // ── iOS 26 Liquid Glass lens morph (fitted to sim recordings, 2026-07-19) ──
     /// Platter corner radius — fixed stand-in for the system's concentric radius.
     static let platterCornerRadius = CornerRadius.customMenu
-    /// Glass shapes closer than this blend/morph inside the container.
-    static let morphSpacing: CGFloat = 40
-    /// Peak refraction blur while content is being swallowed/materialized
-    /// (matched against device recordings of the native lens).
-    static let lensBlur: CGFloat = 8
-    /// Droplet circle diameter as a multiple of the label height (the small
-    /// circle the button squeezes into — ~64pt for a 44pt button on device).
-    static let dropletScale: CGFloat = 1.45
-    /// Inflated circle diameter relative to the menu's smaller dimension
-    /// (~180pt for a 240×140 menu in the device recording).
-    static let lensCircleScale: CGFloat = 1.25
-    /// How far toward the menu's centre the inflated circle has travelled.
-    static let lensTravelBias: CGFloat = 0.75
-    /// Lens morph timing against the native open (~0.45s, slight settle).
-    static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
-    /// Shrinking back through the circles never bounces (~0.4s on device).
-    static let bloomClose = Animation.smooth(duration: 0.38)
+    /// Peak refraction blur on the materializing/dissolving menu content.
+    static let lensBlur: CGFloat = 9
+    /// Open spring: native peaks +~3% at ~270ms and settles by ~370ms.
+    static let bloomOpen = Animation.spring(response: 0.36, dampingFraction: 0.73)
+    /// Close never bounces and is much quicker than the open (~220ms native).
+    static let bloomClose = Animation.smooth(duration: 0.22)
+    /// Label dissolve: gone by this progress on open (native shows the label
+    /// refracting in the droplet for the first few frames before it clears);
+    /// on close the label re-materializes over a longer window, like native.
+    static let labelFadeProgress: CGFloat = 0.35
+    static let labelFadeProgressClosing: CGFloat = 0.45
+    /// Content materialize ramp: fades in over this progress window.
+    static let contentFadeStart: CGFloat = 0.05
+    static let contentFadeEnd: CGFloat = 0.55
     /// After the close morph lands on the button, the lens halo melts off the
     /// restored label rather than popping out in one frame.
-    static let lensFadeOut = Animation.easeOut(duration: 0.15)
+    static let lensFadeOut = Animation.easeOut(duration: 0.12)
     /// Close morph length before the label is restored and the halo melts.
-    static let closeMorphDuration: TimeInterval = 0.4
-    static let lensFadeDuration: TimeInterval = 0.18
+    static let closeMorphDuration: TimeInterval = 0.24
+    static let lensFadeDuration: TimeInterval = 0.14
+    /// A press held this long (within tapSlop) opens while the finger is still
+    /// down, like native; a quicker tap opens on release.
+    static let holdOpenDelay: TimeInterval = 0.25
     /// On close, the glass is fully present at this progress and melts linearly to
     /// nothing by progress 0 — i.e. it fades across the final expand (the circle
     /// relaxing back into the label), so the label alone lands and there's no
@@ -246,7 +254,12 @@ enum TimeCustomMenuSpec {
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
     static let highlightCornerRadius = CornerRadius.customMenuRowHighlight
-    static let pressedLabelOpacity: CGFloat = 0.5
+    /// Native pressed labels DIM only (reaching plateau in ~80-100ms) — never
+    /// shrink. A scale would pop when the pixel-identical lens takes the label
+    /// over. Values fitted to sim recordings of the native pressed state.
+    static let pressedLabelOpacity: CGFloat = 0.65
+    static let pressDim = Animation.easeOut(duration: 0.1)
+    static let pressUndim = Animation.easeOut(duration: 0.2)
 }
 
 // MARK: - TimeCustomMenu
@@ -294,9 +307,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @State private var labelFrame: CGRect = .zero
     //Touch-down press state, driven by `pressGesture` (simultaneous so it fires on touch-down over
     //the time pager instead of waiting for the scroll to fail at release). `pressStart` holds the
-    //shrink briefly on a fast tap. Separate from `pressAndDrag`, which owns open + drag-select.
+    //dim briefly on a fast tap. Separate from `pressAndDrag`, which owns open + drag-select.
     @State private var pressed = false
     @State private var pressStart: Date?
+    //True while the touch that hold-opened the menu is still down, so its own release
+    //isn't mistaken for a fresh tap (a fresh tap during the infant bloom cancels it,
+    //like native; the opening touch's release must not).
+    @State private var openingTouchActive = false
 
     init(labelCornerRadius: CGFloat? = nil,
          morphAnchor: CGRect? = nil,
@@ -337,16 +354,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 // when a selection changes its text) so the lens lands cleanly.
                 controller.updateCollapseAnchor(frame)
             }
-            // Press shrink + dim on touch-DOWN, driven by `pressGesture` (a simultaneous gesture so
-            // it fires the instant the finger lands, like InviteTypeRow's type menu). Applied AFTER
-            // the geometry read so the shrink transform never feeds back into the placement anchor.
-            // iOS 26: `hidesLabel` swallows the real label while the menu's lens is up (it is the
-            // menu now), like native.
-            .scaleEffect(pressed ? PressEffect.shrink.scale : 1)
+            // Press DIM on touch-DOWN, driven by `pressGesture` (a simultaneous gesture so it
+            // fires the instant the finger lands, even over the time pager's ScrollView).
+            // Native menu labels dim only — no scale — so the lens (an unpressed copy) can
+            // take over pixel-cleanly. iOS 26: `hidesLabel` swallows the real label while
+            // the menu's lens is up (it is the menu now), like native.
             .opacity(controller.hidesLabel ? 0 : (pressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
-            .animation(pressed ? .snappy(duration: PressEffect.shrink.pressDuration)
-                               : .spring(response: PressEffect.shrink.release.response,
-                                         dampingFraction: PressEffect.shrink.release.damping),
+            .animation(pressed ? TimeCustomMenuSpec.pressDim : TimeCustomMenuSpec.pressUndim,
                        value: pressed)
             .gesture(pressAndDrag)
             .simultaneousGesture(pressGesture)
@@ -355,30 +369,37 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
 
     /// Pushes the freshest label closure into the controller, deferred one runloop
     /// turn so it lands cleanly after the current view-update pass. No-op while the
-    /// menu is closed.
+    /// menu is closed — and while it is DISMISSING: the close morph shows the value
+    /// captured at dismissal, and a deferred write landing mid-close can interrupt
+    /// the in-flight glass transaction (seen as a frozen half-collapsed ghost).
     private func syncPresentedLabel() {
-        guard controller.isPresented else { return }
+        guard controller.isPresented, controller.phase != .dismissing else { return }
         let makeLabel = label
         DispatchQueue.main.async {
+            guard controller.phase != .dismissing else { return }
             controller.updateLabel { AnyView(makeLabel()) }
         }
     }
 
     /// Pushes the freshest morph anchor into the controller while presented, so the
     /// close morph collapses onto the first item's current bounds. Deferred one
-    /// runloop turn like the label sync. No-op while closed or when no override set.
+    /// runloop turn like the label sync, with the same dismissing guard. No-op while
+    /// closed or when no override set.
     private func syncMorphAnchor() {
-        guard controller.isPresented, let morphAnchor else { return }
+        guard controller.isPresented, controller.phase != .dismissing, let morphAnchor else { return }
         DispatchQueue.main.async {
+            guard controller.phase != .dismissing else { return }
             controller.updateMorphAnchor(morphAnchor)
         }
     }
 
-    /// The label presses (shrinks) under the finger, then the menu opens on RELEASE — a
-    /// completed tap — matching the type/place rows, instead of native's touch-down open.
-    /// A release past `tapSlop` is a scroll/page/card-drag, not a tap, so nothing opens:
-    /// this is what keeps the invite card's swipe-dismiss from popping the menu when the
-    /// drag starts on this label. (Drops the native press-drag-to-select flow.)
+    /// Native trigger semantics, frame-matched in the simulator: a still press opens at
+    /// touch-down + `holdOpenDelay` while the finger is down (drag-select continues on the
+    /// same touch); a quicker tap opens on RELEASE. A release past `tapSlop` is a
+    /// scroll/page/card-drag, not a tap, so nothing opens: this keeps the invite card's
+    /// swipe-dismiss from popping the menu when the drag starts on this label — matching
+    /// native, whose scroll-delayed touches behave the same way. A tap landing during the
+    /// close morph reopens the menu mid-collapse (native interruptibility).
     private var pressAndDrag: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
@@ -386,45 +407,108 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 controller.dragMoved(to: value.location)
             }
             .onEnded { value in
+                let distance = hypot(value.translation.width, value.translation.height)
                 if controller.isPresented {
-                    controller.dragEnded(at: value.location, translation: value.translation)
+                    endTouchOnPresentedMenu(at: value.location, translation: value.translation,
+                                            distance: distance)
                     return
                 }
-                let distance = hypot(value.translation.width, value.translation.height)
                 guard distance < TimeCustomMenuSpec.tapSlop else { return } // a scroll/drag, not a tap
-                onOpen?()
-                // Seed the morph collapse target before the overlay renders, so
-                // the open bloom starts from the first item (not the full label).
-                controller.updateMorphAnchor(morphAnchor)
-                controller.present(
-                    anchor: labelFrame,
-                    label: { AnyView(label()) },
-                    labelCornerRadius: labelCornerRadius,
-                    alignment: alignment,
-                    placementOffset: placementOffset,
-                    estimatedContentSize: estimatedContentSize,
-                    onClose: onClose,
-                    content: { AnyView(content()) }
-                )
+                openMenu()
             }
     }
 
-    /// Drives the touch-DOWN press shrink, separate from `pressAndDrag` (which opens the menu and
-    /// runs the native drag-select). A `.simultaneousGesture` so it fires on touch-down even over
-    /// the time pager's ScrollView instead of waiting for the scroll to fail at release; a drag past
-    /// `tapSlop` is a scroll/page, so the shrink releases. Mirrors InviteTypeRow's type-menu press.
+    /// Routes a touch that ends while the menu is up. A FRESH tap landing in the
+    /// brief window before the overlay is hit-testable (`.measuring` — right after
+    /// a tap-open, before the first laid-out frame) cancels the infant bloom, the
+    /// way a native menu's open aborts when tapped again immediately. The touch
+    /// that hold-opened the menu is exempt — its release just ends drag-select.
+    private func endTouchOnPresentedMenu(at location: CGPoint, translation: CGSize,
+                                         distance: CGFloat) {
+        if controller.phase == .dismissing {
+            // The dissolve tail: the close has visually landed and the overlay is
+            // interaction-disabled, so this tap reached the restored label — treat
+            // it as a fresh open (present() drops the lingering halo). Setting the
+            // flag stops the other gesture's onEnded for this same touch from
+            // cancelling the fresh open via the .measuring branch below.
+            if distance < TimeCustomMenuSpec.tapSlop, controller.lensDissolve {
+                openingTouchActive = true
+                openMenu()
+            }
+        } else if !openingTouchActive, distance < TimeCustomMenuSpec.tapSlop,
+                  controller.phase == .measuring {
+            controller.dismiss()
+        } else {
+            controller.dragEnded(at: location, translation: translation)
+        }
+        // Deferred so BOTH gestures' onEnded (same touch, same event cycle) see the
+        // flag; a later fresh tap then correctly reads false.
+        DispatchQueue.main.async { openingTouchActive = false }
+    }
+
+    /// The single open path (tap-release, hold-to-open, and reopen-mid-close all land here).
+    private func openMenu() {
+        onOpen?()
+        // Seed the morph collapse target before the overlay renders, so
+        // the open bloom starts from the first item (not the full label).
+        controller.updateMorphAnchor(morphAnchor)
+        controller.present(
+            anchor: labelFrame,
+            label: { AnyView(label()) },
+            labelCornerRadius: labelCornerRadius,
+            alignment: alignment,
+            placementOffset: placementOffset,
+            estimatedContentSize: estimatedContentSize,
+            onOpen: onOpen,
+            onClose: onClose,
+            content: { AnyView(content()) }
+        )
+    }
+
+    /// Opens the menu at touch-down + `holdOpenDelay` if the finger is still resting
+    /// within `tapSlop` — the native long-press open. Cancelled by movement (a scroll)
+    /// or release (which opens via the tap path instead).
+    private func scheduleHoldOpen() {
+        let start = pressStart
+        DispatchQueue.main.asyncAfter(deadline: .now() + TimeCustomMenuSpec.holdOpenDelay) {
+            guard pressed, pressStart == start,
+                  !controller.isPresented, controller.phase != .dismissing else { return }
+            openingTouchActive = true // the finger is still down; see endTouchOnPresentedMenu
+            openMenu()
+        }
+    }
+
+    /// Drives the touch-DOWN press dim + the native hold-to-open, separate from `pressAndDrag`.
+    /// A `.simultaneousGesture` so it fires on touch-down even over the time pager's ScrollView
+    /// instead of waiting for the scroll to fail at release; a drag past `tapSlop` is a
+    /// scroll/page, so the dim releases and the scheduled hold-open is cancelled. Once the menu
+    /// opened under the held finger, this gesture also feeds drag-select — in the pager,
+    /// `pressAndDrag` may never activate (the ScrollView owns plain gestures), so the
+    /// simultaneous one carries the native press-drag-release selection there.
     private var pressGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
+                if controller.isPresented {
+                    controller.dragMoved(to: value.location)
+                }
                 let moved = max(abs(value.translation.width), abs(value.translation.height))
                 if moved < TimeCustomMenuSpec.tapSlop {
-                    if !pressed { pressed = true; pressStart = .now }
+                    if !pressed {
+                        pressed = true
+                        pressStart = .now
+                        scheduleHoldOpen()
+                    }
                 } else if pressed {
-                    pressed = false   // turned into a scroll/page — let the shrink go
+                    pressed = false   // turned into a scroll/page — let the dim go
                 }
             }
-            .onEnded { _ in
-                // Hold the shrink briefly so a fast tap still reads, then release (PressEffect's hold).
+            .onEnded { value in
+                if controller.isPresented {
+                    endTouchOnPresentedMenu(at: value.location, translation: value.translation,
+                                            distance: hypot(value.translation.width,
+                                                            value.translation.height))
+                }
+                // Hold the dim briefly so a fast tap still reads, then release.
                 let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
                 DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) { pressed = false }
             }
@@ -532,14 +616,29 @@ final class TimeCustomMenuController {
 
     @ObservationIgnored private var window: UIWindow?
     @ObservationIgnored private var items: [UUID: Item] = [:]
+    /// Re-fired when a mid-close tap reopens the menu, so caller state stays in sync.
+    @ObservationIgnored private var onOpen: (() -> Void)?
     /// Fired once at the top of `dismiss()` (any path), cleared on teardown.
     @ObservationIgnored private var onClose: (() -> Void)?
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private let selectionHaptic = UISelectionFeedbackGenerator()
+    /// Target for the overlay's UIKit-level early-tap recognizer (see `present`).
+    @ObservationIgnored private lazy var earlyTapRelay = TapRelay { [weak self] location in
+        self?.overlayTapped(at: location)
+    }
 
     struct Item {
         var frame: CGRect
         var action: () -> Void
+    }
+
+    /// NSObject shim so a non-NSObject controller can target a UIGestureRecognizer.
+    final class TapRelay: NSObject {
+        private let action: (CGPoint) -> Void
+        init(action: @escaping (CGPoint) -> Void) { self.action = action }
+        @objc func fire(_ recognizer: UIGestureRecognizer) {
+            action(recognizer.location(in: nil))
+        }
     }
 
     // MARK: Presentation
@@ -550,8 +649,13 @@ final class TimeCustomMenuController {
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
                  estimatedContentSize: CGSize? = nil,
+                 onOpen: (() -> Void)? = nil,
                  onClose: (() -> Void)? = nil,
                  content: @escaping () -> AnyView) {
+        // A re-tap during the dissolve tail reaches the restored label (the old
+        // window is interaction-disabled by then); the lingering halo melt is
+        // cosmetic — drop it and open fresh.
+        if window != nil, phase == .dismissing, lensDissolve { tearDown() }
         guard window == nil,
               let scene = UIApplication.shared.connectedScenes
                   .compactMap({ $0 as? UIWindowScene })
@@ -565,12 +669,22 @@ final class TimeCustomMenuController {
         self.alignment = alignment
         self.placementOffset = placementOffset
         self.estimatedContentSize = estimatedContentSize
+        self.onOpen = onOpen
         self.onClose = onClose
         self.content = content
         phase = .measuring
 
         let host = UIHostingController(rootView: TimeCustomMenuOverlayRoot(controller: self))
         host.view.backgroundColor = .clear
+        // A UIKit-level recognizer, live the instant the window exists: a tap in
+        // the 1-2 frame gap before the SwiftUI overlay content commits (the 2nd
+        // tap of a fast double-tap) would otherwise be swallowed and dropped.
+        // Native cancels the infant open on such a tap — mirror that. Once the
+        // overlay is laid out and `markShown` has run, SwiftUI owns tap routing.
+        let earlyTap = UITapGestureRecognizer(target: earlyTapRelay,
+                                              action: #selector(TapRelay.fire(_:)))
+        earlyTap.cancelsTouchesInView = false
+        host.view.addGestureRecognizer(earlyTap)
         let win = UIWindow(windowScene: scene)
         win.rootViewController = host
         win.windowLevel = .alert + 1
@@ -614,6 +728,39 @@ final class TimeCustomMenuController {
         hidesLabel = true
     }
 
+    /// Retargets a mid-close collapse back into a bloom — a tap on the collapsing
+    /// button during dismissal reopens the menu from wherever the shrink is, like
+    /// native. The overlay drives this (new touches land on its window, not the
+    /// label's), and re-fires `onOpen` so caller state re-enters the open state.
+    func reopen() {
+        guard window != nil, phase == .dismissing else { return }
+        generation += 1          // cancels the scheduled label-restore + teardown
+        // Conditional writes: Observation fires on every set (no equality check),
+        // and a spurious invalidation rebuilding the overlay mid-retarget can
+        // stall the glass view's compositing.
+        if !hidesLabel { hidesLabel = true }  // re-swallow (label may be mid-restore)
+        if lensDissolve { lensDissolve = false }
+        onOpen?()
+        phase = .shown
+    }
+
+    /// One routing point for overlay taps — both the SwiftUI backdrop and the
+    /// UIKit early-tap recognizer (which fires exactly when SwiftUI has not
+    /// claimed the touch, e.g. the 2nd tap of a fast double-tap landing before
+    /// the overlay content is hit-testable). Outside taps close, like native;
+    /// while dismissing, only a tap on the collapsing button reopens.
+    func overlayTapped(at location: CGPoint) {
+        if phase == .dismissing {
+            let target = morphAnchor ?? (collapseAnchor == .zero ? anchor : collapseAnchor)
+            if target.insetBy(dx: -TimeCustomMenuSpec.tapSlop,
+                              dy: -TimeCustomMenuSpec.tapSlop).contains(location) {
+                reopen()
+            }
+        } else {
+            dismiss()
+        }
+    }
+
     func dismiss(animated: Bool = true) {
         guard window != nil, phase != .dismissing else { return }
         // Fire the moment dismissal is requested — before the close morph runs —
@@ -630,6 +777,10 @@ final class TimeCustomMenuController {
                 guard generation == gen else { return }
                 hidesLabel = false
                 lensDissolve = true
+                // The morph has landed; only the cosmetic halo melt remains. Let
+                // touches through to the restored label so a rapid re-tap opens a
+                // fresh menu instead of dying against an invisible window.
+                window?.isUserInteractionEnabled = false
                 try? await Task.sleep(for: .seconds(TimeCustomMenuSpec.lensFadeDuration))
                 if generation == gen { tearDown() }
             }
@@ -645,6 +796,7 @@ final class TimeCustomMenuController {
         generation += 1
         window?.isHidden = true
         window = nil
+        onOpen = nil
         onClose = nil
         content = nil
         labelView = nil
@@ -735,9 +887,14 @@ private struct TimeCustomMenuOverlayRoot: View {
                                   alignment: controller.alignment, placementOffset: controller.placementOffset)
             ZStack(alignment: .topLeading) {
                 // Swallows every outside touch, exactly like the native menu.
+                // Mid-close, a tap landing on the collapsing button reopens the
+                // menu from wherever the shrink is (native interruptibility);
+                // any other tap is inert while dismissing.
                 Color.clear
                     .contentShape(Rectangle())
-                    .onTapGesture { controller.dismiss() }
+                    .onTapGesture(coordinateSpace: .global) { location in
+                        controller.overlayTapped(at: location)
+                    }
 
                 if let content = controller.content {
                     if #available(iOS 26.0, *) {
@@ -746,15 +903,38 @@ private struct TimeCustomMenuOverlayRoot: View {
                         legacyPresentation(content: content(), metrics: metrics)
                     }
                 }
+
+                // While DISMISSING, this always-mounted catcher sits above the
+                // collapsing platter and owns every tap (the glass effect's own
+                // UIPlatformGlassInteractionView would otherwise swallow them
+                // before the backdrop sees them): a tap on the collapsing button
+                // reopens, anywhere else is inert. Hit-through whenever not
+                // dismissing, and never a structural change mid-animation — a
+                // mounted/unmounted swap or a trait flip on the GLASS subtree
+                // mid-flight stalls its rendering.
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture(coordinateSpace: .global) { location in
+                        controller.overlayTapped(at: location)
+                    }
+                    .allowsHitTesting(controller.phase == .dismissing)
             }
             .onChange(of: geo.size) { _, _ in
                 controller.dismiss(animated: false)
             }
             .onChange(of: controller.phase) { _, newPhase in
-                guard newPhase == .dismissing else { return }
                 if #available(iOS 26.0, *) {
-                    withAnimation(TimeCustomMenuSpec.bloomClose) {
-                        morphProgress = 0
+                    if newPhase == .dismissing {
+                        withAnimation(TimeCustomMenuSpec.bloomClose) {
+                            morphProgress = 0
+                        }
+                    } else if newPhase == .shown, bloomStarted {
+                        // Reopen mid-close: retarget the collapse back into a
+                        // bloom from wherever the morph currently is.
+                        lensOpacity = 1
+                        withAnimation(TimeCustomMenuSpec.bloomOpen) {
+                            morphProgress = 1
+                        }
                     }
                 }
             }
@@ -911,9 +1091,12 @@ private struct TimeCustomMenuOverlayRoot: View {
             // caller's dismiss action (e.g. the Done button) should. Without a
             // hittable shape here, taps on non-interactive areas (the title, the
             // padding, the gaps around the day grid / wheel) fall through to the
-            // full-screen backdrop and close the menu. This empty gesture simply
-            // absorbs those taps; child buttons and the Done button still win on
-            // their own frames, and the wheel still scrolls (it's a drag).
+            // full-screen backdrop and close the menu. This gesture simply absorbs
+            // those taps; child buttons and the Done button still win on their own
+            // frames, and the wheel still scrolls (it's a drag). One exception:
+            // while DISMISSING, the collapsing platter still covers the button, so
+            // a tap here is the "reopen mid-close" tap — route it like a backdrop
+            // tap instead of swallowing it.
             .contentShape(Rectangle())
             .onTapGesture { }
 
@@ -932,18 +1115,17 @@ private struct TimeCustomMenuOverlayRoot: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
-    /// The lens morph, keyframed from device recordings of the native menu.
-    /// The glass lens travels through a CIRCLE phase rather than interpolating
-    /// rect-to-rect:
-    ///   p 0.00→0.35  the button squeezes into a small droplet circle at its
-    ///                own centre, its label refracting inside;
-    ///   p 0.35→0.70  the circle inflates while travelling most of the way
-    ///                toward the menu's centre;
-    ///   p 0.70→1.00  the circle relaxes into the rounded-rect platter while
-    ///                the menu content materializes.
-    /// Dismissal runs the same path in reverse (menu → circles → button).
-    /// Animatable progress drives layout, so SwiftUI interpolates every spring
-    /// frame through this modifier.
+    /// The lens morph, frame-matched against the native menu in the iOS 26
+    /// simulator: ONE rounded rect inflating straight from the button's rect to
+    /// the platter's rect (top-leading edges flush with the button — the
+    /// simulator's native menu has no droplet/circle phase). While it grows,
+    /// the swallowed label blurs/fades out in place over the first
+    /// `labelFadeProgress` of the morph, and the menu content rides the platter
+    /// scaled, materializing blur→sharp across the content ramp. Dismissal runs
+    /// the same path in reverse with the glass melting off over the final
+    /// expand, so the label alone lands on the button. Animatable progress
+    /// drives layout, so SwiftUI interpolates every spring frame — overshoot
+    /// extrapolates past the platter rect exactly like the native spring.
     @available(iOS 26.0, *)
     private struct MenuLensMorph: ViewModifier, Animatable {
         var progress: CGFloat
@@ -965,58 +1147,19 @@ private struct TimeCustomMenuOverlayRoot: View {
             a + (b - a) * t
         }
 
-        /// Piecewise lens geometry across the keyframes above.
-        private func lensFrame(_ p: CGFloat) -> (rect: CGRect, radius: CGFloat) {
-            let small = collapsed.height * TimeCustomMenuSpec.dropletScale
-            let big = max(small * 1.5,
-                          min(min(expanded.width, expanded.height) * TimeCustomMenuSpec.lensCircleScale,
-                              max(expanded.width, expanded.height) * 0.75))
-            let start = CGPoint(x: collapsed.midX, y: collapsed.midY)
-            let end = CGPoint(x: expanded.midX, y: expanded.midY)
-            // The big circle has already travelled most of the way to the menu.
-            let mid = CGPoint(x: lerp(start.x, end.x, TimeCustomMenuSpec.lensTravelBias),
-                              y: lerp(start.y, end.y, TimeCustomMenuSpec.lensTravelBias))
-
-            let w: CGFloat, h: CGFloat, cx: CGFloat, cy: CGFloat, radius: CGFloat
-            if p < 0.35 {
-                // Button → droplet circle, holding the button's centre. Radius
-                // starts at the label's own corner radius so the closing lens
-                // lands exactly on the button's shape, never a different one.
-                let t = max(0, p / 0.35)
-                w = lerp(collapsed.width, small, t)
-                h = lerp(collapsed.height, small, t)
-                cx = start.x
-                cy = start.y
-                radius = min(min(w, h) / 2, lerp(collapsedRadius, small / 2, t))
-            } else if p < 0.7 {
-                // Droplet inflates and travels toward the menu.
-                let t = (p - 0.35) / 0.35
-                w = lerp(small, big, t)
-                h = w
-                cx = lerp(start.x, mid.x, t)
-                cy = lerp(start.y, mid.y, t)
-                radius = w / 2
-            } else {
-                // Circle relaxes into the platter (spring overshoot extrapolates).
-                let t = (p - 0.7) / 0.3
-                w = lerp(big, expanded.width, t)
-                h = lerp(big, expanded.height, t)
-                cx = lerp(mid.x, end.x, t)
-                cy = lerp(mid.y, end.y, t)
-                radius = min(min(w, h) / 2,
-                             lerp(big / 2, TimeCustomMenuSpec.platterCornerRadius, t))
-            }
-            return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
-        }
-
         func body(content: Content) -> some View {
             let p = progress
-            let lens = lensFrame(p)
-            let w = lens.rect.width
-            let h = lens.rect.height
-            // The swallowed label shrinks with the droplet so it stays inside.
-            let labelScale = min(2, min(w / max(collapsed.width, 1),
-                                        h / max(collapsed.height, 1)))
+            let w = max(1, lerp(collapsed.width, expanded.width, p))
+            let h = max(1, lerp(collapsed.height, expanded.height, p))
+            let x = lerp(collapsed.minX, expanded.minX, p)
+            let y = lerp(collapsed.minY, expanded.minY, p)
+            // Radius runs label shape → platter shape, capped so tiny lenses
+            // stay capsule-legal.
+            let radius = min(min(w, h) / 2,
+                             lerp(collapsedRadius, TimeCustomMenuSpec.platterCornerRadius, p))
+            let contentOpacity = Double(((p - TimeCustomMenuSpec.contentFadeStart)
+                / (TimeCustomMenuSpec.contentFadeEnd - TimeCustomMenuSpec.contentFadeStart))
+                .clamped(to: 0...1))
             // On close only, melt the glass off across the final expand (p → 0) so
             // the label — layered on top — is what finishes landing on the button,
             // with no glass left to fade out in a separate beat afterwards.
@@ -1033,27 +1176,35 @@ private struct TimeCustomMenuOverlayRoot: View {
                                  y: h / max(expanded.height, 1),
                                  anchor: .topLeading)
                     .blur(radius: (1 - p).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
-                    .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
+                    .opacity(contentOpacity)
                     .frame(width: w, height: h, alignment: .topLeading)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: radius))
                     .opacity(glassOpacity)
 
-                // The swallowed label, layered ON TOP of the glass so on close it
-                // outlives the glass fade and is what lands on the button.
-                // fixedSize keeps its intrinsic layout (no reflow/truncation);
-                // it shrinks purely visually with the droplet.
+                // The swallowed label, pinned to the button's screen spot inside
+                // the growing lens and layered ON TOP of the glass so on close it
+                // outlives the glass fade and is what lands on the button. Native
+                // labels blur/fade out in place — they never move or scale.
                 if let label {
+                    let labelFade = isClosing ? TimeCustomMenuSpec.labelFadeProgressClosing
+                                              : TimeCustomMenuSpec.labelFadeProgress
                     label
                         .fixedSize()
-                        .scaleEffect(labelScale)
+                        .position(x: collapsed.midX - x, y: collapsed.midY - y)
                         .frame(width: w, height: h)
-                        .blur(radius: p.clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
-                        .opacity(Double((1 - p * 2.2).clamped(to: 0...1)))
+                        .blur(radius: (p / labelFade).clamped(to: 0...1)
+                                      * TimeCustomMenuSpec.lensBlur * 0.45)
+                        .opacity(Double((1 - p / labelFade).clamped(to: 0...1)))
+                        // Visual chrome only. SwiftUI hit-tests at MODEL values —
+                        // mid-close the model sits at p=0 where this copy is fully
+                        // opaque over the button, and it would eat the reopen tap
+                        // before the backdrop (routing) ever sees it.
+                        .allowsHitTesting(false)
                 }
             }
             .frame(width: w, height: h, alignment: .topLeading)
-            .padding(.leading, max(0, lens.rect.minX))
-            .padding(.top, max(0, lens.rect.minY))
+            .padding(.leading, max(0, x))
+            .padding(.top, max(0, y))
         }
     }
 
