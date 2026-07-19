@@ -76,11 +76,7 @@ struct AppContainer: View {
                 .accessibilityLabel("Invites")
 
                 Tab("", image: icon(.events), value: AppTab.events) {
-                    EventsContainer(
-                        vm: eventsVM,
-                        showMessageScreen: $router.showMessageScreen,
-                        path: $router.eventsPath
-                    )
+                    EventsContainer(vm: eventsVM, showMessageScreen: $router.showMessageScreen, path: $router.eventsPath)
                 }
                 .accessibilityLabel("Events")
 

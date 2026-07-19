@@ -12,17 +12,28 @@ enum AppState {
 
 struct RootView : View {
 
+    //Injected
     @Environment(AppDependencies.self) private var dep
+
+    //Local view state
+    @State private var showSignUpSheet = false
 
     var body: some View {
         Group {
             switch dep.session.appState {
             case .booting: BootingScreen()
-            case .login: SignUpView()
+            case .login: SignUpView(showSignUpSheet: $showSignUpSheet)
             case .createAccount: OnboardingHomeView()
             case .app: AppContainer(dependencies: dep)
             case .frozen: FrozenContainer()
             }
+        }
+        .sheet(isPresented: $showSignUpSheet) {
+            EnterEmailView(vm: VerifyEmailViewModel(session: dep.session, defaultsManager: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo))
+                .presentationBackground(Color.appCanvas)
+        }
+        .onChange(of: dep.session.appState) { _, newState in
+            if newState != .login { showSignUpSheet = false }
         }
     }
 }

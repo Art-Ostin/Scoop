@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-import FirebaseAuth
+import Combine
 
-@Observable class VerifyEmailUILogic {
+@Observable class VerifyEmailUIState {
     
     // Logic for the "Click Resend" and Confirm button
     let countdownDuration = 20
@@ -61,7 +61,7 @@ import FirebaseAuth
                 .offset(y: count == 2 ? 20 : 0)
         }
         .frame(width: 35, height: 35)
-        .onReceive(animationTimer) { [self]_ in withAnimation {count = count < 7 ? count + 1 : 0}}
+        .onReceive(animationTimer) { [self]_ in withAnimation(.quick) {count = count < 7 ? count + 1 : 0}}
     }
 }
 
@@ -72,38 +72,48 @@ struct VerifyEmailView: View {
     @Bindable var vm: VerifyEmailViewModel
 
     //Local view state
-    @State private var uiLogic = VerifyEmailUILogic()
+    @State private var ui = VerifyEmailUIState()
     @State private var code = ""
-    
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
             SignUpTitle(text: "Check Your email")
-            
+
             HStack(spacing: Spacing.xxl) {
                 Text("\(vm.email)")
                     .foregroundStyle(Color.textSecondary)
-                uiLogic.resendEmail()
+                ui.resendEmail()
             }
             .font(.body())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, Spacing.titleGap)
-            
-            EnterOTP(code: $code)
+
+            // Verifying holds until Session flips appState and RootView dismisses the sheet,
+            // so the loading state covers the profile-load window for returning users.
+            if vm.isVerifying {
+                ui.loadingAnimation()
+                    .frame(maxWidth: .infinity)
+            } else {
+                EnterOTP(code: $code)
+                if vm.showError {
+                    Text("Something went wrong — try again")
+                        .font(.body(12, .medium))
+                        .foregroundStyle(Color.dangerRed)
+                }
+            }
         }
         .padding(.top, Spacing.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .top)
         .padding(.horizontal)
         .background(Color.appCanvas)
-        .flowNavigation()
+        .animation(.transition, value: vm.isVerifying)
+        .animation(.transition, value: vm.showError)
+        .flowNavigation(dismissDisabled: vm.isVerifying)
         .onChange(of: code) {
-            if code.count == 6 {
-                Task {
-                    do {
-                        try await vm.signInUser(email: vm.email, password: vm.password)
-                    } catch {
-                        guard let _ = try? await vm.createAuthUser(email: vm.email, password: vm.password) else {return}
-                    }
-                }
+            guard code.count == 6, !vm.isVerifying else { return }
+            Task {
+                let verified = await vm.verifyCode()
+                if !verified { code = "" }
             }
         }
     }

@@ -9,32 +9,28 @@ import SwiftUI
 
 
 struct SignUpView: View {
-    
+
     //Injected
-    @Environment(AppDependencies.self) private var dep
+    @Binding var showSignUpSheet: Bool
 
     //Local view state
-    @State private var showCover: Bool = false
     @State private var tabSelection: Int? = 0
 
     var body: some View {
         VStack(spacing: Spacing.xxl){
-            
+
             titleSection
-            
+
             VStack(spacing: Spacing.lg) {
                 tabSection
             }
             VStack(spacing: Spacing.xs) {
-                ActionButton(text: "Login / Sign Up", hPadding: 24) { showCover = true}
+                ActionButton(text: "Login / Sign Up", hPadding: 24) { showSignUpSheet = true }
                 termsText
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
         .background(Color.appCanvas)
-        .fullScreenCover(isPresented: $showCover) {
-            EnterEmailView(vm: VerifyEmailViewModel(session: dep.session, defaultsManager: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo))
-        }
     }
 }
 

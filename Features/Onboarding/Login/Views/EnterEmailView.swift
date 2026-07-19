@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EnterEmailView: View {
     //Injected
-    @Environment(\.dismiss) private var dismiss
     @State var vm: VerifyEmailViewModel
 
     //Local view state
@@ -33,8 +32,11 @@ struct EnterEmailView: View {
             .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar { DismissToolbarItem(type: .back)}
+            .toolbar { DismissToolbarItem(type: .cross)}
         }
+        // On the stack root, not the pushed screen — a pushed destination's presentation
+        // preference doesn't reliably reach the enclosing sheet.
+        .interactiveDismissDisabled(vm.isVerifying)
     }
 }
 

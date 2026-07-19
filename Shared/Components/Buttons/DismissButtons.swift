@@ -23,6 +23,7 @@ struct DismissToolbarItem: ToolbarContent {
     
     let type: DismissType
     var isLeading: Bool = true
+    var isDisabled: Bool = false
 
     var body: some ToolbarContent {
         ToolbarItem(placement: isLeading ? .topBarLeading : .topBarTrailing) {
@@ -30,6 +31,7 @@ struct DismissToolbarItem: ToolbarContent {
                 Image(systemName: type.symbolName)
                     .dismissGlyphStyle()
             }
+            .disabled(isDisabled)
         }
     }
 }

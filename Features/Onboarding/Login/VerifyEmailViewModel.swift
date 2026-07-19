@@ -23,6 +23,8 @@ import FirebaseAuth
     var username: String = ""
     var email: String { "\(username)@mail.mcgill.ca" }
     var password: String = "HelloWorld"
+    var isVerifying = false
+    var showError = false
 
     init (session: Session, defaultsManager: DefaultsManaging, authService: AuthServicing, userRepo: UserRepository) {
         self.session = session
@@ -46,5 +48,34 @@ import FirebaseAuth
 
     func signInUser(email: String, password: String) async throws {
         try await authService.signInAuthUser(email: email, password: password)
+    }
+
+    ///Signs in (or creates) the account for a completed code, then keeps `isVerifying` true so the
+    ///sheet holds its loading state until Session flips appState and RootView dismisses it.
+    ///Returns false when the attempt failed and the code entry should reset.
+    func verifyCode() async -> Bool {
+        guard !isVerifying else { return true }
+        isVerifying = true
+        showError = false
+        do {
+            try await signInUser(email: email, password: password)
+        } catch {
+            do {
+                try await createAuthUser(email: email, password: password)
+            } catch {
+                isVerifying = false
+                showError = true
+                return false
+            }
+        }
+        //Failsafe: auth succeeded but the session never left .login (e.g. the profile load died) —
+        //release the hold instead of spinning forever.
+        try? await Task.sleep(for: .seconds(15))
+        if session.appState == .login {
+            isVerifying = false
+            showError = true
+            return false
+        }
+        return true
     }
 }
