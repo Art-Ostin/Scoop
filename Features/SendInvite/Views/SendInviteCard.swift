@@ -15,7 +15,7 @@ struct SendInviteCard: View {
     static let screenGap: CGFloat = 10
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let cardRadius = CornerRadius.xl //Expanded card surface radius
-    static let invitedCardTopPadding: CGFloat = 48
+    static let invitedCardTopPadding: CGFloat = 42
     static let confirmCardTopPadding: CGFloat = 48
 
     //Interactive dismiss tuning (see dismissDrag)

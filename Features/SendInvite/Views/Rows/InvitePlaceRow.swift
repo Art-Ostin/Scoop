@@ -19,14 +19,25 @@ struct InvitePlaceRow: View {
             : InviteRowMetrics.locationContentHeight
     }
 
+    private var topPadding: CGFloat {
+        eventLocation == nil
+            ? InviteRowMetrics.verticalPadding
+            : InviteRowMetrics.populatedPlaceTopPadding
+    }
+
     private var rowHeight: CGFloat {
-        InviteRowMetrics.rowHeight(contentHeight: contentHeight)
+        contentHeight + topPadding + InviteRowMetrics.verticalPadding
+    }
+
+    private var contentOffset: CGFloat {
+        (topPadding - InviteRowMetrics.verticalPadding) / 2
     }
 
     var body: some View {
         HStack {
             RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))
                 .frame(height: InviteRowMetrics.primaryLineHeight)
+                .offset(y: contentOffset)
             chooseButton
         }
         .frame(height: rowHeight)
@@ -41,7 +52,7 @@ extension InvitePlaceRow {
         Button {
             withAnimation(.present) { ui.showMapView.toggle() }
         } label: {
-            HStack(spacing: Spacing.sm) {
+            HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
                 Group {
                     if let eventLocation {
                         locationNameAndAddress(eventLocation)
@@ -53,6 +64,7 @@ extension InvitePlaceRow {
 
                 DropDownButton(isOpen: ui.showMapView)
             }
+            .offset(y: contentOffset)
             .frame(height: rowHeight)
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }

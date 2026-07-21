@@ -207,7 +207,7 @@ extension InviteImageCarousel {
     
     private var circle: some View {
         Circle()
-            .fill(.white.opacity(0.95))
+            .fill(.white.opacity(0.8))
             .frame(width: 4.5, height: 4.5)
     }
 }

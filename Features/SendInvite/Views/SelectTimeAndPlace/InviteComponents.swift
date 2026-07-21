@@ -23,31 +23,41 @@ struct RowCaption: View {
 }
 
 enum InviteRowMetrics {
-    //Every row is its visible content plus the same 22pt inset above and below.
-    //That makes adjacent content blocks exactly 44pt apart while preserving the
-    //original 64pt cadence for a single 20pt line.
+    //Rows use a 22pt inset by default. Indicator rows tighten their bottom inset
+    //by 4pt, while a populated Place row tightens its top inset by 2pt.
     static let verticalPadding: CGFloat = 22
+    static let indicatorBottomPadding: CGFloat = 18
+    static let populatedPlaceTopPadding: CGFloat = 20
+    static let indicatorCaptionOffset: CGFloat = 2
+    static let valueChevronSpacing: CGFloat = 9
     static let primaryLineHeight: CGFloat = 20
     static let secondaryLineHeight: CGFloat = 16
 
     static let indicatorGap: CGFloat = 5
     static let indicatorHeight: CGFloat = 3
-    static let locationLineSpacing: CGFloat = 4
+    static let locationLineSpacing: CGFloat = 0
 
     static let singleLineContentHeight = primaryLineHeight
     static let indicatorContentHeight = primaryLineHeight + indicatorGap + indicatorHeight
     static let locationContentHeight = primaryLineHeight + locationLineSpacing + secondaryLineHeight
 
-    static func rowHeight(contentHeight: CGFloat) -> CGFloat {
-        contentHeight + 2 * verticalPadding
-    }
-
     static func contentHeight(showsIndicator: Bool) -> CGFloat {
         showsIndicator ? indicatorContentHeight : singleLineContentHeight
     }
 
+    static func bottomPadding(showsIndicator: Bool) -> CGFloat {
+        showsIndicator ? indicatorBottomPadding : verticalPadding
+    }
+
     static func rowHeight(showsIndicator: Bool) -> CGFloat {
-        rowHeight(contentHeight: contentHeight(showsIndicator: showsIndicator))
+        contentHeight(showsIndicator: showsIndicator)
+            + verticalPadding
+            + bottomPadding(showsIndicator: showsIndicator)
+    }
+
+    static func primaryContentOffset(showsIndicator: Bool) -> CGFloat {
+        verticalPadding + singleLineContentHeight / 2
+            - rowHeight(showsIndicator: showsIndicator) / 2
     }
 
     static let messageLineSpacing = max(

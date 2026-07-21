@@ -27,8 +27,7 @@ struct InviteTimeRow: View {
     private var showsPageIndicator: Bool { times.count > 1 }
     private var rowHeight: CGFloat { InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator) }
     private var primaryContentOffset: CGFloat {
-        -(InviteRowMetrics.contentHeight(showsIndicator: showsPageIndicator)
-          - InviteRowMetrics.singleLineContentHeight) / 2
+        InviteRowMetrics.primaryContentOffset(showsIndicator: showsPageIndicator)
     }
 
     //Dimmed/hidden while the type menu is open (delayed to sync with its platter bloom).
@@ -38,6 +37,7 @@ struct InviteTimeRow: View {
         HStack {
             rowTitle
                 .frame(height: InviteRowMetrics.primaryLineHeight)
+                .offset(y: showsPageIndicator ? InviteRowMetrics.indicatorCaptionOffset : 0)
                 .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
@@ -46,7 +46,7 @@ struct InviteTimeRow: View {
         .overlay(alignment: .bottomTrailing) {
             pageIndicator
                 .padding(.trailing, 16)
-                .padding(.bottom, InviteRowMetrics.verticalPadding)
+                .padding(.bottom, InviteRowMetrics.bottomPadding(showsIndicator: showsPageIndicator))
                 .opacity(typePopupOpen ? 0 : 1)
         }
         .background { pickerWarmUp }
@@ -198,7 +198,7 @@ private struct TimeRowMenuLabel: View {
     }
 
     private var liveLabel: some View {
-        HStack(spacing: Spacing.sm) {
+        HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
             if times.isEmpty {
                 chooseTimeText
                     .getRect($chooseTimeFrame)
@@ -237,7 +237,6 @@ private struct TimeRowMenuLabel: View {
         }
         .frame(height: rowHeight)
         .contentShape(Rectangle())
-        .scrollClipDisabled()
         .modifier(PagedScrollStyle(
             scrolledPageID: $scrolledPageID,
             pageWidth: $pageWidth,
@@ -252,7 +251,7 @@ private struct TimeRowMenuLabel: View {
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {
-        Text(FormatEvent.shortDayAndTime(time, withComma: true))
+        Text(FormatEvent.shortDayAndTime(time))
             .font(.body(17, .medium))
             .minimumScaleFactor(0.9)
             .lineLimit(1)

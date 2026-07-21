@@ -46,9 +46,7 @@ struct ConfirmInviteScreen: View {
                 .padding(.horizontal, Spacing.margin)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .topTrailing) {
-           typeButton
-        }
+        .overlay(alignment: .topTrailing) {typeButton}
         .padding(.top, 20)
         .sheet(isPresented: $showInfoSheet) {
             Text(event.type.longTitle)

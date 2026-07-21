@@ -41,10 +41,11 @@ struct InviteTypeRow: View {
     }
 
     private var showsPageIndicator: Bool { !message.isEmpty }
-    private var rowHeight: CGFloat { InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator) }
+    private var rowHeight: CGFloat {
+        InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator)
+    }
     private var primaryContentOffset: CGFloat {
-        -(InviteRowMetrics.contentHeight(showsIndicator: showsPageIndicator)
-          - InviteRowMetrics.singleLineContentHeight) / 2
+        InviteRowMetrics.primaryContentOffset(showsIndicator: showsPageIndicator)
     }
 
     @State var showTypeInfoScreen = false
@@ -54,7 +55,7 @@ struct InviteTypeRow: View {
         HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
             rowTitle
                 .frame(height: InviteRowMetrics.primaryLineHeight)
-                .offset(y: primaryContentOffset)
+                .offset(y: showsPageIndicator ? InviteRowMetrics.indicatorCaptionOffset : 0)
             Spacer(minLength: 0)
             typeMenu
         }
@@ -62,7 +63,7 @@ struct InviteTypeRow: View {
         .overlay(alignment: .bottomTrailing) {
             pageIndicator
                 .padding(.trailing, 16)
-                .padding(.bottom, InviteRowMetrics.verticalPadding)
+                .padding(.bottom, InviteRowMetrics.bottomPadding(showsIndicator: showsPageIndicator))
         }
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
@@ -256,13 +257,12 @@ private struct TypeRowMenuLabel: View {
                         .offset(y: primaryContentOffset)
                         .id(1)
                 }
-                .offset(x: -Spacing.sm) //Align with the rest of the content
+                .offset(x: -InviteRowMetrics.valueChevronSpacing) //Align with the rest of the content
                 .frame(height: rowHeight)
                 .scrollTargetLayout()
             }
             .frame(height: rowHeight)
             .contentShape(Rectangle())
-            .scrollClipDisabled()
             .modifier(PagedScrollStyle(
                 scrolledPageID: $scrolledPageID,
                 pageWidth: $pageWidth,
@@ -282,7 +282,7 @@ private struct TypeRowMenuLabel: View {
     }
 
     private var collapsedLabel: some View {
-        HStack(spacing: Spacing.sm) {
+        HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
             typeText
             chevron
         }
