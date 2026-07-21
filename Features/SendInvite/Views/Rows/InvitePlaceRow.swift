@@ -13,11 +13,23 @@ struct InvitePlaceRow: View {
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var eventLocation: EventLocation?
 
+    private var contentHeight: CGFloat {
+        eventLocation == nil
+            ? InviteRowMetrics.singleLineContentHeight
+            : InviteRowMetrics.locationContentHeight
+    }
+
+    private var rowHeight: CGFloat {
+        InviteRowMetrics.rowHeight(contentHeight: contentHeight)
+    }
+
     var body: some View {
         HStack {
             RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))
+                .frame(height: InviteRowMetrics.primaryLineHeight)
             chooseButton
         }
+        .frame(height: rowHeight)
         .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
     }
 }
@@ -41,7 +53,7 @@ extension InvitePlaceRow {
 
                 DropDownButton(isOpen: ui.showMapView)
             }
-            .frame(height: InviteRowMetrics.rowHeight)
+            .frame(height: rowHeight)
             .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
         .shrinkButton()
@@ -51,20 +63,24 @@ extension InvitePlaceRow {
         Text("Choose Place")
             .font(.body(16, .regular))
             .foregroundStyle(Color.textSecondary)
+            .frame(height: InviteRowMetrics.primaryLineHeight)
     }
     
     
     private func locationNameAndAddress(_ location: EventLocation) -> some View {
-        VStack(alignment: .trailing, spacing: Spacing.xxs) {
+        VStack(alignment: .trailing, spacing: InviteRowMetrics.locationLineSpacing) {
             Text(location.name ?? "")
                 .font(.body(17, .medium))
                 .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.trailing)
+                .lineLimit(1)
+                .frame(height: InviteRowMetrics.primaryLineHeight)
             
             Text(FormatEvent.addressBeforeFirstComma(location.address))
                 .font(.body(12, .regular))
                 .foregroundStyle(Color.textPlaceholder)
                 .lineLimit(1)
+                .frame(height: InviteRowMetrics.secondaryLineHeight)
         }
     }
 }

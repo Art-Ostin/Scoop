@@ -23,14 +23,14 @@ struct AddMessageView: View {
 
     //Local view state
     @State private var showSaved: Bool = false
-    @State private var hasEditedThisSession: Bool = false
-    @State private var keyPressToken = 0
+    @State private var savedIconTask: Task<Void, Never>?
     @State private var showTypePopup: Bool = false
     @State private var openTypes: Set<Event.EventType> = []
     @State private var messageFieldFocused = true
     @State private var isDismissing = false
     @State private var textFieldBottom: CGFloat = 0
     @State private var doneButtonTop: CGFloat = 0
+    @State private var isSheetOpening = true
 
 
     var body: some View {
@@ -51,7 +51,6 @@ struct AddMessageView: View {
         .padding(.top, 60)
         .padding(.horizontal, Spacing.margin)
         .frame(maxHeight: .infinity, alignment: .top)
-        .overlay(alignment: .topTrailing) {savedOverlayIcon}
         .safeAreaInset(edge: .bottom) {doneButton}
         .coordinateSpace(name: AddMessageCoordinateSpace.sheet)
         .background(alignment: .topLeading) {
@@ -59,27 +58,28 @@ struct AddMessageView: View {
                 textFieldBottom: textFieldBottom,
                 buttonTop: doneButtonTop,
                 isFocused: $messageFieldFocused,
-                isDismissing: $isDismissing
+                isDismissing: $isDismissing,
+                isSheetOpening: $isSheetOpening
             )
             .frame(width: 1, height: 1)
         }
         
         
-        //All Logic dealing with SavedIcon
-        .task(id: message) { await showSavedButton() }
         .onAppear {
-            hasEditedThisSession = false
+            savedIconTask?.cancel()
             showSaved = false
             messageFieldFocused = true
             isDismissing = false
+            isSheetOpening = true
         }
         .onChange(of: message) {
-            hasEditedThisSession = true
-            keyPressToken &+= 1
+            flashSavedIcon()
         }
         .onDisappear {
+            savedIconTask?.cancel()
             isDismissing = true
             messageFieldFocused = false
+            isSheetOpening = false
             resignKeyboard()
         }
     }
@@ -90,10 +90,11 @@ extension AddMessageView {
         Text("Add a Note")
             .font(.title(28))
             .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(alignment: .trailing) { savedOverlayIcon }
     }
     
     private var typeDropdown: some View {
-        TimeCustomMenu(placementOffsetY: -60, isOpen: $showTypePopup) {
+        TimeCustomMenu(placementOffsetY: -36, isOpen: $showTypePopup) {
             SelectTypeView(
                 openTypes: $openTypes,
                 selectedType: $eventType, 
@@ -111,18 +112,18 @@ extension AddMessageView {
     
     private var savedOverlayIcon: some View {
         SavedIcon(topPadding: 0, horizontalPadding: 0, isSettings: false)
-            .offset(y: -36)
-            .padding(.horizontal, Spacing.margin)
             .opacityPop(visible: showSaved)
     }
     
     private var doneButton: some View {
-        WideActionButton(text: "Done", isActive: true) {
+        KeyboardPinnedDoneButton(isPinnedToKeyboard: isSheetOpening) {
             isDismissing = true
             messageFieldFocused = false
+            isSheetOpening = false
             resignKeyboard()
             dismiss()
         }
+        .frame(height: 48)
         .onGeometryChange(for: CGFloat.self) { proxy in
             proxy.frame(in: .named(AddMessageCoordinateSpace.sheet)).minY
         } action: { doneButtonTop = $0 }
@@ -130,12 +131,16 @@ extension AddMessageView {
         .padding(.horizontal, Spacing.margin)
     }
     
-    private func showSavedButton() async {
-        guard hasEditedThisSession else { return }
-        if keyPressToken != 0 {
+    private func flashSavedIcon() {
+        savedIconTask?.cancel()
+        savedIconTask = Task { @MainActor in
             withAnimation(.toggle) { showSaved = true }
-            try? await Task.sleep(for: .seconds(1))
-            withAnimation(.toggle) { showSaved = false}
+            do {
+                try await Task.sleep(for: .seconds(1))
+            } catch {
+                return
+            }
+            withAnimation(.toggle) { showSaved = false }
         }
     }
 
@@ -150,22 +155,26 @@ extension AddMessageView {
 }
 
 
-// The button initially stays pinned above the keyboard while the flexible gap
-// above it collapses. Track both that gap and the sheet's presentation movement
-// so focus changes only once the button itself starts moving down.
+// Counter the sheet's initial presentation offset so the button follows its
+// keyboard-safe position while the sheet opens. After opening, track the gap
+// above the button so focus changes only once the button starts moving down.
 private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
 
     let textFieldBottom: CGFloat
     let buttonTop: CGFloat
     @Binding var isFocused: Bool
     @Binding var isDismissing: Bool
+    @Binding var buttonOpeningOffset: CGFloat
+    @Binding var isSheetOpening: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
             textFieldBottom: textFieldBottom,
             buttonTop: buttonTop,
             isFocused: $isFocused,
-            isDismissing: $isDismissing
+            isDismissing: $isDismissing,
+            buttonOpeningOffset: $buttonOpeningOffset,
+            isSheetOpening: $isSheetOpening
         )
     }
 
@@ -184,7 +193,9 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             textFieldBottom: textFieldBottom,
             buttonTop: buttonTop,
             isFocused: $isFocused,
-            isDismissing: $isDismissing
+            isDismissing: $isDismissing,
+            buttonOpeningOffset: $buttonOpeningOffset,
+            isSheetOpening: $isSheetOpening
         )
         context.coordinator.attach(to: view)
     }
@@ -215,12 +226,18 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
         private var buttonTop: CGFloat
         private var isFocused: Binding<Bool>
         private var isDismissing: Binding<Bool>
+        private var buttonOpeningOffset: Binding<CGFloat>
+        private var isSheetOpening: Binding<Bool>
         private weak var probe: ProbeView?
         private var observingPan: UIPanGestureRecognizer?
         private var displayLink: CADisplayLink?
         private var reference: Reference?
         private var lastAnchorY: CGFloat?
         private var stableFrames = 0
+        private var isCompensatingInitialPresentation: Bool
+        private var lastSheetOpeningValue: Bool
+        private var lastOpeningAnchorY: CGFloat?
+        private var openingStableFrames = 0
         private var restoreConfirmationFrames = 0
         private var panIsActive = false
         private var hiddenByDrag = false
@@ -230,12 +247,18 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             textFieldBottom: CGFloat,
             buttonTop: CGFloat,
             isFocused: Binding<Bool>,
-            isDismissing: Binding<Bool>
+            isDismissing: Binding<Bool>,
+            buttonOpeningOffset: Binding<CGFloat>,
+            isSheetOpening: Binding<Bool>
         ) {
             self.textFieldBottom = textFieldBottom
             self.buttonTop = buttonTop
             self.isFocused = isFocused
             self.isDismissing = isDismissing
+            self.buttonOpeningOffset = buttonOpeningOffset
+            self.isSheetOpening = isSheetOpening
+            self.isCompensatingInitialPresentation = isSheetOpening.wrappedValue
+            self.lastSheetOpeningValue = isSheetOpening.wrappedValue
             super.init()
         }
 
@@ -247,12 +270,31 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             textFieldBottom: CGFloat,
             buttonTop: CGFloat,
             isFocused: Binding<Bool>,
-            isDismissing: Binding<Bool>
+            isDismissing: Binding<Bool>,
+            buttonOpeningOffset: Binding<CGFloat>,
+            isSheetOpening: Binding<Bool>
         ) {
             self.textFieldBottom = textFieldBottom
             self.buttonTop = buttonTop
             self.isFocused = isFocused
             self.isDismissing = isDismissing
+            self.buttonOpeningOffset = buttonOpeningOffset
+            self.isSheetOpening = isSheetOpening
+
+            let sheetOpeningValue = isSheetOpening.wrappedValue
+            let shouldRearmOpening = sheetOpeningValue && !lastSheetOpeningValue
+            lastSheetOpeningValue = sheetOpeningValue
+
+            if shouldRearmOpening {
+                isCompensatingInitialPresentation = true
+                reference = nil
+                lastAnchorY = nil
+                stableFrames = 0
+                lastOpeningAnchorY = nil
+                openingStableFrames = 0
+                hiddenByDrag = false
+                restoreConfirmationFrames = 0
+            }
 
             if displayLink == nil,
                isFocused.wrappedValue,
@@ -306,7 +348,12 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             case .began:
                 panIsActive = true
                 restoreConfirmationFrames = 0
-                prepareReferenceForNewDrag()
+                let hadReference = reference != nil
+                if hadReference {
+                    prepareReferenceForNewDrag()
+                } else {
+                    cancelInitialPresentationCompensation()
+                }
                 startDisplayLink()
             case .changed:
                 panIsActive = true
@@ -323,6 +370,7 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             guard !isDismissing.wrappedValue else {
                 hiddenByDrag = false
                 restoreConfirmationFrames = 0
+                finishInitialPresentationCompensation()
                 stopDisplayLink()
                 return
             }
@@ -332,6 +380,7 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             }
 
             if reference == nil {
+                updateInitialPresentationCompensation(anchorY: anchorY)
                 captureReferenceIfStable(at: anchorY)
                 return
             }
@@ -372,6 +421,13 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
                   isFocused.wrappedValue,
                   let newReference = makeReference(anchorY: anchorY) else { return }
 
+            guard let modelAnchorY = currentModelAnchorY(),
+                  abs(anchorY - modelAnchorY) < 0.25 else {
+                stableFrames = 0
+                lastAnchorY = anchorY
+                return
+            }
+
             if let lastAnchorY, abs(anchorY - lastAnchorY) < 0.1 {
                 stableFrames += 1
             } else {
@@ -381,8 +437,67 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
             guard stableFrames >= 3 else { return }
 
             reference = newReference
+            finishInitialPresentationCompensation()
             stableFrames = 0
             stopDisplayLink()
+        }
+
+        private func updateInitialPresentationCompensation(anchorY: CGFloat) {
+            guard isCompensatingInitialPresentation else { return }
+            guard let modelAnchorY = currentModelAnchorY() else { return }
+            let presentationOffset = anchorY - modelAnchorY
+            setButtonOpeningOffset(max(presentationOffset, 0))
+
+            if abs(presentationOffset) < 0.25,
+               let lastOpeningAnchorY,
+               abs(anchorY - lastOpeningAnchorY) < 0.1 {
+                openingStableFrames += 1
+            } else {
+                openingStableFrames = 0
+            }
+            lastOpeningAnchorY = anchorY
+
+            if openingStableFrames >= 3 {
+                finishInitialPresentationCompensation()
+            }
+        }
+
+        private func finishInitialPresentationCompensation() {
+            cancelInitialPresentationCompensation()
+            setSheetOpening(false)
+        }
+
+        private func cancelInitialPresentationCompensation() {
+            isCompensatingInitialPresentation = false
+            lastOpeningAnchorY = nil
+            openingStableFrames = 0
+            setButtonOpeningOffset(0)
+        }
+
+        private func setButtonOpeningOffset(_ offset: CGFloat) {
+            let currentOffset = buttonOpeningOffset.wrappedValue
+            if offset == 0 {
+                guard currentOffset != 0 else { return }
+            } else {
+                guard abs(currentOffset - offset) >= 0.1 else { return }
+            }
+
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                buttonOpeningOffset.wrappedValue = offset
+            }
+        }
+
+        private func setSheetOpening(_ opening: Bool) {
+            guard isSheetOpening.wrappedValue != opening else { return }
+            lastSheetOpeningValue = opening
+
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                isSheetOpening.wrappedValue = opening
+            }
         }
 
         private func prepareReferenceForNewDrag() {
@@ -415,6 +530,11 @@ private struct SheetKeyboardOverlapObserver: UIViewRepresentable {
                let destination = window.layer.presentation() {
                 return source.convert(source.bounds, to: destination).minY
             }
+            return currentModelAnchorY()
+        }
+
+        private func currentModelAnchorY() -> CGFloat? {
+            guard let probe, let window = probe.window else { return nil }
             return probe.layer.convert(probe.layer.bounds, to: window.layer).minY
         }
 

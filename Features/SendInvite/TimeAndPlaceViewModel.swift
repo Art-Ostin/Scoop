@@ -55,7 +55,6 @@ class TimeAndPlaceViewModel {
     private(set) var delayedTimePopupOpen = false
     var showMapView: Bool = false
     var showInfoScreen: Bool = false
-    var messageLineCount: Int = 0
 
     ///Check a specific popup, or whether any popup is open when called with no argument.
     func isPopupOpen(_ popup: Popup? = nil) -> Bool {

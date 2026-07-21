@@ -16,7 +16,7 @@ struct CustomTextField: View {
     var isEventMessage: Bool = true
 
     private var textLimit: Int {
-        130 + (isEventMessage ? 10 : 0) //Extra 10 if is EventMessage
+        130 + (isEventMessage ? 5 : 0) //Extra 10 if is EventMessage
     }
 
     var body: some View {

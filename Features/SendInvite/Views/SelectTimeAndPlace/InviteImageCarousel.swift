@@ -104,7 +104,7 @@ extension InviteImageCarousel {
     //Two Texts (not one string) so the halo mask hugs each word separately.
     private var nameOverlay: some View {
         HStack(spacing: Spacing.hairline) {
-            Text(name)
+            Text("Invite \(name)")
                 .getRect($nameFrame, coordSpace: Self.imageSpace)
         } 
         .font(.title(24))

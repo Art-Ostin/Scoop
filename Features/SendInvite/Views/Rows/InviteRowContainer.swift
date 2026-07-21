@@ -16,9 +16,7 @@ struct InviteRowContainer: View {
     var body: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message, showMessageScreen: $showMessageScreen)
-            LightDivider().opacity(0)
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
-            LightDivider().opacity(0)
             InvitePlaceRow(ui: ui, eventLocation: $draft.place)
         }
         .zIndex(1)

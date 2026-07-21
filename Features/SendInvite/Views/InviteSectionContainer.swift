@@ -99,7 +99,7 @@ extension InviteSectionContainer {
             .onDisappear { updateSendButtonTouch(false) }
             .opacity(popupDim ? 0.4 : 1)
             .allowsHitTesting(interactive)
-            .padding(.top, confirmInviteScreen ? Spacing.md : Spacing.xxs)
+            .padding(.top, confirmInviteScreen ? Spacing.md : 0)
             .padding(.horizontal, Spacing.margin)
             .animation(.smooth(duration: 0.25), value: popupDim)
         } else {

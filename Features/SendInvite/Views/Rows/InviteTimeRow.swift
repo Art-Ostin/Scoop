@@ -24,24 +24,33 @@ struct InviteTimeRow: View {
     @State private var chevronFrame: CGRect = .zero
 
     private var times: [Date] { proposedTimes.dates.map(\.date) }
+    private var showsPageIndicator: Bool { times.count > 1 }
+    private var rowHeight: CGFloat { InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator) }
+    private var primaryContentOffset: CGFloat {
+        -(InviteRowMetrics.contentHeight(showsIndicator: showsPageIndicator)
+          - InviteRowMetrics.singleLineContentHeight) / 2
+    }
 
     //Dimmed/hidden while the type menu is open (delayed to sync with its platter bloom).
     private var typePopupOpen: Bool { ui.isPopupOpenDelayed(.type) }
 
     var body: some View {
         HStack {
-            rowTitle.opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
+            rowTitle
+                .frame(height: InviteRowMetrics.primaryLineHeight)
+                .offset(y: primaryContentOffset)
+                .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
         }
-        .overlay(alignment: .trailing) {
+        .frame(height: rowHeight)
+        .overlay(alignment: .bottomTrailing) {
             pageIndicator
-                .offset(y: 20)
-                .offset(x: -22)
+                .padding(.trailing, 16)
+                .padding(.bottom, InviteRowMetrics.verticalPadding)
                 .opacity(typePopupOpen ? 0 : 1)
         }
         .background { pickerWarmUp }
-        .offset(y: 1.5)
         .transition(.opacity.animation(.transition))
     }
 }
@@ -67,7 +76,9 @@ extension InviteTimeRow {
                 scrolledPageID: $scrolledPageID,
                 activeTimeFrame: $activeTimeFrame,
                 chooseTimeFrame: $chooseTimeFrame,
-                chevronFrame: $chevronFrame
+                chevronFrame: $chevronFrame,
+                rowHeight: rowHeight,
+                primaryContentOffset: primaryContentOffset
             )
         }
         .environment(\.isLiveInviteRow, true)
@@ -139,10 +150,7 @@ extension InviteTimeRow {
     @ViewBuilder
     private var pageIndicator: some View {
         if times.count > 1 {
-            PageIndicator(count: times.count, progress: scrollProgress, dotSize: 5, activeWidth: 8)
-                .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, Spacing.xs)
-                .offset(x: 6)
+            InvitePageIndicator(count: times.count, progress: scrollProgress)
         }
     }
 
@@ -170,6 +178,8 @@ private struct TimeRowMenuLabel: View {
     @Binding var activeTimeFrame: CGRect
     @Binding var chooseTimeFrame: CGRect
     @Binding var chevronFrame: CGRect
+    let rowHeight: CGFloat
+    let primaryContentOffset: CGFloat
 
     @Environment(\.isLiveInviteRow) private var isLive
 
@@ -193,12 +203,13 @@ private struct TimeRowMenuLabel: View {
             if times.isEmpty {
                 chooseTimeText
                     .getRect($chooseTimeFrame)
-                    .frame(height: InviteRowMetrics.rowHeight)
+                    .frame(height: rowHeight)
+                    .offset(y: primaryContentOffset)
             } else {
                 pager
             }
             chevron
-                .offset(y: -0.5)
+                .offset(y: primaryContentOffset)
         }
     }
 
@@ -222,9 +233,12 @@ private struct TimeRowMenuLabel: View {
                     page(time, isActive: index == activeIndex)
                 }
             }
-            .frame(height: InviteRowMetrics.rowHeight)
+            .frame(height: rowHeight)
             .scrollTargetLayout()
         }
+        .frame(height: rowHeight)
+        .contentShape(Rectangle())
+        .scrollClipDisabled()
         .modifier(PagedScrollStyle(
             scrolledPageID: $scrolledPageID,
             pageWidth: $pageWidth,
@@ -245,7 +259,9 @@ private struct TimeRowMenuLabel: View {
             .lineLimit(1)
             .truncationMode(.middle)
             .background { if isActive { Color.clear.getRect($activeTimeFrame) } }
+            .frame(height: InviteRowMetrics.primaryLineHeight)
             .frame(width: pageWidth, alignment: .trailing)
+            .offset(y: primaryContentOffset)
     }
 
     private var chevron: some View {
@@ -268,6 +284,7 @@ private struct TimeRowMenuLabel: View {
             .kerning(0.32)
             .font(.body(16, .regular))
             .foregroundStyle(Color.textSecondary)
+            .frame(height: InviteRowMetrics.primaryLineHeight)
             .transition(.opacity.animation(.transition))
     }
 }

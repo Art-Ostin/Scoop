@@ -182,6 +182,7 @@ struct PageIndicator: View {
     var inactiveDotSize: CGFloat = 6
     var activeWidth: CGFloat = 12
     var spacing: CGFloat = 8
+    var activeColor: Color = .textPrimary
     //Dots shown at once. Overflowing rows become a sliding window that tapers
     //toward its edges instead of growing wider with every extra page.
     var maxVisible: Int = 5
@@ -218,7 +219,7 @@ struct PageIndicator: View {
                             .strokeBorder(Color.textSecondary, lineWidth: 1.3)
                     } else {
                         Capsule()
-                            .fill(Color.textPrimary)
+                            .fill(activeColor)
                     }
                 }
                 .opacity(closeness)

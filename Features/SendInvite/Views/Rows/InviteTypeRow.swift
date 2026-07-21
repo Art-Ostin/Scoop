@@ -17,7 +17,6 @@ struct InviteTypeRow: View {
 
     //Local view state — messageBeforeEdit: snapshot when the editor opens, to tell if it changed on close
     @State private var messageBeforeEdit: String?
-    @State private var messageHeight: CGFloat = 0
 
     @State private var openInfoTypes: Set<Event.EventType> = []
     @State private var typePulse = false
@@ -41,22 +40,30 @@ struct InviteTypeRow: View {
         !message.isEmpty && (scrolledPageID ?? 0) >= 1
     }
 
+    private var showsPageIndicator: Bool { !message.isEmpty }
+    private var rowHeight: CGFloat { InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator) }
+    private var primaryContentOffset: CGFloat {
+        -(InviteRowMetrics.contentHeight(showsIndicator: showsPageIndicator)
+          - InviteRowMetrics.singleLineContentHeight) / 2
+    }
+
     @State var showTypeInfoScreen = false
     
     var body: some View {
         //The message page sits a touch closer to the title than the type page.
         HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
             rowTitle
+                .frame(height: InviteRowMetrics.primaryLineHeight)
+                .offset(y: primaryContentOffset)
             Spacer(minLength: 0)
             typeMenu
         }
-        .overlay(alignment: .trailing) {
+        .frame(height: rowHeight)
+        .overlay(alignment: .bottomTrailing) {
             pageIndicator
-                .offset(y: 20)
-                .offset(x: -22)
+                .padding(.trailing, 16)
+                .padding(.bottom, InviteRowMetrics.verticalPadding)
         }
-        .task(id: messageHeight) { updateLineHeight() }        //typing: recount once the new text's height settles
-        .onChange(of: message) { updateLineHeight() }          //clearing/edits: recount (and reset) on text change
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
         .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
@@ -93,10 +100,11 @@ extension InviteTypeRow {
             showMessageScreen: showMessageScreen,
             scrollProgress: $scrollProgress,
             scrolledPageID: $scrolledPageID,
-            messageHeight: $messageHeight,
             typeFrame: $typeFrame,
             messageFrame: $messageFrame,
-            chevronFrame: $chevronFrame
+            chevronFrame: $chevronFrame,
+            rowHeight: rowHeight,
+            primaryContentOffset: primaryContentOffset
         )
     }
 
@@ -134,10 +142,7 @@ extension InviteTypeRow {
     @ViewBuilder
     private var pageIndicator: some View {
         if !message.isEmpty {
-            PageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
-                .scaleEffect(0.6, anchor: .bottom)
-                .padding(.bottom, Spacing.xs)
-                .offset(x: 6)
+            InvitePageIndicator(count: 2, progress: scrollProgress)
         }
     }
 }
@@ -166,7 +171,8 @@ extension InviteTypeRow {
             }
             .multilineTextAlignment(.leading) //so "Double Date" stays on one line
             .frame(width: 50, alignment: .leading)
-            .lineSpacing(2)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .id(rowTitleTransitionID)
             .transition(.blurReplace)
         }
@@ -194,7 +200,7 @@ extension InviteTypeRow {
 
 }
 
-//Message bookkeeping: editor round-trips and line count
+//Message bookkeeping: editor round-trips
 extension InviteTypeRow {
 
     //Editor opened: snapshot the message. Editor closed: if it changed, park the pager on it.
@@ -206,16 +212,6 @@ extension InviteTypeRow {
         }
     }
 
-    private func updateLineHeight() {
-        if message.isEmpty {
-            ui.messageLineCount = 0
-            scrolledPageID = 0
-            return
-        }
-        guard messageHeight > 0 else { return }
-        let lineHeight = UIFont.body(12, .regular).lineHeight
-        ui.messageLineCount = min(3, Int((messageHeight / lineHeight).rounded()))
-    }
 }
 
 //The menu's label: the live type/message pager in the row, or the collapsed form the morph carries.
@@ -227,10 +223,11 @@ private struct TypeRowMenuLabel: View {
     let showMessageScreen: Bool
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
-    @Binding var messageHeight: CGFloat
     @Binding var typeFrame: CGRect
     @Binding var messageFrame: CGRect
     @Binding var chevronFrame: CGRect
+    let rowHeight: CGFloat
+    let primaryContentOffset: CGFloat
 
     @Environment(\.isLiveInviteRow) private var isLive
 
@@ -247,19 +244,25 @@ private struct TypeRowMenuLabel: View {
                 HStack(spacing: 0) {
                     typeText
                         .getRect($typeFrame)
+                        .frame(height: InviteRowMetrics.primaryLineHeight)
                         .frame(width: pageWidth, alignment: .trailing)
+                        .offset(y: primaryContentOffset)
                         .id(0)
 
                     messageView
                         .getRect($messageFrame)
                         .padding(.leading, Spacing.sm)
                         .frame(width: pageWidth, alignment: .trailing)
+                        .offset(y: primaryContentOffset)
                         .id(1)
                 }
                 .offset(x: -Spacing.sm) //Align with the rest of the content
-                .frame(height: InviteRowMetrics.rowHeight)
+                .frame(height: rowHeight)
                 .scrollTargetLayout()
             }
+            .frame(height: rowHeight)
+            .contentShape(Rectangle())
+            .scrollClipDisabled()
             .modifier(PagedScrollStyle(
                 scrolledPageID: $scrolledPageID,
                 pageWidth: $pageWidth,
@@ -274,6 +277,7 @@ private struct TypeRowMenuLabel: View {
             .animation(.quick, value: showScrollFades)
             chevron
                 .getRect($chevronFrame)
+                .offset(y: primaryContentOffset)
         }
     }
 
@@ -289,6 +293,7 @@ private struct TypeRowMenuLabel: View {
     private var typeText: some View {
         Text(type.longTitle)
             .font(.body(17, .medium))
+            .lineLimit(1)
             .contentTransition(.opacity)
     }
 
@@ -304,14 +309,15 @@ private struct TypeRowMenuLabel: View {
                 .foregroundStyle(Color.textTertiary)
                 .lineLimit(3)
                 .multilineTextAlignment(.trailing)
-                .getHeight($messageHeight)
+                .lineSpacing(InviteRowMetrics.messageLineSpacing)
                 .transition(.opacity.animation(.transition))
                 .fixedSize(horizontal: false, vertical: true)
-                .offset(y: ui.messageLineCount == 3 ? -8 : 0)
+                .frame(height: InviteRowMetrics.primaryLineHeight, alignment: .bottom)
         } else {
             Text("Add Message")
                 .font(.body(16, .regular))
                 .foregroundStyle(Color.textSecondary)
+                .frame(height: InviteRowMetrics.primaryLineHeight)
                 .transition(.opacity.animation(.transition))
         }
     }
