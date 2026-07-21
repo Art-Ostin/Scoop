@@ -20,7 +20,9 @@ struct WideActionButton: View {
                 label
             }
         } else {
-            label.background(Color.fillGray, in: .capsule)
+            label
+                .foregroundStyle(Color.white)
+                .background(Color.fillGray, in: .capsule)
         }
     }
     

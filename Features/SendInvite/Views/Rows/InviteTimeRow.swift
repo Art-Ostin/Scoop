@@ -38,7 +38,6 @@ struct InviteTimeRow: View {
         HStack {
             rowTitle
                 .frame(height: InviteRowMetrics.primaryLineHeight)
-                .offset(y: primaryContentOffset)
                 .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
