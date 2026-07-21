@@ -20,7 +20,7 @@ struct EnterEmailView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: Spacing.titleGap) {
-                SignUpTitle(text: "McGill Email")
+                SignUpTitle(text: "What's Your Uni\nEmail?")
                 enterEmailSection
                 NextButton(isValid: vm.isValid(email: vm.username)) {showVerification = true }.padding(.top, Spacing.md)
             }
@@ -28,14 +28,11 @@ struct EnterEmailView: View {
             .onAppear {isFocused = true}
             .frame(maxHeight: .infinity, alignment:.top)
             .padding(.top, Spacing.clearance)
-            .padding(.horizontal)
             .background(Color.appCanvas)
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $showVerification, destination: {VerifyEmailView(vm: vm)})
-            .toolbar { DismissToolbarItem(type: .cross)}
+            .toolbar { DismissToolbarItem(type: .cross, isLeading: false)}
         }
-        // On the stack root, not the pushed screen — a pushed destination's presentation
-        // preference doesn't reliably reach the enclosing sheet.
         .interactiveDismissDisabled(vm.isVerifying)
     }
 }
@@ -43,44 +40,46 @@ struct EnterEmailView: View {
 
 extension EnterEmailView {
     
+    
     private var enterEmailSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack {
-                ZStack{
-                    if vm.username.isEmpty {
-                        TextField("Firstname.lastname", text: $vm.username)
-                            .font(.body(18, .italic))
-                            .kerning(0.5)
-                    }
-                    TextField ("", text: $vm.username)
-                        .focused($isFocused)
-                        .font(.body(20))
-                        .textFieldStyle(.plain)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .tint(.blue)
-                        .kerning(0.5)
-                        .foregroundStyle(Color.textPrimary)
+        // The field is a UITextView; line up its typed text with the placeholder
+        // overlay exactly — same 16pt left inset, and a top/bottom inset that
+        // vertically centers the single line — so the caret starts right where
+        // "firstname.lastname" sits.
+        let fieldHeight: CGFloat = 48
+        let fieldFont = UIFont.body(17, .medium)
+        let vInset = (fieldHeight - fieldFont.lineHeight) / 2   //Geometry: centers one text line in the field
+        return InstantKeyboardField(
+            text: $vm.username,
+            font: fieldFont,
+            textContainerInset: .init(top: vInset, left: Spacing.md, bottom: vInset, right: Spacing.md)
+        )
+            .frame(maxWidth: .infinity)
+            .frame(height: fieldHeight)
+            .background(Color(red: 0.97, green: 0.97, blue: 0.96), in: .rect(cornerRadius: CornerRadius.sm))
+            .overlay(alignment: .leading) {
+                if vm.username.isEmpty {
+                    Text("firstname.lastname")
+                        .font(.body(17, .medium))
+                        .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                        .padding(.leading, Spacing.md)
                 }
-                
-                Spacer()
-                
-                Text("@mail.mcgill.ca")
-                    .font(.body(20, .medium))
-                    .padding(.trailing, Spacing.hairline)
             }
-            HStack {
-                Rectangle()
-                    .frame(width: 182, height: 1)
-                    .foregroundStyle(Color.textPlaceholder)
-                Spacer()
-                Rectangle()
-                    .frame(width: 140, height: 1)
-                    .foregroundStyle(Color.textPlaceholder)
+            .overlay(alignment: .trailing) {
+                HStack {
+                    Text("@mail.mcgill.ca")
+                        .font(.body(17, .medium))
+                        .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                    
+                    Image(systemName: "chevron.down")
+                        .font(.body(12, .bold))
+                        .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+                }
+                .padding(.trailing, Spacing.md)
             }
-            Text("We'll send a confirmation code")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
+            .textInputAutocapitalization(.never)
+            .disableAutocorrection(true)
+            .tint(.blue)
+            .kerning(0.5)
     }
 }

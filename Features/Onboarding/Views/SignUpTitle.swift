@@ -23,7 +23,7 @@ struct SignUpTitle: View {
                 .font(.title(12, .medium))
                 .alignmentGuide(.bottom) { d in d[.firstTextBaseline] }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
     }
 }

@@ -30,7 +30,7 @@ struct RootView : View {
         }
         .sheet(isPresented: $showSignUpSheet) {
             EnterEmailView(vm: VerifyEmailViewModel(session: dep.session, defaultsManager: dep.defaultsManager, authService: dep.authService, userRepo: dep.userRepo))
-                .presentationBackground(Color.appCanvas)
+                .presentationBackground(Color(red: 1, green: 1, blue: 0.98))
         }
         .onChange(of: dep.session.appState) { _, newState in
             if newState != .login { showSignUpSheet = false }

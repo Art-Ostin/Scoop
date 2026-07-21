@@ -180,6 +180,8 @@
 		65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070532EE08F4A009F798B /* ProfileComponents.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A4ADDB300BF4CA0074B2C8 /* DominantColorExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A4ADDA300BF4CA0074B2C8 /* DominantColorExtractor.swift */; };
+		65A4ADF2300D850D0074B2C8 /* WideActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */; };
+		65A4ADF4300D856F0074B2C8 /* InstantKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A4ADF3300D856F0074B2C8 /* InstantKeyboard.swift */; };
 		65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */; };
 		65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF9E2E02E0400054BD63 /* ActionButton.swift */; };
 		65A904882F412E2200BBCAB6 /* UserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A904872F412E2200BBCAB6 /* UserEvent.swift */; };
@@ -447,6 +449,8 @@
 		65A070532EE08F4A009F798B /* ProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A4ADDA300BF4CA0074B2C8 /* DominantColorExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DominantColorExtractor.swift; sourceTree = SOURCE_ROOT; };
+		65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideActionButton.swift; sourceTree = "<group>"; };
+		65A4ADF3300D856F0074B2C8 /* InstantKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstantKeyboard.swift; sourceTree = "<group>"; };
 		65A8BEEF2E02D6150054BD63 /* SignUpTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpTitle.swift; sourceTree = "<group>"; };
 		65A8BF9E2E02E0400054BD63 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		65A904872F412E2200BBCAB6 /* UserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEvent.swift; sourceTree = "<group>"; };
@@ -1181,6 +1185,7 @@
 			children = (
 				65BA061A2FCC99B000295AC6 /* Core */,
 				657F303A2F68B61C0057D42C /* DismissButtons.swift */,
+				65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */,
 				6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
@@ -1416,6 +1421,7 @@
 				65CA5E342F2263A600694981 /* EventFormatting.swift */,
 				652D6FAF2F3D022900B08F6F /* MapsRouter.swift */,
 				65A4ADDA300BF4CA0074B2C8 /* DominantColorExtractor.swift */,
+				65A4ADF3300D856F0074B2C8 /* InstantKeyboard.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1676,6 +1682,7 @@
 				6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */,
 				65F3B4762FA1F612007D1EEB /* MessagePopup.swift in Sources */,
 				6577D7AE2E1FFD2F00FFCF82 /* SettingsContainer.swift in Sources */,
+				65A4ADF2300D850D0074B2C8 /* WideActionButton.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,
 				65F7044E2F6EDA4100CE29C5 /* RespondDetails.swift in Sources */,
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
@@ -1698,6 +1705,7 @@
 				659852842FD7FE0E00D75CA5 /* EventInfo.swift in Sources */,
 				652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */,
 				65FE22422FC833D200DCB65A /* PageIndicators.swift in Sources */,
+				65A4ADF4300D856F0074B2C8 /* InstantKeyboard.swift in Sources */,
 				657F61C12FDF18CC00B2F903 /* DeclineButton.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				655441492FE9769100425CBF /* InviteCardInfo.swift in Sources */,
