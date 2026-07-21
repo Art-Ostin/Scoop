@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-//The invite card's single image surface — SendInviteCard animates its frame between the
-//profile card's rect and the expanded image slot, and everything here rides that same
-//transaction, keyed on `expanded`. Collapsed it renders exactly as ProfileCard's image
-//(uniform edge-to-edge clip, name/details/invite-button chrome); expanded it is the
-//settled carousel (edge-to-edge pages, "Meet <name>", options menu, page dots). There is no
-//separate flight copy, so both endpoints are exact by construction.
 struct InviteImageCarousel: View {
     //Injected
     let images: [UIImage]
@@ -30,8 +24,10 @@ struct InviteImageCarousel: View {
     var showsCollapsedChrome: Bool = true //The collapsed ProfileCard look (name/details caption + button replica). Off when the source is a plain image (profile hero).
 
     //Local view state
-    @State private var meetFrame: CGRect = .zero
+    @State private var inviteFrame: CGRect = .zero
     @State private var nameFrame: CGRect = .zero
+    @State private var optionsFrame: CGRect = .zero
+    
     @State private var inviteButtonPopped = false
     @State private var showInfoScreen = false //"How Invites Work" sheet, opened from the options menu
 
@@ -103,10 +99,13 @@ extension InviteImageCarousel {
 
     //Two Texts (not one string) so the halo mask hugs each word separately.
     private var nameOverlay: some View {
-        HStack(spacing: Spacing.hairline) {
-            Text("Invite \(name)")
+        HStack(spacing: 6) {
+            Text("Invite")
+                .getRect($inviteFrame, coordSpace: Self.imageSpace)
+
+            Text(name)
                 .getRect($nameFrame, coordSpace: Self.imageSpace)
-        } 
+        }
         .font(.title(24))
         .foregroundStyle(Color.white)
     }
@@ -127,7 +126,6 @@ extension InviteImageCarousel {
             Button("How Invites Work", systemImage: "info.circle") {
                 showInfoScreen = true
             }
-
             if vm.event.hasChanges {
                 Button {
                     withAnimation(.transition) {
@@ -155,10 +153,7 @@ extension InviteImageCarousel {
                 }
             }
         } label: {
-            InviteOptionsIcon()
-                .padding(Spacing.sm)
-                .shrinkPress()
-                .contentShape(Circle())
+            optionsLabel
         }
         .padding(-Spacing.sm)
         .blurPop(visible: optionsVisible)
@@ -172,9 +167,6 @@ extension InviteImageCarousel {
             .opacityPop(visible: !confirmInviteScreen)
     }
 
-    //Cross-fades the two neighbouring pages' halos so the blur tracks the scroll progressively.
-    //While a close cover is up the pager has already snapped to page 0, so the halo must
-    //blur the cover — the page actually showing — not the page underneath it.
     private var backgroundBlur: some View {
         let progress = min(max(scrollProgress, 0), Double(images.count - 1))
         let page = Int(progress)
@@ -182,15 +174,41 @@ extension InviteImageCarousel {
         let fraction = progress - Double(page)
 
         return ZStack {
-            BackgroundBlur(image: coverImage ?? images[page], frames: [nameFrame, meetFrame])
+            BackgroundBlur(image: coverImage ?? images[page], frames: [nameFrame, inviteFrame, optionsFrame])
                 .opacity(1 - fraction)
             if coverImage == nil && next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: [nameFrame, meetFrame])
+                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame, optionsFrame])
                     .opacity(fraction)
             }
         }
         .opacity(expanded && !confirmInviteScreen ? 1 : 0)
         .animation(.transition, value: confirmInviteScreen)
+    }
+    
+    private var optionsLabel: some View {
+        HStack(spacing: 4) {
+            circle
+            circle
+            circle
+        }
+        .scaleEffect(0.95)
+        .padding(2)
+        .background {
+            Capsule()
+                .fill(Color.black.opacity(0.04))
+                .blur(radius: 2)
+        }
+        .getRect($optionsFrame, coordSpace: Self.imageSpace)
+        .padding(Spacing.sm - 2)//Offset interior padding with capsule
+        .growButton(shadow: .card)
+        .contentShape(Circle())
+        .offset(y: -2)//
+    }
+    
+    private var circle: some View {
+        Circle()
+            .fill(.white.opacity(0.95))
+            .frame(width: 4.5, height: 4.5)
     }
 }
 
@@ -217,10 +235,6 @@ extension InviteImageCarousel {
         }
     }
 
-    //Decorative copy of ProfileCard's invite button: the tap that opened the invite covered
-    //the real button mid-press, so the replica starts at the pressed scale and plays the
-    //release bounce on mount. On expand it fades out in place; taps land on SendInviteCard's
-    //reopen target, never here.
     @ViewBuilder
     private var inviteButtonReplica: some View {
         if showsCollapsedChrome {
@@ -238,8 +252,6 @@ extension InviteImageCarousel {
         }
     }
 
-    //Always present (never inserted mid-animation): opaque only while a close carries a
-    //non-first page home; fades out riding `expanded` to reveal the snapped-to page 0.
     private var closeCover: some View {
         Color.clear
             .overlay {
