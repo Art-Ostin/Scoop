@@ -161,12 +161,6 @@ extension InviteTypeRow {
                         .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
                         .scaleEffect(isTypeOpen ? 1 : 0.8, anchor: .leading)
                         .animation(.smooth(duration: 0.2), value: isTypeOpen)
-                        .overlay(alignment: .topTrailing) {
-                            Image(systemName:"info.circle")
-                                .font(.body(6, .regular))
-                                .foregroundStyle(Color.textPlaceholder) //Subtle Tint of accent
-                                .offset(x: 2)
-                        }
                         .shrinkPress {showTypeInfoScreen = true}
                 }
             }

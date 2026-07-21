@@ -239,7 +239,7 @@ private struct TimeRowMenuLabel: View {
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {
-        Text(FormatEvent.dayAndTime(time, wide: true, withHour: true, monthWide: true))
+        Text(FormatEvent.shortDayAndTime(time, withComma: true))
             .font(.body(17, .medium))
             .minimumScaleFactor(0.9)
             .lineLimit(1)
@@ -256,7 +256,7 @@ private struct TimeRowMenuLabel: View {
     @ViewBuilder
     private var activeTimeText: some View {
         if times.indices.contains(activeIndex) {
-            Text(FormatEvent.dayAndTime(times[activeIndex], wide: true, withHour: true, monthWide: true))
+            Text(FormatEvent.shortDayAndTime(times[activeIndex], withComma: true))
                 .font(.body(17, .medium))
         } else {
             chooseTimeText

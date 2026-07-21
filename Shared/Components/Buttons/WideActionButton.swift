@@ -13,20 +13,23 @@ struct WideActionButton: View {
     let isActive: Bool
     let onTap: () -> ()
     
-
-    var tint: Color { isActive ? .fillGray : .textAccent }
-    
-    /*
-     
-     */
     var body: some View {
-
-        let label = Text(text)
+        
+        if isActive {
+            ScoopButton(style: .tinted(.textAccent), shape: .capsule, action: onTap) {
+                label
+            }
+        } else {
+            label.background(Color.fillGray, in: .capsule)
+        }
+    }
+    
+    private var label: some View {
+        Text(text)
             .font(.body(18, .bold))
-            .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .contentTransition(.opacity) //label cro
+            .geometryGroup()
     }
 }
 

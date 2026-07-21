@@ -47,7 +47,7 @@ struct InviteImageCarousel: View {
             hPadding: inset,
             topRadius: 0,
             bottomRadius: 0,
-            aspectRatio: .card,
+            aspectRatio: confirmInviteScreen ? .confirmInviteImage : .invitedImage,
             fillsContainerHeight: true, //The animated frame owns the height at both endpoints
             showFade: false,
             scrollProgress: $scrollProgress,

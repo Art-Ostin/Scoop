@@ -15,8 +15,7 @@ struct SendInviteCard: View {
     static let screenGap: CGFloat = 10
     static let sourceRadius = CornerRadius.image //Profile card image clip radius (collapsed state)
     static let cardRadius = CornerRadius.xl //Expanded card surface radius
-    static let imageHeightRatio: CGFloat = 1.05
-    static let confirmImageHeightRatio: CGFloat = 340.0 / 386.0
+    static let invitedCardTopPadding: CGFloat = 44
     static let confirmCardTopPadding: CGFloat = 48
 
     //Interactive dismiss tuning (see dismissDrag)
@@ -61,11 +60,12 @@ struct SendInviteCard: View {
 
 
     private var gallery: [UIImage] { images.isEmpty ? [image] : images }
-    private var currentImageHeightRatio: CGFloat {
-        confirmInviteScreen ? Self.confirmImageHeightRatio : Self.imageHeightRatio
+    private var currentImageAspectRatio: AspectRatio {
+        confirmInviteScreen ? .confirmInviteImage : .invitedImage
     }
     private var currentCardTopPadding: CGFloat {
-        expanded && confirmInviteScreen ? Self.confirmCardTopPadding : 0
+        guard expanded else { return 0 }
+        return confirmInviteScreen ? Self.confirmCardTopPadding : Self.invitedCardTopPadding
     }
 
     var body: some View {
@@ -123,7 +123,7 @@ extension SendInviteCard {
 
     private func imageSlot(_ width: CGFloat) -> some View {
         return Color.clear
-            .frame(width: max(width, 0), height: max(width, 0) * currentImageHeightRatio)
+            .frame(width: max(width, 0), height: max(width, 0) / currentImageAspectRatio.ratio)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
                 guard !dragging else { return }
                 withAnimation(landed ? Self.confirmTransition : nil) { imageFrame = newFrame }
@@ -157,7 +157,7 @@ extension SendInviteCard {
 
     private func carouselLayer(_ origin: CGPoint) -> some View {
         var targetImageFrame = imageFrame
-        targetImageFrame.size.height = imageFrame.width * currentImageHeightRatio
+        targetImageFrame.size.height = imageFrame.width / currentImageAspectRatio.ratio
         let rect = local(expanded ? targetImageFrame : sourceFrame, origin)
         return InviteImageCarousel(
             images: gallery,

@@ -30,17 +30,6 @@ Step 2: Show the actual keyboard and adjust layout like textEditor
     .background..
  */
 
-enum KeyboardFocusTiming {
-    /// Pop the keyboard in fully formed, without animation, on the next
-    /// runloop tick. Use for sheets/fullScreenCovers and custom SwiftUI
-    /// transitions — the keyboard stays live and correctly colored.
-    case immediate
-    /// Wait for the enclosing view controller transition to finish, then
-    /// let the keyboard rise. Use for NavigationStack pushes, where an
-    /// in-transition keyboard is always the gray snapshot.
-    case afterTransition
-}
-
 /// A multi-line text view that summons the keyboard by itself — declare and
 /// lay it out exactly like TextEditor:
 ///
@@ -49,73 +38,107 @@ enum KeyboardFocusTiming {
 ///         .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(.black) }
 ///
 /// Like TextEditor it fills whatever frame you give it, wraps text from the
-/// top-leading corner, scrolls when the text outgrows the frame, and has no
-/// placeholder — overlay a `Text` while the binding is empty if you need one.
+/// top-leading corner, and scrolls when the text outgrows the frame.
 struct InstantKeyboardField: UIViewRepresentable {
     @Binding var text: String
-    /// SwiftUI's `.font()` modifier can't reach inside a
-    /// UIViewRepresentable, hence a parameter.
+    var textLimit: Int = 130
+    var placeholder: String? = nil
+    var placeholderLineSpacing: CGFloat = 6
+    var placeholderFont: UIFont = .body(18, .regular)
+    var placeholderColor: UIColor = .placeholderText
+    /// UIKit font applied to the underlying text view.
     var font: UIFont = .preferredFont(forTextStyle: .body)
-    var focusTiming: KeyboardFocusTiming = .immediate
-    /// Insets the text from the field's edges. When set, UITextView's default
-    /// 5pt line-fragment padding is zeroed so `left`/`right` land exactly —
-    /// letting an external placeholder overlay line up with the typed text.
-    /// `nil` keeps UITextView's own top-leading insets (TextEditor-like).
+    var lineSpacing: CGFloat = 7
+    var kerning: CGFloat = 0.4
+    var scrollEnabledAfterLineCount: Int? = nil
     var textContainerInset: UIEdgeInsets? = nil
+    var isFocused: Binding<Bool>? = nil
 
     final class InstantTextView: UITextView {
-        var focusTiming: KeyboardFocusTiming = .immediate
         var hasAutoFocused = false
+        var wantsFocus = true
+        private var focusRequest = 0
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
-            guard window != nil, !hasAutoFocused else { return }
+            guard window != nil, !hasAutoFocused, wantsFocus else { return }
             hasAutoFocused = true
 
-            switch focusTiming {
-            case .immediate:
-                DispatchQueue.main.async { [weak self] in
-                    UIView.performWithoutAnimation {
-                        self?.becomeFirstResponder()
-                    }
-                }
-            case .afterTransition:
-                if let coordinator = parentViewController?.transitionCoordinator {
-                    coordinator.animate(alongsideTransition: nil) { [weak self] _ in
-                        self?.becomeFirstResponder()
-                    }
-                } else {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.becomeFirstResponder()
-                    }
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.window != nil, self.wantsFocus else { return }
+                UIView.performWithoutAnimation {
+                    self.becomeFirstResponder()
                 }
             }
         }
 
-        private var parentViewController: UIViewController? {
-            var responder: UIResponder? = next
-            while let current = responder {
-                if let viewController = current as? UIViewController {
-                    return viewController
-                }
-                responder = current.next
+        override func willMove(toWindow newWindow: UIWindow?) {
+            if newWindow == nil {
+                cancelFocus()
             }
-            return nil
+            super.willMove(toWindow: newWindow)
+        }
+
+        func cancelFocus() {
+            focusRequest &+= 1
+            wantsFocus = false
+            if isFirstResponder {
+                resignFirstResponder()
+            }
+        }
+
+        func applyControlledFocus() {
+            focusRequest &+= 1
+            let request = focusRequest
+
+            if wantsFocus {
+                attemptFocus(request: request, remainingAttempts: 10)
+            } else if isFirstResponder {
+                resignFirstResponder()
+            }
+        }
+
+        private func attemptFocus(request: Int, remainingAttempts: Int) {
+            guard request == focusRequest,
+                  wantsFocus,
+                  window != nil,
+                  !isFirstResponder else { return }
+
+            guard !becomeFirstResponder(), remainingAttempts > 0 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                self?.attemptFocus(
+                    request: request,
+                    remainingAttempts: remainingAttempts - 1
+                )
+            }
         }
     }
 
     func makeUIView(context: Context) -> InstantTextView {
         let view = InstantTextView()
-        view.focusTiming = focusTiming
+        view.wantsFocus = isFocused?.wrappedValue ?? true
+        view.text = text
         view.font = font
-        if let inset = textContainerInset {
-            view.textContainerInset = inset
-            view.textContainer.lineFragmentPadding = 0
-        }
+        applyTextStyle(to: view)
+        applyTextContainerInset(to: view)
         view.adjustsFontForContentSizeCategory = true
+        view.alwaysBounceVertical = false
+        // Keep UITextView scrolling enabled for stable intrinsic sizing and wrapping.
+        // Gate only its pan gesture when a line threshold is configured.
+        view.isScrollEnabled = true
+        view.panGestureRecognizer.isEnabled = scrollEnabledAfterLineCount == nil
         // Transparent like TextEditor, so external .background(...) shows.
         view.backgroundColor = .clear
         view.delegate = context.coordinator
+        context.coordinator.configurePlaceholder(
+            in: view,
+            text: placeholder,
+            lineSpacing: placeholderLineSpacing,
+            font: placeholderFont,
+            color: placeholderColor
+        )
+        context.coordinator.updatePlaceholderVisibility(in: view)
+        scheduleScrollUpdate(for: view, coordinator: context.coordinator)
         return view
     }
 
@@ -125,18 +148,264 @@ struct InstantKeyboardField: UIViewRepresentable {
         if view.text != text {
             view.text = text
         }
+        if view.font != font {
+            view.font = font
+        }
+        applyTextStyle(to: view)
+        applyTextContainerInset(to: view)
+        context.coordinator.textLimit = textLimit
+        context.coordinator.scrollEnabledAfterLineCount = scrollEnabledAfterLineCount
+        context.coordinator.configurePlaceholder(
+            in: view,
+            text: placeholder,
+            lineSpacing: placeholderLineSpacing,
+            font: placeholderFont,
+            color: placeholderColor
+        )
+        context.coordinator.updatePlaceholderVisibility(in: view)
+        scheduleScrollUpdate(for: view, coordinator: context.coordinator)
+        updateFocus(of: view)
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+    static func dismantleUIView(_ view: InstantTextView, coordinator: Coordinator) {
+        view.cancelFocus()
+        view.delegate = nil
+    }
+
+    private func scheduleScrollUpdate(for view: InstantTextView, coordinator: Coordinator) {
+        DispatchQueue.main.async { [weak view] in
+            guard let view else { return }
+            coordinator.updateScrollGesture(in: view)
+        }
+    }
+
+    private func updateFocus(of view: InstantTextView) {
+        guard let shouldFocus = isFocused?.wrappedValue else { return }
+        view.wantsFocus = shouldFocus
+        guard view.window != nil, view.isFirstResponder != shouldFocus else { return }
+
+        DispatchQueue.main.async { [weak view] in
+            guard let view, view.wantsFocus == shouldFocus else { return }
+            view.applyControlledFocus()
+        }
+    }
+
+    private func applyTextContainerInset(to view: InstantTextView) {
+        if let textContainerInset {
+            view.textContainerInset = textContainerInset
+            view.textContainer.lineFragmentPadding = 0
+        } else {
+            var inset = view.textContainerInset
+            inset.top = Spacing.lg - 2
+            inset.bottom = Spacing.lg - 2
+            view.textContainerInset = inset
+        }
+    }
+
+    private func applyTextStyle(to view: InstantTextView) {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = lineSpacing
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraphStyle,
+            .kern: kerning
+        ]
+
+        var typingAttributes = view.typingAttributes
+        typingAttributes.merge(attributes) { _, new in new }
+        view.typingAttributes = typingAttributes
+
+        guard view.textStorage.length > 0 else { return }
+        view.textStorage.addAttributes(
+            attributes,
+            range: NSRange(location: 0, length: view.textStorage.length)
+        )
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(
+            text: $text,
+            textLimit: textLimit,
+            scrollEnabledAfterLineCount: scrollEnabledAfterLineCount
+        )
+    }
 
     final class Coordinator: NSObject, UITextViewDelegate {
         let text: Binding<String>
+        var textLimit: Int
+        var scrollEnabledAfterLineCount: Int?
+        private var placeholderLabel: UILabel?
 
-        init(text: Binding<String>) { self.text = text }
+        init(text: Binding<String>, textLimit: Int, scrollEnabledAfterLineCount: Int?) {
+            self.text = text
+            self.textLimit = textLimit
+            self.scrollEnabledAfterLineCount = scrollEnabledAfterLineCount
+        }
+
+        func textView(
+            _ textView: UITextView,
+            shouldChangeTextIn range: NSRange,
+            replacementText replacement: String
+        ) -> Bool {
+            let currentText = textView.text ?? ""
+            guard let stringRange = Range(range, in: currentText) else { return false }
+            let updatedText = currentText.replacingCharacters(
+                in: stringRange,
+                with: replacement
+            )
+            let limit = max(0, textLimit)
+
+            guard updatedText.count > limit else { return true }
+
+            let limitedText = String(updatedText.prefix(limit))
+            textView.text = limitedText
+            text.wrappedValue = limitedText
+            updatePlaceholderVisibility(in: textView)
+            updateScrollGesture(in: textView)
+            return false
+        }
 
         func textViewDidChange(_ textView: UITextView) {
-            text.wrappedValue = textView.text
+            let limitedText = String(textView.text.prefix(max(0, textLimit)))
+            if textView.text != limitedText {
+                textView.text = limitedText
+            }
+            text.wrappedValue = limitedText
+            updatePlaceholderVisibility(in: textView)
+            updateScrollGesture(in: textView)
         }
+
+        func updateScrollGesture(in textView: UITextView) {
+            guard let scrollEnabledAfterLineCount else {
+                textView.panGestureRecognizer.isEnabled = true
+                return
+            }
+
+            let shouldScroll = renderedLineCount(in: textView) > max(0, scrollEnabledAfterLineCount)
+            let wasScrollEnabled = textView.panGestureRecognizer.isEnabled
+            textView.panGestureRecognizer.isEnabled = shouldScroll
+
+            if shouldScroll, !wasScrollEnabled {
+                textView.scrollRangeToVisible(textView.selectedRange)
+            } else if !shouldScroll {
+                textView.setContentOffset(.zero, animated: false)
+            }
+        }
+
+        private func renderedLineCount(in textView: UITextView) -> Int {
+            let layoutManager = textView.layoutManager
+            let glyphRange = layoutManager.glyphRange(for: textView.textContainer)
+            guard glyphRange.length > 0 else { return 0 }
+
+            var lineCount = 0
+            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { _, _, _, _, _ in
+                lineCount += 1
+            }
+
+            // A trailing newline creates an empty line that has no glyph fragment.
+            if textView.text.hasSuffix("\n") { lineCount += 1 }
+            return lineCount
+        }
+
+        func configurePlaceholder(
+            in textView: UITextView,
+            text: String?,
+            lineSpacing: CGFloat,
+            font: UIFont,
+            color: UIColor
+        ) {
+            guard let text, !text.isEmpty else {
+                placeholderLabel?.removeFromSuperview()
+                placeholderLabel = nil
+                return
+            }
+
+            let label = placeholderLabel ?? UILabel()
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.lineSpacing = lineSpacing
+            label.attributedText = NSAttributedString(
+                string: text,
+                attributes: [
+                    .font: font,
+                    .foregroundColor: color,
+                    .paragraphStyle: paragraphStyle
+                ]
+            )
+            label.numberOfLines = 0
+            label.lineBreakMode = .byWordWrapping
+            label.isUserInteractionEnabled = false
+
+            guard placeholderLabel == nil else { return }
+
+            label.translatesAutoresizingMaskIntoConstraints = false
+            textView.addSubview(label)
+
+            let horizontalInset = textView.textContainerInset.left
+                + textView.textContainerInset.right
+                + textView.textContainer.lineFragmentPadding * 2
+
+            NSLayoutConstraint.activate([
+                label.topAnchor.constraint(
+                    equalTo: textView.topAnchor,
+                    constant: textView.textContainerInset.top
+                ),
+                label.leadingAnchor.constraint(
+                    equalTo: textView.leadingAnchor,
+                    constant: textView.textContainerInset.left
+                        + textView.textContainer.lineFragmentPadding
+                ),
+                label.widthAnchor.constraint(
+                    equalTo: textView.widthAnchor,
+                    constant: -horizontalInset
+                )
+            ])
+            placeholderLabel = label
+        }
+
+        func updatePlaceholderVisibility(in textView: UITextView) {
+            placeholderLabel?.isHidden = !textView.text.isEmpty
+        }
+    }
+}
+
+extension InstantKeyboardField {
+    init(
+        text: Binding<String?>,
+        textLimit: Int = 130,
+        placeholder: String? = nil,
+        placeholderLineSpacing: CGFloat = 6,
+        placeholderFont: UIFont = .body(18, .regular),
+        placeholderColor: UIColor = .placeholderText,
+        font: UIFont = .preferredFont(forTextStyle: .body),
+        lineSpacing: CGFloat? = nil,
+        kerning: CGFloat? = nil,
+        scrollEnabledAfterLineCount: Int? = nil,
+        textContainerInset: UIEdgeInsets? = nil,
+        isFocused: Binding<Bool>? = nil
+    ) {
+        self.init(
+            text: Binding(
+                get: { text.wrappedValue ?? "" },
+                set: { text.wrappedValue = $0 }
+            ),
+            textLimit: textLimit,
+            placeholder: placeholder,
+            placeholderLineSpacing: placeholderLineSpacing,
+            placeholderFont: placeholderFont,
+            placeholderColor: placeholderColor,
+            font: font,
+            textContainerInset: textContainerInset,
+            isFocused: isFocused
+        )
+        if let lineSpacing { self.lineSpacing = lineSpacing }
+        if let kerning { self.kerning = kerning }
+        self.scrollEnabledAfterLineCount = scrollEnabledAfterLineCount
+    }
+
+    func font(_ font: UIFont) -> Self {
+        var field = self
+        field.font = font
+        return field
     }
 }
 

@@ -28,14 +28,13 @@ public enum FormatEvent {
     }
     
     
-    static func shortDayAndTime(_ date: Date, withHour: Bool = true) -> String {
+    static func shortDayAndTime(_ date: Date, withHour: Bool = true, withComma: Bool = false) -> String {
         let weekday = date.formatted(.dateTime.weekday(.abbreviated))
         let monthAndDay = date.formatted(.dateTime.month(.abbreviated).day())
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        return withHour ? "\(weekday) \(monthAndDay) · \(hour)" :  "\(weekday) \(monthAndDay)"
+        let datePart = "\(weekday)\(withComma ? "," : "") \(monthAndDay)"
+        return withHour ? "\(datePart) · \(hour)" : datePart
     }
-    
-    
     
     
     static func hourTime(_ date: Date) -> String {
