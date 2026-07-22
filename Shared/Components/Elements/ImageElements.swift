@@ -7,44 +7,29 @@
 
 import SwiftUI
 
-//All App Images differ on 4 points: (1) Aspect Ratio (2) HPadding (3) corner Radius (4) Shadow. Standardised here.
+//A single, screen-inset app image. Carousel page geometry lives in ScoopImageCarousel.
 struct ScoopImage: View {
     let image: UIImage
 
     var aspectRatio: AspectRatio = .default
-    var radii: RectangleCornerRadii = .init(uniform: CornerRadius.image)
-    var hPadding: CGFloat = Spacing.gutter
-
-    var fillsPageWidth = false
-    var fillsContainerHeight = false //Height from the proposed container (animated slots), not the aspect ratio
-    var showShadow = false
+    var cornerRadius: CGFloat = CornerRadius.image
     var zoomSourceID: String? = nil //UIKit-backs the image so ImageZoom can fly a screen out of it
 
     var body: some View {
-        base
+        Color.clear
+            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
             .overlay { imageContent }
-            .clipShape(.rect(cornerRadii: radii))
-            .padding(.horizontal, fillsPageWidth ? hPadding : 0)
+            .clipShape(.rect(cornerRadius: cornerRadius))
             .containerRelativeFrame(.horizontal) { length, _ in
-                fillsPageWidth ? length : length - hPadding * 2
+                guard length.isFinite else { return 0 }
+                return max(length - Spacing.gutter * 2, 0)
             }
     }
 
     @ViewBuilder
-    private var base: some View {
-        if fillsContainerHeight {
-            Color.clear
-        } else {
-            Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
-        }
-    }
-
-    //The zoom transition needs a real UIImageView it can hide during flight —
-    //rendered identically (fill + clip) to the plain SwiftUI image.
-    @ViewBuilder
     private var imageContent: some View {
         if let zoomSourceID {
-            ZoomSourceImage(id: zoomSourceID, image: image, cornerRadius: radii.topLeading)
+            ZoomSourceImage(id: zoomSourceID, image: image, cornerRadius: cornerRadius)
         } else {
             Image(uiImage: image)
                 .resizable()
@@ -53,7 +38,7 @@ struct ScoopImage: View {
     }
 }
 
-struct ImageCarousel: View {
+struct ScoopImageCarousel: View {
     let images: [UIImage]
 
     // Geometry
@@ -82,18 +67,34 @@ struct ImageCarousel: View {
 
     @ViewBuilder
     private func carouselImage(_ image: UIImage, index: Int) -> some View {
-        let base = ScoopImage(
-            image: image,
-            aspectRatio: aspectRatio,
-            radii: .init(top: topRadius, bottom: bottomRadius),
-            hPadding: hPadding,
-            fillsPageWidth: true,
-            fillsContainerHeight: fillsContainerHeight
-        )
+        let base = carouselImage(image)
         if let onImageTap {
             base.contentShape(Rectangle()).onTapGesture { onImageTap(index) }
         } else {
             base
+        }
+    }
+
+    private func carouselImage(_ image: UIImage) -> some View {
+        carouselImageBase
+            .overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(.rect(cornerRadii: .init(top: topRadius, bottom: bottomRadius)))
+            .padding(.horizontal, hPadding)
+            .containerRelativeFrame(.horizontal) { length, _ in
+                length.isFinite ? length : 0
+            }
+    }
+
+    @ViewBuilder
+    private var carouselImageBase: some View {
+        if fillsContainerHeight {
+            Color.clear
+        } else {
+            Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
         }
     }
 }
@@ -109,7 +110,7 @@ struct CardImageCarousel: View {
     
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            ImageCarousel(
+            ScoopImageCarousel(
                 images: images,
                 hPadding: imagePadding,
                 topRadius: topRadius,

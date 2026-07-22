@@ -51,7 +51,7 @@ extension ProfileImageView {
     }
 
     private var imageCarousel: some View {
-        ImageCarousel(
+        ScoopImageCarousel(
             images: images,
             hPadding: Self.heroHPadding,
             topRadius: CornerRadius.image,

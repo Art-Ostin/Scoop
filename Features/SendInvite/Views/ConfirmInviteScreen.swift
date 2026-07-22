@@ -137,7 +137,7 @@ extension ConfirmInviteScreen {
         
     private var timePlaceTypeSection: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
-            lineSection(image: "EventClockIcon", text: timeSectionString)
+            lineSection(image: "EventClockIcon", text: event.time.formatMultipleInvitedDays())
                 .foregroundStyle(Color.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -198,39 +198,5 @@ extension ConfirmInviteScreen {
             }
             .offset(y: -Spacing.xxs)
         }
-    }
-}
-
-//Time Section
-extension ConfirmInviteScreen {
-    
-    private var timeSectionString: String {
-        let days = event.time.availableDates()
-        
-        let value: String = {
-            if days.count == 1, let day = days.first {
-                return FormatEvent.dayAndTime(day)
-            }
-            return days.indices.map { index in
-                let day = days[index]
-                let isLast = index == days.count - 1
-                
-                return FormatEvent.shortDayAndTime(
-                    day,
-                    withHour: isLast
-                ) + daySuffix(at: index, dayCount: days.count)
-            }
-            .joined()
-        }()
-        
-        return value
-    }
-    
-    private func daySuffix(at index: Int, dayCount: Int) -> String {
-        guard index < dayCount - 1 else {
-            return ""
-        }
-        
-        return index == dayCount - 2 ? " or " : ", "
     }
 }

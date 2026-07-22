@@ -21,6 +21,10 @@ struct InvitesContainer: View {
             TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
                 ForEach(vm.invites, id: \.self) { invite in
                     inviteCard(invite)
+                        .task { await vm.ensureImagesLoaded(for: invite.profile) }
+                        .onAppear {
+                            print(invite.profile.name)
+                        }
                 }
             }
         }
@@ -68,14 +72,14 @@ extension InvitesContainer {
         }
     }
     
+    @ViewBuilder
     private func inviteCard(_ invite: EventProfile) -> some View {
-        InviteCard(
-            selectedProfile: $ui.selectedProfile,
-            draft: vm.draftBinding(for: invite),
-            eventProfile: invite,
-            onRespond: {ui.showRespondPopup = invite.event.id}
-        )
-        .task { await vm.ensureImagesLoaded(for: invite.profile) }
+        if let image = invite.image {
+            InviteCard(image: image, name: invite.profile.name, draft: vm.draftBinding(for: invite), openInvite: .constant(false))
+                .onAppear {
+                    print(invite.event.type.longTitle)
+                }
+        }
     }
 }
 

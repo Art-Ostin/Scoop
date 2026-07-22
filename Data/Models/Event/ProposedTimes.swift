@@ -82,4 +82,34 @@ struct ProposedTimes: Codable, Equatable  {
         let start = calendar.startOfDay(for: day)
         return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: start)
     }
+    
+}
+
+//To format Multiple days
+extension ProposedTimes {
+    
+    func formatMultipleInvitedDays() -> String {
+    
+        let value: String = {
+            if dates.count == 1, let day = dates.first {
+                return FormatEvent.dayAndTime(day.date)
+            }
+            return dates.indices.map { index in
+                let day = dates[index]
+                let isLast = index == dates.count - 1
+                
+                return FormatEvent.shortDayAndTime(day.date, withHour: isLast) + daySuffix(at: index, dayCount: dates.count)
+            }
+            .joined()
+        }()
+        return value
+    }
+
+    private func daySuffix(at index: Int, dayCount: Int) -> String {
+        guard index < dayCount - 1 else {
+            return ""
+        }
+        
+        return index == dayCount - 2 ? " or " : ", "
+    }
 }

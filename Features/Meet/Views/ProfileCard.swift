@@ -25,7 +25,7 @@ struct ProfileCard : View {
     private var zoomFlying: Bool { ImageZoom.isFlying(profile.profile.id) }
 
     var body: some View {
-        ScoopImage(image: profile.image, showShadow: false, zoomSourceID: profile.profile.id) //ImageZoom flies the profile out of this image
+        ScoopImage(image: profile.image, zoomSourceID: profile.profile.id) //ImageZoom flies the profile out of this image
             .opacity(quickInviteHidden ? 0 : 1)
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) {cardOverlay}
