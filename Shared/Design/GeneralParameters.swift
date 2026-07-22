@@ -101,7 +101,7 @@ enum AspectRatio {
         case .square:             1 / 1
         case .card:               1 / 1.05
         case .default:            1 / 1.12
-        case .inviteCard:         1 / 1.5
+        case .inviteCard:         1 / 1.55
         case .invitedImage:       1 / 0.97
         case .confirmInviteImage: 1 / 0.88
         }

@@ -26,6 +26,7 @@ struct InviteCard: View {
             .modifier(BlurAndGradientBackground())
             .overlay(alignment: .bottom) {overlayText}
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.top, -16)
     }
 }
 
@@ -143,6 +144,7 @@ struct BlurAndGradientBackground: ViewModifier {
                 noise: 0
             )
             .overlay { blackGradient }
+            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: 20)))
     }
     
     private var blackGradient: some View {
@@ -159,7 +161,6 @@ struct BlurAndGradientBackground: ViewModifier {
         .allowsHitTesting(false)
     }
 }
-
 
 extension View {
     func oneLineLimitAndShrink() -> some View {

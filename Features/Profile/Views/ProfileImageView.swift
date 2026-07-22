@@ -51,9 +51,9 @@ extension ProfileImageView {
     }
 
     private var imageCarousel: some View {
-        ScoopImageCarousel(
+        ImageCarousel(
             images: images,
-            hPadding: Self.heroHPadding,
+            pageInset: Self.heroHPadding,
             topRadius: CornerRadius.image,
             bottomRadius: CornerRadius.image,
             aspectRatio: pagerAspect,

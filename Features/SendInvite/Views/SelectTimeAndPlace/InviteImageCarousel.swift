@@ -38,9 +38,9 @@ struct InviteImageCarousel: View {
     static let imagePadding: CGFloat = 0
 
     var body: some View {
-        ScoopImageCarousel(
+        ImageCarousel(
             images: images,
-            hPadding: inset,
+            pageInset: inset,
             topRadius: 0,
             bottomRadius: 0,
             aspectRatio: confirmInviteScreen ? .confirmInviteImage : .invitedImage,

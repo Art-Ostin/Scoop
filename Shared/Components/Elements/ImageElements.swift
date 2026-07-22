@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-//A single, screen-inset app image. Carousel page geometry lives in ScoopImageCarousel.
+//A single, screen-inset app image. Carousel page geometry lives in ImageCarousel.
 struct ScoopImage: View {
     let image: UIImage
 
@@ -20,8 +20,9 @@ struct ScoopImage: View {
             .aspectRatio(aspectRatio.ratio, contentMode: .fit)
             .overlay { imageContent }
             .clipShape(.rect(cornerRadius: cornerRadius))
+        
+            //So overlay content fits on the image shrink width to fit scren
             .containerRelativeFrame(.horizontal) { length, _ in
-                guard length.isFinite else { return 0 }
                 return max(length - Spacing.gutter * 2, 0)
             }
     }
@@ -38,11 +39,12 @@ struct ScoopImage: View {
     }
 }
 
-struct ScoopImageCarousel: View {
+
+struct ImageCarousel: View {
     let images: [UIImage]
 
     // Geometry
-    let hPadding: CGFloat
+    let pageInset: CGFloat
     let topRadius: CGFloat
     let bottomRadius: CGFloat
     var aspectRatio: AspectRatio
@@ -56,7 +58,7 @@ struct ScoopImageCarousel: View {
     var body: some View {
         PagerScrollView(progress: $scrollProgress) {
             ForEach(images.indices, id: \.self) { index in
-                carouselImage(images[index], index: index)
+                imagePage(images[index], index: index)
             }
         }
         .scrollPosition($scrollPosition)
@@ -64,37 +66,57 @@ struct ScoopImageCarousel: View {
         .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: true)
         .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: false)
     }
+    
+    
+    
+    
+    
+    
 
     @ViewBuilder
-    private func carouselImage(_ image: UIImage, index: Int) -> some View {
-        let base = carouselImage(image)
+    private func imagePage(_ image: UIImage, index: Int) -> some View {
+        let page = CarouselImage(
+            image: image,
+            aspectRatio: aspectRatio,
+            radii: .init(top: topRadius, bottom: bottomRadius),
+            pageInset: pageInset,
+            fillsContainerHeight: fillsContainerHeight
+        )
         if let onImageTap {
-            base.contentShape(Rectangle()).onTapGesture { onImageTap(index) }
+            page.contentShape(Rectangle()).onTapGesture { onImageTap(index) }
         } else {
-            base
+            page
         }
     }
 
-    private func carouselImage(_ image: UIImage) -> some View {
-        carouselImageBase
-            .overlay {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            }
-            .clipShape(.rect(cornerRadii: .init(top: topRadius, bottom: bottomRadius)))
-            .padding(.horizontal, hPadding)
-            .containerRelativeFrame(.horizontal) { length, _ in
-                length.isFinite ? length : 0
-            }
-    }
+    private struct CarouselImage: View {
+        let image: UIImage
+        let aspectRatio: AspectRatio
+        let radii: RectangleCornerRadii
+        let pageInset: CGFloat
+        let fillsContainerHeight: Bool
 
-    @ViewBuilder
-    private var carouselImageBase: some View {
-        if fillsContainerHeight {
-            Color.clear
-        } else {
-            Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
+        var body: some View {
+            base
+                .overlay {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                }
+                .clipShape(.rect(cornerRadii: radii))
+                .padding(.horizontal, pageInset)
+                .containerRelativeFrame(.horizontal) { length, _ in
+                    length.isFinite ? length : 0
+                }
+        }
+
+        @ViewBuilder
+        private var base: some View {
+            if fillsContainerHeight {
+                Color.clear
+            } else {
+                Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
+            }
         }
     }
 }
@@ -110,9 +132,9 @@ struct CardImageCarousel: View {
     
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            ScoopImageCarousel(
+            ImageCarousel(
                 images: images,
-                hPadding: imagePadding,
+                pageInset: imagePadding,
                 topRadius: topRadius,
                 bottomRadius: CornerRadius.sm,
                 aspectRatio: AspectRatio.card,
