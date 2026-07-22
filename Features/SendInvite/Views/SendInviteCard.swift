@@ -227,11 +227,6 @@ extension SendInviteCard {
 //Open/landing state machine
 extension SendInviteCard {
     
-//    private var confirmBackButton: some View {
-//        
-//        
-//    }
-
     private func openWhenMeasured() {
         guard !hasOpened, imageFrame.height > 50, cardFrame.height > 50 else { return }
         hasOpened = true

@@ -11,27 +11,30 @@ struct ToggleResponseMode: View {
     
     //Update the invite response type when changed
     @Binding var responseType: ResponseType
-    @Binding var showNewTime: Bool
+    @Binding var timePopupPage: TimePopupPage?
     
     //Do not update to 'modified response type' when changing if no proposedTimes
     var anyNewProposedTimes: Bool
     var anyAvailableInvitedDays: Bool
     
     var body: some View {
-            Button {
-                switchView()
-            } label: {
-                if showNewTime {
-                    optionsLabel
-                } else {
-                    cantMakeItLabel
-                }
+        
+        
+        ZStack {
+            if timePopupPage == .newTime {
+                optionsLabel
+            } else {
+                cantMakeItLabel
             }
-            .shrinkPress()
         }
+        .shrinkPress {
+            switchView()
+        }
+    }
 }
 
 extension ToggleResponseMode {
+    
     private var optionsLabel: some View {
         Text("Options")
             .foregroundStyle(Color.successGreen)
@@ -51,12 +54,18 @@ extension ToggleResponseMode {
     }
     
     private func switchView() {
-        showNewTime.toggle()
-        if showNewTime { //Only switch the type to modified, if I have modified selected
+        togglePage()
+        if timePopupPage == .newTime { //Only switch the type to modified, if I have modified selected
             if anyNewProposedTimes { responseType = .modified }
         } else {//Only switches if there are available dates
             if anyAvailableInvitedDays { responseType = .original}
         }
+    }
+    
+    private func togglePage() {
+        timePopupPage = timePopupPage == .newTime
+        ? .invitedTimes
+        : .newTime
     }
 }
 
