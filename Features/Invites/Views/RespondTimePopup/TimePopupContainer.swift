@@ -10,26 +10,32 @@ import SwiftUI
 enum TimePopupPage: Hashable { case invitedTimes, newTime}
 
 struct TimePopupContainer: View {
+
+    @State private var invitedTimesHeight: CGFloat = 0
+    @State private var selectTimeHeight: CGFloat = 0
     
-    //Injected -- three values can change (1) The response Type (2) The selected Day (3) Modified Invite proposed Times
+    //Injected -- three values can change (1) The response Type (2) The selected Day (3) Modified Invite proposed Times (4) Which pop
     @Binding var respondType: ResponseType
     @Binding var selectedDay: Date?
     @Binding var newProposedTimes: ProposedTimes
-    
+    @Binding var page: TimePopupPage?
+
     //ProposedTimes open here.
     let times: ProposedTimes
     
-    @Binding var page: TimePopupPage?
+    
+    
     
     var body: some View {
         VStack(spacing: 0) {
             popupTitleAndButton
             pagerSection
         }
-        .padding(.vertical, 20)
-        .frame(maxWidth: 320)
-        .background(Color.appCanvas.opacity(0.9), in: .rect(cornerRadius: CornerRadius.customMenu))
-        .animation(.spring(duration: 0.2), value: page)
+        .padding(.top, 20)
+        .padding(.bottom, page == .invitedTimes ? 20 :  -Spacing.xs)
+        .frame(maxWidth: page == .invitedTimes ? 310 : 330)
+        .background(Color.white, in: .rect(cornerRadius: CornerRadius.customMenu))
+        .animation(.spring(duration: 0.3), value: page)
     }
 }
 
@@ -62,25 +68,36 @@ extension TimePopupContainer {
                 anyAvailableInvitedDays: times.availableDates().count > 0
             )
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.margin)
         .padding(.bottom, 16)
     }
     
     
 
     private var pagerSection: some View {
-        PagerScrollView {
+        PagerScrollView(verticalAlignment: .top) {
             InvitedTimes(proposedTimes: times, selectedDay: $selectedDay, respondType: $respondType)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, Spacing.margin)
                 .containerRelativeFrame(.horizontal)
+                .fixedSize(horizontal: false, vertical: true)
+                .getHeight($invitedTimesHeight)
                 .id(TimePopupPage.invitedTimes)
             
-            RespondNewTime()
-                .padding(.horizontal, 24)
+            SelectTimeView(proposedTimes: $newProposedTimes, isRespondMode: true)
+                .padding(.horizontal, Spacing.margin)
                 .containerRelativeFrame(.horizontal)
+                .fixedSize(horizontal: false, vertical: true)
+                .getHeight($selectTimeHeight)
                 .id(TimePopupPage.newTime)
         }
+        .frame(height: activePageHeight, alignment: .top)
+        .clipped()
         .scrollPosition(id: $page)
         .scrollDisabled(true)
+    }
+
+    private var activePageHeight: CGFloat? {
+        let height = page == .newTime ? selectTimeHeight : invitedTimesHeight
+        return height > 0 ? height : nil
     }
 }

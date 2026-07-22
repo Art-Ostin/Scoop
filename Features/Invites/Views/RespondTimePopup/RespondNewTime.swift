@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct RespondNewTime: View {
+    
+    @Binding var proposedTimes: ProposedTimes
+    
+    @State var dayWarning: DayWarning? = nil
+    
     var body: some View {
         VStack {
-            Text("Hello World")
-            Text("Hello World")
-            Text("Hello World")
-            Text("Hello World")
+            
+            DayPicker(proposedTimes: $proposedTimes, dayWarning: $dayWarning, selectedHour: 4, selectedMinute: 30)
+            
+            
         }
         .foregroundStyle(Color.black)
     }

@@ -17,12 +17,14 @@ struct TimePicker: View {
             Picker("Hour", selection: $selectedHour) {
                 ForEach(0..<24, id: \.self) { h in
                     Text(String(format: "%02d", h)).tag(h)
+                        .foregroundStyle(Color.black)
                 }
             }
 
             Picker("Minute", selection: $selectedMinute) {
                 ForEach([00, 15, 30, 45], id: \.self) { m in
                     Text(String(format: "%02d", m)).tag(m)
+                        .foregroundStyle(Color.black)
                 }
             }
         }

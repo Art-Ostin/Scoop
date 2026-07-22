@@ -83,6 +83,7 @@ struct DayCell: View {
     
     let day: Date
     let isSelected: Bool
+    
     let onTap: () -> Bool
     
     var isToday: Bool {
@@ -98,7 +99,7 @@ struct DayCell: View {
                 .frame(width: 36, height: 36, alignment: .center)                       // bigger circle for 20pt number
                 .background {
                     Circle()
-                        .fill(isSelected ? Color.accent : Color.clear)
+                        .fill(isSelected ? Color.blackFill : Color.clear)
                         .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
                 }
         }

@@ -10,11 +10,12 @@ import SwiftUI
 struct PagerScrollView<Content: View>: View {
     var peek: CGFloat = 0
     var progress: Binding<Double>? = nil
+    var verticalAlignment: VerticalAlignment = .center
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 0) {
+            HStack(alignment: verticalAlignment, spacing: 0) {
                 content
             }
             .scrollTargetLayout()

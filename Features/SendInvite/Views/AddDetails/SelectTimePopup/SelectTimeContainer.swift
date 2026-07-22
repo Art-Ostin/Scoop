@@ -19,9 +19,14 @@ struct SelectTimeView: View {
     @State private var selectedMinute: Int
     @State private var warning: DayWarning?
     @State private var showSaved = false
+    let isRespondMode: Bool
 
-    init(proposedTimes: Binding<ProposedTimes>) {
+    init(
+        proposedTimes: Binding<ProposedTimes>,
+        isRespondMode: Bool = false
+    ) {
         _proposedTimes = proposedTimes
+        self.isRespondMode = isRespondMode
 
         let components = proposedTimes.wrappedValue.dates.first.map {
             Calendar.current.dateComponents([.hour, .minute], from: $0.date)
@@ -46,31 +51,36 @@ struct SelectTimeView: View {
             TimePicker(selectedHour: $selectedHour, selectedMinute: $selectedMinute)
                 .padding(.top, -Spacing.xs)
         }
-        .modifier(SelectTimeBackground())
-        .overlay(alignment: .bottomTrailing) { TimeDoneButton()}
+        .modifier(SelectTimeBackground(isRespondMode: isRespondMode))
+        .overlay(alignment: .bottomTrailing) { TimeDoneButton(isRespondMode: isRespondMode)}
         .onChange(of: selectedTimeInMinutes) { updateTime() }
         .task(id: warning) { await clickedUnavailableDay() }
         .savedFeedback(isPresented: $showSaved, tracking: selectedTimeInMinutes)
+        .overlay(alignment: isRespondMode ? .bottomLeading : .topTrailing) {
+            DayCountAndWarning(showSaved: showSaved, warning: warning, dayCount: displayedCount)
+                .padding()
+                .padding(.horizontal, isRespondMode ? -24 : 0)//Avoids double counting
+        }
     }
 }
 
 //Title Logic and Done Button
 private extension SelectTimeView {
     
+    @ViewBuilder
     private var titleSection: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Choose Time") //"Propose up to 3 days"
-                    .font(.body(17, .medium))
-                    .foregroundStyle(Color.textPrimary)
-                Text("Propose 1-3 days to meet")
-                    .font(.body(11, .regular))
-                    .foregroundStyle(Color.textTertiary)
+        if !isRespondMode {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Choose Time") //"Propose up to 3 days"
+                        .font(.body(17, .medium))
+                        .foregroundStyle(Color.textPrimary)
+                    Text("Propose 1-3 days to meet")
+                        .font(.body(11, .regular))
+                        .foregroundStyle(Color.textTertiary)
+                }
+                Spacer()
             }
-            Spacer()
-        }
-        .overlay(alignment: .topTrailing) {
-            DayCountAndWarning(showSaved: showSaved, warning: warning, dayCount: displayedCount)
         }
     }
     
@@ -94,11 +104,17 @@ private extension SelectTimeView {
 
 struct SelectTimeBackground: ViewModifier {
 
+    let isRespondMode: Bool
+    
     func body(content: Content) -> some View {
-        content
-            .padding(.horizontal, Spacing.margin)
-            .padding(.top, Spacing.md)
-            .padding(.bottom, -Spacing.xs) //Low bottom as scroll view on Bottom
+        if isRespondMode {
+            content
+        } else {
+            content
+                .padding(.horizontal, Spacing.margin)
+                .padding(.top, Spacing.md)
+                .padding(.bottom, -Spacing.xs) //Low bottom as scroll view on Bottom
+        }
     }
 }
 
@@ -107,6 +123,7 @@ struct TimeDoneButton: View {
     
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
     
+    var isRespondMode: Bool = false
     var body: some View {
             Button {
                 dismissMenu()
@@ -118,6 +135,7 @@ struct TimeDoneButton: View {
             }
             .shrinkButton()
             .padding(.bottom, Spacing.clearance - 14) //Positions it at top of time view
-            .padding(.horizontal, Spacing.margin)
+            .padding(.horizontal, isRespondMode ? 0 :  Spacing.margin)
+        
     }
 }

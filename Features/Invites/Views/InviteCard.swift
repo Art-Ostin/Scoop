@@ -105,8 +105,8 @@ extension InviteCard {
             respondType: $draft.respondType,
             selectedDay: $draft.originalInvite.selectedDay,
             newProposedTimes: $draft.newTime.proposedTimes,
-            times: draft.originalInvite.event.proposedTimes,
-            page: $timePopupPage
+            page: $timePopupPage,
+            times: draft.originalInvite.event.proposedTimes
         )
     }
     

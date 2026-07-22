@@ -27,6 +27,8 @@ extension Color {
 
     //3. Background Color App
     static let appCanvas = Color(red: 0.99, green: 0.98, blue: 0.97)
+    
+    static let blackFill = Color(red: 0.13, green: 0.13, blue: 0.13)
 
 
     //4. App Pallette
