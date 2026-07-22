@@ -70,7 +70,7 @@ extension InvitesContainer {
     
     @ViewBuilder
     private func inviteSlot(_ invite: EventProfile) -> some View {
-        InviteSlot(eventProfile: invite, draft: vm.draftBinding(for: invite), openInvite: .constant(false))
+        InviteSlot(eventProfile: invite, draft: vm.draftBinding(for: invite), openInvite: .constant(false), openProfile: $ui.selectedProfile)
             .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
 }

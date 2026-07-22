@@ -18,6 +18,7 @@ struct InviteCard: View {
     @Binding var draft: RespondDraft
     @Binding var openInvite: Bool
     
+    
     //Local Parameters
     @State private var timePopup = false
     
