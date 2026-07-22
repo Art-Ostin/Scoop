@@ -133,14 +133,14 @@ struct TimeDoneButton: View {
             Button {
                 dismissMenu()
             } label: {
-                Image("TickButton")
-                    .scaleEffect(0.9)
+                Image("WhiteTick")
+                    .scaleEffect(1.1)
                     .frame(width: 30, height: 30)
-                    .circleStroke(lineWidth: 1, color: .black)
+                    .background(Color.accent, in: Circle())
             }
             .shrinkButton()
             .padding(.bottom, Spacing.clearance - 14) //Positions it at top of time view
             .padding(.horizontal, isRespondMode ? 0 :  Spacing.margin)
-        
+            .padding(.bottom, isRespondMode ? 10 : 0) //Needed to line up
     }
 }

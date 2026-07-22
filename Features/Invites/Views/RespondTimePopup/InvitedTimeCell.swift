@@ -28,7 +28,7 @@ struct InvitedTimeCell: View {
         } label: {
             timeCellLabel
         }
-        .shrinkButton()
+        .buttonStyle(.plain)
         .task(id: isShaking) {await resetShakeFlag()}
     }
 }
@@ -101,11 +101,9 @@ extension InvitedTimeCell {
     }
     
     private func updateTimeAndDismissPopup() {
-        withAnimation(.toggle) {
-            selectedDay = date
-            responseType = .original
-            dismissMenu()
-        }
+        selectedDay = date
+        responseType = .original
+        dismissMenu()
     }
     
     private func resetShakeFlag()  async  {

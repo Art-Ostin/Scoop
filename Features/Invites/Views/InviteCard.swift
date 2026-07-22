@@ -20,7 +20,7 @@ struct InviteCard: View {
     
     //Local Parameters
     @State private var timePopupOpen = false
-    @State private var timePopupPage: TimePopupPage? = .invitedTimes //Must stay at this level
+    @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
     
     var body: some View {
         ScoopImage(image: image, aspectRatio: .inviteCard)

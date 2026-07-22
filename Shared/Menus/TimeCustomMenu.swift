@@ -1069,8 +1069,14 @@ private struct TimeCustomMenuOverlayRoot: View {
                 : 1
 
             ZStack(alignment: .topLeading) {
-                // Glass platter + menu content. The glass rides this layer so it
-                // can fade out independently of the label on close.
+                // Keep the platter glass behind the controls. Applying glass to the
+                // content itself captures native control chrome (including a wheel
+                // picker's system selection indicator) in the glass foreground pass.
+                Color.clear
+                    .frame(width: w, height: h)
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
+                    .opacity(glassOpacity)
+
                 content
                     .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
                     .scaleEffect(x: w / max(expanded.width, 1),
@@ -1079,8 +1085,6 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .blur(radius: (1 - p).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
                     .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
                     .frame(width: w, height: h, alignment: .topLeading)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
-                    .opacity(glassOpacity)
 
                 // The swallowed label, layered ON TOP of the glass so on close it
                 // outlives the glass fade and is what lands on the button.

@@ -54,7 +54,7 @@ extension TimePopupContainer {
                     .transition(.blurReplace)
                 
                 if page == .newTime { //Overlay so doesn't push invitedTimes view down during transition
-                    Text("Propose 1-3 days to meet")
+                    Text("Propose up to 3 days")
                         .font(.body(11, .regular))
                         .foregroundStyle(Color.textTertiary)
                 }

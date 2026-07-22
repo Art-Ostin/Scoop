@@ -101,6 +101,7 @@ struct DayCell: View {
                     Circle()
                         .fill(isSelected ? Color.blackFill : Color.clear)
                         .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
+                        .transaction { $0.animation = nil }
                 }
         }
         .frame(width: 28, alignment: .center)

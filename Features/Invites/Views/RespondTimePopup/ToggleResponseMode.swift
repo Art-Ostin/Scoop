@@ -39,15 +39,18 @@ struct ToggleResponseMode: View {
 extension ToggleResponseMode {
     
     private var optionsLabel: some View {
-        Text("Options")
-            .foregroundStyle(Color.accent)
-            .font(.title(12))
-            .padding(.vertical, Spacing.xxs)
-            .padding(.horizontal, Spacing.xs)
-            .kerning(0.5)
-            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.2))
-            .offset(y: -2)
+        HStack(spacing: Spacing.hairline) {
+            Image(systemName: "chevron.left")
+                .font(.body(10, .medium))
+            
+            Text("Options")
+        }
+        .foregroundStyle(Color.textSecondary)
+        .font(.body(12, .medium))
     }
+
+        
+        
     
     private var cantMakeItLabel: some View {
         Text("Can't make it?")
