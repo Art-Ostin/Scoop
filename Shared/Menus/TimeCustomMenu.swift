@@ -197,6 +197,9 @@ enum TimeCustomMenuSpec {
     static let lensTravelBias: CGFloat = 0.75
     /// Lens morph timing against the native open (~0.45s, slight settle).
     static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
+    /// Keeps the glass platter attached to content whose height changes while
+    /// the menu is open (for example, when a pager reveals a taller page).
+    static let reflowResize = Animation.spring(duration: 0.2)
     /// Shrinking back through the circles never bounces (~0.4s on device).
     static let bloomClose = Animation.smooth(duration: 0.38)
     /// After the close morph lands on the button, the lens halo melts off the
@@ -274,6 +277,9 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// measure exists (later opens reuse the cached measured size). Without it, the
     /// first-ever open falls back to blooming after the content has been measured.
     var estimatedContentSize: CGSize?
+    /// Keeps measuring while presented so the platter follows content reflow.
+    /// Leave off for fixed-height or expensive menu content.
+    var tracksContentSizeChanges: Bool
     /// Which label edge the menu aligns to (see `TimeCustomMenuAlignment`).
     var alignment: TimeCustomMenuAlignment
     /// Nudge applied to the final placement (positive = right / down). Defaults
@@ -302,6 +308,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          labelCornerRadius: CGFloat? = nil,
          morphAnchor: CGRect? = nil,
          estimatedContentSize: CGSize? = nil,
+         tracksContentSizeChanges: Bool = false,
          alignment: TimeCustomMenuAlignment = .automatic,
          placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
@@ -314,6 +321,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.labelCornerRadius = labelCornerRadius
         self.morphAnchor = morphAnchor
         self.estimatedContentSize = estimatedContentSize
+        self.tracksContentSizeChanges = tracksContentSizeChanges
         self.alignment = alignment
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.isOpen = isOpen
@@ -407,6 +415,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                     alignment: alignment,
                     placementOffset: placementOffset,
                     estimatedContentSize: estimatedContentSize,
+                    tracksContentSizeChanges: tracksContentSizeChanges,
                     onPresent: {
                         isOpen?.wrappedValue = true
                         onOpen?()
@@ -535,6 +544,8 @@ final class TimeCustomMenuController {
     /// Caller's rough platter size, used to start the open bloom before the live
     /// measure lands (e.g. the first-ever open, when nothing is cached yet).
     @ObservationIgnored private(set) var estimatedContentSize: CGSize?
+    /// Whether the overlay keeps a sizing pass mounted after its initial measure.
+    @ObservationIgnored private(set) var tracksContentSizeChanges = false
     /// Size measured on a previous open of this menu. Lets later opens bloom from
     /// the exact size with no measure wait; persists across teardown (the controller
     /// instance outlives each presentation).
@@ -563,6 +574,7 @@ final class TimeCustomMenuController {
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
                  estimatedContentSize: CGSize? = nil,
+                 tracksContentSizeChanges: Bool = false,
                  onPresent: (() -> Void)? = nil,
                  onClose: (() -> Void)? = nil,
                  content: @escaping () -> AnyView) {
@@ -581,6 +593,7 @@ final class TimeCustomMenuController {
         self.alignment = alignment
         self.placementOffset = placementOffset
         self.estimatedContentSize = estimatedContentSize
+        self.tracksContentSizeChanges = tracksContentSizeChanges
         self.onClose = onClose
         self.content = content
         phase = .measuring
@@ -667,6 +680,7 @@ final class TimeCustomMenuController {
         labelCornerRadius = nil
         alignment = .automatic
         placementOffset = .zero
+        tracksContentSizeChanges = false
         collapseAnchor = .zero
         morphAnchor = nil
         items = [:]
@@ -811,10 +825,9 @@ private struct TimeCustomMenuOverlayRoot: View {
         // a build hitch.
         let knownSize = menuSize ?? controller.cachedMenuSize ?? controller.estimatedContentSize
 
-        // Hidden sizing copy — only needed until we have a real measured size to
-        // cache. Once cached, later opens skip it entirely, so the heavy content is
-        // built once per open (not twice) and the bloom stays cheap.
-        if controller.cachedMenuSize == nil {
+        // Dynamic menus keep a non-interactive sizing copy mounted while open;
+        // fixed menus drop it after the initial measurement and use the cache.
+        if controller.cachedMenuSize == nil || controller.tracksContentSizeChanges {
             chromeCore(content: content, metrics: metrics)
                 .environment(\.timeCustomMenuIsMeasuring, true)
                 .opacity(0)
@@ -824,9 +837,17 @@ private struct TimeCustomMenuOverlayRoot: View {
                 } action: { size in
                     // Wait for the scroll-capped pass before trusting oversized menus.
                     guard size.height <= metrics.maxHeight + 1 else { return }
-                    menuSize = size
+                    let placed = CGRect(origin: metrics.placement(for: size).origin, size: size)
+                    if bloomStarted && controller.tracksContentSizeChanges {
+                        withAnimation(TimeCustomMenuSpec.reflowResize) {
+                            menuSize = size
+                            controller.menuFrame = placed
+                        }
+                    } else {
+                        menuSize = size
+                        controller.menuFrame = placed
+                    }
                     controller.cacheMenuSize(size)
-                    controller.menuFrame = CGRect(origin: metrics.placement(for: size).origin, size: size)
                 }
         }
 

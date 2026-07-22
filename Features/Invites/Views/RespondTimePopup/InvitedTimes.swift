@@ -19,12 +19,11 @@ struct InvitedTimes: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
                 inviteTimeCell(idx, time)
             }
         }
-        .padding(.bottom, Spacing.md)
     }
 }
 

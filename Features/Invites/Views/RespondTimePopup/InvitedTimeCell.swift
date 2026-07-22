@@ -23,7 +23,6 @@ struct InvitedTimeCell: View {
     private var isSelected: Bool { selectedDay == date }
 
     var body: some View {
-        
         Button {
             clickCell()
         } label: {
@@ -37,7 +36,7 @@ struct InvitedTimeCell: View {
 extension InvitedTimeCell {
     
     private var timeCellLabel: some View {
-        VStack(alignment: .leading, spacing: Spacing.xxs) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             optionTypeText
             eventTimeText
         }
@@ -49,13 +48,15 @@ extension InvitedTimeCell {
     private var optionTypeText: some View {
         Text("Option \(idx + 1)")
             .font(.body(14, .medium))
-            .foregroundStyle(isSelected ? Color.successGreen : Color.textTertiary)
+            .foregroundStyle(isSelected ? Color.textAccent : Color.textTertiary)
     }
     
     private var eventTimeText: some View {
         let (weekday, month, hour) = formattedDateParts
         return Group {
-            Text("\(weekday) \(month) ·").font(.body(16, status != .available ? .regular : .medium))
+            Text("\(weekday) \(month) ·")
+                .font(.body(16, status != .available ? .regular : .medium))
+                .foregroundStyle(Color.textPrimary)
             +
             Text(" \(hour)").font(.body(14)).foregroundStyle(Color.textTertiary)
         }
@@ -122,7 +123,7 @@ extension View {
             .padding(.vertical, Spacing.sm)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
-            .opacity(isAvailable ? 0.4 : 1)
-            .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.successGreen.opacity(0.35) : Color.border)
+//            .opacity(isAvailable ? 0.4 : 1)
+            .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.accent.opacity(0.35) : Color.border)
     }
 }

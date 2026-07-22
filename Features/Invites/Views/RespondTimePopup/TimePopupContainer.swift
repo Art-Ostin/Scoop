@@ -19,17 +19,16 @@ struct TimePopupContainer: View {
     //ProposedTimes open here.
     let times: ProposedTimes
     
-    @State var page: TimePopupPage? = .invitedTimes
+    @Binding var page: TimePopupPage?
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             popupTitleAndButton
             pagerSection
         }
-        .contentMargins(.horizontal, 24)
-        .padding(.vertical, 24)
+        .padding(.vertical, 20)
         .frame(maxWidth: 320)
-        .background(Color.appCanvas, in: .rect(cornerRadius: 36))
+        .background(Color.appCanvas.opacity(0.5), in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.2), value: page)
     }
 }
@@ -38,16 +37,19 @@ extension TimePopupContainer {
     
     private var popupTitleAndButton: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(page == .invitedTimes ? "Invited Times" : "Choose New Time")
+            ZStack(alignment: .leading) {
+                Text(page == .newTime ? "Choose New Time" : "Invited Times")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPrimary)
+                    .id(page == .newTime)
                     .transition(.blurReplace)
-                
-                if page == .newTime {
+            }
+            .overlay(alignment: .bottomLeading) {
+                if page == .newTime { //Overlay so doesn't push invitedTimes view down during transition
                     Text("Propose 1-3 days to meet")
                         .font(.body(11, .regular))
                         .foregroundStyle(Color.textTertiary)
+                        .offset(y: 12)
                 }
             }
             
@@ -60,16 +62,21 @@ extension TimePopupContainer {
                 anyAvailableInvitedDays: times.availableDates().count > 0
             )
         }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
     }
     
     
+
     private var pagerSection: some View {
         PagerScrollView {
             InvitedTimes(proposedTimes: times, selectedDay: $selectedDay, respondType: $respondType)
+                .padding(.horizontal, 24)
                 .containerRelativeFrame(.horizontal)
                 .id(TimePopupPage.invitedTimes)
             
             RespondNewTime()
+                .padding(.horizontal, 24)
                 .containerRelativeFrame(.horizontal)
                 .id(TimePopupPage.newTime)
         }

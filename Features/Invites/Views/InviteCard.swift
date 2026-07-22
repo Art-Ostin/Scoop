@@ -20,6 +20,7 @@ struct InviteCard: View {
     
     //Local Parameters
     @State private var timePopup = false
+    @State private var timePopupPage: TimePopupPage? = .invitedTimes
     
     var body: some View {
         ScoopImage(image: image, aspectRatio: .inviteCard)
@@ -83,7 +84,11 @@ extension InviteCard {
     
     
     private var timeMenu: some View {
-        TimeCustomMenu(cornerRadius: 36, placementOffsetX: 0, placementOffsetY: -156) {
+        TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
+                       tracksContentSizeChanges: true,
+                       placementOffsetX: 0,
+                       placementOffsetY: 24,
+                       onOpen: { timePopupPage = .invitedTimes }) {
             timePopupContainer
         } label: {
             timeRow
@@ -96,11 +101,10 @@ extension InviteCard {
             respondType: $draft.respondType,
             selectedDay: $draft.originalInvite.selectedDay,
             newProposedTimes: $draft.newTime.proposedTimes,
-            times: draft.originalInvite.event.proposedTimes
+            times: draft.originalInvite.event.proposedTimes,
+            page: $timePopupPage
         )
     }
-    
-    
     
     // Logic with the time
     private var timeRow: some View {
@@ -111,34 +115,6 @@ extension InviteCard {
         .oneLineLimitAndShrink()
     }
 
-    
-    /*
-     
-     private var timeMenu: some View {
-         TimeCustomMenu(morphAnchor: morphAnchor,
-                        estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
-                        placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
-                        placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
-                        onOpen: openMenu, onClose: closeMenu) {
-             SelectTimeView(proposedTimes: $draft)
-                 .frame(width: timeMenuWidth)
-                 .zIndex(2)
-         } label: {
-             TimeRowMenuLabel(
-                 times: times,
-                 scrollProgress: $scrollProgress,
-                 scrolledPageID: $scrolledPageID,
-                 activeTimeFrame: $activeTimeFrame,
-                 chooseTimeFrame: $chooseTimeFrame,
-                 chevronFrame: $chevronFrame,
-                 rowHeight: rowHeight,
-                 primaryContentOffset: primaryContentOffset
-             )
-         }
-         .environment(\.isLiveInviteRow, true)
-     }
-     */
-    
     
     
     private var timeChevron: some View {
@@ -222,7 +198,3 @@ extension View {
             .allowsTightening(true)
     }
 }
-
-
-
-
