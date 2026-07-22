@@ -709,6 +709,14 @@
 			path = StaticData;
 			sourceTree = "<group>";
 		};
+		652B218730112A4100646BB0 /* ConfirmInviteScreen */ = {
+			isa = PBXGroup;
+			children = (
+				65AF6CB7300664170028A4C2 /* ConfirmInviteScreen.swift */,
+			);
+			path = ConfirmInviteScreen;
+			sourceTree = "<group>";
+		};
 		652D3D2A2F2E942900AE491D /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -987,8 +995,8 @@
 				65B86D362FFCBBE80076683A /* SendInviteCard.swift */,
 				65AF6CBC3006744A0028A4C2 /* InviteSectionContainer.swift */,
 				656B9B2830020999000BE57D /* InviteDragLogic.swift */,
-				65AF6CB7300664170028A4C2 /* ConfirmInviteScreen.swift */,
 				6564C5A73008BF0D003195F0 /* ImageZoom.swift */,
+				652B218730112A4100646BB0 /* ConfirmInviteScreen */,
 				65AF6CBE300675AF0028A4C2 /* SelectTimeAndPlace */,
 				6549DA772F9E884200C89DF2 /* Rows */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
