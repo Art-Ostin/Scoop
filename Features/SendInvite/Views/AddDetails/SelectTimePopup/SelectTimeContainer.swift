@@ -59,7 +59,8 @@ struct SelectTimeView: View {
         .overlay(alignment: isRespondMode ? .bottomLeading : .topTrailing) {
             DayCountAndWarning(showSaved: showSaved, warning: warning, dayCount: displayedCount)
                 .padding()
-                .padding(.horizontal, isRespondMode ? -24 : 0)//Avoids double counting
+                .padding(.horizontal, isRespondMode ? -20 : 0)//Avoids double counting
+                .padding(.bottom, isRespondMode ? 8 : 0)
         }
         .onGeometryChange(for: CGSize.self) { geo in
             geo.size
@@ -67,7 +68,6 @@ struct SelectTimeView: View {
             print("Height is: \(newValue.height)")
             print("Width is: \(newValue.width)")
         }
-
     }
 }
 
@@ -77,17 +77,15 @@ private extension SelectTimeView {
     @ViewBuilder
     private var titleSection: some View {
         if !isRespondMode {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Choose Time") //"Propose up to 3 days"
-                        .font(.body(17, .medium))
-                        .foregroundStyle(Color.textPrimary)
-                    Text("Propose 1-3 days to meet")
-                        .font(.body(11, .regular))
-                        .foregroundStyle(Color.textTertiary)
-                }
-                Spacer()
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Choose Time") //"Propose up to 3 days"
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.textPrimary)
+                Text("Propose 1-3 days to meet")
+                    .font(.body(11, .regular))
+                    .foregroundStyle(Color.textTertiary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     

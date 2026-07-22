@@ -24,6 +24,7 @@ struct InvitesContainer: View {
                 }
             }
         }
+        .background { TimePickerWarmUp() }
         .profileMorphHost(profileMorph)
         
         //Different sub views of meetContainer

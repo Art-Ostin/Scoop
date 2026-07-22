@@ -49,7 +49,7 @@ struct InviteTimeRow: View {
                 .padding(.bottom, InviteRowMetrics.bottomPadding(showsIndicator: showsPageIndicator))
                 .opacity(typePopupOpen ? 0 : 1)
         }
-        .background { pickerWarmUp }
+        .background { TimePickerWarmUp() }
         .transition(.opacity.animation(.transition))
     }
 }
@@ -153,19 +153,6 @@ extension InviteTimeRow {
         }
     }
 
-    //Hidden + inert: pays UIPickerView's one-time, process-wide setup cost up front.
-    private var pickerWarmUp: some View {
-        HStack(spacing: 0) {
-            Picker("", selection: .constant(0)) { Text("0").tag(0) }
-            Picker("", selection: .constant(0)) { Text("0").tag(0) }
-        }
-        .pickerStyle(.wheel)
-        .labelsHidden()
-        .frame(width: 1, height: 1)
-        .opacity(0)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
 }
 
 //The menu's label: the live pager in the row, or the collapsed time the morph carries.

@@ -24,15 +24,21 @@ struct TimePopupContainer: View {
     let times: ProposedTimes
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: page == .invitedTimes ? Spacing.md : Spacing.sm) {
             popupTitleAndButton
             pagerSection
         }
-        .padding(.top, page == .invitedTimes ? 20 : 16)
+        .padding(.top, page == .invitedTimes ? 20 : Spacing.md)
         .padding(.bottom, page == .invitedTimes ? 20 :  -Spacing.xs)
-        .frame(maxWidth: page == .invitedTimes ? 310 : 325)
+        .frame(maxWidth: page == .invitedTimes ? 310 : 325) //Width matches that in SelectTimeView
         .background(Color.white, in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.3), value: page)
+        .onGeometryChange(for: CGSize.self) { geo in
+            geo.size
+        } action: { newValue in
+            print("Height is: \(newValue.height)")
+            print("Width is: \(newValue.width)")
+        }
     }
 }
 
@@ -40,24 +46,20 @@ extension TimePopupContainer {
     
     private var popupTitleAndButton: some View {
         HStack(alignment: .top) {
-            ZStack(alignment: .leading) {
-                Text(page == .newTime ? "Choose New Time" : "Invited Times")
+            VStack(alignment: .leading, spacing: 4) {
+                Text(page == .newTime ? "Suggest New Time" : "Invited Times")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPrimary)
                     .id(page == .newTime)
                     .transition(.blurReplace)
-            }
-            .overlay(alignment: .bottomLeading) {
+                
                 if page == .newTime { //Overlay so doesn't push invitedTimes view down during transition
                     Text("Propose 1-3 days to meet")
                         .font(.body(11, .regular))
                         .foregroundStyle(Color.textTertiary)
-                        .offset(y: 12)
                 }
             }
-            
             Spacer()
-            
             ToggleResponseMode(
                 responseType: $respondType,
                 timePopupPage: $page,
@@ -66,10 +68,7 @@ extension TimePopupContainer {
             )
         }
         .padding(.horizontal, Spacing.margin)
-        .padding(.bottom, 16)
     }
-    
-    
 
     private var pagerSection: some View {
         PagerScrollView(verticalAlignment: .top) {

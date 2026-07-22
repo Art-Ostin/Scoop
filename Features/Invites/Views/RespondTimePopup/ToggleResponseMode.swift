@@ -40,12 +40,12 @@ extension ToggleResponseMode {
     
     private var optionsLabel: some View {
         Text("Options")
-            .foregroundStyle(Color.successGreen)
+            .foregroundStyle(Color.accent)
             .font(.title(12))
             .padding(.vertical, Spacing.xxs)
             .padding(.horizontal, Spacing.xs)
             .kerning(0.5)
-            .stroke(CornerRadius.md, lineWidth: 1, color: Color.successGreen.opacity(0.2))
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.2))
             .offset(y: -2)
     }
     

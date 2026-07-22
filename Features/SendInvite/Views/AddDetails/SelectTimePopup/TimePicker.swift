@@ -35,3 +35,19 @@ struct TimePicker: View {
         .frame(maxWidth: .infinity)
     }
 }
+
+//Mount before presenting a wheel picker so UIKit completes its one-time setup offscreen.
+struct TimePickerWarmUp: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            Picker("", selection: .constant(0)) { Text("0").tag(0) }
+            Picker("", selection: .constant(0)) { Text("0").tag(0) }
+        }
+        .pickerStyle(.wheel)
+        .labelsHidden()
+        .frame(width: 1, height: 1)
+        .opacity(0)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
