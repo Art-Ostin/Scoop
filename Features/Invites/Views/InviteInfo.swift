@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InviteCardInfoPager: View {
+struct InviteInfo: View {
     
     let event: EventProfile
     
@@ -29,7 +29,7 @@ struct InviteCardInfoPager: View {
     }
 }
 
-extension InviteCardInfoPager {
+extension InviteInfo {
     
     private var scrollView: some View {
         PagerScrollView(progress: $scrollProgress) {

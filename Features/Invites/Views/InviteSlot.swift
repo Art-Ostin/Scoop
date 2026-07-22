@@ -22,7 +22,7 @@ struct InviteSlot: View {
                 .profileMorphSource(id: eventProfile.profile.id, radii: .init(top: 0, bottom: CornerRadius.image))
                 .onTapGesture {presentProfile()}
             CustomDivider().padding(.horizontal, 72)
-            InviteCardInfoPager(event: eventProfile)
+            InviteInfo(event: eventProfile)
         }
     }
     

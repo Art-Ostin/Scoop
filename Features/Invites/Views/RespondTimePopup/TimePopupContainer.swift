@@ -18,56 +18,47 @@ struct TimePopupContainer: View {
     let times: ProposedTimes
     
     
-    @State var showNewTimeMenu = false
+    @State var showNewTime = false
     
     var body: some View {
         VStack {
-            Text("")
+            popupTitleAndButton
             
-            
-            
-            Text("Hello World")
             
         }
-        .frame(width: 100, height: 150)
         .background(Color.appCanvas, in: .rect(cornerRadius: 36))
+        .animation(.snappy, value: showNewTime)
     }
 }
 
 
 extension TimePopupContainer {
     
-    private var popupTitle: some View {
-        VStack(spacing: 24) {
-            Text(showNewTimeMenu ? "Invited Times" : "Choose New Time")
-                .font(.body(17, .medium))
-                .foregroundStyle(Color.textPrimary)
-
-            
-            Text("Propose 1-3 days to meet")
-                .font(.body(11, .regular))
-                .foregroundStyle(Color.textTertiary)
+    private var popupTitleAndButton: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(showNewTime ? "Invited Times" : "Choose New Time")
+                    .font(.body(17, .medium))
+                    .foregroundStyle(Color.textPrimary)
+                    .transition(.blurReplace)
+                
+                if showNewTime {
+                    Text("Propose 1-3 days to meet")
+                        .font(.body(11, .regular))
+                        .foregroundStyle(Color.textTertiary)
+                }
+            }
+            ToggleResponseMode(
+                responseType: $respondType,
+                showNewTime: $showNewTime,
+                anyNewProposedTimes: newProposedTimes.dates.count > 0,
+                anyAvailableInvitedDays: times.availableDates().count > 0
+            )
         }
     }
     
     
-    
+    private var pagerSection: some View {
+        
+    }
 }
-
-/*
- private var titleSection: some View {
-     HStack(alignment: .top) {
-         VStack(alignment: .leading, spacing: 4) {
-             Text("Choose Time") //"Propose up to 3 days"
-                 .font(.body(17, .medium))
-                 .foregroundStyle(Color.textPrimary)
-             Text("Propose 1-3 days to meet")
-                 .font(.body(11, .regular))
-                 .foregroundStyle(Color.textTertiary)
-         }
-         Spacer()
-     }
-     .overlay(alignment: .topTrailing) { timeAndWarningSign }
- }
-
- */

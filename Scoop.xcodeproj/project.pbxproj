@@ -120,6 +120,9 @@
 		657210C12FFFAC38001CF670 /* ImageElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657210C02FFFAC38001CF670 /* ImageElements.swift */; };
 		657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486D92FA8C22100F38738 /* InviteContext.swift */; };
 		657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */; };
+		65756FDD3010BEAA00B9D2F5 /* NewTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65756FDC3010BEAA00B9D2F5 /* NewTime.swift */; };
+		65756FDF3010BEB400B9D2F5 /* InvitedTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */; };
+		65756FE13010C31800B9D2F5 /* ToggleResponseMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65756FE03010C31800B9D2F5 /* ToggleResponseMode.swift */; };
 		65761E3A2FD9C5B9007CA835 /* EventDetailsHowItWorks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */; };
 		65761E3C2FD9DC1A007CA835 /* BackgroundBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */; };
 		6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6576831D2F5910C20094A02D /* ChatScrollView.swift */; };
@@ -178,7 +181,7 @@
 		659A89732F1D43AD00806C02 /* ImageSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A89722F1D43AD00806C02 /* ImageSlot.swift */; };
 		659BF8A02FF6CA5500B3E3FF /* GeneralParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659BF89F2FF6CA5500B3E3FF /* GeneralParameters.swift */; };
 		659CE9F630106E2500E0F735 /* InviteSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F530106E2500E0F735 /* InviteSlot.swift */; };
-		659CE9F83010749300E0F735 /* InviteCardInfoPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F73010749300E0F735 /* InviteCardInfoPager.swift */; };
+		659CE9F83010749300E0F735 /* InviteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F73010749300E0F735 /* InviteInfo.swift */; };
 		659CE9FA30108D1D00E0F735 /* TimePopupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */; };
 		659CEA0130109D5200E0F735 /* DayPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA0030109D5200E0F735 /* DayPicker.swift */; };
 		659CEA0330109DD700E0F735 /* TimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA0230109DD700E0F735 /* TimePicker.swift */; };
@@ -395,6 +398,9 @@
 		657210C02FFFAC38001CF670 /* ImageElements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElements.swift; sourceTree = "<group>"; };
 		657486D92FA8C22100F38738 /* InviteContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContext.swift; sourceTree = "<group>"; };
 		657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceScreens.swift; sourceTree = "<group>"; };
+		65756FDC3010BEAA00B9D2F5 /* NewTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTime.swift; sourceTree = "<group>"; };
+		65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimes.swift; sourceTree = "<group>"; };
+		65756FE03010C31800B9D2F5 /* ToggleResponseMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleResponseMode.swift; sourceTree = "<group>"; };
 		65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailsHowItWorks.swift; sourceTree = "<group>"; };
 		65761E3B2FD9DC1A007CA835 /* BackgroundBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundBlur.swift; sourceTree = "<group>"; };
 		6576831D2F5910C20094A02D /* ChatScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatScrollView.swift; sourceTree = "<group>"; };
@@ -455,7 +461,7 @@
 		659A89722F1D43AD00806C02 /* ImageSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSlot.swift; sourceTree = "<group>"; };
 		659BF89F2FF6CA5500B3E3FF /* GeneralParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralParameters.swift; sourceTree = "<group>"; };
 		659CE9F530106E2500E0F735 /* InviteSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSlot.swift; sourceTree = "<group>"; };
-		659CE9F73010749300E0F735 /* InviteCardInfoPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfoPager.swift; sourceTree = "<group>"; };
+		659CE9F73010749300E0F735 /* InviteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteInfo.swift; sourceTree = "<group>"; };
 		659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePopupContainer.swift; sourceTree = "<group>"; };
 		659CEA0030109D5200E0F735 /* DayPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPicker.swift; sourceTree = "<group>"; };
 		659CEA0230109DD700E0F735 /* TimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePicker.swift; sourceTree = "<group>"; };
@@ -860,7 +866,7 @@
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
 				659CE9F530106E2500E0F735 /* InviteSlot.swift */,
 				65D978B02FD4340F00C22646 /* InviteCard.swift */,
-				659CE9F73010749300E0F735 /* InviteCardInfoPager.swift */,
+				659CE9F73010749300E0F735 /* InviteInfo.swift */,
 				6549DA7D2F9E8E6E00C89DF2 /* RespondTimePopup */,
 			);
 			path = Views;
@@ -1061,9 +1067,10 @@
 			isa = PBXGroup;
 			children = (
 				659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */,
-				652882D32F707331000B724D /* RespondTimes.swift */,
+				65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */,
+				65756FDC3010BEAA00B9D2F5 /* NewTime.swift */,
 				65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */,
-				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
+				65756FE03010C31800B9D2F5 /* ToggleResponseMode.swift */,
 			);
 			path = RespondTimePopup;
 			sourceTree = "<group>";
@@ -1296,6 +1303,10 @@
 				659497012E01DD4000880921 /* Features */,
 				65E820B02E3901080098CC36 /* Shared */,
 				65E820B72E390F200098CC36 /* Resources */,
+				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
+				6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */,
+				655441482FE9769100425CBF /* InviteCardInfoOld.swift */,
+				652882D32F707331000B724D /* RespondTimes.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
 				6578383C2DE773CE00770B49 /* ScoopTests */,
 				657838462DE773CE00770B49 /* ScoopUITests */,
@@ -1427,8 +1438,6 @@
 		65E820B72E390F200098CC36 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */,
-				655441482FE9769100425CBF /* InviteCardInfoOld.swift */,
 				659497152E01DD4000880921 /* Assets.xcassets */,
 				6561C8C62E0444EC006A72DF /* Fonts */,
 				653BAF862E0B846600C1AB9E /* GoogleService-Info.plist */,
@@ -1679,7 +1688,7 @@
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
 				6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */,
 				654982BC2E2E66A500CA335F /* VerifyEmailViewModel.swift in Sources */,
-				659CE9F83010749300E0F735 /* InviteCardInfoPager.swift in Sources */,
+				659CE9F83010749300E0F735 /* InviteInfo.swift in Sources */,
 				65B86D372FFCBBE80076683A /* SendInviteCard.swift in Sources */,
 				65F115AE2FEBF5D000AC5463 /* PopEffects.swift in Sources */,
 				6527357E2F9DE54D0048F2B0 /* RescheduleResponse.swift in Sources */,
@@ -1721,6 +1730,7 @@
 				65A4ADF2300D850D0074B2C8 /* WideActionButton.swift in Sources */,
 				6591092E2E19B0810065696F /* Quotes.swift in Sources */,
 				65F7044E2F6EDA4100CE29C5 /* RespondDetails.swift in Sources */,
+				65756FDD3010BEAA00B9D2F5 /* NewTime.swift in Sources */,
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
 				65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */,
 				65F993D52F5893B200EC810B /* ChatState.swift in Sources */,
@@ -1728,6 +1738,7 @@
 				65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */,
+				65756FE13010C31800B9D2F5 /* ToggleResponseMode.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
 				65D13D622FF69DAB00F4006F /* InviteComponents.swift in Sources */,
@@ -1750,6 +1761,7 @@
 				65FAF9882E4140740015E231 /* EventsPlaceholder.swift in Sources */,
 				6509DCED2F1D79AE00455AB5 /* EditLanguages.swift in Sources */,
 				65B4E39B2FA606D60044EE9A /* EventsSession.swift in Sources */,
+				65756FDF3010BEB400B9D2F5 /* InvitedTimes.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
 				65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */,
