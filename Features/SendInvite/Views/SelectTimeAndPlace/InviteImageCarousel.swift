@@ -50,8 +50,9 @@ struct InviteImageCarousel: View {
             scrollPosition: $pagerPosition
         )
         .scrollDisabled(images.count <= 1 || pagingDisabled)
-        .overlay(alignment: .bottom) { pageIndicator }
         .padding(.top, inset)
+    
+        .overlay(alignment: .bottom) { pageIndicator }
         .overlay { closeCover }
         .overlay { backgroundBlur }
         .overlay(alignment: .top) { cardOverlay }
@@ -81,7 +82,7 @@ extension InviteImageCarousel {
 
     private var cardOverlay: some View {
         HStack {
-            leadingOverlay
+            nameOverlay
             Spacer()
             optionsMenu
         }
@@ -89,14 +90,11 @@ extension InviteImageCarousel {
         .padding(.leading, confirmInviteScreen ? Self.nameTopInset : Self.nameLeadingInset)
         .padding(.trailing, Self.nameLeadingInset)
     }
+}
 
-    private var leadingOverlay: some View {
-        nameOverlay
-            .opacityPop(visible: expanded)
-            .blurPop(visible: !confirmInviteScreen, scale: 0.9, blur: 6)
-            .overlay(alignment: .leading) { confirmBackButton }
-    }
-
+//View Overlays
+extension InviteImageCarousel {
+    
     //Two Texts (not one string) so the halo mask hugs each word separately.
     private var nameOverlay: some View {
         HStack(spacing: 6) {
@@ -108,8 +106,11 @@ extension InviteImageCarousel {
         }
         .font(.title(24))
         .foregroundStyle(Color.white)
+        .opacityPop(visible: expanded)
+        .blurPop(visible: !confirmInviteScreen, scale: 0.9, blur: 6)
+        .overlay(alignment: .leading) { confirmBackButton }
     }
-
+    
     private var confirmBackButton: some View {
         ScoopButton(style: .clearGlass, shape: Circle(), action: {confirmInviteScreen = false}) {
             Image(systemName: "chevron.left")
@@ -121,6 +122,36 @@ extension InviteImageCarousel {
         .blurPop(visible: expanded && confirmInviteScreen)
     }
 
+    private var pageIndicator: some View {
+        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
+            .scaleEffect(0.7)
+            .padding(.bottom, Spacing.xs)
+            .opacityPop(visible: !confirmInviteScreen)
+    }
+    
+    private var backgroundBlur: some View {
+        let progress = min(max(scrollProgress, 0), Double(images.count - 1))
+        let page = Int(progress)
+        let next = min(page + 1, images.count - 1)
+        let fraction = progress - Double(page)
+
+        return ZStack {
+            BackgroundBlur(image: coverImage ?? images[page], frames: [nameFrame, inviteFrame, optionsFrame])
+                .opacity(1 - fraction)
+            if coverImage == nil && next != page && fraction > 0 {
+                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame, optionsFrame])
+                    .opacity(fraction)
+            }
+        }
+        .opacity(expanded && !confirmInviteScreen ? 1 : 0)
+        .animation(.transition, value: confirmInviteScreen)
+    }
+}
+
+
+//Options Menu
+extension InviteImageCarousel {
+        
     private var optionsMenu: some View {
         Menu {
             Button("How Invites Work", systemImage: "info.circle") {
@@ -159,31 +190,6 @@ extension InviteImageCarousel {
         .blurPop(visible: optionsVisible)
         .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
     }
-
-    private var pageIndicator: some View {
-        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7)
-            .padding(.bottom, Spacing.xs)
-            .opacityPop(visible: !confirmInviteScreen)
-    }
-
-    private var backgroundBlur: some View {
-        let progress = min(max(scrollProgress, 0), Double(images.count - 1))
-        let page = Int(progress)
-        let next = min(page + 1, images.count - 1)
-        let fraction = progress - Double(page)
-
-        return ZStack {
-            BackgroundBlur(image: coverImage ?? images[page], frames: [nameFrame, inviteFrame, optionsFrame])
-                .opacity(1 - fraction)
-            if coverImage == nil && next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame, optionsFrame])
-                    .opacity(fraction)
-            }
-        }
-        .opacity(expanded && !confirmInviteScreen ? 1 : 0)
-        .animation(.transition, value: confirmInviteScreen)
-    }
     
     private var optionsLabel: some View {
         HStack(spacing: 4) {
@@ -211,6 +217,13 @@ extension InviteImageCarousel {
             .frame(width: 4.5, height: 4.5)
     }
 }
+
+
+
+
+
+
+
 
 //Collapsed chrome: ProfileCard's overlay, fading/blurring out in place as the card opens.
 //Always present (never inserted mid-animation) so the close lands back on ProfileCard's

@@ -7,18 +7,24 @@
 
 import SwiftUI
 
+enum ConfirmMode {
+    case Invite, Respond
+}
+
+
 struct ConfirmInviteScreen: View {
     
     //Injected Properties
     let name: String
 
+    let isInvite: Bool
+    
     @Binding var event: EventFieldsDraft
     @Binding var showConfirmScreen: Bool
     @Binding var showMessageScreen: Bool
     
     @State var scrollProgress: Double = 0
     @State private var messageHeight: CGFloat = 0
-    
     
     //Local Properties
     @State var showInfoSheet = false

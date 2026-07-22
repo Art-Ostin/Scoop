@@ -145,7 +145,7 @@ extension InviteSectionContainer {
 
     private var confirmScreen: some View {
         ConfirmInviteScreen(
-            name: name,
+            name: name, isInvite: false,
             event: $draft,
             showConfirmScreen: $confirmInviteScreen,
             showMessageScreen: $showMessageScreen
