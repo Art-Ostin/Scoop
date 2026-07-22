@@ -18,7 +18,6 @@ struct AddMessageView: View {
 
     //Local view state
     @State private var showSaved: Bool = false
-    @State private var savedIconTask: Task<Void, Never>?
     @State private var showTypePopup: Bool = false
     @State private var openTypes: Set<Event.EventType> = []
     @State private var messageFieldFocused = true
@@ -41,23 +40,15 @@ struct AddMessageView: View {
         .padding(.top, 60)
         .padding(.horizontal, Spacing.margin)
         .frame(maxHeight: .infinity, alignment: .top)
-        .sheetKeyboardOverlap(
-            isFocused: $messageFieldFocused,
-            isDismissing: $isDismissing
-        ) {
+        .sheetKeyboardOverlap(isFocused: $messageFieldFocused, isDismissing: $isDismissing) {
             doneButton
         }
+        .savedFeedback(isPresented: $showSaved, tracking: message)
         .onAppear {
-            savedIconTask?.cancel()
-            showSaved = false
             messageFieldFocused = true
             isDismissing = false
         }
-        .onChange(of: message) {
-            flashSavedIcon()
-        }
         .onDisappear {
-            savedIconTask?.cancel()
             InstantKeyboard.dismiss(
                 isFocused: $messageFieldFocused,
                 isDismissing: $isDismissing
@@ -107,64 +98,4 @@ extension AddMessageView {
         .padding(.bottom, Spacing.md)
         .padding(.horizontal, Spacing.margin)
     }
-    
-    private func flashSavedIcon() {
-        savedIconTask?.cancel()
-        savedIconTask = Task { @MainActor in
-            withAnimation(.toggle) { showSaved = true }
-            do {
-                try await Task.sleep(for: .seconds(1))
-            } catch {
-                return
-            }
-            withAnimation(.toggle) { showSaved = false }
-        }
-    }
 }
-
-
-
-
-/*
- 
- 
- 
- 
- private var textFieldSection: some View {
-     InstantKeyboardField(
-         text: $message,
-         textLimit: messageLimit,
-         placeholder: eventType.textPlaceholder,
-         font: .body(18)
-     )
-         .padding(.horizontal)
-         .frame(maxWidth: .infinity)
-         .frame(height: 145)
-         .customScrollFade(height: Spacing.lg, color: .white, edge: .top)
-         .customScrollFade(height: Spacing.lg, color: .white, edge: .bottom)
-         .clipShape(.rect(cornerRadius: CornerRadius.xl))
-         .stroke(CornerRadius.xl, color: Color.border)
-         .overlay(alignment: .bottomTrailing) {countRemainingText}
- }
-
- 
- @ViewBuilder
- private var countRemainingText: some View {
-     let remaining = max(0, messageLimit - (message ?? "").count)
-     if remaining <= warningThreshold {
-         Text("\(remaining)")
-             .font(.body(14))
-             .foregroundStyle(Color.warningYellow)
-             .padding(.trailing, Spacing.sm)
-             .padding(.bottom, Spacing.sm)
-     }
- }
-
- 
- 
- 
- .padding(.horizontal, Spacing.margin)
- .frame(maxHeight: .infinity, alignment: .top)
- .ignoresSafeArea(.keyboard, edges: .bottom)
-
- */

@@ -15,16 +15,25 @@ struct SelectTimeView: View {
     @Binding var proposedTimes: ProposedTimes
 
     //Local view state
-    @State private var selectedHour = 21
-    @State private var selectedMinute = 30
+    @State private var selectedHour: Int
+    @State private var selectedMinute: Int
     @State private var warning: DayWarning?
-    
-    //To Show Saved or not
     @State private var showSaved = false
-    @State private var savedTask: Task<Void, Never>?
-    @State private var suppressSavedFlash = false
-    
-    
+
+    init(proposedTimes: Binding<ProposedTimes>) {
+        _proposedTimes = proposedTimes
+
+        let components = proposedTimes.wrappedValue.dates.first.map {
+            Calendar.current.dateComponents([.hour, .minute], from: $0.date)
+        }
+        _selectedHour = State(initialValue: components?.hour ?? 21)
+        _selectedMinute = State(initialValue: components?.minute ?? 30)
+    }
+
+    private var selectedTimeInMinutes: Int {
+        selectedHour * 60 + selectedMinute
+    }
+
     var displayedCount: Int {
         proposedTimes.dates.count
     }
@@ -39,9 +48,9 @@ struct SelectTimeView: View {
         }
         .modifier(SelectTimeBackground())
         .overlay(alignment: .bottomTrailing) { TimeDoneButton()}
-        .onAppear {loadTimeAndDayCount()}
-        .onChange(of: selectedHour * 60 + selectedMinute) {updateTimeAndFlashSave()}
+        .onChange(of: selectedTimeInMinutes) { updateTime() }
         .task(id: warning) { await clickedUnavailableDay() }
+        .savedFeedback(isPresented: $showSaved, tracking: selectedTimeInMinutes)
     }
 }
 
@@ -78,38 +87,8 @@ private extension SelectTimeView {
         warning = nil
     }
 
-    func updateTimeAndFlashSave() {
+    func updateTime() {
         proposedTimes.updateTime(hour: selectedHour, minute: selectedMinute)
-        if suppressSavedFlash {
-            suppressSavedFlash = false
-        } else {
-            flashSaved()
-        }
-    }
-    
-    func flashSaved() {
-        savedTask?.cancel()
-        savedTask = Task {
-            if showSaved {
-                withAnimation(.quick) { showSaved = false }
-                try? await Task.sleep(for: .milliseconds(120))
-                if Task.isCancelled { return }
-            }
-            withAnimation(.toggle) { showSaved = true }
-            try? await Task.sleep(for: .milliseconds(1000))
-            if Task.isCancelled { return }
-            withAnimation(.toggle) { showSaved = false }
-        }
-    }
-
-    func loadTimeAndDayCount() {
-        guard let date = proposedTimes.dates.first?.date else { return }
-        let cal = Calendar.current
-        let h = cal.component(.hour, from: date)
-        let m = cal.component(.minute, from: date)
-        if h != selectedHour || m != selectedMinute { suppressSavedFlash = true }
-        selectedHour = h
-        selectedMinute = m
     }
 }
 
@@ -142,5 +121,3 @@ struct TimeDoneButton: View {
             .padding(.horizontal, Spacing.margin)
     }
 }
-
-

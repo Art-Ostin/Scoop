@@ -14,7 +14,6 @@ struct PreferredMapsView: View {
 
     //Local view state
     @State private var showSavedIcon: Bool = false
-    @State private var savedIconTask: Task<Void, Never>?
     @State private var showInfoText: Bool = false
     @Namespace private var savedToIconTransition
     
@@ -34,6 +33,11 @@ struct PreferredMapsView: View {
                 .padding(.vertical, Spacing.xs)
             }
         }
+        .savedFeedback(
+            isPresented: $showSavedIcon,
+            tracking: vm.preferredMapType,
+            animation: .transition
+        )
     }
 }
 
@@ -72,7 +76,6 @@ extension PreferredMapsView {
 
         return Button {
             vm.updatePreferredMapType(mapType)
-            flashSavedIcon()
         } label: {
             HStack(spacing: Spacing.sm) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
@@ -87,20 +90,4 @@ extension PreferredMapsView {
         }
     }
     
-    private func flashSavedIcon() {
-        savedIconTask?.cancel()
-        savedIconTask = Task {
-            if showSavedIcon {
-                withAnimation(.quick) { showSavedIcon = false }
-                try? await Task.sleep(for: .milliseconds(120))
-                if Task.isCancelled { return }
-            }
-            withAnimation(.transition) { showSavedIcon = true }
-            try? await Task.sleep(for: .milliseconds(1000))
-            if Task.isCancelled { return }
-            withAnimation(.transition) { showSavedIcon = false }
-        }
-    }
 }
-
-

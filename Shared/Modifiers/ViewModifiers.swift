@@ -48,6 +48,7 @@ struct CustomCaption: ViewModifier {
 
 extension View {
 
+
     func appleImageFade(to color: Color, blurRadius: CGFloat = 34) -> some View {
         modifier(AppleImageFadeModifier(color: color, blurRadius: blurRadius))
     }

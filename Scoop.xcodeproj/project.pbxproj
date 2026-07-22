@@ -180,10 +180,10 @@
 		659CE9F630106E2500E0F735 /* InviteSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F530106E2500E0F735 /* InviteSlot.swift */; };
 		659CE9F83010749300E0F735 /* InviteCardInfoPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F73010749300E0F735 /* InviteCardInfoPager.swift */; };
 		659CE9FA30108D1D00E0F735 /* TimePopupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */; };
-		659CE9FC3010984200E0F735 /* SelectTimeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CE9FB3010984200E0F735 /* SelectTimeComponents.swift */; };
 		659CEA0130109D5200E0F735 /* DayPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA0030109D5200E0F735 /* DayPicker.swift */; };
 		659CEA0330109DD700E0F735 /* TimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA0230109DD700E0F735 /* TimePicker.swift */; };
 		659CEA0530109E4700E0F735 /* DayCountOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA0430109E4700E0F735 /* DayCountOverlay.swift */; };
+		659CEA073010AC3F00E0F735 /* SaveButtonOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA063010AC3F00E0F735 /* SaveButtonOverlay.swift */; };
 		65A070522EE0705A009F798B /* LimitedAccessPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070512EE0705A009F798B /* LimitedAccessPage.swift */; };
 		65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070532EE08F4A009F798B /* ProfileComponents.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
@@ -457,10 +457,10 @@
 		659CE9F530106E2500E0F735 /* InviteSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSlot.swift; sourceTree = "<group>"; };
 		659CE9F73010749300E0F735 /* InviteCardInfoPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfoPager.swift; sourceTree = "<group>"; };
 		659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePopupContainer.swift; sourceTree = "<group>"; };
-		659CE9FB3010984200E0F735 /* SelectTimeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeComponents.swift; sourceTree = "<group>"; };
 		659CEA0030109D5200E0F735 /* DayPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPicker.swift; sourceTree = "<group>"; };
 		659CEA0230109DD700E0F735 /* TimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePicker.swift; sourceTree = "<group>"; };
 		659CEA0430109E4700E0F735 /* DayCountOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayCountOverlay.swift; sourceTree = "<group>"; };
+		659CEA063010AC3F00E0F735 /* SaveButtonOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonOverlay.swift; sourceTree = "<group>"; };
 		65A070512EE0705A009F798B /* LimitedAccessPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitedAccessPage.swift; sourceTree = "<group>"; };
 		65A070532EE08F4A009F798B /* ProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -649,6 +649,7 @@
 				6579F19A2FE2CEA1005F8CD7 /* InfoComponents.swift */,
 				657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */,
 				67217298F46C4A47A5AC62DF /* ViewModifiers.swift */,
+				659CEA063010AC3F00E0F735 /* SaveButtonOverlay.swift */,
 				65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */,
 			);
 			path = Modifiers;
@@ -992,7 +993,6 @@
 			children = (
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				659CE9FF30109D3E00E0F735 /* SelectTimePopup */,
-				659CE9FB3010984200E0F735 /* SelectTimeComponents.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
 			);
 			path = AddDetails;
@@ -1673,7 +1673,6 @@
 				65B672672FC48BE100479EA7 /* AppRouter.swift in Sources */,
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
 				6566B96C2FEAD33C0075C3B2 /* HidePopup.swift in Sources */,
-				659CE9FC3010984200E0F735 /* SelectTimeComponents.swift in Sources */,
 				657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */,
 				657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */,
 				657683222F5913F70094A02D /* ChatDayDivider.swift in Sources */,
@@ -1725,6 +1724,7 @@
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
 				65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */,
 				65F993D52F5893B200EC810B /* ChatState.swift in Sources */,
+				659CEA073010AC3F00E0F735 /* SaveButtonOverlay.swift in Sources */,
 				65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */,
