@@ -18,7 +18,6 @@ struct InviteCard: View {
     @Binding var draft: RespondDraft
     @Binding var openInvite: Bool
     
-    
     //Local Parameters
     @State private var timePopup = false
     
@@ -37,7 +36,7 @@ extension InviteCard {
     private var overlayText: some View {
         VStack(alignment: .leading, spacing: 24) {
             nameTitle
-            timeRow
+            timeMenu
             placeRow
         }
         .overlay(alignment: .topTrailing) { typeButton}
@@ -82,6 +81,27 @@ extension InviteCard {
 //Time And Place
 extension InviteCard {
     
+    
+    private var timeMenu: some View {
+        TimeCustomMenu(cornerRadius: 36, placementOffsetX: 0, placementOffsetY: -156) {
+            timePopupContainer
+        } label: {
+            timeRow
+        }
+    }
+    
+    
+    private var timePopupContainer: some View {
+        TimePopupContainer(
+            respondType: $draft.respondType,
+            selectedDay: $draft.originalInvite.selectedDay,
+            newProposedTimes: $draft.newTime.proposedTimes,
+            times: draft.originalInvite.event.proposedTimes
+        )
+    }
+    
+    
+    
     // Logic with the time
     private var timeRow: some View {
         HStack {
@@ -90,6 +110,36 @@ extension InviteCard {
         }
         .oneLineLimitAndShrink()
     }
+
+    
+    /*
+     
+     private var timeMenu: some View {
+         TimeCustomMenu(morphAnchor: morphAnchor,
+                        estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
+                        placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
+                        placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
+                        onOpen: openMenu, onClose: closeMenu) {
+             SelectTimeView(proposedTimes: $draft)
+                 .frame(width: timeMenuWidth)
+                 .zIndex(2)
+         } label: {
+             TimeRowMenuLabel(
+                 times: times,
+                 scrollProgress: $scrollProgress,
+                 scrolledPageID: $scrolledPageID,
+                 activeTimeFrame: $activeTimeFrame,
+                 chooseTimeFrame: $chooseTimeFrame,
+                 chevronFrame: $chevronFrame,
+                 rowHeight: rowHeight,
+                 primaryContentOffset: primaryContentOffset
+             )
+         }
+         .environment(\.isLiveInviteRow, true)
+     }
+     */
+    
+    
     
     private var timeChevron: some View {
         Image(systemName: "chevron.right")

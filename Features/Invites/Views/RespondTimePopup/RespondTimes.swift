@@ -58,7 +58,7 @@ extension RespondTimePopup {
     
     private var customTime: some View {
         transitionScreen {
-            SelectTimeView(proposedTimes: $draft.newTime.proposedTimes, isRespondMode: true)
+            SelectTimeView(proposedTimes: $draft.newTime.proposedTimes)
         }
         .transition(.move(edge: .trailing))
         .zIndex(1)

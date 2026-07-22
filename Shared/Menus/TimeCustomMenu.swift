@@ -18,7 +18,7 @@
 //
 //      Pass labelCornerRadius if the label is not a capsule, so the closing
 //      lens lands exactly on its shape:
-//      TimeCustomMenu(labelCornerRadius: 25) { ... } label: { ... }
+//      TimeCustomMenu(cornerRadius: 20, labelCornerRadius: 25) { ... } label: { ... }
 //
 //  Inside the content closure:
 //      .timeCustomMenuItem { ... }        — row participates in drag-to-select highlight,
@@ -56,10 +56,10 @@
 //  (community references converge on .bouncy(≈0.4) for glass morphs).
 //   • The platter uses .glassEffect(.regular); the system menu material adds
 //     private vibrancy/shadow treatment that public glass lacks.
-//   • Platter corner radius is a fixed 26pt stand-in for the system's
-//     container-concentric radius (no container to be concentric with here).
+//   • Platter corner radius defaults to a 26pt stand-in for the system's
+//     container-concentric radius and can be overridden per menu.
 //   • Platter content is not hard-clipped to the glass shape (.clipShape breaks
-//     glass transitions); keep menu content padded inside the 26pt corners.
+//     glass transitions); keep menu content padded inside its corners.
 //   • The menu is presented in its own transparent UIWindow (level .alert + 1),
 //     like UIKit does, so it can never be clipped by scroll views, the nav stack
 //     or the tab bar. Anchor frames assume the app window fills the scene
@@ -180,7 +180,7 @@ struct TimeCustomMenuBuilder: View {
 enum TimeCustomMenuSpec {
 
     // ── iOS 26 Liquid Glass lens morph ──
-    /// Platter corner radius — fixed stand-in for the system's concentric radius.
+    /// Default platter corner radius — stand-in for the system's concentric radius.
     static let platterCornerRadius = CornerRadius.customMenu
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
@@ -211,10 +211,6 @@ enum TimeCustomMenuSpec {
     /// glass left to pop. 0.35 lines the fade up with the start of the expand;
     /// smaller concentrates it later / quicker near the very end.
     static let closeGlassFadeProgress: CGFloat = 0.35
-
-    static var platterShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: platterCornerRadius)
-    }
 
     // ── Pre-26 fallback (classic menu) ──
     /// Scale the menu collapses to at the anchor point when hidden.
@@ -261,6 +257,8 @@ enum TimeCustomMenuAlignment {
 
 struct TimeCustomMenu<Content: View, Label: View>: View {
 
+    /// Corner radius of the expanded menu platter.
+    var cornerRadius: CGFloat
     @ViewBuilder var content: () -> Content
     @ViewBuilder var label: () -> Label
     /// Corner radius of the label's own shape so the closing lens lands on it
@@ -300,7 +298,8 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @State private var pressed = false
     @State private var pressStart: Date?
 
-    init(labelCornerRadius: CGFloat? = nil,
+    init(cornerRadius: CGFloat = TimeCustomMenuSpec.platterCornerRadius,
+         labelCornerRadius: CGFloat? = nil,
          morphAnchor: CGRect? = nil,
          estimatedContentSize: CGSize? = nil,
          alignment: TimeCustomMenuAlignment = .automatic,
@@ -311,6 +310,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          onClose: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
+        self.cornerRadius = cornerRadius
         self.labelCornerRadius = labelCornerRadius
         self.morphAnchor = morphAnchor
         self.estimatedContentSize = estimatedContentSize
@@ -402,6 +402,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 controller.present(
                     anchor: labelFrame,
                     label: { AnyView(label()) },
+                    cornerRadius: cornerRadius,
                     labelCornerRadius: labelCornerRadius,
                     alignment: alignment,
                     placementOffset: placementOffset,
@@ -519,6 +520,7 @@ final class TimeCustomMenuController {
     private(set) var morphAnchor: CGRect?
     private(set) var content: (() -> AnyView)?
     private(set) var labelView: (() -> AnyView)?
+    private(set) var cornerRadius = TimeCustomMenuSpec.platterCornerRadius
     private(set) var labelCornerRadius: CGFloat?
     private(set) var alignment: TimeCustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
@@ -556,6 +558,7 @@ final class TimeCustomMenuController {
 
     func present(anchor: CGRect,
                  label: @escaping () -> AnyView,
+                 cornerRadius: CGFloat,
                  labelCornerRadius: CGFloat?,
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
@@ -573,6 +576,7 @@ final class TimeCustomMenuController {
         self.anchor = anchor
         self.collapseAnchor = anchor
         self.labelView = label
+        self.cornerRadius = cornerRadius
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.placementOffset = placementOffset
@@ -741,6 +745,10 @@ private struct TimeCustomMenuOverlayRoot: View {
         return false
     }
 
+    private var platterShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: controller.cornerRadius)
+    }
+
     var body: some View {
         GeometryReader { geo in
             let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor,
@@ -842,6 +850,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                         collapsed: collapsedRect,
                         collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
+                        expandedRadius: controller.cornerRadius,
                         label: controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
@@ -884,11 +893,11 @@ private struct TimeCustomMenuOverlayRoot: View {
 
         chromeCore(content: content, metrics: metrics)
             .background {
-                TimeCustomMenuSpec.platterShape
+                platterShape
                     .fill(.regularMaterial)
                     .shadow(.floating)
             }
-            .clipShape(TimeCustomMenuSpec.platterShape)
+            .clipShape(platterShape)
             .onGeometryChange(for: CGSize.self) { proxy in
                 proxy.size
             } action: { size in
@@ -963,6 +972,8 @@ private struct TimeCustomMenuOverlayRoot: View {
         /// The label's own corner radius, so the lens lands exactly on its shape.
         let collapsedRadius: CGFloat
         let expanded: CGRect
+        /// Corner radius of the expanded menu platter.
+        let expandedRadius: CGFloat
         let label: AnyView?
         /// While dismissing, the glass melts off over the final expand so the
         /// label finishes the motion alone (no glass left to pop afterwards).
@@ -1016,7 +1027,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 cx = lerp(mid.x, end.x, t)
                 cy = lerp(mid.y, end.y, t)
                 radius = min(min(w, h) / 2,
-                             lerp(big / 2, TimeCustomMenuSpec.platterCornerRadius, t))
+                             lerp(big / 2, expandedRadius, t))
             }
             return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
         }
