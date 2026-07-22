@@ -28,7 +28,7 @@ struct TimePopupContainer: View {
         }
         .padding(.vertical, 20)
         .frame(maxWidth: 320)
-        .background(Color.appCanvas.opacity(0.5), in: .rect(cornerRadius: CornerRadius.customMenu))
+        .background(Color.appCanvas.opacity(0.9), in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.2), value: page)
     }
 }

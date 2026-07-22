@@ -23,10 +23,13 @@ struct ToggleResponseMode: View {
         ZStack {
             if timePopupPage == .newTime {
                 optionsLabel
+                    .transition(.blurReplace)
             } else {
                 cantMakeItLabel
+                    .transition(.blurReplace)
             }
         }
+        .animation(.transition, value: timePopupPage)
         .shrinkPress {
             switchView()
         }
@@ -68,4 +71,3 @@ extension ToggleResponseMode {
         : .newTime
     }
 }
-

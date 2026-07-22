@@ -270,7 +270,7 @@ private struct TimeRowMenuLabel: View {
     @ViewBuilder
     private var activeTimeText: some View {
         if times.indices.contains(activeIndex) {
-            Text(FormatEvent.shortDayAndTime(times[activeIndex], withComma: true))
+            Text(FormatEvent.shortDayAndTime(times[activeIndex]))
                 .font(.body(17, .medium))
         } else {
             chooseTimeText

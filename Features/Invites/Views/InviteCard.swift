@@ -19,8 +19,8 @@ struct InviteCard: View {
     @Binding var openInvite: Bool
     
     //Local Parameters
-    @State private var timePopup = false
-    @State private var timePopupPage: TimePopupPage? = .invitedTimes
+    @State private var timePopupOpen = false
+    @State private var timePopupPage: TimePopupPage? = .invitedTimes //Must stay at this level
     
     var body: some View {
         ScoopImage(image: image, aspectRatio: .inviteCard)
@@ -37,8 +37,10 @@ extension InviteCard {
     private var overlayText: some View {
         VStack(alignment: .leading, spacing: 24) {
             nameTitle
+                .opacityPop(visible: !timePopupOpen)
             timeMenu
             placeRow
+                .opacityPop(visible: !timePopupOpen)
         }
         .overlay(alignment: .topTrailing) { typeButton}
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .bottomLeading)
@@ -67,6 +69,7 @@ extension InviteCard {
             .stroke(12, lineWidth: 1, color: .white.opacity(0.6))
             .scaleEffect(0.8, anchor: .bottomTrailing)
             .offset(y: -1.5)
+            .opacityPop(visible: !timePopupOpen)
     }
     
     private var inviteButton: some View {
@@ -75,6 +78,7 @@ extension InviteCard {
             .frame(width: 40, height: 40)
             .background(Color(red: 0, green: 0.4, blue: 0.43), in: Circle())
             .shrinkPress {openInvite = true}
+            .opacityPop(visible: !timePopupOpen)
     }
 }
 
@@ -88,13 +92,13 @@ extension InviteCard {
                        tracksContentSizeChanges: true,
                        placementOffsetX: 0,
                        placementOffsetY: 24,
+                       isOpen: $timePopupOpen,
                        onOpen: { timePopupPage = .invitedTimes }) {
             timePopupContainer
         } label: {
             timeRow
         }
     }
-    
     
     private var timePopupContainer: some View {
         TimePopupContainer(
@@ -114,15 +118,13 @@ extension InviteCard {
         }
         .oneLineLimitAndShrink()
     }
-
-    
     
     private var timeChevron: some View {
         Image(systemName: "chevron.right")
             .font(.system(size: 12, weight: .bold))
             .foregroundStyle(Color.white)
-            .rotationEffect(.degrees(timePopup ? 90 : 0))
-            .animation(.toggle, value: timePopup)
+            .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
+            .animation(.toggle, value: timePopupOpen)
     }
     
     private var timeText: String {
@@ -158,6 +160,7 @@ extension InviteCard {
         }
     }
 }
+
 
 
 struct BlurAndGradientBackground: ViewModifier {
