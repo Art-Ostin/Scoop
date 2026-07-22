@@ -87,7 +87,8 @@ private struct MeetInfoCoverScrollView: View {
 
             PageIndicator(
                 count: Event.EventType.allCases.count,
-                progress: scrollProgress)
+                progress: scrollProgress
+            )
         }
     }
 }

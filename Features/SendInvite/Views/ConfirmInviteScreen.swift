@@ -125,8 +125,7 @@ extension ConfirmInviteScreen {
                 .containerRelativeFrame(.horizontal, alignment: .leading)
         }
         .overlay(alignment: .bottomTrailing) {
-            PageIndicator(count: 2, progress: scrollProgress, dotSize: 5, activeWidth: 8)
-                .scaleEffect(0.6, anchor: .bottom)
+            InvitePageIndicator(count: 2, progress: scrollProgress)
                 .padding(.trailing, Spacing.lg)
                 .padding(.bottom, 18)
         }

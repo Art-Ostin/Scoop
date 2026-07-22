@@ -20,11 +20,7 @@ struct InvitesContainer: View {
         NavigationStack {
             TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
                 ForEach(vm.invites, id: \.self) { invite in
-                    inviteCard(invite)
-                        .task { await vm.ensureImagesLoaded(for: invite.profile) }
-                        .onAppear {
-                            print(invite.profile.name)
-                        }
+                    inviteSlot(invite)
                 }
             }
         }
@@ -73,13 +69,9 @@ extension InvitesContainer {
     }
     
     @ViewBuilder
-    private func inviteCard(_ invite: EventProfile) -> some View {
-        if let image = invite.image {
-            InviteCard(image: image, name: invite.profile.name, draft: vm.draftBinding(for: invite), openInvite: .constant(false))
-                .onAppear {
-                    print(invite.event.type.longTitle)
-                }
-        }
+    private func inviteSlot(_ invite: EventProfile) -> some View {
+        InviteSlot(eventProfile: invite, draft: vm.draftBinding(for: invite), openInvite: .constant(false))
+            .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
 }
 

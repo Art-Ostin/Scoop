@@ -87,6 +87,7 @@ extension InviteCard {
             lineSection(image: "WhiteClock", text: timeText).padding(.top, -1)
             timeChevron
         }
+        .oneLineLimitAndShrink()
     }
     
     private var timeChevron: some View {
@@ -144,7 +145,7 @@ struct BlurAndGradientBackground: ViewModifier {
                 noise: 0
             )
             .overlay { blackGradient }
-            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: 20)))
+            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
     }
     
     private var blackGradient: some View {

@@ -73,15 +73,21 @@ struct InvitePageIndicator: View {
     let progress: Double
 
     var body: some View {
-        PageIndicator(
-            count: count,
-            progress: progress,
-            dotSize: 3,
-            inactiveDotSize: 3,
-            activeWidth: 5,
-            spacing: 5,
-            activeColor: .textSecondary
-        )
+        HStack(spacing: 5) {
+            ForEach(0..<count, id: \.self) { index in
+                let closeness = max(0, 1 - abs(progress - Double(index)))
+
+                Capsule()
+                    .fill(Color.border)
+                    .overlay {
+                        Capsule()
+                            .fill(Color.textSecondary)
+                            .opacity(closeness)
+                    }
+                    .frame(width: 3 + 2 * CGFloat(closeness), height: 3)
+            }
+        }
+        .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
         .frame(height: InviteRowMetrics.indicatorHeight)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
