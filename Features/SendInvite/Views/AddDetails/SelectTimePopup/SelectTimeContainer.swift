@@ -61,6 +61,13 @@ struct SelectTimeView: View {
                 .padding()
                 .padding(.horizontal, isRespondMode ? -24 : 0)//Avoids double counting
         }
+        .onGeometryChange(for: CGSize.self) { geo in
+            geo.size
+        } action: { newValue in
+            print("Height is: \(newValue.height)")
+            print("Width is: \(newValue.width)")
+        }
+
     }
 }
 

@@ -22,18 +22,15 @@ struct TimePopupContainer: View {
 
     //ProposedTimes open here.
     let times: ProposedTimes
-    
-    
-    
-    
+
     var body: some View {
         VStack(spacing: 0) {
             popupTitleAndButton
             pagerSection
         }
-        .padding(.top, 20)
+        .padding(.top, page == .invitedTimes ? 20 : 16)
         .padding(.bottom, page == .invitedTimes ? 20 :  -Spacing.xs)
-        .frame(maxWidth: page == .invitedTimes ? 310 : 330)
+        .frame(maxWidth: page == .invitedTimes ? 310 : 325)
         .background(Color.white, in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.3), value: page)
     }
