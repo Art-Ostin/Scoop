@@ -29,7 +29,7 @@ struct ProfileImageView: View {
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            imageCarousel
+//            imageCarousel
             imageScroller
         }
         .onChange(of: selection) { _, new in selectedIndex?.wrappedValue = new }
@@ -50,25 +50,25 @@ extension ProfileImageView {
         zoomPresented && ImageZoom.flight.inFlight ? .default : .card
     }
 
-    private var imageCarousel: some View {
-        ImageCarousel(
-            images: images,
-            pageInset: Self.heroHPadding,
-            topRadius: CornerRadius.image,
-            bottomRadius: CornerRadius.image,
-            aspectRatio: pagerAspect,
-            onImageTap: { zoomedPhoto = PhotoViewerSource(id: $0) },
-            scrollProgress: $scrollProgress,
-            scrollPosition: $pagerPosition,
-        )
-        .scrollDisabled(disableScroll)
-        .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
-            morph?.reportDestination(containerRect: rect)
-        }
-        .zoomHero(insetX: 6) //ImageZoom lands on the settled page image, 6pt inside the pager (same inset the morph uses)
-        .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
-        .overlay { inviteSource } //Reports the visible image rect (inset, image height only) as the flight origin
-    }
+//    private var imageCarousel: some View {
+//        ImageCarousel(
+//            images: images,
+//            pageInset: Self.heroHPadding,
+//            topRadius: CornerRadius.image,
+//            bottomRadius: CornerRadius.image,
+//            aspectRatio: pagerAspect,
+//            onImageTap: { zoomedPhoto = PhotoViewerSource(id: $0) },
+//            scrollProgress: $scrollProgress,
+//            scrollPosition: $pagerPosition,
+//        )
+//        .scrollDisabled(disableScroll)
+//        .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
+//            morph?.reportDestination(containerRect: rect)
+//        }
+//        .zoomHero(insetX: 6) //ImageZoom lands on the settled page image, 6pt inside the pager (same inset the morph uses)
+//        .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
+//        .overlay { inviteSource } //Reports the visible image rect (inset, image height only) as the flight origin
+//    }
 
     //A clear proxy matching the on-screen image — inset like the pager pages and clipped to the
     //image height — so the invite card collapses onto the hero exactly, not the full-width container

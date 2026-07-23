@@ -7,23 +7,26 @@
 import SwiftUI
 
 //MARK: Horizontal Scroll default Layout
-struct PagerScrollView<Content: View>: View {
-    var peek: CGFloat = 0
-    var progress: Binding<Double>? = nil
-    var verticalAlignment: VerticalAlignment = .center
+struct HorizontalPageScroll<ID: Hashable, Content: View>: View {
+    @Binding var progress: Double
+    @Binding var scrollPosition: ID?
+    
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(alignment: verticalAlignment, spacing: 0) {
+            HStack(spacing: 0) {
                 content
             }
             .scrollTargetLayout()
         }
-        .contentMargins(.horizontal, peek, for: .scrollContent)
-        .pagedScroll(progress: progress)
+        .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
+        .trackScrollProgress(scrollProgress: $progress)
+        .scrollPosition(id: $scrollPosition)
     }
 }
+
 
 private struct IsAtTopOfScroll: ViewModifier {
     @Binding var isAtTop: Bool
@@ -47,25 +50,6 @@ extension View {
         modifier(IsAtTopOfScroll(isAtTop: isAtTop))
     }
 }
-
-
-
-
-extension View {
-    @ViewBuilder
-    func pagedScroll(progress: Binding<Double>? = nil) -> some View {
-        let base = self
-            .scrollTargetBehavior(.paging)
-            .scrollIndicators(.hidden)
-        
-        if let progress {
-            base.trackScrollProgress(scrollProgress: progress)
-        } else {
-            base
-        }
-    }
-}
-
 
 extension View {
     

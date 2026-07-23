@@ -31,10 +31,6 @@ enum CornerRadius {
     }
 }
 
-
-
-
-
 // MARK: Shadow
 enum Elevation {
     case card, image, button, softFloating, floating
@@ -163,5 +159,22 @@ extension View {
         return self
             .shadow(color: .black.opacity(contact.opacity * s), radius: contact.radius, x: 0, y: contact.y)
             .shadow(color: tint.opacity(ambient.opacity * s), radius: ambient.radius, x: 0, y: ambient.y)
+    }
+    
+    @ViewBuilder
+    func cardShadow(type: AppImageType) -> some View {
+        if type == .invite {
+            self
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.05), radius: 20, x: 0, y: 4)
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.05), radius: 20, x: 0, y: 4)
+        } else {
+            self
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 0)
+                .shadow(color: .black.opacity(0.09), radius: 20, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 0)
+                .shadow(color: .black.opacity(0.09), radius: 20, x: 0, y: 2)
+        }
     }
 }

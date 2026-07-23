@@ -38,13 +38,9 @@ struct InviteImageCarousel: View {
         .animation(.transition, value: confirmInviteScreen)
         .coordinateSpace(name: Self.imageSpace)
         
+        //Add Overlay when applicable
         
         
-        
-        
-        
-        
-        .modifier(InviteImageOverlays(vm: <#T##TimeAndPlaceViewModel#>, scrollProgress: <#T##Double#>, name: <#T##String#>, expanded: <#T##Bool#>, showCollapsedChrome: <#T##Bool#>, details: <#T##String#>, coverImage: <#T##UIImage?#>, images: <#T##[UIImage]#>, confirmScreen: <#T##Binding<Bool>#>, showInfoScreen: <#T##Binding<Bool>#>, inviteButtonPopped: <#T##Binding<Bool>#>, declineProfile: <#T##() -> Void#>))
         
     }
 }

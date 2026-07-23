@@ -21,10 +21,10 @@ struct EventImageCard: View {
 
     var body: some View {
         VStack(spacing: Spacing.xs) {
-            CardImageCarousel(images: profileImages, scrollProgress: $scrollProgress)
-                .onTapGesture {openProfile()}
+//            CardImageCarousel(images: profileImages, scrollProgress: $scrollProgress)
+//                .onTapGesture {openProfile()}
                 //The morph flies a copy of this image, so the real one hides while the copy is on screen.
-                .profileMorphSource(id: profileID, radii: .init(uniform: CornerRadius.image))
+//                .profileMorphSource(id: profileID, radii: .init(uniform: CornerRadius.image))
             timerSection
         }
         .clipShape(.rect(cornerRadius: CornerRadius.image))

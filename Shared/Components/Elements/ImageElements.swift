@@ -7,113 +7,85 @@
 
 import SwiftUI
 
-//A single, screen-inset app image. Carousel page geometry lives in ImageCarousel.
-struct ScoopImage: View {
-    let image: UIImage
 
-    var aspectRatio: AspectRatio = .default
-    var cornerRadius: CGFloat = CornerRadius.image
-    var zoomSourceID: String? = nil //UIKit-backs the image so ImageZoom can fly a screen out of it
+enum AppImageType {case meet, invite}
 
-    var body: some View {
-        Color.clear
-            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
-            .overlay { imageContent }
-            .clipShape(.rect(cornerRadius: cornerRadius))
+struct AppImage: View {
+
+    let type: AppImageType
+    var aspectRatio: CGFloat { type == .meet ? 1/1.12 : 1.55}
         
-            //So overlay content fits on the image shrink width to fit scren
-            .containerRelativeFrame(.horizontal) { length, _ in
-                return max(length - Spacing.gutter * 2, 0)
-            }
-    }
-
-    @ViewBuilder
-    private var imageContent: some View {
-        if let zoomSourceID {
-            ZoomSourceImage(id: zoomSourceID, image: image, cornerRadius: cornerRadius)
-        } else {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-        }
-    }
-}
-
-
-struct ImageCarouselInvite: View {
-    
-    //Injected
-    let images: [UIImage]
-    let aspectRatio: AspectRatio
-    let confirmScreen: Bool
-    
-    //Local
-    @State var scrollProgress: Double = 0
-
     var body: some View {
-        PagerScrollView(progress: $scrollProgress) {
-            ForEach(images, id: \.self) { image in
-                scrollImage(image)
-            }
-        }
-        .scrollClipDisabled() //Pages bleed past the gutter mid-scroll; the parent card mask cuts them]
-        .overlay(alignment: .bottom) { pageIndicator }
-    }
-    
-    private func scrollImage(_ image: UIImage) -> some View {
         Color.clear
-            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
+            .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {
-                Image(uiImage: image)
+                Image("Image3")
                     .resizable()
                     .scaledToFill()
             }
+            .clipShape(.rect(cornerRadius: 20))
+            .containerRelativeFrame(.horizontal) { length, _ in
+                return max(length - 16 * 2, 0)
+            }//No padding but this method so overlay content works
+            .cardShadow(type: type)
+    }
+}
+
+
+enum imageCarouselType { case profile, invite}
+
+struct ImageCarousel: View {
+    
+    //Properties Imported
+    let images: [UIImage]
+    let type: imageCarouselType
+    let aspectRatio: CGFloat
+    
+    //Values change based of type
+    var hPadding: CGFloat { type == .invite ? 0 : 8 }
+    var showIndicator: Bool { type == .invite ? true : false }
+    var cornerRadius: CGFloat { type == .invite ? 0 : 20 }
+    
+    @State private var scrollProgress: Double = 0
+    
+    var body: some View {
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 0) {
+                ForEach(images, id: \.self) { image in
+                    profileImage(image)
+                }
+            }
+            .scrollTargetLayout()
+            .overlay(alignment: .bottom) { scrollIndicator}
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
+    }
+    
+    private func profileImage(_ profileImage: UIImage) -> some View {
+        Color.clear
+            .aspectRatio(aspectRatio, contentMode: .fit)
+            .overlay {
+                Image(uiImage: profileImage)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(.rect(cornerRadius: cornerRadius))
+            .padding(.horizontal, hPadding)
             .containerRelativeFrame(.horizontal)
     }
     
-    private var pageIndicator: some View {
-        ImagePageIndicator(count: 6, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7)
-            .padding(.bottom, Spacing.xs)
-            .opacityPop(visible: !confirmScreen)
-    }
-}
-
-
-
-
-
-
-
-struct CardImageCarousel: View {
-    let images: [UIImage]
-    let imagePadding: CGFloat = 3
-    
-    var topRadius: CGFloat { CornerRadius.concentric(in: CornerRadius.image, inset: 3)}
-    
-    //Drives the built-in page indicator
-    @Binding var scrollProgress: Double
-    
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            ImageCarousel(
-                images: images,
-                pageInset: imagePadding,
-                topRadius: topRadius,
-                bottomRadius: CornerRadius.sm,
-                aspectRatio: AspectRatio.card,
-                scrollProgress: $scrollProgress,
-                scrollPosition: .constant(ScrollPosition())
-            )
-            .overlay(alignment: .bottom) {
-                ImagePageIndicator(count: images.count, progress: scrollProgress)
-                    .scaleEffect(0.7)
-                    .offset(y: 12)
-            }
-            .padding(.top, imagePadding)
+    @ViewBuilder
+    private var scrollIndicator: some View {
+        if showIndicator {
+            ImagePageIndicator(count: 6, progress: scrollProgress, activeColor: .white)
+                .scaleEffect(0.7)
+                .padding(.bottom, Spacing.xs)
         }
     }
 }
+
+
 
 struct SmallImage: View {
     let image: UIImage
@@ -133,64 +105,3 @@ struct SmallImage: View {
             ))
     }
 }
-
-
-
-
-
-
-/*
- .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: true)
- .customHorizontalScrollFade(width: 3, showFade: showFade, fromLeading: false)
- */
-
-/*
- 
-
- @ViewBuilder
- private func imagePage(_ image: UIImage, index: Int) -> some View {
-     let page = CarouselImage(
-         image: image,
-         aspectRatio: aspectRatio,
-         radii: .init(top: topRadius, bottom: bottomRadius),
-         pageInset: pageInset,
-         fillsContainerHeight: fillsContainerHeight
-     )
-     if let onImageTap {
-         page.contentShape(Rectangle()).onTapGesture { onImageTap(index) }
-     } else {
-         page
-     }
- }
-
- private struct CarouselImage: View {
-     let image: UIImage
-     let aspectRatio: AspectRatio
-     let radii: RectangleCornerRadii
-     let pageInset: CGFloat
-     let fillsContainerHeight: Bool
-
-     var body: some View {
-         base
-             .overlay {
-                 Image(uiImage: image)
-                     .resizable()
-                     .scaledToFill()
-             }
-             .clipShape(.rect(cornerRadii: radii))
-             .padding(.horizontal, pageInset)
-             .containerRelativeFrame(.horizontal) { length, _ in
-                 length.isFinite ? length : 0
-             }
-     }
-
-     @ViewBuilder
-     private var base: some View {
-         if fillsContainerHeight {
-             Color.clear
-         } else {
-             Color.clear.aspectRatio(aspectRatio.ratio, contentMode: .fit)
-         }
-     }
- }
- */

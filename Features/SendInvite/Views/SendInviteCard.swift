@@ -164,15 +164,9 @@ extension SendInviteCard {
             name: vm.inviteModel.name,
             details: details,
             expanded: expanded,
-            scrollProgress: $scrollProgress,
-            pagerPosition: $pagerPosition,
             confirmInviteScreen: $confirmInviteScreen,
             coverImage: coverImage,
-            vm: vm,
-            declineProfile: declineProfile,
-            pagingDisabled: dragging || !landed,
-            optionsVisible: expanded && dragOffset == .zero && !confirmInviteScreen,
-            showsCollapsedChrome: showsCollapsedChrome
+            vm: vm, declineProfile: declineProfile
         )
         .frame(width: rect.width, height: rect.height)
         .geometryGroup() //Children resolve geometry against the in-flight frame, not the destination
