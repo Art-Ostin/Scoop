@@ -10,72 +10,192 @@ import SwiftUI
 struct ProfileCard : View {
     
     //Injected
+    @Bindable var vm: MeetViewModel
+    @Bindable var ui: MeetUIState
+
     let profile: PendingProfile
-    let quickInviteHidden: Bool
-    let onTap: (UIImage) -> Void
-    let onQuickInvite: (UIImage) -> Void
+    let inviteMode: (UserProfile) -> ProfileMode
 
-    //Local view state
-    @State private var nameFrame: CGRect = .zero
-    @State private var detailsFrame: CGRect = .zero
-    private let cardSpace = "ProfileCard"
-
-    //The zoom hides only the image view — the caption/button chrome drawn over
-    //it must hide too, or it floats over the flight and the empty slot.
-    private var zoomFlying: Bool { ImageZoom.isFlying(profile.profile.id) }
-
+    @State var palette: OverlayPalette = .placeholder
+    
+    
     var body: some View {
-        AppImage(image: profile.image, type: .meet) //ImageZoom flies the profile out of this image
-            .opacity(quickInviteHidden ? 0 : 1)
-            .overlay {backgroundBlur}
-            .overlay(alignment: .bottomLeading) {cardOverlay}
-            .contentShape(Rectangle()) //The UIKit-backed image has no implicit hit shape — without this, taps on the image miss the button
-            .profileShrinkPress {onTap(profile.image)}
-            .coordinateSpace(name: cardSpace)
-            .sendInviteSource(id: profile.profile.id) //Reports this card's frame as the quick-invite flight source
+        AppImage(image: profile.image, type: .meet) //The zoom morph flies the profile out of this image
+            .task(id: profile.image) {await fetchColour()}
+            .zoomTransition(images: images()) {
+                cardOverlay
+            } content: {
+                profileView(profile.profile)
+            }
     }
 }
 
 extension ProfileCard {
-
+    //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights fade it as one unit over the flying image
     private var cardOverlay: some View {
-        HStack(alignment: .bottom) {
-            infoSection
+        blurAndColour
+            .overlay(alignment: .bottomTrailing) {
+                overlayText
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.bottom, Spacing.md)
+            }
+    }
+
+    //A pixel-aligned copy of the card image wearing the blur + scrim: glur needs image pixels beneath it, and the raw card base then matches the flying image exactly
+    private var blurAndColour: some View {
+        Color.clear
+            .overlay {
+                Image(uiImage: profile.image)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .modifier(BlurAndColorBackground(color: palette.surface, opacity: palette.scrimOpacity))
+    }
+
+    private var overlayContent: some View {
+        HStack {
+            overlayText
             Spacer()
             inviteButton
         }
         .padding(.bottom, 20)
-        .padding(.horizontal)
-        .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
-        .animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden)
-        .animation(zoomFlying ? nil : .quick, value: zoomFlying) //Hide instantly (any fade lingers over the flight); restore with a fade
+        .frame(maxHeight: .infinity, alignment: .bottom)
     }
-
-    private var inviteButton: some View {
-        InviteButton(isInviting: true) {
-            onQuickInvite(profile.image)
-        }
-    }
-
-    private var infoSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            let p = profile.profile
-            Text(p.name)
-                .font(.title(26))
-                .getRect($nameFrame, coordSpace: cardSpace)
+    
+    private var overlayText: some View {
+        let p = profile.profile
+        return VStack(alignment: .leading, spacing: 6) {
+            Text(profile.profile.name)
+                .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
 
+            
             Text("\(p.year) · \(p.degree) · \(p.hometown)")
-                .font(.body(17, .regular))
-                .foregroundStyle(Color.white.opacity(0.9))
-                .getRect($detailsFrame, coordSpace: cardSpace)
+                 .font(.body(16, .regular))
+                 .foregroundStyle(palette.secondaryText)
         }
     }
     
-    private var backgroundBlur: some View {
-        BackgroundBlur(image: profile.image, frames: [nameFrame, detailsFrame])
-            .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
-            .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
-            .animation(zoomFlying ? nil : .quick, value: zoomFlying) //Hide instantly; the light blur band reads as a white flash if it fades
+    private var inviteButton: some View {
+        Image("LetterIconProfile")
+            .scaleEffect(0.8)
+            .frame(width: 40, height: 40)
+            .background(Color(red: 0, green: 0.4, blue: 0.43), in: Circle())
+            .shrinkPress { }
     }
 }
+
+//Functions
+extension ProfileCard {
+    private func profileView(_ profile: UserProfile) -> some View {
+        ProfileContainer(
+            vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
+            profileImages: images(),
+            mode: inviteMode(profile),
+            onDismiss: { ImageZoom.dismiss() }
+        )
+    }
+    
+    private func seedImages(for profile: UserProfile) -> [UIImage] {
+        vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
+    }
+    
+    private func fetchColour() async {
+        palette = await PopupColorExtractor.shared
+            .extractPalette(profile.image, id: profile.id, prominence: .subtle)
+    }
+    
+    private func images() -> [UIImage] {
+        vm.profileImages[profile.id] ?? seedImages(for: profile.profile)
+    }
+}
+
+struct BlurAndColorBackground: ViewModifier {
+
+    var color: Color = .black
+    var opacity: Double = 0.45
+
+    /// Where the gradient stops ramping. Below this the scrim is flat, which is
+    /// what lets `OverlayPalette` solve contrast against a single known color.
+    /// Keep in sync with `extractPalette(textRegionHeight:)`.
+    private let flatFrom: Double = 0.82
+
+    func body(content: Content) -> some View {
+        content
+            .glur(
+                radius: 16,
+                offset: 0.8,
+                interpolation: 0.34,
+                direction: .down,
+                noise: 0
+            )
+            .overlay { scrim }
+            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
+    }
+
+    private var scrim: some View {
+        LinearGradient(
+            stops: [
+                .init(color: color.opacity(0), location: 0.7),
+                .init(color: color.opacity(opacity * 0.55), location: 0.75),
+                .init(color: color.opacity(opacity), location: flatFrom),
+                .init(color: color.opacity(opacity), location: 1)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .allowsHitTesting(false)
+    }
+}
+
+
+
+
+/*
+ 
+ let quickInviteHidden: Bool
+ let onQuickInvite: (UIImage) -> Void
+
+ 
+ .sendInviteSource(id: profile.profile.id) //Reports this card's frame as the quick-invite flight source
+
+ 
+ //The zoom hides only the image view — the caption/button chrome drawn over
+ //it must hide too, or it floats over the flight and the empty slot.
+ private var zoomFlying: Bool { ImageZoom.isFlying(profile.profile.id) }
+
+ 
+ private var infoSection: some View {
+     VStack(alignment: .leading, spacing: Spacing.xs) {
+         let p = profile.profile
+         Text(p.name)
+             .font(.title(26))
+             .getRect($nameFrame, coordSpace: cardSpace)
+             .foregroundStyle(Color.white)
+
+         Text("\(p.year) · \(p.degree) · \(p.hometown)")
+             .font(.body(16, .regular))
+             .foregroundStyle(Color.white.opacity(0.9))
+             .getRect($detailsFrame, coordSpace: cardSpace)
+     }
+ }
+ 
+ private var backgroundBlur: some View {
+     BackgroundBlur(image: profile.image, frames: [nameFrame, detailsFrame])
+         .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
+         .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
+         .animation(zoomFlying ? nil : .quick, value: zoomFlying) //Hide instantly; the light blur band reads as a white flash if it fades
+ }
+
+ 
+ //Local view state
+ @State private var nameFrame: CGRect = .zero
+ @State private var detailsFrame: CGRect = .zero
+ private let cardSpace = "ProfileCard"
+ .coordinateSpace(name: cardSpace)
+ //            .profileShrinkPress {onTap(profile.image)}
+
+ .overlay(alignment: .bottomLeading) {cardOverlay}
+
+ */

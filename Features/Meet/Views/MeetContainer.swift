@@ -19,19 +19,19 @@ struct MeetContainer: View {
 
 
     var body: some View {
-        NavigationStack {
+        ZoomNavigationStack(title: "Library") {
             TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
                 profileList
             }
             .isAtTopOfScroll($isAtTopOfScroll)
         }
+        .ignoresSafeArea()
         .overlay(alignment: .topTrailing) {infoButton}
-        .environment(invite) //So each ProfileCard's .sendInviteSource reports its frame to the presenter
-
-        //Different sub views of meetContainer
-        .inviteView(presentedID: invite.presentedID) {inviteOverlay}
-        .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
+        
+        //Hopefully remove after
+        .environment(invite)
+        .inviteView(presentedID: invite.presentedID) {inviteOverlay}
     }
 }
 
@@ -45,22 +45,13 @@ extension MeetContainer {
             }
         }
     }
-        
-    private func profileView(_ profile: UserProfile) -> some View {
-        ProfileContainer(
-            vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
-            profileImages: vm.profileImages[profile.id] ?? seedImages(for: profile),
-            mode: inviteMode(for: profile),
-            onDismiss: { ImageZoom.dismiss() }
-        )
-    }
-    
+            
     private func profileCard(_ profile: PendingProfile)-> some View {
         ProfileCard(
+            vm: vm,
+            ui: ui,
             profile: profile,
-            quickInviteHidden: invite.isPresenting(profile.id),
-            onTap: {image in openProfile(profile, image: image)},
-            onQuickInvite: {image in openQuickInvite(profile, image: image)}
+            inviteMode: { inviteMode(for: $0) } //The send/decline path stays in this container
         )
         .task { await vm.loadProfileImages(profile: profile.profile) }
     }
@@ -113,13 +104,6 @@ extension MeetContainer {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
-    
-    //The profile zooms out of the card image (ImageZoom / native UIKit zoom);
-    //drag-down and the X both zoom it back in.
-    private func openProfile(_ profile: PendingProfile, image: UIImage) {
-        guard !ImageZoom.isPresented, !invite.expanded else { return }
-        ImageZoom.present(sourceID: profile.profile.id) { profileView(profile.profile) }
-    }
 
     private func hideProfileAndInviteInBackground() {
         ImageZoom.dismiss(animated: false) //Instant: the response cover is already open above
@@ -172,3 +156,13 @@ extension MeetContainer {
     }
 }
 
+
+/*
+ //The profile zooms out of the card image (ImageZoom / native UIKit zoom);
+ //drag-down and the X both zoom it back in.
+ private func openProfile(_ profile: PendingProfile, image: UIImage) {
+     guard !ImageZoom.isPresented, !invite.expanded else { return }
+     ImageZoom.present(sourceID: profile.profile.id) { profileView(profile.profile) }
+ }
+
+ */

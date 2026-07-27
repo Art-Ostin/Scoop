@@ -29,6 +29,9 @@ struct ProfileImageView: View {
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
+            ImageCarousel(horizontalPadding: 8, aspectRatio: 1.05)
+                .padding(.top, 12)
+
 //            imageCarousel
             imageScroller
         }

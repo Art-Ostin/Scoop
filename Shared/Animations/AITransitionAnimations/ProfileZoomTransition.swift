@@ -170,8 +170,8 @@ public final class ZoomRootController: UIViewController {
         // One presentation at a time; also covers taps landing while a
         // dismissal flight is still airborne.
         guard presentedDetail == nil else { return }
-        // No hero, no morph: an empty image set (bad names at the call
-        // site) would crash on pageImages[0] mid-flight.
+        // No hero, no morph: an empty image set (an unloaded set at the
+        // call site) would crash on pageImages[0] mid-flight.
         guard !marker.images.isEmpty else { return }
         host.activeSource = marker
         // The card's own aspect IS the flight crop: page 1 at this crop is
@@ -218,19 +218,19 @@ public extension View {
     /// library also draws the card's resting drop shadow
     /// (ZoomStyle.cardShadows) — do not add your own .shadow to the card.
     func zoomTransition<Overlay: View, Content: View>(
-        images: [String],
+        images: [UIImage],
         @ViewBuilder cardOverlay: @escaping () -> Overlay,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         modifier(ZoomTransitionModifier(
-            images: images.compactMap { UIImage(named: $0) },
+            images: images,
             cardOverlay: { AnyView(cardOverlay()) },
             detail: { AnyView(content()) }))
     }
 
     /// Overlay-less variant.
     func zoomTransition<Content: View>(
-        images: [String],
+        images: [UIImage],
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         zoomTransition(images: images, cardOverlay: { EmptyView() }, content: content)
@@ -2593,7 +2593,13 @@ final class MorphDismissController: NSObject {
             let rigAlpha = CGFloat(min(
                 elapsed / (diveDuration + diveSettle), 1))
             landingShadowRig?.alpha = rigAlpha
-            sceneOverlayHost?.view.alpha = rigAlpha // chrome rides the card too
+            // The chrome copy is card-aspect but the dive's window is the
+            // RACING mask, so the two only align as `closing` → 1: weight
+            // the chrome's fade by closing² so full-bleed chrome (image or
+            // scrim copies) never shows a visibly misaligned edge mid-dive.
+            // The commit spring then carries the alpha to 1 from wherever
+            // the dive leaves it.
+            sceneOverlayHost?.view.alpha = rigAlpha * closing * closing
         }
         // The underlying plane resolves CONTINUOUSLY from the first moving
         // frame — scrim and home ease toward their landed state across the

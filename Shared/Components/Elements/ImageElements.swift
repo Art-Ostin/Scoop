@@ -15,7 +15,7 @@ struct AppImage: View {
     let image: UIImage
     let type: AppImageType
     
-    var aspectRatio: CGFloat { type == .meet ? 1/1.12 : 1.55}
+    var aspectRatio: CGFloat { type == .meet ? 1/1.2 : 1.55}
         
     var body: some View {
         Color.clear
