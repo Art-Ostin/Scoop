@@ -47,6 +47,7 @@
 		652B2184301115E700646BB0 /* ImageCarouselOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B2183301115E700646BB0 /* ImageCarouselOverlay.swift */; };
 		652B21C43016FDD200646BB0 /* TwoPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */; };
 		652B21D4301705C100646BB0 /* ProfileZoomTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */; };
+		652B21D63017099000646BB0 /* ProfileCardNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D53017099000646BB0 /* ProfileCardNew.swift */; };
 		652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */; };
 		652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D282F2E942000AE491D /* ProfilesRepo.swift */; };
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
@@ -333,6 +334,7 @@
 		652B2183301115E700646BB0 /* ImageCarouselOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCarouselOverlay.swift; sourceTree = "<group>"; };
 		652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPageScrollView.swift; sourceTree = "<group>"; };
 		652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileZoomTransition.swift; sourceTree = "<group>"; };
+		652B21D53017099000646BB0 /* ProfileCardNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardNew.swift; sourceTree = "<group>"; };
 		652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLog.swift; sourceTree = "<group>"; };
 		652D3D282F2E942000AE491D /* ProfilesRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesRepo.swift; sourceTree = "<group>"; };
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
@@ -867,6 +869,7 @@
 			children = (
 				65F450CA2E463E7900AE3503 /* MeetContainer.swift */,
 				65F450D22E482B2F00AE3503 /* ProfileCard.swift */,
+				652B21D53017099000646BB0 /* ProfileCardNew.swift */,
 				65E963D52F3F7C090022595F /* RespondedToProfileCover.swift */,
 				652528422FC7F90D005B47BE /* MeetInfo.swift */,
 			);
@@ -1779,6 +1782,7 @@
 				65756FDF3010BEB400B9D2F5 /* InvitedTimes.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
+				652B21D63017099000646BB0 /* ProfileCardNew.swift in Sources */,
 				65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */,
 				657BD3232F71E71200D7C29A /* RespondDraft.swift in Sources */,
 				65E5C9262E51FBB10093410B /* MeetViewModel.swift in Sources */,
