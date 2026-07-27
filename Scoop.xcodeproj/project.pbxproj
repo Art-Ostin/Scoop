@@ -49,6 +49,7 @@
 		652B21D4301705C100646BB0 /* ProfileZoomTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */; };
 		652B21D63017099000646BB0 /* ProfileCardNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D53017099000646BB0 /* ProfileCardNew.swift */; };
 		652B21D930177B2D00646BB0 /* SendInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D830177B2D00646BB0 /* SendInviteView.swift */; };
+		652B21DB30179BCE00646BB0 /* InviteSectionLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21DA30179BCE00646BB0 /* InviteSectionLegacy.swift */; };
 		652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */; };
 		652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D282F2E942000AE491D /* ProfilesRepo.swift */; };
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
@@ -123,7 +124,6 @@
 		656E3D272EB17FED00303D9D /* SelectPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656E3D262EB17FED00303D9D /* SelectPrompt.swift */; };
 		6570CADD2F28D6EE00CBEA67 /* DropDownButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */; };
 		657210C12FFFAC38001CF670 /* ImageElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657210C02FFFAC38001CF670 /* ImageElements.swift */; };
-		657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486D92FA8C22100F38738 /* InviteContext.swift */; };
 		657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */; };
 		65756FDD3010BEAA00B9D2F5 /* RespondNewTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65756FDC3010BEAA00B9D2F5 /* RespondNewTime.swift */; };
 		65756FDF3010BEB400B9D2F5 /* InvitedTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */; };
@@ -337,6 +337,7 @@
 		652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileZoomTransition.swift; sourceTree = "<group>"; };
 		652B21D53017099000646BB0 /* ProfileCardNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardNew.swift; sourceTree = "<group>"; };
 		652B21D830177B2D00646BB0 /* SendInviteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInviteView.swift; sourceTree = "<group>"; };
+		652B21DA30179BCE00646BB0 /* InviteSectionLegacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSectionLegacy.swift; sourceTree = "<group>"; };
 		652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLog.swift; sourceTree = "<group>"; };
 		652D3D282F2E942000AE491D /* ProfilesRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesRepo.swift; sourceTree = "<group>"; };
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
@@ -405,7 +406,6 @@
 		656E3D262EB17FED00303D9D /* SelectPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPrompt.swift; sourceTree = "<group>"; };
 		6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownButton.swift; sourceTree = "<group>"; };
 		657210C02FFFAC38001CF670 /* ImageElements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageElements.swift; sourceTree = "<group>"; };
-		657486D92FA8C22100F38738 /* InviteContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContext.swift; sourceTree = "<group>"; };
 		657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceScreens.swift; sourceTree = "<group>"; };
 		65756FDC3010BEAA00B9D2F5 /* RespondNewTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondNewTime.swift; sourceTree = "<group>"; };
 		65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimes.swift; sourceTree = "<group>"; };
@@ -719,12 +719,14 @@
 		652B21D730177ABC00646BB0 /* OldSendInvite (Don't delete yet) */ = {
 			isa = PBXGroup;
 			children = (
+				65FD66A430050B7A004865E6 /* SendInvitePresenter.swift */,
 				657486DD2FA8F80900F38738 /* TimeAndPlaceScreens.swift */,
 				656B9B2830020999000BE57D /* InviteDragLogic.swift */,
 				6564C5A73008BF0D003195F0 /* ImageZoom.swift */,
 				65AF6CBC3006744A0028A4C2 /* InviteSectionContainer.swift */,
 				65B86D362FFCBBE80076683A /* OldSendInviteCard.swift */,
 				65E5C8F92E4EAAE70093410B /* TimeAndPlaceContainer.swift */,
+				652B21DA30179BCE00646BB0 /* InviteSectionLegacy.swift */,
 			);
 			path = "OldSendInvite (Don't delete yet)";
 			sourceTree = "<group>";
@@ -801,7 +803,6 @@
 				65A904912F413D5100BBCAB6 /* ProfileRec.swift */,
 				65AF148E2F63A7C100031513 /* EventProfile.swift */,
 				65C7D6282E54007000B726B8 /* PendingProfile.swift */,
-				657486D92FA8C22100F38738 /* InviteContext.swift */,
 				65F3B4752FA1F612007D1EEB /* MessagePopup.swift */,
 				65F660C72F23EBF000AF791F /* BlockedContext.swift */,
 			);
@@ -1385,7 +1386,6 @@
 			isa = PBXGroup;
 			children = (
 				652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */,
-				65FD66A430050B7A004865E6 /* SendInvitePresenter.swift */,
 			);
 			path = AITransitionAnimations;
 			sourceTree = "<group>";
@@ -1695,7 +1695,7 @@
 				65A8BF9F2E02E0400054BD63 /* ActionButton.swift in Sources */,
 				6566B96C2FEAD33C0075C3B2 /* HidePopup.swift in Sources */,
 				657B8D492F2CF3EC00583ADA /* FocusedTextView.swift in Sources */,
-				657486DA2FA8C22100F38738 /* InviteContext.swift in Sources */,
+				652B21DB30179BCE00646BB0 /* InviteSectionLegacy.swift in Sources */,
 				657683222F5913F70094A02D /* ChatDayDivider.swift in Sources */,
 				6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */,
 				6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */,

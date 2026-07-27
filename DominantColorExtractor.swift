@@ -497,11 +497,11 @@ private extension PopupColorExtractor {
 
 private extension PopupColorExtractor {
 
-    nonisolated(unsafe) static let ciContext = CIContext(
+    static let ciContext = CIContext(
         options: [.cacheIntermediates: false]
     )
 
-    nonisolated(unsafe) static let sRGB = CGColorSpace(name: CGColorSpace.sRGB)
+    static let sRGB = CGColorSpace(name: CGColorSpace.sRGB)
 
     /// The part of the image a `scaledToFill` card actually shows, in CIImage
     /// (bottom-origin) coordinates. Sampling the raw image instead would read

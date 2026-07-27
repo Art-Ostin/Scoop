@@ -60,5 +60,20 @@ import SwiftUI
     var showPendingInvites = false
     var showInfo: Bool = false
     var openPastInvites = false
+    var showInvite: PendingProfile?
     var respondedToProfile: ProfileResponse?
+    
+    
+    //Custom Binding so can be a bool in the InviteView, but a PendingProfile? in Meet container
+    func showInviteBinding(profile: PendingProfile) -> Binding<Bool> {
+        Binding {
+            self.showInvite?.id == profile.id
+        } set: { isPresented in
+            if isPresented {
+                self.showInvite = profile
+            } else if self.showInvite?.id == profile.id {
+                self.showInvite = nil
+            }
+        }
+    }
 }

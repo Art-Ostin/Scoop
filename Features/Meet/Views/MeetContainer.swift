@@ -14,14 +14,9 @@ struct MeetContainer: View {
 
     //Local view state
     @State private var ui = MeetUIState()
-    @State private var invite = SendInvitePresenter() //Owns the quick-invite card open/close flight
     @State private var isAtTopOfScroll = true
 
-
     var body: some View {
-        //The stack lives INSIDE the zoom container: SwiftUI owns the bar, so
-        //the large title collapses on scroll (a UIKit bar can't track a
-        //hosted SwiftUI scroll); the zoom presentations overlay above it all.
         ZoomNavigationStack {
             NavigationStack {
                 TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
@@ -33,10 +28,6 @@ struct MeetContainer: View {
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing) {infoButton}
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
-        
-        //Hopefully remove after
-        .environment(invite)
-        .inviteView(presentedID: invite.presentedID) {inviteOverlay}
     }
 }
 
@@ -52,17 +43,15 @@ extension MeetContainer {
     }
             
     private func profileCard(_ profile: PendingProfile)-> some View {
-        ProfileCard(
-            vm: vm,
-            ui: ui,
-            profile: profile,
-            inviteMode: { inviteMode(for: $0) } //The send/decline path stays in this container
-        )
+        ProfileCard(vm: vm, ui: ui, profile: profile, inviteMode: { inviteMode(for: $0)}) //The send/decline path stays in this container
         .task { await vm.loadProfileImages(profile: profile.profile) }
     }
 
     private var infoButton: some View {
-        InfoButton(showScreen: $ui.showInfo, isAtTopOfScroll: isAtTopOfScroll && !invite.expanded)
+        InfoButton(
+            showScreen: $ui.showInfo,
+            isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
+        )
     }
 }
 
@@ -70,34 +59,19 @@ extension MeetContainer {
 //3. Quick Invite Logic
 extension MeetContainer {
     
-    private func openQuickInvite(_ profile: PendingProfile, image: UIImage) {
-        invite.open(profile, image: image) //Presenter looks up the source frame from .sendInviteSource reports
-    }
-    
-    @ViewBuilder
-    private var inviteOverlay: some View {
-        if let pending = invite.pending, let image = invite.image {
-            SendInviteOverlay(
-                presenter: invite,
-                vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pending), defaults: vm.defaults),
-                image: image,
-                images: vm.profileImages[pending.profile.id] ?? [image],
-                details: profileDetails(pending.profile),
-                sendInvite: {sendInvite(pending, draft: $0)},
-                declineProfile: {
-                    Task { await respondToProfile(profile: pending.profile) }
-                }
-            )
-        }
-    }
-
-    //Must match ProfileCard's info line exactly — the flight chrome fades it out in place.
-    private func profileDetails(_ p: UserProfile) -> String {
-        "\(p.year) | \(p.degree) | \(p.hometown)"
-    }
-
-    private func inviteModel(_ profileEvent: PendingProfile) -> InviteContext {
-        InviteContext(profileId: profileEvent.id, name: profileEvent.profile.name, image: profileEvent.image)
+    private func inviteView(pending: PendingProfile) -> some View {
+        let profileImages = vm.profileImages[pending.profile.id] ?? [UIImage()]
+        let inviteVM = TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults)
+        
+        return SendInviteView(
+            images: profileImages,
+            name: pending.profile.name,
+            showInvite:  ui.showInviteBinding(profile: pending),
+            vm: inviteVM) { inviteDraft in
+                sendInvite(pending, draft: inviteDraft)
+            } declineProfile: {
+                Task { await respondToProfile(profile: pending.profile) }
+            }
     }
 }
 
@@ -109,12 +83,10 @@ extension MeetContainer {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
-
     private func hideProfileAndInviteInBackground() {
         ImageZoom.dismiss(animated: false) //Instant: the response cover is already open above
-        invite.reset()
+        ui.showInvite = nil
     }
-        
 }
 
 //Logic of actually responding to a profile
@@ -163,6 +135,42 @@ extension MeetContainer {
 
 
 /*
+ 
+ //Must match ProfileCard's info line exactly — the flight chrome fades it out in place.
+ private func profileDetails(_ p: UserProfile) -> String {
+     "\(p.year) | \(p.degree) | \(p.hometown)"
+ }
+
+ 
+ 
+ private func openQuickInvite(_ profile: PendingProfile, image: UIImage) {
+     invite.open(profile, image: image) //Presenter looks up the source frame from .sendInviteSource reports
+ }
+ 
+ @ViewBuilder
+ private var inviteOverlay: some View {
+     if let pending = invite.pending, let image = invite.image {
+         SendInviteOverlay(
+             presenter: invite,
+             vm: TimeAndPlaceViewModel(inviteModel: inviteModel(pending), defaults: vm.defaults),
+             image: image,
+             images: vm.profileImages[pending.profile.id] ?? [image],
+             details: profileDetails(pending.profile),
+             sendInvite: {sendInvite(pending, draft: $0)},
+             declineProfile: {
+                 Task { await respondToProfile(profile: pending.profile) }
+             }
+         )
+     }
+ }
+ @State private var invite = SendInvitePresenter() //Owns the quick-invite card open/close flight
+ //Hopefully remove after
+ .environment(invite)
+ .inviteView(presentedID: invite.presentedID) {inviteOverlay}
+
+ 
+ 
+ 
  //The profile zooms out of the card image (ImageZoom / native UIKit zoom);
  //drag-down and the X both zoom it back in.
  private func openProfile(_ profile: PendingProfile, image: UIImage) {

@@ -12,7 +12,7 @@ import SwiftUI
 class TimeAndPlaceViewModel {
     
     //Injected
-    let inviteModel: InviteContext
+    let profileId: String
     let defaults: DefaultsManaging
 
     //Draft state (persisted to defaults on every edit)
@@ -20,10 +20,10 @@ class TimeAndPlaceViewModel {
         didSet { updateEventDraft()}
     }
     
-    init(inviteModel: InviteContext, defaults: DefaultsManaging) {
-        self.inviteModel = inviteModel
+    init(profileId: String, defaults: DefaultsManaging) {
+        self.profileId = profileId
         self.defaults = defaults
-        self.event = Self.loadEvent(d: defaults, id: inviteModel.profileId)
+        self.event = Self.loadEvent(d: defaults, id: profileId)
     }
     
     private static func loadEvent(d: DefaultsManaging, id: String) -> EventFieldsDraft {
@@ -35,12 +35,12 @@ class TimeAndPlaceViewModel {
     }
     
     func deleteEventDefault() {
-        defaults.deleteEventDraft(profileId: inviteModel.profileId)
+        defaults.deleteEventDraft(profileId: profileId)
         event = EventFieldsDraft()
     }
     
     func updateEventDraft() {
-        defaults.updateEventDraft(profileId: inviteModel.profileId, eventDraft: event)
+        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
     }
 }
 

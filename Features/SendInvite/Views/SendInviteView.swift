@@ -7,18 +7,17 @@
 
 import SwiftUI
 
-struct NewSendInviteCard: View {
+struct SendInviteView: View {
     
     //Injected Properties
     let images: [UIImage]
-    let defaults: DefaultsManaging
+    let name: String
     
-    @Binding var draft: EventFieldsDraft
     @Binding var showInvite: Bool
     
     @State var vm: TimeAndPlaceViewModel
 
-    let onSendInvite: () -> ()
+    let onSendInvite: (EventFieldsDraft) -> ()
     let declineProfile: () -> ()
     
     //Local Properties
@@ -31,10 +30,10 @@ struct NewSendInviteCard: View {
             
             VStack(spacing: 0) {
                 inviteCard
-                dismissButton
+                BottomBackButton(showInvite: $showInvite)
             }
         }
-        .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: defaults, eventLocation: $draft.place) }
+        .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
     }
@@ -42,7 +41,7 @@ struct NewSendInviteCard: View {
 
 
 //Top Level Views
-extension NewSendInviteCard {
+extension SendInviteView {
 
     private var inviteCard: some View {
         VStack(spacing: Spacing.hairline) {
@@ -67,31 +66,16 @@ extension NewSendInviteCard {
             TwoPageScrollView(
                 showSecondScreen: $ui.showConfirmScreen,
                 scrollProgress: .constant(0),
-                screen1: { timeAndPlaceSection },
-                screen2: { confirmScreen }
+                screen1: { timeAndPlacePage },
+                screen2: { confirmationPage }
             )
             actionButton
         }
     }
-    
-    
-    
-    private var dismissButton: some View {
-        ScoopButton(shape: Circle(), action: {showInvite = false}) {
-            Image(systemName: "chevron.down")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .frame(width: 45, height: 45)
-        }
-        .padding(.top, Spacing.xl) // 36
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .padding(.horizontal, 10)
-        .padding(.horizontal, Spacing.sm) // 12
-    }
 }
 
 //Different Views and Components
-extension NewSendInviteCard {
+extension SendInviteView {
     
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
@@ -99,11 +83,11 @@ extension NewSendInviteCard {
         return WideActionButton(
             text: isConfirming
                 ? "Confirm & Send"
-                : "Invite \(vm.inviteModel.name)",
-            isActive: draft.isComplete
+                : "Invite \(name)",
+            isActive: vm.event.isComplete
         ) {
             if isConfirming {
-                onSendInvite()
+                onSendInvite(vm.event)
             } else {
                 ui.showConfirmScreen = true
             }
@@ -113,18 +97,18 @@ extension NewSendInviteCard {
     }
     
     private var timeAndPlacePage: some View {
-        InviteRowContainer(
+        InvitePage(
             ui: ui,
-            draft: $draft,
+            draft: $vm.event,
             showMessageScreen: $ui.showMessageScreen,
         )
     }
     
     private var confirmationPage: some View {
-        ConfirmInviteScreen(
-            name: vm.inviteModel.name,
+        ConfirmInvitePage(
+            name: name,
             isInvite: false,
-            event: $draft,
+            event: $vm.event,
             showConfirmScreen: $ui.showConfirmScreen,
             showMessageScreen: $ui.showMessageScreen
         )
@@ -132,9 +116,9 @@ extension NewSendInviteCard {
         
     private var addMessageView: some View {
         AddMessageView(
-            message: $draft.message,
+            message: $vm.event.message,
             isRespondMessage: false,
-            eventType: $draft.type
+            eventType: $vm.event.type
         )
     }
 }

@@ -5,156 +5,160 @@
 //  Created by Art Ostin on 14/07/2026.
 //
 
-import SwiftUI
+/*
+ 
+ import SwiftUI
 
-//Edit ⇄ Confirm is one card morphing in place, not two screens swapping. The pill and the
-//card frame are persistent; only the content between them slides. Both content bodies stay
-//mounted so their heights are known before the toggle — the card can tween its height while the
-//content slides within the clipped card bounds.
-struct InviteSectionContainer: View {
+ //Edit ⇄ Confirm is one card morphing in place, not two screens swapping. The pill and the
+ //card frame are persistent; only the content between them slides. Both content bodies stay
+ //mounted so their heights are known before the toggle — the card can tween its height while the
+ //content slides within the clipped card bounds.
+ struct InviteSectionContainer: View {
 
-    //Local view state
-    @State private var ui = TimeAndPlaceUIState()
-    @State private var showMessageScreen = false
-    @State private var rowsHeight: CGFloat = 0     //ideal height of the edit rows
-    @State private var confirmHeight: CGFloat = 0  //ideal height of the confirm summary
-    @State private var contentWidth: CGFloat = 0   //slide distance between the edit and confirm screens
-    @State private var isTrackingSendButtonTouch = false
+     //Local view state
+     @State private var ui = TimeAndPlaceUIState()
+     @State private var showMessageScreen = false
+     @State private var rowsHeight: CGFloat = 0     //ideal height of the edit rows
+     @State private var confirmHeight: CGFloat = 0  //ideal height of the confirm summary
+     @State private var contentWidth: CGFloat = 0   //slide distance between the edit and confirm screens
+     @State private var isTrackingSendButtonTouch = false
 
-    //Injected
-    let name: String
-    let defaults: DefaultsManaging
+     //Injected
+     let name: String
+     let defaults: DefaultsManaging
 
-    @Binding var draft: EventFieldsDraft
-    @Binding var invitePopupOpen: Bool
-    @Binding var confirmInviteScreen: Bool
+     @Binding var draft: EventFieldsDraft
+     @Binding var invitePopupOpen: Bool
+     @Binding var confirmInviteScreen: Bool
 
-    let onSendButtonTouchChange: (Bool) -> Void
-    let onSendInvite: () -> ()
+     let onSendButtonTouchChange: (Bool) -> Void
+     let onSendInvite: () -> ()
 
-    //The pill recedes to grey while a picker is open — only meaningful on the edit side.
-    private var popupDim: Bool { !confirmInviteScreen && ui.isPopupOpenDelayed() }
+     //The pill recedes to grey while a picker is open — only meaningful on the edit side.
+     private var popupDim: Bool { !confirmInviteScreen && ui.isPopupOpenDelayed() }
 
-    var body: some View {
-        VStack(spacing: 0) {
-            morphingContent
-            sendButton
-        }
-        .sheet(isPresented: $showMessageScreen) { addMessageView }
-    }
-}
+     var body: some View {
+         VStack(spacing: 0) {
+             morphingContent
+             sendButton
+         }
+         .sheet(isPresented: $showMessageScreen) { addMessageView }
+     }
+ }
 
-//The morph: two bodies stacked, both measured, sliding over an animating height
-extension InviteSectionContainer {
+ //The morph: two bodies stacked, both measured, sliding over an animating height
+ extension InviteSectionContainer {
 
-    //Both bodies are always present, so the card knows both heights up front and tweens cleanly
-    //between them. The inactive body sits just outside the clipped content bounds.
-    private var morphingContent: some View {
-        ZStack(alignment: .top) {
-            selectRows
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
-                .offset(x: confirmInviteScreen ? -contentWidth : 0)
-                .allowsHitTesting(!confirmInviteScreen)
+     //Both bodies are always present, so the card knows both heights up front and tweens cleanly
+     //between them. The inactive body sits just outside the clipped content bounds.
+     private var morphingContent: some View {
+         ZStack(alignment: .top) {
+             selectRows
+                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { rowsHeight = $0 }
+                 .offset(x: confirmInviteScreen ? -contentWidth : 0)
+                 .allowsHitTesting(!confirmInviteScreen)
 
-            confirmScreen
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { confirmHeight = $0 }
-                .offset(x: confirmInviteScreen ? 0 : contentWidth)
-                .opacity(contentWidth > 0 ? 1 : 0)
-                .allowsHitTesting(confirmInviteScreen)
-        }
-        .frame(height: contentHeight, alignment: .top)
-        .clipped()
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { contentWidth = $0 }
-    }
+             confirmScreen
+                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { confirmHeight = $0 }
+                 .offset(x: confirmInviteScreen ? 0 : contentWidth)
+                 .opacity(contentWidth > 0 ? 1 : 0)
+                 .allowsHitTesting(confirmInviteScreen)
+         }
+         .frame(height: contentHeight, alignment: .top)
+         .clipped()
+         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { contentWidth = $0 }
+     }
 
-    //nil until first measured, so the card opens at its natural height instead of snapping from 0.
-    private var contentHeight: CGFloat? {
-        let height = confirmInviteScreen ? confirmHeight : rowsHeight
-        return height > 0 ? height : nil
-    }
-}
+     //nil until first measured, so the card opens at its natural height instead of snapping from 0.
+     private var contentHeight: CGFloat? {
+         let height = confirmInviteScreen ? confirmHeight : rowsHeight
+         return height > 0 ? height : nil
+     }
+ }
 
-//The one persistent pill: label, tint and action morph across the two states
-extension InviteSectionContainer {
+ //The one persistent pill: label, tint and action morph across the two states
+ extension InviteSectionContainer {
 
-    @ViewBuilder
-    private var sendButton: some View {
-        let interactive = confirmInviteScreen || draft.isComplete
-        let tint: Color = popupDim || !interactive ? .fillGray : .textAccent
-        
-        //Don't want glass button for grayed out part of button as gives it default shadow
-        let label = Text(confirmInviteScreen ? "Confirm & Send" : "Invite \(name)")
-            .font(.body(18, .bold))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .contentTransition(.opacity) //label cro
-        
-        
-        if draft.isComplete {
-            ScoopButton(style: .tinted(tint, shadow: nil), shape: Capsule(), action: buttonTapped) {
-                label
-            }
-            .simultaneousGesture(sendButtonTouch)
-            .onDisappear { updateSendButtonTouch(false) }
-            .opacity(popupDim ? 0.4 : 1)
-            .allowsHitTesting(interactive)
-            .padding(.top, confirmInviteScreen ? Spacing.md : 0)
-            .padding(.horizontal, Spacing.margin)
-            .animation(.smooth(duration: 0.25), value: popupDim)
-        } else {
-            label
-                .background(Color.fillGray, in: Capsule())
-                .padding(.horizontal, Spacing.lg)
-        }
-    }
+     @ViewBuilder
+     private var sendButton: some View {
+         let interactive = confirmInviteScreen || draft.isComplete
+         let tint: Color = popupDim || !interactive ? .fillGray : .textAccent
+         
+         //Don't want glass button for grayed out part of button as gives it default shadow
+         let label = Text(confirmInviteScreen ? "Confirm & Send" : "Invite \(name)")
+             .font(.body(18, .bold))
+             .foregroundStyle(.white)
+             .frame(maxWidth: .infinity)
+             .frame(height: 48)
+             .contentTransition(.opacity) //label cro
+         
+         
+         if draft.isComplete {
+             ScoopButton(style: .tinted(tint, shadow: nil), shape: Capsule(), action: buttonTapped) {
+                 label
+             }
+             .simultaneousGesture(sendButtonTouch)
+             .onDisappear { updateSendButtonTouch(false) }
+             .opacity(popupDim ? 0.4 : 1)
+             .allowsHitTesting(interactive)
+             .padding(.top, confirmInviteScreen ? Spacing.md : 0)
+             .padding(.horizontal, Spacing.margin)
+             .animation(.smooth(duration: 0.25), value: popupDim)
+         } else {
+             label
+                 .background(Color.fillGray, in: Capsule())
+                 .padding(.horizontal, Spacing.lg)
+         }
+     }
 
-    private func buttonTapped() {
-        if confirmInviteScreen {
-            onSendInvite()
-        } else {
-            confirmInviteScreen = true
-        }
-    }
+     private func buttonTapped() {
+         if confirmInviteScreen {
+             onSendInvite()
+         } else {
+             confirmInviteScreen = true
+         }
+     }
 
-    private var sendButtonTouch: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { _ in updateSendButtonTouch(true) }
-            .onEnded { _ in updateSendButtonTouch(false) }
-    }
+     private var sendButtonTouch: some Gesture {
+         DragGesture(minimumDistance: 0)
+             .onChanged { _ in updateSendButtonTouch(true) }
+             .onEnded { _ in updateSendButtonTouch(false) }
+     }
 
-    private func updateSendButtonTouch(_ isActive: Bool) {
-        guard isTrackingSendButtonTouch != isActive else { return }
-        isTrackingSendButtonTouch = isActive
-        onSendButtonTouchChange(isActive)
-    }
-}
+     private func updateSendButtonTouch(_ isActive: Bool) {
+         guard isTrackingSendButtonTouch != isActive else { return }
+         isTrackingSendButtonTouch = isActive
+         onSendButtonTouchChange(isActive)
+     }
+ }
 
-//Sub-screens & sheets
-extension InviteSectionContainer {
+ //Sub-screens & sheets
+ extension InviteSectionContainer {
 
-    private var selectRows: some View {
-        SelectTimeAndPlace(
-            ui: ui,
-            draft: $draft,
-            showMessageScreen: $showMessageScreen,
-            defaults: defaults,
-            onPopupOpenChange: { invitePopupOpen = $0 }
-        )
-    }
+     private var selectRows: some View {
+         SelectTimeAndPlace(
+             ui: ui,
+             draft: $draft,
+             showMessageScreen: $showMessageScreen,
+             defaults: defaults,
+             onPopupOpenChange: { invitePopupOpen = $0 }
+         )
+     }
 
-    private var confirmScreen: some View {
-        ConfirmInviteScreen(
-            name: name, isInvite: false,
-            event: $draft,
-            showConfirmScreen: $confirmInviteScreen,
-            showMessageScreen: $showMessageScreen
-        )
-    }
+     private var confirmScreen: some View {
+         ConfirmInviteScreen(
+             name: name, isInvite: false,
+             event: $draft,
+             showConfirmScreen: $confirmInviteScreen,
+             showMessageScreen: $showMessageScreen
+         )
+     }
 
-    private var addMessageView: some View {
-        NavigationStack { //NavStack added for navigationTitle -> stack don't persist in sheets
-            AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
-        }
-    }
-}
+     private var addMessageView: some View {
+         NavigationStack { //NavStack added for navigationTitle -> stack don't persist in sheets
+             AddMessageView(message: $draft.message, isRespondMessage: false, eventType: $draft.type)
+         }
+     }
+ }
+
+ */
