@@ -96,7 +96,7 @@ private struct MeetInfoCoverScrollView: View {
 extension MeetInfoCoverScrollView {
 
     private var scrollView: some View {
-        PagerScrollView(progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             ForEach(Event.EventType.allCases, id: \.self) {type in
                 scrollSection(type: type)
                     .containerRelativeFrame(.horizontal)

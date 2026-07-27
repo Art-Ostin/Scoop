@@ -37,7 +37,7 @@ struct SignUpView: View {
 extension SignUpView {
     
     private var tabSection: some View {
-        PagerScrollView {
+        HorizontalScrollView(progress: .constant(0)) {
             Image("CoolGuys")
                 .resizable()
                 .scaledToFit()

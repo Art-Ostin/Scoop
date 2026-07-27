@@ -66,10 +66,10 @@ extension InviteImageOverlays {
     private var nameOverlay: some View {
         HStack(spacing: 6) {
             Text("Invite")
-                .getRect($inviteFrame, coordSpace: InviteImageCarousel.imageSpace)
+                .getRect($inviteFrame, coordSpace: "InviteOverlay")
 
             Text(name)
-                .getRect($nameFrame, coordSpace: InviteImageCarousel.imageSpace)
+                .getRect($nameFrame, coordSpace: "InviteOverlay")
         }
         .font(.title(24))
         .foregroundStyle(Color.white)
@@ -174,7 +174,7 @@ extension InviteImageOverlays {
                 .fill(Color.black.opacity(0.04))
                 .blur(radius: 2)
         }
-        .getRect($optionsFrame, coordSpace: InviteImageCarousel.imageSpace)
+        .getRect($optionsFrame, coordSpace: "ImageOverlay")
         .padding(Spacing.sm - 2)//Offset interior padding with capsule
         .contentShape(Circle())
         .offset(y: -2)//

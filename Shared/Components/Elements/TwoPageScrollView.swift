@@ -17,7 +17,7 @@ struct TwoPageScrollView<Screen1: View, Screen2: View>: View {
     
     
     var body: some View {
-        HorizontalPageScroll(progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             screen1()
                 .id(false)
             

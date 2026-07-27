@@ -23,7 +23,7 @@ struct InviteCard: View {
     @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
     
     var body: some View {
-        ScoopImage(image: image, aspectRatio: .inviteCard)
+        AppImage(image: image, type: .invite)
             .modifier(BlurAndGradientBackground())
             .overlay(alignment: .bottom) {overlayText}
             .frame(maxWidth: .infinity, maxHeight: .infinity)

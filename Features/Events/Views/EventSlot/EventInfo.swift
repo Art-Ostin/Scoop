@@ -32,7 +32,7 @@ struct EventInfo: View {
 extension EventInfo {
     
     var scrollSection: some View {
-        PagerScrollView(progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             ForEach(EventInfoData.allCases, id: \.self) { infoType in
                 eventInfoSlot(type: infoType)
             }

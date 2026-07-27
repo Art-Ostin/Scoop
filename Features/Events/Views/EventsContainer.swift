@@ -49,7 +49,7 @@ struct EventsContainer: View {
 extension EventsContainer {
 
     private var eventsList: some View {
-        PagerScrollView {
+        HorizontalScrollView(progress: .constant(0)) {
             ForEach(vm.events) { eventProfile in
                 eventSlot(eventProfile)
             }

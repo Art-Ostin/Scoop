@@ -56,7 +56,7 @@ extension FrozenView {
     }
     
     private func tabSection(frozenContext: BlockedContext, frozenUntilDate: Date) -> some View {
-        PagerScrollView {
+        HorizontalScrollView(progress: .constant(0)) {
             BlockedContextView(frozenContext: frozenContext, vm: vm, isBlock: false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .containerRelativeFrame(.horizontal)

@@ -71,7 +71,7 @@ extension TimePopupContainer {
     }
 
     private var pagerSection: some View {
-        PagerScrollView(verticalAlignment: .top) {
+        HorizontalScrollView(progress: .constant(0)) {
             InvitedTimes(proposedTimes: times, selectedDay: $selectedDay, respondType: $respondType)
                 .padding(.horizontal, Spacing.margin)
                 .containerRelativeFrame(.horizontal)

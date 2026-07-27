@@ -685,6 +685,7 @@
 		652B15542F30D3630042A3E1 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
+				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				657B8D4A2F2CFA5F00583ADA /* AppIcons.swift */,
 				B3108AEE959743E3BD472413 /* Dividers.swift */,
 				65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */,
@@ -1315,7 +1316,6 @@
 				65E820B72E390F200098CC36 /* Resources */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */,
-				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				655441482FE9769100425CBF /* InviteCardInfoOld.swift */,
 				652882D32F707331000B724D /* RespondTimes.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,

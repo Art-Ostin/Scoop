@@ -118,7 +118,7 @@ extension ConfirmInviteScreen {
 extension ConfirmInviteScreen {
     
     private var scrollView: some View {
-        PagerScrollView(peek: 0, progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             timePlaceTypeSection
                 .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
                 .padding(.horizontal, Spacing.margin)

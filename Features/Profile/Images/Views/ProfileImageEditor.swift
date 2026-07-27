@@ -31,7 +31,7 @@ struct ProfileImageEditor: View {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
                 
-                ScoopImage(image: importedImage.image, aspectRatio: .card)
+                AppImage(image: importedImage.image, type: .meet)
                     .overlay(alignment: .bottomTrailing) { changeImageButton }
                     .overlay(alignment: .bottomLeading) { cropPhotoIcon }
                 

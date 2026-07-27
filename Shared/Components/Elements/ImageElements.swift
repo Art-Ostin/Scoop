@@ -36,12 +36,12 @@ struct AppImage: View {
 
 enum imageCarouselType { case profile, invite}
 
-struct NewImageCarousel: View {
+struct ImageCarousel: View {
     
     //Properties Imported
     let images: [UIImage]
     let type: imageCarouselType
-    let aspectRatio: CGFloat
+    let aspectRatio: AspectRatio
     
     //Values change based of type
     var hPadding: CGFloat { type == .invite ? 0 : 8 }
@@ -51,7 +51,7 @@ struct NewImageCarousel: View {
     @State private var scrollProgress: Double = 0
     
     var body: some View {
-        HorizontalPageScroll(progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             ForEach(images, id: \.self) { image in
                 profileImage(image)
             }
@@ -61,7 +61,7 @@ struct NewImageCarousel: View {
     
     private func profileImage(_ profileImage: UIImage) -> some View {
         Color.clear
-            .aspectRatio(aspectRatio, contentMode: .fit)
+            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
             .overlay {
                 Image(uiImage: profileImage)
                     .resizable()

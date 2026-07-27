@@ -7,7 +7,7 @@
 import SwiftUI
 
 //MARK: Horizontal Scroll default Layout
-struct HorizontalPageScroll<Content: View>: View {
+struct HorizontalScrollView<Content: View>: View {
     @Binding var progress: Double
     
     @ViewBuilder var content: Content

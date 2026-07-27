@@ -22,7 +22,7 @@ struct RespondContainer: View {
     let onResponse: (ProfileResponse) -> Void
 
     var body: some View {
-        PagerScrollView(peek: Self.screenMargin) {
+        HorizontalScrollView(progress: .constant(0)) {
             
             respondCard
 //                .horizontalScrollSlot(id: RespondScrollType.acceptPage, shrinkAnchor: .trailing)

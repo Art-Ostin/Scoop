@@ -159,14 +159,11 @@ extension SendInviteCard {
         var targetImageFrame = imageFrame
         targetImageFrame.size.height = imageFrame.width / currentImageAspectRatio.ratio
         let rect = local(expanded ? targetImageFrame : sourceFrame, origin)
-        return InviteImageCarousel(
+        
+        return ImageCarousel(
             images: gallery,
-            name: vm.inviteModel.name,
-            details: details,
-            expanded: expanded,
-            confirmInviteScreen: $confirmInviteScreen,
-            coverImage: coverImage,
-            vm: vm, declineProfile: declineProfile
+            type: .invite,
+            aspectRatio: AspectRatio.inviteCard
         )
         .frame(width: rect.width, height: rect.height)
         .geometryGroup() //Children resolve geometry against the in-flight frame, not the destination

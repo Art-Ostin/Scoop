@@ -38,7 +38,7 @@ struct EditMyLifeAs: View {
     }
     
     var body: some View {
-        PagerScrollView {
+        HorizontalScrollView(progress: .constant(0)) {
             ForEach(Field.allCases) { field in
                 page(for: field)
                     .containerRelativeFrame([.horizontal, .vertical])

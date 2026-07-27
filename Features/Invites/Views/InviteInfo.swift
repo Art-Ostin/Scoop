@@ -32,7 +32,7 @@ struct InviteInfo: View {
 extension InviteInfo {
     
     private var scrollView: some View {
-        PagerScrollView(progress: $scrollProgress) {
+        HorizontalScrollView(progress: $scrollProgress) {
             ForEach(ScrollSections.allCases, id: \.self) {section in
                 scrollSection(for: section)
                     .containerRelativeFrame(.horizontal)
