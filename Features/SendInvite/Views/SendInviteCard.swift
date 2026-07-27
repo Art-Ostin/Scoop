@@ -160,7 +160,7 @@ extension SendInviteCard {
         targetImageFrame.size.height = imageFrame.width / currentImageAspectRatio.ratio
         let rect = local(expanded ? targetImageFrame : sourceFrame, origin)
         
-        return ImageCarousel(
+        return ImageCarouselOld(
             images: gallery,
             type: .invite,
             aspectRatio: AspectRatio.inviteCard

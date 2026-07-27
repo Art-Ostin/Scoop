@@ -171,10 +171,10 @@ extension View {
                 .shadow(color: .black.opacity(0.05), radius: 20, x: 0, y: 4)
         } else {
             self
-                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 0)
-                .shadow(color: .black.opacity(0.09), radius: 20, x: 0, y: 2)
-                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 0)
-                .shadow(color: .black.opacity(0.09), radius: 20, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: 4)
+                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: 4)
         }
     }
 }

@@ -45,7 +45,6 @@ extension ProfileCard {
             inviteButton
         }
         .padding(.bottom, 20)
-//        .padding(.vertical, Spacing.md)
         .padding(.horizontal)
         .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
         .animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden)

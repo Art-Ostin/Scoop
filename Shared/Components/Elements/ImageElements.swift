@@ -36,7 +36,7 @@ struct AppImage: View {
 
 enum imageCarouselType { case profile, invite}
 
-struct ImageCarousel: View {
+struct ImageCarouselOld: View {
     
     //Properties Imported
     let images: [UIImage]
