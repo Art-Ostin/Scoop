@@ -11,7 +11,6 @@ struct EventSlot: View {
     
     //Injected
     @Bindable var ui: EventsUIState
-    @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
     let eventProfile: EventProfile
     let imageSize: CGFloat
     let userImage: UIImage
@@ -42,21 +41,11 @@ extension EventSlot {
     private var eventImageCard: some View {
         eventProfile.event.acceptedTime.map { targetTime in
             EventImageCard(
-                profileID: eventProfile.profile.id,
                 profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
                 userImage: userImage,
-                targetTime: targetTime,
-                openProfile: { openProfile() }
+                targetTime: targetTime
             )
         }
-    }
-
-    //Fires the hero-zoom flight (source → profile pager) before presenting.
-    private func openProfile() {
-        guard ui.selectedProfile == nil else { return }
-        let tapped = ui.profileImages[eventProfile.profile.id]?.first ?? eventProfile.image
-        morph?.beginOpen(id: eventProfile.profile.id, image: tapped)
-        ui.selectedProfile = eventProfile.profile
     }
 
 

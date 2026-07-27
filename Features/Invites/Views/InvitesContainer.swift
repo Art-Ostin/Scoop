@@ -12,40 +12,38 @@ struct InvitesContainer: View {
     @Environment(AppRouter.self) private var router
     let vm: InvitesViewModel
 
-    //Local view state (profileMorph: invite-card image → profile pager hero morph, see ProfileMorph.swift)
+    //Local view state
     @State private var ui = InvitesUIState()
-    @State private var profileMorph = ProfileMorphState()
 
     var body: some View {
-        NavigationStack {
-            TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
-                ForEach(vm.invites, id: \.self) { invite in
-                    inviteSlot(invite)
+        ZoomNavigationStack {
+            NavigationStack {
+                TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
+                    ForEach(vm.invites, id: \.self) { invite in
+                        inviteSlot(invite)
+                    }
                 }
             }
         }
+        .ignoresSafeArea()
         .background { TimePickerWarmUp() }
-        .profileMorphHost(profileMorph)
-        
-        //Different sub views of meetContainer
-        .profileView(presentedID: ui.selectedProfile?.id, morph: profileMorph) {profileView}
-        .responseCover(presentedID: ui.respondedToProfile) {RespondedToProfileCover(responseType: $0)}
+        .fullScreenCover(isPresented: responseIsPresented) {
+            if let response = ui.respondedToProfile {
+                RespondedToProfileCover(responseType: response)
+            }
+        }
     }
 }
 
 //1. Logic for ProfileContainer
 extension InvitesContainer {
     
-    @ViewBuilder
-    private var profileView: some View {
-        if let profileID = ui.selectedProfile?.id, let eventProfile = vm.eventProfile(for: profileID) {
-            ProfileContainer(
-                vm: profileVM(for: eventProfile),
-                profileImages: profileImages(for: eventProfile),
-                mode: responseMode(eventProfile),
-                onDismiss: {ui.selectedProfile = nil }
-            )
-        }
+    private func profileView(for eventProfile: EventProfile) -> ProfileContainer {
+        ProfileContainer(
+            vm: profileVM(for: eventProfile),
+            profileImages: profileImages(for: eventProfile),
+            mode: responseMode(eventProfile)
+        )
     }
     
     private func profileVM(for eventProfile: EventProfile) -> ProfileViewModel {
@@ -58,7 +56,8 @@ extension InvitesContainer {
     }
     
     private func profileImages(for eventProfile: EventProfile) -> [UIImage] {
-        vm.profileImages[eventProfile.profile.id] ?? eventProfile.image.map { [$0] } ?? []
+        let loaded = vm.profileImages[eventProfile.profile.id] ?? []
+        return loaded.isEmpty ? eventProfile.image.map { [$0] } ?? [] : loaded
     }
     
     private func responseMode(_ eventProfile: EventProfile) -> ProfileMode {
@@ -71,8 +70,21 @@ extension InvitesContainer {
     
     @ViewBuilder
     private func inviteSlot(_ invite: EventProfile) -> some View {
-        InviteSlot(eventProfile: invite, draft: vm.draftBinding(for: invite), openInvite: .constant(false), openProfile: $ui.selectedProfile)
+        InviteSlot(
+            eventProfile: invite,
+            draft: vm.draftBinding(for: invite),
+            openInvite: .constant(false),
+            profileImages: profileImages(for: invite),
+            profileView: { AnyView(profileView(for: invite)) }
+        )
             .task { await vm.ensureImagesLoaded(for: invite.profile) }
+    }
+
+    private var responseIsPresented: Binding<Bool> {
+        Binding(
+            get: { ui.respondedToProfile != nil },
+            set: { if !$0 { ui.respondedToProfile = nil } }
+        )
     }
 }
 
@@ -110,7 +122,5 @@ extension InvitesContainer {
     
     private func hideProfileAndInviteInBackground() {
         ui.showRespondPopup = nil
-        ui.selectedProfile = nil
-        profileMorph.reset()
     }
 }

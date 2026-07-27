@@ -17,15 +17,24 @@ struct ProfileCard : View {
     let inviteMode: (UserProfile) -> ProfileMode
 
     @State var palette: OverlayPalette = .placeholder
+    @State private var isProfilePresented = false
     
     var body: some View {
-        AppImage(image: profile.image, type: .meet) //The zoom morph flies the profile out of this image
+        AppImage(image: profile.image, type: .meet)
             .task(id: profile.image) {await fetchColour()}
             .zoomTransition(images: images()) {
                 cardOverlay
             } content: {
                 profileView(profile.profile)
-                    .environment(\.zoomPresented, true) //The zoom library owns dismissal — switches off the legacy reverse-zoom render (ImageZoom sets the same flag)
+                    .onAppear { isProfilePresented = true }
+                    .onDisappear { isProfilePresented = false }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if !isProfilePresented {
+                    inviteButton
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.bottom, Spacing.md)
+                }
             }
     }
 }
@@ -57,7 +66,6 @@ extension ProfileCard {
         HStack {
             overlayText
             Spacer()
-            inviteButton
         }
         .frame(maxHeight: .infinity, alignment: .bottom)
     }
@@ -83,7 +91,7 @@ extension ProfileCard {
 
     private var inviteButton: some View {
         ScoopButton(style: .tinted(Color(red: 0, green: 0.4, blue: 0.43)), shape: Circle()) {
-            
+            ui.showInvite = profile
         } label: {
             Image("LetterIconProfile")
                 .scaleEffect(0.8)
@@ -98,8 +106,7 @@ extension ProfileCard {
         ProfileContainer(
             vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
             profileImages: images(),
-            mode: inviteMode(profile),
-            onDismiss: { ImageZoom.dismiss() }
+            mode: inviteMode(profile)
         )
     }
     

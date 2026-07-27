@@ -16,11 +16,9 @@ struct ChatContainer: View {
     @State private var vm: ChatViewModel
     let isEvent: Bool
 
-    //Local view state (profileMorph owned here so it shadows any morph injected by a presenting container)
-    @State private var profileOpen: Bool = false
-    @State private var profileRendered: Bool = false
+    //Local view state
     @State private var profileImages: [UIImage] = []
-    @State private var profileMorph = ProfileMorphState()
+    @State private var profileTrigger = 0
     @FocusState private var isFocused
 
     init(
@@ -53,13 +51,6 @@ struct ChatContainer: View {
             .background(Color.appCanvas.ignoresSafeArea())
             .customScrollFade(height: 135, edge: .top, isStrong: true)
             .overlay(alignment: .topTrailing) {profileButton}
-
-            //2. The profile presents above the root TabView (behind it here, the
-            //chat is what's revealed during the zoom dismissal — the bar stays
-            //hidden path-based while a chat is pushed).
-            .profileView(presentedID: profileRendered ? vm.eventProfile.profile.id : nil, morph: profileMorph) {
-                if profileRendered { profileView }
-            }
         
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
@@ -67,13 +58,8 @@ struct ChatContainer: View {
         .onAppear { messageAppearCode() }
         .onDisappear { messageDisappearCode() }
         
-        //5. when profile opened, turn isFocused to false
-        .onChange(of: profileOpen) { oldValue, newValue in
-            if newValue {isFocused = false}
-        }
         .overlay(alignment: .topLeading) {chatDismissButton }
         .navigationBarBackButtonHidden()
-        .profileMorphHost(profileMorph)
     }
 }
 
@@ -88,10 +74,9 @@ extension ChatContainer {
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
             profileImages: profileImages,
-            mode: .viewProfile,
-            onDismiss: { profileRendered = false },
-            onDismissStart: { profileOpen = false }
+            mode: .viewProfile
         )
+        .onAppear { isFocused = false }
     }
         
     private func messageAppearCode() {
@@ -106,22 +91,18 @@ extension ChatContainer {
     }
     
     
-    private func onProfileTap () {
-        guard !profileRendered else { return }
-        profileMorph.beginOpen(id: vm.eventProfile.profile.id, image: profileImages.first)
-        profileRendered = true
-        profileOpen = true
-    }
-
     private var profileButton: some View {
         let avatarSize: CGFloat = 35
         return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
-            onProfileTap()
+            isFocused = false
+            profileTrigger += 1
         } label: {
             HStack(spacing: Spacing.xs) {
-                SmallImage(image: profileImages.first ?? UIImage(), size: avatarSize, isCircle: true)
+                SmallImage(image: transitionImages.first ?? UIImage(), size: avatarSize, isCircle: true)
+                    .zoomTransition(images: transitionImages, trigger: profileTrigger) {
+                        profileView
+                    }
                     .scaleEffect(0.9)
-                    .profileMorphSource(id: vm.eventProfile.profile.id, cornerRadius: avatarSize / 2, visualScale: 0.9)
 
                 Text(vm.eventProfile.profile.name)
                     .font(.body(16, .bold))
@@ -133,13 +114,18 @@ extension ChatContainer {
         }
         .padding(.horizontal)
     }
+
+    private var transitionImages: [UIImage] {
+        if !profileImages.isEmpty { return profileImages }
+        return vm.eventProfile.image.map { [$0] } ?? []
+    }
     
     
     private var chatDismissButton: some View {
-        let size: CGFloat =  profileOpen ? 30 : 39
+        let size: CGFloat = 39
         return ScoopButton(shape: Circle(), action: {dismiss()}) {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .font(.system(size: profileOpen ? 14 : 16, weight: .heavy))
+                .font(.system(size: 16, weight: .heavy))
                 .frame(width: size, height: size) //Slightly larger than default medium
         }
         .padding(.horizontal)

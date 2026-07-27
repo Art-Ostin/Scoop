@@ -24,18 +24,21 @@ struct MessagesContainer: View {
     @Namespace private var profileZoom
     
     var body: some View {
-        NavigationStack(path: $path) {
-            TabScrollView(type: .messages, showEmptyView: vm.events.isEmpty) {
-                VStack(spacing: 0) {
-                    ForEach(vm.events) { chatRow(for: $0) }
+        ZoomNavigationStack {
+            NavigationStack(path: $path) {
+                TabScrollView(type: .messages, showEmptyView: vm.events.isEmpty) {
+                    VStack(spacing: 0) {
+                        ForEach(vm.events) { chatRow(for: $0) }
+                    }
+                    .padding(.top, -24)
                 }
-                .padding(.top, -24)
+                .toolbar {settingsButton ; profileButton}
+                .navigationDestination(for: PastEventsRoute.self, destination: destination)
+                .fullScreenCover(isPresented: $showSettings) {settingScreen()}
+                .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
             }
-            .toolbar {settingsButton ; profileButton}
-            .navigationDestination(for: PastEventsRoute.self, destination: destination)
-            .fullScreenCover(isPresented: $showSettings) {settingScreen()}
-            .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
         }
+        .ignoresSafeArea()
         .task { await prepareUserImages() }
         .hideTabBar(!path.isEmpty)
     }

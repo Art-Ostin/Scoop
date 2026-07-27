@@ -81,9 +81,7 @@ import FirebaseFirestore
 @Observable
 final class EventsUIState {
     var showCantMakeIt: EventProfile? = nil
-    var selectedProfile: UserProfile? = nil
     var selectedEventId: String?
     var imageSize: CGFloat = 0
     var profileImages: [String: [UIImage]] = [:]
 }
-

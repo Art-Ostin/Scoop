@@ -119,7 +119,7 @@ enum AspectRatio {
 //
 // This is the vocabulary for generic chrome. Measured system replications
 // (CustomAlert, the in-app banner, the Liquid-Glass menu morphs) and geometry-matched
-// hero flights (ProfileMorph, SendInviteCard) keep their own measured curves in their
+// hero flights (ProfileZoomTransition) keep their own measured curves in their
 // own files — never flatten those into a role. Press feedback is owned by
 // `PressEffect`. Need a curve that isn't one of these roles? Add a role here; never
 // inline a one-off.

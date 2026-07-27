@@ -10,11 +10,9 @@ import SwiftUI
 struct EventImageCard: View {
 
     //Injected
-    let profileID: String
     let profileImages: [UIImage]
     let userImage: UIImage
     let targetTime: Date
-    let openProfile: () -> ()
 
     //Local view state
     @State private var scrollProgress: Double = 0

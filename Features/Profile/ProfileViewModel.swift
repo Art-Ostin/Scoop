@@ -67,28 +67,7 @@ enum ProfileViewType {
 
 @Observable final class ProfileUIState {
 
-    //Current page of the header image pager — the invite card zooms up from this image.
+    //Current page of the header image pager — Quick Invite opens on this image.
     var selectedImageIndex: Int = 0
-
-    //Reverse-zoom close geometry (read by ZoomDismissRender). The drag system is
-    //retired — these stay at rest and only the morph's closeProgress animates.
-    var profileOffset: CGFloat = 0
-    var profileOffsetX: CGFloat = 0
-    @ObservationIgnored var presentedProfileOffset: CGFloat = 0
-    @ObservationIgnored var presentedProfileOffsetX: CGFloat = 0
-}
-
-extension Animation {
-    //Spring in Apple's design parameters (WWDC18 "Designing Fluid Interfaces"):
-    //response = duration of one oscillation, dampingRatio 1 = comes to rest with no
-    //bounce. relativeVelocity = gestureVelocity / (target - current), so released
-    //momentum carries into the animation.
-    static func fluidSpring(response: CGFloat, dampingRatio: CGFloat, relativeVelocity: CGFloat = 0) -> Animation {
-        .interpolatingSpring(
-            mass: 1,
-            stiffness: pow(2 * .pi / response, 2),
-            damping: 4 * .pi * dampingRatio / response,
-            initialVelocity: relativeVelocity
-        )
-    }
+    var showInvite: Bool = false
 }

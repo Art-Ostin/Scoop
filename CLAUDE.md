@@ -116,7 +116,8 @@ Features/<Name>/
   missing — add one, deriving it with `Layer.halved` where it descends from another
   (`softFloating`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
   Shadows.swift**, plus the measured system-replication specs that interpolate geometry
-  (menu platter bloom in `DropdownCustomMenu.swift`, `ProfileMorph.swift`).
+  (menu platter bloom in `DropdownCustomMenu.swift`, profile flights in
+  `ProfileZoomTransition.swift`).
 - Motion: only named roles from the `extension Animation` in
   `Shared/Design/GeneralParameters.swift` — the vocabulary is `.toggle` (discrete state
   flips: selection, chips, validity, checkmarks, enable/disable), `.transition` (content
@@ -129,18 +130,20 @@ Features/<Name>/
   `withAnimation { }`, an inline `.easeInOut(0.2)`/`.spring(response:…)` at a call site, or
   `.spring(.snappy)`-style nesting is drift — use a role or add one. Press feedback stays in
   `PressEffect`. Measured system replications (`CustomAlert`, the in-app banner, the
-  Liquid-Glass menu morphs) and geometry-matched hero flights (`ProfileMorph`,
-  `SendInviteCard`) keep their own measured curves in-file — never flatten those into a role.
+  Liquid-Glass menu morphs) and geometry-matched hero flights
+  (`ProfileZoomTransition`) keep their own measured curves in-file — never flatten those
+  into a role.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
 
 - Each tab container keeps **one stable `NavigationStack` + one `AppScrollView`**; the system
   title styling (large→inline collapse, SFProRounded via `scoopNavigationBarFonts`) depends on
   both staying alive across content swaps. Pagers nest *inside* the vertical scroll.
-- Profiles present at the app root **above** the TabView (ProfileOverlayPresenter); never hide
-  the tab bar for them. Chat hides the tab bar path-based on its container.
-- Root-rendered profile views must append `.environment(morph)` (ProfileMorphState) or the
-  zoom dismissal degrades.
+- Profiles present at the app root **above** the TabView through
+  `ZoomPresentationHost`; never hide the tab bar for them. Chat hides the tab bar
+  path-based on its container.
+- Keep `ZoomPresentationLayer` mounted beside the `TabView` and inject its
+  `ZoomPresentationHost`; otherwise profile presentations fall back inside their tab.
 - `CustomMenu` content/footer renders in a separate UIWindow: it must be its own `View` struct,
   or `@Environment(\.customMenuDismiss)` silently no-ops.
 

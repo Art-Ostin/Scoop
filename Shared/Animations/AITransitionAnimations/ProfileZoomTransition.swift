@@ -486,6 +486,20 @@ public extension View {
     ) -> some View {
         zoomTransition(images: images, cardOverlay: { EmptyView() }, content: content)
     }
+
+    /// Registers this view as the morph source without adding another Button.
+    /// Increment `trigger` from the source's existing control or gesture to
+    /// present the destination.
+    func zoomTransition<Content: View>(
+        images: [UIImage],
+        trigger: Int,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        modifier(TriggeredZoomTransitionModifier(
+            trigger: trigger,
+            images: images,
+            detail: { AnyView(content()) }))
+    }
 }
 
 /// Programmatic dismissal for a zoom destination: read it in the content via
@@ -598,6 +612,29 @@ private struct ZoomTransitionModifier: ViewModifier {
                 .contentShape(Rectangle())
         }
         .buttonStyle(ZoomCardPressStyle())
+    }
+}
+
+/// Trigger-driven counterpart to `ZoomTransitionModifier`. It installs the
+/// same source marker and visibility hand-off, but leaves activation to an
+/// existing control instead of nesting another Button around it.
+private struct TriggeredZoomTransitionModifier: ViewModifier {
+    @StateObject private var state = ZoomSourceState()
+    let trigger: Int
+    let images: [UIImage]
+    let detail: () -> AnyView
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(state.isHidden ? 0 : 1)
+            .background(ZoomSourceRepresentable(
+                state: state,
+                images: images,
+                cardOverlay: { AnyView(EmptyView()) },
+                detail: detail))
+            .onChange(of: trigger) { _, _ in
+                state.marker?.requestPush()
+            }
     }
 }
 

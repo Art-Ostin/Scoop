@@ -5,24 +5,18 @@
 //  Created by Art Ostin on 25/06/2025.
 
 import SwiftUI
-import Zoomable
 
 
 struct ProfileImageView: View {
 
-    //Injected
-    @Environment(ProfileMorphState.self) private var morph: ProfileMorphState?
-    @Environment(\.zoomPresented) private var zoomPresented
     let disableScroll: Bool
     let images: [UIImage]
-    var selectedIndex: Binding<Int>? = nil //Reports the settled page so the invite card can zoom from it
-    var inviteSourceID: String? = nil //When set, the hero image reports its frame as the invite flight's source (image only, not the thumbnail strip)
+    var selectedIndex: Binding<Int>? = nil //Reports the settled page used to seed Quick Invite.
 
     //Local view state
     @State private var scrollProgress: Double = 0
     @State private var pagerPosition = ScrollPosition()
     @State private var scrollPosition = ScrollPosition()
-    @State private var zoomedPhoto: PhotoViewerSource?
 
     //trackScrollProgress reports the page index as a float; the settled page drives the thumb strip.
     private var selection: Int { Int(scrollProgress.rounded()) }
@@ -31,59 +25,9 @@ struct ProfileImageView: View {
         VStack(spacing: Spacing.lg) {
             ImageCarousel(horizontalPadding: 8, aspectRatio: 1.05)
                 .padding(.top, 12)
-
-//            imageCarousel
             imageScroller
         }
         .onChange(of: selection) { _, new in selectedIndex?.wrappedValue = new }
-    }
-}
-
-//The full-width image pager (profile-morph destination)
-extension ProfileImageView {
-
-    private static let heroHPadding: CGFloat = 8 //Inset of the hero image inside the pager; the invite source matches it so the collapse lands edge-aligned
-
-    //While an ImageZoom flight is up, the hero shows the Meet card's exact crop
-    //(the transition crossfades source ↔ destination — identical content is the
-    //only thing that makes it invisible), then re-crops to the resting shape
-    //DURING the flight. The animations ride the flip sites in ImageZoom.swift,
-    //timed to the transition — no .animation modifier here.
-    private var pagerAspect: AspectRatio {
-        zoomPresented && ImageZoom.flight.inFlight ? .default : .card
-    }
-
-//    private var imageCarousel: some View {
-//        ImageCarousel(
-//            images: images,
-//            pageInset: Self.heroHPadding,
-//            topRadius: CornerRadius.image,
-//            bottomRadius: CornerRadius.image,
-//            aspectRatio: pagerAspect,
-//            onImageTap: { zoomedPhoto = PhotoViewerSource(id: $0) },
-//            scrollProgress: $scrollProgress,
-//            scrollPosition: $pagerPosition,
-//        )
-//        .scrollDisabled(disableScroll)
-//        .onGeometryChange(for: CGRect.self) {$0.frame(in: .global)} action: { rect in
-//            morph?.reportDestination(containerRect: rect)
-//        }
-//        .zoomHero(insetX: 6) //ImageZoom lands on the settled page image, 6pt inside the pager (same inset the morph uses)
-//        .fullScreenCover(item: $zoomedPhoto) { PhotoZoomViewer(images: images, startIndex: $0.id) }
-//        .overlay { inviteSource } //Reports the visible image rect (inset, image height only) as the flight origin
-//    }
-
-    //A clear proxy matching the on-screen image — inset like the pager pages and clipped to the
-    //image height — so the invite card collapses onto the hero exactly, not the full-width container
-    //or the thumbnail strip below it.
-    @ViewBuilder
-    private var inviteSource: some View {
-        if let inviteSourceID {
-            Color.clear
-                .sendInviteSource(id: inviteSourceID) //On the inset clear view, so it reports the image rect (not the full-width padded frame)
-                .padding(.horizontal, Self.heroHPadding)
-                .allowsHitTesting(false)
-        }
     }
 }
 
@@ -120,77 +64,6 @@ extension ProfileImageView {
             withAnimation(.move) {
                 scrollPosition.scrollTo(id: newIndex, anchor: .trailing)
             }
-        }
-    }
-}
-
-//MARK: - Full-screen photo viewer
-
-//A photo id wrapper so fullScreenCover(item:) can seed the viewer at the tapped index.
-private struct PhotoViewerSource: Identifiable { let id: Int }
-
-//Immersive full-screen photo viewer: pinch / double-tap to zoom (ryohey/Zoomable),
-//tappable dots to switch photos. Presented as its own modal, so the zoom gestures are
-//isolated from the profile pager and the reverse-zoom dismiss drag underneath it.
-struct PhotoZoomViewer: View {
-
-    //Injected
-    let images: [UIImage]
-
-    //Local view state
-    @Environment(\.dismiss) private var dismiss
-    @State private var index: Int
-
-    init(images: [UIImage], startIndex: Int) {
-        self.images = images
-        _index = State(initialValue: min(max(startIndex, 0), max(images.count - 1, 0)))
-    }
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea() //Immersive lightbox backdrop.
-
-            if images.indices.contains(index) {
-                Image(uiImage: images[index])
-                    .resizable()
-                    .scaledToFit()
-                    .zoomable(minZoomScale: 1, maxZoomScale: 5)
-                    .id(index) //Remount on switch → zoom resets to fit.
-            }
-        }
-        .overlay(alignment: .topTrailing) { closeButton }
-        .overlay(alignment: .bottom) { photoDots }
-    }
-}
-
-extension PhotoZoomViewer {
-
-    private var closeButton: some View {
-        Button { dismiss() } label: {
-            Image(systemName: "xmark")
-                .font(.icon(15, .semibold))
-                .foregroundStyle(Color.white)
-                .padding(Spacing.sm)
-                .background(.ultraThinMaterial, in: Circle())
-        }
-        .padding(Spacing.margin)
-    }
-
-    //Tappable dots switch photos without a swipe gesture, so nothing competes with zoom pan.
-    @ViewBuilder
-    private var photoDots: some View {
-        if images.count > 1 {
-            HStack(spacing: Spacing.xs) {
-                ForEach(images.indices, id: \.self) { i in
-                    Circle()
-                        .fill(Color.white.opacity(i == index ? 1 : 0.4))
-                        .frame(width: 7, height: 7) //Geometry: fixed dot size, not a spacing rhythm
-                        .onTapGesture { withAnimation(.toggle) { index = i } }
-                }
-            }
-            .padding(Spacing.sm)
-            .background(.ultraThinMaterial, in: Capsule())
-            .padding(.bottom, Spacing.clearance)
         }
     }
 }

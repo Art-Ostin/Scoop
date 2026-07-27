@@ -27,6 +27,12 @@ struct MeetContainer: View {
         }
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing) {infoButton}
+        .overlay {
+            if let pending = ui.showInvite {
+                inviteView(pending: pending)
+            }
+        }
+        .hideTabBar(ui.showInvite != nil)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
 }
@@ -60,7 +66,7 @@ extension MeetContainer {
 extension MeetContainer {
     
     private func inviteView(pending: PendingProfile) -> some View {
-        let profileImages = vm.profileImages[pending.profile.id] ?? [UIImage()]
+        let profileImages = vm.profileImages[pending.profile.id] ?? [pending.image]
         let inviteVM = TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults)
         
         return SendInviteView(
@@ -78,13 +84,7 @@ extension MeetContainer {
 //Key Functions
 extension MeetContainer {
 
-    
-    private func seedImages(for profile: UserProfile) -> [UIImage] {
-        vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
-    }
-    
-    private func hideProfileAndInviteInBackground() {
-        ImageZoom.dismiss(animated: false) //Instant: the response cover is already open above
+    private func hideInviteInBackground() {
         ui.showInvite = nil
     }
 }
@@ -120,9 +120,9 @@ extension MeetContainer {
         //Step 2: Show respond fullScreencover. Animation to open takes 0.2
         ui.respondedToProfile = event == nil ? .decline : .newInvite
 
-        //Step 3: Step 3: After 0.2s, dismiss the profile and invite popups beneath the respond cover
+        //Step 3: After 0.2s, dismiss the quick invite beneath the response cover
         try? await Task.sleep(for: .milliseconds(200))
-        hideProfileAndInviteInBackground()
+        hideInviteInBackground()
         
         //Step 4: Actually send invite or decline profile
         await submitResponse(event: event, profile: profile)
