@@ -12,14 +12,16 @@ enum AppImageType {case meet, invite}
 
 struct AppImage: View {
 
+    let image: UIImage
     let type: AppImageType
+    
     var aspectRatio: CGFloat { type == .meet ? 1/1.12 : 1.55}
         
     var body: some View {
         Color.clear
             .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {
-                Image("Image3")
+                Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
             }
@@ -34,7 +36,7 @@ struct AppImage: View {
 
 enum imageCarouselType { case profile, invite}
 
-struct ImageCarousel: View {
+struct NewImageCarousel: View {
     
     //Properties Imported
     let images: [UIImage]
@@ -49,17 +51,12 @@ struct ImageCarousel: View {
     @State private var scrollProgress: Double = 0
     
     var body: some View {
-        ScrollView(.horizontal) {
-            LazyHStack(spacing: 0) {
-                ForEach(images, id: \.self) { image in
-                    profileImage(image)
-                }
+        HorizontalPageScroll(progress: $scrollProgress) {
+            ForEach(images, id: \.self) { image in
+                profileImage(image)
             }
-            .scrollTargetLayout()
-            .overlay(alignment: .bottom) { scrollIndicator}
         }
-        .scrollTargetBehavior(.paging)
-        .scrollIndicators(.hidden)
+        .overlay(alignment: .bottom) { if showIndicator {scrollIndicator} }
     }
     
     private func profileImage(_ profileImage: UIImage) -> some View {
@@ -75,16 +72,12 @@ struct ImageCarousel: View {
             .containerRelativeFrame(.horizontal)
     }
     
-    @ViewBuilder
     private var scrollIndicator: some View {
-        if showIndicator {
-            ImagePageIndicator(count: 6, progress: scrollProgress, activeColor: .white)
-                .scaleEffect(0.7)
-                .padding(.bottom, Spacing.xs)
-        }
+        ImagePageIndicator(count: 6, progress: scrollProgress, activeColor: .white)
+            .scaleEffect(0.7)
+            .padding(.bottom, Spacing.xs)
     }
 }
-
 
 
 struct SmallImage: View {

@@ -25,7 +25,7 @@ struct ProfileCard : View {
     private var zoomFlying: Bool { ImageZoom.isFlying(profile.profile.id) }
 
     var body: some View {
-        ScoopImage(image: profile.image, zoomSourceID: profile.profile.id) //ImageZoom flies the profile out of this image
+        AppImage(image: profile.image, type: .meet) //ImageZoom flies the profile out of this image
             .opacity(quickInviteHidden ? 0 : 1)
             .overlay {backgroundBlur}
             .overlay(alignment: .bottomLeading) {cardOverlay}
@@ -44,7 +44,8 @@ extension ProfileCard {
             Spacer()
             inviteButton
         }
-        .padding(.vertical, Spacing.md)
+        .padding(.bottom, 20)
+//        .padding(.vertical, Spacing.md)
         .padding(.horizontal)
         .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
         .animation(quickInviteHidden ? .easeOut(duration: 0.12) : nil, value: quickInviteHidden)
@@ -63,13 +64,13 @@ extension ProfileCard {
             Text(p.name)
                 .font(.title(26))
                 .getRect($nameFrame, coordSpace: cardSpace)
+                .foregroundStyle(Color.white)
 
-            Text("\(p.year) | \(p.degree) | \(p.hometown)")
-                .font(.body(14, .medium))
+            Text("\(p.year) · \(p.degree) · \(p.hometown)")
+                .font(.body(17, .regular))
+                .foregroundStyle(Color.white.opacity(0.9))
                 .getRect($detailsFrame, coordSpace: cardSpace)
         }
-        .foregroundStyle(Color.white)
-        .font(.body(14, .medium))
     }
     
     private var backgroundBlur: some View {

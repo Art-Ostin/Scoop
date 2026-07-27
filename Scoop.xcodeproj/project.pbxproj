@@ -45,6 +45,7 @@
 		652882D42F707331000B724D /* RespondTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652882D32F707331000B724D /* RespondTimes.swift */; };
 		652882E22F70881C000B724D /* SFProRounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 652882E12F70881C000B724D /* SFProRounded-Semibold.otf */; };
 		652B2184301115E700646BB0 /* ImageCarouselOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B2183301115E700646BB0 /* ImageCarouselOverlay.swift */; };
+		652B21C43016FDD200646BB0 /* TwoPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */; };
 		652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */; };
 		652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D282F2E942000AE491D /* ProfilesRepo.swift */; };
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
@@ -213,7 +214,6 @@
 		65B672672FC48BE100479EA7 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B672662FC48BE100479EA7 /* AppRouter.swift */; };
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65B86D372FFCBBE80076683A /* SendInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B86D362FFCBBE80076683A /* SendInviteCard.swift */; };
-		65B86D772FFD63970076683A /* InviteImageCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B86D742FFD63970076683A /* InviteImageCarousel.swift */; };
 		65BA061C2FCC99FE00295AC6 /* ScoopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */; };
 		65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BF98C32FA532C600FB37A6 /* BootingScreen.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeContainer.swift */; };
@@ -330,6 +330,7 @@
 		652882D32F707331000B724D /* RespondTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimes.swift; sourceTree = "<group>"; };
 		652882E12F70881C000B724D /* SFProRounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Semibold.otf"; sourceTree = "<group>"; };
 		652B2183301115E700646BB0 /* ImageCarouselOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCarouselOverlay.swift; sourceTree = "<group>"; };
+		652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPageScrollView.swift; sourceTree = "<group>"; };
 		652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLog.swift; sourceTree = "<group>"; };
 		652D3D282F2E942000AE491D /* ProfilesRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesRepo.swift; sourceTree = "<group>"; };
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
@@ -493,7 +494,6 @@
 		65B4E39A2FA606D60044EE9A /* EventsSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsSession.swift; sourceTree = "<group>"; };
 		65B672662FC48BE100479EA7 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		65B86D362FFCBBE80076683A /* SendInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInviteCard.swift; sourceTree = "<group>"; };
-		65B86D742FFD63970076683A /* InviteImageCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteImageCarousel.swift; sourceTree = "<group>"; };
 		65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopButton.swift; sourceTree = "<group>"; };
 		65BF98C32FA532C600FB37A6 /* BootingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BootingScreen.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeContainer.swift; sourceTree = "<group>"; };
@@ -685,13 +685,13 @@
 		652B15542F30D3630042A3E1 /* Elements */ = {
 			isa = PBXGroup;
 			children = (
-				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				657B8D4A2F2CFA5F00583ADA /* AppIcons.swift */,
 				B3108AEE959743E3BD472413 /* Dividers.swift */,
 				65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */,
 				6509DCEE2F1D8C0000455AB5 /* ScrollFade.swift */,
 				657210C02FFFAC38001CF670 /* ImageElements.swift */,
 				6546DCDF300F5E0C007A366A /* CustomTextField.swift */,
+				652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */,
 			);
 			path = Elements;
 			sourceTree = "<group>";
@@ -1315,6 +1315,7 @@
 				65E820B72E390F200098CC36 /* Resources */,
 				65C60BE62F78900D00740C0A /* ProposedTimesRow.swift */,
 				6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */,
+				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
 				655441482FE9769100425CBF /* InviteCardInfoOld.swift */,
 				652882D32F707331000B724D /* RespondTimes.swift */,
 				657B8D482F2CF3EC00583ADA /* FocusedTextView.swift */,
@@ -1392,7 +1393,6 @@
 			isa = PBXGroup;
 			children = (
 				65E5C8F92E4EAAE70093410B /* SelectTimeAndPlace.swift */,
-				65B86D742FFD63970076683A /* InviteImageCarousel.swift */,
 				652B2183301115E700646BB0 /* ImageCarouselOverlay.swift */,
 				65D13D612FF69DAB00F4006F /* InviteComponents.swift */,
 			);
@@ -1824,7 +1824,6 @@
 				65140B202F55EE7400ED1DDE /* ChatRepo.swift in Sources */,
 				652B2184301115E700646BB0 /* ImageCarouselOverlay.swift in Sources */,
 				65A93D482F39379E003F6410 /* MapSearchBar.swift in Sources */,
-				65B86D772FFD63970076683A /* InviteImageCarousel.swift in Sources */,
 				653A78C42E15DBD80098747F /* MapView.swift in Sources */,
 				65D13D602FF6881800F4006F /* InviteRowContainer.swift in Sources */,
 				65FD66A530050B7A004865E6 /* SendInvitePresenter.swift in Sources */,
@@ -1863,6 +1862,7 @@
 				6569964B2FA613D1009299A5 /* ProfilesSession.swift in Sources */,
 				650321332F9DF07F002852BA /* EventResponse.swift in Sources */,
 				65A904882F412E2200BBCAB6 /* UserEvent.swift in Sources */,
+				652B21C43016FDD200646BB0 /* TwoPageScrollView.swift in Sources */,
 				65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */,
 				652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */,
 				659BF8A02FF6CA5500B3E3FF /* GeneralParameters.swift in Sources */,

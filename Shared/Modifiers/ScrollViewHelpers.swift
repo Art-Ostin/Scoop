@@ -7,15 +7,14 @@
 import SwiftUI
 
 //MARK: Horizontal Scroll default Layout
-struct HorizontalPageScroll<ID: Hashable, Content: View>: View {
+struct HorizontalPageScroll<Content: View>: View {
     @Binding var progress: Double
-    @Binding var scrollPosition: ID?
     
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 0) {
+            LazyHStack(spacing: 0) {
                 content
             }
             .scrollTargetLayout()
@@ -23,9 +22,13 @@ struct HorizontalPageScroll<ID: Hashable, Content: View>: View {
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
         .trackScrollProgress(scrollProgress: $progress)
-        .scrollPosition(id: $scrollPosition)
     }
 }
+
+
+
+
+
 
 
 private struct IsAtTopOfScroll: ViewModifier {
@@ -45,20 +48,28 @@ private struct IsAtTopOfScroll: ViewModifier {
     }
 }
 
-extension View {
-    func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
-        modifier(IsAtTopOfScroll(isAtTop: isAtTop))
+
+private struct TrackScrollProgess: ViewModifier {
+    @Binding var scrollProgress: Double
+    
+    func body(content: Content) -> some View {
+        content
+        .onScrollGeometryChange(for: Double.self) { geo in
+            geo.containerSize.width > 0 ? max(geo.contentOffset.x / geo.containerSize.width, 0) : 0
+        } action: { _, newValue in
+            scrollProgress = newValue
+        }
     }
 }
 
+
 extension View {
     
+    func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
+        modifier(IsAtTopOfScroll(isAtTop: isAtTop))
+    }
+    
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
-        self
-            .onScrollGeometryChange(for: Double.self) { geo in
-                geo.containerSize.width > 0 ? max(geo.contentOffset.x / geo.containerSize.width, 0) : 0
-            } action: { _, newValue in
-                scrollProgress.wrappedValue = newValue
-            }
+        modifier(TrackScrollProgess(scrollProgress: scrollProgress))
     }
 }
