@@ -7,15 +7,11 @@
 
 import SwiftUI
 
-struct InviteRowContainer: View {
+struct InvitePage: View {
 
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var draft: EventFieldsDraft
     @Binding var showMessageScreen: Bool
-
-    private var emptyPlaceBottomAdjustment: CGFloat {
-        draft.place == nil ? Spacing.xs - Spacing.hairline : 0
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -23,8 +19,12 @@ struct InviteRowContainer: View {
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
             InvitePlaceRow(ui: ui, eventLocation: $draft.place)
         }
+        //Internal Spacing for this view
         .padding(.top, Spacing.hairline)
-        .padding(.bottom, emptyPlaceBottomAdjustment)
+        .padding(.bottom, draft.place == nil ? 6 : 0)
+        .padding(.horizontal, Spacing.lg)
+        
         .zIndex(1)
+        .task(id: ui.activePopup) { await ui.syncDelayedPopups()}
     }
 }

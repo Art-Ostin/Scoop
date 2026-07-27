@@ -125,8 +125,6 @@ struct BottomBackButton: View {
     }
 }
 
-
-
 struct PagedScrollStyle: ViewModifier {
     @Binding var scrolledPageID: Int?
     @Binding var pageWidth: CGFloat

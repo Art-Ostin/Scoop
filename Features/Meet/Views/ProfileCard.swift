@@ -18,7 +18,6 @@ struct ProfileCard : View {
 
     @State var palette: OverlayPalette = .placeholder
     
-    
     var body: some View {
         AppImage(image: profile.image, type: .meet) //The zoom morph flies the profile out of this image
             .task(id: profile.image) {await fetchColour()}
@@ -26,6 +25,7 @@ struct ProfileCard : View {
                 cardOverlay
             } content: {
                 profileView(profile.profile)
+                    .environment(\.zoomPresented, true) //The zoom library owns dismissal — switches off the legacy reverse-zoom render (ImageZoom sets the same flag)
             }
     }
 }
@@ -34,8 +34,8 @@ extension ProfileCard {
     //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights fade it as one unit over the flying image
     private var cardOverlay: some View {
         blurAndColour
-            .overlay(alignment: .bottomTrailing) {
-                overlayText
+            .overlay(alignment: .bottomLeading) {
+                overlayContent
                     .padding(.horizontal, Spacing.md)
                     .padding(.bottom, Spacing.md)
             }
@@ -59,7 +59,6 @@ extension ProfileCard {
             Spacer()
             inviteButton
         }
-        .padding(.bottom, 20)
         .frame(maxHeight: .infinity, alignment: .bottom)
     }
     
@@ -72,17 +71,24 @@ extension ProfileCard {
 
             
             Text("\(p.year) · \(p.degree) · \(p.hometown)")
-                 .font(.body(16, .regular))
-                 .foregroundStyle(palette.secondaryText)
+                 .font(.body(15, .medium))
+                 .foregroundStyle(secondaryText)
         }
     }
-    
+
+    //The palette hands the tint over at the preset's saturation (.subtle = 0.24), which reads too colored here. Capping holds back only the loud extractions and leaves already-muted ones alone; luminance is untouched, so the palette's solved contrast still holds.
+    private var secondaryText: Color {
+        palette.secondaryText.chromaCapped(0.12)
+    }
+
     private var inviteButton: some View {
-        Image("LetterIconProfile")
-            .scaleEffect(0.8)
-            .frame(width: 40, height: 40)
-            .background(Color(red: 0, green: 0.4, blue: 0.43), in: Circle())
-            .shrinkPress { }
+        ScoopButton(style: .tinted(Color(red: 0, green: 0.4, blue: 0.43)), shape: Circle()) {
+            
+        } label: {
+            Image("LetterIconProfile")
+                .scaleEffect(0.8)
+                .frame(width: 42, height: 42)
+        }
     }
 }
 
@@ -112,38 +118,37 @@ extension ProfileCard {
 }
 
 struct BlurAndColorBackground: ViewModifier {
-
+    
     var color: Color = .black
     var opacity: Double = 0.45
-
+    
+    
+    var mixedColor: Color {
+        color.mix(with: .black, by: 0.35, in: .device)
+    }
+    
+    
     /// Where the gradient stops ramping. Below this the scrim is flat, which is
     /// what lets `OverlayPalette` solve contrast against a single known color.
     /// Keep in sync with `extractPalette(textRegionHeight:)`.
-    private let flatFrom: Double = 0.82
+//    private let flatFrom: Double = 0.82
 
     func body(content: Content) -> some View {
         content
-            .glur(
-                radius: 16,
-                offset: 0.8,
-                interpolation: 0.34,
-                direction: .down,
-                noise: 0
-            )
-            .overlay { scrim }
-            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
+            .glur(radius: 12, offset: 0.82, interpolation: 0.4, direction: .down, noise: 0)
+            .overlay { blackGradient }
+            .clipShape(.rect(cornerRadius: CornerRadius.image))
     }
-
-    private var scrim: some View {
+    
+    private var blackGradient: some View {
         LinearGradient(
             stops: [
-                .init(color: color.opacity(0), location: 0.7),
-                .init(color: color.opacity(opacity * 0.55), location: 0.75),
-                .init(color: color.opacity(opacity), location: flatFrom),
-                .init(color: color.opacity(opacity), location: 1)
+                .init(color: mixedColor.opacity(0),    location: 0.65),
+                .init(color: mixedColor.opacity(0.3),  location: 0.8),
+                .init(color: mixedColor.opacity(0.55), location: 0.85),
+                .init(color: mixedColor.opacity(0.65), location: 1)
             ],
-            startPoint: .top,
-            endPoint: .bottom
+            startPoint: .top, endPoint: .bottom
         )
         .allowsHitTesting(false)
     }

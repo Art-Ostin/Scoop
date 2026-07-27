@@ -19,11 +19,16 @@ struct MeetContainer: View {
 
 
     var body: some View {
-        ZoomNavigationStack(title: "Library") {
-            TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
-                profileList
+        //The stack lives INSIDE the zoom container: SwiftUI owns the bar, so
+        //the large title collapses on scroll (a UIKit bar can't track a
+        //hosted SwiftUI scroll); the zoom presentations overlay above it all.
+        ZoomNavigationStack {
+            NavigationStack {
+                TabScrollView(type: .meet, showEmptyView: vm.profiles.isEmpty) {
+                    profileList
+                }
+                .isAtTopOfScroll($isAtTopOfScroll)
             }
-            .isAtTopOfScroll($isAtTopOfScroll)
         }
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing) {infoButton}
@@ -39,7 +44,7 @@ struct MeetContainer: View {
 extension MeetContainer {
     
     private var profileList: some View {
-        LazyVStack(spacing: Spacing.xxxl) {
+        LazyVStack(spacing: 84) {
             ForEach(vm.profiles) { profile in
                 profileCard(profile)
             }

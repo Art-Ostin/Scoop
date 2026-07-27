@@ -20,6 +20,9 @@ struct AppContainer: View {
     @State private var profileOverlay = ProfileOverlayPresenter()
     //The quick-invite card presents at the root too, in its own overlay below the profile layer.
     @State private var inviteOverlay = InviteOverlayPresenter()
+    //Same reason for the zoom-transition profiles (Meet): their scene is built at the root
+    //so it covers the never-hidden tab bar, and reveals it as the card collapses home.
+    @State private var zoomPresentations = ZoomPresentationHost()
 
     init(dependencies dep: AppDependencies) {
         _meetVM = State(initialValue: MeetViewModel(
@@ -86,12 +89,18 @@ struct AppContainer: View {
                 .accessibilityLabel("Messages")
             }
 
+            //Below the two overlay layers: the response cover and the quick-invite card
+            //both present ABOVE an open profile.
+            ZoomPresentationLayer(host: zoomPresentations)
+                .ignoresSafeArea()
+
             InviteOverlayLayer(presenter: inviteOverlay)
             ProfileOverlayLayer(presenter: profileOverlay)
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(profileOverlay)
         .environment(inviteOverlay)
+        .environment(zoomPresentations)
     }
 }
 

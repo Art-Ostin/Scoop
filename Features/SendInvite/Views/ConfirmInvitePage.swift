@@ -12,15 +12,14 @@ enum ConfirmMode {
 }
 
 
-struct ConfirmInviteScreen: View {
+struct ConfirmInvitePage: View {
     
     //Injected Properties
     let name: String
-
     let isInvite: Bool
     
     @Binding var event: EventFieldsDraft
-    @Binding var showConfirmScreen: Bool
+    @Binding var showConfirmScreen: Bool?
     @Binding var showMessageScreen: Bool
     
     @State var scrollProgress: Double = 0
@@ -63,7 +62,7 @@ struct ConfirmInviteScreen: View {
 
 
 //Components
-extension ConfirmInviteScreen {
+extension ConfirmInvitePage {
     
     private var nameTitle: some View {
         Text(name)
@@ -115,7 +114,7 @@ extension ConfirmInviteScreen {
 }
 
 //ScrollView
-extension ConfirmInviteScreen {
+extension ConfirmInvitePage {
     
     private var scrollView: some View {
         HorizontalScrollView(progress: $scrollProgress) {

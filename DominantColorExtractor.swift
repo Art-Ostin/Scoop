@@ -650,15 +650,59 @@ private extension PopupColorExtractor {
     nonisolated static func luminance(of color: UIColor) -> CGFloat {
         guard let rgb = components(of: color) else { return 0 }
 
-        func linear(_ channel: CGFloat) -> CGFloat {
-            channel <= 0.04045
-                ? channel / 12.92
-                : pow((channel + 0.055) / 1.055, 2.4)
+        return 0.2126 * linearized(rgb.red)
+            + 0.7152 * linearized(rgb.green)
+            + 0.0722 * linearized(rgb.blue)
+    }
+
+    /// The sRGB transfer function and its inverse. Shared so the linear and the
+    /// gamma-encoded halves of the color math can't drift apart.
+    nonisolated static func linearized(_ channel: CGFloat) -> CGFloat {
+        channel <= 0.04045
+            ? channel / 12.92
+            : pow((channel + 0.055) / 1.055, 2.4)
+    }
+
+    nonisolated static func encoded(_ channel: CGFloat) -> CGFloat {
+        channel <= 0.0031308
+            ? channel * 12.92
+            : 1.055 * pow(channel, 1 / 2.4) - 0.055
+    }
+
+    /// Pulls `color`'s chroma down until its HSB saturation reads about `cap`,
+    /// holding relative luminance exactly — the luminance weights sum to 1, so
+    /// lerping every linear channel toward the color's own luminance leaves that
+    /// luminance where it was, and a contrast solved against it still holds.
+    ///
+    /// A cap rather than a scale: colors already at or below `cap` come back
+    /// untouched, so an extraction that was quiet to begin with is never pushed
+    /// further toward gray. The threshold is read in HSB but the correction is
+    /// applied in linear light, so the result lands near `cap` rather than on it
+    /// — exact on the luminance, approximate on the number.
+    nonisolated static func chromaCapped(
+        _ color: UIColor,
+        to cap: CGFloat
+    ) -> UIColor {
+        guard
+            let tone = hsb(of: color),
+            tone.saturation > cap,
+            let rgb = components(of: color)
+        else {
+            return color
         }
 
-        return 0.2126 * linear(rgb.red)
-            + 0.7152 * linear(rgb.green)
-            + 0.0722 * linear(rgb.blue)
+        let amount = 1 - cap / tone.saturation
+        let red = linearized(rgb.red)
+        let green = linearized(rgb.green)
+        let blue = linearized(rgb.blue)
+        let target = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+        return UIColor(
+            red: encoded(red + (target - red) * amount),
+            green: encoded(green + (target - green) * amount),
+            blue: encoded(blue + (target - blue) * amount),
+            alpha: color.cgColor.alpha
+        )
     }
 
     /// Lowest luminance a foreground can have and still reach `contrast`.
@@ -905,5 +949,17 @@ private extension PopupColorExtractor {
         }
 
         return (hue, saturation, brightness)
+    }
+}
+
+// MARK: - Tint adjustment
+
+extension Color {
+
+    /// Holds this color's chroma to `cap` (HSB saturation) without moving its
+    /// luminance, so a palette's solved contrast survives the change.
+    /// See `PopupColorExtractor.chromaCapped(_:to:)`.
+    func chromaCapped(_ cap: CGFloat) -> Color {
+        Color(uiColor: PopupColorExtractor.chromaCapped(UIColor(self), to: cap))
     }
 }

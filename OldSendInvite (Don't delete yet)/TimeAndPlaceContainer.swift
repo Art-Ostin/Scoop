@@ -14,13 +14,11 @@ struct SelectTimeAndPlace: View {
 
     var body: some View {
         InviteRowContainer(ui: ui, draft: $draft, showMessageScreen: $showMessageScreen)
-            .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
-            .task(id: ui.activePopup) { await ui.syncDelayedTimePopup() }
+//            .task(id: ui.activePopup) { await ui.syncDelayedPopup() }
+//            .task(id: ui.activePopup) { await ui.syncDelayedTimePopup() }
             .onChange(of: ui.activePopup, initial: true) { _, popup in
                 onPopupOpenChange(popup != nil)
             }
-            .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: defaults, eventLocation: $draft.place) }
-            .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
             .padding(.horizontal, Self.contentPadding)
     }
 }

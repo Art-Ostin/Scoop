@@ -81,7 +81,16 @@ public enum ZoomStyle {
 /// Hosts a SwiftUI root inside a UINavigationController whose bar stays
 /// 100% system-managed: presentations are overlays above the whole nav
 /// controller, never pushes. Any view inside can wear `.zoomTransition`.
+/// `title` drives the library-owned UIKit bar — use it only for plain UIKit
+/// content. SwiftUI scroll content must pass nil and bring its OWN
+/// NavigationStack (+ .navigationTitle) as the root: SwiftUI scroll views
+/// opt out of UIKit bar tracking, so a UIKit bar over them never collapses
+/// its large title; the outer bar hides itself when title is nil.
 public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
+    /// The app-root plane presentations render in, when one is mounted (see
+    /// ZoomPresentationHost). Absent — previews, isolated harnesses — the
+    /// presentation stays inside this stack's own view.
+    @Environment(ZoomPresentationHost.self) private var presentationHost: ZoomPresentationHost?
     private let title: String?
     private let root: Root
 
@@ -91,10 +100,74 @@ public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
     }
 
     public func makeUIViewController(context: Context) -> ZoomRootController {
-        ZoomRootController(root: AnyView(root), title: title)
+        let controller = ZoomRootController(root: AnyView(root), title: title)
+        controller.adoptPresentationPlane(presentationHost?.controller)
+        return controller
     }
 
-    public func updateUIViewController(_ root: ZoomRootController, context: Context) {}
+    public func updateUIViewController(_ root: ZoomRootController, context: Context) {
+        root.adoptPresentationPlane(presentationHost?.controller)
+    }
+}
+
+// MARK: - Root presentation plane (above the app's tab bar)
+
+/// The full-screen plane presentations render in, mounted ONCE at the app root
+/// as a sibling above the TabView (`ZoomPresentationLayer`). Without it a
+/// presentation renders inside its own tab, and the floating tab bar — which
+/// belongs to the root TabView, not the tab — draws over the open profile.
+///
+/// Hosting the scene here is what gives the bar its native zoom behavior: it is
+/// never hidden (its visibility flip cannot animate — it would pop, not fade),
+/// the profile simply covers it, the scrim dims it, and the collapse reveals it
+/// continuously as the card shrinks home. Inject with `.environment(host)`.
+@MainActor
+@Observable
+public final class ZoomPresentationHost {
+    /// A UIKit plane handed straight to the presenting controller — never observed.
+    @ObservationIgnored public let controller = ZoomPresentationHostController()
+    public init() {}
+}
+
+/// The plane's controller. It must be a CONTROLLER, not a bare view: UIKit
+/// raises `UIViewControllerHierarchyInconsistency` the moment a view controller's
+/// view enters a hierarchy managed by anyone but its parent, so the presented
+/// profile is parented HERE while its home keeps living in its tab.
+public final class ZoomPresentationHostController: UIViewController {
+
+    /// The presented profile, while it owns the status bar. UIKit resolves the
+    /// bar down whichever chain reaches it first — the home's root controller
+    /// answers for its own tab, this one for the root-hosted presentation.
+    weak var statusBarChild: UIViewController?
+
+    public override func loadView() { view = ZoomPresentationHostView() }
+
+    public override var childForStatusBarStyle: UIViewController? { statusBarChild }
+    public override var childForStatusBarHidden: UIViewController? { statusBarChild }
+}
+
+/// Touches pass through the empty plane to the tab bar beneath it. Once a
+/// presentation is up its own full-screen scrim is the hit-test target, so the
+/// covered bar is unreachable for as long as the profile owns the screen.
+public final class ZoomPresentationHostView: UIView {
+    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        return hit === self ? nil : hit
+    }
+}
+
+/// Mount directly above the TabView in the app root's ZStack, ignoring the safe
+/// area — the plane must span the whole screen for the scrim to cover the bar.
+public struct ZoomPresentationLayer: UIViewControllerRepresentable {
+    private let host: ZoomPresentationHost
+
+    public init(host: ZoomPresentationHost) { self.host = host }
+
+    public func makeUIViewController(context: Context) -> ZoomPresentationHostController {
+        host.controller
+    }
+    public func updateUIViewController(_ controller: ZoomPresentationHostController,
+                                       context: Context) {}
 }
 
 // MARK: - Root container (nav below, overlay presentations above)
@@ -104,19 +177,144 @@ public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
 /// reconfigures the navigation bar — that is the whole point.
 public final class ZoomRootController: UIViewController {
 
-    let nav: UINavigationController
+    let nav: UINavigationController?
     let host: ZoomHostController
+    /// The home plane the presentations recede behind them: the nav when the
+    /// library owns the bar (title given), else the bare host.
+    var homePlane: UIViewController { nav ?? host }
     /// The profile currently presented (or mid-flight), if any.
     private(set) var presentedDetail: ZoomDetailController?
+
+    /// The app-root plane, when one is mounted. The presentation is parented to
+    /// it — controller AND views — so the scene passes ABOVE the tab bar; the
+    /// home keeps living in its tab, and only the HOME's geometry still
+    /// measures against `view`.
+    private weak var presentationHost: ZoomPresentationHostController?
+
+    /// Which side of the tab bar the scene currently renders on.
+    ///
+    /// OPEN and REST are ABOVE it: the profile rises over the bar and covers it.
+    /// A DISMISSAL is BEHIND it — the collapsing card has to be under the bar,
+    /// because the list card it lands on is under the bar. Staying above would
+    /// fly the card over the bar and then swap it for a card beneath one at
+    /// teardown: a z-order snap on the last frame. There is no plane between
+    /// the tab's content and the tab's bar other than the tab itself, so
+    /// "behind the bar" *is* this controller's own view.
+    private var sceneIsBehindTabBar = false
+    private var presentationParent: UIViewController {
+        sceneIsBehindTabBar ? self : (presentationHost ?? self)
+    }
+    var overlayContainer: UIView { presentationParent.view }
+
+    /// Swapping planes mid-presentation would strand the live scene in the old one.
+    func adoptPresentationPlane(_ host: ZoomPresentationHostController?) {
+        guard presentedDetail == nil else { return }
+        presentationHost = host
+    }
+
+    /// Drops a live presentation behind the tab bar. Called at every seam that
+    /// STARTS a dismissal, before the flight geometry is measured, so the
+    /// landing target and the card chrome are built in the plane the card
+    /// actually lands in.
+    func moveSceneBehindTabBar() {
+        guard !sceneIsBehindTabBar, let detail = presentedDetail,
+              let plane = presentationHost, let from = plane.viewIfLoaded,
+              from !== view
+        else { return }
+        sceneIsBehindTabBar = true
+        moveScene(from: from, to: view, detail: detail, newParent: self)
+        // Containment moved, so the bar answers down this chain again.
+        plane.statusBarChild = nil
+        refreshStatusBarChain(plane)
+    }
+
+    /// Lifts it back above the bar. Called when a cancelled dismissal starts
+    /// springing back to fully presented: the card grows over the bar exactly
+    /// as the open flew over it, and rest is reached already covering it.
+    func moveSceneAboveTabBar() {
+        guard sceneIsBehindTabBar, let detail = presentedDetail,
+              let plane = presentationHost, let to = plane.viewIfLoaded,
+              to !== view
+        else { return }
+        sceneIsBehindTabBar = false
+        moveScene(from: view, to: to, detail: detail, newParent: plane)
+        if detailOwnsStatusBar { plane.statusBarChild = detail }
+        refreshStatusBarChain(plane)
+    }
+
+    /// Re-parents the whole scene — controller AND views — without moving a
+    /// pixel of it: every view is re-anchored to the same SCREEN rect it
+    /// already occupied, so a plane swap is invisible even if the two planes
+    /// were not perfectly coincident.
+    ///
+    /// Only safe while nothing is animating the scene: every caller sits at a
+    /// seam where the flight has already been folded to a static pose.
+    /// Known cost, measured rather than assumed: the RE-PARENT (not the view
+    /// hand-off, which is silent) makes UIKit run an appearance transition, so
+    /// the hosted SwiftUI hears onDisappear/onAppear and re-runs its `.task`
+    /// once — on a screen that never left the display and is torn down a beat
+    /// later. `shouldAutomaticallyForwardAppearanceMethods` does not gate it at
+    /// any of the three levels involved. Harmless here (the profile's task is
+    /// `loadImagesIfNeeded`), and it costs no frames on the drag path; if it
+    /// ever needs to go, the route is a container controller that owns the
+    /// scene permanently, so a swap re-parents IT and never the detail.
+    private func moveScene(from: UIView, to: UIView,
+                           detail: ZoomDetailController, newParent: UIViewController) {
+        // The home plane lives in this controller's view too — it stays put.
+        let scene = from.subviews.filter { $0 !== homePlane.viewIfLoaded }
+        // UIKit polices containment from BOTH ends: an insertion refuses a
+        // view whose controller is parented elsewhere, and `addChild` refuses a
+        // child whose view still sits in another controller's hierarchy. The
+        // way through is to be parentless in between — an unowned controller's
+        // view may enter any hierarchy (this is why the unparented card-chrome
+        // hosting controller has always been free to sit in the plane), and
+        // re-adopting it once its view is already inside the new plane is the
+        // consistent state UIKit asks for.
+        // It also hands each view straight from one superview to the other
+        // rather than detaching it first, so the scene never leaves the window.
+        //
+        // `center` is layer.position: expressed in the SUPERVIEW's space and
+        // untouched by the view's own transform, so this re-anchors a
+        // mid-flight rig as safely as a resting scrim. (Assigning `frame`
+        // under a live transform is undefined.)
+        let positions = scene.map { to.convert($0.center, from: from) }
+
+        detail.willMove(toParent: nil)
+        detail.removeFromParent() // calls didMove(toParent: nil)
+
+        for (v, position) in zip(scene, positions) {
+            to.addSubview(v) // one hand-off each: bottom-to-top, z-order survives
+            v.center = position
+        }
+
+        newParent.addChild(detail)
+        detail.didMove(toParent: newParent)
+    }
+
+    private func refreshStatusBarChain(_ plane: ZoomPresentationHostController) {
+        setNeedsStatusBarAppearanceUpdate()
+        plane.setNeedsStatusBarAppearanceUpdate()
+    }
 
     init(root: AnyView, title: String?) {
         let host = ZoomHostController(root: root, title: title)
         self.host = host
-        nav = UINavigationController(rootViewController: host)
-        nav.navigationBar.prefersLargeTitles = true
-        // Absolute layout margins keep the large title glued to the nav
-        // plane; screen-relative margins would snap mid-recede.
-        nav.viewRespectsSystemMinimumLayoutMargins = false
+        if title != nil {
+            let nav = UINavigationController(rootViewController: host)
+            nav.navigationBar.prefersLargeTitles = true
+            // Absolute layout margins keep the large title glued to the nav
+            // plane; screen-relative margins would snap mid-recede.
+            nav.viewRespectsSystemMinimumLayoutMargins = false
+            self.nav = nav
+        } else {
+            // No title: the content brings its own SwiftUI NavigationStack,
+            // and there must be NO ambient UIKit nav at all. A hosted SwiftUI
+            // stack that detects one BRIDGES its bar onto it, and a UIKit bar
+            // cannot track a SwiftUI scroll — the large title then never
+            // collapses to inline. Bare host → the stack owns a fully SwiftUI
+            // bar, which collapses normally.
+            nav = nil
+        }
         host.viewRespectsSystemMinimumLayoutMargins = false
         super.init(nibName: nil, bundle: nil)
         host.rootController = self
@@ -124,18 +322,32 @@ public final class ZoomRootController: UIViewController {
 
     @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
 
+    /// A window-watching root: the scene it presents lives at the APP root, so
+    /// a home that leaves the window (a programmatic tab switch — a deep link,
+    /// a notification tap) would strand the profile above the screen that
+    /// replaced it. Watching the view beats appearance callbacks: it holds
+    /// whether or not SwiftUI forwards them to a representable's controller.
+    public override func loadView() {
+        view = ZoomRootPlaneView { [weak self] hasWindow in
+            if !hasWindow { self?.abortPresentation() }
+        }
+    }
+
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        addChild(nav)
-        nav.view.frame = view.bounds
-        nav.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        let plane = homePlane
+        addChild(plane)
+        plane.view.frame = view.bounds
+        plane.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         // Absolute 16pt side margins (see init): the bar derives the large
         // title's leading from these; they must not float with the screen.
-        nav.view.directionalLayoutMargins.leading = 16
-        nav.view.directionalLayoutMargins.trailing = 16
-        view.addSubview(nav.view)
-        nav.didMove(toParent: self)
+        if let nav {
+            nav.view.directionalLayoutMargins.leading = 16
+            nav.view.directionalLayoutMargins.trailing = 16
+        }
+        view.addSubview(plane.view)
+        plane.didMove(toParent: self)
     }
 
     /// While a LANDED profile is presented, it owns the status bar. The
@@ -147,16 +359,23 @@ public final class ZoomRootController: UIViewController {
     func detailDidTakeStatusBar() {
         guard presentedDetail != nil, !detailOwnsStatusBar else { return }
         detailOwnsStatusBar = true
+        presentationHost?.statusBarChild = presentedDetail
         UIView.animate(withDuration: 0.25) {
             self.setNeedsStatusBarAppearanceUpdate()
+            self.presentationHost?.setNeedsStatusBarAppearanceUpdate()
         }
     }
 
+    /// Only claimable while the detail is OUR child: root-hosted, it answers
+    /// through the host controller's chain instead (statusBarChild).
+    private var claimsStatusBar: Bool {
+        detailOwnsStatusBar && presentedDetail?.parent === self
+    }
     public override var childForStatusBarStyle: UIViewController? {
-        detailOwnsStatusBar ? presentedDetail : nav
+        claimsStatusBar ? presentedDetail : homePlane
     }
     public override var childForStatusBarHidden: UIViewController? {
-        detailOwnsStatusBar ? presentedDetail : nav
+        claimsStatusBar ? presentedDetail : homePlane
     }
 
     public override func viewDidLayoutSubviews() {
@@ -182,11 +401,22 @@ public final class ZoomRootController: UIViewController {
             images: marker.images, sourceAspect: aspect,
             detailContent: marker.detail())
         presentedDetail = detail
-        addChild(detail)
+        sceneIsBehindTabBar = false // every open starts above the bar
+        // Parented to whoever owns the plane the views are added to — UIKit
+        // checks exactly that as the detail enters the window.
+        presentationParent.addChild(detail)
         detail.dismissController.present(root: self, home: host, detail: detail)
-        detail.didMove(toParent: self)
+        detail.didMove(toParent: presentationParent)
         // The covered home must not scroll or retap.
-        nav.view.isUserInteractionEnabled = false
+        homePlane.view.isUserInteractionEnabled = false
+    }
+
+    /// Fail-safe for a home that leaves the window mid-presentation: dismantle
+    /// the root-hosted scene instantly rather than leave it floating over
+    /// whatever screen took its place. No flight — there is nothing left on
+    /// screen to fly back to.
+    func abortPresentation() {
+        presentedDetail?.dismissController.abort()
     }
 
     /// Called by the dismiss controller's teardown once a dismissal lands.
@@ -195,12 +425,33 @@ public final class ZoomRootController: UIViewController {
         presentedDetail?.view.removeFromSuperview()
         presentedDetail?.removeFromParent()
         presentedDetail = nil
-        nav.view.isUserInteractionEnabled = true
+        sceneIsBehindTabBar = false
+        homePlane.view.isUserInteractionEnabled = true
         // Status bar authority returns to the home in one crossfade.
         detailOwnsStatusBar = false
+        presentationHost?.statusBarChild = nil
         UIView.animate(withDuration: 0.25) {
             self.setNeedsStatusBarAppearanceUpdate()
+            self.presentationHost?.setNeedsStatusBarAppearanceUpdate()
         }
+    }
+}
+
+/// The root controller's own view, reporting window changes so a presentation
+/// can never outlive the home it collapses back into.
+final class ZoomRootPlaneView: UIView {
+    private let onWindowChange: (Bool) -> Void
+
+    init(onWindowChange: @escaping (Bool) -> Void) {
+        self.onWindowChange = onWindowChange
+        super.init(frame: .zero)
+    }
+
+    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        onWindowChange(window != nil)
     }
 }
 
@@ -932,8 +1183,10 @@ final class ZoomHostController: UIViewController {
                     // double(forKey:) coerces the launch-arg string; 0 = unset.
                     let override = UserDefaults.standard.double(forKey: "morphScrollY")
                     let dy = override != 0 ? override : 400
+                    // Animated: runs the real scroll delivery path, so the
+                    // nav bar's large-title tracking updates like a live drag.
                     scroll.setContentOffset(
-                        CGPoint(x: 0, y: scroll.contentOffset.y + dy), animated: false)
+                        CGPoint(x: 0, y: scroll.contentOffset.y + dy), animated: true)
                 }
             }
         }
@@ -1253,7 +1506,6 @@ final class ZoomDetailController: UIViewController {
     /// the moment the profile takes status-bar authority
     /// (ZoomRootController.childForStatusBarStyle).
     override var preferredStatusBarStyle: UIStatusBarStyle { .default }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -1779,9 +2031,9 @@ final class MorphDismissController: NSObject {
         let rig = CardRestingShadowView(frame: sourceRect)
         rig.alpha = 0
         if let shadowHost {
-            root.view.insertSubview(rig, belowSubview: shadowHost)
+            root.overlayContainer.insertSubview(rig, belowSubview: shadowHost)
         } else {
-            root.view.addSubview(rig)
+            root.overlayContainer.addSubview(rig)
         }
         landingShadowRig = rig
 
@@ -1791,7 +2043,7 @@ final class MorphDismissController: NSObject {
         overlay.view.isUserInteractionEnabled = false
         overlay.view.frame = sourceRect
         overlay.view.alpha = 0
-        root.view.addSubview(overlay.view)
+        root.overlayContainer.addSubview(overlay.view)
         sceneOverlayHost = overlay
     }
 
@@ -1834,8 +2086,10 @@ final class MorphDismissController: NSObject {
         self.root = root
         self.home = home
         self.detail = detail
-        let container = root.view!
-        let navView = root.nav.view!
+        // The scene is built in the ROOT plane (above the tab bar), while the
+        // home keeps receding in its own — hence two containers from here on.
+        let container = root.overlayContainer
+        let navView = root.homePlane.view!
         homeView = navView
 
         let scrim = UIView(frame: container.bounds)
@@ -2080,6 +2334,11 @@ final class MorphDismissController: NSObject {
     /// closing mask and the landing chrome copy. Idempotent per dismissal.
     private func armDismissal() {
         guard let detail, let detailView, let root else { return }
+        // Behind the tab bar for the whole collapse — before the landing target
+        // is measured and before the chrome copy is installed, so both are
+        // built in the plane the card lands in. The scene is at rest here, so
+        // the swap is free.
+        root.moveSceneBehindTabBar()
         detail.prepareForCollapse()
         detail.markInFlight()
         // Measure the landing target AS IF the home plane were at identity:
@@ -2089,7 +2348,7 @@ final class MorphDismissController: NSObject {
         pinHomeOffset() // land on the geometry the user left, drift-free
         let held = homeView?.transform ?? .identity
         homeView?.transform = .identity
-        sourceRect = root.view.convert(home?.cardFrame ?? .zero, from: home?.view)
+        sourceRect = root.overlayContainer.convert(home?.cardFrame ?? .zero, from: home?.view)
         homeView?.transform = held
         // A covered home may re-render and unmount the source card (weak
         // marker dies) — collapse toward where the card WAS rather than
@@ -2146,12 +2405,19 @@ final class MorphDismissController: NSObject {
                         duration: DragTuning.buttonFlightDuration,
                         damping: DragTuning.buttonDamping)
         }
+        // Drop behind the bar a turn EARLY. The swap re-parents a hosted
+        // SwiftUI screen, which costs a layout pass, and this flight is
+        // time-driven: paid on the spring's first frames it reads as a jump.
+        // (A drag absorbs the same cost for free — beginDrag runs it before
+        // the finger has moved, and the pose is finger-driven, not clock-
+        // driven.) armDismissal then finds the scene already there.
+        root?.moveSceneBehindTabBar()
         // A scrolled detail must return to its top before the morph (the
         // hero is the flight's anchor) — glide there instead of teleporting.
         if detail?.isScrolledToTop == false {
-            detail?.glideToTop(then: collapse)
+            detail?.glideToTop(then: collapse) // already a turn away
         } else {
-            collapse()
+            DispatchQueue.main.async(execute: collapse)
         }
     }
 
@@ -2405,7 +2671,7 @@ final class MorphDismissController: NSObject {
     /// (1/ω, velocity ~zero) hands the PHYSICAL spring a from-rest start
     /// at full displacement: the second beat's clean single rise.
     private func runArc(translation t: CGPoint, velocity: CGPoint) {
-        guard let detailView, let container = root?.view, heroRect.width > 0
+        guard let detailView, let container = root?.overlayContainer, heroRect.width > 0
         else {
             runCollapse(velocity: velocity,
                         duration: DragTuning.closeFlightDuration,
@@ -2816,6 +3082,10 @@ final class MorphDismissController: NSObject {
     /// catch can seize the return flight — and still commit the pop.
     func cancelDismiss(velocity: CGPoint, completion: @escaping () -> Void) {
         flightIsDismissal = false
+        // Back above the bar before the spring starts: the card grows over the
+        // bar exactly as the open flew over it, and presented rest is reached
+        // already covering it — no chrome popping out at the landing.
+        root?.moveSceneAboveTabBar()
         guard let detailView, let homeView else {
             // FAIL-SAFE (see runCollapse): a broken scene must still resolve
             // or the overlay stays stuck; return to the presented rest.
@@ -2895,6 +3165,12 @@ final class MorphDismissController: NSObject {
             race.finishAnimation(at: .current)
         }
         maskRaceAnimator = nil
+        // Every catch resumes an interactive DISMISSAL drag, so the scene
+        // belongs behind the bar — including a seized cancel spring, which was
+        // lifted back above it on its way home. Every animator is folded by
+        // now, so the swap lands on a static pose. (No-op for the caught-open
+        // branch: armFromCaughtOpen already dropped it.)
+        root?.moveSceneBehindTabBar()
         // Blend baseline: updateDrag morphs from the caught pose onto the
         // drag rule over the first stretch of new finger travel.
         regrabTransform = detailView.transform
@@ -2938,6 +3214,10 @@ final class MorphDismissController: NSObject {
     /// fallback).
     private func armFromCaughtOpen() {
         guard let detail, let detailView, let root else { return }
+        // Same seam as armDismissal: an open seized mid-air becomes a
+        // dismissal, so it drops behind the bar before its landing target is
+        // measured. The open animator is already folded to a static pose.
+        root.moveSceneBehindTabBar()
         isInteracting = true
         detail.prepareForCollapse() // idempotent; scrolls already frozen
         detail.markInFlight()
@@ -2952,7 +3232,7 @@ final class MorphDismissController: NSObject {
         pinHomeOffset() // match armDismissal: settle on drift-free geometry
         let held = homeView?.transform ?? .identity
         homeView?.transform = .identity
-        let live = root.view.convert(home?.cardFrame ?? .zero, from: home?.view)
+        let live = root.overlayContainer.convert(home?.cardFrame ?? .zero, from: home?.view)
         homeView?.transform = held
         if live.width >= 1 {
             let restingSize = home?.activeSource?.bounds.size ?? live.size
@@ -3004,6 +3284,26 @@ final class MorphDismissController: NSObject {
         min(max(velocity.y / max(distance, 1), 0), 4)
     }
 
+    /// Fail-safe dismantle, no flight: the home left the window (a programmatic
+    /// tab switch), so the root-hosted scene has nothing left to collapse into
+    /// and must not outlive it. Every live animator is killed first — teardown
+    /// assumes the flight already resolved, and a running one would keep
+    /// writing frames into a dismantled scene — then the completed path unhides
+    /// the card and hands the home plane back its untransformed canvas.
+    func abort() {
+        guard scrim != nil || shadowHost != nil else { return }
+        for animator in [flightAnimator, maskRaceAnimator, openAnimator] {
+            guard let animator, animator.state == .active else { continue }
+            animator.stopAnimation(true)
+        }
+        stopDive()
+        detailView?.layer.removeAllAnimations()
+        scrim?.layer.removeAllAnimations()
+        homeView?.layer.removeAllAnimations()
+        homeView?.transform = .identity
+        teardown(completed: true)
+    }
+
     /// Resolves a dismissal. `completed` dismantles the whole presentation
     /// (the card landed home); `!completed` returns the persistent scene to
     /// its presented rest state (the cancel's spring already restored the
@@ -3013,8 +3313,8 @@ final class MorphDismissController: NSObject {
         perfMark(completed ? "landed" : "cancelled")
         perfEnd()
         if completed, let root, let home {
-            let marker = root.view.convert(home.cardFrame, from: home.view)
-            let flown = detailView.map { root.view.convert(heroRect, from: $0) }
+            let marker = root.overlayContainer.convert(home.cardFrame, from: home.view)
+            let flown = detailView.map { root.overlayContainer.convert(heroRect, from: $0) }
             print(String(format: "LANDCHK arm=%.2f flown=%.2f marker=%.2f off=%.2f inset=%.2f",
                          sourceRect.minY, flown?.minY ?? -999, marker.minY,
                          homeScroll?.contentOffset.y ?? -999,
