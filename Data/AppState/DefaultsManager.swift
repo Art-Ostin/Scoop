@@ -21,7 +21,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
     private(set) var preferredMapType: PreferredMapType = .googleMaps
-    private(set) var eventDrafts: [String: EventFields] = [:]
+    private(set) var eventDrafts: [String: EventFieldsDraft] = [:]
     private(set) var respondDrafts: [String : RespondDraft] = [:]
 
     init(defaults: UserDefaults = .standard) {
@@ -114,12 +114,12 @@ extension DefaultsManager {
 
 // Draft Event related defaults
 extension DefaultsManager {
-    func updateEventDraft(profileId: String, eventDraft: EventFields) {
+    func updateEventDraft(profileId: String, eventDraft: EventFieldsDraft) {
         eventDrafts[profileId] = eventDraft
         persistEventDrafts()
     }
 
-    func fetchEventDraft(profileId: String) -> EventFields? {
+    func fetchEventDraft(profileId: String) -> EventFieldsDraft? {
         return eventDrafts[profileId]
     }
 
@@ -154,7 +154,7 @@ private extension DefaultsManager {
         signUpDraft = decode(DraftProfile.self, for: .draftProfile)
         recentMapSearches = decode([RecentPlace].self, for: .recentMapSearches) ?? []
         preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue).flatMap(PreferredMapType.init(rawValue:)) ?? .googleMaps
-        eventDrafts = decode([String: EventFields].self, for: .eventDrafts) ?? [:]
+        eventDrafts = decode([String: EventFieldsDraft].self, for: .eventDrafts) ?? [:]
         let storedRespondDrafts = decode([String: PersistableRespondDraft].self, for: .responseDrafts) ?? [:]
         respondDrafts = storedRespondDrafts.mapValues { RespondDraft($0) }
     }

@@ -14,11 +14,9 @@ enum ConfirmMode {
 
 struct ConfirmInvitePage: View {
     
-    //Injected Properties ->
-    let event: EventFields
+    let event: InviteSummary
     let name: String
     
-    @Binding var showConfirmScreen: Bool?
     @Binding var showMessageScreen: Bool
 
     //Local Properties
@@ -51,14 +49,12 @@ extension ConfirmInvitePage {
     
     private var scrollView: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            if let place = event.place {
-                TimeAndPlaceSection(proposedTimes: event.time, place: place)
+            TimeAndPlaceSection(proposedTimes: event.time, place: event.place)
                     .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
                     .padding(.horizontal, Spacing.margin)
                     .padding(.vertical, 28)                 // pure hit-area; won't scale the type
                     .containerRelativeFrame(.horizontal, alignment: .leading)
                     .padding(.top, 1)
-            }
             
             ConfirmMessageSection(message: event.message, showMessageScreen: $showMessageScreen)
                 .padding(.horizontal, Spacing.margin)

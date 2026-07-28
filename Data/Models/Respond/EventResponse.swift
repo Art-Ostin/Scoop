@@ -24,7 +24,7 @@ struct EventResponse {
     
     let newMessage: String?
     
-    init(oldEvent: UserEvent, newEvent: EventFields, userId: String) {
+    init(oldEvent: UserEvent, newEvent: EventFieldsDraft, userId: String) {
         self.eventId = oldEvent.id
         self.otherUserId = oldEvent.otherUserId
         self.userId = userId
@@ -43,7 +43,7 @@ struct EventResponse {
     }
 }
 
-struct EventFields: Codable, Equatable {
+struct EventFieldsDraft: Codable, Equatable {
     var type: Event.EventType = .socialMeet
     var time: ProposedTimes = .init()
     var place: EventLocation?

@@ -78,6 +78,9 @@ struct TimeAndPlaceSection: View {
     
     private var timeRow: some View {
          lineSection(icon: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
+            .minimumScaleFactor(0.7)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
      }
 
      private var placeRow: some View {

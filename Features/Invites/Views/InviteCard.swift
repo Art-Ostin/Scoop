@@ -84,7 +84,6 @@ extension InviteCard {
 //Time And Place
 extension InviteCard {
     
-    
     private var timeMenu: some View {
         TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
                        tracksContentSizeChanges: true,

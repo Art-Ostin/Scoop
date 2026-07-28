@@ -83,6 +83,7 @@ extension InviteImageCarousel {
         }
         .padding(.top, Spacing.sm)
         .padding(.horizontal, Spacing.md)
+        .opacityPop(visible: isConfirming)
     }
 
     private var nameOverlay: some View {

@@ -17,7 +17,7 @@ struct SendInviteView: View {
     
     @State var vm: TimeAndPlaceViewModel
 
-    let onSendInvite: (EventFields) -> ()
+    let onSendInvite: (EventFieldsDraft) -> ()
     let declineProfile: () -> ()
     
     //Local Properties
@@ -105,14 +105,12 @@ extension SendInviteView {
         .containerRelativeFrame(.horizontal)
     }
     
+    @ViewBuilder
     private var confirmationPage: some View {
-        ConfirmInvitePage(
-            event: vm.event,
-            name: name,
-            showConfirmScreen: $ui.showConfirmScreen,
-            showMessageScreen: $ui.showMessageScreen
-        )
-        .containerRelativeFrame(.horizontal)
+        if let inviteSummary = InviteSummary(draft: vm.event) {
+            ConfirmInvitePage(event: inviteSummary, name: name, showMessageScreen: $ui.showMessageScreen)
+                .containerRelativeFrame(.horizontal)
+        }
     }
         
     private var addMessageView: some View {

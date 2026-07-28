@@ -3,7 +3,7 @@ import SwiftUI
 enum ProfileMode {
     case ownProfile(draft: UserProfile)
     case viewProfile
-    case sendInvite(onSend: (EventFields) -> Void, onDecline: () -> Void)
+    case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: () -> Void)
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 

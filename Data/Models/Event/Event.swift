@@ -42,7 +42,7 @@ struct Event: Identifiable, Codable {
     var changeLog: [ChangeLogEntry] = []
     @ServerTimestamp var date_created: Date?
     
-    init?(draft: EventFields, initiatorId: String, recipientId: String) {
+    init?(draft: EventFieldsDraft, initiatorId: String, recipientId: String) {
         guard let location = draft.place else {
             return nil
         }
@@ -117,10 +117,7 @@ extension Event.EventType {
         case .socialMeet: "Go with hour friends to the venue and meet them & their friends there"
         case .custom: "For a custom meet, do whatever the other person has proposed in the invite."
         }
-    }
-    
-    
-    
+    }    
     
     func howItWorksWithEvent(_ event: UserEvent) -> String {
         switch self {
@@ -137,15 +134,6 @@ extension Event.EventType {
         case .doubleDate: "CoolGuys"
         case .socialMeet: "CoolGuys"
         case .custom: "CoolGuys"
-        }
-    }
-    
-    // Drinks / double dates need at least two proposed times so the other party
-    // has something to choose from; custom and social meets accept a single slot.
-    var minProposedTimes: Int {
-        switch self {
-        case .drink, .doubleDate: 2
-        case .custom, .socialMeet: 1
         }
     }
 }

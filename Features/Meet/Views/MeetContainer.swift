@@ -92,7 +92,7 @@ extension MeetContainer {
 //Logic of actually responding to a profile
 extension MeetContainer {
     
-    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFields) {
+    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {
         Task {await respondToProfile(event: draft, profile: profileEvent.profile)}
     }
     
@@ -104,7 +104,7 @@ extension MeetContainer {
         }
     }
     
-    private func submitResponse(event: EventFields? = nil, profile: UserProfile) async {
+    private func submitResponse(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         if let event {
             try? await vm.sendInvite(event: event, profile: profile)
         } else {
@@ -113,7 +113,7 @@ extension MeetContainer {
     }
 
     
-    private func respondToProfile(event: EventFields? = nil, profile: UserProfile) async {
+    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         //Step 1: Min time for whole process 0.85 seconds
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
         

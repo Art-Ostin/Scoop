@@ -71,7 +71,7 @@ extension ProfileContainer {
 extension ProfileContainer {
 
     //The mode's send handler — present only when this profile can actually send an invite.
-    private var onSendInvite: ((EventFields) -> Void)? {
+    private var onSendInvite: ((EventFieldsDraft) -> Void)? {
         if case .sendInvite(let onSend, _) = mode { onSend } else { nil }
     }
 

@@ -229,6 +229,7 @@
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
 		65CB2A693018962E0002DFCD /* ConfirmMessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A683018962E0002DFCD /* ConfirmMessageSection.swift */; };
 		65CB2A6B301897500002DFCD /* ConfirmInviteComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A6A301897500002DFCD /* ConfirmInviteComponents.swift */; };
+		65CB2A6F3018B8920002DFCD /* EventSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A6E3018B8920002DFCD /* EventSummary.swift */; };
 		65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */; };
 		65D13D602FF6881800F4006F /* InvitePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D5F2FF6881800F4006F /* InvitePage.swift */; };
 		65D13D622FF69DAB00F4006F /* InviteComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D612FF69DAB00F4006F /* InviteComponents.swift */; };
@@ -514,6 +515,7 @@
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
 		65CB2A683018962E0002DFCD /* ConfirmMessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmMessageSection.swift; sourceTree = "<group>"; };
 		65CB2A6A301897500002DFCD /* ConfirmInviteComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmInviteComponents.swift; sourceTree = "<group>"; };
+		65CB2A6E3018B8920002DFCD /* EventSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSummary.swift; sourceTree = "<group>"; };
 		65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlot.swift; sourceTree = "<group>"; };
 		65D13D5F2FF6881800F4006F /* InvitePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitePage.swift; sourceTree = "<group>"; };
 		65D13D612FF69DAB00F4006F /* InviteComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteComponents.swift; sourceTree = "<group>"; };
@@ -789,6 +791,7 @@
 			children = (
 				653BAFB52E0D6BA900C1AB9E /* Event.swift */,
 				65A904872F412E2200BBCAB6 /* UserEvent.swift */,
+				65CB2A6E3018B8920002DFCD /* EventSummary.swift */,
 				652D3D2E2F2E9A0600AE491D /* EventLocation.swift */,
 				657B8D582F2D73EE00583ADA /* ProposedTimes.swift */,
 				652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */,
@@ -1795,6 +1798,7 @@
 				65756FDF3010BEB400B9D2F5 /* InvitedTimes.swift in Sources */,
 				654982D42E3101BE00CA335F /* OnboardingImages.swift in Sources */,
 				65BFE7DD2E400D3C00B31A58 /* EventsRepo.swift in Sources */,
+				65CB2A6F3018B8920002DFCD /* EventSummary.swift in Sources */,
 				652B21D63017099000646BB0 /* ProfileCardNew.swift in Sources */,
 				65AF148F2F63A7C100031513 /* EventProfile.swift in Sources */,
 				657BD3232F71E71200D7C29A /* RespondDraft.swift in Sources */,
