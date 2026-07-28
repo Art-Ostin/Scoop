@@ -26,8 +26,6 @@ struct InviteCard: View {
         AppImage(image: image, type: .invite)
             .modifier(BlurAndGradientBackground())
             .overlay(alignment: .bottom) {overlayText}
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.top, -16)
     }
 }
 

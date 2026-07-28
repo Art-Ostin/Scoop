@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DayCountAndWarning: View {
     
-        
     let showSaved: Bool
     let warning: DayWarning?
     let dayCount: Int

@@ -26,14 +26,17 @@ struct TwoPageScrollView<Screen1: View, Screen2: View>: View {
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
             screen1()
+                .fixedSize(horizontal: false, vertical: true)
                 .getHeight($screen1Height)
                 .id(false)
             
             screen2()
+                .fixedSize(horizontal: false, vertical: true)
                 .getHeight($screen2Height)
                 .id(true)
         }
         .scrollPosition(id: $showSecondScreen)
+        .clipped()
         .scrollDisabled(true) //Programmatic scroll only
         .frame(height: activeHeight) //Must make the height of each section only as tall as its content
     }

@@ -15,7 +15,7 @@ struct AppImage: View {
     let image: UIImage
     let type: AppImageType
     
-    var aspectRatio: CGFloat { type == .meet ? 1/1.2 : 1.55}
+    var aspectRatio: CGFloat { type == .meet ? 1/1.2 : 1/1.55}
         
     var body: some View {
         Color.clear
@@ -29,7 +29,6 @@ struct AppImage: View {
             .containerRelativeFrame(.horizontal) { length, _ in
                 return max(length - 16 * 2, 0)
             }//No padding but this method so overlay content works
-            .cardShadow(type: type)
     }
 }
 
@@ -49,14 +48,17 @@ struct ImageCarouselOld: View {
     var cornerRadius: CGFloat { type == .invite ? 0 : 20 }
     
     @State private var scrollProgress: Double = 0
-    
+    @State private var width: CGFloat = 0
+
+    private var imageHeight: CGFloat? { width > 0 ? width / aspectRatio.ratio : nil }
+
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            ForEach(images, id: \.self) { image in
-                userImage(image)
-            }
+            ForEach(images, id: \.self) { userImage($0) }
         }
-        .overlay(alignment: .bottom) { if showIndicator {scrollIndicator} }
+        .getWidth($width)
+        .frame(maxHeight: imageHeight) //So content fit beneath it
+        .overlay(alignment: .bottom) { if showIndicator { scrollIndicator } }
     }
     
     private func userImage(_ profileImage: UIImage) -> some View {

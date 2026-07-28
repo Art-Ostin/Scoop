@@ -33,12 +33,6 @@ struct TimePopupContainer: View {
         .frame(maxWidth: page == .invitedTimes ? 310 : 325) //Width matches that in SelectTimeView
         .background(Color.white, in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.3), value: page)
-        .onGeometryChange(for: CGSize.self) { geo in
-            geo.size
-        } action: { newValue in
-            print("Height is: \(newValue.height)")
-            print("Width is: \(newValue.width)")
-        }
     }
 }
 
@@ -53,11 +47,7 @@ extension TimePopupContainer {
                     .id(page == .newTime)
                     .transition(.blurReplace)
                 
-                if page == .newTime { //Overlay so doesn't push invitedTimes view down during transition
-                    Text("Propose up to 3 days")
-                        .font(.body(11, .regular))
-                        .foregroundStyle(Color.textTertiary)
-                }
+                if page == .newTime {subTitle}
             }
             Spacer()
             ToggleResponseMode(
@@ -68,6 +58,14 @@ extension TimePopupContainer {
             )
         }
         .padding(.horizontal, Spacing.margin)
+    }
+    
+    private var subTitle: some View {
+        HStack(spacing: 6) {
+            Text("Propose up to 3 days")
+                .font(.body(11, .regular))
+                .foregroundStyle(Color.textTertiary)
+        }
     }
 
     private var pagerSection: some View {

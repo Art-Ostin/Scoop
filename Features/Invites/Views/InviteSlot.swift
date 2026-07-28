@@ -24,6 +24,8 @@ struct InviteSlot: View {
                     profileView()
                 }
                 .onTapGesture { profileTrigger += 1 }
+                .padding(.top, -Spacing.md)
+            
             CustomDivider().padding(.horizontal, 72)
             InviteInfo(event: eventProfile)
         }

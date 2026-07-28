@@ -7,6 +7,32 @@
 
 import Foundation
 
+//A wall-clock time with no day attached — the one time-of-day an invite's proposed days share.
+struct TimeOfDay: Codable, Equatable, Hashable {
+
+    var hour: Int
+    var minute: Int
+
+    static let `default` = TimeOfDay(hour: 21, minute: 30)
+
+    var minutesFromMidnight: Int { hour * 60 + minute }
+
+    init(hour: Int, minute: Int) {
+        self.hour = hour
+        self.minute = minute
+    }
+
+    init(_ date: Date, calendar: Calendar = .current) {
+        let parts = calendar.dateComponents([.hour, .minute], from: date)
+        self.init(hour: parts.hour ?? Self.default.hour, minute: parts.minute ?? Self.default.minute)
+    }
+
+    //`bySettingHour` matches forward, so a time skipped by DST resolves to the next valid one rather than nil.
+    func applied(to day: Date, calendar: Calendar = .current) -> Date {
+        calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
+    }
+}
+
 struct ProposedTime: Codable, Equatable, Hashable {
     var date: Date
     var stillAvailable: Bool = true
@@ -111,5 +137,43 @@ extension ProposedTimes {
         }
         
         return index == dayCount - 2 ? " or " : ", "
+    }
+}
+
+//What the invite composer holds: up to 3 days plus the single time-of-day they all share.
+//Instants are produced on demand, so no two days can ever disagree about the time.
+struct TimeSelection: Codable, Equatable {
+
+    static let maxCount = ProposedTimes.maxCount
+
+    var timeOfDay: TimeOfDay = .default
+    private(set) var days: [Date] = []   //start-of-day, sorted
+
+    var proposedTimes: ProposedTimes {
+        ProposedTimes(items: days.map { .init(date: timeOfDay.applied(to: $0)) })
+    }
+
+    var isEmpty: Bool { days.isEmpty }
+    var count: Int { days.count }
+
+    func contains(day: Date) -> Bool {
+        days.contains { Calendar.current.isDate($0, inSameDayAs: day) }
+    }
+
+    //Adds the day, or removes it when already selected. True means the tap was rejected at the max.
+    @discardableResult
+    mutating func toggle(day: Date) -> Bool {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: day)
+
+        if let idx = days.firstIndex(where: { calendar.isDate($0, inSameDayAs: start) }) {
+            days.remove(at: idx)
+            return false
+        }
+
+        guard days.count < Self.maxCount else { return true }
+        days.append(start)
+        days.sort()
+        return false
     }
 }

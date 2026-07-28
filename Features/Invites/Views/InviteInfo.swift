@@ -82,9 +82,9 @@ enum ScrollSections: CaseIterable {
     func title(type: Event.EventType) -> String {
         switch self {
         case .eventType: "\(type.longTitle)"
-        case .firstRespond: "1. Respond"
-        case .secondMeet: "2. Meet"
-        case .thirdMessage: "3. Message"
+        case .firstRespond: "Respond"
+        case .secondMeet: "Meet"
+        case .thirdMessage: "Message"
         }
     }
     
