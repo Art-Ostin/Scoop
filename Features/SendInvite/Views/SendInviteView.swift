@@ -26,7 +26,9 @@ struct SendInviteView: View {
     var body: some View {
         ZStack {
             //Full BleedBackground
-            Rectangle().fill(.regularMaterial).ignoresSafeArea()
+            Rectangle()
+                .fill(Color.white.opacity(0.95))
+                .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 inviteCard
@@ -53,12 +55,12 @@ extension SendInviteView {
     }
     
     private var imageSection: some View {
-        ImageCarouselOld(
+        InviteImageCarousel(
+            vm: vm,
+            ui: ui,
+            name: name,
             images: images,
-            type: .invite,
-            aspectRatio: ui.showConfirmScreen == true
-                ? .confirmInviteImage
-                : .invitedImage
+            declineProfile: declineProfile
         )
     }
 
@@ -80,13 +82,9 @@ extension SendInviteView {
     
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
+        let buttonText = isConfirming ? "Confirm & Send" : "Invite \(name)"
         
-        return WideActionButton(
-            text: isConfirming
-                ? "Confirm & Send"
-                : "Invite \(name)",
-            isActive: vm.event.isComplete
-        ) {
+        return WideActionButton(text: buttonText, isActive: vm.event.isComplete, showShadow: false) {
             if isConfirming {
                 onSendInvite(vm.event)
             } else {

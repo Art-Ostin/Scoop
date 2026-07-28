@@ -1,115 +1,95 @@
 //
-//  ImageCarouselOverlay.swift
-//  Scoop Test
+//  InviteImageCarousel.swift
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
 //
 
-//Critical Do Not Delete!! 
-
-
 import SwiftUI
 
-struct InviteImageOverlays: ViewModifier {
+struct InviteImageCarousel: View {
 
     //Injected
-    @Bindable var vm: TimeAndPlaceViewModel
-    
-    let scrollProgress: Double
-    let name: String
-    
-    let expanded: Bool
-    let showCollapsedChrome: Bool
-    
-    let details: String
-    let coverImage: UIImage?
-    
-    let images: [UIImage] //For background overlays
+    let vm: TimeAndPlaceViewModel
+    let ui: TimeAndPlaceUIState
 
-    @Binding var confirmScreen: Bool
-    @Binding var showInfoScreen: Bool
-    @Binding var inviteButtonPopped: Bool
+    let name: String
+    let images: [UIImage]
 
     let declineProfile: () -> Void
-    
+
     //Local
-    @State var nameFrame: CGRect = .zero
-    @State var inviteFrame: CGRect = .zero
-    @State var optionsFrame: CGRect = .zero
-    
-    let imageCount = 6
-    
-    func body(content: Content) -> some View {
-        content
-            .overlay { imageTransition }
+    @State private var nameFrame: CGRect = .zero
+    @State private var inviteFrame: CGRect = .zero
+    @State private var optionsFrame: CGRect = .zero
+
+    private let overlaySpace = "InviteImageCarousel"
+
+    private var isConfirming: Bool { ui.showConfirmScreen == true }
+
+    private var aspectRatio: AspectRatio {
+        isConfirming ? .confirmInviteImage : .invitedImage
+    }
+
+    var body: some View {
+        ImageCarouselOld(images: images, type: .invite, aspectRatio: aspectRatio)
             .overlay { backgroundBlur }
             .overlay(alignment: .top) { topOverlay }
-            .overlay(alignment: .bottomLeading) { transitionInfo }
-            .overlay(alignment: .bottomTrailing) { inviteButtonTransition }
+            .coordinateSpace(.named(overlaySpace)) //Last, so the overlays measure inside the space
     }
 }
 
 //Key Overlays
-extension InviteImageOverlays {
-    
+extension InviteImageCarousel {
+
     private var topOverlay: some View {
         HStack {
             nameOverlay
             Spacer()
             optionsMenu
         }
-        .padding(.top, 12)
-        .padding(.leading, 16)
-        .padding(.trailing, 16)
+        .padding(.top, Spacing.sm)
+        .padding(.horizontal, Spacing.md)
     }
-    
+
     private var nameOverlay: some View {
         HStack(spacing: 6) {
             Text("Invite")
-                .getRect($inviteFrame, coordSpace: "InviteOverlay")
+                .getRect($inviteFrame, coordSpace: overlaySpace)
 
             Text(name)
-                .getRect($nameFrame, coordSpace: "InviteOverlay")
+                .getRect($nameFrame, coordSpace: overlaySpace)
         }
         .font(.title(24))
         .foregroundStyle(Color.white)
-        .opacityPop(visible: expanded)
-        .blurPop(visible: !confirmScreen)
+        .blurPop(visible: !isConfirming)
         .overlay(alignment: .leading) { confirmBackButton }
     }
-    
-    private var backgroundBlur: some View {
-        let progress = min(max(scrollProgress, 0), Double(imageCount - 1))
-        let page = Int(progress)
-        let next = min(page + 1, imageCount - 1)
-        let fraction = progress - Double(page)
 
-        return ZStack {
-            BackgroundBlur(image: coverImage ?? images[page], frames: [nameFrame, inviteFrame, optionsFrame])
-                .opacity(1 - fraction)
-            if coverImage == nil && next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame, optionsFrame])
-                    .opacity(fraction)
-            }
+    //Halo behind the overlaid text. Reads the first image only — the carousel keeps its scroll progress private.
+    @ViewBuilder
+    private var backgroundBlur: some View {
+        if let image = images.first {
+            BackgroundBlur(image: image, frames: [nameFrame, inviteFrame, optionsFrame])
+                .opacity(isConfirming ? 0 : 1)
         }
-        .opacity(expanded && !confirmScreen ? 1 : 0)
     }
-        
+
     private var confirmBackButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), action: {confirmScreen = false}) {
+        ScoopButton(style: .clearGlass, shape: Circle(), action: {ui.showConfirmScreen = false}) {
             Image(systemName: "chevron.left")
                 .font(.body(17))
                 .fontWeight(.heavy)
                 .foregroundStyle(Color.black)
                 .frame(width: 38, height: 38)
         }
-        .blurPop(visible: confirmScreen)
+        .blurPop(visible: isConfirming)
     }
 }
 
 //Options Menu
-extension InviteImageOverlays {
-    
+extension InviteImageCarousel {
+
     //The Actual OptionMenuButton
     private var optionsMenu: some View {
         Menu {
@@ -120,17 +100,15 @@ extension InviteImageOverlays {
             optionsLabel
         }
         .padding(-Spacing.sm)
-        .blurPop(visible: expanded)
-        .sheet(isPresented: $showInfoScreen) { Text("Info screen here") }
     }
-    
+
     //The Three button Rows
     private var infoButton: some View {
         Button("How Invites Work", systemImage: "info.circle") {
-            showInfoScreen = true
+            ui.showInfoScreen = true
         }
     }
-    
+
     private var clearInviteButton: some View {
         Button {
             withAnimation(.transition) {
@@ -159,13 +137,11 @@ extension InviteImageOverlays {
             }
         }
     }
-    
+
     //The Options Label
     private var optionsLabel: some View {
         HStack(spacing: 4) {
-            circle
-            circle
-            circle
+            ForEach(0..<3, id: \.self) { _ in circle }
         }
         .scaleEffect(0.95)
         .padding(2)
@@ -174,66 +150,15 @@ extension InviteImageOverlays {
                 .fill(Color.black.opacity(0.04))
                 .blur(radius: 2)
         }
-        .getRect($optionsFrame, coordSpace: "ImageOverlay")
+        .getRect($optionsFrame, coordSpace: overlaySpace)
         .padding(Spacing.sm - 2)//Offset interior padding with capsule
         .contentShape(Circle())
-        .offset(y: -2)//
+        .offset(y: -2)
     }
-    
+
     private var circle: some View {
         Circle()
             .fill(.white.opacity(0.8))
             .frame(width: 4.5, height: 4.5)
-    }
-}
-
-
-//Overlays for the Transition Only
-extension InviteImageOverlays {
-    
-    @ViewBuilder
-    private var transitionInfo: some View {
-        if showCollapsedChrome {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(name)
-                    .font(.title(26))
-                Text(details)
-                    .font(.body(14, .medium))
-            }
-            .foregroundStyle(Color.white)
-            .padding(.vertical, Spacing.md)
-            .padding(.horizontal)
-            .opacity(expanded ? 0 : 1)
-            .blur(radius: expanded ? 6 : 0)
-            .allowsHitTesting(false)
-        }
-    }
-    
-    @ViewBuilder
-    private var inviteButtonTransition: some View {
-        if showCollapsedChrome {
-            InviteButton(isInviting: true, action: {})
-                .scaleEffect(inviteButtonPopped ? 1 : PressEffect.shrink.scale)
-                .opacityPop(visible: !expanded)
-                .padding([.trailing, .bottom], Spacing.md)
-                .allowsHitTesting(false)
-                .task {
-                    withAnimation(.spring(response: PressEffect.shrink.release.response,
-                                          dampingFraction: PressEffect.shrink.release.damping)) {
-                        inviteButtonPopped = true
-                    }
-                }
-        }
-    }
-    
-    private var imageTransition: some View {
-        Color.clear
-            .overlay {
-                Image(uiImage: coverImage ?? images[0])
-                    .resizable()
-                    .scaledToFill()
-            }
-            .opacity(coverImage != nil && expanded ? 1 : 0)
-            .allowsHitTesting(false)
     }
 }
