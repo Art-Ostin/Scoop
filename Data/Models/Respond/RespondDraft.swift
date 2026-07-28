@@ -8,14 +8,14 @@
 import SwiftUI
 
 enum ResponseType: Codable {
-    case original, modified
+    case originalInvite, newTime, newEvent
 }
 
 struct RespondDraft: Codable  {
 
-    var originalInvite: OriginalInvite
-    var newTime: NewTimeDraft { didSet { respondType = .modified}}
-    var newEvent: EventFieldsDraft
+    var originalInvite: OriginalInvite {didSet { respondType = .originalInvite}}
+    var newTime: NewTimeDraft { didSet { respondType = .newTime}}
+    var newEvent: EventFieldsDraft { didSet { respondType = .newEvent}}
     var respondMessage: String?
     var respondType: ResponseType
 
@@ -24,7 +24,7 @@ struct RespondDraft: Codable  {
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
         self.newEvent = EventFieldsDraft(type: .socialMeet, place: event.location)
-        self.respondType = .original
+        self.respondType = .originalInvite
     }
 }
 

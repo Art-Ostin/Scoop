@@ -48,9 +48,6 @@ extension ToggleResponseMode {
         .foregroundStyle(Color.textSecondary)
         .font(.body(12, .medium))
     }
-
-        
-        
     
     private var cantMakeItLabel: some View {
         Text("Can't make it?")

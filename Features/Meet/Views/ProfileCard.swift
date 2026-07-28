@@ -34,6 +34,7 @@ struct ProfileCard : View {
 }
 
 extension ProfileCard {
+    
     //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights fade it as one unit over the flying image
     private var cardOverlay: some View {
         blurAndColour
@@ -55,7 +56,6 @@ extension ProfileCard {
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .modifier(BlurAndColorBackground(color: palette.surface, opacity: palette.scrimOpacity))
     }
-
     
     private var overlayText: some View {
         let p = profile.profile
@@ -83,6 +83,7 @@ extension ProfileCard {
 
 //Functions
 extension ProfileCard {
+    
     private func profileView(_ profile: UserProfile) -> some View {
         ProfileContainer(
             vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
@@ -110,17 +111,10 @@ struct BlurAndColorBackground: ViewModifier {
     var color: Color = .black
     var opacity: Double = 0.45
     
-    
     var mixedColor: Color {
         color.mix(with: .black, by: 0.35, in: .device)
     }
     
-    
-    /// Where the gradient stops ramping. Below this the scrim is flat, which is
-    /// what lets `OverlayPalette` solve contrast against a single known color.
-    /// Keep in sync with `extractPalette(textRegionHeight:)`.
-//    private let flatFrom: Double = 0.82
-
     func body(content: Content) -> some View {
         content
             .glur(radius: 12, offset: 0.82, interpolation: 0.4, direction: .down, noise: 0)
@@ -141,54 +135,3 @@ struct BlurAndColorBackground: ViewModifier {
         .allowsHitTesting(false)
     }
 }
-
-
-
-
-/*
- 
- let quickInviteHidden: Bool
- let onQuickInvite: (UIImage) -> Void
-
- 
- .sendInviteSource(id: profile.profile.id) //Reports this card's frame as the quick-invite flight source
-
- 
- //The zoom hides only the image view — the caption/button chrome drawn over
- //it must hide too, or it floats over the flight and the empty slot.
- private var zoomFlying: Bool { ImageZoom.isFlying(profile.profile.id) }
-
- 
- private var infoSection: some View {
-     VStack(alignment: .leading, spacing: Spacing.xs) {
-         let p = profile.profile
-         Text(p.name)
-             .font(.title(26))
-             .getRect($nameFrame, coordSpace: cardSpace)
-             .foregroundStyle(Color.white)
-
-         Text("\(p.year) · \(p.degree) · \(p.hometown)")
-             .font(.body(16, .regular))
-             .foregroundStyle(Color.white.opacity(0.9))
-             .getRect($detailsFrame, coordSpace: cardSpace)
-     }
- }
- 
- private var backgroundBlur: some View {
-     BackgroundBlur(image: profile.image, frames: [nameFrame, detailsFrame])
-         .opacity(quickInviteHidden || zoomFlying ? 0 : 1)
-         .animation(.easeOut(duration: 0.12), value: quickInviteHidden)
-         .animation(zoomFlying ? nil : .quick, value: zoomFlying) //Hide instantly; the light blur band reads as a white flash if it fades
- }
-
- 
- //Local view state
- @State private var nameFrame: CGRect = .zero
- @State private var detailsFrame: CGRect = .zero
- private let cardSpace = "ProfileCard"
- .coordinateSpace(name: cardSpace)
- //            .profileShrinkPress {onTap(profile.image)}
-
- .overlay(alignment: .bottomLeading) {cardOverlay}
-
- */

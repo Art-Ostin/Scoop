@@ -16,11 +16,18 @@ import SwiftUI
     let imageLoader: ImageLoading
     let eventRepo: EventsRepository
 
-    //Cached per-invite state
+    //Specific VMs and Images keyed to the user
     var respondVMs: [String: RespondViewModel] = [:]
-    private(set) var profileImages: [String: [UIImage]] = [:]
-
-    init(session: Session, defaults: DefaultsManaging, imageLoader: ImageLoading, eventRepo: EventsRepository) {
+    var profileVMs: [String: ProfileViewModel] = [:]
+    var profileImages: [String: [UIImage]] = [:]
+    
+    
+    init(
+        session: Session,
+        defaults: DefaultsManaging,
+        imageLoader: ImageLoading,
+        eventRepo: EventsRepository
+    ) {
         self.session = session
         self.defaults = defaults
         self.imageLoader = imageLoader
@@ -28,22 +35,18 @@ import SwiftUI
     }
 
     var invites: [EventProfile] {session.invites}
-    var userId: String {session.user.id}
-
-    func ensureImagesLoaded(for profile: UserProfile) async {
-        if profileImages[profile.id] != nil { return }
-        profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
-    }
 }
 
 //Logic to store and pass around respondViewModels
 extension InvitesViewModel {
+    
     
     func respondVM(for invite: EventProfile) -> RespondViewModel {
         if let existing = respondVMs[invite.event.id] {
             if let img = invite.image { existing.image = img }
             return existing
         }
+        
         let new = RespondViewModel(
             image: invite.image ?? UIImage(),
             invite: invite,
@@ -54,18 +57,31 @@ extension InvitesViewModel {
         return new
     }
 
+    func profileVM(for invite: EventProfile) -> ProfileViewModel {
+        if let existing = profileVMs[invite.event.id] { return existing }
+
+        let new = ProfileViewModel(
+            profile: invite.profile,
+            event: invite.event,
+            imageLoader: imageLoader,
+            defaults: defaults
+        )
+        profileVMs[invite.event.id] = new
+        return new
+    }
+    
+    func ensureImagesLoaded(for profile: UserProfile) async {
+        if profileImages[profile.id] == nil {
+            profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
+        }
+    }
+    
+        
+    
+
     func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {
         let vm = respondVM(for: invite)
         return Binding(get: { vm.respondDraft }, set: { vm.respondDraft = $0 })
-    }
-    
-    
-    func eventProfile(for profileId: String) -> EventProfile? {
-        invites.first { $0.profile.id == profileId}
-    }
-
-    func eventProfile(forEventId eventId: String) -> EventProfile? {
-        invites.first { $0.event.id == eventId }
     }
 }
 
@@ -73,7 +89,10 @@ extension InvitesViewModel {
 
 //Functions to Respond To Invites
 extension InvitesViewModel {
+    
+    var userId: String {session.user.id}
 
+    //The only entry point for responding. Every branch calls the appropriate function to respond
     func respond(to type: ProfileResponse, eventId: String) async throws {
         switch type {
         case .accepted:  try await accept(eventId: eventId)
@@ -112,10 +131,6 @@ extension InvitesViewModel {
 
     private func updateInvitesLocally(eventId: String, isAccepted: Bool = false) {
         //1. Update session lists. These two paths are mutually exclusive:
-        //   - accepted: MOVE the invite from 'invites' into 'events'
-        //   - declined / new time / new event: REMOVE the invite entirely
-        //   Order matters — acceptInvite is guarded on the event still being in
-        //   'invites', so removeEvent must not run first in the accept case.
         if isAccepted {
             session.acceptInvite(eventId: eventId)
         } else {
@@ -125,8 +140,9 @@ extension InvitesViewModel {
         //2. When responded also remove it from defaults, as event responses are stored
         defaults.deleteRespondDraft(eventId: eventId)
 
-        //3. Drop the cached respond VM so a re-invite from the same person starts fresh
+        //3. Drop the cached VMs so a re-invite from the same person starts fresh
         respondVMs.removeValue(forKey: eventId)
+        profileVMs.removeValue(forKey: eventId)
 
         //4. Drop image cache entries that no longer back any current invite
         let activeProfileIds = Set(invites.map { $0.profile.id })
@@ -134,10 +150,7 @@ extension InvitesViewModel {
     }
 }
 
-
-
 @Observable final class InvitesUIState {
-    var showRespondPopup: String? //Respond-popup driver (event id; nil = closed)
-    var respondedToProfile: ProfileResponse?
-    var quickResponse: EventProfile?
+    var showRespondedCover: ProfileResponse?
+    var showQuickResponse: EventProfile?
 }

@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-enum ProfileResponse {
+enum ProfileResponse: Identifiable {
     case accepted
     case newTime
     case newInvite
     case decline
+    var id: Self { self }
 }
 
 struct RespondedToProfileCover: View {
