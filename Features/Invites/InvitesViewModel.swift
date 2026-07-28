@@ -42,13 +42,9 @@ extension InvitesViewModel {
     
     
     func respondVM(for invite: EventProfile) -> RespondViewModel {
-        if let existing = respondVMs[invite.event.id] {
-            if let img = invite.image { existing.image = img }
-            return existing
-        }
+        if let existing = respondVMs[invite.event.id] { return existing }
         
         let new = RespondViewModel(
-            image: invite.image ?? UIImage(),
             invite: invite,
             defaults: defaults,
             session: session

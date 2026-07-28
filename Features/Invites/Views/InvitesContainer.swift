@@ -54,11 +54,10 @@ extension InvitesContainer {
     }
     
     private func respondPoup(_ invite: EventProfile) -> some View {
-        RespondContainer(
-            vm: vm.respondVM(for: invite),
-            ui: RespondPopupUIState()) { responseType in
-                respond(invite.id, responseType)
-            }
+        RespondInviteView(
+            images: vm.profileImages[invite.profile.id] ?? [],
+            vm: vm.respondVM(for: invite)
+        )
     }
 }
 

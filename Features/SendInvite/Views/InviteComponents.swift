@@ -22,6 +22,57 @@ struct RowCaption: View {
     }
 }
 
+
+struct InvitePageIndicator: View {
+    let count: Int
+    let progress: Double
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<count, id: \.self) { index in
+                let closeness = max(0, 1 - abs(progress - Double(index)))
+
+                Capsule()
+                    .fill(Color.border)
+                    .overlay {
+                        Capsule()
+                            .fill(Color.textSecondary)
+                            .opacity(closeness)
+                    }
+                    .frame(width: 3 + 2 * CGFloat(closeness), height: 3)
+            }
+        }
+        .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
+        .frame(height: InviteRowMetrics.indicatorHeight)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+
+struct BottomBackButton: View {
+
+    @Binding var showInvite: Bool
+    var visible: Bool = true
+
+    var body: some View {
+        ScoopButton(shape: Circle(), action: { showInvite = false }) {
+            Image(systemName: "chevron.down")
+                .font(.body(17))
+                .fontWeight(.heavy)
+                .frame(width: 45, height: 45)
+        }
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible)
+        .padding(.top, Spacing.xl) // 36
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.horizontal, 10)
+        .padding(.horizontal, Spacing.sm) // 12
+    }
+}
+
+
+//The compact row pager indicator at its real rendered size. Keeping the size in
 enum InviteRowMetrics {
     //Rows use a 22pt inset by default. Indicator rows tighten their bottom inset
     //by 4pt, while a populated Place row tightens its top inset by 2pt.
@@ -66,69 +117,9 @@ enum InviteRowMetrics {
     )
 }
 
-//The compact row pager indicator at its real rendered size. Keeping the size in
-//layout (instead of scaling a larger overlay) makes it part of the row's content.
-struct InvitePageIndicator: View {
-    let count: Int
-    let progress: Double
-
-    var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<count, id: \.self) { index in
-                let closeness = max(0, 1 - abs(progress - Double(index)))
-
-                Capsule()
-                    .fill(Color.border)
-                    .overlay {
-                        Capsule()
-                            .fill(Color.textSecondary)
-                            .opacity(closeness)
-                    }
-                    .frame(width: 3 + 2 * CGFloat(closeness), height: 3)
-            }
-        }
-        .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
-        .frame(height: InviteRowMetrics.indicatorHeight)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
 
 extension EnvironmentValues {
     @Entry var isLiveInviteRow: Bool = false
-}
-
-//The invite carousel's options-menu label.
-struct InviteOptionsIcon: View {
-    var body: some View {
-        Image(systemName: "ellipsis")
-            .font(.body(16, .bold))
-            .foregroundStyle(Color.textSecondary)
-            .frame(width: 30, height: 30)
-            .glassEffectIfAvailable(shape: Circle())
-            .scaleEffect(0.9, anchor: .bottom)
-    }
-}
-
-struct BottomBackButton: View {
-
-    @Binding var showInvite: Bool
-    var visible: Bool = true
-
-    var body: some View {
-        ScoopButton(shape: Circle(), action: { showInvite = false }) {
-            Image(systemName: "chevron.down")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .frame(width: 45, height: 45)
-        }
-        .opacityPop(visible: visible)
-        .allowsHitTesting(visible)
-        .padding(.top, Spacing.xl) // 36
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .padding(.horizontal, 10)
-        .padding(.horizontal, Spacing.sm) // 12
-    }
 }
 
 struct PagedScrollStyle: ViewModifier {
@@ -147,3 +138,5 @@ struct PagedScrollStyle: ViewModifier {
             .trackScrollProgress(scrollProgress: $scrollProgress)
     }
 }
+
+

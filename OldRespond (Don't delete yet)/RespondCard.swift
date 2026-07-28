@@ -1,0 +1,146 @@
+//
+//  NewRespondAcceptCard.swift
+//  Scoop
+//
+//  Created by Art Ostin on 12/06/2026.
+//
+
+/*
+ 
+ import SwiftUI
+
+
+
+
+ struct RespondCard: View {
+     
+     //Injected — actions are controlled in the container so passed up
+     @Bindable var vm: RespondViewModel
+     @Bindable var ui: RespondUIState
+     @Binding var confirmNewTimePopup: Bool
+     @Binding var confirmAcceptInvite: Bool
+     let onDecline: () -> ()
+
+
+     var body: some View {
+         VStack(spacing: Spacing.lg) {
+             respondTitle
+             timeAndPlaceSection
+             actionSection
+         }
+         .modifier(RespondCardBackground())
+     }
+ }
+
+ //Logic for Title
+ extension RespondCard {
+     
+     private var respondTitle: some View {
+         HStack(spacing: Spacing.sm) {
+             titleNameAndPhoto
+             Spacer()
+             EventTypeButton(type: .drink, showInfo: $ui.showMeetInfo)
+         }
+         .layoutPriority(1)
+     }
+     
+     private var titleNameAndPhoto: some View {
+         HStack(spacing: Spacing.sm) {
+             SmallImage(image: vm.image, size: 25, isCircle: true).offset(x: -2)
+             Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
+                 .font(.title(22))
+                 .oneLineLimitAndShrink()
+                 .frame(maxWidth: .infinity, alignment: .leading)
+         }
+     }
+ }
+
+ //Logic for time and Place
+ extension RespondCard {
+     
+     private var timeAndPlaceSection: some View {
+         VStack(spacing: Spacing.md) {
+             timeRow
+             placeRow
+         }
+         .font(.body(18, .bold))
+     }
+     
+     @ViewBuilder
+     private var timeRow: some View {
+         if let date = vm.respondDraft.originalInvite.selectedDay {
+             Text(FormatEvent.dayAndTime(date, withHour: true))
+        }
+     }
+     
+     @ViewBuilder
+     private var placeRow: some View {
+         let location = vm.respondDraft.originalInvite.event.location
+         Button {
+             MapsRouter.openMaps(defaults: vm.defaults, item: location.mapItem, withDirections: true)
+         } label: {
+             Text(location.name ?? "LocationEvent")
+                 .foregroundStyle(Color.successGreen)
+         }
+         .shrinkButton()
+     }
+ }
+
+ //Logic for Buttons
+ extension RespondCard {
+         
+     private var actionSection: some View {
+         HStack {
+             declineButton
+             Spacer()
+             acceptButton
+         }
+         .padding(.top, Spacing.xxs) //As Image in title, to look equal distance from 'meeting x' and buttons add extra padding.
+     }
+         
+     private var acceptButton: some View {
+         let isModified = vm.respondDraft.respondType != .original
+         let isValid = vm.respondDraft.originalInvite.selectedDay != nil
+
+         let colour: Color = isModified ? .accent : (isValid ? .successGreen : .fillGray)
+
+         return ScoopButton(style: .tinted(colour, shadow: nil), shape: .rect(cornerRadius: CornerRadius.md)) {
+             if isModified {
+                 confirmNewTimePopup = true
+             } else {
+                 confirmAcceptInvite = true
+             }
+         } label: {
+             Text(isModified ? "Invite with new time" + "s" : "Accept")
+                 .foregroundStyle(Color.white)
+                 .font(.body(isModified ? 14 : 16, .bold))
+                 .frame(width: 135)
+                 .frame(height: 40)
+         }
+     }
+     
+     private var declineButton: some View {
+         Button {
+             onDecline()
+         } label: {
+             Text("Decline")
+                 .font(.body(16, .bold))
+                 .foregroundStyle(Color.textSecondary)
+                 .frame(width: 135)
+                 .frame(height: 40)
+                 .stroke(CornerRadius.md, lineWidth: 1.5)
+         }
+     }
+ }
+
+ //Card Background
+ struct RespondCardBackground: ViewModifier {
+     
+     func body(content: Content) -> some View {
+         content
+             .padding(.vertical, Spacing.md)
+             .padding(.horizontal, Spacing.lg)
+     }
+ }
+ */
+

@@ -102,7 +102,7 @@ extension InvitedTimeCell {
     
     private func updateTimeAndDismissPopup() {
         selectedDay = date
-        responseType = .original
+        responseType = .originalInvite
         dismissMenu()
     }
     

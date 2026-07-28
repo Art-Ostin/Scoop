@@ -18,21 +18,16 @@ class RespondViewModel {
     let profile: UserProfile
 
     //Draft state (persisted to defaults on every edit)
-    var image: UIImage
-    var respondDraft: RespondDraft {
-        didSet {updateDefaults()}
-    }
-
+    var respondDraft: RespondDraft {didSet {updateDefaults()}}
+    
     var responseType: ResponseType {respondDraft.respondType}
     
-    init(image: UIImage, invite: EventProfile , defaults: DefaultsManaging, session: Session) {
-        self.image = image
+    init(invite: EventProfile , defaults: DefaultsManaging, session: Session) {
         self.profile = invite.profile
         self.defaults = defaults
         self.session = session
         self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: invite.profile, event: invite.event, currentUserId: session.user.id)
     }
-
         
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.originalInvite.event.otherUserId
@@ -69,41 +64,3 @@ class RespondViewModel {
         return hasEventMessage(respondDraft) && hasRespondMessage(respondDraft)
     }
 }
-
-
-@Observable
-class RespondPopupUIState {
-    //Hide the popup when dismissing the screen
-    var dismissHidePopup: Bool = false
-
-    //Logic for which Popup to show
-    var confirmNewTimeInvite: Bool = false
-    var confirmAcceptInvite: Bool = false
-    var popupShown: Bool { confirmNewTimeInvite || confirmAcceptInvite }
-    //Track the scroll Position
-    var scrollPosition: RespondScrollType? = .acceptPage
-}
-
-
-enum RespondPopupInfo {
-    case newInvite, acceptInvite, sendNewTimes
-
-    var title: String {
-        switch self {
-        case .newInvite: "Event Commitment"
-        case .acceptInvite: "Event Commitment"
-        case .sendNewTimes: "New Times Proposed"
-        }
-    }
-    var cancel: String {"Cancel"}
-    var understand: String {"I Understand"}
-    
-    func message(dates: [Date] = [], placeName: String = "") -> String {
-        switch self {
-        case .newInvite: "If they accept & you don't show, you'll be blocked from Scoop"
-        case .acceptInvite: "You are committing to meeting on x. If you don't show, you'll be blocked from Scoop"
-        case .sendNewTimes: "If they accept one of your proposed times & you don't show, you'll be blocked from Scoop"
-        }
-    }
-}
-

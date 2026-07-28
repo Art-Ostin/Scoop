@@ -7,6 +7,7 @@
 
 
  
+
  import SwiftUI
 
  struct CustomAlertCard: View {
@@ -214,19 +215,6 @@
          )
      }
          
-     func respondCustomAlert(isPresented: Binding<Bool>, type: RespondPopupInfo, hideAnimation: Animation = .easeInOut(duration: 0.18), onOK: @escaping () -> Void) -> some View {
-         modifier(CustomAlertModifier(
-             isPresented: isPresented,
-             title: type.title,
-             message: type.message(),
-             showTwoButtons: true,
-             cancelTitle: type.cancel,
-             okTitle: type.understand,
-             emoji: "🦥",
-             isConfirmInvite: true, onOK: onOK,
-             hideAnimation: hideAnimation)
-         )
-     }
      
      func customAlert(
          item: Binding<String?>,
@@ -251,17 +239,37 @@
              onOK: onOK)
          )
      }
-     
-     func respondItemCustomAlert(item: Binding<String?>, type: RespondPopupInfo, onOK: @escaping (String) -> Void) -> some View {
-         modifier(CustomAlertItemModifier(
-             item: item,
-             title: type.title,
-             message: type.message(),
-             showTwoButtons: true,
-             cancelTitle: type.cancel,
-             okTitle: type.understand,
-             emoji: "🦥",
-             isConfirmInvite: true, onOK: onOK)
-         )
-     }
  }
+
+/*
+ func respondCustomAlert(isPresented: Binding<Bool>, type: RespondPopupInfo, hideAnimation: Animation = .easeInOut(duration: 0.18), onOK: @escaping () -> Void) -> some View {
+     modifier(CustomAlertModifier(
+         isPresented: isPresented,
+         title: type.title,
+         message: type.message(),
+         showTwoButtons: true,
+         cancelTitle: type.cancel,
+         okTitle: type.understand,
+         emoji: "🦥",
+         isConfirmInvite: true, onOK: onOK,
+         hideAnimation: hideAnimation)
+     )
+ }
+
+ 
+ func respondItemCustomAlert(item: Binding<String?>, type: RespondPopupInfo, onOK: @escaping (String) -> Void) -> some View {
+     modifier(CustomAlertItemModifier(
+         item: item,
+         title: type.title,
+         message: type.message(),
+         showTwoButtons: true,
+         cancelTitle: type.cancel,
+         okTitle: type.understand,
+         emoji: "🦥",
+         isConfirmInvite: true, onOK: onOK)
+     )
+ }
+
+ */
+
+

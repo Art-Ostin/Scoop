@@ -117,14 +117,13 @@ extension InviteCard {
     }
     
     private var timeText: String {
-                
-        if draft.respondType == .original {
+        if draft.respondType == .originalInvite {
             if let time = draft.originalInvite.selectedDay {
                 return FormatEvent.shortDayAndTime(time)
             } else {
                 return "Choose Time"
             }
-        } else if draft.respondType == .modified {
+        } else if draft.respondType == .newTime {
            return draft.newTime.proposedTimes.formatMultipleInvitedDays()
         } else {
             return ""

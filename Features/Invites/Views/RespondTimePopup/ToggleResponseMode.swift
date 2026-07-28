@@ -59,9 +59,9 @@ extension ToggleResponseMode {
     private func switchView() {
         togglePage()
         if timePopupPage == .newTime { //Only switch the type to modified, if I have modified selected
-            if anyNewProposedTimes { responseType = .modified }
+            if anyNewProposedTimes { responseType = .newTime }
         } else {//Only switches if there are available dates
-            if anyAvailableInvitedDays { responseType = .original}
+            if anyAvailableInvitedDays { responseType = .originalInvite}
         }
     }
     
