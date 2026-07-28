@@ -27,15 +27,17 @@ struct SendInviteView: View {
         ZStack {
             //Full BleedBackground
             Rectangle()
-                .fill(Color.white.opacity(0.95))
+                .fill(Color.white)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 inviteCard
-                    .animation(.transition, value: ui.showConfirmScreen)
                 BottomBackButton(showInvite: $showInvite)
+                    .opacityPop(visible: !(ui.showConfirmScreen ?? false))
             }
         }
+        .animation(.transition, value: ui.showConfirmScreen)
+
         .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}

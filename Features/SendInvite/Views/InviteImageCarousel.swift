@@ -19,6 +19,9 @@ struct InviteImageCarousel: View {
     let declineProfile: () -> Void
 
     //Local
+    @State private var scrollProgress: Double = 0
+    @State private var width: CGFloat = 0
+
     @State private var nameFrame: CGRect = .zero
     @State private var inviteFrame: CGRect = .zero
     @State private var optionsFrame: CGRect = .zero
@@ -31,11 +34,41 @@ struct InviteImageCarousel: View {
         isConfirming ? .confirmInviteImage : .invitedImage
     }
 
+    private var imageHeight: CGFloat? { width > 0 ? width / aspectRatio.ratio : nil }
+
     var body: some View {
-        ImageCarouselOld(images: images, type: .invite, aspectRatio: aspectRatio)
-            .overlay { backgroundBlur }
-            .overlay(alignment: .top) { topOverlay }
-            .coordinateSpace(.named(overlaySpace)) //Last, so the overlays measure inside the space
+        HorizontalScrollView(progress: $scrollProgress) {
+            ForEach(images, id: \.self) { photo($0) }
+        }
+        .getWidth($width)
+        .frame(maxHeight: imageHeight) //So the card content fits beneath it
+        .overlay { backgroundBlur }
+        .overlay(alignment: .top) { topOverlay }
+        .overlay(alignment: .bottom) { pageIndicator }
+        .coordinateSpace(.named(overlaySpace)) //Last, so the overlays measure inside the space
+    }
+}
+
+//The Pager
+extension InviteImageCarousel {
+
+    private func photo(_ image: UIImage) -> some View {
+        Color.clear
+            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
+            .overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipped() //scaledToFill overflows the page cell
+            .containerRelativeFrame(.horizontal)
+    }
+
+    private var pageIndicator: some View {
+        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
+            .scaleEffect(0.7)
+            .padding(.bottom, Spacing.xs)
+            .opacityPop(visible: !isConfirming)
     }
 }
 
@@ -66,13 +99,26 @@ extension InviteImageCarousel {
         .overlay(alignment: .leading) { confirmBackButton }
     }
 
-    //Halo behind the overlaid text. Reads the first image only — the carousel keeps its scroll progress private.
+    //Halo behind the overlaid text, crossfading page to page so its tint tracks the photo being swiped to.
+    //Both layers stay mounted: a blur built mid-swipe renders too late to fade and lands as a snap.
     @ViewBuilder
     private var backgroundBlur: some View {
-        if let image = images.first {
-            BackgroundBlur(image: image, frames: [nameFrame, inviteFrame, optionsFrame])
+        if !images.isEmpty {
+            let progress = scrollProgress.clamped(to: 0...Double(images.count - 1))
+            let page = Int(progress)
+            let fraction = progress - Double(page)
+
+            halo(images[page])
+                .overlay {
+                    halo(images[min(page + 1, images.count - 1)])
+                        .opacity(fraction)
+                }
                 .opacity(isConfirming ? 0 : 1)
         }
+    }
+
+    private func halo(_ image: UIImage) -> some View {
+        BackgroundBlur(image: image, frames: [nameFrame, inviteFrame, optionsFrame])
     }
 
     private var confirmBackButton: some View {

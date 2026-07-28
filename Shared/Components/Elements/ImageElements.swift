@@ -33,55 +33,6 @@ struct AppImage: View {
 }
 
 
-enum imageCarouselType { case profile, invite}
-
-struct ImageCarouselOld: View {
-    
-    //Properties Imported
-    let images: [UIImage]
-    let type: imageCarouselType
-    let aspectRatio: AspectRatio
-    
-    //Values change based of type
-    var hPadding: CGFloat { type == .invite ? 0 : 8 }
-    var showIndicator: Bool { type == .invite ? true : false }
-    var cornerRadius: CGFloat { type == .invite ? 0 : 20 }
-    
-    @State private var scrollProgress: Double = 0
-    @State private var width: CGFloat = 0
-
-    private var imageHeight: CGFloat? { width > 0 ? width / aspectRatio.ratio : nil }
-
-    var body: some View {
-        HorizontalScrollView(progress: $scrollProgress) {
-            ForEach(images, id: \.self) { userImage($0) }
-        }
-        .getWidth($width)
-        .frame(maxHeight: imageHeight) //So content fit beneath it
-        .overlay(alignment: .bottom) { if showIndicator { scrollIndicator } }
-    }
-    
-    private func userImage(_ profileImage: UIImage) -> some View {
-        Color.clear
-            .aspectRatio(aspectRatio.ratio, contentMode: .fit)
-            .overlay {
-                Image(uiImage: profileImage)
-                    .resizable()
-                    .scaledToFill()
-            }
-            .clipShape(.rect(cornerRadius: cornerRadius))
-            .padding(.horizontal, hPadding)
-            .containerRelativeFrame(.horizontal)
-    }
-    
-    private var scrollIndicator: some View {
-        ImagePageIndicator(count: 6, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7)
-            .padding(.bottom, Spacing.xs)
-    }
-}
-
-
 struct SmallImage: View {
     let image: UIImage
     let size: CGFloat
