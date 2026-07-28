@@ -111,16 +111,19 @@ struct InviteOptionsIcon: View {
 }
 
 struct BottomBackButton: View {
-    
+
     @Binding var showInvite: Bool
-    
+    var visible: Bool = true
+
     var body: some View {
-        ScoopButton(shape: Circle(), action: {showInvite = false }) {
+        ScoopButton(shape: Circle(), action: { showInvite = false }) {
             Image(systemName: "chevron.down")
                 .font(.body(17))
                 .fontWeight(.heavy)
                 .frame(width: 45, height: 45)
         }
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible)
         .padding(.top, Spacing.xl) // 36
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, 10)

@@ -32,8 +32,7 @@ struct SendInviteView: View {
             
             VStack(spacing: 0) {
                 inviteCard
-                BottomBackButton(showInvite: $showInvite)
-                    .opacityPop(visible: !(ui.showConfirmScreen ?? false))
+                BottomBackButton(showInvite: $showInvite, visible: !(ui.showConfirmScreen ?? false))
             }
         }
         .animation(.transition, value: ui.showConfirmScreen)
