@@ -79,7 +79,8 @@ struct OverlayPalette: Equatable {
     /// How opaque that scrim has to be for the text to stay legible.
     var scrimOpacity: Double
 
-    /// Bright tint of the bottom strip's hue, for secondary text.
+    /// Bright tint of the bottom strip's hue, for secondary text. Ships already
+    /// chroma-capped — use it as-is; capping again only costs color.
     var secondaryText: Color
 
     /// Contrast ratio `secondaryText` actually achieves. Below the requested
@@ -300,6 +301,12 @@ extension PopupColorExtractor {
 
 private extension PopupColorExtractor {
 
+    /// Ceiling on how much color `secondaryText` ships with. Applied after the
+    /// solve rather than folded into the preset's `saturation`: lowering that
+    /// would brighten the tint, which raises the scrim's ceiling and leaves the
+    /// artwork less covered. Capping here quiets the text over the same scrim.
+    nonisolated static var secondaryChromaCap: CGFloat { 0.12 }
+
     /// Builds the scrim and the text tint so that the text is guaranteed to
     /// clear `contrast` against what it actually lands on: the artwork with the
     /// scrim composited over it.
@@ -359,10 +366,13 @@ private extension PopupColorExtractor {
             )
         }
 
+        // 4. Quiet the tint down to the cap. This moves no luminance, so the
+        //    contrast solved above still holds and the scrim stays put — the
+        //    only thing that changes is how loud the color reads.
         return OverlayPalette(
             surface: Color(uiColor: scrim.surface),
             scrimOpacity: Double(scrim.opacity),
-            secondaryText: Color(uiColor: text),
+            secondaryText: Color(uiColor: chromaCapped(text, to: secondaryChromaCap)),
             achievedContrast: Double(
                 (luminance(of: text) + 0.05) / (composited + 0.05)
             )
@@ -952,14 +962,3 @@ private extension PopupColorExtractor {
     }
 }
 
-// MARK: - Tint adjustment
-
-extension Color {
-
-    /// Holds this color's chroma to `cap` (HSB saturation) without moving its
-    /// luminance, so a palette's solved contrast survives the change.
-    /// See `PopupColorExtractor.chromaCapped(_:to:)`.
-    func chromaCapped(_ cap: CGFloat) -> Color {
-        Color(uiColor: PopupColorExtractor.chromaCapped(UIColor(self), to: cap))
-    }
-}

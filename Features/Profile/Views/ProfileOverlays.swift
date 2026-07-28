@@ -44,7 +44,7 @@ extension ProfileContainer {
     var inviteButton: some View {
         let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
         if canInvite {
-            InviteButton(isInviting: vm.viewProfileType == .invite) { openInvite() }
+            InviteButton { openInvite() }
                 .opacity(ui.showInvite ? 0 : 1) //The button becomes the card while it's presented
                 .allowsHitTesting(!ui.showInvite) //opacity(0) alone stays tappable: block the invisible button through the collapse window
                 .padding(.horizontal, Spacing.margin)

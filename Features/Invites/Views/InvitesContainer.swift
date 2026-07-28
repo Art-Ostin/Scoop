@@ -32,6 +32,11 @@ struct InvitesContainer: View {
                 RespondedToProfileCover(responseType: response)
             }
         }
+        .overlay {
+            if let pending = ui.quickResponse {
+//                inviteView(pending: pending)
+            }
+        }
     }
 }
 
@@ -73,7 +78,7 @@ extension InvitesContainer {
         InviteSlot(
             eventProfile: invite,
             draft: vm.draftBinding(for: invite),
-            openInvite: .constant(false),
+            openInvite: $ui.quickResponse,
             profileImages: profileImages(for: invite),
             profileView: { AnyView(profileView(for: invite)) }
         )

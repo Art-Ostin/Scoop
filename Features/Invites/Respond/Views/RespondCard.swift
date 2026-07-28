@@ -44,9 +44,7 @@ extension RespondCard {
             SmallImage(image: vm.image, size: 25, isCircle: true).offset(x: -2)
             Text("Meet \(vm.respondDraft.originalInvite.event.otherUserName)")
                 .font(.title(22))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
+                .oneLineLimitAndShrink()
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

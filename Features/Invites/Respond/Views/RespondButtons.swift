@@ -53,9 +53,7 @@ struct InviteRespondButton: View {
                     .foregroundStyle(Color.textTertiary)
                     .offset(y: -3)
             }
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .allowsTightening(true)
+            .oneLineLimitAndShrink()
             .frame(maxWidth: 110, alignment: .trailing)
         }
         .fixedSize(horizontal: true, vertical: false)

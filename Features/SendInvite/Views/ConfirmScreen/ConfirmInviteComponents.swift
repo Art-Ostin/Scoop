@@ -63,10 +63,21 @@ struct WarningLabel: View {
 }
 
 
+
+struct LineSection {
+    
+    
+}
+
+
+
+
+
 struct TimeAndPlaceSection: View {
     
     let proposedTimes: ProposedTimes
     let place: EventLocation
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
@@ -78,8 +89,7 @@ struct TimeAndPlaceSection: View {
     
     private var timeRow: some View {
          lineSection(icon: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
-            .minimumScaleFactor(0.7)
-            .lineLimit(1)
+            .oneLineLimitAndShrink()
             .fixedSize(horizontal: true, vertical: false)
      }
 

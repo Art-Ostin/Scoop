@@ -38,7 +38,9 @@ struct InviteImageCarousel: View {
 
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            ForEach(images, id: \.self) { photo($0) }
+            ForEach(images, id: \.self) {image in
+                photo(image)
+            }
         }
         .getWidth($width)
         .frame(maxHeight: imageHeight) //So the card content fits beneath it
@@ -83,7 +85,6 @@ extension InviteImageCarousel {
         }
         .padding(.top, Spacing.sm)
         .padding(.horizontal, Spacing.md)
-        .opacityPop(visible: isConfirming)
     }
 
     private var nameOverlay: some View {
@@ -96,19 +97,16 @@ extension InviteImageCarousel {
         }
         .font(.title(24))
         .foregroundStyle(Color.white)
-        .blurPop(visible: !isConfirming)
+        .opacityPop(visible: !isConfirming)
         .overlay(alignment: .leading) { confirmBackButton }
     }
 
-    //Halo behind the overlaid text, crossfading page to page so its tint tracks the photo being swiped to.
-    //Both layers stay mounted: a blur built mid-swipe renders too late to fade and lands as a snap.
     @ViewBuilder
     private var backgroundBlur: some View {
         if !images.isEmpty {
             let progress = scrollProgress.clamped(to: 0...Double(images.count - 1))
             let page = Int(progress)
             let fraction = progress - Double(page)
-
             halo(images[page])
                 .overlay {
                     halo(images[min(page + 1, images.count - 1)])
@@ -146,6 +144,7 @@ extension InviteImageCarousel {
         } label: {
             optionsLabel
         }
+        .opacityPop(visible: !isConfirming)
         .padding(-Spacing.sm)
     }
 

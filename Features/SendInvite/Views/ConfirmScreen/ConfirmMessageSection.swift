@@ -54,10 +54,18 @@ extension ConfirmMessageSection {
             Text("Improve your invite with a message")
                 .font(.body(13, .medium))
                 .foregroundStyle(Color.textSecondary)
-            
+
             Text("Add a message")
                 .foregroundStyle(Color.textSecondary)
+                .font(.body(14, .regular))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.fillGray, in: .rect(cornerRadius: 12))
+                .shrinkPress {
+                    showMessageScreen = true
+                }
         }
+        .offset(y: -Spacing.xxs)
     }
     
     private var messageLineCount: Int {

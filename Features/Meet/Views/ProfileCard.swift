@@ -29,13 +29,7 @@ struct ProfileCard : View {
                     .onAppear { isProfilePresented = true }
                     .onDisappear { isProfilePresented = false }
             }
-            .overlay(alignment: .bottomTrailing) {
-                if !isProfilePresented {
-                    inviteButton
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.bottom, Spacing.md)
-                }
-            }
+            .overlay(alignment: .bottomTrailing) { inviteButton }
     }
 }
 
@@ -44,7 +38,7 @@ extension ProfileCard {
     private var cardOverlay: some View {
         blurAndColour
             .overlay(alignment: .bottomLeading) {
-                overlayContent
+                overlayText
                     .padding(.horizontal, Spacing.md)
                     .padding(.bottom, Spacing.md)
             }
@@ -62,13 +56,6 @@ extension ProfileCard {
             .modifier(BlurAndColorBackground(color: palette.surface, opacity: palette.scrimOpacity))
     }
 
-    private var overlayContent: some View {
-        HStack {
-            overlayText
-            Spacer()
-        }
-        .frame(maxHeight: .infinity, alignment: .bottom)
-    }
     
     private var overlayText: some View {
         let p = profile.profile
@@ -80,23 +67,17 @@ extension ProfileCard {
             
             Text("\(p.year) · \(p.degree) · \(p.hometown)")
                  .font(.body(15, .medium))
-                 .foregroundStyle(secondaryText)
+                 .foregroundStyle(palette.secondaryText)
         }
-    }
-
-    //The palette hands the tint over at the preset's saturation (.subtle = 0.24), which reads too colored here. Capping holds back only the loud extractions and leaves already-muted ones alone; luminance is untouched, so the palette's solved contrast still holds.
-    private var secondaryText: Color {
-        palette.secondaryText.chromaCapped(0.12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
     }
 
     private var inviteButton: some View {
-        ScoopButton(style: .tinted(Color(red: 0, green: 0.4, blue: 0.43)), shape: Circle()) {
+        InviteButton {
             ui.showInvite = profile
-        } label: {
-            Image("LetterIconProfile")
-                .scaleEffect(0.8)
-                .frame(width: 42, height: 42)
         }
+        .padding(.horizontal, Spacing.md)
+        .padding(.bottom, Spacing.md)
     }
 }
 

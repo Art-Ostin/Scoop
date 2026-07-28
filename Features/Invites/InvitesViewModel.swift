@@ -139,4 +139,5 @@ extension InvitesViewModel {
 @Observable final class InvitesUIState {
     var showRespondPopup: String? //Respond-popup driver (event id; nil = closed)
     var respondedToProfile: ProfileResponse?
+    var quickResponse: EventProfile?
 }

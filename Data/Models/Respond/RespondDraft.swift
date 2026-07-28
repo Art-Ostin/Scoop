@@ -23,7 +23,7 @@ struct RespondDraft: Codable  {
         let selectedDay = event.proposedTimes.firstAvailableDate
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
-        self.newEvent = EventFieldsDraft(type: .drink, place: event.location)
+        self.newEvent = EventFieldsDraft(type: .socialMeet, place: event.location)
         self.respondType = .original
     }
 }

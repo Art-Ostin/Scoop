@@ -24,6 +24,7 @@ struct TwoPageScrollView<Screen1: View, Screen2: View>: View {
     }
     
     var body: some View {
+        
         HorizontalScrollView(progress: $scrollProgress) {
             screen1()
                 .fixedSize(horizontal: false, vertical: true)

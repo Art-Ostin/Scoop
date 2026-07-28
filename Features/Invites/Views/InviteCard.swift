@@ -16,7 +16,8 @@ struct InviteCard: View {
     let name: String
     
     @Binding var draft: RespondDraft
-    @Binding var openInvite: Bool
+    
+    let openInvite: () -> ()
     
     //Local Parameters
     @State private var timePopupOpen = false
@@ -42,7 +43,7 @@ extension InviteCard {
         }
         .overlay(alignment: .topTrailing) { typeButton}
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .bottomLeading)
-        .overlay(alignment: .bottomTrailing) {inviteButton}
+        .overlay(alignment: .bottomTrailing) {InviteButton{openInvite()} }
         .padding(24)
         .padding(.bottom, 5)
     }    
@@ -67,15 +68,6 @@ extension InviteCard {
             .stroke(12, lineWidth: 1, color: .white.opacity(0.6))
             .scaleEffect(0.8, anchor: .bottomTrailing)
             .offset(y: -1.5)
-            .opacityPop(visible: !timePopupOpen)
-    }
-    
-    private var inviteButton: some View {
-        Image("LetterIconProfile")
-            .scaleEffect(0.8)
-            .frame(width: 40, height: 40)
-            .background(Color(red: 0, green: 0.4, blue: 0.43), in: Circle())
-            .shrinkPress {openInvite = true}
             .opacityPop(visible: !timePopupOpen)
     }
 }
@@ -187,14 +179,5 @@ struct BlurAndGradientBackground: ViewModifier {
             endPoint: .bottom
         )
         .allowsHitTesting(false)
-    }
-}
-
-extension View {
-    func oneLineLimitAndShrink() -> some View {
-        self
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .allowsTightening(true)
     }
 }

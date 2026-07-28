@@ -84,3 +84,12 @@ extension View {
         }
     }
 }
+
+extension View {
+    func oneLineLimitAndShrink() -> some View {
+        self
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .allowsTightening(true)
+    }
+}

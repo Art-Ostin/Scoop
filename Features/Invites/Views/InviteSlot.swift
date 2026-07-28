@@ -11,7 +11,7 @@ struct InviteSlot: View {
 
     let eventProfile: EventProfile
     @Binding var draft: RespondDraft
-    @Binding var openInvite: Bool
+    @Binding var openInvite: EventProfile?
     let profileImages: [UIImage]
     let profileView: () -> AnyView
 
@@ -34,12 +34,9 @@ struct InviteSlot: View {
     @ViewBuilder
     private var inviteCard: some View {
         if let image = eventProfile.image {
-            InviteCard(
-                image: image,
-                name: eventProfile.profile.name,
-                draft: $draft,
-                openInvite: $openInvite
-            )
+            InviteCard( image: image, name: eventProfile.profile.name, draft: $draft) {
+                openInvite = eventProfile
+            }
         }
     }
 }

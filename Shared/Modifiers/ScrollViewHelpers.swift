@@ -9,12 +9,16 @@ import SwiftUI
 //MARK: Horizontal Scroll default Layout
 struct HorizontalScrollView<Content: View>: View {
     @Binding var progress: Double
-    
+
     @ViewBuilder var content: Content
 
+    //Eager on purpose. Every pager here holds a handful of pages, so laziness buys nothing and
+    //costs measurement: a LazyHStack never realizes a page one container-width off-screen, so
+    //its .getHeight never fires and it reports 0 — and a caller sizing itself to that page
+    //(TwoPageScrollView) sizes to nothing for a layout pass on the first visit.
     var body: some View {
         ScrollView(.horizontal) {
-            LazyHStack(spacing: 0) {
+            HStack(spacing: 0) {
                 content
             }
             .scrollTargetLayout()
