@@ -30,6 +30,7 @@ struct SendInviteView: View {
             
             VStack(spacing: 0) {
                 inviteCard
+                    .animation(.transition, value: ui.showConfirmScreen)
                 BottomBackButton(showInvite: $showInvite)
             }
         }

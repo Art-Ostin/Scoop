@@ -16,7 +16,7 @@ struct WideActionButton: View {
     var body: some View {
         
         if isActive {
-            ScoopButton(style: .tinted(.textAccent), shape: .capsule, action: onTap) {
+            ScoopButton(style: .tinted(.accent), shape: .capsule, action: onTap) {
                 label
             }
         } else {

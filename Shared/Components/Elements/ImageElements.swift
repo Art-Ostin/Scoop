@@ -53,13 +53,13 @@ struct ImageCarouselOld: View {
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
             ForEach(images, id: \.self) { image in
-                profileImage(image)
+                userImage(image)
             }
         }
         .overlay(alignment: .bottom) { if showIndicator {scrollIndicator} }
     }
     
-    private func profileImage(_ profileImage: UIImage) -> some View {
+    private func userImage(_ profileImage: UIImage) -> some View {
         Color.clear
             .aspectRatio(aspectRatio.ratio, contentMode: .fit)
             .overlay {

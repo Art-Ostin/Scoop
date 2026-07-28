@@ -107,22 +107,6 @@ enum AspectRatio {
 
 
 
-// MARK: - Motion
-//
-// One closed vocabulary for every animation in the app, named by the ROLE the
-// motion plays — never by its duration. Call sites read `.animation(.toggle, value:)`
-// or `withAnimation(.present) { … }`; the *feel* of a role is retuned here, once.
-//
-// Spring-first, per Apple's guidance ("Animate with springs"): `.smooth` carries no
-// bounce, `.snappy` a small one, `.bouncy` more. A duration-based ease survives only
-// where a precise, bounce-free timing is the whole point (micro-feedback ticks).
-//
-// This is the vocabulary for generic chrome. Measured system replications
-// (CustomAlert, the in-app banner, the Liquid-Glass menu morphs) and geometry-matched
-// hero flights (ProfileZoomTransition) keep their own measured curves in their
-// own files — never flatten those into a role. Press feedback is owned by
-// `PressEffect`. Need a curve that isn't one of these roles? Add a role here; never
-// inline a one-off.
 extension Animation {
 
     /// Discrete state flips — selection fills, chips, validity, checkmarks, small on/off toggles. Crisp, faintly sprung.
