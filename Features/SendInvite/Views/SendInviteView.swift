@@ -102,6 +102,7 @@ extension SendInviteView {
             draft: $vm.event,
             showMessageScreen: $ui.showMessageScreen,
         )
+        .containerRelativeFrame(.horizontal)
     }
     
     private var confirmationPage: some View {
@@ -112,6 +113,7 @@ extension SendInviteView {
             showConfirmScreen: $ui.showConfirmScreen,
             showMessageScreen: $ui.showMessageScreen
         )
+        .containerRelativeFrame(.horizontal)
     }
         
     private var addMessageView: some View {
