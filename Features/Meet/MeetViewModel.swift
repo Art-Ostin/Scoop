@@ -36,7 +36,7 @@ import SwiftUI
     var pendingInvites: [PendingProfile] { session.profiles } // TODO: back with real pending invites
     var user: UserProfile { session.user }
     
-    func sendInvite(event: EventFieldsDraft, profile: UserProfile) async throws {
+    func sendInvite(event: EventFields, profile: UserProfile) async throws {
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .invited)
         try await eventRepo.createEvent(draft: event, user: user, profile: profile)
         defaults.deleteEventDraft(profileId: profile.id)

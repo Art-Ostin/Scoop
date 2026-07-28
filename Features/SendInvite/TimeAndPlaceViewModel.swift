@@ -16,7 +16,7 @@ class TimeAndPlaceViewModel {
     let defaults: DefaultsManaging
 
     //Draft state (persisted to defaults on every edit)
-    var event: EventFieldsDraft {
+    var event: EventFields {
         didSet { updateEventDraft()}
     }
     
@@ -26,17 +26,17 @@ class TimeAndPlaceViewModel {
         self.event = Self.loadEvent(d: defaults, id: profileId)
     }
     
-    private static func loadEvent(d: DefaultsManaging, id: String) -> EventFieldsDraft {
+    private static func loadEvent(d: DefaultsManaging, id: String) -> EventFields {
         if let storedEvent = d.fetchEventDraft(profileId: id) {
             return storedEvent
         } else {
-            return EventFieldsDraft()
+            return EventFields()
         }
     }
     
     func deleteEventDefault() {
         defaults.deleteEventDraft(profileId: profileId)
-        event = EventFieldsDraft()
+        event = EventFields()
     }
     
     func updateEventDraft() {

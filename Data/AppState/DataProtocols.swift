@@ -49,7 +49,7 @@ protocol UserRepository {
 }
 
 protocol EventsRepository {
-    func createEvent(draft: EventFieldsDraft, user: UserProfile, profile: UserProfile) async throws
+    func createEvent(draft: EventFields, user: UserProfile, profile: UserProfile) async throws
     func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws
     func deleteAllSentPendingInvites(userId: String) async throws
@@ -94,7 +94,7 @@ protocol DefaultsManaging: AnyObject {
     var signUpDraft: DraftProfile? { get }
     var recentMapSearches: [RecentPlace] { get }
     var preferredMapType: PreferredMapType { get }
-    var eventDrafts: [String: EventFieldsDraft] { get }
+    var eventDrafts: [String: EventFields] { get }
     var respondDrafts: [String: RespondDraft] { get }
     func createDraftProfile(user: User)
     func clearSignUpDraft()
@@ -109,7 +109,7 @@ protocol DefaultsManaging: AnyObject {
     func updateRecentMapSearches(title: String, town: String)
     func removeFromRecentMapSearches(place: RecentPlace)
     func updatePreferredMapType(mapType: PreferredMapType)
-    func updateEventDraft(profileId: String, eventDraft: EventFieldsDraft)
-    func fetchEventDraft(profileId: String) -> EventFieldsDraft?
+    func updateEventDraft(profileId: String, eventDraft: EventFields)
+    func fetchEventDraft(profileId: String) -> EventFields?
     func deleteEventDraft(profileId: String)
 }

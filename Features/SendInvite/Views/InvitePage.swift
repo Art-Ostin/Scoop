@@ -10,7 +10,7 @@ import SwiftUI
 struct InvitePage: View {
 
     @Bindable var ui: TimeAndPlaceUIState
-    @Binding var draft: EventFieldsDraft
+    @Binding var draft: EventFields
     @Binding var showMessageScreen: Bool
     
     var body: some View {

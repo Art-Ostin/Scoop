@@ -15,7 +15,7 @@ struct RespondDraft: Codable  {
 
     var originalInvite: OriginalInvite
     var newTime: NewTimeDraft { didSet { respondType = .modified}}
-    var newEvent: EventFieldsDraft
+    var newEvent: EventFields
     var respondMessage: String?
     var respondType: ResponseType
 
@@ -23,7 +23,7 @@ struct RespondDraft: Codable  {
         let selectedDay = event.proposedTimes.firstAvailableDate
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
-        self.newEvent = EventFieldsDraft(type: .drink, place: event.location)
+        self.newEvent = EventFields(type: .drink, place: event.location)
         self.respondType = .original
     }
 
@@ -83,7 +83,7 @@ struct PersistableNewTimeDraft: Codable {
 struct PersistableRespondDraft: Codable {
     var originalInvite: PersistableOriginalInvite
     var newTime: PersistableNewTimeDraft
-    var newEvent: EventFieldsDraft
+    var newEvent: EventFields
     var respondMessage: String?
     var respondType: ResponseType
 }

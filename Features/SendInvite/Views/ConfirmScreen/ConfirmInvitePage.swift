@@ -14,12 +14,9 @@ enum ConfirmMode {
 
 struct ConfirmInvitePage: View {
     
-    //Injected Properties -> Highly specific so can use for 'RespondInvite' screen as well
+    //Injected Properties ->
+    let event: EventFields
     let name: String
-    let type: Event.EventType
-    let proposedTimes: ProposedTimes
-    let place: EventLocation
-    let message: String?
     
     @Binding var showConfirmScreen: Bool?
     @Binding var showMessageScreen: Bool
@@ -35,9 +32,9 @@ struct ConfirmInvitePage: View {
             WarningLabel()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .topTrailing) { InviteTypeButton(type: type, showInfoSheet: $showInfoSheet) }
+        .overlay(alignment: .topTrailing) { InviteTypeButton(type: event.type, showInfoSheet: $showInfoSheet) }
         .padding(.top, 20)
-        .sheet(isPresented: $showInfoSheet) {ConfirmInfoScreen(type: type).presentationDetents(detents: .init(small: .medium))}
+        .sheet(isPresented: $showInfoSheet) {Text(event.type.title).presentationDetents([.medium])}
     }
 }
 
@@ -52,30 +49,18 @@ extension ConfirmInvitePage {
             .padding(.horizontal, Spacing.margin)
     }
     
-    
-    
-}
-
-//ScrollView
-extension ConfirmInvitePage {
-    
-    
-    
-    
-    
-    
-    
-    
     private var scrollView: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            timePlaceTypeSection
-                .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
-                .padding(.horizontal, Spacing.margin)
-                .padding(.vertical, 28)                 // pure hit-area; won't scale the type
-                .containerRelativeFrame(.horizontal, alignment: .leading)
-                .padding(.top, 1) //Subtle visual alignment (as type icon overlay makes it slightly closer)
+            if let place = event.place {
+                TimeAndPlaceSection(proposedTimes: event.time, place: place)
+                    .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
+                    .padding(.horizontal, Spacing.margin)
+                    .padding(.vertical, 28)                 // pure hit-area; won't scale the type
+                    .containerRelativeFrame(.horizontal, alignment: .leading)
+                    .padding(.top, 1)
+            }
             
-            messageSection
+            ConfirmMessageSection(message: event.message, showMessageScreen: $showMessageScreen)
                 .padding(.horizontal, Spacing.margin)
                 .containerRelativeFrame(.horizontal, alignment: .leading)
         }

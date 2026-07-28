@@ -16,7 +16,7 @@ struct ConfirmMessageSection: View {
     @State private var messageHeight: CGFloat = 0
     
     var body: some View {
-        if let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if let message = checkMessage {
             messageText(message: message)
         } else {
             noMessagePlaceholder
@@ -66,4 +66,11 @@ extension ConfirmMessageSection {
         return Int(((messageHeight + 6) / (lineHeight + 6)).rounded())
     }
     
+    private var checkMessage: String? {
+        if let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return message
+        } else {
+            return nil
+        }
+    }
 }

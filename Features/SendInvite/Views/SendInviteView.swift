@@ -17,7 +17,7 @@ struct SendInviteView: View {
     
     @State var vm: TimeAndPlaceViewModel
 
-    let onSendInvite: (EventFieldsDraft) -> ()
+    let onSendInvite: (EventFields) -> ()
     let declineProfile: () -> ()
     
     //Local Properties
@@ -107,9 +107,8 @@ extension SendInviteView {
     
     private var confirmationPage: some View {
         ConfirmInvitePage(
+            event: vm.event,
             name: name,
-            isInvite: false,
-            event: $vm.event,
             showConfirmScreen: $ui.showConfirmScreen,
             showMessageScreen: $ui.showMessageScreen
         )
@@ -142,3 +141,27 @@ struct InviteCardBackground: ViewModifier {
             .padding(.top, isConfirming ? 40 : 48)
     }
 }
+
+/*
+ 
+ ConfirmInvitePage(
+     name: name,
+     type: e.type,
+     proposedTimes: e.time,
+     place: e.place,
+     message: e.message,
+     showConfirmScreen: e.,
+     showMessageScreen: <#T##Binding<Bool>#>
+ )
+ 
+ 
+ 
+ 
+ ConfirmInvitePage(
+     name: name,
+     isInvite: false,
+     event: $vm.event,
+     showConfirmScreen: $ui.showConfirmScreen,
+     showMessageScreen: $ui.showMessageScreen
+ )
+ */

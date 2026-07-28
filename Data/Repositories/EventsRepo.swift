@@ -40,7 +40,7 @@ class EventsRepo: EventsRepository {
     }
     
     //Part 2: Creating and modifying events
-    func createEvent(draft: EventFieldsDraft, user: UserProfile, profile: UserProfile) async throws {
+    func createEvent(draft: EventFields, user: UserProfile, profile: UserProfile) async throws {
         //1. Create the event, and add it to the collection 'events'
         guard let event = Event(draft: draft, initiatorId: user.id, recipientId: profile.id) else {
             throw EventsRepoError.invalidDraft

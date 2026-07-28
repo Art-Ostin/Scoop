@@ -42,7 +42,7 @@ struct Event: Identifiable, Codable {
     var changeLog: [ChangeLogEntry] = []
     @ServerTimestamp var date_created: Date?
     
-    init?(draft: EventFieldsDraft, initiatorId: String, recipientId: String) {
+    init?(draft: EventFields, initiatorId: String, recipientId: String) {
         guard let location = draft.place else {
             return nil
         }
