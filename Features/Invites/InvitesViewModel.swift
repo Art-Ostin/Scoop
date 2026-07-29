@@ -40,7 +40,7 @@ import SwiftUI
 //Logic to store and pass around respondViewModels
 extension InvitesViewModel {
     
-    
+    //Key! The RespondVM exists here not in the inviteSlot. 
     func respondVM(for invite: EventProfile) -> RespondViewModel {
         if let existing = respondVMs[invite.event.id] { return existing }
         

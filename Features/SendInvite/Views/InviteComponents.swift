@@ -52,11 +52,11 @@ struct InvitePageIndicator: View {
 
 struct BottomBackButton: View {
 
-    @Binding var showInvite: Bool
     var visible: Bool = true
-
+    let onTap: () -> ()
+    
     var body: some View {
-        ScoopButton(shape: Circle(), action: { showInvite = false }) {
+        ScoopButton(shape: Circle(), action: { onTap() }) {
             Image(systemName: "chevron.down")
                 .font(.body(17))
                 .fontWeight(.heavy)

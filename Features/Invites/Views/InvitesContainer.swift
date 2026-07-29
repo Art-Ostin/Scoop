@@ -33,7 +33,7 @@ struct InvitesContainer: View {
         }
         .overlay {
             if let invite = ui.showQuickResponse {
-                
+                respondPoup(invite)
             }
         }
     }
@@ -54,13 +54,18 @@ extension InvitesContainer {
     }
     
     private func respondPoup(_ invite: EventProfile) -> some View {
-        RespondInviteView(
-            images: vm.profileImages[invite.profile.id] ?? [],
-            vm: vm.respondVM(for: invite)
-        )
+        let images = vm.profileImages[invite.profile.id] ?? []
+        let timeAndPlaceVM = TimeAndPlaceViewModel(profileId: invite.profile.id, defaults: vm.defaults)
+        
+       return RespondInviteContainer(
+            images: images,
+            vm: vm.respondVM(for: invite),
+            timeAndPlaceVM: timeAndPlaceVM,
+            showInvitePopup: $ui.showQuickResponse) { response in
+                respond(invite.id, response)
+        }
     }
 }
-
 
 //Logic to respond to an Invite
 extension InvitesContainer {

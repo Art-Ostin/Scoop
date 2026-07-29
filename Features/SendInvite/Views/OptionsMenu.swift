@@ -9,27 +9,27 @@ import SwiftUI
 
 struct OptionsMenu: View {
     
-    let vm: TimeAndPlaceViewModel
-    let isConfirming: Bool
+    let showOptions: Bool
+    let hasChanges: Bool
     
     @Binding var optionsFrame: CGRect
 
     let onDecline: () -> ()
+    let deleteDraft: () -> ()
     let onInfo: () -> ()
     
     var body: some View {
         Menu {
             infoButton
-            if vm.event.hasChanges { clearInviteButton}
+            if hasChanges { clearInviteButton}
             declineButton
         } label: {
             optionsLabel
         }
-        .opacityPop(visible: !isConfirming)
+        .opacityPop(visible: !showOptions)
         .padding(-Spacing.sm)
     }
 }
-
 
 extension OptionsMenu {
 
@@ -43,7 +43,7 @@ extension OptionsMenu {
     private var clearInviteButton: some View {
         Button {
             withAnimation(.transition) {
-                vm.deleteEventDefault()
+                deleteDraft()
             }
         } label: {
             Label {

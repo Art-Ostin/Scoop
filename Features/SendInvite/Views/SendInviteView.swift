@@ -32,7 +32,7 @@ struct SendInviteView: View {
             
             VStack(spacing: 0) {
                 inviteCard
-                BottomBackButton(showInvite: $showInvite, visible: !(ui.showConfirmScreen ?? false))
+                BottomBackButton(visible: !(ui.showConfirmScreen ?? false)) { showInvite = false }
             }
         }
         .animation(.transition, value: ui.showConfirmScreen)
@@ -57,11 +57,15 @@ extension SendInviteView {
     
     private var imageSection: some View {
         InviteImageCarousel(
-            vm: vm,
-            ui: ui,
+            inviteHasChanges: vm.event.hasChanges,
+            isInvite: false, //Sending, not responding — keeps the name overlay and page dots
             name: name,
             images: images,
-            declineProfile: declineProfile
+            isCompact: ui.showConfirmScreen == true,
+            showConfirmScreen: $ui.showConfirmScreen,
+            showInfoScreen: $ui.showInfoScreen,
+            declineProfile: declineProfile,
+            clearInvite: { withAnimation(.transition) { vm.deleteEventDefault() } }
         )
     }
 
@@ -139,27 +143,3 @@ struct InviteCardBackground: ViewModifier {
             .padding(.top, isConfirming ? 40 : 48)
     }
 }
-
-/*
- 
- ConfirmInvitePage(
-     name: name,
-     type: e.type,
-     proposedTimes: e.time,
-     place: e.place,
-     message: e.message,
-     showConfirmScreen: e.,
-     showMessageScreen: <#T##Binding<Bool>#>
- )
- 
- 
- 
- 
- ConfirmInvitePage(
-     name: name,
-     isInvite: false,
-     event: $vm.event,
-     showConfirmScreen: $ui.showConfirmScreen,
-     showMessageScreen: $ui.showMessageScreen
- )
- */
