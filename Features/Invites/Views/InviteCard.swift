@@ -33,12 +33,16 @@ struct InviteCard: View {
 extension InviteCard {
     
     private var overlayText: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            nameTitle
+        let place = draft.originalInvite.event.location
+        
+        
+        return VStack(alignment: .leading, spacing: 24) {
+            InviteName(name: name, isPopup: true)
                 .opacityPop(visible: !timePopupOpen)
-            RespondTimeLine(draft: $draft, timePopupOpen: $timePopupOpen)
-            placeRow
-                .opacityPop(visible: !timePopupOpen)
+            
+            TimeAndPlaceRows(place: place, hide: !timePopupOpen) {
+                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
+            }
         }
         .overlay(alignment: .topTrailing) { typeButton}
         .frame(maxWidth: .infinity, maxHeight: .infinity,  alignment: .bottomLeading)

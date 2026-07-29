@@ -8,20 +8,22 @@
 import SwiftUI
 
 //Change the closure for the appropriate time row if respond or send Invite
-struct TimeAndPlaceRows<Content: View> : View {
+struct TimeAndPlaceRows<TimeRow: View> : View {
         
     let place: EventLocation
-    let proposedTimes: ProposedTimes
+    var hide: Bool = false
     
-    @ViewBuilder var selectTimeRow: Content
+    @ViewBuilder var timeRow: TimeRow
     
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
-            selectTimeRow
+            timeRow
             PlaceRow(place: place)
+                .opacityPop(visible: !hide)
         }
     }
 }
+
 
 struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
@@ -32,6 +34,7 @@ struct StaticTimeRow: View {
             .fixedSize(horizontal: true, vertical: false)
     }
 }
+
 
 struct DynamicTimeRow: View {
     

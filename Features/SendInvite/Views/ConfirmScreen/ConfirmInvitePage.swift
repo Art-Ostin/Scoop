@@ -42,22 +42,18 @@ struct ConfirmInvitePage: View {
 
 //Components
 extension ConfirmInvitePage {
-    
-    
-    
+        
     private var scrollView: some View {
         HorizontalScrollView(progress: $scrollProgress) {
             
-            
-            
-            
-            
-            TimeAndPlaceSection(proposedTimes: event.time, place: event.place)
-                    .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
-                    .padding(.horizontal, Spacing.margin)
-                    .padding(.vertical, 28)                 // pure hit-area; won't scale the type
-                    .containerRelativeFrame(.horizontal, alignment: .leading)
-                    .padding(.top, 1)
+            TimeAndPlaceRows(place: event.place) {
+                StaticTimeRow(proposedTimes: event.time)
+            }
+            .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
+            .padding(.horizontal, Spacing.margin)
+            .padding(.vertical, 28)                 // pure hit-area; won't scale the type
+            .containerRelativeFrame(.horizontal, alignment: .leading)
+            .padding(.top, 1)
             
             ConfirmMessageSection(message: event.message, showMessageScreen: $showMessageScreen)
                 .padding(.horizontal, Spacing.margin)
@@ -73,4 +69,8 @@ extension ConfirmInvitePage {
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
         .padding(.horizontal, -Spacing.margin)
     }
+    
+    
+    
+    
 }
