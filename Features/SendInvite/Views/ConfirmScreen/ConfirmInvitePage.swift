@@ -17,6 +17,8 @@ struct ConfirmInvitePage: View {
     let event: InviteSummary
     let name: String
     
+    let isConfirmInvite: Bool
+    
     @Binding var showMessageScreen: Bool
 
     //Local Properties
@@ -25,10 +27,11 @@ struct ConfirmInvitePage: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            nameTitle
+            InviteName(name: name, isPopup: false)
             scrollView
             WarningLabel()
         }
+        .padding(.horizontal, Spacing.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .topTrailing) { InviteTypeButton(type: event.type, showInfoSheet: $showInfoSheet) }
         .padding(.top, 20)
@@ -40,15 +43,15 @@ struct ConfirmInvitePage: View {
 //Components
 extension ConfirmInvitePage {
     
-    private var nameTitle: some View {
-        Text(name)
-            .font(.title(24, .bold))
-            .foregroundStyle(Color.textPrimary)
-            .padding(.horizontal, Spacing.margin)
-    }
+    
     
     private var scrollView: some View {
         HorizontalScrollView(progress: $scrollProgress) {
+            
+            
+            
+            
+            
             TimeAndPlaceSection(proposedTimes: event.time, place: event.place)
                     .fixedSize(horizontal: false, vertical: true)   // pin single-line rows to natural height
                     .padding(.horizontal, Spacing.margin)
@@ -68,5 +71,6 @@ extension ConfirmInvitePage {
         .scrollClipDisabled()
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: true, isCardInvite: true)
         .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
+        .padding(.horizontal, -Spacing.margin)
     }
 }

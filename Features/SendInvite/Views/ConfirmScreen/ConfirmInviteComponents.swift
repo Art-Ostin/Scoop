@@ -3,15 +3,28 @@
 //  Scoop Test
 //
 //  Created by Art Ostin on 28/07/2026.
-//
+
 
 import SwiftUI
 
+struct InviteName: View {
+    let name: String
+    let isPopup: Bool
+
+    var body: some View {
+        Text(name)
+            .font(.title(isPopup ? 24 : 26, .bold))
+            .foregroundStyle(isPopup ? Color.textPrimary : Color.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        
+    }
+}
+
 struct InviteTypeButton: View {
+
     let type: Event.EventType
     
     @Binding var showInfoSheet: Bool
-    
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
                 Text(type.emoji)
@@ -40,7 +53,6 @@ struct InviteTypeButton: View {
     }
 }
 
-
 struct WarningLabel: View {
     
     var body: some View {
@@ -58,66 +70,16 @@ struct WarningLabel: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.fillGray.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm))
         .padding(.horizontal, Spacing.margin)
-        
     }
 }
 
-struct LineSection: View {
-    
-    let image: String
-    let text: String
-    let textColor: Color
 
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(image)
-                .frame(width: 20, alignment: .leading)
-            
-            Text(text)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(.white)
-        }
-    }
-}
+/*
+ VStack(alignment: .leading, spacing: Spacing.lg) {
+     timeRow
+     placeRow
+ }
+ .font(.body(17, .medium))
 
-struct TimeAndPlaceSection: View {
-    
-    let proposedTimes: ProposedTimes
-    let place: EventLocation
-    
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.lg) {
-            timeRow
-            placeRow
-        }
-        .font(.body(17, .medium))
-    }
-    
-    private var timeRow: some View {
-         lineSection(icon: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
-            .oneLineLimitAndShrink()
-            .fixedSize(horizontal: true, vertical: false)
-     }
-
-     private var placeRow: some View {
-         lineSection(icon: .eventMapIcon, text: place.name ?? place.address ?? "View on map")
-             .padding(.vertical, Spacing.xs)
-             .shrinkPress(action: openMap)
-             .padding(.vertical, -Spacing.xs)
-             .accessibilityAddTraits(.isButton)
-     }
-
-     private func lineSection(icon: ImageResource, text: String) -> some View {
-         HStack(spacing: Spacing.md) {
-             Image(icon)
-                 .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
-             Text(text)
-         }
-     }
-    
-    private func openMap() {
-        MapsRouter.openGoogleMaps(item: place.mapItem, withDirections: false)
-    }
-}
+ */
 

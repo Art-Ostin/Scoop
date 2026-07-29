@@ -36,6 +36,7 @@ struct InvitesContainer: View {
                 respondPoup(invite)
             }
         }
+        .hideTabBar(ui.showQuickResponse != nil)
     }
 }
 

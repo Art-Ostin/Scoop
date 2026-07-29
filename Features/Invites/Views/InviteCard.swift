@@ -47,12 +47,6 @@ extension InviteCard {
         .padding(.bottom, 5)
     }    
     
-    private var nameTitle: some View {
-        Text(name)
-            .font(.system(size: 26, weight: .bold, design: .rounded))
-            .foregroundStyle(Color.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
     
     private var typeButton: some View {
             HStack {
@@ -81,7 +75,7 @@ extension InviteCard {
         let place = draft.originalInvite.event.location
         let text = place.name ?? place.address ?? "Location"
         
-        return LineSection(image: "WhiteMap", text: text, textColor: .white)
+        return LineSection(image: .whiteMap, text: text, textColor: .white)
             .shrinkPress { MapsRouter.openGoogleMaps(item: place.mapItem)}
     }
 }
@@ -113,71 +107,5 @@ struct BlurAndGradientBackground: ViewModifier {
             endPoint: .bottom
         )
         .allowsHitTesting(false)
-    }
-}
-
-
-
-struct RespondTimeLine: View {
-    
-    @Binding var draft: RespondDraft
-    @Binding var timePopupOpen: Bool
-    
-    @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
-    
-    
-    var body: some View {
-        TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
-                       tracksContentSizeChanges: true,
-                       placementOffsetX: 0,
-                       placementOffsetY: 24,
-                       isOpen: $timePopupOpen,
-                       onOpen: { timePopupPage = .invitedTimes }) {
-            timePopupContainer
-        } label: {
-            timeRow
-        }
-    }
-    
-    private var timeText: String {
-        if draft.respondType == .originalInvite {
-            if let time = draft.originalInvite.selectedDay {
-                return FormatEvent.shortDayAndTime(time)
-            } else {
-                return "Choose Time"
-            }
-        } else if draft.respondType == .newTime {
-           return draft.newTime.proposedTimes.formatMultipleInvitedDays()
-        } else {
-            return ""
-        }
-    }
-    
-    
-    private var timePopupContainer: some View {
-        TimePopupContainer(
-            respondType: $draft.respondType,
-            selectedDay: $draft.originalInvite.selectedDay,
-            newProposedTimes: $draft.newTime.proposedTimes,
-            page: $timePopupPage,
-            times: draft.originalInvite.event.proposedTimes
-        )
-    }
-    
-    private var timeRow: some View {
-        HStack {
-            LineSection(image: "WhiteClock", text: timeText, textColor: .white)
-                .padding(.top, -1)
-            timeChevron
-        }
-        .oneLineLimitAndShrink()
-    }
-    
-    private var timeChevron: some View {
-        Image(systemName: "chevron.right")
-            .font(.system(size: 12, weight: .bold))
-            .foregroundStyle(Color.white)
-            .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
-            .animation(.toggle, value: timePopupOpen)
     }
 }

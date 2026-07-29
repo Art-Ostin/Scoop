@@ -37,6 +37,7 @@
 		651975912F1F91E80002F6A2 /* Facts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975902F1F91E80002F6A2 /* Facts.swift */; };
 		651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */; };
 		651D09BF2F3BC64F008773E8 /* CustomMapAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651D09BE2F3BC64F008773E8 /* CustomMapAnnotation.swift */; };
+		651ECEB23019F14A0017F206 /* ConfirmTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651ECEB13019F14A0017F206 /* ConfirmTimeAndPlace.swift */; };
 		6522EF272E1EFDE6004531F9 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6522EF262E1EFDE6004531F9 /* EditProfileView.swift */; };
 		6523E5342F3B8F0100271C8F /* MapCategoryIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */; };
 		652528372FC57DEA005B47BE /* InAppNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652528362FC57DEA005B47BE /* InAppNotifications.swift */; };
@@ -328,6 +329,7 @@
 		651975902F1F91E80002F6A2 /* Facts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Facts.swift; sourceTree = "<group>"; };
 		651975922F1FA9CE0002F6A2 /* DetailsExtraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsExtraInfo.swift; sourceTree = "<group>"; };
 		651D09BE2F3BC64F008773E8 /* CustomMapAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMapAnnotation.swift; sourceTree = "<group>"; };
+		651ECEB13019F14A0017F206 /* ConfirmTimeAndPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmTimeAndPlace.swift; sourceTree = "<group>"; };
 		6522EF262E1EFDE6004531F9 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategoryIcon.swift; sourceTree = "<group>"; };
 		652528362FC57DEA005B47BE /* InAppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppNotifications.swift; sourceTree = "<group>"; };
@@ -899,6 +901,7 @@
 				659CE9F530106E2500E0F735 /* InviteSlot.swift */,
 				65D978B02FD4340F00C22646 /* InviteCard.swift */,
 				659CE9F73010749300E0F735 /* InviteInfo.swift */,
+				651ECEB13019F14A0017F206 /* ConfirmTimeAndPlace.swift */,
 				6549DA7D2F9E8E6E00C89DF2 /* RespondTimePopup */,
 			);
 			path = Views;
@@ -1754,6 +1757,7 @@
 				6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */,
 				65C4A0322ED0A54C00CA6C1B /* EditSex.swift in Sources */,
 				652B21D930177B2D00646BB0 /* SendInviteView.swift in Sources */,
+				651ECEB23019F14A0017F206 /* ConfirmTimeAndPlace.swift in Sources */,
 				65ED38922F68575100AD5600 /* InvitePlaceRow.swift in Sources */,
 				659497202E01DD4000880921 /* EnterEmailView.swift in Sources */,
 				6576B7EE2E687FB3004217A4 /* FirestoreService.swift in Sources */,
