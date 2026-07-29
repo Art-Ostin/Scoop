@@ -74,7 +74,7 @@ extension InviteImageCarousel {
                     .opacity(fraction)
             }
         }
-        .opacity(isCompact ? 1 : 0)
+        .opacity(isCompact ? 0 : 1)
     }
 }
 
@@ -97,7 +97,7 @@ extension InviteImageCarousel {
     
     private var optionsMenu: some View {
         OptionsMenu(
-            showOptions: !isCompact || isInvite,
+            showOptions: !isCompact,
             hasChanges: inviteHasChanges,
             optionsFrame: $optionsFrame,
             onDecline: {declineProfile()},
@@ -144,6 +144,7 @@ struct InviteCarousel: View {
             ForEach(images, id: \.self) { photo($0) }
         }
         .aspectRatio(ratio, contentMode: .fit) //Sizes the greedy pager to the image shape
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private func photo(_ image: UIImage) -> some View {

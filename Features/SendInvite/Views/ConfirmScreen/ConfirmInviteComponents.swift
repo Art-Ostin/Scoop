@@ -62,16 +62,23 @@ struct WarningLabel: View {
     }
 }
 
-
-
-struct LineSection {
+struct LineSection: View {
     
-    
+    let image: String
+    let text: String
+    let textColor: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(image)
+                .frame(width: 20, alignment: .leading)
+            
+            Text(text)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(.white)
+        }
+    }
 }
-
-
-
-
 
 struct TimeAndPlaceSection: View {
     

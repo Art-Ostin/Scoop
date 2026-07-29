@@ -21,7 +21,6 @@ struct InviteCard: View {
     
     //Local Parameters
     @State private var timePopupOpen = false
-    @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
     
     var body: some View {
         AppImage(image: image, type: .invite)
@@ -37,7 +36,7 @@ extension InviteCard {
         VStack(alignment: .leading, spacing: 24) {
             nameTitle
                 .opacityPop(visible: !timePopupOpen)
-            timeMenu
+            RespondTimeLine(draft: $draft, timePopupOpen: $timePopupOpen)
             placeRow
                 .opacityPop(visible: !timePopupOpen)
         }
@@ -76,80 +75,16 @@ extension InviteCard {
 //Time And Place
 extension InviteCard {
     
-    private var timeMenu: some View {
-        TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
-                       tracksContentSizeChanges: true,
-                       placementOffsetX: 0,
-                       placementOffsetY: 24,
-                       isOpen: $timePopupOpen,
-                       onOpen: { timePopupPage = .invitedTimes }) {
-            timePopupContainer
-        } label: {
-            timeRow
-        }
-    }
-    
-    private var timePopupContainer: some View {
-        TimePopupContainer(
-            respondType: $draft.respondType,
-            selectedDay: $draft.originalInvite.selectedDay,
-            newProposedTimes: $draft.newTime.proposedTimes,
-            page: $timePopupPage,
-            times: draft.originalInvite.event.proposedTimes
-        )
-    }
-    
-    // Logic with the time
-    private var timeRow: some View {
-        HStack {
-            lineSection(image: "WhiteClock", text: timeText).padding(.top, -1)
-            timeChevron
-        }
-        .oneLineLimitAndShrink()
-    }
-    
-    private var timeChevron: some View {
-        Image(systemName: "chevron.right")
-            .font(.system(size: 12, weight: .bold))
-            .foregroundStyle(Color.white)
-            .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
-            .animation(.toggle, value: timePopupOpen)
-    }
-    
-    private var timeText: String {
-        if draft.respondType == .originalInvite {
-            if let time = draft.originalInvite.selectedDay {
-                return FormatEvent.shortDayAndTime(time)
-            } else {
-                return "Choose Time"
-            }
-        } else if draft.respondType == .newTime {
-           return draft.newTime.proposedTimes.formatMultipleInvitedDays()
-        } else {
-            return ""
-        }
-    }
     
     //Logic with the place
     private var placeRow: some View {
         let place = draft.originalInvite.event.location
-        return lineSection(image: "WhiteMap", text: place.name ?? place.address ?? "Location")
+        let text = place.name ?? place.address ?? "Location"
+        
+        return LineSection(image: "WhiteMap", text: text, textColor: .white)
             .shrinkPress { MapsRouter.openGoogleMaps(item: place.mapItem)}
     }
-    
-    private func lineSection(image: String, text: String) -> some View {
-        HStack(spacing: 12) {
-            Image(image)
-                .frame(width: 20, alignment: .leading)
-            
-            Text(text)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(.white)
-        }
-    }
 }
-
-
 
 struct BlurAndGradientBackground: ViewModifier {
     
@@ -178,5 +113,71 @@ struct BlurAndGradientBackground: ViewModifier {
             endPoint: .bottom
         )
         .allowsHitTesting(false)
+    }
+}
+
+
+
+struct RespondTimeLine: View {
+    
+    @Binding var draft: RespondDraft
+    @Binding var timePopupOpen: Bool
+    
+    @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
+    
+    
+    var body: some View {
+        TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
+                       tracksContentSizeChanges: true,
+                       placementOffsetX: 0,
+                       placementOffsetY: 24,
+                       isOpen: $timePopupOpen,
+                       onOpen: { timePopupPage = .invitedTimes }) {
+            timePopupContainer
+        } label: {
+            timeRow
+        }
+    }
+    
+    private var timeText: String {
+        if draft.respondType == .originalInvite {
+            if let time = draft.originalInvite.selectedDay {
+                return FormatEvent.shortDayAndTime(time)
+            } else {
+                return "Choose Time"
+            }
+        } else if draft.respondType == .newTime {
+           return draft.newTime.proposedTimes.formatMultipleInvitedDays()
+        } else {
+            return ""
+        }
+    }
+    
+    
+    private var timePopupContainer: some View {
+        TimePopupContainer(
+            respondType: $draft.respondType,
+            selectedDay: $draft.originalInvite.selectedDay,
+            newProposedTimes: $draft.newTime.proposedTimes,
+            page: $timePopupPage,
+            times: draft.originalInvite.event.proposedTimes
+        )
+    }
+    
+    private var timeRow: some View {
+        HStack {
+            LineSection(image: "WhiteClock", text: timeText, textColor: .white)
+                .padding(.top, -1)
+            timeChevron
+        }
+        .oneLineLimitAndShrink()
+    }
+    
+    private var timeChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.system(size: 12, weight: .bold))
+            .foregroundStyle(Color.white)
+            .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
+            .animation(.toggle, value: timePopupOpen)
     }
 }

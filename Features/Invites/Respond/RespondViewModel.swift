@@ -21,6 +21,7 @@ class RespondViewModel {
     var respondDraft: RespondDraft {didSet {updateDefaults()}}
     
     var responseType: ResponseType {respondDraft.respondType}
+
     
     init(invite: EventProfile , defaults: DefaultsManaging, session: Session) {
         self.profile = invite.profile

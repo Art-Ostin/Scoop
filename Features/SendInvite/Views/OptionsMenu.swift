@@ -26,7 +26,7 @@ struct OptionsMenu: View {
         } label: {
             optionsLabel
         }
-        .opacityPop(visible: !showOptions)
+        .opacityPop(visible: showOptions)
         .padding(-Spacing.sm)
     }
 }

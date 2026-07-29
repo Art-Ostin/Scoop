@@ -131,6 +131,7 @@ struct InviteCardBackground: ViewModifier {
     
     private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
     var isConfirming: Bool
+    var isInvite: Bool = false
     
     func body(content: Content) -> some View {
         content
@@ -140,6 +141,6 @@ struct InviteCardBackground: ViewModifier {
             .clipShape(shape)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
-            .padding(.top, isConfirming ? 40 : 48)
+            .padding(.top, isInvite ? 0 : (isConfirming ? 40 : 48))
     }
 }
