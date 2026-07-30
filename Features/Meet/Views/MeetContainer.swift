@@ -69,7 +69,7 @@ extension MeetContainer {
         let profileImages = vm.profileImages[pending.profile.id] ?? [pending.image]
         let inviteVM = TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults)
         
-        return SendInviteView(
+        return SendInviteContainer(
             images: profileImages,
             name: pending.profile.name,
             showInvite:  ui.showInviteBinding(profile: pending),

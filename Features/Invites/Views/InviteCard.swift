@@ -28,25 +28,19 @@ struct InviteCard: View {
             .overlay(alignment: .bottom) {inviteOverlay}
     }
     
-    
     private var inviteOverlay: some View {
-        ConfirmC
-        
-        
-        
-        InviteCardOverlay(
+        ConfirmContainer(
+            event: InviteSummary(event: draft.originalInvite.event),
             name: name,
+            isCard: true,
             timeOpen: timePopupOpen,
-            event: InviteSummary(event: draft.originalInvite.event)
-        ) {
-            DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
-        } openInvite: {
-            openInvite()
-        }
+            showMessageScreen: .constant(false)) {
+                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
+            } showInfo: {
+                //Add scrollTo  code here to scroll to section below.
+            }
     }
 }
-
-
 
 
 struct BlurAndGradientBackground: ViewModifier {
@@ -78,3 +72,16 @@ struct BlurAndGradientBackground: ViewModifier {
         .allowsHitTesting(false)
     }
 }
+
+/*
+ InviteCardOverlay(
+     name: name,
+     timeOpen: timePopupOpen,
+     event: InviteSummary(event: draft.originalInvite.event)
+ ) {
+     DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
+ } openInvite: {
+     openInvite()
+ }
+
+ */

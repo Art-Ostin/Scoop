@@ -81,7 +81,7 @@ extension RespondInviteContainer {
             showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
                 DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: timeAndPlaceUI.popupBinding(.time))
             } showInfo: {
-                timeAndPlaceUi 
+                timeAndPlaceUI.showInfoScreen = true
             }
 
     }

@@ -96,7 +96,7 @@ extension ProfileContainer {
     @ViewBuilder
     private func inviteView(pending: PendingProfile) -> some View {
         if let onSend = onSendInvite, let onDecline = onDeclineProfile {
-            SendInviteView(
+            SendInviteContainer(
                 images: invitedImages,
                 name: pending.profile.name,
                 showInvite: $ui.showInvite,
