@@ -234,10 +234,10 @@
 		65CB2A6F3018B8920002DFCD /* EventSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A6E3018B8920002DFCD /* EventSummary.swift */; };
 		65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */; };
 		65D13D602FF6881800F4006F /* TimeAndPlaceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */; };
-		65D13D622FF69DAB00F4006F /* InviteComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D612FF69DAB00F4006F /* InviteComponents.swift */; };
 		65D366C42FC95887000180B3 /* ScrollViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */; };
 		65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */; };
 		65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D978B02FD4340F00C22646 /* InviteCard.swift */; };
+		65DE8F12301B428A00E74D26 /* InviteCardShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE8F11301B428A00E74D26 /* InviteCardShell.swift */; };
 		65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */; };
 		65E1EC9F2F19706D004C9236 /* PinchZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* PinchZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ProfileImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */; };
@@ -524,10 +524,10 @@
 		65CB2A6E3018B8920002DFCD /* EventSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSummary.swift; sourceTree = "<group>"; };
 		65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlot.swift; sourceTree = "<group>"; };
 		65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceContainer.swift; sourceTree = "<group>"; };
-		65D13D612FF69DAB00F4006F /* InviteComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteComponents.swift; sourceTree = "<group>"; };
 		65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewHelpers.swift; sourceTree = "<group>"; };
 		65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPressStyle.swift; sourceTree = "<group>"; };
 		65D978B02FD4340F00C22646 /* InviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCard.swift; sourceTree = "<group>"; };
+		65DE8F11301B428A00E74D26 /* InviteCardShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardShell.swift; sourceTree = "<group>"; };
 		65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimeCell.swift; sourceTree = "<group>"; };
 		65E1EC9E2F19706D004C9236 /* PinchZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinchZoom.swift; sourceTree = "<group>"; };
 		65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageEditor.swift; sourceTree = "<group>"; };
@@ -1006,25 +1006,14 @@
 		6549DA742F9E87A800C89DF2 /* InvitePopup */ = {
 			isa = PBXGroup;
 			children = (
-				65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */,
 				652B21D830177B2D00646BB0 /* SendInviteContainer.swift */,
 				65E508F33018E53D00035408 /* RespondToInviteContainer.swift */,
-				6549DA752F9E87C100C89DF2 /* Views */,
+				65DE8F0F301B41C800E74D26 /* ViewModels */,
+				65DE8F10301B426800E74D26 /* InviteCard */,
+				6549DA772F9E884200C89DF2 /* TimeAndPlaceSection */,
 				65CB2A67301896020002DFCD /* ConfirmInviteSection */,
 			);
 			path = InvitePopup;
-			sourceTree = "<group>";
-		};
-		6549DA752F9E87C100C89DF2 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				652B2183301115E700646BB0 /* InviteImageCarousel.swift */,
-				65DE8F0E301B3C1800E74D26 /* New Group */,
-				65D13D612FF69DAB00F4006F /* InviteComponents.swift */,
-				65E508F53018F03600035408 /* OptionsMenu.swift */,
-				6549DA772F9E884200C89DF2 /* TimeAndPlacePage */,
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		6549DA762F9E87D700C89DF2 /* AddDetails */ = {
@@ -1038,7 +1027,7 @@
 			path = AddDetails;
 			sourceTree = "<group>";
 		};
-		6549DA772F9E884200C89DF2 /* TimeAndPlacePage */ = {
+		6549DA772F9E884200C89DF2 /* TimeAndPlaceSection */ = {
 			isa = PBXGroup;
 			children = (
 				65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */,
@@ -1047,7 +1036,7 @@
 				65ED38912F68575100AD5600 /* InvitePlaceRow.swift */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 			);
-			path = TimeAndPlacePage;
+			path = TimeAndPlaceSection;
 			sourceTree = "<group>";
 		};
 		6549DA782F9E886100C89DF2 /* PlacePicker */ = {
@@ -1073,23 +1062,6 @@
 				65A93D472F39379E003F6410 /* MapSearchBar.swift */,
 				65A93D492F393809003F6410 /* MapSearchView.swift */,
 				6593365B2E193CEA00150AAC /* MapSelectionView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		6549DA7A2F9E8E2100C89DF2 /* Respond */ = {
-			isa = PBXGroup;
-			children = (
-				657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */,
-				6549DA7B2F9E8E3600C89DF2 /* Views */,
-			);
-			path = Respond;
-			sourceTree = "<group>";
-		};
-		6549DA7B2F9E8E3600C89DF2 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				654C58942F6B5021002060C5 /* RespondButtons.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1299,7 +1271,6 @@
 			children = (
 				65AF14912F64456000031513 /* InvitesViewModel.swift */,
 				6549DA692F9E85C800C89DF2 /* Views */,
-				6549DA7A2F9E8E2100C89DF2 /* Respond */,
 			);
 			path = Invites;
 			sourceTree = "<group>";
@@ -1463,11 +1434,23 @@
 			path = ConfirmInviteSection;
 			sourceTree = "<group>";
 		};
-		65DE8F0E301B3C1800E74D26 /* New Group */ = {
+		65DE8F0F301B41C800E74D26 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */,
+				65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */,
 			);
-			path = "New Group";
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		65DE8F10301B426800E74D26 /* InviteCard */ = {
+			isa = PBXGroup;
+			children = (
+				65DE8F11301B428A00E74D26 /* InviteCardShell.swift */,
+				652B2183301115E700646BB0 /* InviteImageCarousel.swift */,
+				65E508F53018F03600035408 /* OptionsMenu.swift */,
+			);
+			path = InviteCard;
 			sourceTree = "<group>";
 		};
 		65E508F23018E42800035408 /* OldRespond (Don't delete yet) */ = {
@@ -1478,6 +1461,7 @@
 				65ADAE4B2FDC5CFB00095248 /* RespondCard.swift */,
 				65F7044D2F6EDA4100CE29C5 /* RespondDetails.swift */,
 				651ECEB3301B1D3D0017F206 /* InviteCardOverlay.swift */,
+				654C58942F6B5021002060C5 /* RespondButtons.swift */,
 			);
 			path = "OldRespond (Don't delete yet)";
 			sourceTree = "<group>";
@@ -1722,6 +1706,7 @@
 				657F61C52FDFD6F900B2F903 /* MeasureModifiers.swift in Sources */,
 				659CEA0130109D5200E0F735 /* DayPicker.swift in Sources */,
 				657BD3272F71FC9A00D7C29A /* RespondViewModel.swift in Sources */,
+				65DE8F12301B428A00E74D26 /* InviteCardShell.swift in Sources */,
 				65A904902F41377500BBCAB6 /* DraftProfile.swift in Sources */,
 				6506F0292FBAED6200058A84 /* ChatPreview.swift in Sources */,
 				65E5C91A2E50E7700093410B /* Session.swift in Sources */,
@@ -1806,7 +1791,6 @@
 				65E508F43018E53D00035408 /* RespondToInviteContainer.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,
 				65140B312F56066B00ED1DDE /* MessageBubble.swift in Sources */,
-				65D13D622FF69DAB00F4006F /* InviteComponents.swift in Sources */,
 				65A93D4C2F393B28003F6410 /* MapOptionsView.swift in Sources */,
 				652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */,
 				654C58952F6B5030002060C5 /* RespondButtons.swift in Sources */,

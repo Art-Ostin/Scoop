@@ -23,31 +23,24 @@ struct ConfirmContainer<TimeRow: View>: View {
     @ViewBuilder var timeRow: TimeRow
     
     let showInfo: () -> ()
-    let openInvite: () -> ()
+    var openInvite: (() -> Void)? = nil
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            
             InviteName(name: name, isCard: isCard)
+                .opacityPop(visible: !timeOpen)
             
             scrollView
             
             if !isCard {WarningLabel()}
         }
-        .padding(.horizontal, isCard ? 24 : Spacing.margin)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .topTrailing) { overlayTypeButton}
-        .overlay(alignment: .bottomTrailing) { if isCard { InviteButton {openInvite()} } }
-        .padding(.top, isCard ? 0 : 20)
-        .padding(.vertical, isCard ? 24 : 0)
-        .padding(.bottom, isCard ? 5 : 0)
+        .frame(maxWidth: .infinity, maxHeight: isCard ? CGFloat.infinity : nil, alignment: isCard ? .bottomLeading : .leading)
+        .overlay(alignment: .topTrailing) { typeButton}
+        .overlay(alignment: .bottomTrailing) { inviteButton }
+        .padding(.top, isCard ? Spacing.lg : 20)
+        .padding(.bottom, isCard ? Spacing.lg + 5 : 0)   //Geometry: 5pt optical lift off the card edge
     }
     
-    private var overlayTypeButton: some View {
-        TypeButton(type: event.type, timeOpen: false, isCard: isCard) {
-            showInfo()
-        }
-    }
     private var scrollView: some View {
         ConfirmScrollView(
             invite: event,
@@ -55,6 +48,22 @@ struct ConfirmContainer<TimeRow: View>: View {
             isCard: isCard,
             showMessageScreen: $showMessageScreen,
             timeRow: {timeRow})
+    }
+    
+    private var typeButton: some View {
+        TypeButton(type: event.type, timeOpen: timeOpen, isCard: isCard) {
+            showInfo()
+        }
+    }
+    
+    private var inviteButton: some View {
+        Group {
+            if isCard {
+                if let openInvite {
+                    InviteButton { openInvite() }
+                }
+            }
+        }
     }
 }
 
@@ -71,7 +80,7 @@ struct ConfirmScrollView<TimeRow: View>: View {
     
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            TimeAndPlaceRows(place: invite.place) {timeRow}
+            TimeAndPlaceRows(place: invite.place, timeOpen: timeOpen) {timeRow}
             
             if !isCard {messageScreen}
         }

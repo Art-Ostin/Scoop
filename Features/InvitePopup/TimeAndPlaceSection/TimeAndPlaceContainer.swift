@@ -1,11 +1,33 @@
 //
-//  InviteComponents.swift
+//  InviteRowContainer.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/07/2026.
 //
 
 import SwiftUI
+
+struct TimeAndPlacePage: View {
+
+    @Bindable var ui: TimeAndPlaceUIState
+    @Binding var draft: EventFieldsDraft
+    @Binding var showMessageScreen: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message, showMessageScreen: $showMessageScreen)
+            InviteTimeRow(ui: ui, proposedTimes: $draft.time)
+            InvitePlaceRow(ui: ui, eventLocation: $draft.place)
+        }
+        //Internal Spacing for this view
+        .padding(.top, Spacing.hairline)
+        .padding(.bottom, draft.place == nil ? 6 : 0)
+        .padding(.horizontal, Spacing.lg)
+        
+        .zIndex(1)
+        .task(id: ui.activePopup) { await ui.syncDelayedPopups()}
+    }
+}
 
 
 struct RowCaption: View {
@@ -23,29 +45,8 @@ struct RowCaption: View {
 }
 
 
-struct BottomBackButton: View {
-
-    var visible: Bool = true
-    let onTap: () -> ()
-    
-    var body: some View {
-        ScoopButton(shape: Circle(), action: { onTap() }) {
-            Image(systemName: "chevron.down")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .frame(width: 45, height: 45)
-        }
-        .opacityPop(visible: visible)
-        .allowsHitTesting(visible)
-        .padding(.top, Spacing.xl) // 36
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .padding(.horizontal, 10)
-        .padding(.horizontal, Spacing.sm) // 12
-    }
-}
 
 
-//The compact row pager indicator at its real rendered size. Keeping the size in
 enum InviteRowMetrics {
     //Rows use a 22pt inset by default. Indicator rows tighten their bottom inset
     //by 4pt, while a populated Place row tightens its top inset by 2pt.
@@ -90,7 +91,6 @@ enum InviteRowMetrics {
     )
 }
 
-
 extension EnvironmentValues {
     @Entry var isLiveInviteRow: Bool = false
 }
@@ -106,10 +106,8 @@ struct PagedScrollStyle: ViewModifier {
             .scrollPosition(id: $scrolledPageID)
             .getWidth($pageWidth)
             .scrollDisabled(pageCount <= 1)
-            .scrollTargetBehavior(.paging) 
+            .scrollTargetBehavior(.paging)
             .scrollIndicators(.hidden)
             .trackScrollProgress(scrollProgress: $scrollProgress)
     }
 }
-
-

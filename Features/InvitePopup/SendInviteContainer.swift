@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SendInviteView: View {
+struct SendInviteContainer: View {
     
     //Injected Properties
     let images: [UIImage]
@@ -25,10 +25,7 @@ struct SendInviteView: View {
     
     var body: some View {
         ZStack {
-            //Full BleedBackground
-            Rectangle()
-                .fill(Color.white)
-                .ignoresSafeArea()
+            InvitePopupBackground()
             
             VStack(spacing: 0) {
                 inviteCard
@@ -36,16 +33,15 @@ struct SendInviteView: View {
             }
         }
         .animation(.transition, value: ui.showConfirmScreen)
-
+        
         .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
         .sheet(isPresented: $ui.showInfoScreen) { Text("Info screen here") }
         .sheet(isPresented: $ui.showMessageScreen) {addMessageView}
     }
 }
 
-
 //Top Level Views
-extension SendInviteView {
+extension SendInviteContainer {
 
     private var inviteCard: some View {
         VStack(spacing: Spacing.hairline) {
@@ -83,7 +79,7 @@ extension SendInviteView {
 }
 
 //Different Views and Components
-extension SendInviteView {
+extension SendInviteContainer {
     
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
@@ -101,13 +97,29 @@ extension SendInviteView {
     }
     
     private var timeAndPlacePage: some View {
-        InvitePage(
-            ui: ui,
-            draft: $vm.event,
-            showMessageScreen: $ui.showMessageScreen,
-        )
-        .containerRelativeFrame(.horizontal)
+        TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen)
+            .containerRelativeFrame(.horizontal)
     }
+    
+//    @ViewBuilder
+//    private var confirmationPage: some View {
+//        if let inviteSummary = InviteSummary(draft: vm.event) {
+//            ConfirmContainer(
+//                event: <#T##InviteSummary#>,
+//                name: <#T##String#>,
+//                isCard: <#T##Bool#>,
+//                timeOpen: <#T##Bool#>,
+//                showMessageScreen: <#T##Binding<Bool>#>,
+//                timeRow: <#T##() -> View#>,
+//                showInfo: <#T##() -> ()#>,
+//                openInvite: <#T##() -> ()#>
+//            )
+//            
+//        }
+//    }
+        
+        
+        
     
     @ViewBuilder
     private var confirmationPage: some View {
@@ -128,24 +140,5 @@ extension SendInviteView {
             isRespondMessage: false,
             eventType: $vm.event.type
         )
-    }
-}
-
-
-struct InviteCardBackground: ViewModifier {
-    
-    private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
-    var isConfirming: Bool
-    var isInvite: Bool = false
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, Spacing.sm)
-            .background(Color.appCanvas, in: shape)
-            .clipShape(shape)
-            .shadow(.softFloating)
-            .padding(.horizontal, 10)
-            .padding(.top, isInvite ? 0 : (isConfirming ? 40 : 48))
     }
 }

@@ -11,7 +11,7 @@ import SwiftUI
 struct TimeAndPlaceRows<TimeRow: View> : View {
         
     let place: EventLocation
-    var hide: Bool = false
+    var timeOpen: Bool = false
     
     @ViewBuilder var timeRow: TimeRow
     
@@ -19,7 +19,7 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             timeRow
             PlaceRow(place: place)
-                .opacityPop(visible: !hide)
+                .opacityPop(visible: !timeOpen)
         }
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
