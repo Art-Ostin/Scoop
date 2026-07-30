@@ -1,6 +1,6 @@
 //
-//  NewSendInviteCard.swift
-//  Scoop Test
+//  SendInviteContainer.swift
+//  Scoop
 //
 //  Created by Art Ostin on 27/07/2026.
 //
@@ -98,7 +98,6 @@ extension SendInviteContainer {
     
     private var timeAndPlacePage: some View {
         TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen)
-            .containerRelativeFrame(.horizontal)
     }
     
     @ViewBuilder

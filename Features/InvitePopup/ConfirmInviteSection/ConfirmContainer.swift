@@ -31,12 +31,12 @@ struct ConfirmContainer<TimeRow: View>: View {
             
             if !isCard {WarningLabel()}
         }
+        .overlay(alignment: .topTrailing) { typeButton}   //Sits on the text block, not the card
         .foregroundStyle(isCard ? Color.white : Color.textPrimary)
         .frame(maxWidth: .infinity, maxHeight: isCard ? CGFloat.infinity : nil, alignment: isCard ? .bottomLeading : .leading)
-        .overlay(alignment: .topTrailing) { typeButton}
         .overlay(alignment: .bottomTrailing) { inviteButton }
-        .padding(.top, isCard ? Spacing.lg : 20)
-        .padding(.bottom, isCard ? Spacing.lg + 5 : 0)   //Geometry: 5pt optical lift off the card edge
+        .padding(.top, isCard ? 0 : 20)
+        .padding(.horizontal, Spacing.lg)
     }
     
     private var scrollView: some View {
@@ -57,6 +57,7 @@ struct ConfirmContainer<TimeRow: View>: View {
             if isCard {
                 if let openInvite {
                     InviteButton(onTap: openInvite)
+                        .padding(.bottom, 24)
                 }
             }
         }
@@ -76,14 +77,16 @@ struct ConfirmScrollView<TimeRow: View>: View {
     
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {
-            TimeAndPlaceRows(place: invite.place, timeOpen: timeOpen) {timeRow}
+            TimeAndPlaceRows(place: invite.place, isCard: isCard, timeOpen: timeOpen) {timeRow}
             
             if !isCard {messageScreen}
         }
+        .padding(.vertical, isCard ? 0 : 28)
         .overlay(alignment: .bottomTrailing) {pageIndicator}
         .scrollClipDisabled()
-        .customHScrollFade()
+        .customHScrollFade(showFade: !isCard)
         .padding(.horizontal, -Spacing.margin)
+        .scrollDisabled(isCard)
     }
     
     private var messageScreen: some View {
@@ -119,7 +122,7 @@ struct WarningLabel: View {
     
     var body: some View {
         HStack(spacing: Spacing.md){
-            Image("ConfirmIcon")
+            Image(.inviteTick)
             
             Text("Not showing may result in a blocked account")
                 .font(.body(14, .regular))
@@ -131,7 +134,13 @@ struct WarningLabel: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.fillGray.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm))
-        .padding(.horizontal, Spacing.margin)
     }
 }
 
+
+/*
+ .padding(.top, isCard ? 0 : 20)
+ .padding(.bottom, isCard ? Spacing.lg + 5 : 0)   //Geometry: 5pt optical lift off the card edge
+ .fixedSize(horizontal: false, vertical: isCard)   //Hug the rows on the card: the pager is vertically greedy and would eat the whole image
+
+ */

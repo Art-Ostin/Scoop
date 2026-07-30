@@ -11,6 +11,7 @@ import SwiftUI
 struct TimeAndPlaceRows<TimeRow: View> : View {
         
     let place: EventLocation
+    let isCard: Bool
     var timeOpen: Bool = false
     
     @ViewBuilder var timeRow: TimeRow
@@ -18,13 +19,13 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             timeRow
-            PlaceRow(place: place)
+            PlaceRow(place: place, isCard: isCard)
                 .opacityPop(visible: !timeOpen)
         }
         .font(.body(17, .medium))
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
-        .padding(.vertical, 28)                         //Geometry: pure hit-area; won't scale the type
+        .padding(.vertical, isCard ? 28 : 0)
         .containerRelativeFrame(.horizontal, alignment: .leading)
         .padding(.top, 1)                               //Geometry: optical nudge off the page top
     }
@@ -49,7 +50,7 @@ struct DynamicTimeRow: View {
     
     @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
     
-    var isInviteCard = false
+    var isCard = false
     
     
     var body: some View {
@@ -92,7 +93,7 @@ struct DynamicTimeRow: View {
     
     private var timeRow: some View {
         HStack {
-            LineSection(image: .whiteClock, text: timeText)
+            LineSection(image: isCard ? .whiteClock : .eventClockIcon, text: timeText)
                 .padding(.top, -1)
             timeChevron
         }
@@ -104,17 +105,18 @@ struct DynamicTimeRow: View {
             .font(.body(12, .bold))
             .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
             .animation(.toggle, value: timePopupOpen)
+            .offset(y: -2)
     }
 }
 
 
 struct PlaceRow: View {
     let place: EventLocation
+    let isCard: Bool
     
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
-
-        LineSection(image: .eventMapIcon, text: placeName)
+        LineSection(image: isCard ? .whiteMap : .eventMapIcon, text: placeName)
             .padding(.vertical, Spacing.xs)
             .shrinkPress(action: openMap)
             .padding(.vertical, -Spacing.xs)

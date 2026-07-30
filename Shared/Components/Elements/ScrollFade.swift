@@ -107,9 +107,9 @@ extension View {
         self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite))
     }
     
-    func customHScrollFade() -> some View {
+    func customHScrollFade(showFade: Bool = true) -> some View {
         self
-        .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: true, isCardInvite: true)
-        .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: true, isCardInvite: true)
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: false, isCardInvite: true)
     }
 }

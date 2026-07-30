@@ -35,9 +35,11 @@ struct InviteCard: View {
             isCard: true,
             timeOpen: timePopupOpen,
             showMessageScreen: .constant(false)) {
-                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
+                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, isCard: true)
             } showInfo: {
                 //Add scrollTo  code here to scroll to section below.
+            } openInvite: {
+                openInvite()
             }
     }
 }

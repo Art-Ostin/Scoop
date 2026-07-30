@@ -21,7 +21,7 @@ struct TypeButton: View{
     
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
-            Image(type.emoji).font(.body(15))
+//            Text(type.emoji).font(.body(15))
             
             HStack(spacing: 2) {
                 titleText
@@ -56,7 +56,6 @@ extension View {
             .padding(.vertical, isCard ? 6 : 8)
             .background(isCard ? Color.clear : Color.accent.opacity(0.05).mix(with: Color.fillGray, by: 0.5), in: Capsule())
             .stroke(12, lineWidth: 1, color: isCard ? .white.opacity(0.6) : Color.clear)
-            .padding(.horizontal, isCard ? 0 : 24)
             .shrinkPress(action: showInfo)
             .offset(y: isCard ? 1.5 : 2)
             .scaleEffect(isCard ? 0.8 : 0.85, anchor: isCard ? .bottomTrailing : .trailing)

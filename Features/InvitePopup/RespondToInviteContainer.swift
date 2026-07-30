@@ -33,11 +33,10 @@ struct RespondInviteContainer: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 12) {
-                title
                 inviteCard
                 BottomBackButton { showInvitePopup = nil }
             }
-            .padding(.top, createEventScreen ? 40 : 48)
+            .padding(.top, 48)
         }
         .fullScreenCover(isPresented: $timeAndPlaceUI.showInfoScreen) {
             Text("How It works")

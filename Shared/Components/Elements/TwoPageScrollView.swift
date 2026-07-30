@@ -1,6 +1,6 @@
 //
 //  TwoPageScrollView.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 27/07/2026.
 //
@@ -27,11 +27,13 @@ struct TwoPageScrollView<Screen1: View, Screen2: View>: View {
         
         HorizontalScrollView(progress: $scrollProgress) {
             screen1()
+                .containerRelativeFrame(.horizontal)
                 .fixedSize(horizontal: false, vertical: true)
                 .getHeight($screen1Height)
                 .id(false)
-            
+
             screen2()
+                .containerRelativeFrame(.horizontal)
                 .fixedSize(horizontal: false, vertical: true)
                 .getHeight($screen2Height)
                 .id(true)
