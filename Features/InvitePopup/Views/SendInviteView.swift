@@ -114,7 +114,7 @@ extension SendInviteView {
         if let inviteSummary = InviteSummary(draft: vm.event) {
             ConfirmInvitePage(
                 event: inviteSummary,
-                name: name,
+                name: name, isCard: false,
                 showMessageScreen: $ui.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
                 }

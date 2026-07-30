@@ -21,6 +21,11 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
             PlaceRow(place: place)
                 .opacityPop(visible: !hide)
         }
+        .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
+        .padding(.horizontal, Spacing.margin)
+        .padding(.vertical, 28)                         //Geometry: pure hit-area; won't scale the type
+        .containerRelativeFrame(.horizontal, alignment: .leading)
+        .padding(.top, 1)                               //Geometry: optical nudge off the page top
     }
 }
 
@@ -120,7 +125,6 @@ struct PlaceRow: View {
         MapsRouter.openGoogleMaps(item: place.mapItem, withDirections: false)
     }
 }
-
 
 struct LineSection: View {
     let image: ImageResource

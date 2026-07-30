@@ -74,9 +74,10 @@ extension RespondInviteContainer {
         let inviteSummary = InviteSummary(event: vm.respondDraft.originalInvite.event)
         
         
+        
         return ConfirmInvitePage(
             event: inviteSummary,
-            name: vm.profile.name,
+            name: vm.profile.name, isCard: false,
             showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
                 DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: .constant(true))
             }
