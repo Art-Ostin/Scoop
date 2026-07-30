@@ -11,7 +11,7 @@ enum ConfirmMode {
     case Invite, Respond
 }
 
-struct ConfirmInvitePage<TimeRow: View>: View {
+struct ConfirmContainer<TimeRow: View>: View {
     
     let event: InviteSummary
     let name: String
@@ -27,11 +27,12 @@ struct ConfirmInvitePage<TimeRow: View>: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            
             InviteName(name: name, isCard: isCard)
+            
             scrollView
-            if !isCard {
-                WarningLabel()
-            }
+            
+            if !isCard {WarningLabel()}
         }
         .padding(.horizontal, isCard ? 24 : Spacing.margin)
         .frame(maxWidth: .infinity, alignment: .leading)

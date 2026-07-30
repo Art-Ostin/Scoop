@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InvitePage: View {
+struct TimeAndPlacePage: View {
 
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var draft: EventFieldsDraft

@@ -32,6 +32,38 @@ struct AppImage: View {
     }
 }
 
+struct InviteCarousel: View {
+
+    //Injected Properties
+    let images: [UIImage]
+    let isCompact: Bool
+
+    @Binding var scrollProgress: Double
+
+    private var ratio: CGFloat {
+        (isCompact ? AspectRatio.confirmInviteImage : .invitedImage).ratio
+    }
+
+    var body: some View {
+        HorizontalScrollView(progress: $scrollProgress) {
+            ForEach(images, id: \.self) { photo($0) }
+        }
+        .aspectRatio(ratio, contentMode: .fit) //Sizes the greedy pager to the image shape
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func photo(_ image: UIImage) -> some View {
+        Color.clear
+            .overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipped() //scaledToFill overflows the page cell
+            .containerRelativeFrame(.horizontal)
+    }
+}
+
 
 struct SmallImage: View {
     let image: UIImage
@@ -49,5 +81,34 @@ struct SmallImage: View {
                 cornerRadius: isCircle ? size / 2 : radius,
                 style: isCircle ? .circular : .continuous
             ))
+    }
+}
+
+
+struct InvitePageIndicator: View {
+    let count: Int
+    let progress: Double
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<count, id: \.self) { index in
+                let closeness = max(0, 1 - abs(progress - Double(index)))
+
+                Capsule()
+                    .fill(Color.border)
+                    .overlay {
+                        Capsule()
+                            .fill(Color.textSecondary)
+                            .opacity(closeness)
+                    }
+                    .frame(width: 3 + 2 * CGFloat(closeness), height: 3)
+            }
+        }
+        .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
+        .frame(height: InviteRowMetrics.indicatorHeight)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .padding(.trailing, Spacing.lg)
+        .padding(.bottom, 18)
     }
 }

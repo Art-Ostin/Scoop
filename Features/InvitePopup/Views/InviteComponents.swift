@@ -23,35 +23,6 @@ struct RowCaption: View {
 }
 
 
-struct InvitePageIndicator: View {
-    let count: Int
-    let progress: Double
-
-    var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<count, id: \.self) { index in
-                let closeness = max(0, 1 - abs(progress - Double(index)))
-
-                Capsule()
-                    .fill(Color.border)
-                    .overlay {
-                        Capsule()
-                            .fill(Color.textSecondary)
-                            .opacity(closeness)
-                    }
-                    .frame(width: 3 + 2 * CGFloat(closeness), height: 3)
-            }
-        }
-        .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
-        .frame(height: InviteRowMetrics.indicatorHeight)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-        .padding(.trailing, Spacing.lg)
-        .padding(.bottom, 18)
-    }
-}
-
-
 struct BottomBackButton: View {
 
     var visible: Bool = true
