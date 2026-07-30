@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-enum ConfirmMode {
-    case Invite, Respond
-}
 
 struct ConfirmContainer<TimeRow: View>: View {
     
@@ -34,6 +31,7 @@ struct ConfirmContainer<TimeRow: View>: View {
             
             if !isCard {WarningLabel()}
         }
+        .foregroundStyle(isCard ? Color.white : Color.textPrimary)
         .frame(maxWidth: .infinity, maxHeight: isCard ? CGFloat.infinity : nil, alignment: isCard ? .bottomLeading : .leading)
         .overlay(alignment: .topTrailing) { typeButton}
         .overlay(alignment: .bottomTrailing) { inviteButton }
@@ -51,16 +49,14 @@ struct ConfirmContainer<TimeRow: View>: View {
     }
     
     private var typeButton: some View {
-        TypeButton(type: event.type, timeOpen: timeOpen, isCard: isCard) {
-            showInfo()
-        }
+        TypeButton(type: event.type, timeOpen: timeOpen, isCard: isCard, showInfo: showInfo)
     }
     
     private var inviteButton: some View {
         Group {
             if isCard {
                 if let openInvite {
-                    InviteButton { openInvite() }
+                    InviteButton(onTap: openInvite)
                 }
             }
         }
@@ -76,7 +72,7 @@ struct ConfirmScrollView<TimeRow: View>: View {
     
     @ViewBuilder var timeRow: TimeRow
     
-    @State var scrollProgress: Double = 0
+    @State private var scrollProgress: Double = 0
     
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress) {

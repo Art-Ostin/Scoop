@@ -101,39 +101,22 @@ extension SendInviteContainer {
             .containerRelativeFrame(.horizontal)
     }
     
-//    @ViewBuilder
-//    private var confirmationPage: some View {
-//        if let inviteSummary = InviteSummary(draft: vm.event) {
-//            ConfirmContainer(
-//                event: <#T##InviteSummary#>,
-//                name: <#T##String#>,
-//                isCard: <#T##Bool#>,
-//                timeOpen: <#T##Bool#>,
-//                showMessageScreen: <#T##Binding<Bool>#>,
-//                timeRow: <#T##() -> View#>,
-//                showInfo: <#T##() -> ()#>,
-//                openInvite: <#T##() -> ()#>
-//            )
-//            
-//        }
-//    }
-        
-        
-        
-    
     @ViewBuilder
     private var confirmationPage: some View {
         if let inviteSummary = InviteSummary(draft: vm.event) {
-            ConfirmInvitePage(
+            ConfirmContainer(
                 event: inviteSummary,
-                name: name, isCard: false,
+                name: name,
+                isCard: false,
+                timeOpen: ui.delayedTimePopupOpen,
                 showMessageScreen: $ui.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
+                } showInfo: {
+                    ui.showInfoScreen = true
                 }
-                .containerRelativeFrame(.horizontal)
         }
     }
-        
+    
     private var addMessageView: some View {
         AddMessageView(
             message: $vm.event.message,

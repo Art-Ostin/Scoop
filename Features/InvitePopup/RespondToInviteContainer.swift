@@ -73,14 +73,17 @@ extension RespondInviteContainer {
     private var confirmInvitePage: some View {
         let inviteSummary = InviteSummary(event: vm.respondDraft.originalInvite.event)
         
-        
-        
-        return ConfirmInvitePage(
+        return ConfirmContainer(
             event: inviteSummary,
-            name: vm.profile.name, isCard: false,
+            name: vm.profile.name,
+            isCard: false,
+            timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
             showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
-                DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: .constant(true))
+                DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: timeAndPlaceUI.popupBinding(.time))
+            } showInfo: {
+                timeAndPlaceUi 
             }
+
     }
     
     private var imageCarousel: some View {

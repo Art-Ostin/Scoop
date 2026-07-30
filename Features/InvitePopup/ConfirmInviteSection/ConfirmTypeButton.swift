@@ -28,7 +28,7 @@ struct TypeButton: View{
                 if !isCard {infoCircle}
             }
         }
-        .typeButtonModifier(isCard: isCard) { showInfo()}
+        .typeButtonModifier(isCard: isCard, showInfo: showInfo)
         .opacityPop(visible: !timeOpen)
     }
     
@@ -57,7 +57,7 @@ extension View {
             .background(isCard ? Color.clear : Color.accent.opacity(0.05).mix(with: Color.fillGray, by: 0.5), in: Capsule())
             .stroke(12, lineWidth: 1, color: isCard ? .white.opacity(0.6) : Color.clear)
             .padding(.horizontal, isCard ? 0 : 24)
-            .shrinkPress { showInfo() }
+            .shrinkPress(action: showInfo)
             .offset(y: isCard ? 1.5 : 2)
             .scaleEffect(isCard ? 0.8 : 0.85, anchor: isCard ? .bottomTrailing : .trailing)
     }

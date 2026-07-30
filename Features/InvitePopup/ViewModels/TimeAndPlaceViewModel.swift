@@ -68,6 +68,14 @@ class TimeAndPlaceViewModel {
     func isPopupOpenDelayed(_ popup: Popup? = nil) -> Bool {
         popup == nil ? delayedPopup != nil : popup == delayedPopup
     }
+
+    ///Two-way view of one slot of `activePopup`, for menus that take an isOpen binding.
+    func popupBinding(_ popup: Popup) -> Binding<Bool> {
+        Binding(
+            get: { self.activePopup == popup },
+            set: { self.activePopup = $0 ? popup : nil }
+        )
+    }
     
     
     func syncDelayedPopups() async {

@@ -21,6 +21,7 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
             PlaceRow(place: place)
                 .opacityPop(visible: !timeOpen)
         }
+        .font(.body(17, .medium))
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
         .padding(.vertical, 28)                         //Geometry: pure hit-area; won't scale the type
@@ -34,7 +35,7 @@ struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
     
     var body: some View {
-        LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays(), textColor: .primary)
+        LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
             .oneLineLimitAndShrink()
             .fixedSize(horizontal: true, vertical: false)
     }
@@ -91,7 +92,7 @@ struct DynamicTimeRow: View {
     
     private var timeRow: some View {
         HStack {
-            LineSection(image: .whiteClock, text: timeText, textColor: .white)
+            LineSection(image: .whiteClock, text: timeText)
                 .padding(.top, -1)
             timeChevron
         }
@@ -100,8 +101,7 @@ struct DynamicTimeRow: View {
     
     private var timeChevron: some View {
         Image(systemName: "chevron.right")
-            .font(.system(size: 12, weight: .bold))
-            .foregroundStyle(Color.white)
+            .font(.body(12, .bold))
             .rotationEffect(.degrees(timePopupOpen ? 90 : 0))
             .animation(.toggle, value: timePopupOpen)
     }
@@ -114,7 +114,7 @@ struct PlaceRow: View {
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
 
-        LineSection(image: .eventMapIcon, text: placeName, textColor: .textPrimary)
+        LineSection(image: .eventMapIcon, text: placeName)
             .padding(.vertical, Spacing.xs)
             .shrinkPress(action: openMap)
             .padding(.vertical, -Spacing.xs)
@@ -126,19 +126,17 @@ struct PlaceRow: View {
     }
 }
 
+//Colour and font are inherited — the host sets them once for the whole section.
 struct LineSection: View {
     let image: ImageResource
     let text: String
-    let textColor: Color
 
     var body: some View {
         HStack(spacing: Spacing.md) {
             Image(image)
-                .frame(width: 20, alignment: .leading)
-            
+                .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
+
             Text(text)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(textColor)
         }
     }
 }
