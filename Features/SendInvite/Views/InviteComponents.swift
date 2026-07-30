@@ -46,6 +46,8 @@ struct InvitePageIndicator: View {
         .frame(height: InviteRowMetrics.indicatorHeight)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+        .padding(.trailing, Spacing.lg)
+        .padding(.bottom, 18)
     }
 }
 

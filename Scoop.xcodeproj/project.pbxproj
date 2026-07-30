@@ -1020,7 +1020,7 @@
 				65D13D5F2FF6881800F4006F /* InvitePage.swift */,
 				65D13D612FF69DAB00F4006F /* InviteComponents.swift */,
 				65E508F53018F03600035408 /* OptionsMenu.swift */,
-				65CB2A67301896020002DFCD /* ConfirmScreen */,
+				65CB2A67301896020002DFCD /* ConfirmInviteSection */,
 				6549DA772F9E884200C89DF2 /* TimeAndPlaceRows */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
 			);
@@ -1450,14 +1450,14 @@
 			path = Details;
 			sourceTree = "<group>";
 		};
-		65CB2A67301896020002DFCD /* ConfirmScreen */ = {
+		65CB2A67301896020002DFCD /* ConfirmInviteSection */ = {
 			isa = PBXGroup;
 			children = (
 				65AF6CB7300664170028A4C2 /* ConfirmInvitePage.swift */,
 				65CB2A683018962E0002DFCD /* ConfirmMessageSection.swift */,
 				65CB2A6A301897500002DFCD /* ConfirmInviteComponents.swift */,
 			);
-			path = ConfirmScreen;
+			path = ConfirmInviteSection;
 			sourceTree = "<group>";
 		};
 		65E508F23018E42800035408 /* OldRespond (Don't delete yet) */ = {

@@ -112,7 +112,12 @@ extension SendInviteView {
     @ViewBuilder
     private var confirmationPage: some View {
         if let inviteSummary = InviteSummary(draft: vm.event) {
-            ConfirmInvitePage(event: inviteSummary, name: name, isConfirmInvite: <#Bool#>, showMessageScreen: $ui.showMessageScreen)
+            ConfirmInvitePage(
+                event: inviteSummary,
+                name: name,
+                showMessageScreen: $ui.showMessageScreen) {
+                    StaticTimeRow(proposedTimes: inviteSummary.time)
+                }
                 .containerRelativeFrame(.horizontal)
         }
     }

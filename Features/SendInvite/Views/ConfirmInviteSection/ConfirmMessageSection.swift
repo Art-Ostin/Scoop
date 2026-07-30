@@ -16,11 +16,15 @@ struct ConfirmMessageSection: View {
     @State private var messageHeight: CGFloat = 0
     
     var body: some View {
-        if let message = checkMessage {
-            messageText(message: message)
-        } else {
-            noMessagePlaceholder
+        Group {
+            if let message = checkMessage {
+                messageText(message: message)
+            } else {
+                noMessagePlaceholder
+            }
         }
+        .padding(.horizontal, Spacing.margin)
+        .containerRelativeFrame(.horizontal, alignment: .leading)
     }
 }
 

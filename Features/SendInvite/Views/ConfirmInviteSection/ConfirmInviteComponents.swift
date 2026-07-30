@@ -74,12 +74,41 @@ struct WarningLabel: View {
 }
 
 
-/*
- VStack(alignment: .leading, spacing: Spacing.lg) {
-     timeRow
-     placeRow
- }
- .font(.body(17, .medium))
+struct ConfirmInviteScrollView<TimeRow: View>: View {
+    
+    let invite: InviteSummary
+    
+    @Binding var showMessageScreen: Bool
+    
+    @ViewBuilder var timeRow: TimeRow
+    
+    @State var scrollProgress: Double = 0
+    
+    var body: some View {
+        HorizontalScrollView(progress: $scrollProgress) {
+            TimeAndPlaceRows(place: invite.place) {timeRow}
+            .popupTimeAndPlaceLayout()
+            
+            ConfirmMessageSection(message: invite.message, showMessageScreen: $showMessageScreen)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            InvitePageIndicator(count: 2, progress: scrollProgress)
+        }
+        .scrollClipDisabled()
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: true, isCardInvite: true)
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: true, fromLeading: false, isCardInvite: true)
+        .padding(.horizontal, -Spacing.margin)
+    }
+}
 
- */
+extension View {
+    func popupTimeAndPlaceLayout() -> some View {
+        self
+            .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
+            .padding(.horizontal, Spacing.margin)
+            .padding(.vertical, 28)                         //Geometry: pure hit-area; won't scale the type
+            .containerRelativeFrame(.horizontal, alignment: .leading)
+            .padding(.top, 1)                               //Geometry: optical nudge off the page top
+    }
+}
 
