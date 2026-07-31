@@ -21,7 +21,7 @@ struct TypeButton: View{
     
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
-//            Text(type.emoji).font(.body(15))
+            Text(type.emoji).font(.body(15))
             
             HStack(spacing: 2) {
                 titleText

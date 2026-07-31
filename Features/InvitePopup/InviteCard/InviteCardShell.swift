@@ -31,6 +31,7 @@ struct InviteCardBackground: ViewModifier {
             .padding(.bottom, Spacing.sm)
             .background(Color.appCanvas, in: shape)
             .clipShape(shape)
+            .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
             .padding(.top, isInvite ? 0 : (isConfirming ? 40 : 48))

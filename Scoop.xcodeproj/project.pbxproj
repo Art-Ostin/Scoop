@@ -238,6 +238,7 @@
 		65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */; };
 		65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D978B02FD4340F00C22646 /* InviteCard.swift */; };
 		65DE8F12301B428A00E74D26 /* InviteCardShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE8F11301B428A00E74D26 /* InviteCardShell.swift */; };
+		65DE8F14301C899000E74D26 /* MeshGradientBackrground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE8F13301C899000E74D26 /* MeshGradientBackrground.swift */; };
 		65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */; };
 		65E1EC9F2F19706D004C9236 /* PinchZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* PinchZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ProfileImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */; };
@@ -528,6 +529,7 @@
 		65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPressStyle.swift; sourceTree = "<group>"; };
 		65D978B02FD4340F00C22646 /* InviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCard.swift; sourceTree = "<group>"; };
 		65DE8F11301B428A00E74D26 /* InviteCardShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardShell.swift; sourceTree = "<group>"; };
+		65DE8F13301C899000E74D26 /* MeshGradientBackrground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradientBackrground.swift; sourceTree = "<group>"; };
 		65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimeCell.swift; sourceTree = "<group>"; };
 		65E1EC9E2F19706D004C9236 /* PinchZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinchZoom.swift; sourceTree = "<group>"; };
 		65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageEditor.swift; sourceTree = "<group>"; };
@@ -703,6 +705,7 @@
 			isa = PBXGroup;
 			children = (
 				65F28E052F1E4AD3008BF4DA /* CustomAlert.swift */,
+				65DE8F13301C899000E74D26 /* MeshGradientBackrground.swift */,
 				657B8D4A2F2CFA5F00583ADA /* AppIcons.swift */,
 				B3108AEE959743E3BD472413 /* Dividers.swift */,
 				65FAF99F2E42BEA70015E231 /* SimpleClockView.swift */,
@@ -1743,6 +1746,7 @@
 				659CE9FA30108D1D00E0F735 /* TimePopupContainer.swift in Sources */,
 				657F61B32FDF0CB600B2F903 /* Strokes.swift in Sources */,
 				654982D82E3152C000CA335F /* ProfileImages.swift in Sources */,
+				65DE8F14301C899000E74D26 /* MeshGradientBackrground.swift in Sources */,
 				653770622E0ACA600058D225 /* SelectTypeView.swift in Sources */,
 				657683202F59111C0094A02D /* MessageInputBar.swift in Sources */,
 				657B8D592F2D73EE00583ADA /* ProposedTimes.swift in Sources */,

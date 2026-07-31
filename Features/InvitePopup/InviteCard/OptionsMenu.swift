@@ -24,7 +24,7 @@ struct OptionsMenu: View {
             if hasChanges { clearInviteButton}
             declineButton
         } label: {
-            optionsLabel
+            optionsButton
         }
         .opacityPop(visible: showOptions)
         .padding(-Spacing.sm)
@@ -68,23 +68,23 @@ extension OptionsMenu {
             }
         }
     }
+    
+    private var optionsButton: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .small) {
+            
+        } label: {
+            optionsLabel
+        }
+    }
 
     //The Options Label
     private var optionsLabel: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 3) {
             ForEach(0..<3, id: \.self) { _ in circle }
         }
-        .scaleEffect(0.95)
-        .padding(2)
-        .background {
-            Capsule()
-                .fill(Color.black.opacity(0.04))
-                .blur(radius: 2)
-        }
-        .getRect($optionsFrame, coordSpace: "InviteImageCarousel")
-        .padding(Spacing.sm - 2)//Offset interior padding with capsule
+        .scaleEffect(0.9)
+        .padding(4)
         .contentShape(Circle())
-        .offset(y: -2)
     }
 
     private var circle: some View {
@@ -93,3 +93,4 @@ extension OptionsMenu {
             .frame(width: 4.5, height: 4.5)
     }
 }
+

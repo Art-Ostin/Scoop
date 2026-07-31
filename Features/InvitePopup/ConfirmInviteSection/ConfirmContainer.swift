@@ -82,7 +82,11 @@ struct ConfirmScrollView<TimeRow: View>: View {
             if !isCard {messageScreen}
         }
         .padding(.vertical, isCard ? 0 : 28)
-        .overlay(alignment: .bottomTrailing) {pageIndicator}
+        .overlay(alignment: .bottomTrailing) {
+            pageIndicator
+                .padding(.trailing, Spacing.lg)
+                .padding(.bottom, InviteRowMetrics.indicatorBottomPadding)
+        }
         .scrollClipDisabled()
         .customHScrollFade(showFade: !isCard)
         .padding(.horizontal, -Spacing.margin)

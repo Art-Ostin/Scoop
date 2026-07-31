@@ -33,7 +33,7 @@ extension Color {
 
     //4. App Pallette
     // The brand accent lives in Assets.xcassets/AccentColor (drives system tinting) — use .accent.
-    static let textAccent = Color(red: 0.55, green: 0, blue: 0.25) //Slightly darker accent, for accent-colored text on light backgrounds.
+    static let textAccent = Color(red: 0.55, green: 0, blue: 0.25) //Slightly darker accent, for accent-colored text on light backgrounds — and the wide CTA fill, which wears the deeper tone.
 
 
     //5. Status Colors

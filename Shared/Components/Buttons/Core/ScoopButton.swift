@@ -11,7 +11,7 @@ enum ScoopButtonStyle: Equatable {
     case glass, clearGlass
     // Shadow is a tinted-only concern: glass draws its own (native on iOS 26,
     // replicated via Elevation.glass on the fallback), so it isn't configurable there.
-    case tinted(Color, shadow: Elevation? = .button)
+    case tinted(Color, shadow: Elevation? = .button, glass: Bool = true)
 }
 
 struct ScoopButton<Content: View, S: Shape>: View {
@@ -28,8 +28,8 @@ struct ScoopButton<Content: View, S: Shape>: View {
     private let hitInset: CGFloat = 16
 
     var body: some View {
-        if case .tinted(let color, let shadow) = style {
-            coloredButton(color: color, shadow: shadow)
+        if case .tinted(let color, let shadow, let glass) = style {
+            coloredButton(color: color, shadow: shadow, glass: glass)
         } else {
             glassButton()
         }
@@ -56,10 +56,10 @@ extension ScoopButton {
         .foregroundStyle(Color.textPrimary)
     }
 
-    private func coloredButton(color: Color, shadow: Elevation?) -> some View {
+    private func coloredButton(color: Color, shadow: Elevation?, glass: Bool) -> some View {
         Button(action: action) {
             sizedLabel()
-                .modifier(ScoopTintSurface(color: color, shape: shape))
+                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass))
                 .expandHitArea(hitInset)
         }
         .shrinkButton(shadow: shadow, tint: color)
@@ -86,13 +86,25 @@ private struct ScoopGlassSurface<S: Shape>: ViewModifier {
 private struct ScoopTintSurface<S: Shape>: ViewModifier {
     let color: Color
     let shape: S
+    var glass: Bool = true
+
     func body(content: Content) -> some View {
+        content
+            .background {
+                ZStack {
+                    shape.fill(color).opacity(glass ? 0 : 1)
+                    glassFill.opacity(glass ? 1 : 0)
+                }
+            }
+            .contentShape(shape) //Fixes interactive-glass hit-shape bug — keep!
+    }
+
+    @ViewBuilder
+    private var glassFill: some View {
         if #available(iOS 26.0, *) {
-            content
-                .glassEffect(.regular.tint(color), in: shape)
-                .contentShape(shape) //Fixes interactive-glass hit-shape bug — keep!
+            Color.clear.glassEffect(.regular.tint(color), in: shape)
         } else {
-            content.background(shape.fill(color))
+            shape.fill(color)
         }
     }
 }

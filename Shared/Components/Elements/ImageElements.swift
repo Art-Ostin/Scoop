@@ -105,10 +105,7 @@ struct InvitePageIndicator: View {
             }
         }
         .frame(width: count > 0 ? 5 + CGFloat(count - 1) * 8 : 0, height: 3)
-        .frame(height: InviteRowMetrics.indicatorHeight)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .padding(.trailing, Spacing.lg)
-        .padding(.bottom, 18)
     }
 }

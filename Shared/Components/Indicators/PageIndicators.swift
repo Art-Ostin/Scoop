@@ -24,7 +24,6 @@ struct ImagePageIndicator: View {
 
     var body: some View {
         let row = layout(at: progress, sizeState: sizeState)
-        //Centre the packed cluster in a fixed frame so the overlay never shifts.
         let inset = max(0, (steadyWidth - row.width) / 2)
         ZStack(alignment: .leading) {
             ForEach(0..<count, id: \.self) { i in

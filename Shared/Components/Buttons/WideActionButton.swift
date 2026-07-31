@@ -1,6 +1,6 @@
 //
 //  WideActionButton.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 20/07/2026.
 //
@@ -8,32 +8,40 @@
 import SwiftUI
 
 struct WideActionButton: View {
-    
+
+    //Injected
     let text: String
     let isActive: Bool
     var showShadow: Bool = true
+    var font: Font = .body(18, .bold)
 
-    
     let onTap: () -> ()
-        
+
     var body: some View {
-        
-        if isActive {
-            ScoopButton(style: .tinted(.accent, shadow: showShadow ? .button : nil), shape: .capsule, action: onTap) {
-                label
-            }
-        } else {
+        ScoopButton(
+            style: .tinted(isActive ? .textAccent : .fillGray,
+                           shadow: (showShadow && isActive) ? .button : nil,
+                           glass: isActive),
+            shape: .capsule,
+            action: onTap
+        ) {
             label
-                .foregroundStyle(Color.white)
-                .background(Color.fillGray, in: .capsule)
         }
+        .disabled(!isActive)
     }
-    
+
     private var label: some View {
-        Text(text)
-            .font(.body(18, .bold))
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .geometryGroup()
+        //Need Zstack, to get blur replace of text when it changes
+        ZStack {
+               Text(text)
+                   .font(font)
+                   .lineLimit(1)
+                   .id(text)
+                   .transition(.blurReplace)
+           }
+           .animation(.transition, value: text)
+           .frame(maxWidth: .infinity)
+           .frame(height: 48)
+           .geometryGroup()
     }
 }

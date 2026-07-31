@@ -42,7 +42,9 @@ struct InviteImageCarousel: View {
         InviteCarousel(images: images, isCompact: isCompact, scrollProgress: $scrollProgress)
             .overlay { backgroundBlur }
             .overlay(alignment: .top) { topOverlay }
-            .overlay(alignment: .bottom) { if !isInvite { pageIndicator } }
+            .overlay(alignment: .bottomTrailing) { if !isInvite { pageIndicator } }
+            .overlay(alignment: .bottomLeading) { nameOverlay}
+            .overlay(alignment: .topLeading) { if showConfirmScreen == true { confirmBackButton} }
             .coordinateSpace(.named("InviteImageCarousel")) //Last, so the overlays measure inside the space
     }
 }
@@ -52,12 +54,14 @@ extension InviteImageCarousel {
 
     private var topOverlay: some View {
         HStack {
-            if !isInvite {nameOverlay}
+//            if !isInvite {nameOverlay}
             Spacer()
             optionsMenu
         }
         .padding(.top, Spacing.sm)
         .padding(.horizontal, Spacing.md)
+        .padding(.top, 12)
+        .padding(.horizontal, 8)
     }
         
     private var backgroundBlur: some View {
@@ -92,7 +96,8 @@ extension InviteImageCarousel {
         .font(.title(24))
         .foregroundStyle(Color.white)
         .opacityPop(visible: !isCompact)
-        .overlay(alignment: .leading) { confirmBackButton }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 12)
     }
     
     private var optionsMenu: some View {
@@ -108,7 +113,9 @@ extension InviteImageCarousel {
 
     private var pageIndicator: some View {
         ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7)
+            .scaleEffect(0.7, anchor: .trailing)
+//            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.horizontal, 24)
             .padding(.bottom, Spacing.xs)
             .opacityPop(visible: !isCompact)
     }
@@ -122,5 +129,7 @@ extension InviteImageCarousel {
                 .frame(width: 38, height: 38)
         }
         .blurPop(visible: isCompact)
+        .padding(.horizontal, 20)
+        .padding(.top, 12)
     }
 }
