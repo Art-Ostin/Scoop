@@ -13,6 +13,8 @@ struct ConfirmMessageSection: View {
     
     @Binding var showMessageScreen: Bool
     
+    let isConfirmSend: Bool //No edit if not confirm send
+    
     @State private var messageHeight: CGFloat = 0
     
     var body: some View {

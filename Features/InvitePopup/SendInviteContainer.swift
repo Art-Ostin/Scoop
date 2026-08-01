@@ -44,7 +44,7 @@ struct SendInviteContainer: View {
 extension SendInviteContainer {
 
     private var inviteCard: some View {
-        VStack(spacing: Spacing.hairline) {
+        VStack(spacing: 0) {
             imageSection
             inviteDetailsPager
         }
@@ -83,7 +83,7 @@ extension SendInviteContainer {
     
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
-        let buttonText = isConfirming ? "Confirm & Send" : "Invite \(name)"
+        let buttonText = isConfirming ? "Send To \(name)" : "Invite \(name)"
         
         return WideActionButton(text: buttonText, isActive: vm.event.isComplete, showShadow: false) {
             if isConfirming {
@@ -106,7 +106,7 @@ extension SendInviteContainer {
             ConfirmContainer(
                 event: inviteSummary,
                 name: name,
-                isCard: false,
+                style: .popup,
                 timeOpen: ui.delayedTimePopupOpen,
                 showMessageScreen: $ui.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)

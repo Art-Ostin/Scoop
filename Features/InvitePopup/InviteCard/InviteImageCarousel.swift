@@ -12,7 +12,7 @@ struct InviteImageCarousel: View {
     //Only show 'clear Invite' in options Menu if there are changes to invite
     let inviteHasChanges: Bool
         
-    //Always hide name overlay and page indicators if its responding to invite
+    //Responding to an invite: titles it "<name>'s Invite" and hides the page indicators
     let isInvite: Bool
     
     let name: String
@@ -20,7 +20,7 @@ struct InviteImageCarousel: View {
 
     //When confirming an Invite or responding to an invite need to shrink the image and hide overlays
     let isCompact: Bool
-    
+
     //the back button out of the confirm screen overlays the image
     @Binding var showConfirmScreen: Bool?
     
@@ -41,9 +41,9 @@ struct InviteImageCarousel: View {
     var body: some View {
         InviteCarousel(images: images, isCompact: isCompact, scrollProgress: $scrollProgress)
             .overlay { backgroundBlur }
-            .overlay(alignment: .top) { topOverlay }
+            .overlay(alignment: .topTrailing) { optionsMenu }
+            .overlay(alignment: .bottomLeading) { titleOverlay}
             .overlay(alignment: .bottomTrailing) { if !isInvite { pageIndicator } }
-            .overlay(alignment: .bottomLeading) { nameOverlay}
             .overlay(alignment: .topLeading) { if showConfirmScreen == true { confirmBackButton} }
             .coordinateSpace(.named("InviteImageCarousel")) //Last, so the overlays measure inside the space
     }
@@ -53,15 +53,13 @@ struct InviteImageCarousel: View {
 extension InviteImageCarousel {
 
     private var topOverlay: some View {
+        
+        
         HStack {
 //            if !isInvite {nameOverlay}
             Spacer()
             optionsMenu
         }
-        .padding(.top, Spacing.sm)
-        .padding(.horizontal, Spacing.md)
-        .padding(.top, 12)
-        .padding(.horizontal, 8)
     }
         
     private var backgroundBlur: some View {
@@ -85,20 +83,45 @@ extension InviteImageCarousel {
 //Components
 extension InviteImageCarousel {
     
-    private var nameOverlay: some View {
+    //"Invite" is the one word every state shares, so it sits unconditionally in the middle
+    //of the stack and only ever slides and scales — the side words come and go around it.
+    private var titleOverlay: some View {
         HStack(spacing: 6) {
-            Text("Invite")
+            if let leadingWord {
+                Text(leadingWord)
+                    .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+                    .transition(.blurReplace)
+            }
+
+            Text(isCompact && !isInvite ? "invite" : "Invite")
                 .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
 
-            Text(name)
-                .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+            if showsTrailingName {
+                Text(name)
+                    .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+                    .transition(.blurReplace)
+            }
         }
         .font(.title(24))
+        .contentTransition(.opacity) //Crossfades the "Invite"/"invite" case flip instead of popping it
         .foregroundStyle(Color.white)
-        .opacityPop(visible: !isCompact)
+        .scaleEffect(titleScale, anchor: .bottomLeading) //Matches the overlay's alignment, so the leading edge stays pinned
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
     }
+
+    //Pushes "Invite" right: "Sarah's" when responding, "Confirm" once a send reaches the confirm screen
+    private var leadingWord: String? {
+        if isInvite { "\(name)'s" }
+        else if isCompact { "Confirm" }
+        else { nil }
+    }
+
+    //The invitee's name trails "Invite" only while the send is still being edited
+    private var showsTrailingName: Bool { !isInvite && !isCompact }
+
+    //Compact type is 18pt against the 24pt resting size — a font swap snaps, a scale animates
+    private var titleScale: CGFloat { isCompact ? 18 / 24 : 1 }
     
     private var optionsMenu: some View {
         OptionsMenu(
@@ -109,12 +132,14 @@ extension InviteImageCarousel {
             deleteDraft: { clearInvite()},
             onInfo: {showInfoScreen = true }
         )
+        .padding(Spacing.lg)
+        
+        
     }
 
     private var pageIndicator: some View {
         ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
-//            .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.horizontal, 24)
             .padding(.bottom, Spacing.xs)
             .opacityPop(visible: !isCompact)

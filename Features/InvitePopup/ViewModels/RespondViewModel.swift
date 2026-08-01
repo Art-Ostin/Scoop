@@ -41,11 +41,11 @@ class RespondViewModel {
     }
     
     private static func loadRespondDraft(defaults: DefaultsManaging, profile: UserProfile, event: UserEvent, currentUserId: String) -> RespondDraft {
-        if let storedDraft = defaults.fetchRespondDraft(eventId: event.id) {
-            return storedDraft
-        } else {
+        guard var storedDraft = defaults.fetchRespondDraft(eventId: event.id) else {
             return RespondDraft(event: event, userId: profile.id)
         }
+        storedDraft.rehydrate(with: event)   //the stored copy of the invite may be stale
+        return storedDraft
     }
 }
 

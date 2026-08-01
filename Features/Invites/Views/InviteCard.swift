@@ -32,10 +32,10 @@ struct InviteCard: View {
         ConfirmContainer(
             event: InviteSummary(event: draft.originalInvite.event),
             name: name,
-            isCard: true,
+            style: .card,
             timeOpen: timePopupOpen,
             showMessageScreen: .constant(false)) {
-                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, isCard: true)
+                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, style: .card)
             } showInfo: {
                 //Add scrollTo  code here to scroll to section below.
             } openInvite: {

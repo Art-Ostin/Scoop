@@ -105,7 +105,10 @@ extension InvitesViewModel {
     }
 
     private func sendNewTime(eventId: String) async throws {
-        guard let newTime = respondVMs[eventId]?.respondDraft.newTime else { return }
+        //An empty proposal would overwrite the invite's times with nothing on both edges,
+        //leaving the other side an invite with no days to pick. The button gates this too.
+        guard let newTime = respondVMs[eventId]?.respondDraft.newTime,
+              !newTime.proposedTimes.dates.isEmpty else { return }
         let event = newTime.event
         let rescheduleResponse = RescheduleResponse(eventId: event.id, userId: userId, recipientId: event.otherUserId, oldTimes: event.proposedTimes, newTimes: newTime.proposedTimes)
         try await eventRepo.respondWithNewTime(newTime: rescheduleResponse)

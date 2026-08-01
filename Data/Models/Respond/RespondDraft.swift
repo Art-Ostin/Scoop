@@ -28,6 +28,26 @@ struct RespondDraft: Codable  {
     }
 }
 
+extension RespondDraft {
+
+    //A stored draft carries its own snapshot of the invite. The live event always wins, so a
+    //reschedule by the other user — or a draft saved while the times were empty — can't shadow
+    //it, while the user's own edits (their new times, their new event, their message) survive.
+    mutating func rehydrate(with event: UserEvent) {
+        let type = respondType   //each property's didSet below rewrites it
+        let keepsSelection = originalInvite.selectedDay.map { day in
+            event.proposedTimes.dates.contains { $0.date == day }
+        } ?? false
+
+        originalInvite = OriginalInvite(
+            event: event,
+            selectedDay: keepsSelection ? originalInvite.selectedDay : event.proposedTimes.firstAvailableDate
+        )
+        newTime = NewTimeDraft(event: event, proposedTimes: newTime.proposedTimes)
+        respondType = type
+    }
+}
+
 struct OriginalInvite: Codable {
     let event: UserEvent
     var selectedDay: Date?

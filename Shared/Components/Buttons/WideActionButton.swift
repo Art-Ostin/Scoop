@@ -14,6 +14,7 @@ struct WideActionButton: View {
     let isActive: Bool
     var showShadow: Bool = true
     var font: Font = .body(18, .bold)
+    var lineLimit: Int = 1
 
     let onTap: () -> ()
 
@@ -35,7 +36,8 @@ struct WideActionButton: View {
         ZStack {
                Text(text)
                    .font(font)
-                   .lineLimit(1)
+                   .lineLimit(lineLimit)
+                   .multilineTextAlignment(.center)
                    .id(text)
                    .transition(.blurReplace)
            }

@@ -32,7 +32,7 @@ struct RespondInviteContainer: View {
             
             VStack(spacing: 12) {
                 inviteCard
-                HStack {
+                HStack(alignment: .bottom) { //Bottom-aligned: BottomBackButton carries a 36pt top pad the change button doesn't
                     changeButton
                     BottomBackButton { showInvitePopup = nil}
                 }
@@ -48,8 +48,9 @@ struct RespondInviteContainer: View {
 
 extension RespondInviteContainer {
     
+    //Wears BottomBackButton's circle, so the two read as a matched pair on the bottom row
     private var changeButton: some View {
-        ScoopButton(shape: .capsule) {
+        ScoopButton(shape: Circle()) {
             if vm.respondDraft.respondType != .newEvent {
                 vm.respondDraft.respondType = .newEvent
             } else {
@@ -64,17 +65,14 @@ extension RespondInviteContainer {
                     Text("Original Invite")
                 }
             }
-            .font(.body(14, .bold))
-            .padding(.horizontal)
-            .padding(.top, 6)
+            .font(.body(10, .bold)) //Largest size whose widest word ("Original", 36.3pt) clears the circle's edge
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.85)
+            .frame(width: 38) //Geometry: wraps both labels onto two lines, still wider than "Original"
+            .frame(width: 45, height: 45) //Geometry: BottomBackButton's circle
         }
-    }
-
-    private var title: some View {
-        Text("Respond")
-            .font(.title(18, .semibold))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
+        .padding(.leading, 22) //Geometry: mirrors BottomBackButton's 10 + Spacing.sm edge inset
     }
     
     private var inviteCard: some View {
@@ -105,10 +103,10 @@ extension RespondInviteContainer {
         return ConfirmContainer(
             event: inviteSummary,
             name: vm.profile.name,
-            isCard: false,
+            style: .respondPopup,
             timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
             showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
-                DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: timeAndPlaceUI.popupBinding(.time))
+                DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: timeAndPlaceUI.popupBinding(.time), style: .respondPopup)
             } showInfo: {
                 timeAndPlaceUI.showInfoScreen = true
             }
@@ -156,7 +154,7 @@ extension RespondInviteContainer {
             ConfirmContainer(
                 event: inviteSummary,
                 name: vm.profile.name,
-                isCard: false,
+                style: .respondPopup,
                 timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
                 showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
@@ -202,11 +200,17 @@ extension RespondInviteContainer {
     
     private var acceptButton: some View {
         let type = vm.respondDraft.respondType
-        let isActive: Bool = (type == .originalInvite || type == .newTime) ? true : vm.respondDraft.newEvent.isComplete
+        //Each response gates on its own requirement: without the .newTime gate the button
+        //happily posts an empty ProposedTimes, which wipes the invite's times for both users.
+        let isActive: Bool = switch type {
+        case .originalInvite: vm.respondDraft.originalInvite.selectedDay != nil
+        case .newTime:        !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
+        case .newEvent:       vm.respondDraft.newEvent.isComplete
+        }
         
         let text: String = switch type {
         case .originalInvite: "Accept"
-        case .newTime:        "Propose New Times"
+        case .newTime:        "Propose\nNew Times"
         case .newEvent:       createEventScreen ? "Invite \(vm.profile.name)" : "Confirm & Send"
         }
         
@@ -216,9 +220,9 @@ extension RespondInviteContainer {
         case .newEvent: .accepted
         }
         
-        let font: Font = .body(type == .newTime ? 16 : 18, .bold)
-        
-        return WideActionButton(text: text, isActive: isActive, showShadow: false, font: font) {
+        let font: Font = .body(type == .newTime ? 15 : 18, .bold)
+
+        return WideActionButton(text: text, isActive: isActive, showShadow: false, font: font, lineLimit: type == .newTime ? 2 : 1) {
             if createEventScreen {
                 timeAndPlaceUI.showConfirmScreen = true
             } else {
@@ -227,3 +231,4 @@ extension RespondInviteContainer {
         }
     }
 }
+

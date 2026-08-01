@@ -1,6 +1,6 @@
 //
-//  SelectTimeRow.swift
-//  Scoop Test
+//  ConfirmTimeAndPlace.swift
+//  Scoop
 //
 //  Created by Art Ostin on 29/07/2026.
 //
@@ -9,28 +9,26 @@ import SwiftUI
 
 //Change the closure for the appropriate time row if respond or send Invite
 struct TimeAndPlaceRows<TimeRow: View> : View {
-        
+
     let place: EventLocation
-    let isCard: Bool
+    let style: ConfirmStyle
     var timeOpen: Bool = false
-    
+
     @ViewBuilder var timeRow: TimeRow
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             timeRow
-            PlaceRow(place: place, isCard: isCard)
+            PlaceRow(place: place, style: style)
                 .opacityPop(visible: !timeOpen)
         }
-        .font(.body(17, .medium))
+        .font(.body(18, .medium))
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
-        .padding(.vertical, isCard ? 28 : 0)
+        .padding(.bottom, style.bottomPadding)
         .containerRelativeFrame(.horizontal, alignment: .leading)
-        .padding(.top, 1)                               //Geometry: optical nudge off the page top
     }
 }
-
 
 struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
@@ -49,10 +47,10 @@ struct DynamicTimeRow: View {
     @Binding var timePopupOpen: Bool
     
     @State private var timePopupPage: TimePopupPage? = .newTime //Must stay at this level
-    
-    var isCard = false
-    
-    
+
+    let style: ConfirmStyle
+
+
     var body: some View {
         TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
                        tracksContentSizeChanges: true,
@@ -93,7 +91,7 @@ struct DynamicTimeRow: View {
     
     private var timeRow: some View {
         HStack {
-            LineSection(image: isCard ? .whiteClock : .eventClockIcon, text: timeText)
+            LineSection(image: style.clockIcon, text: timeText)
                 .padding(.top, -1)
             timeChevron
         }
@@ -112,11 +110,11 @@ struct DynamicTimeRow: View {
 
 struct PlaceRow: View {
     let place: EventLocation
-    let isCard: Bool
-    
+    let style: ConfirmStyle
+
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
-        LineSection(image: isCard ? .whiteMap : .eventMapIcon, text: placeName)
+        LineSection(image: style.mapIcon, text: placeName)
             .padding(.vertical, Spacing.xs)
             .shrinkPress(action: openMap)
             .padding(.vertical, -Spacing.xs)

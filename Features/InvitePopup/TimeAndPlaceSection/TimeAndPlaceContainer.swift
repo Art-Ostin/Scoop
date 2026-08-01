@@ -19,11 +19,9 @@ struct TimeAndPlacePage: View {
             InviteTimeRow(ui: ui, proposedTimes: $draft.time)
             InvitePlaceRow(ui: ui, eventLocation: $draft.place)
         }
-        //Internal Spacing for this view
-        .padding(.top, Spacing.hairline)
+        .padding(.top, Spacing.xxs)
         .padding(.bottom, draft.place == nil ? 6 : 0)
         .padding(.horizontal, Spacing.lg)
-        
         .zIndex(1)
         .task(id: ui.activePopup) { await ui.syncDelayedPopups()}
     }
@@ -57,6 +55,8 @@ enum InviteRowMetrics {
     static let valueChevronSpacing: CGFloat = 9
     static let primaryLineHeight: CGFloat = 20
     static let secondaryLineHeight: CGFloat = 16
+    
+    static let confirmInviteSpacing: CGFloat = 26
 
     static let indicatorGap: CGFloat = 5
     static let indicatorHeight: CGFloat = 3
