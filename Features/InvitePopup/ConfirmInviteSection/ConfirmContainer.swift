@@ -50,6 +50,7 @@ struct ConfirmContainer<TimeRow: View>: View {
             header
             timeAndPlaceRows
             warning
+                .opacityPop(visible: timeOpen)
         }
         .foregroundStyle(style.foreground)
         .overlay(alignment: .bottomTrailing) { openInviteButton }

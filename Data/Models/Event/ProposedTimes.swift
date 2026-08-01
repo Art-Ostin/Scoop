@@ -123,18 +123,30 @@ struct ProposedTimes: Codable, Equatable  {
 //To format Multiple days
 extension ProposedTimes {
     
+    //Days sharing a month name it once, at the end: "Wed 5, Sun 9 or Mon 10 Aug · 21:30"
     func formatMultipleInvitedDays() -> String {
-    
+
+        let repeatsMonth = !sharesOneMonth
+
         let value: String = {
             dates.indices.map { index in
                 let day = dates[index]
                 let isLast = index == dates.count - 1
-                
-                return FormatEvent.shortDayAndTime(day.date, withHour: isLast) + daySuffix(at: index, dayCount: dates.count)
+
+                return FormatEvent.shortDayAndTime(day.date, withHour: isLast, withMonth: repeatsMonth || isLast)
+                    + daySuffix(at: index, dayCount: dates.count)
             }
             .joined()
         }()
         return value
+    }
+
+    //Straddling a month makes every day wear its own — "Wed 30 Jul, Sun 3 or Mon 4 Aug"
+    private var sharesOneMonth: Bool {
+        guard let first = dates.first else { return false }
+        return dates.allSatisfy {
+            Calendar.current.isDate($0.date, equalTo: first.date, toGranularity: .month)
+        }
     }
 
     private func daySuffix(at index: Int, dayCount: Int) -> String {

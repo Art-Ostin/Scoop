@@ -19,6 +19,7 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             timeRow
+                .opacityPop(visible: !timeOpen)
             PlaceRow(place: place, style: style)
                 .opacityPop(visible: !timeOpen)
         }
@@ -36,7 +37,6 @@ struct StaticTimeRow: View {
     var body: some View {
         LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
             .oneLineLimitAndShrink()
-            .fixedSize(horizontal: true, vertical: false)
     }
 }
 

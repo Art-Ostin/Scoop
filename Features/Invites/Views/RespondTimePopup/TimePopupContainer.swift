@@ -31,7 +31,6 @@ struct TimePopupContainer: View {
         .padding(.top, page == .invitedTimes ? 20 : Spacing.md)
         .padding(.bottom, page == .invitedTimes ? 20 :  -Spacing.xs)
         .frame(maxWidth: page == .invitedTimes ? 310 : 325) //Width matches that in SelectTimeView
-        .background(Color.white, in: .rect(cornerRadius: CornerRadius.customMenu))
         .animation(.spring(duration: 0.3), value: page)
     }
 }

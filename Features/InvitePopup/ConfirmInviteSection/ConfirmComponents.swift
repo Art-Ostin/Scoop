@@ -29,7 +29,6 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     @State private var scrollProgress: Double = 0
 
     var body: some View {
-        //Top aligned: the short message page starts level with the time row, not centred against it
         HorizontalScrollView(progress: $scrollProgress, alignment: .top) {
             TimeAndPlaceRows(place: place, style: style, timeOpen: timeOpen) {timeRow}
             messageScreen
@@ -37,6 +36,7 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
         .overlay(alignment: .bottomTrailing) {if style.showScrollView { pageIndicator }}
         .padding(.top, style.timeAndPlaceTopPadding)
         .scrollClipDisabled()
+        .customHScrollFade(showFade: style.showScrollView) //Don't show fade if its on card
         .padding(.horizontal, -Spacing.margin) //So scroll view goes to the edges
         .scrollDisabled(!style.showScrollView)
     }

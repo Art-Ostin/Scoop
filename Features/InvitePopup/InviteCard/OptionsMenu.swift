@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OptionsMenu: View {
     
-    let showOptions: Bool
     let hasChanges: Bool
     
     @Binding var optionsFrame: CGRect
@@ -26,7 +25,6 @@ struct OptionsMenu: View {
         } label: {
             optionsButton
         }
-        .opacityPop(visible: showOptions)
     }
 }
 

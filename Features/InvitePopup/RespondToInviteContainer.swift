@@ -36,7 +36,7 @@ struct RespondInviteContainer: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .fullScreenCover(isPresented: $timeAndPlaceUI.showInfoScreen) {Text("How It works")}
+        .sheet(isPresented: $timeAndPlaceUI.showInfoScreen) {Text("How It works")}
         .animation(.move, value: vm.responseType)
         .animation(.move, value: createEventScreen)
         .animation(.toggle, value: vm.respondDraft.newEvent.isComplete)
@@ -202,7 +202,6 @@ extension RespondInviteContainer {
         let font: Font = .body(type == .newTime ? 15 : 18, .bold)
         
         let isDimmed: Bool = timeAndPlaceUI.isPopupOpenDelayed()
-
         
         return WideActionButton(text: text, isActive: isActive, isDimmed: isDimmed, showShadow: false, font: font, lineLimit: type == .newTime ? 2 : 1) {
             if createEventScreen {

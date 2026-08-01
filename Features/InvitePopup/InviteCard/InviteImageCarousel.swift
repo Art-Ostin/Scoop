@@ -122,22 +122,33 @@ extension InviteImageCarousel {
     //One inset for the whole row, so the menu and the change button share an edge and a top
     private var optionsMenu: some View {
         HStack(alignment: .top, spacing: 16) {
-            
             //Only show change button if there is a response type. Only give a response Type in respond mode
             if let responseType {
                 ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
             }
-
-            OptionsMenu(
-                showOptions: !isCompact,
-                hasChanges: inviteHasChanges,
-                optionsFrame: $optionsFrame,
-                onDecline: {declineProfile()},
-                deleteDraft: { clearInvite()},
-                onInfo: {showInfoScreen = true }
-            )
+            
+            //Structural, not a fade: an opacity-hidden menu keeps its slot and holds the
+            //change button off the trailing edge.
+            if showsOptions {
+                OptionsMenu(
+                    hasChanges: inviteHasChanges,
+                    optionsFrame: $optionsFrame,
+                    onDecline: {declineProfile()},
+                    deleteDraft: { clearInvite()},
+                    onInfo: {showInfoScreen = true }
+                )
+                .transition(.scale(scale: 0.4).combined(with: .opacity))
+            }
         }
         .padding(12)
+        .animation(.transition, value: showsOptions)
+    }
+
+    //Only while the card is expanded — and in respond mode, only for a new event
+    private var showsOptions: Bool {
+        guard !isCompact else { return false }
+        guard let responseType else { return true } //Send mode always offers the menu
+        return responseType.wrappedValue == .newEvent
     }
 
     private var pageIndicator: some View {

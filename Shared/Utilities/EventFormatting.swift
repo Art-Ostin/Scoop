@@ -28,11 +28,14 @@ public enum FormatEvent {
     }
     
     
-    static func shortDayAndTime(_ date: Date, withHour: Bool = true) -> String {
+    //withMonth: false drops to the bare day, so a list can carry one shared month — "Wed 5, Sun 9 or Mon 10 Aug"
+    static func shortDayAndTime(_ date: Date, withHour: Bool = true, withMonth: Bool = true) -> String {
         let weekday = date.formatted(.dateTime.weekday(.abbreviated))
-        let monthAndDay = date.formatted(.dateTime.month(.abbreviated).day())
+        let dayPart = withMonth
+            ? date.formatted(.dateTime.month(.abbreviated).day())
+            : date.formatted(.dateTime.day())
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        let datePart = "\(weekday) \(monthAndDay)"
+        let datePart = "\(weekday) \(dayPart)"
         return withHour ? "\(datePart) · \(hour)" : datePart
     }
     
