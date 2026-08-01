@@ -1,6 +1,6 @@
 //
 //  InvitedTimes.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
 //
@@ -20,15 +20,31 @@ struct InvitedTimes: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
-                inviteTimeCell(idx, time)
+            if orderedTimes.isEmpty {
+                emptyState
+            } else {
+                ForEach(Array(orderedTimes.enumerated()), id: \.offset) { idx, time in
+                    inviteTimeCell(idx, time)
+                }
             }
         }
     }
 }
 
 extension InvitedTimes {
-    
+
+    //An invite can arrive with no days on it (its times were replaced with an empty set).
+    //Without a body here the page measures 0pt and the pager falls back to the taller
+    //new-time page's height, so the popup reads as broken rather than empty.
+    private var emptyState: some View {
+        Text("This invite has no times on it — suggest one instead.")
+            .font(.body(14, .regular))
+            .foregroundStyle(Color.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, Spacing.lg)
+    }
+
     private func inviteTimeCell(_ idx: Int, _ time: ProposedTime) -> some View {
         let status = getTimeStatus(time)
         return InvitedTimeCell(

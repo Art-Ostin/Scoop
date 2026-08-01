@@ -1,6 +1,6 @@
 //
 //  TimePopupContainer.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
 //
@@ -69,7 +69,9 @@ extension TimePopupContainer {
     }
 
     private var pagerSection: some View {
-        HorizontalScrollView(progress: .constant(0)) {
+        //Top aligned: the two pages differ in height, and the frame below clips to
+        //the active one — centred, the shorter page sits below the visible window
+        HorizontalScrollView(progress: .constant(0), alignment: .top) {
             InvitedTimes(proposedTimes: times, selectedDay: $selectedDay, respondType: $respondType)
                 .padding(.horizontal, Spacing.margin)
                 .containerRelativeFrame(.horizontal)

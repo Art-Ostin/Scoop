@@ -32,6 +32,7 @@ struct SendInviteContainer: View {
                 BottomBackButton(visible: !(ui.showConfirmScreen ?? false)) { showInvite = false }
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.transition, value: ui.showConfirmScreen)
         
         .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
@@ -92,8 +93,7 @@ extension SendInviteContainer {
                 ui.showConfirmScreen = true
             }
         }
-        .padding(.top, isConfirming ? Spacing.md : 0)
-        .padding(.horizontal, Spacing.margin)
+        .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
     private var timeAndPlacePage: some View {

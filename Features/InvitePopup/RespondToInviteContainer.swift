@@ -32,12 +32,10 @@ struct RespondInviteContainer: View {
             
             VStack(spacing: 12) {
                 inviteCard
-                HStack(alignment: .bottom) { //Bottom-aligned: BottomBackButton carries a 36pt top pad the change button doesn't
-                    changeButton
-                    BottomBackButton { showInvitePopup = nil}
-                }
+                BottomBackButton { showInvitePopup = nil}
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $timeAndPlaceUI.showInfoScreen) {Text("How It works")}
         .animation(.move, value: vm.responseType)
         .animation(.move, value: createEventScreen)
@@ -47,33 +45,6 @@ struct RespondInviteContainer: View {
 }
 
 extension RespondInviteContainer {
-    
-    //Wears BottomBackButton's circle, so the two read as a matched pair on the bottom row
-    private var changeButton: some View {
-        ScoopButton(shape: Circle()) {
-            if vm.respondDraft.respondType != .newEvent {
-                vm.respondDraft.respondType = .newEvent
-            } else {
-                vm.respondDraft.respondType = .originalInvite
-            }
-            timeAndPlaceUI.showConfirmScreen = false
-        } label: {
-            Group {
-                if vm.respondDraft.respondType != .newEvent {
-                    Text("New Event")
-                } else {
-                    Text("Original Invite")
-                }
-            }
-            .font(.body(10, .bold)) //Largest size whose widest word ("Original", 36.3pt) clears the circle's edge
-            .multilineTextAlignment(.center)
-            .lineLimit(2)
-            .minimumScaleFactor(0.85)
-            .frame(width: 38) //Geometry: wraps both labels onto two lines, still wider than "Original"
-            .frame(width: 45, height: 45) //Geometry: BottomBackButton's circle
-        }
-        .padding(.leading, 22) //Geometry: mirrors BottomBackButton's 10 + Spacing.sm edge inset
-    }
     
     private var inviteCard: some View {
         VStack(spacing: Spacing.hairline) {
@@ -116,6 +87,7 @@ extension RespondInviteContainer {
         InviteImageCarousel(
             inviteHasChanges: vm.respondDraft.newEvent.hasChanges,
             isInvite: vm.responseType != .newEvent,
+            responseType: $vm.respondDraft.respondType,
             name: vm.profile.name,
             images: images,
             isCompact: vm.respondDraft.respondType != .newEvent || timeAndPlaceUI.showConfirmScreen == true,
@@ -181,8 +153,7 @@ extension RespondInviteContainer {
             declineButton
             acceptButton
         }
-        .padding(.top, createEventScreen ? 0 : Spacing.md)
-        .padding(.horizontal, Spacing.margin)
+        .padding(.horizontal, Spacing.margin) //Each page owns the gap above this row
     }
     
     @ViewBuilder
@@ -232,3 +203,34 @@ extension RespondInviteContainer {
     }
 }
 
+
+/*
+ 
+ //Wears BottomBackButton's circle, so the two read as a matched pair on the bottom row
+ private var changeButtonOld: some View {
+     ScoopButton(shape: Circle()) {
+         if vm.respondDraft.respondType != .newEvent {
+             vm.respondDraft.respondType = .newEvent
+         } else {
+             vm.respondDraft.respondType = .originalInvite
+         }
+         timeAndPlaceUI.showConfirmScreen = false
+     } label: {
+         Group {
+             if vm.respondDraft.respondType != .newEvent {
+                 Text("New Event")
+             } else {
+                 Text("Original Invite")
+             }
+         }
+         .font(.body(10, .bold)) //Largest size whose widest word ("Original", 36.3pt) clears the circle's edge
+         .multilineTextAlignment(.center)
+         .lineLimit(2)
+         .minimumScaleFactor(0.85)
+         .frame(width: 38) //Geometry: wraps both labels onto two lines, still wider than "Original"
+         .frame(width: 45, height: 45) //Geometry: BottomBackButton's circle
+     }
+     .padding(.leading, 22) //Geometry: mirrors BottomBackButton's 10 + Spacing.sm edge inset
+ }
+ 
+ */

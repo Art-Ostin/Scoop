@@ -29,7 +29,8 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     @State private var scrollProgress: Double = 0
 
     var body: some View {
-        HorizontalScrollView(progress: $scrollProgress) {
+        //Top aligned: the short message page starts level with the time row, not centred against it
+        HorizontalScrollView(progress: $scrollProgress, alignment: .top) {
             TimeAndPlaceRows(place: place, style: style, timeOpen: timeOpen) {timeRow}
             messageScreen
         }
@@ -50,6 +51,7 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     private var pageIndicator: some View {
         InvitePageIndicator(count: 2, progress: scrollProgress)
             .padding(.trailing, Spacing.lg)
+            .offset(y: -22) //The Time and Place rows apply 26 vertical padding. This is to offset that so only 4points below that view
     }
 }
 
@@ -109,5 +111,8 @@ struct InviteInfoButton: View {
             .background(Color.fillGray.opacity(0.5), in: Circle())
             .shrinkPress {showInfo() }
             .padding()
+            .padding(.top, -6)
     }
 }
+
+

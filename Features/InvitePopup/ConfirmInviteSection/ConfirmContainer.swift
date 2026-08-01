@@ -19,9 +19,10 @@ enum ConfirmStyle {
     
     //The layout metrics set here
     var topPadding: CGFloat { isCard ? 0 : 26} //No top padding needed if is card
-    var timeAndPlaceTopPadding: CGFloat { isCard ? 28 : 26} //Padding to title if card, otherwise to type row
+    var timeAndPlaceTopPadding: CGFloat { isCard ? Spacing.lg : 26} //Padding to title if card (matches the row spacing, so the card reads as one even stack), otherwise to type row
     var rowSpacing: CGFloat { isCard ? 22 : 26}
-    var bottomPadding: CGFloat { isCard ? 28 : 12} //For card: Space between place and bottom. If card, space between warning and action buttons
+    var rowsBottomPadding: CGFloat { isCard ? 28 : 26} //Below the place row: card → card bottom, popup → warning
+    var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → rowsBottomPadding already reaches the card bottom, popup → action button
     
     //Only a popup shows these
     var showsWarning: Bool { !isCard }
@@ -55,7 +56,7 @@ struct ConfirmContainer<TimeRow: View>: View {
         .padding(.top, style.topPadding)
         .padding(.bottom, style.bottomPadding)
         .padding(.horizontal, Spacing.lg)
-        .overlay(alignment: .topTrailing) { InviteInfoButton(showInfo: showInfo) }
+        .overlay(alignment: .topTrailing) { if style != .card { InviteInfoButton(showInfo: showInfo) } }
     }
 }
 

@@ -14,9 +14,7 @@ struct ConfirmMessageSection: View {
     @Binding var showMessageScreen: Bool
     
     let isConfirmSend: Bool //No edit if not confirm send
-    
-    @State private var messageHeight: CGFloat = 0
-    
+
     var body: some View {
         Group {
             if let message = checkMessage {
@@ -38,8 +36,6 @@ extension ConfirmMessageSection {
             .italic()
             .foregroundStyle(Color.textSecondary)
             .lineSpacing(6)
-            .getHeight($messageHeight)
-            .offset(y: messageLineCount == 3 ? -Spacing.xs : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
             .overlay(alignment: .bottomTrailing) {editMessageButton}
     }
@@ -71,15 +67,8 @@ extension ConfirmMessageSection {
                     showMessageScreen = true
                 }
         }
-        .offset(y: -Spacing.xxs)
     }
-    
-    private var messageLineCount: Int {
-        guard messageHeight > 0 else { return 0 }
-        let lineHeight = UIFont.systemFont(ofSize: 14).lineHeight
-        return Int(((messageHeight + 6) / (lineHeight + 6)).rounded())
-    }
-    
+
     private var checkMessage: String? {
         if let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return message

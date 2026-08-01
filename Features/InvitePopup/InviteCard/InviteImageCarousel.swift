@@ -15,6 +15,9 @@ struct InviteImageCarousel: View {
     //Responding to an invite: titles it "<name>'s Invite" and hides the page indicators
     let isInvite: Bool
     
+    //Always true if responding to an event. Ensuring the 'Change button' always visible in this mode
+    var responseType: Binding<ResponseType>? = nil
+     
     let name: String
     let images: [UIImage]
 
@@ -52,16 +55,6 @@ struct InviteImageCarousel: View {
 //Key Overlays
 extension InviteImageCarousel {
 
-    private var topOverlay: some View {
-        
-        
-        HStack {
-//            if !isInvite {nameOverlay}
-            Spacer()
-            optionsMenu
-        }
-    }
-        
     private var backgroundBlur: some View {
         let progress = min(max(scrollProgress, 0), Double(images.count - 1))
         let page = Int(progress)
@@ -69,14 +62,17 @@ extension InviteImageCarousel {
         let fraction = progress - Double(page)
 
         return ZStack {
-            BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame, optionsFrame])
+            BackgroundBlur(image: images[page], frames: haloFrames)
                 .opacity(1 - fraction)
             if next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame, optionsFrame])
+                BackgroundBlur(image: images[next], frames: haloFrames)
                     .opacity(fraction)
             }
         }
-        .opacity(isCompact ? 0 : 1)
+    }
+
+    private var haloFrames: [CGRect] {
+        isCompact ? [nameFrame, inviteFrame] : [nameFrame, inviteFrame, optionsFrame]
     }
 }
 
@@ -124,17 +120,25 @@ extension InviteImageCarousel {
     private var titleScale: CGFloat { isCompact ? 18 / 24 : 1 }
     
     private var optionsMenu: some View {
-        OptionsMenu(
-            showOptions: !isCompact,
-            hasChanges: inviteHasChanges,
-            optionsFrame: $optionsFrame,
-            onDecline: {declineProfile()},
-            deleteDraft: { clearInvite()},
-            onInfo: {showInfoScreen = true }
-        )
-        .padding(Spacing.lg)
-        
-        
+        HStack {
+            
+            OptionsMenu(
+                showOptions: !isCompact,
+                hasChanges: inviteHasChanges,
+                optionsFrame: $optionsFrame,
+                onDecline: {declineProfile()},
+                deleteDraft: { clearInvite()},
+                onInfo: {showInfoScreen = true }
+            )
+            .padding(Spacing.lg)
+
+            //Only show change button if there is a response type. Only give a response Type in respond mode
+            if let responseType {
+                ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 12)
+            }
+        }
     }
 
     private var pageIndicator: some View {
@@ -157,4 +161,37 @@ extension InviteImageCarousel {
         .padding(.horizontal, 20)
         .padding(.top, 12)
     }
+}
+
+
+struct ChangeButton: View {
+    
+    @Binding var responseType: ResponseType
+    @Binding var showConfirmScreen: Bool?
+    
+    var isNewEvent: Bool { responseType == .newEvent }
+    var buttonText: String { isNewEvent ? "Original Invite" : "New Invite" }
+    
+    var body: some View {
+        
+        ScoopButton(style: .clearGlass, shape: .capsule) {
+            if responseType != .newEvent {
+                responseType = .newEvent
+            } else {
+                responseType = .originalInvite
+            }
+            showConfirmScreen = false
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "plus")
+                    .font(.body(12, .bold))
+                
+                Text(buttonText)
+                    .font(.body(11, .bold))
+            }
+            .padding(.vertical, 7)
+            .padding(.horizontal, 8)
+        }
+    }
+
 }

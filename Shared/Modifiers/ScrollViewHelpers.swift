@@ -10,11 +10,14 @@ import SwiftUI
 struct HorizontalScrollView<Content: View>: View {
     @Binding var progress: Double
 
+    //How pages of unequal height sit against each other
+    var alignment: VerticalAlignment = .center
+
     @ViewBuilder var content: Content
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 0) {
+            HStack(alignment: alignment, spacing: 0) {
                 content
             }
             .scrollTargetLayout()

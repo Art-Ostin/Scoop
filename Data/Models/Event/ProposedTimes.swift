@@ -117,10 +117,7 @@ extension ProposedTimes {
     func formatMultipleInvitedDays() -> String {
     
         let value: String = {
-            if dates.count == 1, let day = dates.first {
-                return FormatEvent.dayAndTime(day.date)
-            }
-            return dates.indices.map { index in
+            dates.indices.map { index in
                 let day = dates[index]
                 let isLast = index == dates.count - 1
                 

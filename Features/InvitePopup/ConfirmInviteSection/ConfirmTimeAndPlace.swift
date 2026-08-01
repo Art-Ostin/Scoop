@@ -25,7 +25,7 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
         .font(.body(18, .medium))
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
-        .padding(.bottom, style.bottomPadding)
+        .padding(.bottom, style.rowsBottomPadding)
         .containerRelativeFrame(.horizontal, alignment: .leading)
     }
 }
