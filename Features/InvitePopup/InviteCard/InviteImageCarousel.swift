@@ -119,9 +119,15 @@ extension InviteImageCarousel {
     //Compact type is 18pt against the 24pt resting size — a font swap snaps, a scale animates
     private var titleScale: CGFloat { isCompact ? 18 / 24 : 1 }
     
+    //One inset for the whole row, so the menu and the change button share an edge and a top
     private var optionsMenu: some View {
-        HStack {
+        HStack(alignment: .top, spacing: 16) {
             
+            //Only show change button if there is a response type. Only give a response Type in respond mode
+            if let responseType {
+                ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
+            }
+
             OptionsMenu(
                 showOptions: !isCompact,
                 hasChanges: inviteHasChanges,
@@ -130,15 +136,8 @@ extension InviteImageCarousel {
                 deleteDraft: { clearInvite()},
                 onInfo: {showInfoScreen = true }
             )
-            .padding(Spacing.lg)
-
-            //Only show change button if there is a response type. Only give a response Type in respond mode
-            if let responseType {
-                ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 12)
-            }
         }
+        .padding(12)
     }
 
     private var pageIndicator: some View {
@@ -161,37 +160,4 @@ extension InviteImageCarousel {
         .padding(.horizontal, 20)
         .padding(.top, 12)
     }
-}
-
-
-struct ChangeButton: View {
-    
-    @Binding var responseType: ResponseType
-    @Binding var showConfirmScreen: Bool?
-    
-    var isNewEvent: Bool { responseType == .newEvent }
-    var buttonText: String { isNewEvent ? "Original Invite" : "New Invite" }
-    
-    var body: some View {
-        
-        ScoopButton(style: .clearGlass, shape: .capsule) {
-            if responseType != .newEvent {
-                responseType = .newEvent
-            } else {
-                responseType = .originalInvite
-            }
-            showConfirmScreen = false
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "plus")
-                    .font(.body(12, .bold))
-                
-                Text(buttonText)
-                    .font(.body(11, .bold))
-            }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 8)
-        }
-    }
-
 }

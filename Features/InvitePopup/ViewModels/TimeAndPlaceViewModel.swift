@@ -27,11 +27,13 @@ class TimeAndPlaceViewModel {
     }
     
     private static func loadEvent(d: DefaultsManaging, id: String) -> EventFieldsDraft {
-        if let storedEvent = d.fetchEventDraft(profileId: id) {
-            return storedEvent
-        } else {
-            return EventFieldsDraft()
+        guard var storedEvent = d.fetchEventDraft(profileId: id) else { return EventFieldsDraft() }
+
+        //Days that have expired since the draft was saved never load back in — they leave the stored draft too
+        if storedEvent.time.removePastDays() {
+            d.updateEventDraft(profileId: id, eventDraft: storedEvent)
         }
+        return storedEvent
     }
     
     func deleteEventDefault() {

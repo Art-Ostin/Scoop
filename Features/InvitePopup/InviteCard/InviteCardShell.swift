@@ -53,6 +53,8 @@ struct BottomBackButton: View {
         }
         .opacityPop(visible: visible)
         .allowsHitTesting(visible)
+        .animation(.transition, value: visible)
+        
         .padding(.top, Spacing.xl) // 36
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, 10)

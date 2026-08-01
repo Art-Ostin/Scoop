@@ -82,6 +82,15 @@ struct ProposedTimes: Codable, Equatable  {
         let cal = Calendar.current
         dates.removeAll { cal.isDate($0.date, inSameDayAs: day) }
     }
+
+    //A stored draft outlives the days it proposed — drop every day that is today or earlier. True if anything went.
+    @discardableResult
+    mutating func removePastDays(calendar: Calendar = .current) -> Bool {
+        let today = calendar.startOfDay(for: Date())
+        let before = dates.count
+        dates.removeAll { calendar.startOfDay(for: $0.date) <= today }
+        return dates.count != before
+    }
     
     //Combines selected day and hour (and minute) into one date to update day
     mutating func updateTime(hour: Int, minute: Int) {

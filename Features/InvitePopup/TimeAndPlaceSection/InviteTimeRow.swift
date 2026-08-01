@@ -62,7 +62,7 @@ extension InviteTimeRow {
     private var timeMenu: some View {
         TimeCustomMenu(morphAnchor: morphAnchor,
                        estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
-                       placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
+                       placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 16,
                        placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
                        onOpen: openMenu, onClose: closeMenu) {
             SelectTimeView(proposedTimes: $draft)

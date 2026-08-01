@@ -32,7 +32,7 @@ struct RespondInviteContainer: View {
             
             VStack(spacing: 12) {
                 inviteCard
-                BottomBackButton { showInvitePopup = nil}
+                backButton
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -53,7 +53,15 @@ extension RespondInviteContainer {
         }
         .modifier(InviteCardBackground(isConfirming: timeAndPlaceUI.showConfirmScreen == true))
     }
-    
+
+    //Gone while the time or type popup owns the card — the DynamicTimeRow's popup counts on either page
+    private var backButton: some View {
+        let visible = !timeAndPlaceUI.isPopupOpen()
+        
+        return BottomBackButton(visible: visible) { showInvitePopup = nil }
+        
+    }
+
     private var inviteDetailsSection: some View {
         VStack(spacing: 0) {
             ZStack {
@@ -192,45 +200,19 @@ extension RespondInviteContainer {
         }
         
         let font: Font = .body(type == .newTime ? 15 : 18, .bold)
+        
+        let isDimmed: Bool = timeAndPlaceUI.isPopupOpenDelayed()
 
-        return WideActionButton(text: text, isActive: isActive, showShadow: false, font: font, lineLimit: type == .newTime ? 2 : 1) {
+        
+        return WideActionButton(text: text, isActive: isActive, isDimmed: isDimmed, showShadow: false, font: font, lineLimit: type == .newTime ? 2 : 1) {
             if createEventScreen {
                 timeAndPlaceUI.showConfirmScreen = true
             } else {
                 respond(responseType)
             }
         }
+        .opacity(isDimmed ? 0.4 : 1)
+        .allowsHitTesting(!isDimmed)
+        .animation(.transition, value: isDimmed)
     }
 }
-
-
-/*
- 
- //Wears BottomBackButton's circle, so the two read as a matched pair on the bottom row
- private var changeButtonOld: some View {
-     ScoopButton(shape: Circle()) {
-         if vm.respondDraft.respondType != .newEvent {
-             vm.respondDraft.respondType = .newEvent
-         } else {
-             vm.respondDraft.respondType = .originalInvite
-         }
-         timeAndPlaceUI.showConfirmScreen = false
-     } label: {
-         Group {
-             if vm.respondDraft.respondType != .newEvent {
-                 Text("New Event")
-             } else {
-                 Text("Original Invite")
-             }
-         }
-         .font(.body(10, .bold)) //Largest size whose widest word ("Original", 36.3pt) clears the circle's edge
-         .multilineTextAlignment(.center)
-         .lineLimit(2)
-         .minimumScaleFactor(0.85)
-         .frame(width: 38) //Geometry: wraps both labels onto two lines, still wider than "Original"
-         .frame(width: 45, height: 45) //Geometry: BottomBackButton's circle
-     }
-     .padding(.leading, 22) //Geometry: mirrors BottomBackButton's 10 + Spacing.sm edge inset
- }
- 
- */

@@ -27,7 +27,6 @@ struct OptionsMenu: View {
             optionsButton
         }
         .opacityPop(visible: showOptions)
-        .padding(-Spacing.sm)
     }
 }
 
@@ -83,7 +82,6 @@ extension OptionsMenu {
             ForEach(0..<3, id: \.self) { _ in circle }
         }
         .scaleEffect(0.9)
-        .padding(4)
         .contentShape(Circle())
     }
 
@@ -94,3 +92,42 @@ extension OptionsMenu {
     }
 }
 
+
+
+struct ChangeButton: View {
+    
+    @Binding var responseType: ResponseType
+    @Binding var showConfirmScreen: Bool?
+    
+    var isNewEvent: Bool { responseType == .newEvent }
+    var buttonText: String { isNewEvent ? "Original Invite" : "New Invite" }
+    
+    var body: some View {
+        
+        ScoopButton(style: .clearGlass, shape: .capsule) {
+            if responseType != .newEvent {
+                responseType = .newEvent
+            } else {
+                responseType = .originalInvite
+            }
+            showConfirmScreen = false
+        } label: {
+            HStack(spacing: 4) {
+                if !isNewEvent {
+                    Image(systemName: "plus")
+                        .font(.body(12, .bold))
+                }
+                
+                Text(buttonText)
+                    .font(.body(11, .bold))
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 7)
+            .foregroundStyle(Color.white)
+        }
+    }
+}
+
+/*
+ .padding(-Spacing.sm)
+ */

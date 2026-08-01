@@ -29,7 +29,7 @@ struct SendInviteContainer: View {
             
             VStack(spacing: 0) {
                 inviteCard
-                BottomBackButton(visible: !(ui.showConfirmScreen ?? false)) { showInvite = false }
+                backButton
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -82,17 +82,30 @@ extension SendInviteContainer {
 //Different Views and Components
 extension SendInviteContainer {
     
+    //Gone on the confirm screen, and while the time or type popup owns the card
+    private var backButton: some View {
+        let visible = !(ui.showConfirmScreen ?? false) && !ui.isPopupOpen()
+
+        return BottomBackButton(visible: visible) { showInvite = false }
+            .animation(.transition, value: visible) //Scoped here: keying the ZStack on activePopup would retime the menu morphs
+    }
+
+    //Smooth impercetible hiding when popup open
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
         let buttonText = isConfirming ? "Send To \(name)" : "Invite \(name)"
-        
-        return WideActionButton(text: buttonText, isActive: vm.event.isComplete, showShadow: false) {
+        let popupDim = !isConfirming && ui.isPopupOpenDelayed()
+
+        return WideActionButton(text: buttonText, isActive: vm.event.isComplete, isDimmed: popupDim, showShadow: false) {
             if isConfirming {
                 onSendInvite(vm.event)
             } else {
                 ui.showConfirmScreen = true
             }
         }
+        .opacity(popupDim ? 0.4 : 1)
+        .allowsHitTesting(!popupDim)
+        .animation(.transition, value: popupDim)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
