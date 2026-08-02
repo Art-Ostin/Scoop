@@ -9,7 +9,12 @@ import SwiftUI
 
 
 enum ConfirmStyle {
+    
     case card, popup, respondPopup
+    
+    
+    
+    
     var isCard: Bool { self == .card }
 
     //The card vs Popup Colouring

@@ -56,14 +56,13 @@ extension SendInviteContainer {
     private var imageSection: some View {
         InviteImageCarousel(
             inviteHasChanges: vm.event.hasChanges,
-            isInvite: false, //Sending, not responding — keeps the name overlay and page dots
+            isConfirm: ui.showConfirmScreen == true,
             name: name,
             images: images,
-            isCompact: ui.showConfirmScreen == true,
             showConfirmScreen: $ui.showConfirmScreen,
             showInfoScreen: $ui.showInfoScreen,
             declineProfile: declineProfile,
-            clearInvite: { withAnimation(.transition) { vm.deleteEventDefault() } }
+            clearInvite: {withAnimation(.transition) { vm.deleteEventDefault() } }
         )
     }
 
@@ -94,7 +93,7 @@ extension SendInviteContainer {
     //Smooth impercetible hiding when popup open
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
-        let buttonText = isConfirming ? "Send To \(name)" : "Invite \(name)"
+        let buttonText = isConfirming ? "Send to \(name)" : "Invite \(name)"
         let popupDim = !isConfirming && ui.isPopupOpenDelayed()
 
         return WideActionButton(text: buttonText, isActive: vm.event.isComplete, isDimmed: popupDim, showShadow: false) {

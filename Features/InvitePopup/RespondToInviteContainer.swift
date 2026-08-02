@@ -93,13 +93,13 @@ extension RespondInviteContainer {
     }
     
     private var imageCarousel: some View {
-        InviteImageCarousel(
+        let isConfirmMode = vm.responseType != .newEvent || (timeAndPlaceUI.showConfirmScreen == true)
+        return InviteImageCarousel(
             inviteHasChanges: vm.respondDraft.newEvent.hasChanges,
-            isInvite: vm.responseType != .newEvent,
+            isConfirm: isConfirmMode ,
             responseType: $vm.respondDraft.respondType,
             name: vm.profile.name,
             images: images,
-            isCompact: vm.respondDraft.respondType != .newEvent || timeAndPlaceUI.showConfirmScreen == true,
             showConfirmScreen: $timeAndPlaceUI.showConfirmScreen,
             showInfoScreen: $timeAndPlaceUI.showInfoScreen,
             declineProfile: {respond(.decline)},
@@ -191,7 +191,7 @@ extension RespondInviteContainer {
         let text: String = switch type {
         case .originalInvite: "Accept"
         case .newTime:        "Propose\nNew Times"
-        case .newEvent:       createEventScreen ? "Invite \(vm.profile.name)" : "Confirm & Send"
+        case .newEvent:       createEventScreen ? "Invite \(vm.profile.name)" : "Send to \(vm.profile.name)"
         }
         
         let responseType: ProfileResponse = switch type {
