@@ -19,9 +19,9 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             timeRow
-                .opacityPop(visible: !timeOpen)
+                .blurPop(visible: !timeOpen, scale: 1)
             PlaceRow(place: place, style: style)
-                .opacityPop(visible: !timeOpen)
+                .blurPop(visible: !timeOpen, scale: 1)
         }
         .font(.body(18, .medium))
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
@@ -53,6 +53,7 @@ struct DynamicTimeRow: View {
 
     var body: some View {
         TimeCustomMenu(cornerRadius: CornerRadius.customMenu,
+                       platterFill: style.timePopupFill,
                        tracksContentSizeChanges: true,
                        placementOffsetX: 0,
                        placementOffsetY: 24,

@@ -23,7 +23,6 @@ struct TimeAndPlacePage: View {
         .padding(.bottom, draft.place == nil ? 6 : 0)
         .padding(.horizontal, Spacing.lg)
         .zIndex(1)
-        .task(id: ui.activePopup) { await ui.syncDelayedPopups()}
     }
 }
 

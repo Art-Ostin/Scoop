@@ -214,6 +214,12 @@ enum TimeCustomMenuSpec {
     /// glass left to pop. 0.35 lines the fade up with the start of the expand;
     /// smaller concentrates it later / quicker near the very end.
     static let closeGlassFadeProgress: CGFloat = 0.35
+    /// An opaque platter fill (`TimeCustomMenu.platterFill`) ramps in across the
+    /// droplet's inflate-and-travel phase: nothing at progress 0, where the lens is
+    /// pixel-identical to the label and a fill would white it out, full by the time
+    /// the circle relaxes into the platter and the content materializes. Reversed on
+    /// close with the rest of the morph, so the fill only ever exists mid-flight.
+    static let platterFillRange: ClosedRange<CGFloat> = 0.35...0.7
 
     // ── Pre-26 fallback (classic menu) ──
     /// Scale the menu collapses to at the anchor point when hidden.
@@ -267,6 +273,11 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
+    /// Opaque fill painted under the platter glass, in the lens's own shape, for menus
+    /// that bloom over imagery — plain glass there just shows the photo through the
+    /// menu's own type. Ramped in with the morph (see `platterFillRange`) so it exists
+    /// only while the menu is open, never on the label at rest. Nil keeps pure glass.
+    var platterFill: Color?
     /// Explicit (global) rect the morph lens collapses to / blooms from, overriding
     /// the label's own measured frame. Use when the label is larger than what should
     /// visually morph — e.g. a multi-item pager that should collapse onto just its
@@ -306,6 +317,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
 
     init(cornerRadius: CGFloat = TimeCustomMenuSpec.platterCornerRadius,
          labelCornerRadius: CGFloat? = nil,
+         platterFill: Color? = nil,
          morphAnchor: CGRect? = nil,
          estimatedContentSize: CGSize? = nil,
          tracksContentSizeChanges: Bool = false,
@@ -319,6 +331,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          @ViewBuilder label: @escaping () -> Label) {
         self.cornerRadius = cornerRadius
         self.labelCornerRadius = labelCornerRadius
+        self.platterFill = platterFill
         self.morphAnchor = morphAnchor
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
@@ -412,6 +425,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                     label: { AnyView(label()) },
                     cornerRadius: cornerRadius,
                     labelCornerRadius: labelCornerRadius,
+                    platterFill: platterFill,
                     alignment: alignment,
                     placementOffset: placementOffset,
                     estimatedContentSize: estimatedContentSize,
@@ -531,6 +545,8 @@ final class TimeCustomMenuController {
     private(set) var labelView: (() -> AnyView)?
     private(set) var cornerRadius = TimeCustomMenuSpec.platterCornerRadius
     private(set) var labelCornerRadius: CGFloat?
+    /// Caller's opaque platter fill, painted under the glass. See `TimeCustomMenu.platterFill`.
+    private(set) var platterFill: Color?
     private(set) var alignment: TimeCustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
@@ -571,6 +587,7 @@ final class TimeCustomMenuController {
                  label: @escaping () -> AnyView,
                  cornerRadius: CGFloat,
                  labelCornerRadius: CGFloat?,
+                 platterFill: Color?,
                  alignment: TimeCustomMenuAlignment,
                  placementOffset: CGSize,
                  estimatedContentSize: CGSize? = nil,
@@ -590,6 +607,7 @@ final class TimeCustomMenuController {
         self.labelView = label
         self.cornerRadius = cornerRadius
         self.labelCornerRadius = labelCornerRadius
+        self.platterFill = platterFill
         self.alignment = alignment
         self.placementOffset = placementOffset
         self.estimatedContentSize = estimatedContentSize
@@ -678,6 +696,7 @@ final class TimeCustomMenuController {
         content = nil
         labelView = nil
         labelCornerRadius = nil
+        platterFill = nil
         alignment = .automatic
         placementOffset = .zero
         tracksContentSizeChanges = false
@@ -872,6 +891,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                         collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
                         expandedRadius: controller.cornerRadius,
+                        platterFill: controller.platterFill,
                         label: controller.labelView?(),
                         isClosing: controller.phase == .dismissing
                     ))
@@ -915,7 +935,7 @@ private struct TimeCustomMenuOverlayRoot: View {
         chromeCore(content: content, metrics: metrics)
             .background {
                 platterShape
-                    .fill(.regularMaterial)
+                    .fill(controller.platterFill.map { AnyShapeStyle($0) } ?? AnyShapeStyle(.regularMaterial))
                     .shadow(.floating)
             }
             .clipShape(platterShape)
@@ -995,6 +1015,8 @@ private struct TimeCustomMenuOverlayRoot: View {
         let expanded: CGRect
         /// Corner radius of the expanded menu platter.
         let expandedRadius: CGFloat
+        /// Opaque fill under the glass, ramped in with the morph. See `TimeCustomMenu.platterFill`.
+        let platterFill: Color?
         let label: AnyView?
         /// While dismissing, the glass melts off over the final expand so the
         /// label finishes the motion alone (no glass left to pop afterwards).
@@ -1067,8 +1089,23 @@ private struct TimeCustomMenuOverlayRoot: View {
             let glassOpacity: Double = isClosing
                 ? Double((p / TimeCustomMenuSpec.closeGlassFadeProgress).clamped(to: 0...1))
                 : 1
+            // The opaque fill materializes across the droplet's travel (both directions),
+            // so at rest — lens sitting on the label — there is nothing painted over it.
+            let fillRange = TimeCustomMenuSpec.platterFillRange
+            let fillOpacity = Double(((p - fillRange.lowerBound) /
+                                      (fillRange.upperBound - fillRange.lowerBound)).clamped(to: 0...1))
 
             ZStack(alignment: .topLeading) {
+                // Opaque platter under the glass, in the lens's own shape so it morphs with
+                // it (a fill on the content would stay a hard-cornered rect through the
+                // circle phase). Only for menus that bloom over imagery — see `platterFill`.
+                if let platterFill {
+                    RoundedRectangle(cornerRadius: lens.radius)
+                        .fill(platterFill)
+                        .frame(width: w, height: h)
+                        .opacity(glassOpacity * fillOpacity)
+                }
+
                 // Keep the platter glass behind the controls. Applying glass to the
                 // content itself captures native control chrome (including a wheel
                 // picker's system selection indicator) in the glass foreground pass.

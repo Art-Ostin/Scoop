@@ -92,7 +92,7 @@ extension MessagesContainer {
     @ToolbarContentBuilder
     private var profileButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            if let img = userProfileImages.first, img.size != .zero {
+            if let img = userProfileImages.first {
                 ScoopButton(shape: Circle()) {
                     showProfile = true
                 } label: {
@@ -101,6 +101,7 @@ extension MessagesContainer {
                         .scaledToFill()
                         .frame(width: 35, height: 35, alignment: .trailing)
                         .clipShape(Circle())
+                        .padding(10)
                 }
                 .matchedTransitionSource(id: "profile", in: profileZoom)
             } else {

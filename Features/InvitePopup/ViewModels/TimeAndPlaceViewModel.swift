@@ -79,7 +79,6 @@ class TimeAndPlaceViewModel {
         )
     }
     
-    
     func syncDelayedPopups() async {
         async let popup: Void = syncDelayedPopup()
         async let timePopup: Void = syncDelayedTimePopup()

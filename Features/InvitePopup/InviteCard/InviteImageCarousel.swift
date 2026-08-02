@@ -41,6 +41,7 @@ struct InviteImageCarousel: View {
     @State private var inviteFrame: CGRect = .zero
     @State private var optionsFrame: CGRect = .zero
     
+        
     var body: some View {
         InviteCarousel(images: images, isCompact: isCompact, scrollProgress: $scrollProgress)
             .overlay { backgroundBlur }
@@ -76,11 +77,12 @@ extension InviteImageCarousel {
     }
 }
 
-//Components
+//Title Overlay
 extension InviteImageCarousel {
     
-    //"Invite" is the one word every state shares, so it sits unconditionally in the middle
-    //of the stack and only ever slides and scales — the side words come and go around it.
+    
+    
+    
     private var titleOverlay: some View {
         HStack(spacing: 6) {
             if let leadingWord {
@@ -98,10 +100,9 @@ extension InviteImageCarousel {
                     .transition(.blurReplace)
             }
         }
-        .font(.title(24))
+        .animatableTitle(titleSize, titleWeight)
         .contentTransition(.opacity) //Crossfades the "Invite"/"invite" case flip instead of popping it
         .foregroundStyle(Color.white)
-        .scaleEffect(titleScale, anchor: .bottomLeading) //Matches the overlay's alignment, so the leading edge stays pinned
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
     }
@@ -116,19 +117,29 @@ extension InviteImageCarousel {
     //The invitee's name trails "Invite" only while the send is still being edited
     private var showsTrailingName: Bool { !isInvite && !isCompact }
 
-    //Compact type is 18pt against the 24pt resting size — a font swap snaps, a scale animates
-    private var titleScale: CGFloat { isCompact ? 18 / 24 : 1 }
+    //Real point sizes, interpolated by AnimatableTitleFont — each state names its own
+    private var titleSize: CGFloat {
+        if isInvite { 22 }        //Responding: "<name>'s Invite"
+        else if isCompact { 18 }  //Confirm screen
+        else { 24 }               //Editing a send
+    }
+
+    //Discrete: a family swap can't tween, so it lands on the first frame of the size animation
+    private var titleWeight: Font.titleFontWeight { isInvite ? .semibold : .bold }
+}
+
+//TopTrailing bar overlay
+extension InviteImageCarousel {
     
-    //One inset for the whole row, so the menu and the change button share an edge and a top
+    
     private var optionsMenu: some View {
         HStack(alignment: .top, spacing: 16) {
-            //Only show change button if there is a response type. Only give a response Type in respond mode
+
+            //Only show when its in response mode (so there is a response type)
             if let responseType {
                 ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
             }
             
-            //Structural, not a fade: an opacity-hidden menu keeps its slot and holds the
-            //change button off the trailing edge.
             if showsOptions {
                 OptionsMenu(
                     hasChanges: inviteHasChanges,
@@ -143,14 +154,15 @@ extension InviteImageCarousel {
         .padding(12)
         .animation(.transition, value: showsOptions)
     }
-
-    //Only while the card is expanded — and in respond mode, only for a new event
+    
+    
     private var showsOptions: Bool {
         guard !isCompact else { return false }
         guard let responseType else { return true } //Send mode always offers the menu
         return responseType.wrappedValue == .newEvent
     }
 
+    
     private var pageIndicator: some View {
         ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
@@ -170,5 +182,31 @@ extension InviteImageCarousel {
         .blurPop(visible: isCompact)
         .padding(.horizontal, 20)
         .padding(.top, 12)
+    }
+}
+
+//Animatable type size
+//`Font` isn't `VectorArithmetic`, so swapping .font() between sizes snaps. Interpolating the
+//point size instead re-lays the text at real metrics every frame, which is what lets each
+//state pick its own size outright rather than a ratio off one resting size.
+private struct AnimatableTitleFont: ViewModifier, Animatable {
+
+    var size: CGFloat
+    var weight: Font.titleFontWeight = .bold
+
+    var animatableData: CGFloat {
+        get { size }
+        set { size = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.title(size, weight))
+    }
+}
+
+private extension View {
+
+    func animatableTitle(_ size: CGFloat, _ weight: Font.titleFontWeight = .bold) -> some View {
+        modifier(AnimatableTitleFont(size: size, weight: weight))
     }
 }

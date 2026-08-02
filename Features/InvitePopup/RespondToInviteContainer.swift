@@ -36,6 +36,7 @@ struct RespondInviteContainer: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .task(id: timeAndPlaceUI.activePopup) { await timeAndPlaceUI.syncDelayedPopups() } //Owned here: the confirm page carries the time menu but never mounts TimeAndPlacePage
         .sheet(isPresented: $timeAndPlaceUI.showInfoScreen) {Text("How It works")}
         .animation(.move, value: vm.responseType)
         .animation(.move, value: createEventScreen)

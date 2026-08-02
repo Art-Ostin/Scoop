@@ -16,6 +16,9 @@ enum ConfirmStyle {
     var foreground: Color { isCard ? .white : .textPrimary }
     var clockIcon: ImageResource { isCard ? .whiteClock : .eventClockIcon }
     var mapIcon: ImageResource { isCard ? .whiteMap : .eventMapIcon }
+    //The time popup blooms over the card's photo, where plain glass reads as the image through
+    //the popup's own dark type — it wears a white platter there. On a sheet it stays pure glass.
+    var timePopupFill: Color? { isCard ? .white : nil }
     
     //The layout metrics set here
     var topPadding: CGFloat { isCard ? 0 : 26} //No top padding needed if is card
@@ -48,9 +51,10 @@ struct ConfirmContainer<TimeRow: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
+                .blurPop(visible: !timeOpen, scale: 1)
             timeAndPlaceRows
             warning
-                .opacityPop(visible: timeOpen)
+                .blurPop(visible: !timeOpen, scale: 1)
         }
         .foregroundStyle(style.foreground)
         .overlay(alignment: .bottomTrailing) { openInviteButton }
