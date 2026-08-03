@@ -68,12 +68,21 @@ public enum ZoomStyle {
     /// their clocks. The repeated pairs are DELIBERATE: the density is
     /// tuned to the card's original four stacked SwiftUI shadows;
     /// deduplicating would halve it.
+    /// Both pairs are offset well below their blur radius so no shadow
+    /// spills above the card: the halo's perceived weight depends on the
+    /// photo content beside it, so the only content-independent way to keep
+    /// cards looking alike is a bottom-only shadow.
     public static let cardShadows: [ShadowLayer] = [
-        ShadowLayer(opacity: 0.05, radius: 4, yOffset: 0),
-        ShadowLayer(opacity: 0.09, radius: 20, yOffset: 2),
-        ShadowLayer(opacity: 0.05, radius: 4, yOffset: 0),
-        ShadowLayer(opacity: 0.09, radius: 20, yOffset: 2),
+        ShadowLayer(opacity: 0.05, radius: 4, yOffset: 3),
+        ShadowLayer(opacity: 0.08, radius: 16, yOffset: 10),
+        ShadowLayer(opacity: 0.05, radius: 4, yOffset: 3),
+        ShadowLayer(opacity: 0.08, radius: 16, yOffset: 10),
     ]
+
+    /// Horizontal inset of the resting shadowPath: pulls the side blur back
+    /// under the opaque card so bright-edged photos show no side band. The
+    /// pool below keeps its full depth; only its flanks narrow by this much.
+    public static let cardShadowInsetX: CGFloat = 8
 }
 
 // MARK: - Public navigation container
@@ -722,6 +731,12 @@ final class CardRestingShadowView: UIView {
         super.layoutSubviews()
         let slot = bounds
         let card = UIBezierPath(roundedRect: slot, cornerRadius: ZoomStyle.cornerRadius)
+        // The shadow is cast by a horizontally inset path (see
+        // cardShadowInsetX), while the even-odd punch below stays the card
+        // shape so the silhouette is still fully cut out.
+        let cast = UIBezierPath(
+            roundedRect: slot.insetBy(dx: ZoomStyle.cardShadowInsetX, dy: 0),
+            cornerRadius: ZoomStyle.cornerRadius)
         // Outer margin covers the blur's full extent; even-odd punches the
         // card shape back out. No implicit actions: layout must not animate.
         let punched = UIBezierPath(rect: slot.insetBy(dx: -200, dy: -200))
@@ -730,7 +745,7 @@ final class CardRestingShadowView: UIView {
         CATransaction.setDisableActions(true)
         for l in shadowLayers {
             l.frame = slot
-            l.shadowPath = card.cgPath
+            l.shadowPath = cast.cgPath
         }
         cutout.path = punched.cgPath
         CATransaction.commit()

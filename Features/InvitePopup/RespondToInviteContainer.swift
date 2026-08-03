@@ -103,7 +103,7 @@ extension RespondInviteContainer {
             showConfirmScreen: $timeAndPlaceUI.showConfirmScreen,
             showInfoScreen: $timeAndPlaceUI.showInfoScreen,
             declineProfile: {respond(.decline)},
-            clearInvite: { vm.deleteEventDefault() }
+            clearInvite: { withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
     }
     
@@ -125,6 +125,7 @@ extension RespondInviteContainer {
         TwoPageScrollView(
             showSecondScreen: $timeAndPlaceUI.showConfirmScreen,
             scrollProgress: .constant(0),
+            reflowAnimation: vm.respondDraft.newEvent.hasChanges ? .transition : .dissolve, //An emptied draft is a clear
             screen1: { timeAndPlacePage },
             screen2: { newEventConfirmPage }
         )

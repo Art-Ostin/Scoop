@@ -16,8 +16,6 @@ struct InvitePopupBackground: View {
     }
 }
 
-
-
 //All that is not on the actual InviteCard
 struct InviteCardBackground: ViewModifier {
     

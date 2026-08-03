@@ -115,6 +115,10 @@ extension Animation {
     /// Content swaps & crossfades — opacity, `.blurReplace`, `.id` content, text/number swaps. Even, never bounces.
     static let transition = Animation.smooth(duration: 0.25)
 
+    /// A `.transition` taken slowly, when the replacement itself is the event — a draft's values
+    /// reverting to their placeholders. Long enough that the blur reads as a dissolve, not a swap.
+    static let dissolve = Animation.smooth(duration: 0.6)
+
     /// Disclosure & grow-in-place — info rows, height reveals, content reflow inside a container.
     static let expand = Animation.snappy(duration: 0.3)
 

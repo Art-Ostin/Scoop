@@ -50,6 +50,9 @@ struct InviteTimeRow: View {
                 .opacity(typePopupOpen ? 0 : 1)
         }
         .background { TimePickerWarmUp() }
+        .onChange(of: times.count) { _, count in
+            if count == 0 { scrolledPageID = 0 }
+        } //So goes to 1 on clear
         .transition(.opacity.animation(.transition))
     }
 }
@@ -114,9 +117,8 @@ extension InviteTimeRow {
 //Row title: "WHEN" ↔ "Option n" swap
 extension InviteTimeRow {
 
-    //ZStack + the .animation(value:) modifiers form a stable ancestor for the .id swap;
-    //without one the .blurReplace transition rebuilds and swaps instantly.
     private var rowTitle: some View {
+        //Use the ZStack with if else, to get the blur opacity effect
         ZStack(alignment: .leading) {
             Group {
                 if isWhenLabel {
@@ -186,17 +188,30 @@ private struct TimeRowMenuLabel: View {
 
     private var liveLabel: some View {
         HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
-            if times.isEmpty {
-                chooseTimeText
-                    .getRect($chooseTimeFrame)
-                    .frame(height: rowHeight)
-                    .offset(y: primaryContentOffset)
-            } else {
-                pager
-            }
+            valueSlot
             chevron
                 .offset(y: primaryContentOffset)
         }
+    }
+    
+    //Must put the valueSlot in a ZStack with If Else so blur poacity works. 
+    private var valueSlot: some View {
+        ZStack(alignment: .trailing) {
+            Group {
+                if times.isEmpty {
+                    chooseTimeText
+                        .getRect($chooseTimeFrame)
+                        .frame(height: rowHeight)
+                        .offset(y: primaryContentOffset)
+                } else {
+                    pager
+                }
+            }
+            .id(times.isEmpty)
+            .transition(.blurReplace)
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .animation(.dissolve, value: times.isEmpty)
     }
 
     //Re-laid at the row's on-screen text→chevron gap so it matches the morph anchor.
@@ -270,6 +285,5 @@ private struct TimeRowMenuLabel: View {
             .font(.body(16, .regular))
             .foregroundStyle(Color.textSecondary)
             .frame(height: InviteRowMetrics.primaryLineHeight)
-            .transition(.opacity.animation(.transition))
     }
 }

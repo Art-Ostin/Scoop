@@ -61,7 +61,7 @@ extension SendInviteContainer {
             showConfirmScreen: $ui.showConfirmScreen,
             showInfoScreen: $ui.showInfoScreen,
             declineProfile: declineProfile,
-            clearInvite: {withAnimation(.transition) { vm.deleteEventDefault() } }
+            clearInvite: {withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
     }
 
@@ -70,6 +70,7 @@ extension SendInviteContainer {
             TwoPageScrollView(
                 showSecondScreen: $ui.showConfirmScreen,
                 scrollProgress: .constant(0),
+                reflowAnimation: vm.event.hasChanges ? .transition : .dissolve, //An emptied draft is a clear
                 screen1: { timeAndPlacePage },
                 screen2: { confirmationPage }
             )

@@ -123,7 +123,9 @@ Features/<Name>/
   `Shared/Design/GeneralParameters.swift` — the vocabulary is `.toggle` (discrete state
   flips: selection, chips, validity, checkmarks, enable/disable), `.transition` (content
   swaps & crossfades: opacity/blurReplace, text/number swaps, warning fades, tab changes),
-  `.expand` (disclosure / height reveals), `.present`/`.dismiss` (overlays, menus, cards
+  `.dissolve` (a `.transition` taken slowly, where the replacement *is* the event — draft
+  values reverting to placeholders), `.expand` (disclosure / height reveals),
+  `.present`/`.dismiss` (overlays, menus, cards
   in/out), `.move` (position settles: scroll, drag-release, layout shifts, list
   insert/remove), `.quick` (sub-`.toggle` micro-feedback: near-instant dims, per-tick
   updates). Call sites read `.animation(.toggle, value:)` / `withAnimation(.move) { }`.

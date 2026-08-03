@@ -67,6 +67,7 @@ struct InviteTypeRow: View {
         }
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
+        .onChange(of: message.isEmpty) { _, isEmpty in messageEmptied(isEmpty) }
         .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
     }
 }
@@ -213,6 +214,14 @@ extension InviteTypeRow {
         }
     }
 
+    //The message can empty out from under the pager (Clear Invite Draft, or deleting the text):
+    //page 1 would sit on its "Add Message" placeholder while the caption has already gone back
+    //to "What". Mirrors the park onto page 1 above.
+    private func messageEmptied(_ isEmpty: Bool) {
+        guard isEmpty, (scrolledPageID ?? 0) >= 1 else { return }
+        withAnimation(.move) { scrolledPageID = 0 }
+    }
+
 }
 
 //The menu's label: the live type/message pager in the row, or the collapsed form the morph carries.
@@ -243,7 +252,7 @@ private struct TypeRowMenuLabel: View {
         HStack(spacing: 0) {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
-                    typeText
+                    liveTypeText
                         .getRect($typeFrame)
                         .frame(height: InviteRowMetrics.primaryLineHeight)
                         .frame(width: pageWidth, alignment: .trailing)
@@ -290,11 +299,28 @@ private struct TypeRowMenuLabel: View {
         .contentTransition(.opacity)
     }
 
+    
+    private var liveTypeText: some View {
+        //Must go in ZSTack for blur replace works
+        ZStack(alignment: .trailing) {
+            typeName
+                .id(type)
+                .transition(.blurReplace)
+        }
+        .animation(.dissolve, value: type)
+    }
+
+    //The copy the menu morph carries keeps the plain crossfade, so the platter dismiss
+    //doesn't animate the name a second time on its own curve.
     private var typeText: some View {
+        typeName
+            .contentTransition(.opacity)
+    }
+
+    private var typeName: some View {
         Text(type.longTitle)
             .font(.body(17, .medium))
             .lineLimit(1)
-            .contentTransition(.opacity)
     }
 
     private var chevron: some View {
