@@ -14,8 +14,9 @@ struct ConfirmMessageSection: View {
 
     @Binding var showMessageScreen: Bool
 
-    let isConfirmSend: Bool //No edit if not confirm send
+    let isConfirmSend: Bool
 
+    
     //Local view state
     @State private var textWidth: CGFloat = 0
     @State private var editSize: CGSize = .zero
@@ -72,13 +73,14 @@ extension ConfirmMessageSection {
             Text("Improve your invite with a message")
                 .font(.body(13, .regular))
                 .foregroundStyle(Color.textSecondary)
+            
 
             Text("Add a message")
                 .foregroundStyle(Color.textSecondary)
                 .font(.body(14, .regular))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(Color.fillGray, in: .rect(cornerRadius: 12))
+                .background(Color.fillGray.opacity(0.5), in: .capsule)
                 .shrinkPress {
                     showMessageScreen = true
                 }

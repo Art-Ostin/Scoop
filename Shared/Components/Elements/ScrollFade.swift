@@ -103,6 +103,7 @@ extension View {
         self.modifier(CustomScrollFade(isStrongFade: isStrong, height: height, showFade: showFade, edge: edge, isDetails: isDetails, color: color))
     }
 
+
     func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true, isCardInvite: Bool = false) -> some View {
         self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite))
     }

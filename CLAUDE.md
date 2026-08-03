@@ -75,8 +75,11 @@ Features/<Name>/
 - Colors: only named tokens from `Shared/Design/Colors.swift`. Text levels: `.textPrimary`,
   `.textSecondary`, `.textTertiary` (glanceable labels/icons only — never sentences),
   `.textPlaceholder`, `.textAccent` (accent-hued *type* on light backgrounds). Surfaces & lines:
-  `.appCanvas`, `.fillGray` (fills, disabled buttons), `.border` (hairlines, strokes, dividers).
+  `.appCanvas`, `.fillGray` (fills, disabled buttons), `.border` (hairlines, strokes, dividers),
+  `.blackFill` (opaque near-black fill for selected cells & small controls — the selected day
+  cell, the search-bar clear button; a *fill*, never type — sentences use `.textPrimary`).
   Status: `.successGreen` (confirmed/accepted states only), `.dangerRed`, `.warningYellow`.
+  `.actionBlue` marks a third-party hand-off out of the app (Google Maps / Reviews).
   The brand accent lives in `Assets.xcassets/AccentColor` (drives system tinting) — use `.accent`
   for fills/controls and `.textAccent` when the accent appears as text. The one fill exception is
   the wide CTA (`WideActionButton`), which wears the deeper `.textAccent` tone.

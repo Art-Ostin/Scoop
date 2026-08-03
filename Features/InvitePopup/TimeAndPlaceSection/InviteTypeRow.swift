@@ -384,7 +384,7 @@ private struct AddMessageFooter: View {
     @ViewBuilder
     private var accentFill: some View {
         if isCallToAction {
-            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.accent)
+            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.textAccent)
         }
     }
 }

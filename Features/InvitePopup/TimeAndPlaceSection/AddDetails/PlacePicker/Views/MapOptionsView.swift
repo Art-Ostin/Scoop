@@ -51,8 +51,6 @@ struct MapOptionsView: View {
             scrollPos.scrollTo(id: selected, anchor: .center)
         }
         .scrollIndicators(.never)
-        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: true)
-        .customHorizontalScrollFade(width: 40, showFade: true, fromLeading: false)
     }
     
     private var deleteSearchButton: some View {

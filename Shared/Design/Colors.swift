@@ -28,12 +28,14 @@ extension Color {
     //3. Background Color App
     static let appCanvas = Color(red: 0.99, green: 0.98, blue: 0.97)
     
-    static let blackFill = Color(red: 0.13, green: 0.13, blue: 0.13)
+    static let blackFill = Color(red: 0.13, green: 0.13, blue: 0.13) //Opaque near-black fill for selected cells & small controls (selected day, clear buttons) — never for type.
 
 
     //4. App Pallette
     // The brand accent lives in Assets.xcassets/AccentColor (drives system tinting) — use .accent.
     static let textAccent = Color(red: 0.55, green: 0, blue: 0.25) //Slightly darker accent, for accent-colored text on light backgrounds — and the wide CTA fill, which wears the deeper tone.
+
+    static let actionBlue = Color(red: 0, green: 0.48, blue: 1) //Third-party / external actions that hand off out of the app (Google Maps, Reviews).
 
 
     //5. Status Colors

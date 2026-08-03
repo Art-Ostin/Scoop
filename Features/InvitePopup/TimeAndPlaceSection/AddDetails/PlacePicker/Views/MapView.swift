@@ -19,8 +19,8 @@ struct MapView: View {
     
     @State private var sheet: MapSheets = .large
 
-    //Presented without animation so the sheet is fully formed the instant the cover lands.
     @State private var sheetPresented = false
+    @State private var sheetFlightEnded = false
 
     @State private var useSelectedDetent =  false
     @State private var isExitingSelectedSheet = false
@@ -116,9 +116,10 @@ struct MapView: View {
             }
             .mapControls{}
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
-            .overlay(alignment: .topTrailing) { DismissButton(type: .cross) }
-            .onAppear {
-                vm.locationManager.requestWhenInUseAuthorization()
+            .overlay(alignment: .topTrailing) { DismissButton(type: .cross).padding(.horizontal, 16) }
+            .onAppear { vm.locationManager.requestWhenInUseAuthorization() }
+            .task {
+                try? await Task.sleep(for: .milliseconds(500))
                 var tx = Transaction()
                 tx.disablesAnimations = true
                 withTransaction(tx) { sheetPresented = true }
@@ -147,6 +148,10 @@ struct MapView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 }
             }
+
+            if !sheetFlightEnded {
+                MapSheetFlight(vm: vm, sheet: $sheet, useSelectedDetent: $useSelectedDetent)
+            }
         }
         .mapScope(mapScope) //Fixes bug to allow it to apear (Need ZStack)
         .tint(.blue)
@@ -155,6 +160,19 @@ struct MapView: View {
 
 extension MapView {
 
+    
+    //Clear a selected Category
+    private var clearIcon: some View {
+        
+        
+        ScoopButton(style: .clearGlass, shape: .capsule) {
+            
+        } label: {
+            Text("Clear")
+        }
+    }
+    
+    
     private var pointsOfInterest: [MKPointOfInterestCategory] {
         [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
          .foodMarket, .fairground, .landmark, .park, .musicVenue,
@@ -172,6 +190,15 @@ extension MapView {
         ) { mapItem in
             eventLocation = EventLocation(mapItem: mapItem)
             dismiss()
+        }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+            //Teaches the flight twin exactly where this sheet sits on this device.
+            if !sheetFlightEnded { MapSheetFlight.recordSheetFrame(frame) }
+        }
+        .task {
+            //The flight twin below is redundant one rendered frame after this real sheet appears.
+            try? await Task.sleep(for: .milliseconds(150))
+            sheetFlightEnded = true
         }
         .presentationDetents(MapSheets.detents(hasSelection: vm.selectedMapItem != nil || useSelectedDetent), selection: detentSelection)
         .presentationBackgroundInteraction(.enabled(upThrough: .large))
@@ -229,19 +256,16 @@ extension MapView {
             userLocationButton
         }
         .padding(.bottom, actionMenuBottomPadding(containerHeight: containerHeight, bottomSafeArea: bottomSafeArea))
-        .padding(.horizontal, Spacing.gutter)
+        .padding(.horizontal, sheet == .searchBar ? 24 : 12)
         .animation(.move, value: sheet)
     }
     
     private var mapsButton: some View {
         let isAppleMaps = vm.defaults.preferredMapType == .appleMaps
         
-        // TEMP: glass button commented out for ButtonTest preview
-        return AnyView(EmptyView())
-        /*
-        return GlassButton {
+        return ScoopButton(shape: .circle, size: .large) {
             MapsRouter.openMaps(defaults: vm.defaults)
-        } buttonLabel: {
+        } label: {
             VStack(spacing: isAppleMaps ? 2 : 3) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")
                 Text("Maps")
@@ -251,16 +275,20 @@ extension MapView {
             .frame(width: 45, height: 45, alignment: .center)
             .offset(y: isAppleMaps ? 1 : -1)
         }
-        */
     }
     
+    private var userLocationButton: some View {
+        MapUserLocationButton(scope: mapScope)
+            .buttonBorderShape(.circle)
+            .tint(.blue)
+    }
     
     private func actionMenuBottomPadding(containerHeight: CGFloat, bottomSafeArea: CGFloat) -> CGFloat {
         let visibleHeight = containerHeight + bottomSafeArea
 
         switch sheet {
         case .searchBar:
-            return (visibleHeight * 0.05) + 24
+            return (visibleHeight * 0.05) + 36
         case .optionsAndSearchBar:
             return (visibleHeight * 0.17) + 48
         case .large:
@@ -279,12 +307,5 @@ extension MapView {
             longitude: coordinate.longitude - (longitudeOffset * sin(headingRadians))
         )
     }
-
-    
-    
-    private var userLocationButton: some View {
-        MapUserLocationButton(scope: mapScope)
-            .buttonBorderShape(.circle)
-            .tint(.blue)
-    }
 }
+

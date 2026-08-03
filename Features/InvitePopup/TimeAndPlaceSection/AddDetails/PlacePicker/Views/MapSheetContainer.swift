@@ -18,18 +18,29 @@ struct MapSheetContainer: View {
 
     //Local view state
     @FocusState private var searchFocused: Bool
+    @State private var entranceFocusDone = false
+
+    private let keyboardOpenDelay: Duration = .milliseconds(50)
 
     var body: some View {
         sheetContent
         .animation(.transition, value: sheet)
         .animation(.transition, value: vm.selectedMapItem != nil)
-        // Keep keyboard + focus “linked” to large search mode.
+
+        // Keep keyboard + focus “linked” to large search mode; the first focus of the
+        // entrance holds back for keyboardOpenDelay so the platter leads the keyboard.
         .task(id: shouldAutoFocusSearch) {
             if shouldAutoFocusSearch {
-                await Task.yield()                 // wait until large content is in hierarchy
-                await MainActor.run { searchFocused = true }
+                if entranceFocusDone {
+                    await Task.yield()             // wait until large content is in hierarchy
+                } else if (try? await Task.sleep(for: keyboardOpenDelay)) == nil {
+                    return                         // entrance cancelled (sheet left large mode)
+                }
+                entranceFocusDone = true
+                searchFocused = true
             } else {
-                await MainActor.run { searchFocused = false }
+                entranceFocusDone = true
+                searchFocused = false
             }
         }
         .onChange(of: vm.selectedMapItem) { _, newValue in

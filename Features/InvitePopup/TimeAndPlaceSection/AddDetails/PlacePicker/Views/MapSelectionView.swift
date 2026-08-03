@@ -19,12 +19,12 @@ struct MapSelectionView: View {
     
     @State private var lookAroundScene: MKLookAroundScene?
     @State private var isLoadingLookAround = false
+    @State private var loadedSceneID: String?
     
     @State private var writeMaps = false
         
     var body: some View {
         
-        //Have overlay topLeft scoop Logo when done
         VStack(alignment: .center, spacing: Spacing.md) {
             VStack(spacing: Spacing.xs) {
                 title
@@ -75,9 +75,9 @@ extension MapSelectionView {
             Text("Add Location")
                 .font(.body(18, .bold))
                 .foregroundStyle(.white)
-                .frame(width: 250)
-                .frame(height: 50)
-                .background(Color.accent, in: .rect(cornerRadius: CornerRadius.xl))
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(Color.textAccent, in: .rect(cornerRadius: CornerRadius.xl))
         }
     }
     
@@ -88,7 +88,6 @@ extension MapSelectionView {
             Image(systemName: "magnifyingglass")
                 .font(.body(17, .bold))
                 .frame(width: 35, height: 35, alignment: .center)
-//                .offset(y: -2)
                 .contentShape(Circle())
                 .foregroundStyle(Color.textPrimary)
         }
@@ -122,7 +121,7 @@ extension MapSelectionView {
     private var locationActions: some View {
         
         HStack(spacing: Spacing.md) {
-            MapSelectionAction(text: writeMaps ? "Maps" : "Reviews") {
+            MapSelectionAction(text: writeMaps ? "Maps" : "Reviews", tint: .actionBlue) {
                  MapsRouter.openGoogleMaps(item: mapItem)
              } icon: {
                  Image("GoogleMapsIcon")
@@ -142,7 +141,6 @@ extension MapSelectionView {
                  Text("📞")
                      .font(.body(14, .bold))
              }
-            
         }
     }
     
@@ -173,14 +171,20 @@ extension MapSelectionView {
         return "\(mapItem.name ?? "")-\(coordinate.latitude)-\(coordinate.longitude)"
     }
 
+    //Returning from the full-screen Look Around re-runs this task; re-fetching there would
+    //tear down the preview the system is still flying back into, so the same place is a no-op.
     @MainActor
     private func loadLookAroundScene() async {
+        let requestID = lookAroundRequestID
+        guard loadedSceneID != requestID else { return }
+
         lookAroundScene = nil
         isLoadingLookAround = true
         defer { isLoadingLookAround = false }
-        
+
         do {
             lookAroundScene = try await MKLookAroundSceneRequest(mapItem: mapItem).scene
+            loadedSceneID = requestID //Only on success, so a failed load still retries
         } catch {
             lookAroundScene = nil
         }
@@ -200,32 +204,27 @@ extension MapSelectionView {
     }
     
     private var dismissButton: some View {
-        // TEMP: glass button commented out for ButtonTest preview
-        EmptyView()
-        /*
-        GlassButton(padding: 6) {
-            onExitSelection(.optionsAndSearchBar)
-            //Only remove text if it is not a category (i.e. if more than 3 selected)
-            if !(vm.results.count > 3) {
-                vm.searchText = ""
+        Image(systemName: "xmark")
+            .font(.body(17, .bold))
+            .frame(width: 35, height: 35, alignment: .center)
+            .contentShape(Circle())
+            .foregroundStyle(Color.textPrimary)
+            .shrinkPress {
+                onExitSelection(.optionsAndSearchBar)
             }
-        } buttonLabel: {
-            Image(systemName: "xmark")
-                .font(.body(15, .medium))
-        }
-        */
     }
 }
 
 
 private struct MapSelectionAction<Icon: View>: View {
+    //Injected
     let text: String
-
+    var tint: Color = .blackFill
     var isEnabled = true
     let onTap: () -> Void
     @ViewBuilder let icon: () -> Icon
 
-    
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Spacing.sm) {
@@ -236,7 +235,7 @@ private struct MapSelectionAction<Icon: View>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 35)
-        .foregroundStyle(isEnabled ? Color.textAccent : Color.textPlaceholder)
+        .foregroundStyle(isEnabled ? tint : Color.textPlaceholder)
         .stroke(CornerRadius.xl, lineWidth: 1.2)
         .disabled(!isEnabled)
     }

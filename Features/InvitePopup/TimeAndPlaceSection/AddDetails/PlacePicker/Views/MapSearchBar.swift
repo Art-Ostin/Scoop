@@ -19,9 +19,8 @@ struct MapSearchBar: View {
             TextField("",text: $vm.searchText, prompt: searchPrompt)
                 .padding(.horizontal, 40) //Geometry: clears the leading icon & trailing clear-button overlays
                 .font(.system(size: 17))
-                .overlay(alignment: .leading) { searchIcon }
-                .overlay(alignment: .trailing) {deleteSearchButton}
                 .frame(height: 45)
+                .foregroundStyle(Color.textPrimary)
                 .buttonBackground(.capsule, color: .clear)
                 .contentShape(Capsule())
                 .focused($isFocused)
@@ -29,6 +28,11 @@ struct MapSearchBar: View {
                     if sheet != .large { sheet = .large }
                 })
                 .onSubmit(of: .text) { Task { await searchAndSelectFirst() } }
+                // Overlays sit ABOVE the tap gesture, not inside it: the clear button is a
+                // sibling of the bar, so tapping it can't also expand the sheet.
+                .overlay(alignment: .leading) { searchIcon }
+                .overlay(alignment: .trailing) { deleteSearchButton }
+                .animation(.toggle, value: vm.searchText.isEmpty)
         }
     }
 extension MapSearchBar {
@@ -44,13 +48,14 @@ extension MapSearchBar {
             .font(.system(size: 17, weight: .medium))
             .foregroundStyle(Color.textPrimary)
             .padding(.leading, Spacing.sm)
+            .allowsHitTesting(false) //Taps on the icon belong to the bar underneath
     }
         
     @ViewBuilder
     private var deleteSearchButton: some View {
-        if !vm.searchText.isEmpty && sheet == .large {
+        if !vm.searchText.isEmpty {
             Button {
-                vm.searchText = ""
+                vm.clearSearch()
             } label : {
                 Image(systemName: "xmark")
                     .font(.body(12, .bold))
@@ -58,7 +63,7 @@ extension MapSearchBar {
                     .padding(Spacing.xxs)
                     .background (
                         Circle()
-                            .foregroundStyle(Color.textSecondary)
+                            .foregroundStyle(Color.blackFill)
                     )
                     .scaleEffect(0.8)
                     .padding(.horizontal, Spacing.sm)

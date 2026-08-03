@@ -86,7 +86,17 @@ import UIKit
         categorySelectionFromSearchArea = fromSearchArea
         selectedMapCategory = category
     }
-    
+
+    //The search bar's xmark: drops the query and any selected category.
+    func clearSearch() {
+        guard selectedMapCategory != nil else {
+            categorySearchTask?.cancel()
+            resetSearchState()
+            return
+        }
+        selectedMapCategory = nil //didSet → onCategorySelect() cancels the task and resets
+    }
+
     private func onCategorySelect() {
         categorySearchTask?.cancel()
         let fromSearchArea = categorySelectionFromSearchArea
@@ -100,10 +110,14 @@ import UIKit
             }
         } else {
             //If categorySelect set to nil, delete all the existing values
-            results.removeAll()
-            searchText = ""
-            markerTint = .accent
+            resetSearchState()
         }
+    }
+
+    private func resetSearchState() {
+        results.removeAll()
+        searchText = ""
+        markerTint = .accent
     }
     
     //Search and assign all the categories
