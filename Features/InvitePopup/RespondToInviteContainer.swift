@@ -30,7 +30,7 @@ struct RespondInviteContainer: View {
         ZStack {
             InvitePopupBackground()
             
-            VStack(spacing: 12) {
+            VStack(spacing: 36) {
                 inviteCard
                 backButton
             }
@@ -42,6 +42,7 @@ struct RespondInviteContainer: View {
         .animation(.move, value: createEventScreen)
         .animation(.toggle, value: vm.respondDraft.newEvent.isComplete)
         .sheet(isPresented: $timeAndPlaceUI.showMessageScreen) {addMessageView }
+        .fullScreenCover(isPresented: $timeAndPlaceUI.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.respondDraft.newEvent.place) }
     }
 }
 
@@ -52,7 +53,7 @@ extension RespondInviteContainer {
             imageCarousel
             inviteDetailsSection
         }
-        .modifier(InviteCardBackground(isConfirming: timeAndPlaceUI.showConfirmScreen == true))
+        .modifier(InviteCardBackground())
     }
 
     //Gone while the time or type popup owns the card — the DynamicTimeRow's popup counts on either page

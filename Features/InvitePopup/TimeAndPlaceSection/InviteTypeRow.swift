@@ -332,15 +332,19 @@ private struct AddMessageFooter: View {
     let corners: RectangleCornerRadii
     let onSelect: () -> Void
 
+    //With no message yet the footer is the row's call to action, so it wears the accent fill.
+    private var isCallToAction: Bool { message.isEmpty }
+
     var body: some View {
-        Text(message.isEmpty ? "Add a Message" : "Edit Message")
-            .foregroundStyle(Color.textPrimary)
+        Text(isCallToAction ? "Add a Message" : "Edit Message")
+            .foregroundStyle(isCallToAction ? Color.white : Color.textAccent)
             .frame(maxWidth: .infinity, alignment: .center)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
             .frame(width: SelectTypeView.cardWidth, alignment: .leading)
-            .dropdownCustomMenuFooterPlatter(corners: corners)    //own the glass platter so the press scales it
+            .background(accentFill)
+            .dropdownCustomMenuFooterPlatter(corners: corners)
             .contentShape(.rect)
             .shrinkPress {
                 onSelect()
@@ -349,5 +353,12 @@ private struct AddMessageFooter: View {
                     menuDismiss(.instant)
                 }
             }
+    }
+
+    @ViewBuilder
+    private var accentFill: some View {
+        if isCallToAction {
+            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.accent)
+        }
     }
 }

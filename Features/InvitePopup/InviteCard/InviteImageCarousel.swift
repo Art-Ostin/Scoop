@@ -18,6 +18,7 @@ struct InviteImageCarousel: View {
     //In response mode when not nil
     var responseType: Binding<ResponseType>? = nil
     var isRespondScreen: Bool { responseType != nil && responseType?.wrappedValue != .newEvent}
+    var showOverlayText: Bool { isRespondScreen || !isConfirm }
     
     let name: String
     let images: [UIImage]
@@ -42,7 +43,7 @@ struct InviteImageCarousel: View {
         
     var body: some View {
         InviteCarousel(images: images, isCompact: isConfirm, scrollProgress: $scrollProgress)
-            .overlay { backgroundBlur }
+            .overlay { if showOverlayText { backgroundBlur } }
             .overlay(alignment: .topTrailing) { optionsMenu }
             .overlay(alignment: .bottomLeading) { popupTitle }
             .overlay(alignment: .bottomTrailing) { if !isConfirm { pageIndicator } }
@@ -152,110 +153,3 @@ extension InviteImageCarousel {
         .padding(.top, 12)
     }
 }
-
-
-
-/*
- 
- 
- 
- 
- //Title Overlay
- extension InviteImageCarousel {
-     
- //    private var popupTitle: some View {
- //
- //        let sendInvite = "Invite \(name)"
- //        let respondToInvite = "\(name)'s invite)"
- //        let confirmScreen = "Confirm invite"
- //
- //        HStack(spacing: 6) {
- //
- //
- //
- //
- //
- //
- //
- //        }
- //
- //
- //    }
-     
-     
-     
- }
- 
- 
- //Animatable type size
- //`Font` isn't `VectorArithmetic`, so swapping .font() between sizes snaps. Interpolating the
- //point size instead re-lays the text at real metrics every frame, which is what lets each
- //state pick its own size outright rather than a ratio off one resting size.
- private struct AnimatableTitleFont: ViewModifier, Animatable {
-
-     var size: CGFloat
-     var weight: Font.titleFontWeight = .bold
-
-     var animatableData: CGFloat {
-         get { size }
-         set { size = newValue }
-     }
-
-     func body(content: Content) -> some View {
-         content.font(.title(size, weight))
-     }
- }
-
- private extension View {
-
-     func animatableTitle(_ size: CGFloat, _ weight: Font.titleFontWeight = .bold) -> some View {
-         modifier(AnimatableTitleFont(size: size, weight: weight))
-     }
- }
-
- 
- private var titleOverlay: some View {
-     HStack(spacing: 6) {
-         if let leadingWord {
-             Text(leadingWord)
-                 .getRect($nameFrame, coordSpace: "InviteImageCarousel")
-                 .transition(.blurReplace)
-         }
-
-         Text(isConfirm && !isInvite ? "invite" : "Invite")
-             .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
-
-         if showsTrailingName {
-             Text(name)
-                 .getRect($nameFrame, coordSpace: "InviteImageCarousel")
-                 .transition(.blurReplace)
-         }
-     }
-     .animatableTitle(titleSize, titleWeight)
-     .contentTransition(.opacity) //Crossfades the "Invite"/"invite" case flip instead of popping it
-     .foregroundStyle(Color.white)
-     .padding(.horizontal, 20)
-     .padding(.bottom, 12)
- }
-
- //Pushes "Invite" right: "Sarah's" when responding, "Confirm" once a send reaches the confirm screen
- private var leadingWord: String? {
-     if isInvite { "\(name)'s" }
-     else if isCompact { "Confirm" }
-     else { nil }
- }
-
- //The invitee's name trails "Invite" only while the send is still being edited
- private var showsTrailingName: Bool { !isInvite && !isCompact }
-
- //Real point sizes, interpolated by AnimatableTitleFont — each state names its own
- private var titleSize: CGFloat {
-     if isInvite { 22 }        //Responding: "<name>'s Invite"
-     else if isCompact { 18 }  //Confirm screen
-     else { 24 }               //Editing a send
- }
-
- //Discrete: a family swap can't tween, so it lands on the first frame of the size animation
- private var titleWeight: Font.titleFontWeight { isInvite ? .semibold : .bold }
-
- */

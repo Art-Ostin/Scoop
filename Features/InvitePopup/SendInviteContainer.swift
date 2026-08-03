@@ -27,7 +27,7 @@ struct SendInviteContainer: View {
         ZStack {
             InvitePopupBackground()
             
-            VStack(spacing: 0) {
+            VStack(spacing: 36) {
                 inviteCard
                 backButton
             }
@@ -50,7 +50,7 @@ extension SendInviteContainer {
             imageSection
             inviteDetailsPager
         }
-        .modifier(InviteCardBackground(isConfirming: ui.showConfirmScreen == true))
+        .modifier(InviteCardBackground())
     }
     
     private var imageSection: some View {

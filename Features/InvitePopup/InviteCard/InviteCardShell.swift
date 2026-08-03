@@ -22,7 +22,6 @@ struct InvitePopupBackground: View {
 struct InviteCardBackground: ViewModifier {
     
     private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
-    var isConfirming: Bool
     var isInvite: Bool = false
     
     func body(content: Content) -> some View {
@@ -34,7 +33,7 @@ struct InviteCardBackground: ViewModifier {
             .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
-            .padding(.top, isInvite ? 0 : (isConfirming ? 40 : 48))
+            .padding(.top, 24) //Consistent 24 top padding works well (regardless of confirm screen or not) 
     }
 }
 
@@ -54,8 +53,6 @@ struct BottomBackButton: View {
         .opacityPop(visible: visible)
         .allowsHitTesting(visible)
         .animation(.transition, value: visible)
-        
-        .padding(.top, Spacing.xl) // 36
         .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, 10)
         .padding(.horizontal, Spacing.sm) // 12

@@ -273,10 +273,12 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// Corner radius of the label's own shape so the closing lens lands on it
     /// exactly (defaults to a capsule). Mismatched corners read as a snap.
     var labelCornerRadius: CGFloat?
-    /// Opaque fill painted under the platter glass, in the lens's own shape, for menus
+    /// Opaque fill painted over the platter glass, in the lens's own shape, for menus
     /// that bloom over imagery — plain glass there just shows the photo through the
     /// menu's own type. Ramped in with the morph (see `platterFillRange`) so it exists
     /// only while the menu is open, never on the label at rest. Nil keeps pure glass.
+    /// It covers the glass rather than tinting it: the menu's window follows the device
+    /// appearance, so glass laid on top would grey the fill out on a dark-mode device.
     var platterFill: Color?
     /// Explicit (global) rect the morph lens collapses to / blooms from, overriding
     /// the label's own measured frame. Use when the label is larger than what should
@@ -545,7 +547,7 @@ final class TimeCustomMenuController {
     private(set) var labelView: (() -> AnyView)?
     private(set) var cornerRadius = TimeCustomMenuSpec.platterCornerRadius
     private(set) var labelCornerRadius: CGFloat?
-    /// Caller's opaque platter fill, painted under the glass. See `TimeCustomMenu.platterFill`.
+    /// Caller's opaque platter fill, painted over the glass. See `TimeCustomMenu.platterFill`.
     private(set) var platterFill: Color?
     private(set) var alignment: TimeCustomMenuAlignment = .automatic
     private(set) var placementOffset: CGSize = .zero
@@ -1015,7 +1017,7 @@ private struct TimeCustomMenuOverlayRoot: View {
         let expanded: CGRect
         /// Corner radius of the expanded menu platter.
         let expandedRadius: CGFloat
-        /// Opaque fill under the glass, ramped in with the morph. See `TimeCustomMenu.platterFill`.
+        /// Opaque fill over the glass, ramped in with the morph. See `TimeCustomMenu.platterFill`.
         let platterFill: Color?
         let label: AnyView?
         /// While dismissing, the glass melts off over the final expand so the
@@ -1096,16 +1098,6 @@ private struct TimeCustomMenuOverlayRoot: View {
                                       (fillRange.upperBound - fillRange.lowerBound)).clamped(to: 0...1))
 
             ZStack(alignment: .topLeading) {
-                // Opaque platter under the glass, in the lens's own shape so it morphs with
-                // it (a fill on the content would stay a hard-cornered rect through the
-                // circle phase). Only for menus that bloom over imagery — see `platterFill`.
-                if let platterFill {
-                    RoundedRectangle(cornerRadius: lens.radius)
-                        .fill(platterFill)
-                        .frame(width: w, height: h)
-                        .opacity(glassOpacity * fillOpacity)
-                }
-
                 // Keep the platter glass behind the controls. Applying glass to the
                 // content itself captures native control chrome (including a wheel
                 // picker's system selection indicator) in the glass foreground pass.
@@ -1113,6 +1105,21 @@ private struct TimeCustomMenuOverlayRoot: View {
                     .frame(width: w, height: h)
                     .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
                     .opacity(glassOpacity)
+
+                // Opaque platter OVER the glass, in the lens's own shape so it morphs with
+                // it (a fill on the content would stay a hard-cornered rect through the
+                // circle phase). Above and not below: glass wears a system-appearance tint
+                // and the menu's own UIWindow follows the DEVICE appearance, so a fill
+                // underneath reads as tinted glass (flat grey on a dark-appearance device),
+                // never as its own colour. The glass beneath still carries the droplet
+                // phase, where the fill has not ramped in yet.
+                // Only for menus that bloom over imagery — see `platterFill`.
+                if let platterFill {
+                    RoundedRectangle(cornerRadius: lens.radius)
+                        .fill(platterFill)
+                        .frame(width: w, height: h)
+                        .opacity(glassOpacity * fillOpacity)
+                }
 
                 content
                     .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
