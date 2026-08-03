@@ -11,9 +11,7 @@ import SwiftUI
 enum ConfirmStyle {
     
     case card, popup, respondPopup
-    
-    
-    
+
     
     var isCard: Bool { self == .card }
 
@@ -21,13 +19,12 @@ enum ConfirmStyle {
     var foreground: Color { isCard ? .white : .textPrimary }
     var clockIcon: ImageResource { isCard ? .whiteClock : .eventClockIcon }
     var mapIcon: ImageResource { isCard ? .whiteMap : .eventMapIcon }
-    //The time popup blooms over the card's photo, where plain glass reads as the image through
-    //the popup's own dark type — it wears a white platter there. On a sheet it stays pure glass.
+    
     var timePopupFill: Color? { isCard ? .white : nil }
     
     //The layout metrics set here
     var topPadding: CGFloat { isCard ? 0 : 26} //No top padding needed if is card
-    var timeAndPlaceTopPadding: CGFloat { isCard ? Spacing.lg : 26} //Padding to title if card (matches the row spacing, so the card reads as one even stack), otherwise to type row
+    var timeAndPlaceTopPadding: CGFloat { isCard ? Spacing.lg : 26} //Padding to title if card (matches the row spacing, so card reads as one even stack)
     var rowSpacing: CGFloat { isCard ? 22 : 26}
     var rowsBottomPadding: CGFloat { isCard ? 28 : 26} //Below the place row: card → card bottom, popup → warning
     var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → rowsBottomPadding already reaches the card bottom, popup → action button
@@ -44,15 +41,15 @@ struct ConfirmContainer<TimeRow: View>: View {
     let name: String
     let style: ConfirmStyle
     let timeOpen: Bool
-
+    let showMessageSection: Bool
+        
     @Binding var showMessageScreen: Bool
-
-    //Pass in the time view: the time row differs between sending and responding to an invite
     @ViewBuilder var timeRow: TimeRow
 
     let showInfo: () -> ()
     var openInvite: (() -> Void)? = nil
 
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -105,6 +102,7 @@ extension ConfirmContainer {
         ConfirmTimeAndPlace(
             place: event.place,
             message: event.message,
+            showMessageSection: showMessageSection,
             timeOpen: timeOpen,
             style: style,
             showMessageScreen: $showMessageScreen,

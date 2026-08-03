@@ -13,6 +13,7 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     //Injected
     let place: EventLocation
     let message: String?
+    let showMessageSection: Bool
 
     //Hide place row when time popup is open
     let timeOpen: Bool
@@ -41,11 +42,14 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
         .scrollDisabled(!style.showScrollView)
     }
     
+    @ViewBuilder
     private var messageScreen: some View {
-        ConfirmMessageSection(
-            message: message,
-            showMessageScreen: $showMessageScreen, isConfirmSend: style == .respondPopup
-        )
+        if showMessageSection {
+            ConfirmMessageSection(
+                message: message,
+                showMessageScreen: $showMessageScreen, isConfirmSend: style == .respondPopup
+            )
+        }
     }
     
     private var pageIndicator: some View {

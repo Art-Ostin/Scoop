@@ -34,6 +34,7 @@ struct InviteCard: View {
             name: name,
             style: .card,
             timeOpen: timePopupOpen,
+            showMessageSection: true,
             showMessageScreen: .constant(false)) {
                 DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, style: .card)
             } showInfo: {
@@ -75,15 +76,3 @@ struct BlurAndGradientBackground: ViewModifier {
     }
 }
 
-/*
- InviteCardOverlay(
-     name: name,
-     timeOpen: timePopupOpen,
-     event: InviteSummary(event: draft.originalInvite.event)
- ) {
-     DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen)
- } openInvite: {
-     openInvite()
- }
-
- */

@@ -121,6 +121,7 @@ extension SendInviteContainer {
                 name: name,
                 style: .popup,
                 timeOpen: ui.delayedTimePopupOpen,
+                showMessageSection: true,
                 showMessageScreen: $ui.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
                 } showInfo: {

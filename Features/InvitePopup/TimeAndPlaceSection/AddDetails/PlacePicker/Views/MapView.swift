@@ -17,8 +17,11 @@ struct MapView: View {
     
     @Binding var eventLocation: EventLocation?
     
-    @State private var sheet: MapSheets = .optionsAndSearchBar
-    
+    @State private var sheet: MapSheets = .large
+
+    //Presented without animation so the sheet is fully formed the instant the cover lands.
+    @State private var sheetPresented = false
+
     @State private var useSelectedDetent =  false
     @State private var isExitingSelectedSheet = false
     @State private var selectedSheetExitTask: Task<Void, Never>?
@@ -114,7 +117,12 @@ struct MapView: View {
             .mapControls{}
             .mapStyle(.standard(pointsOfInterest: .including(pointsOfInterest)))
             .overlay(alignment: .topTrailing) { DismissButton(type: .cross) }
-            .onAppear {vm.locationManager.requestWhenInUseAuthorization() }
+            .onAppear {
+                vm.locationManager.requestWhenInUseAuthorization()
+                var tx = Transaction()
+                tx.disablesAnimations = true
+                withTransaction(tx) { sheetPresented = true }
+            }
             .onChange(of: vm.selection) { _, newSelection in itemSelected(newSelection) }
             .onChange(of: vm.selectedMapItem) { _, newItem in
                 if newItem != nil {
@@ -131,7 +139,7 @@ struct MapView: View {
             .onDisappear { selectedSheetExitTask?.cancel() }
             .animation(.toggle, value: vm.selection)
             .ignoresSafeArea(.keyboard, edges: .bottom)
-            .sheet(isPresented: .constant(true)) { mapSheet }
+            .sheet(isPresented: $sheetPresented) { mapSheet }
             .animation(.transition, value: useSelectedDetent)
             .overlay(alignment: .bottomTrailing) {
                 GeometryReader { proxy in
@@ -146,7 +154,7 @@ struct MapView: View {
 }
 
 extension MapView {
-    
+
     private var pointsOfInterest: [MKPointOfInterestCategory] {
         [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
          .foodMarket, .fairground, .landmark, .park, .musicVenue,

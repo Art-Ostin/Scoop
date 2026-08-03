@@ -85,6 +85,7 @@ extension RespondInviteContainer {
             name: vm.profile.name,
             style: .respondPopup,
             timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
+            showMessageSection: ui.hasEventMessage(vm.respondDraft),
             showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
                 DynamicTimeRow(draft: $vm.respondDraft, timePopupOpen: timeAndPlaceUI.popupBinding(.time), style: .respondPopup)
             } showInfo: {
@@ -133,15 +134,19 @@ extension RespondInviteContainer {
 
     @ViewBuilder
     private var newEventConfirmPage: some View {
+        let showMessageSection: Bool = vm.responseType == .originalInvite && ui.hasEventMessage(vm.respondDraft)
+        
+        
         if let inviteSummary = InviteSummary(draft: vm.respondDraft.newEvent) {
             ConfirmContainer(
                 event: inviteSummary,
                 name: vm.profile.name,
-                style: .respondPopup,
+                style:  .respondPopup,
                 timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
+                showMessageSection: showMessageSection,
                 showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
-                } showInfo: {
+                } showInfo:  {
                     timeAndPlaceUI.showInfoScreen = true
                 }
         }
