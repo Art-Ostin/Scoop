@@ -47,6 +47,10 @@ class RespondViewModel {
         storedDraft.rehydrate(with: event)   //the stored copy of the invite may be stale
         return storedDraft
     }
+    
+    private func deleteDraft() {
+        respondDraft.newEvent = .init()
+    }
 }
 
 @Observable final class RespondUIState {

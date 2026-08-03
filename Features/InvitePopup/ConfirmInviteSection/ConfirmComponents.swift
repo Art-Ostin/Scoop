@@ -84,8 +84,12 @@ struct TypeButton: View {
 struct WarningLabel: View {
     
     var body: some View {
-        HStack(spacing: Spacing.md){
-            Image(.inviteTick)
+        HStack(spacing: 10) {
+            Image(.triangleWarning)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+                .foregroundStyle(Color.accent)
             
             Text("Not showing may result in a blocked account")
                 .font(.body(14, .regular))

@@ -35,7 +35,6 @@ struct RespondInviteContainer: View {
                 backButton
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .task(id: timeAndPlaceUI.activePopup) { await timeAndPlaceUI.syncDelayedPopups() } //Owned here: the confirm page carries the time menu but never mounts TimeAndPlacePage
         .sheet(isPresented: $timeAndPlaceUI.showInfoScreen) {Text("How It works")}
         .animation(.move, value: vm.responseType)
@@ -104,7 +103,7 @@ extension RespondInviteContainer {
             showConfirmScreen: $timeAndPlaceUI.showConfirmScreen,
             showInfoScreen: $timeAndPlaceUI.showInfoScreen,
             declineProfile: {respond(.decline)},
-            clearInvite: {timeAndPlaceVM.deleteEventDefault()}
+            clearInvite: { vm.deleteEventDefault() }
         )
     }
     
@@ -113,8 +112,9 @@ extension RespondInviteContainer {
     }
 
     private var addMessageView: some View {
+        //Bind to different message in different context
         AddMessageView(
-            message: $vm.respondDraft.respondMessage,
+            message: (vm.responseType == .newEvent) ? $vm.respondDraft.newEvent.message : $vm.respondDraft.respondMessage,
             isRespondMessage: true,
             eventType: $vm.respondDraft.newEvent.type
         )

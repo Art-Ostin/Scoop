@@ -36,6 +36,7 @@ struct InvitesContainer: View {
                 respondPoup(invite)
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .hideTabBar(ui.showQuickResponse != nil)
     }
 }

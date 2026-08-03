@@ -32,6 +32,7 @@ struct MeetContainer: View {
                 inviteView(pending: pending)
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .hideTabBar(ui.showInvite != nil)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }

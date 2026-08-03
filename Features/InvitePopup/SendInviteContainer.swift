@@ -32,7 +32,6 @@ struct SendInviteContainer: View {
                 backButton
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.transition, value: ui.showConfirmScreen)
         .task(id: ui.activePopup) { await ui.syncDelayedPopups() } //Owned here: the delayed mirrors must track on every page, not just the one that hosts a menu
 

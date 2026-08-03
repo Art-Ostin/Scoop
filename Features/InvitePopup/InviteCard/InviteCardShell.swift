@@ -33,7 +33,7 @@ struct InviteCardBackground: ViewModifier {
             .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
-            .padding(.top, 24) //Consistent 24 top padding works well (regardless of confirm screen or not) 
+            .padding(.top, 24) //Consistent 24 top padding works well (regardless of confirm screen or not)
     }
 }
 

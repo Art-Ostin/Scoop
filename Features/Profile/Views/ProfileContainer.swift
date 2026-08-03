@@ -59,5 +59,6 @@ struct ProfileContainer: View {
         .overlay(alignment: .bottomTrailing) { inviteButton }
         .overlay(alignment: .bottomLeading) { declineButton }
         .overlay { inviteOverlay }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
