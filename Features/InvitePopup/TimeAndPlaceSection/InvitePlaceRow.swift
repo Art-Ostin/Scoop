@@ -35,13 +35,13 @@ struct InvitePlaceRow: View {
 
     var body: some View {
         HStack {
-            RowCaption(label: .where, dimmed: ui.isPopupOpen(.type))
+            RowCaption(label: .where)
                 .frame(height: InviteRowMetrics.primaryLineHeight)
                 .offset(y: contentOffset)
             chooseButton
         }
         .frame(height: rowHeight)
-        .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
+        .blurPop(visible: !ui.anyPopupOpenDelayed, scale: 1)
     }
 }
 
@@ -59,7 +59,6 @@ extension InvitePlaceRow {
             }
             .offset(y: contentOffset)
             .frame(height: rowHeight)
-            .opacity(ui.isPopupOpenDelayed() ? 0 : 1)
         }
         .shrinkButton()
     }

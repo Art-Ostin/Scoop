@@ -30,7 +30,7 @@ struct InviteTimeRow: View {
         InviteRowMetrics.primaryContentOffset(showsIndicator: showsPageIndicator)
     }
 
-    //Dimmed/hidden while the type menu is open (delayed to sync with its platter bloom).
+    //Hidden while the type menu is open (delayed to sync with its platter bloom).
     private var typePopupOpen: Bool { ui.isPopupOpenDelayed(.type) }
 
     var body: some View {
@@ -38,7 +38,6 @@ struct InviteTimeRow: View {
             rowTitle
                 .frame(height: InviteRowMetrics.primaryLineHeight)
                 .offset(y: showsPageIndicator ? InviteRowMetrics.indicatorCaptionOffset : 0)
-                .opacity(ui.isPopupOpen(.type) ? 0.3 : 1)
             Spacer()
             timeMenu.opacity(typePopupOpen ? 0 : 1)
         }
@@ -65,6 +64,17 @@ extension InviteTimeRow {
     private var timeMenu: some View {
 
         VStack(alignment: .trailing, spacing: 0) {
+            
+            Menu {
+                Text("Test")
+                Text("Test")
+                Text("Test")
+                Text("Test")
+                Text("Test")
+            } label: {
+                Text("Sat 7 Aug · 14:30")
+            }
+
 
             TimeCustomMenu(morphAnchor: morphAnchor,
                            estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
@@ -127,7 +137,7 @@ extension InviteTimeRow {
         ZStack(alignment: .leading) {
             Group {
                 if isWhenLabel {
-                    RowCaption(label: .when, dimmed: false)
+                    RowCaption(label: .when)
                 } else {
                     Text(optionTitle)
                         .font(.body(13, .regular))
@@ -140,7 +150,7 @@ extension InviteTimeRow {
         }
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
-        .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
+        .blurPop(visible: !ui.anyPopupOpenDelayed, scale: 1)
     }
 
     private var isWhenLabel: Bool { scrolledPageID == nil || scrolledPageID == 0 }

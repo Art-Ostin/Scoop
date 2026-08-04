@@ -14,7 +14,10 @@ struct InviteImageCarousel: View {
     
     //Only used if not responding
     let isConfirm: Bool
-    
+
+    //A menu is on screen below: the title and page indicator pop away for it
+    let isPopupOpen: Bool
+
     //In response mode when not nil
     var responseType: Binding<ResponseType>? = nil
     var isRespondScreen: Bool { responseType != nil && responseType?.wrappedValue != .newEvent}
@@ -123,6 +126,8 @@ extension InviteImageCarousel {
             }
         }
         .padding(12)
+        .opacityPop(visible: !isPopupOpen)
+        .animation(.transition, value: isPopupOpen) //opacityPop carries no curve of its own
         .animation(.transition, value: showsOptions)
     }
     
@@ -137,7 +142,8 @@ extension InviteImageCarousel {
             .scaleEffect(0.7, anchor: .trailing)
             .padding(.horizontal, 24)
             .padding(.bottom, Spacing.xs)
-            .opacityPop(visible: !isConfirm)
+            .opacityPop(visible: !isPopupOpen) //the overlay above already gates on isConfirm
+            .animation(.transition, value: isPopupOpen)
     }
     
     private var confirmBackButton: some View {

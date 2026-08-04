@@ -73,7 +73,7 @@ private extension SelectTimeView {
     private var titleSection: some View {
         if !isRespondMode {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Choose Time") //"Propose up to 3 days"
+                Text("When") //"Propose up to 3 days"
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPrimary)
                 Text("Propose 1-3 days to meet")

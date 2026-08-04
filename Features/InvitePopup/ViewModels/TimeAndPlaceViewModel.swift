@@ -71,6 +71,10 @@ class TimeAndPlaceViewModel {
         popup == nil ? delayedPopup != nil : popup == delayedPopup
     }
 
+    ///Any menu is on screen — what the rows that aren't the open one hide on. Each popup keeps
+    ///its own lead: the time platter blooms later, so it clears the section at 120ms, type at 50.
+    var anyPopupOpenDelayed: Bool { delayedTimePopupOpen || delayedPopup == .type }
+
     ///Two-way view of one slot of `activePopup`, for menus that take an isOpen binding.
     func popupBinding(_ popup: Popup) -> Binding<Bool> {
         Binding(

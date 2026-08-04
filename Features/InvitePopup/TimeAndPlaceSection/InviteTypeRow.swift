@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+//How far the row's title, value and chevron lift while the type menu is open.
+private let openLift: CGFloat = -4
+
 struct InviteTypeRow: View {
 
     //Injected
@@ -41,6 +44,10 @@ struct InviteTypeRow: View {
     }
 
     private var showsPageIndicator: Bool { !message.isEmpty }
+
+    //The indicator steps aside while this row's own menu is up (delayed to sync with its platter bloom).
+    private var typePopupOpen: Bool { ui.isPopupOpenDelayed(.type) }
+
     private var rowHeight: CGFloat {
         InviteRowMetrics.rowHeight(showsIndicator: showsPageIndicator)
     }
@@ -64,6 +71,8 @@ struct InviteTypeRow: View {
             pageIndicator
                 .padding(.trailing, 16)
                 .padding(.bottom, InviteRowMetrics.bottomPadding(showsIndicator: showsPageIndicator))
+                .opacityPop(visible: !typePopupOpen)
+                .animation(.transition, value: typePopupOpen) //opacityPop carries no curve of its own
         }
         .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
@@ -82,8 +91,8 @@ extension InviteTypeRow {
             morphsFromTrailingPoint: onMessagePage,
             morphAnchor: morphAnchor,
             flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
-            placementOffsetX: -6,
-            placementOffsetY: 24,
+            placementOffsetX: -12,
+            placementOffsetY: 28,
             onOpen: { ui.activePopup = .type },
             onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
             onLabelTap: handleLabelTap,
@@ -157,26 +166,18 @@ extension InviteTypeRow {
     private var rowTitle: some View {
         let isTypeOpen = ui.isPopupOpen(.type)
         return ZStack(alignment: .leading) {
-            Group {
-                if onMessagePage {
-                    Text(type.title.capitalized)
-                        .font(.body(isTypeOpen ? 15 : 13, .regular))
-                        .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
-                } else {
-                    Text("What")
-                        .font(.body(15, isTypeOpen ? .medium : .regular))
-                        .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
-                        .scaleEffect(isTypeOpen ? 1 : 0.8, anchor: .leading)
-                        .animation(.smooth(duration: 0.2), value: isTypeOpen)
-                        .shrinkPress {showTypeInfoScreen = true}
-                }
+            whatTitle(isOpen: isTypeOpen)
+
+            //Only the type name still swaps identity (it changes per type), so it alone
+            //keeps the .id + .blurReplace pair.
+            if onMessagePage {
+                Text(type.title.capitalized)
+                    .font(.body(isTypeOpen ? 15 : 13, .regular))
+                    .foregroundStyle(isTypeOpen ? Color.textPrimary : Color.textTertiary)
+                    .inviteRowTitleColumn()
+                    .id(rowTitleTransitionID)
+                    .transition(.blurReplace)
             }
-            .multilineTextAlignment(.leading) //so "Double Date" stays on one line
-            .frame(width: 50, alignment: .leading)
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
-            .id(rowTitleTransitionID)
-            .transition(.blurReplace)
         }
         .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
         .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
@@ -187,6 +188,24 @@ extension InviteTypeRow {
             Text("Type Info Here")
         }
 
+    }
+
+    //Never inserted or removed, so no transition can ever pair it with a second copy of
+    //itself: one element that slides and grows into its open state, and hands off to the
+    //type name by fading in place. One font at one size too — a Font can't interpolate,
+    //so the size change rides on scale rather than a weight/size swap that would snap.
+    private func whatTitle(isOpen: Bool) -> some View {
+        Text("What")
+            .font(.title(17, .medium))
+            .foregroundStyle(isOpen ? Color.textPrimary : Color.textTertiary)
+            .inviteRowTitleColumn()
+            .offset(x: isOpen ? 24 : 0, y: isOpen ? openLift : 0)
+            .scaleEffect(isOpen ? 1 : 0.706, anchor: .leading) //Geometry: 12/17 — collapsed reads as 12pt
+            .animation(.smooth(duration: 0.2), value: isOpen)
+            .opacity(onMessagePage ? 0 : 1)
+            .blur(radius: onMessagePage ? 6 : 0) //the .blurReplace look, without a second copy
+            .allowsHitTesting(!onMessagePage)
+            .shrinkPress { showTypeInfoScreen = true }
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
@@ -224,6 +243,16 @@ extension InviteTypeRow {
 
 }
 
+//The title column both states share: one line, pinned width, shrink rather than wrap.
+private extension View {
+    func inviteRowTitleColumn() -> some View {
+        multilineTextAlignment(.leading) //so "Double Date" stays on one line
+            .frame(width: 50, alignment: .leading)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+    }
+}
+
 //The menu's label: the live type/message pager in the row, or the collapsed form the morph carries.
 private struct TypeRowMenuLabel: View {
 
@@ -258,6 +287,9 @@ private struct TypeRowMenuLabel: View {
                         .frame(width: pageWidth, alignment: .trailing)
                         .offset(y: primaryContentOffset)
                         .id(0)
+                        .offset(x: ui.isPopupOpen(.type) ? -20 : 0,
+                                y: ui.isPopupOpen(.type) ? openLift : 0) //Fine tune so exact
+                        .animation(.smooth(duration: 0.2), value: ui.isPopupOpen(.type))
 
                     messageView
                         .getRect($messageFrame)
@@ -325,6 +357,9 @@ private struct TypeRowMenuLabel: View {
 
     private var chevron: some View {
         DropDownButton(isOpen: ui.isPopupOpen(.type) || showMessageScreen)
+            .offset(x: ui.isPopupOpen(.type) ? -20 : 0,
+                    y: ui.isPopupOpen(.type) ? openLift : 0)
+            .animation(.smooth(duration: 0.2), value: ui.isPopupOpen(.type))
     }
 
     @ViewBuilder

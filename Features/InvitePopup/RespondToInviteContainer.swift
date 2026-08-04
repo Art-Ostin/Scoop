@@ -98,6 +98,7 @@ extension RespondInviteContainer {
         return InviteImageCarousel(
             inviteHasChanges: vm.respondDraft.newEvent.hasChanges,
             isConfirm: isConfirmMode ,
+            isPopupOpen: timeAndPlaceUI.anyPopupOpenDelayed,
             responseType: $vm.respondDraft.respondType,
             name: vm.profile.name,
             images: images,

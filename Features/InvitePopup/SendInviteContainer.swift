@@ -22,17 +22,21 @@ struct SendInviteContainer: View {
     
     //Local Properties
     @State var ui = TimeAndPlaceUIState()
-    
+
+    //Same solve the Meet card wears: asked for by profile id, served from the shared cache
+    @State private var palette: OverlayPalette = .placeholder
+
     var body: some View {
         ZStack {
-            InvitePopupBackground()
-            
+            InvitePopupBackground(tint: palette.secondaryText)
+
             VStack(spacing: 36) {
                 inviteCard
                 backButton
             }
         }
         .animation(.transition, value: ui.showConfirmScreen)
+        .task(id: vm.profileId) { await fetchColour() }
         .task(id: ui.activePopup) { await ui.syncDelayedPopups() } //Owned here: the delayed mirrors must track on every page, not just the one that hosts a menu
 
         .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
@@ -56,6 +60,7 @@ extension SendInviteContainer {
         InviteImageCarousel(
             inviteHasChanges: vm.event.hasChanges,
             isConfirm: ui.showConfirmScreen == true,
+            isPopupOpen: ui.anyPopupOpenDelayed,
             name: name,
             images: images,
             showConfirmScreen: $ui.showConfirmScreen,
@@ -81,7 +86,16 @@ extension SendInviteContainer {
 
 //Different Views and Components
 extension SendInviteContainer {
-    
+
+    //Defaults left alone deliberately: every argument is part of the key the Meet card solved under,
+    //so this is a cache hit rather than a second extraction
+    private func fetchColour() async {
+        guard let first = images.first else { return }
+
+        palette = await PopupColorExtractor.shared
+            .extractPalette(first, id: vm.profileId, prominence: .subtle)
+    }
+
     //Gone on the confirm screen, and while the time or type popup owns the card
     private var backButton: some View {
         let visible = !(ui.showConfirmScreen ?? false) && !ui.isPopupOpen()

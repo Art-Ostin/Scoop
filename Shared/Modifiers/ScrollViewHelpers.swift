@@ -61,23 +61,6 @@ private struct TrackScrollProgess: ViewModifier {
     }
 }
 
-private struct ScrollDownDismissKeyboard: ViewModifier {
-    @FocusState.Binding var isFocused: Bool
-
-    private let flickVelocity: CGFloat = 1
-
-    func body(content: Content) -> some View {
-        content
-            .onScrollPhaseChange { oldPhase, _, context in
-                guard oldPhase == .interacting,
-                      let dy = context.velocity?.dy,
-                      abs(dy) > flickVelocity
-                else { return }
-                isFocused = false
-            }
-    }
-}
-
 private struct InstantPressDelivery: UIViewRepresentable {
 
     final class MarkerView: UIView {
@@ -110,10 +93,6 @@ extension View {
         modifier(TrackScrollProgess(scrollProgress: scrollProgress))
     }
     
-    func scrollDownDismissKeyboard(isFocused: FocusState<Bool>.Binding) -> some View {
-        modifier(ScrollDownDismissKeyboard(isFocused: isFocused))
-    }
-
     /// Place inside a ScrollView's content: buttons in that scroll press on
     /// touch-down (the ProfileCard feel) instead of after the system delay.
     func instantPressDelivery() -> some View {

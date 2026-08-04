@@ -9,9 +9,16 @@ import SwiftUI
 
 
 struct InvitePopupBackground: View {
+
+    //The artwork's text tint. Nil keeps the plain frosted backdrop
+    var tint: Color?
+
     var body: some View {
         Rectangle()
             .fill(.regularMaterial)
+            //Chained fill: the last one renders ON TOP of the material, which is the only
+            //place a pale tint survives — behind it the material washes it out entirely
+            .fill(tint?.opacity(0.4) ?? .clear)
             .background(Color.white.opacity(0.1))
             .ignoresSafeArea()
     }
@@ -22,7 +29,7 @@ struct InviteCardBackground: ViewModifier {
     
     private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
     var isInvite: Bool = false
-    
+
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)

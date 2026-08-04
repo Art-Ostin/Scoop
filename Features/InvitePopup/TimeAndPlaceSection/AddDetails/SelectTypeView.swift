@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectTypeView: View {
 
-    static let cardWidth: CGFloat = 290
+    static let cardWidth: CGFloat = 300
     
     //1. Needed to sharply display a divider under 1 CGFloat
     @Environment(\.displayScale) private var displayScale
@@ -43,8 +43,6 @@ struct SelectTypeView: View {
 extension SelectTypeView {
         
     private func typeRow(_ type: Event.EventType) -> some View {
-        //spacing 0: the 8pt gap under the title now lives inside the revealed region
-        //(RevealingInfoText) so it wipes open with the text and leaves no gap when closed.
         VStack(spacing: 0) {
             typeText(type)
             typeInfo(type)
@@ -80,7 +78,7 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 10, colour: Color.textPlaceholder)
+            SmallInfoIcon(size: 11, colour: Color.black.opacity(0.3))
                 .padding(.top, 20)
                 .contentShape(Rectangle())
         }
@@ -109,7 +107,7 @@ extension SelectTypeView {
         switch type {
         case .socialMeet: 1.25
         case .doubleDate: 0.75
-        case .drink: 0.525
+        case .drink: 0.8
         case .custom: -0.3
         }
     }
@@ -125,12 +123,7 @@ extension SelectTypeView {
                 dismissTimeMenu()
             }
         } else {
-            //Re-picking the already-selected type changes nothing, so there's nothing to morph
-            //to: flex the label instead. Only a real switch freezes the old value and morphs.
             let changed = eventType != selectedType
-            //On the message page the visible label is the message, so a real switch closes with
-            //`.morphPlatterOnly` (platter zooms into the chevron only) — no label freeze, since
-            //the row's left title carries the type change with its own blur-morph + flex.
             if changed && onMessagePage {
                 selectedType = eventType
                 dismissMenu(.morphPlatterOnly)
@@ -138,10 +131,6 @@ extension SelectTypeView {
                 return
             }
             if changed {
-                //Freeze the OLD label to a bitmap BEFORE mutating, so the morph collapse shrinks the
-                //current type (e.g. "Double Date") and only reveals the new one (e.g. "Grab a Drink")
-                //as it expands back out. Must precede the `selectedType` write — the live label reads
-                //this binding, so any freeze after it would already snapshot the new value.
                 freezeMenuLabel()
                 selectedType = eventType
             }

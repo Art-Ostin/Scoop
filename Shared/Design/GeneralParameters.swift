@@ -22,7 +22,7 @@ enum CornerRadius {
     static let smallImage = sm
     static let image = lg
     static let alert: CGFloat = 36
-    static let customMenu: CGFloat = 26
+    static let customMenu: CGFloat = 31 //Pixel-measured vs the native menu platter (corner sweep 47.3pt / 1.528)
     static let customMenuRowHighlight: CGFloat = 14
 
     //To construct concentric corners

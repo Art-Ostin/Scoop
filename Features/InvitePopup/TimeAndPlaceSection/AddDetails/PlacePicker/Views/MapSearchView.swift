@@ -47,7 +47,6 @@ struct MapSearchView: View {
         //Geometry: clears the headerBar overlay — former spacer size plus the 8pt implicit ScrollView child gap
         .contentMargins(.top, showSuggestions ? 76 : 88, for: .scrollContent)
         .scrollIndicators(.hidden)
-        .scrollDownDismissKeyboard(isFocused: $isFocused)
         .customScrollFade(height: 50, showFade: true)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .top) { headerBar }

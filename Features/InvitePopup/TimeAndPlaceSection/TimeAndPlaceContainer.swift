@@ -31,13 +31,11 @@ struct RowCaption: View {
     enum Label: String { case what, when, `where` }
 
     let label: Label
-    let dimmed: Bool
 
     var body: some View {
         Text(label.rawValue.capitalized)
             .font(.body(12, .regular))
             .foregroundStyle(Color.textTertiary)
-            .opacity(dimmed ? 0.3 : 1)
     }
 }
 

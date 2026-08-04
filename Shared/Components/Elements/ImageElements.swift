@@ -59,6 +59,13 @@ struct InviteCarousel: View {
                     .resizable()
                     .scaledToFill()
             }
+            .mask {
+                VStack(spacing: 0) {
+                    Rectangle() // Left, right and top stay razor sharp.
+                    LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 2)
+                }
+            }
             .clipped() //scaledToFill overflows the page cell
             .containerRelativeFrame(.horizontal)
     }

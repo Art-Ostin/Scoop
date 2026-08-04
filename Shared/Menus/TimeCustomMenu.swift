@@ -28,16 +28,17 @@
 //                                       call this action (or use .timeCustomMenuItem) to
 //                                       close it. Tapping outside still dismisses.
 //
-//  ── iOS 26 lens-morph mechanics (replicated from device recordings) ─────────
-//  On touch the label line becomes a glass capsule that SWALLOWS the text (its
-//  pixels refract inside) and — within a frame or two — contracts into a small
-//  circle risen above the line, dissolving the text as it goes (the "birth"
-//  gesture); the circle then erupts into the rounded-rect platter — which
-//  COVERS the button's rect (near edges flush, no gap) — while the menu
-//  content materializes. Dismissal is the reverse: the platter sinks back
-//  through the circle onto the line, the label re-materializing inside the
-//  landing capsule as the glass melts off it.
-//  Implementation: ONE persistent glass view whose keyframed frame/radius/
+//  ── iOS 26 lens-morph mechanics (frame-matched to the stock menu) ───────────
+//  Measured from the native menu's presentation layers at 120Hz: on touch the
+//  label line becomes the glass lens (SWALLOWING the text, whose copy dissolves
+//  across nearly the whole flight) and blooms STRAIGHT into the rounded-rect
+//  platter — no separate circle phase. The width pinches slightly while the
+//  body rises, then re-expands trailing the height; the alignment edge stays
+//  pinned; the trailing edge bows toward the flight mid-way; the content rides
+//  the platter scaled, fading in with progress. The platter COVERS the
+//  button's rect (near edges flush, no gap). Dismissal is the reverse; the
+//  label re-materializes inside the landing capsule as the glass melts off it.
+//  Implementation: ONE persistent glass view whose measured-curve frame/radius/
 //  content are interpolated by an Animatable modifier (MenuLensMorph) under
 //  withAnimation. The real label hides while the lens carries its copy (it IS
 //  the menu, like native).
@@ -190,43 +191,86 @@ enum TimeCustomMenuSpec {
     /// Peak refraction blur while the label is being swallowed / content
     /// materializes (matched against device recordings of the native lens).
     static let lensBlur: CGFloat = 8
-    /// Progress at which the birth gesture (label-line capsule → risen circle)
-    /// completes. Kept tiny so it spans a frame or two of the open spring —
-    /// near-instant, like the native recording.
-    static let birthProgress: CGFloat = 0.08
-    /// Birth circle diameter as a fraction of the platter's resting height
-    /// (device recording: ~82pt circle for a ~248pt menu).
-    static let birthHeightFraction: CGFloat = 0.33
-    /// How far the birth circle's near edge — the edge toward the label line —
-    /// sits inside the platter's resting frame, as a fraction of resting height
-    /// (measured ~60pt on a ~248pt upward-opening menu: the circle hangs off the
-    /// source line, never on it, leading the eruption; mirrored when the menu
-    /// opens downward).
-    static let birthLiftFraction: CGFloat = 0.24
-    /// The swallowed label copy is fully dissolved by this progress: its pixels
-    /// refract through the capsule's contraction and are gone as the circle
-    /// rises (re-materializing across the same window on close). Roughly double
-    /// the birth leg, so the dissolve trails the geometry by a beat.
-    static let labelFadeProgress: CGFloat = 0.16
-    /// Lens morph timing against the native open (~0.45s, slight settle).
-    static let bloomOpen = Animation.spring(response: 0.45, dampingFraction: 0.82)
+    // Device-measured open morph (frame-diffed 59fps recording, 2026-08-04):
+    // the shape is born AS the label text's rect and inflates UP-AND-LEFT as a
+    // near-perfect CIRCLE (measured 178×181 → 235×235), its trailing edge
+    // pinned to the label's trailing edge the entire flight; the platter width
+    // then arrives on its own later clock (`widthBloom`) while corners resolve
+    // and material/content/label-occlusion ride that same platterize phase.
+    // The label itself stays PINNED in place — it never rides the lens.
+    /// The label IMPLODES into the collapse point together with the glass: it
+    /// shrinks and is dragged in fast, its fade completing INSIDE the droplet —
+    /// never a blur trail outside it (the close re-emerges it in reverse). The
+    /// ride completes at this rise progress...
+    static let labelRideEnd: CGFloat = 0.22
+    /// ...shrinking down to this scale as it merges into the droplet.
+    static let labelRideScale: CGFloat = 0.25
+    /// The droplet stays COMPACT for the whole throw: its diameter on arrival
+    /// as a fraction of the platter's short side (~2.5× the collapsed ball —
+    /// the blossom, not the flight, delivers the platter's size).
+    static let ballArriveScale: CGFloat = 0.45
+    /// The lens is CLEAR glass through the early flight (the native lens is
+    /// pure refraction) and gains the platter's regular material across this
+    /// progress window — reversed on close, so the collapse always reads as
+    /// clear glass.
+    static let glassMaterialRange: ClosedRange<CGFloat> = 0.35...0.7
+    /// The glass presence follows the native's measured material fade-in
+    /// (CASDFLayer alpha: .18 at p≈.13, .32 at .24, .71 at .59, full ~.9):
+    /// presence = p^exponent — the lens is BARELY THERE at birth and
+    /// materializes across the whole flight, reversed on close. This fade, not
+    /// the geometry, carries most of the native's "liquid" feel; a constant
+    /// floor (tried at 0.55) reads as a rigid white blob from frame one.
+    static let glassPresenceExponent: Double = 0.75
+    /// The RISE spring — drives the circle's flight, fitted to the device
+    /// recording's per-frame progress (0.10 → 0.38 → 0.63 → 0.76…): it
+    /// ACCELERATES into the flight — a slow first frame (which is what keeps
+    /// the tiny row-collapse circle VISIBLE for a beat), a rocketing second and
+    /// third, then the decelerating settle with ~+2% overshoot. A high
+    /// initialVelocity (tried 20) completes the collapse sub-frame — invisible,
+    /// reading as "expands into a circle straight away". NOTE: the device menu
+    /// is NOT the simulator's menu — never fit to the sim.
+    static let bloomOpen = Animation.interpolatingSpring(
+        Spring(response: 0.32, dampingRatio: 0.80), initialVelocity: 4)
+    /// The BLOSSOM — the droplet opens into the platter, corners resolving and
+    /// material/content arriving with it. Starts WITH the throw (no delay — a
+    /// delayed start reads as a two-step stop-start open) on a longer soft
+    /// spring: its early progress is naturally tiny, so the ball beat still
+    /// reads, but the expansion never pauses — one continuous fluid open that
+    /// unfolds with momentum, overshoots ~3% and settles (the end bounce).
+    static let widthBloom = Animation.spring(response: 0.42, dampingFraction: 0.72)
     /// Keeps the glass platter attached to content whose height changes while
     /// the menu is open (for example, when a pager reveals a taller page).
     static let reflowResize = Animation.spring(duration: 0.2)
-    /// Shrinking back through the circles never bounces (~0.4s on device).
-    static let bloomClose = Animation.smooth(duration: 0.38)
+    /// The close, frame-diffed from the device recording (~300ms): the platter
+    /// first fades translucent while HOLDING its shape, then collapses back
+    /// through the circle, travelling down onto the text, where the tiny lens
+    /// melts as the row re-forms through it — the open run in reverse on a
+    /// back-loaded clock (easeIn: slow start, collapse concentrated late).
+    static let bloomClose = Animation.easeIn(duration: 0.26)
+    /// The row-collapse beat: the label capsule contracts into a TINY circle ON
+    /// the text within the first frames of the rise ("extremely quickly")...
+    static let collapseEnd: CGFloat = 0.10
+    /// ...this small (device-measured ~40pt lens on the word itself)...
+    static let collapseCircleDiameter: CGFloat = 40
+    /// ...offset from the label's centre TOWARD the platter's centre — the
+    /// direction the menu will expand (bottom-left when it grows down-left,
+    /// leading-top when it grows up-leading) — clamped to these fractions of
+    /// the label's own size.
+    static let collapsePullX: CGFloat = 0.25
+    static let collapsePullY: CGFloat = 0.5
+    /// Aerodynamic DRAG: the ball's tail lags behind — the leading edge stays
+    /// on the spring's path while the trailing side stretches BACKWARD along
+    /// the travel line (a comet/teardrop), by this fraction of the ball's
+    /// diameter at peak speed, relaxing round at either end. Symmetric
+    /// elongation (tried) just reads as an oval — the drag must be one-sided.
+    static let dragStretch: CGFloat = 0.45
     /// After the close morph lands on the button, the lens halo melts off the
     /// restored label rather than popping out in one frame.
-    static let lensFadeOut = Animation.easeOut(duration: 0.15)
-    /// Close morph length before the label is restored and the halo melts.
-    static let closeMorphDuration: TimeInterval = 0.4
-    static let lensFadeDuration: TimeInterval = 0.18
-    /// On close, the glass is fully present at this progress and melts linearly to
-    /// nothing by progress 0 — i.e. it fades across the tail of the shrink (the
-    /// circle sinking back onto the label line), so the dimmed label is all that
-    /// remains and there's no glass left to pop. Smaller concentrates the melt
-    /// later / quicker near the very end.
-    static let closeGlassFadeProgress: CGFloat = 0.35
+    static let lensFadeOut = Animation.easeOut(duration: 0.10)
+    /// Close morph length before the label is restored and the residual lens
+    /// melts off it (device: text re-forms through the melting lens ~260-300ms).
+    static let closeMorphDuration: TimeInterval = 0.28
+    static let lensFadeDuration: TimeInterval = 0.10
     /// An opaque platter fill (`TimeCustomMenu.platterFill`) ramps in across the
     /// eruption: nothing at birth, where the lens is pure refraction over the label
     /// line and a fill would white it out, full by the time the circle has grown
@@ -793,8 +837,10 @@ private struct TimeCustomMenuOverlayRoot: View {
     @State private var appeared = false
     /// iOS 26: the open bloom has been kicked (guards against re-firing).
     @State private var bloomStarted = false
-    /// iOS 26 lens morph: 0 = lens sits on the label, 1 = full menu platter.
+    /// iOS 26 lens morph rise: 0 = lens sits on the label, 1 = flown to rest.
     @State private var morphProgress: CGFloat = 0
+    /// iOS 26 platterize: the circle widening into the platter on its own clock.
+    @State private var widthProgress: CGFloat = 0
     /// iOS 26: the halo materializes over the button on open and melts off
     /// the restored button at the end of the close — never pops.
     @State private var lensOpacity: Double = 0
@@ -834,6 +880,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 if #available(iOS 26.0, *) {
                     withAnimation(TimeCustomMenuSpec.bloomClose) {
                         morphProgress = 0
+                        widthProgress = 0
                     }
                 }
             }
@@ -851,14 +898,12 @@ private struct TimeCustomMenuOverlayRoot: View {
 
     // MARK: iOS 26 — Liquid Glass bloom
 
-    /// The native iOS 26 lens morph, replicated from frame-by-frame analysis of
-    /// real device recordings: on open, the label line becomes a glass capsule
-    /// that swallows the text (its pixels blur/refract inside), darts into a
-    /// small circle risen off the line — dissolving the text as it goes — then
-    /// erupts into the menu's rect while the menu content de-blurs and
-    /// materializes. Dismissal is the reverse — the platter sinks back through
-    /// the circle onto the line and the label re-materializes inside the
-    /// landing capsule.
+    /// The native iOS 26 lens morph, frame-matched to the stock menu's measured
+    /// presentation-layer curves: on open, the label line becomes the glass lens
+    /// (swallowing the text, which dissolves across the flight) and blooms
+    /// straight into the menu's rect while the content — scaled with the platter
+    /// — de-blurs and fades in with progress. Dismissal is the reverse; the
+    /// label re-materializes inside the landing capsule.
     /// One persistent glass view + Animatable frame interpolation; no glass
     /// transitions involved (the broken ones aren't needed).
     @available(iOS 26.0, *)
@@ -916,6 +961,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 chromeCore(content: content, metrics: metrics)
                     .modifier(MenuLensMorph(
                         progress: morphProgress,
+                        widthProgress: widthProgress,
                         collapsed: collapsedRect,
                         collapsedRadius: controller.labelCornerRadius ?? collapsedRect.height / 2,
                         expanded: menuRect,
@@ -952,6 +998,7 @@ private struct TimeCustomMenuOverlayRoot: View {
         // instead of snapping on initial render.
         DispatchQueue.main.async {
             withAnimation(TimeCustomMenuSpec.bloomOpen) { morphProgress = 1 }
+            withAnimation(TimeCustomMenuSpec.widthBloom) { widthProgress = 1 }
         }
     }
 
@@ -1024,22 +1071,22 @@ private struct TimeCustomMenuOverlayRoot: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
-    /// The lens morph, keyframed from device recordings of the native menu.
-    /// The lens moves in two legs, swallowing the label as it goes:
-    ///   p 0 → birthProgress   the birth gesture: a capsule of glass hugging
-    ///                         the label line — the label's pixels refracting
-    ///                         inside — contracts into a small circle risen
-    ///                         above it, a frame or two, near-instant;
-    ///   p birthProgress → 1   the circle erupts into the rounded-rect platter
-    ///                         while the menu content materializes (the label
-    ///                         copy has dissolved by labelFadeProgress).
-    /// Dismissal runs the same path in reverse, the glass melting as it sinks
-    /// back onto the line and the label re-materializing inside the landing
-    /// capsule. Animatable progress drives layout, so SwiftUI interpolates
-    /// every spring frame through this modifier.
+    /// The lens morph, frame-diffed from a 59fps DEVICE recording of the real
+    /// menu (the simulator's menu animates differently — do not fit to it):
+    ///   OPEN — the shape is born as the label rect and inflates up-and-left as
+    ///   a near-perfect CIRCLE, trailing edge pinned to the label's, the top
+    ///   edge riding the high-velocity `bloomOpen` spring; the platter WIDTH
+    ///   then arrives on the later `widthBloom` clock, and corners, material,
+    ///   content and label-occlusion all ride that platterize phase. The label
+    ///   copy stays PINNED at its own rect — it never rides the lens.
+    ///   CLOSE — a fast dissolve while the platter ghost-shrinks toward the
+    ///   label's corner; no circle phase, no bounce.
+    /// Two independent animatable channels (rise, platterize) interpolate every
+    /// spring frame through this modifier.
     @available(iOS 26.0, *)
     private struct MenuLensMorph: ViewModifier, Animatable {
         var progress: CGFloat
+        var widthProgress: CGFloat
         let collapsed: CGRect
         /// The label's own corner radius, so the lens is born exactly on its shape.
         let collapsedRadius: CGFloat
@@ -1049,99 +1096,138 @@ private struct TimeCustomMenuOverlayRoot: View {
         /// Opaque fill over the glass, ramped in with the morph. See `TimeCustomMenu.platterFill`.
         let platterFill: Color?
         let label: AnyView?
-        /// While dismissing, the glass melts off across the shrink's tail so the
-        /// label — landing inside it — finishes the motion alone (no glass left
-        /// to pop afterwards).
+        /// Switches the geometry to the dissolve-and-ghost-shrink close path.
         let isClosing: Bool
-        /// Progress the melt fades down from, captured when the close begins: a
-        /// close that interrupts the bloom below `closeGlassFadeProgress` melts
-        /// from wherever the glass actually is, keeping its opacity continuous
-        /// instead of dropping a step the frame the formula switches.
-        @State private var closeFadeCeiling: CGFloat?
 
-        var animatableData: CGFloat {
-            get { progress }
-            set { progress = newValue }
+        var animatableData: AnimatablePair<CGFloat, CGFloat> {
+            get { AnimatablePair(progress, widthProgress) }
+            set { progress = newValue.first; widthProgress = newValue.second }
         }
 
         private func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
             a + (b - a) * t
         }
 
-        /// Piecewise lens geometry across the two legs above.
-        private func lensFrame(_ p: CGFloat) -> (rect: CGRect, radius: CGFloat) {
-            // Birth circle: sized against the platter's resting height (clamped
-            // up for very short menus so the capsule always has a circle to
-            // contract into), floating off the label line just inside the
-            // platter's territory — it leads the eruption. Horizontally it stays
-            // on the label's own centre (drifting to the platter's centre only
-            // during the eruption); vertically it's anchored to whichever platter
-            // edge carries the line: the bottom edge when the menu opens upward
-            // (the measured case), mirrored to the top edge when it opens downward.
-            let d = max(collapsed.height * 1.2,
-                        expanded.height * TimeCustomMenuSpec.birthHeightFraction)
-            let lift = expanded.height * TimeCustomMenuSpec.birthLiftFraction
-            let opensUpward = expanded.midY <= collapsed.midY
-            let birthCenter = CGPoint(
-                x: collapsed.midX,
-                y: opensUpward ? expanded.maxY - lift - d / 2
-                               : expanded.minY + lift + d / 2
-            )
-            let birth = TimeCustomMenuSpec.birthProgress
+        /// The point the row collapses into: offset from the label's centre
+        /// toward the platter's centre — the direction the menu will expand —
+        /// clamped inside the label's own bounds.
+        private var collapsePoint: CGPoint {
+            CGPoint(
+                x: collapsed.midX + (expanded.midX - collapsed.midX)
+                    .clamped(to: -collapsed.width * TimeCustomMenuSpec.collapsePullX
+                              ... collapsed.width * TimeCustomMenuSpec.collapsePullX),
+                y: collapsed.midY + (expanded.midY - collapsed.midY)
+                    .clamped(to: -collapsed.height * TimeCustomMenuSpec.collapsePullY
+                              ... collapsed.height * TimeCustomMenuSpec.collapsePullY))
+        }
 
-            let w: CGFloat, h: CGFloat, cx: CGFloat, cy: CGFloat, radius: CGFloat
-            if p < birth {
-                // Birth gesture: capsule on the label line → risen circle. Radius
-                // starts at the label's own corner radius so the lens is born (and
-                // on close, lands) exactly on the button's shape, never a different one.
-                let t = max(0, p / birth)
-                w = lerp(collapsed.width, d, t)
-                h = lerp(collapsed.height, d, t)
-                cx = lerp(collapsed.midX, birthCenter.x, t)
-                cy = lerp(collapsed.midY, birthCenter.y, t)
-                radius = min(min(w, h) / 2, lerp(collapsedRadius, d / 2, t))
-            } else {
-                // Eruption: circle grows into the platter (spring overshoot
-                // extrapolates past the resting frame).
-                let t = (p - birth) / (1 - birth)
-                w = lerp(d, expanded.width, t)
-                h = lerp(d, expanded.height, t)
-                cx = lerp(birthCenter.x, expanded.midX, t)
-                cy = lerp(birthCenter.y, expanded.midY, t)
-                radius = min(min(w, h) / 2, lerp(d / 2, expandedRadius, t))
+        /// Device-measured lens geometry — see the type doc for the model. The
+        /// close runs this exact path in reverse (no separate branch): platter →
+        /// circle travelling back onto the text → capsule on the row.
+        private func lensFrame(_ p: CGFloat, _ wp: CGFloat) -> (rect: CGRect, radius: CGFloat) {
+            let pc = p.clamped(to: 0...1)
+            let wpc = wp.clamped(to: 0...1)
+            let a = TimeCustomMenuSpec.collapseEnd
+            let d0 = TimeCustomMenuSpec.collapseCircleDiameter
+            let cp = collapsePoint
+
+            if pc < a {
+                // The row-collapse beat: the label capsule contracts into the
+                // tiny circle at the collapse point — a frame or two at speed.
+                let t = (pc / a).clamped(to: 0...1)
+                let w = max(1, lerp(collapsed.width, d0, t))
+                let h = max(1, lerp(collapsed.height, d0, t))
+                let cx = lerp(collapsed.midX, cp.x, t)
+                let cy = lerp(collapsed.midY, cp.y, t)
+                let radius = min(min(w, h) / 2, lerp(collapsedRadius, d0 / 2, t))
+                return (CGRect(x: cx - w / 2, y: cy - h / 2,
+                               width: w, height: h), radius)
             }
-            return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
+
+            // THE THROW: the droplet's CENTRE is launched from the collapse
+            // point straight toward the platter's centre — one directed leap
+            // (down-left, up-leading… wherever the menu grows), riding the
+            // spring with its momentum overshoot past the target and settle.
+            let pb = (p - a) / (1 - a)
+            let pbc = pb.clamped(to: 0...1)
+            let target = CGPoint(x: expanded.midX, y: expanded.midY)
+            let cx = lerp(cp.x, target.x, pb)
+            let cy = lerp(cp.y, target.y, pb)
+
+            // The ball stays COMPACT: explicit size, ~2.5× the collapsed ball
+            // by arrival — the blossom delivers the platter, not the flight.
+            let dArrive = TimeCustomMenuSpec.ballArriveScale
+                        * min(expanded.width, expanded.height)
+            let dBall = lerp(d0, max(dArrive, d0), pbc)
+
+            // Aerodynamic DRAG: the tail lags. The leading edge keeps riding
+            // the spring's path; the trailing side stretches BACKWARD along the
+            // travel line in proportion to speed — a comet, not an oval.
+            let dirX = target.x - cp.x, dirY = target.y - cp.y
+            let len = max(1, hypot(dirX, dirY))
+            let sx = dirX / len, sy = dirY / len
+            let drag = dBall * TimeCustomMenuSpec.dragStretch * sin(.pi * pbc)
+            let ballW = dBall + abs(sx) * drag
+            let ballH = dBall + abs(sy) * drag
+            let bx = cx - sx * drag / 2
+            let by = cy - sy * drag / 2
+
+            // THE BLOSSOM: opens the droplet outward into the full platter —
+            // every edge at once — while corners, frost and content ride the
+            // same phase. UNCLAMPED above 1 so the blossom spring's overshoot
+            // reaches the geometry: the platter unfolds past its rest ~3% and
+            // settles — the end bounce.
+            let wpb = max(0, wp)
+            let x = lerp(bx - ballW / 2, expanded.minX, wpb)
+            let y = lerp(by - ballH / 2, expanded.minY, wpb)
+            let w = max(1, lerp(ballW, expanded.width, wpb))
+            let h = max(1, lerp(ballH, expanded.height, wpb))
+            let cap = min(w, h) / 2
+            let radius = min(cap, lerp(cap, expandedRadius, wpc))
+            return (CGRect(x: x, y: y, width: w, height: h), radius)
         }
 
         func body(content: Content) -> some View {
             let p = progress
-            let lens = lensFrame(p)
+            let pc = p.clamped(to: 0...1)
+            let wpc = widthProgress.clamped(to: 0...1)
+            let lens = lensFrame(p, widthProgress)
             let w = lens.rect.width
             let h = lens.rect.height
-            // The swallowed label shrinks with the capsule so it stays inside.
-            let labelScale = min(2, min(w / max(collapsed.width, 1),
-                                        h / max(collapsed.height, 1)))
-            // On close only, melt the glass off across the shrink's tail (p → 0) so
-            // the label copy — layered on top — is what finishes landing on the
-            // button, with no glass left to fade out in a separate beat afterwards.
-            let fadeCeiling = closeFadeCeiling ?? TimeCustomMenuSpec.closeGlassFadeProgress
-            let glassOpacity: Double = isClosing
-                ? Double((p / fadeCeiling).clamped(to: 0...1))
-                : 1
-            // The opaque fill materializes across the eruption (both directions), so
-            // at birth — the lens hugging the label line — nothing is painted over it.
+            // The device close: the platter fades to a translucent lens early
+            // (while its shape still holds on the back-loaded clock), stays a
+            // faint lens through the circle's travel back to the text, and the
+            // residual melts off via lensDissolve after landing.
+            let dissolve: Double = isClosing ? 0.25 + 0.75 * pow(Double(pc), 3) : 1
+            // The opaque fill, material crossfade, presence, and content all
+            // ride the PLATTERIZE phase (device: the circle is pure refraction;
+            // frost, rows and label-occlusion arrive as the platter forms), with
+            // a whisper of presence during the rise itself.
             let fillRange = TimeCustomMenuSpec.platterFillRange
-            let fillOpacity = Double(((p - fillRange.lowerBound) /
+            let fillOpacity = Double(((wpc - fillRange.lowerBound) /
                                       (fillRange.upperBound - fillRange.lowerBound)).clamped(to: 0...1))
+            let matRange = TimeCustomMenuSpec.glassMaterialRange
+            let material = Double(((wpc - matRange.lowerBound) /
+                                   (matRange.upperBound - matRange.lowerBound)).clamped(to: 0...1))
+            let presence = pow(Double(max(pc * 0.35, wpc)),
+                               TimeCustomMenuSpec.glassPresenceExponent)
+            let glassOpacity = dissolve
 
             ZStack(alignment: .topLeading) {
-                // Keep the platter glass behind the controls. Applying glass to the
-                // content itself captures native control chrome (including a wheel
-                // picker's system selection indicator) in the glass foreground pass.
-                Color.clear
-                    .frame(width: w, height: h)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
-                    .opacity(glassOpacity)
+                // The platter's regular material sits BENEATH the content (glass on
+                // the content itself would capture native control chrome, e.g. a
+                // wheel picker's selection indicator, in its foreground pass). The
+                // CLEAR glass rides ON TOP of everything — see below. Each layer
+                // must be ABSENT outside its range, not faded to 0 — a stacked
+                // .glassEffect still washes the composite milky at opacity 0
+                // (sim-probed on iOS 26.0); the `if`s flip in the same frame the
+                // opacity crosses zero, so nothing pops.
+                if material > 0 {
+                    Color.clear
+                        .frame(width: w, height: h)
+                        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
+                        .opacity(glassOpacity * material * presence)
+                }
 
                 // Opaque platter OVER the glass, in the lens's own shape so it morphs with
                 // it (a fill on the content would stay a hard-cornered rect through the
@@ -1155,46 +1241,60 @@ private struct TimeCustomMenuOverlayRoot: View {
                     RoundedRectangle(cornerRadius: lens.radius)
                         .fill(platterFill)
                         .frame(width: w, height: h)
-                        .opacity(glassOpacity * fillOpacity)
+                        .opacity(glassOpacity * fillOpacity * presence)
                 }
 
+                // Content rides the platter SCALED, but reveals only across the
+                // SECOND HALF of the blossom — the device glass flies empty
+                // until ~150ms, the rows ghosting in during the settle. Keyed
+                // to the geometry clock directly, the rows punch through the
+                // blur mid-bloom (rejected against paired device frames).
+                let reveal = ((wpc - 0.35) / 0.65).clamped(to: 0...1)
                 content
                     .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
                     .scaleEffect(x: w / max(expanded.width, 1),
                                  y: h / max(expanded.height, 1),
                                  anchor: .topLeading)
-                    .blur(radius: (1 - p).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
-                    .opacity(Double(((p - 0.55) / 0.45).clamped(to: 0...1)))
+                    .blur(radius: (1 - reveal).clamped(to: 0...1) * TimeCustomMenuSpec.lensBlur)
+                    .opacity(Double(reveal) * dissolve)
                     .frame(width: w, height: h, alignment: .topLeading)
 
-                // The swallowed label, layered ON TOP of the glass so on close it
-                // outlives the glass fade and is what lands on the button.
-                // fixedSize keeps its intrinsic layout (no reflow/truncation); it
-                // shrinks purely visually with the capsule. Dissolved across the
-                // birth leg — pixels refracting through the capsule's contraction,
-                // gone as the circle rises — and re-materializing there on close.
+                // The label IMPLODES with the glass: it shrinks and is dragged
+                // into the collapse point, staying readable while it travels and
+                // vanishing on arrival. On close the ride runs backward — the
+                // text re-grows out of the landing droplet onto its spot.
                 if let label {
-                    let dissolve = (p / TimeCustomMenuSpec.labelFadeProgress).clamped(to: 0...1)
+                    let ride = (pc / TimeCustomMenuSpec.labelRideEnd).clamped(to: 0...1)
+                    let cp = collapsePoint
+                    // Fade completes INSIDE the droplet — no trail outside it.
+                    let fade = ((ride - 0.5) / 0.5).clamped(to: 0...1)
                     label
                         .fixedSize()
-                        .scaleEffect(labelScale)
+                        .scaleEffect(lerp(1, TimeCustomMenuSpec.labelRideScale, ride))
+                        .offset(x: lerp(collapsed.minX - lens.rect.minX,
+                                        cp.x - lens.rect.minX - collapsed.width / 2, ride),
+                                y: lerp(collapsed.minY - lens.rect.minY,
+                                        cp.y - lens.rect.minY - collapsed.height / 2, ride))
+                        .frame(width: w, height: h, alignment: .topLeading)
+                        .blur(radius: ride * TimeCustomMenuSpec.lensBlur * 0.5)
+                        .opacity(Double(1 - fade * fade))
+                }
+
+                // The CLEAR glass — the liquid lens — rides ON TOP of the content
+                // and label so its refraction genuinely BENDS them at the moving
+                // edges during flight (the native SDF's text smear; frame-matched
+                // against device recordings). It crossfades away as the platter's
+                // material lands, so the resting menu is crisp with nothing over it.
+                if material < 1 {
+                    Color.clear
                         .frame(width: w, height: h)
-                        .blur(radius: dissolve * TimeCustomMenuSpec.lensBlur)
-                        .opacity(Double(1 - dissolve))
+                        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: lens.radius))
+                        .opacity(glassOpacity * (1 - material) * presence)
                 }
             }
             .frame(width: w, height: h, alignment: .topLeading)
             .padding(.leading, max(0, lens.rect.minX))
             .padding(.top, max(0, lens.rect.minY))
-            .onChange(of: isClosing) { _, closing in
-                // Captures the in-flight progress the frame the close starts (the
-                // retargeted spring continues from it). If this evaluation ever
-                // reads the stale open target (1) instead, the min() degrades to
-                // the spec ceiling — i.e. exactly the uncaptured behavior.
-                guard closing else { return }
-                closeFadeCeiling = min(max(progress, 0.02),
-                                       TimeCustomMenuSpec.closeGlassFadeProgress)
-            }
         }
     }
 

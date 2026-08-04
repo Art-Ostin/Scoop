@@ -340,14 +340,6 @@ enum DropdownCustomMenuSpec {
     static let anchorGap: CGFloat = 6
     /// Gap between the main platter and the detached footer accessory.
     static let footerGap: CGFloat = 6
-    /// The footer sits `footerGap` below the platter at a LOWER z-order, so the
-    /// platter's drop shadow (platterShadow* below) paints over the footer's
-    /// finished pixels and it reads ~5% darker than the platter face (measured
-    /// F0F4F5 vs E4EAEC over the same wallpaper). The shadow can't be cast
-    /// selectively around the footer, so the footer pre-brightens by this much:
-    /// once the platter shadow darkens it, it lands back on the platter's tone.
-    /// Additive (SwiftUI `.brightness`); tune alongside `platterShadowOpacity`.
-    static let footerShadowCompensation: Double = 0.05
     /// Fine-tuning nudge applied to the final placement: shifts the platter
     /// right and down from its anchor-aligned position.
     static let placementOffsetX: CGFloat = 12
@@ -672,13 +664,10 @@ struct DropdownCustomMenuFooterPlatter: ViewModifier {
     func body(content: Content) -> some View {
         let shape = UnevenRoundedRectangle(cornerRadii: corners)
         if #available(iOS 26.0, *) {
+            // No shadow compensation: the footer sits ABOVE the platter, so the
+            // platter's drop shadow lands under it rather than darkening its face.
             content
                 .glassEffect(.regular, in: shape)
-                // Cancel the platter's drop shadow that bleeds onto this footer (it
-                // sits a hair below the platter at a lower z, so the shadow paints
-                // over it). Pre-brightening here lands the footer back on the
-                // platter's tone once that shadow darkens it. See footerShadowCompensation.
-                .brightness(DropdownCustomMenuSpec.footerShadowCompensation)
         } else {
             content
                 .background(shape.fill(.regularMaterial))
@@ -1133,8 +1122,12 @@ private struct DropdownCustomMenuOverlayRoot: View {
                             }
                     )
 
-                // Detached accessory rides UNDER the platter (lower z) so it emerges
-                // from the menu's bottom edge during the bloom (placed once sized).
+                // Detached accessory, placed once sized: it tracks the platter's bottom
+                // edge through the bloom, so it still reads as emerging from the menu.
+                // It sits ABOVE the platter (zIndex below) — a footer with a saturated
+                // fill would otherwise land inside the platter's Liquid Glass backdrop
+                // sample (~0.35 × its width, so ~105pt for a 300pt platter, far past the
+                // 6pt gap) and smear its colour across the whole platter face.
                 // On a `.pop` dismiss it's removed with the platter via `.scoopPop`.
                 // Anchor the footer to the platter's LIVE placement — the same `metrics` + size
                 // the platter derives from below — not the cached `controller.menuFrame`, which
@@ -1146,6 +1139,7 @@ private struct DropdownCustomMenuOverlayRoot: View {
                     let platterRect = CGRect(origin: metrics.placement(for: size).origin, size: size)
                     footerCard(footer(), platterRect: platterRect)
                         .transition(.blurReplace.combined(with: .scale(0.8, anchor: .top)))
+                        .zIndex(1)
                 }
 
                 // `.pop` dismiss removes this with the `.scoopPop` transition; the morph
