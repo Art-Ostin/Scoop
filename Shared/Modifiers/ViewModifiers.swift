@@ -82,7 +82,7 @@ extension View {
         } else {
             self.background(shape.fill(Color.appCanvas))
         }
-    }
+    }    
 }
 
 extension View {

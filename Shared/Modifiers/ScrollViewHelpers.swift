@@ -5,6 +5,7 @@
 //  Created by Art Ostin on 29/05/2026.
 
 import SwiftUI
+import UIKit
 
 //MARK: Horizontal Scroll default Layout
 struct HorizontalScrollView<Content: View>: View {
@@ -27,11 +28,6 @@ struct HorizontalScrollView<Content: View>: View {
         .trackScrollProgress(scrollProgress: $progress)
     }
 }
-
-
-
-
-
 
 
 private struct IsAtTopOfScroll: ViewModifier {
@@ -65,14 +61,62 @@ private struct TrackScrollProgess: ViewModifier {
     }
 }
 
+private struct ScrollDownDismissKeyboard: ViewModifier {
+    @FocusState.Binding var isFocused: Bool
+
+    private let flickVelocity: CGFloat = 1
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollPhaseChange { oldPhase, _, context in
+                guard oldPhase == .interacting,
+                      let dy = context.velocity?.dy,
+                      abs(dy) > flickVelocity
+                else { return }
+                isFocused = false
+            }
+    }
+}
+
+private struct InstantPressDelivery: UIViewRepresentable {
+
+    final class MarkerView: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            guard window != nil else { return }
+            var v: UIView? = superview
+            while let cur = v, !(cur is UIScrollView) { v = cur.superview }
+            (v as? UIScrollView)?.delaysContentTouches = false
+        }
+    }
+
+    func makeUIView(context: Context) -> MarkerView {
+        let v = MarkerView()
+        v.isUserInteractionEnabled = false
+        v.backgroundColor = .clear
+        return v
+    }
+
+    func updateUIView(_ uiView: MarkerView, context: Context) {}
+}
 
 extension View {
-    
+
     func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
         modifier(IsAtTopOfScroll(isAtTop: isAtTop))
     }
     
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
         modifier(TrackScrollProgess(scrollProgress: scrollProgress))
+    }
+    
+    func scrollDownDismissKeyboard(isFocused: FocusState<Bool>.Binding) -> some View {
+        modifier(ScrollDownDismissKeyboard(isFocused: isFocused))
+    }
+
+    /// Place inside a ScrollView's content: buttons in that scroll press on
+    /// touch-down (the ProfileCard feel) instead of after the system delay.
+    func instantPressDelivery() -> some View {
+        background(InstantPressDelivery())
     }
 }

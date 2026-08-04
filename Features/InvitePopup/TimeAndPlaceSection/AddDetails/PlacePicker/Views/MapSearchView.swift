@@ -31,24 +31,74 @@ struct MapSearchView: View {
                     if showRecentSearches {
                         MapSearchBox(text: "Recents") {recentSearchView }
                     }
+                    
+                    MapSearchBox(text: "Open Maps") {
+                        openMapsView
+                    }
+                    
+                    
                     MapSearchBox(text: "Find Nearby") {
                         ForEach(MapCategory.allCases) {categoryRow(category: $0)}
                     }
                 }
+                .instantPressDelivery()
             }
         }
         //Geometry: clears the headerBar overlay — former spacer size plus the 8pt implicit ScrollView child gap
         .contentMargins(.top, showSuggestions ? 76 : 88, for: .scrollContent)
         .scrollIndicators(.hidden)
+        .scrollDownDismissKeyboard(isFocused: $isFocused)
         .customScrollFade(height: 50, showFade: true)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .top) { headerBar }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
-        .onChange(of: vm.searchText) { _, newValue in service.updateQuery(newValue) }
+        .onChange(of: vm.searchText) { _, newValue in service.updateQuery(newValue, region: vm.visibleRegion) }
     }
 }
 
 extension MapSearchView {
+    
+    
+    private var openMapsView: some View {
+        VStack(spacing: 0) {
+            mapAppRow(icon: .googleMapsIcon, title: "Google Maps")
+
+            divider
+
+            mapAppRow(icon: .appleMapIcon, title: "Apple Maps")
+        }
+    }
+
+    private func mapAppRow(icon: ImageResource, title: String) -> some View {
+        Button {
+            if title == "Google Maps" {
+                MapsRouter.openGoogleMaps()
+            } else {
+                MapsRouter.openAppleMaps()
+            }
+        } label: {
+            HStack(spacing: Spacing.sm) {
+                Image(icon)
+                    .scaleEffect(title == "Google Maps" ? 1.1 : 1.2)
+                    .frame(width: 35, height: 35) //Geometry: matches MapCategoryIcon's 35pt circle
+                Text(title)
+                    .font(.body(16, .bold))
+                Spacer()
+            }
+            .padding(Spacing.md)
+            .padding(.vertical, -6) //Geometry: pulls .md to a 10pt vertical inset — 55pt row around the 35pt icon
+            .foregroundStyle(Color.textPrimary)
+            .contentShape(Rectangle())
+        }
+        .shrinkButton()
+    }
+
+    private var divider: some View {
+        MapDivider()
+            .padding(.leading, 64) //Geometry: aligns the divider with the row's text column
+            .padding(.trailing, Spacing.md)
+    }
+    
     
     @ViewBuilder
     private var recentSearchView: some View {
@@ -167,10 +217,10 @@ extension MapSearchView {
         
         //2. Actually search the location in Maps
         vm.searchText = suggestion.title
-        await vm.searchPlaces()
+        guard await vm.searchPlaces() else { return } //Superseded by a newer search — its results aren't ours
         if let first = vm.results.first {
-            await MainActor.run { vm.selection = MapSelection(first) }
-            
+            vm.selection = MapSelection(first)
+
             //Save it to Defaults
             if let title = first.name, let town = first.placemark.locality  {
                 if !title.isEmpty && !town.isEmpty {
@@ -186,10 +236,8 @@ extension MapSearchView {
         useSelectedDetent = true
         Task {
             vm.searchText = searchText
-            await vm.searchPlaces()
-            if let first = vm.results.first {
-                await MainActor.run { vm.selection = MapSelection(first) }
-            }
+            guard await vm.searchPlaces() else { return } //Superseded by a newer search — its results aren't ours
+            if let first = vm.results.first { vm.selection = MapSelection(first) }
         }
     }
     

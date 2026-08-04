@@ -63,27 +63,32 @@ extension InviteTimeRow {
     private var timeMenuWidth: CGFloat { 325 }
 
     private var timeMenu: some View {
-        TimeCustomMenu(morphAnchor: morphAnchor,
-                       estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
-                       placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 16,
-                       placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
-                       onOpen: openMenu, onClose: closeMenu) {
-            SelectTimeView(proposedTimes: $draft)
-                .frame(width: timeMenuWidth)
-                .zIndex(2)
-        } label: {
-            TimeRowMenuLabel(
-                times: times,
-                scrollProgress: $scrollProgress,
-                scrolledPageID: $scrolledPageID,
-                activeTimeFrame: $activeTimeFrame,
-                chooseTimeFrame: $chooseTimeFrame,
-                chevronFrame: $chevronFrame,
-                rowHeight: rowHeight,
-                primaryContentOffset: primaryContentOffset
-            )
+
+        VStack(alignment: .trailing, spacing: 0) {
+
+            TimeCustomMenu(morphAnchor: morphAnchor,
+                           estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
+                           placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 16,
+                           placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
+                           onOpen: openMenu, onClose: closeMenu) {
+                SelectTimeView(proposedTimes: $draft)
+                    .frame(width: timeMenuWidth)
+                    .zIndex(2)
+            } label: {
+                TimeRowMenuLabel(
+                    times: times,
+                    scrollProgress: $scrollProgress,
+                    scrolledPageID: $scrolledPageID,
+                    activeTimeFrame: $activeTimeFrame,
+                    chooseTimeFrame: $chooseTimeFrame,
+                    chevronFrame: $chevronFrame,
+                    rowHeight: rowHeight,
+                    primaryContentOffset: primaryContentOffset,
+                    pagerDisabled: ui.isPopupOpen(.time)
+                )
+            }
+            .environment(\.isLiveInviteRow, true)
         }
-        .environment(\.isLiveInviteRow, true)
     }
 
     //Union of the active content and the chevron, ignoring frames not yet measured.
@@ -168,6 +173,9 @@ private struct TimeRowMenuLabel: View {
     @Binding var chevronFrame: CGRect
     let rowHeight: CGFloat
     let primaryContentOffset: CGFloat
+    //While the time menu is open the same touch that presented it (touch-down open)
+    //would keep panning the pager invisibly under the platter — freeze it instead.
+    let pagerDisabled: Bool
 
     @Environment(\.isLiveInviteRow) private var isLive
 
@@ -193,7 +201,7 @@ private struct TimeRowMenuLabel: View {
                 .offset(y: primaryContentOffset)
         }
     }
-    
+
     //Must put the valueSlot in a ZStack with If Else so blur poacity works. 
     private var valueSlot: some View {
         ZStack(alignment: .trailing) {
@@ -238,6 +246,7 @@ private struct TimeRowMenuLabel: View {
             .scrollTargetLayout()
         }
         .frame(height: rowHeight)
+        .scrollDisabled(pagerDisabled)
         .contentShape(Rectangle())
         .modifier(PagedScrollStyle(
             scrolledPageID: $scrolledPageID,

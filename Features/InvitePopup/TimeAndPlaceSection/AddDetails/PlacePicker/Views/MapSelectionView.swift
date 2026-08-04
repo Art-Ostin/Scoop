@@ -69,16 +69,15 @@ extension MapSelectionView {
     }
     
     private var addLocationButton: some View {
-        Button {
-            selectedLocation(mapItem)
-        } label: {
-            Text("Add Location")
-                .font(.body(18, .bold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Color.textAccent, in: .rect(cornerRadius: CornerRadius.xl))
-        }
+        Text("Add Location")
+            .font(.body(18, .bold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.textAccent, in: .rect(cornerRadius: CornerRadius.xl))
+            .shrinkPress {
+                selectedLocation(mapItem)
+            }
     }
     
     private var searchButton: some View {
@@ -231,12 +230,13 @@ private struct MapSelectionAction<Icon: View>: View {
                 icon()
                 Text(text)
                     .font(.body(14, .bold))
+                    .foregroundStyle(Color.textPrimary)
             }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 35)
         .foregroundStyle(isEnabled ? tint : Color.textPlaceholder)
-        .stroke(CornerRadius.xl, lineWidth: 1.2)
+        .background(Color(red: 0.96, green: 0.97, blue: 0.97), in: .capsule)
         .disabled(!isEnabled)
     }
 }

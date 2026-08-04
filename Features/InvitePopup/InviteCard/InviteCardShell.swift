@@ -11,7 +11,8 @@ import SwiftUI
 struct InvitePopupBackground: View {
     var body: some View {
         Rectangle()
-            .fill(Color.white)
+            .fill(.regularMaterial)
+            .background(Color.white.opacity(0.1))
             .ignoresSafeArea()
     }
 }
@@ -28,7 +29,6 @@ struct InviteCardBackground: ViewModifier {
             .padding(.bottom, Spacing.sm)
             .background(Color.appCanvas, in: shape)
             .clipShape(shape)
-            .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
             .padding(.top, 24) //Consistent 24 top padding works well (regardless of confirm screen or not)
@@ -56,3 +56,8 @@ struct BottomBackButton: View {
         .padding(.horizontal, Spacing.sm) // 12
     }
 }
+
+/*
+ //            .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
+
+ */

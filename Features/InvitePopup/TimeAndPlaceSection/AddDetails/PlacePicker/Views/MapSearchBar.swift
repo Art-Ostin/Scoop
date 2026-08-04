@@ -38,9 +38,9 @@ struct MapSearchBar: View {
 extension MapSearchBar {
     
     private var searchPrompt: Text {
-        Text("Search Maps")
+        Text("Type the meetup location")
             .foregroundStyle(Color.black.opacity(0.6))
-            .font(.system(size: 16, weight: .medium))
+            .font(.body(16, .medium))
     }
     
     private var searchIcon: some View {
@@ -72,11 +72,8 @@ extension MapSearchBar {
     }
     
     private func searchAndSelectFirst() async {
-        await vm.searchPlaces()
-        let first = vm.results.first
-        await MainActor.run {
-            if let first { vm.selection = MapSelection(first) }
-        }
+        guard await vm.searchPlaces() else { return } //Superseded by a newer search — its results aren't ours
+        if let first = vm.results.first { vm.selection = MapSelection(first) }
     }
 
 }

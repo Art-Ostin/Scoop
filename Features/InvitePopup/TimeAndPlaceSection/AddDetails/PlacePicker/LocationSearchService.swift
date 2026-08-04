@@ -28,11 +28,8 @@ final class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
         }
     }
 
-    nonisolated func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-        print("Search completer error:", error)
-    }
-
-    func updateQuery(_ fragment: String) {
+    func updateQuery(_ fragment: String, region: MKCoordinateRegion? = nil) {
+        if let region { completer.region = region }
         completer.queryFragment = fragment
     }
 }

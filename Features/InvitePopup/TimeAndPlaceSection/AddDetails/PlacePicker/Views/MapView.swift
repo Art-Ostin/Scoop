@@ -12,11 +12,11 @@ import MapKit
 struct MapView: View {
     
     @State var vm: MapViewModel
-    
+
     @Environment(\.dismiss) var dismiss
-    
+
     @Binding var eventLocation: EventLocation?
-    
+
     @State private var sheet: MapSheets = .large
 
     @State private var sheetPresented = false
@@ -25,7 +25,7 @@ struct MapView: View {
     @State private var useSelectedDetent =  false
     @State private var isExitingSelectedSheet = false
     @State private var selectedSheetExitTask: Task<Void, Never>?
-    
+
     private let selectedSheetTransitionDuration: TimeInterval = 0.12
     
     init(defaults: DefaultsManaging, eventLocation: Binding<EventLocation?>) {
@@ -174,9 +174,10 @@ extension MapView {
     
     
     private var pointsOfInterest: [MKPointOfInterestCategory] {
-        [.nightlife, .restaurant, .beach, .brewery, .cafe, .distillery,
-         .foodMarket, .fairground, .landmark, .park, .musicVenue,
-         .rockClimbing, .skating,
+        [.nightlife, .restaurant, .beach, .brewery, .cafe, .bakery, .distillery,
+         .winery, .foodMarket, .fairground, .landmark, .park, .musicVenue,
+         .rockClimbing, .skating, .museum, .movieTheater, .amusementPark,
+         .stadium, .bowling, .miniGolf, .zoo, .aquarium,
         ]
     }
     
@@ -237,13 +238,16 @@ extension MapView {
             //Animation to update camera Position smoothly
             if let item = vm.selectedMapItem {
                 let coord = item.placemark.coordinate
-                
+
                 let base = lastCamera ?? MapCamera(centerCoordinate: coord, distance: 2500, heading: 0, pitch: 0)
-                let center = offsetCenter(for: coord, heading: base.heading)
+                //Auto-selected search results fly home to a readable zoom; manual pin taps keep the user's zoom.
+                let distance = vm.lastSelectionWasAutomatic ? min(base.distance, 4500) : base.distance
+                vm.lastSelectionWasAutomatic = false
+                let center = offsetCenter(for: coord, heading: base.heading, targetDistance: distance)
                 // Exit user-follow mode before centering the selected place.
                 vm.cameraPosition = .camera(base)
-                camTarget = MapCamera(centerCoordinate: center, distance: base.distance, heading: base.heading, pitch: base.pitch)
-                camDuration = (base.distance < 1500) ? 1.0 : 0.85
+                camTarget = MapCamera(centerCoordinate: center, distance: distance, heading: base.heading, pitch: base.pitch)
+                camDuration = (distance < 1500) ? 1.0 : 0.85
                 camTrigger &+= 1
             }
         }
@@ -296,12 +300,22 @@ extension MapView {
         }
     }
     
-    private func offsetCenter(for coordinate: CLLocationCoordinate2D, heading: CLLocationDirection) -> CLLocationCoordinate2D {
+    private func offsetCenter(for coordinate: CLLocationCoordinate2D, heading: CLLocationDirection, targetDistance: Double) -> CLLocationCoordinate2D {
         let offsetRatio = 0.15
         let headingRadians = heading * .pi / 180
-        let latitudeOffset = lastSpan.latitudeDelta * offsetRatio
-        let longitudeOffset = lastSpan.longitudeDelta * offsetRatio
-        
+
+        //When the flight changes zoom, offset by the span the camera will LAND at, not the one it left.
+        let span: MKCoordinateSpan
+        if let lastCamera, targetDistance < lastCamera.distance {
+            let delta = lastSpan.latitudeDelta * (targetDistance / lastCamera.distance)
+            span = MKCoordinateSpan(latitudeDelta: delta, longitudeDelta: delta)
+        } else {
+            span = lastSpan
+        }
+
+        let latitudeOffset = span.latitudeDelta * offsetRatio
+        let longitudeOffset = span.longitudeDelta * offsetRatio
+
         return CLLocationCoordinate2D(
             latitude: coordinate.latitude - (latitudeOffset * cos(headingRadians)),
             longitude: coordinate.longitude - (longitudeOffset * sin(headingRadians))

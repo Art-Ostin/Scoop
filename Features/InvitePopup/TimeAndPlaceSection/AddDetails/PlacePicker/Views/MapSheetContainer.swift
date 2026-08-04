@@ -1,5 +1,5 @@
 //
-//  MapSearchView.swift
+//  MapSheetContainer.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/07/2025.
@@ -19,8 +19,10 @@ struct MapSheetContainer: View {
     //Local view state
     @FocusState private var searchFocused: Bool
     @State private var entranceFocusDone = false
+    @State private var emptySearchExitTask: Task<Void, Never>?
 
     private let keyboardOpenDelay: Duration = .milliseconds(50)
+    private let emptySearchNoticeDuration: TimeInterval = 1.4
 
     var body: some View {
         sheetContent
@@ -46,6 +48,21 @@ struct MapSheetContainer: View {
         .onChange(of: vm.selectedMapItem) { _, newValue in
             if newValue != nil { searchFocused = false }
         }
+        .onChange(of: vm.searchFoundNothing) { _, foundNothing in
+            emptySearchExitTask?.cancel()
+            //Only the wedged loading sheet needs rescuing — a large-sheet typed search stays put.
+            guard foundNothing, useSelectedDetent else { return }
+            //Show "No Places Found Nearby" for a beat, then take the measured exit back to the category row.
+            emptySearchExitTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(emptySearchNoticeDuration))
+                guard !Task.isCancelled, useSelectedDetent, !searchFocused else { return }
+                onExitSelection(.optionsAndSearchBar)
+            }
+        }
+        .onChange(of: searchFocused) { _, focused in
+            if focused { emptySearchExitTask?.cancel() } //Typing over the notice cancels the auto-exit
+        }
+        .onDisappear { emptySearchExitTask?.cancel() }
     }
 }
 
@@ -96,14 +113,21 @@ extension MapSheetContainer {
             .padding(.top, Spacing.xl)
 
             VStack {
-                ProgressView()
-                    .tint(Color.textTertiary)
-                
-                Text("Searching...")
-                    .font(.body(17, .medium))
-                    .foregroundStyle(Color.textTertiary)
+                if vm.searchFoundNothing {
+                    Text("No Places Found Nearby")
+                        .font(.body(17, .medium))
+                        .foregroundStyle(Color.textTertiary)
+                } else {
+                    ProgressView()
+                        .tint(Color.textTertiary)
+
+                    Text("Searching...")
+                        .font(.body(17, .medium))
+                        .foregroundStyle(Color.textTertiary)
+                }
             }
-            
+            .animation(.transition, value: vm.searchFoundNothing)
+
             Spacer()
         }
     }

@@ -85,9 +85,6 @@ enum Spacing {
     static let clearance: CGFloat = 96 //content ↔ the screen edge or floating chrome it must clear
 }
 
-
-
-
 // MARK:  Aspect Ratio
 enum AspectRatio {
     case square, card, `default`, inviteCard, invitedImage, confirmInviteImage
@@ -98,14 +95,11 @@ enum AspectRatio {
         case .card:               1 / 1.05
         case .default:            1 / 1.12
         case .inviteCard:         1 / 1.55
-        case .invitedImage:       1 / 0.97
+        case .invitedImage:       1 / 0.95
         case .confirmInviteImage: 1 / 0.88
         }
     }
 }
-
-
-
 
 extension Animation {
 

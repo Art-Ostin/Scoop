@@ -35,5 +35,6 @@ struct RootView : View {
         .onChange(of: dep.session.appState) { _, newState in
             if newState != .login { showSignUpSheet = false }
         }
+        .keyboardPrewarmed() //The session's first keyboard build happens invisibly at launch
     }
 }

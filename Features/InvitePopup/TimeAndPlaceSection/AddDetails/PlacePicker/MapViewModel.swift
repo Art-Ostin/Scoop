@@ -43,7 +43,20 @@ import UIKit
     }
     
     var lastSearchRegion: MKCoordinateRegion?
-    
+    //Where the auto-flight lands: the nearest pin's distance from the search origin. Panning
+    //past it by more than the slack flips the icon to "Search Area".
+    private var lastLandingDistance: CLLocationDistance = 0
+
+    //Set when a search auto-selects its nearest result, so the camera flies back to a readable zoom.
+    var lastSelectionWasAutomatic = false
+
+    //Set when a search lands with zero results, so the sheet can say so instead of spinning forever.
+    var searchFoundNothing = false
+
+    //Monotonic stamp: an async search must present the current stamp to write state, so a superseded
+    //search that resumes late can never overwrite a newer one.
+    private var searchGeneration = 0
+
     var recentMapSearches: [RecentPlace]
     
     
@@ -70,16 +83,27 @@ import UIKit
         }
     }
     
-    func searchPlaces() async {
+    //Returns false when a newer search superseded this one — callers must not act on the results.
+    @discardableResult
+    func searchPlaces() async -> Bool {
+        searchGeneration += 1
+        let generation = searchGeneration
+        searchFoundNothing = false
+
         if let selectedMapCategory {
-            await searchCategory(category: selectedMapCategory, query: searchText)
-            return
+            await searchCategory(category: selectedMapCategory, query: searchText, generation: generation)
+            //Found-nothing also returns false: results hold nothing (or a previous search) to act on.
+            return generation == searchGeneration && !searchFoundNothing
         }
 
         let req = MKLocalSearch.Request()
         req.naturalLanguageQuery = searchText
+        if let visibleRegion { req.region = visibleRegion } //Bias, not a boundary: a typed search may leave the area
         let res = try? await MKLocalSearch(request: req).start()
+        guard generation == searchGeneration else { return false }
         results = res?.mapItems ?? []
+        searchFoundNothing = results.isEmpty
+        return true
     }
 
     func selectCategory(_ category: MapCategory, fromSearchArea: Bool = false) {
@@ -103,10 +127,14 @@ import UIKit
         categorySelectionFromSearchArea = false
 
         if let category = selectedMapCategory {
+            searchGeneration += 1
+            let generation = searchGeneration
+            searchFoundNothing = false
             categorySearchTask = Task { [weak self] in
-                await self?.searchCategory(category: category, query: nil, fromSearchArea: fromSearchArea)
-                self?.searchText = category.description
-                self?.markerTint = category.mainColor
+                await self?.searchCategory(category: category, query: nil, fromSearchArea: fromSearchArea, generation: generation)
+                guard let self, generation == self.searchGeneration else { return }
+                self.searchText = category.description
+                self.markerTint = category.mainColor
             }
         } else {
             //If categorySelect set to nil, delete all the existing values
@@ -115,42 +143,91 @@ import UIKit
     }
 
     private func resetSearchState() {
+        searchGeneration += 1 //Invalidates any in-flight search so it can't resurrect the cleared state
         results.removeAll()
         searchText = ""
         markerTint = .accent
+        searchFoundNothing = false
+        lastSelectionWasAutomatic = false
     }
     
     //Search and assign all the categories
-    private func searchCategory(category: MapCategory, query: String?, fromSearchArea: Bool = false) async {
-        guard let region = visibleRegion else { return }
+    private func searchCategory(category: MapCategory, query: String?, fromSearchArea: Bool = false, generation: Int) async {
+        guard let scope = searchScope(fromSearchArea: fromSearchArea) else {
+            if generation == searchGeneration { searchFoundNothing = true }
+            return
+        }
         let spec = Self.categorySpec(category: category)
         let plans = Self.makeSearchPlans(from: spec, with: query)
-        let foundItems = await Self.search(region: region, plans: plans)
-        guard !Task.isCancelled else { return }
-        results = Self.applyCategoryFilter(foundItems, spec: spec)
-        lastSearchRegion = region
-        let origin = fromSearchArea ? region.center : preferredSelectionOrigin()
-        if let nearest = nearestMapItem(from: results, origin: origin) {
+        let foundItems = await Self.search(region: scope.region, plans: plans)
+        guard generation == searchGeneration else { return }
+        let matches = Self.applyCategoryFilter(foundItems, spec: spec)
+        let found = Self.nearestResults(matches, scope: scope)
+        results = found.items
+        lastSearchRegion = scope.region
+        lastLandingDistance = found.landing
+        searchFoundNothing = results.isEmpty
+        if let nearest = results.first {
+            //Only flag when the selection will actually change — an equal value never fires onChange,
+            //and an unconsumed flag would clamp the next manual pin tap.
+            lastSelectionWasAutomatic = MapSelection(nearest) != selection
             selection = MapSelection(nearest)
         }
     }
-    
-    //Go to the nearest Location Not a Random Map 
-    private func nearestMapItem(from items: [MKMapItem], origin: CLLocationCoordinate2D?) -> MKMapItem? {
-        guard !items.isEmpty else { return nil }
-        guard let origin else { return items.first }
-        
-        let originLocation = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
-        
-        return items.min { lhs, rhs in
-            let lhsCoordinate = lhs.placemark.coordinate
-            let rhsCoordinate = rhs.placemark.coordinate
-            
-            let lhsDistance = originLocation.distance(from: CLLocation(latitude: lhsCoordinate.latitude, longitude: lhsCoordinate.longitude))
-            let rhsDistance = originLocation.distance(from: CLLocation(latitude: rhsCoordinate.latitude, longitude: rhsCoordinate.longitude))
-            return lhsDistance < rhsDistance
-        }
+
+    private static let nearbyRadius: CLLocationDistance = 2500
+    private static let searchAreaMinRadius: CLLocationDistance = 1500
+    private static let maxCategoryResults = 20
+    private static let radiusTolerance = 1.2
+    private static let searchAreaSlack: CLLocationDistance = 800
+
+    //Where a category search anchors: the user's surroundings normally, the panned-to area for "Search Area".
+    private struct SearchScope {
+        let origin: CLLocationCoordinate2D
+        let region: MKCoordinateRegion
+        let radius: CLLocationDistance
     }
+
+    private func searchScope(fromSearchArea: Bool) -> SearchScope? {
+        if fromSearchArea, let region = visibleRegion {
+            let rawRadius = Self.regionRadius(region)
+            if rawRadius >= Self.searchAreaMinRadius {
+                return SearchScope(origin: region.center, region: region, radius: rawRadius)
+            }
+            //Zoomed-in viewports widen to the minimum reach — the .required boundary must match the filter.
+            let widened = MKCoordinateRegion(center: region.center,
+                                             latitudinalMeters: Self.searchAreaMinRadius * 2,
+                                             longitudinalMeters: Self.searchAreaMinRadius * 2)
+            return SearchScope(origin: region.center, region: widened, radius: Self.searchAreaMinRadius)
+        }
+        guard let origin = preferredSelectionOrigin() else { return nil }
+        let region = MKCoordinateRegion(center: origin, latitudinalMeters: Self.nearbyRadius * 2, longitudinalMeters: Self.nearbyRadius * 2)
+        return SearchScope(origin: origin, region: region, radius: Self.nearbyRadius)
+    }
+
+    private static func regionRadius(_ region: MKCoordinateRegion) -> CLLocationDistance {
+        let center = CLLocation(latitude: region.center.latitude, longitude: region.center.longitude)
+        let edge = CLLocation(latitude: region.center.latitude + region.span.latitudeDelta / 2,
+                              longitude: region.center.longitude + region.span.longitudeDelta / 2)
+        return center.distance(from: edge)
+    }
+
+    //Nearest-first and hard-capped, so every pin stays within reach and the map stays readable.
+    //Also reports where the auto-selection will land: the nearest kept pin's distance (0 when nothing survived).
+    private static func nearestResults(_ items: [MKMapItem], scope: SearchScope) -> (items: [MKMapItem], landing: CLLocationDistance) {
+        let origin = CLLocation(latitude: scope.origin.latitude, longitude: scope.origin.longitude)
+        let maxDistance = scope.radius * radiusTolerance
+        let kept = items
+            .map { item -> (item: MKMapItem, distance: CLLocationDistance) in
+                let coordinate = item.placemark.coordinate
+                return (item, origin.distance(from: CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)))
+            }
+            .filter { $0.distance <= maxDistance }
+            .sorted { $0.distance < $1.distance }
+            .prefix(maxCategoryResults)
+        return (kept.map(\.item), kept.first?.distance ?? 0)
+    }
+
     private func preferredSelectionOrigin() -> CLLocationCoordinate2D? {
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
@@ -171,6 +248,7 @@ import UIKit
                         guard !Task.isCancelled else { return [] }
                         let request = MKLocalSearch.Request()
                         request.region = region
+                        request.regionPriority = .required //iOS 18: makes the region a boundary instead of a hint
                         request.naturalLanguageQuery = plan.query
                         if plan.pointOfInterestOnly { request.resultTypes = .pointOfInterest }
                         if let categories = plan.categories, !categories.isEmpty {
@@ -205,10 +283,19 @@ import UIKit
     }
 
     private static func makeSearchPlans(from spec: CategorySpec, with query: String?) -> [SearchPlan] {
-        let mergedQueries = deduplicateQueries((query.map { [$0] } ?? []) + spec.queries)
-        return [SearchPlan(query: nil, categories: spec.categories)] +
-        mergedQueries.map { SearchPlan(query: $0, categories: spec.categories) } +
-        mergedQueries.prefix(2).map { SearchPlan(query: $0, categories: nil) }
+        var plans: [SearchPlan] = []
+        if !spec.categories.isEmpty {
+            plans.append(SearchPlan(query: nil, categories: spec.categories))
+            plans += deduplicateQueries(spec.queries).map { SearchPlan(query: $0, categories: spec.categories) }
+        }
+        plans += deduplicateQueries(spec.unfilteredQueries).map { SearchPlan(query: $0, categories: nil) }
+
+        //A user-typed query runs both with and without the POI filter so uncategorized places can still match.
+        if let query, !normalized(query).isEmpty {
+            if !spec.categories.isEmpty { plans.insert(SearchPlan(query: query, categories: spec.categories), at: 0) }
+            plans.append(SearchPlan(query: query, categories: nil))
+        }
+        return plans
     }
 
     private static func deduplicateQueries(_ queries: [String]) -> [String] {
@@ -233,69 +320,72 @@ import UIKit
 
             guard !spec.excludedKeywords.isEmpty else { return true }
             let searchableText = normalized("\(item.name ?? "") \(item.placemark.title ?? "")")
+            //Whole-word match: "bar" must not knock out "Barbecue" or "Rhubarb".
             return !spec.excludedKeywords.contains { keyword in
-                searchableText.contains(normalized(keyword))
+                let pattern = "\\b\(NSRegularExpression.escapedPattern(for: normalized(keyword)))\\b"
+                return searchableText.range(of: pattern, options: .regularExpression) != nil
             }
         }
     }
         
-    //What to search specifically for Each one
+    //What to search specifically for each one. Strict separation: a place belongs to exactly one category —
+    //Food = meals, Cafes = coffee & pastry, Bars = cocktails/wine, Pubs = beer-first, Clubs = dance venues.
     private static func categorySpec(category: MapCategory) -> CategorySpec {
-        let exclusions: Set<MKPointOfInterestCategory> = [.beauty, .spa]
-        let excludedKeywords = ["hairdresser", "hair salon", "barber", "coiffeur", "coiffeuse"]
+        let beautyExclusions: Set<MKPointOfInterestCategory> = [.beauty, .spa]
+        let beautyKeywords = ["hairdresser", "hair salon", "barber", "coiffeur", "coiffeuse", "coiffure"]
 
         switch category {
         case .food:
             return .init(
-                categories: [.restaurant, .foodMarket, .cafe],
-                queries: ["restaurant", "food", "dining", "eat"],
-                excludedCategories: [.cafe],
-                excludedKeywords: ["cafe", "café", "bar"]
+                categories: [.restaurant, .foodMarket],
+                queries: ["restaurant"],
+                excludedCategories: [.cafe, .bakery, .brewery, .winery, .distillery, .nightlife],
+                excludedKeywords: ["cafe", "café", "coffee", "pub", "tavern", "taverne", "microbrasserie", "nightclub"]
             )
         case .cafe:
             return .init(
-                categories: [.cafe],
-                queries: ["cafe", "coffee", "espresso", "tea"],
-                excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords
+                categories: [.cafe, .bakery],
+                queries: ["coffee", "cafe"],
+                excludedCategories: beautyExclusions,
+                excludedKeywords: beautyKeywords
             )
         case .bar:
             return .init(
-                categories: [.nightlife, .distillery, .winery],
-                queries: ["bar", "cocktail", "drinks", "lounge"],
-                excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords + ["pub", "cafe"]
+                categories: [.nightlife, .winery, .distillery],
+                queries: ["cocktail bar", "bar"],
+                unfilteredQueries: ["wine bar"],
+                excludedCategories: beautyExclusions.union([.brewery]),
+                excludedKeywords: beautyKeywords + ["pub", "tavern", "taverne", "microbrasserie", "brewery", "nightclub"]
             )
         case .pub:
             return .init(
                 categories: [.brewery],
-                queries: ["pub", "Microbrasserie", "tavern", "alehouse", "beer"],
-                excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords + ["bar", "cocktail"]
+                unfilteredQueries: ["pub", "microbrasserie", "taproom"],
+                excludedCategories: beautyExclusions,
+                excludedKeywords: beautyKeywords + ["cocktail", "nightclub", "wine bar"]
             )
         case .club:
             return .init(
-                categories: [.nightlife, .musicVenue],
-                queries: ["nightclub", "dance", "dj", "music"],
-                excludedCategories: exclusions,
-                excludedKeywords: ["bar", "cocktail", "resaurant", "pub"]
+                unfilteredQueries: ["nightclub", "dance club"],
+                excludedCategories: beautyExclusions.union([.brewery]),
+                excludedKeywords: beautyKeywords + ["pub", "tavern", "taverne"]
             )
         case .park:
             return .init(
                 categories: [.park, .nationalPark, .beach, .campground],
-                queries: ["public park", "city park", "state park", "nature reserve", "trail"],
-                excludedCategories: exclusions.union([.parking, .carRental, .gasStation, .evCharger, .automotiveRepair]),
-                excludedKeywords: excludedKeywords + [
-                    "parking", "parking lot", "parking garage", "car park", "carpark",
-                    "park and ride", "park&ride", "parkade", "valet", "mcLean"
+                queries: ["public park", "nature reserve", "trail"],
+                excludedCategories: beautyExclusions.union([.parking, .carRental, .gasStation, .evCharger, .automotiveRepair]),
+                excludedKeywords: beautyKeywords + [
+                    "parking", "car park", "carpark", "park and ride", "park&ride", "parkade", "valet"
                 ]
             )
         case .activity:
             return .init(
-                categories: [.amusementPark, .fairground, .landmark, .movieTheater, .museum, .musicVenue, .rockClimbing, .skating, .stadium],
-                queries: ["activity", "things to do", "fun", "attractions"],
-                excludedCategories: exclusions,
-                excludedKeywords: excludedKeywords
+                categories: [.amusementPark, .fairground, .landmark, .movieTheater, .museum, .musicVenue,
+                             .rockClimbing, .skating, .stadium, .bowling, .miniGolf, .zoo, .aquarium],
+                queries: ["things to do"],
+                excludedCategories: beautyExclusions,
+                excludedKeywords: beautyKeywords
             )
         }
     }
@@ -303,8 +393,21 @@ import UIKit
     private struct CategorySpec {
         let categories: [MKPointOfInterestCategory]
         let queries: [String]
+        let unfilteredQueries: [String]
         let excludedCategories: Set<MKPointOfInterestCategory>
         let excludedKeywords: [String]
+
+        init(categories: [MKPointOfInterestCategory] = [],
+             queries: [String] = [],
+             unfilteredQueries: [String] = [],
+             excludedCategories: Set<MKPointOfInterestCategory> = [],
+             excludedKeywords: [String] = []) {
+            self.categories = categories
+            self.queries = queries
+            self.unfilteredQueries = unfilteredQueries
+            self.excludedCategories = excludedCategories
+            self.excludedKeywords = excludedKeywords
+        }
     }
 
     private struct SearchPlan {
@@ -325,7 +428,9 @@ import UIKit
 
         let last = CLLocation(latitude: lastCenter.latitude, longitude: lastCenter.longitude)
         let current = CLLocation(latitude: currentCenter.latitude, longitude: currentCenter.longitude)
-        return last.distance(from: current) > 600
+        //Past the flight's landing spot plus slack: even a short real pan flips the label, while the
+        //flight itself (landing offset ≤ ~700 m at the 4500 m zoom clamp) stays under the slack and never can.
+        return last.distance(from: current) > lastLandingDistance + Self.searchAreaSlack
     }
     
     func addSearchToDefaults(title: String, town: String) {

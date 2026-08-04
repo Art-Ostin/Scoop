@@ -32,7 +32,7 @@ struct ConfirmMessageSection: View {
         }
         .padding(.horizontal, Spacing.margin)
         .containerRelativeFrame(.horizontal, alignment: .leading)
-        .offset(y: checkMessage == nil  ? 0 : -12)
+        .offset(y: runsPastTwoLines ? -Spacing.sm : 0)
     }
 }
 
@@ -105,18 +105,26 @@ extension ConfirmMessageSection {
     private static let measurementFont: UIFont = .body(14, .italic)
     private static let messageLineSpacing: CGFloat = 6
 
-    //Edit rides the last line only on a wrapped message whose final line leaves it room —
-    //a single line, or a last line that would run under the button, drops it to its own row.
-    private var editFitsOnLastLine: Bool {
-        guard let message = checkMessage, editSize.width > 0 else { return false }
-
-        let metrics = message.lineMetrics(
+    //One layout pass both readers below share, so they can't disagree on where the lines fall
+    private var messageMetrics: String.LineMetrics? {
+        checkMessage?.lineMetrics(
             font: Self.measurementFont,
             lineSpacing: Self.messageLineSpacing,
             width: textWidth
         )
+    }
+
+    //Edit rides the last line only on a wrapped message whose final line leaves it room —
+    //a single line, or a last line that would run under the button, drops it to its own row.
+    private var editFitsOnLastLine: Bool {
+        guard let metrics = messageMetrics, editSize.width > 0 else { return false }
 
         guard metrics.count >= 2 else { return false }
         return metrics.lastLineWidth + Spacing.sm + editSize.width <= textWidth
+    }
+
+    //Only a message deep enough to crowd the page below claims the gap above it
+    private var runsPastTwoLines: Bool {
+        (messageMetrics?.count ?? 0) > 2
     }
 }
