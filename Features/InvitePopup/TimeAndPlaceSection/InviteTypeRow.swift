@@ -24,6 +24,9 @@ struct InviteTypeRow: View {
     @State private var openInfoTypes: Set<Event.EventType> = []
     @State private var typePulse = false
 
+    //Set by a tap on the "What" caption, which sits outside the menu's label.
+    @State private var openTypeMenu = false
+
     @State private var scrollProgress: Double = 0
     @State private var scrolledPageID: Int?
 
@@ -55,8 +58,6 @@ struct InviteTypeRow: View {
         InviteRowMetrics.primaryContentOffset(showsIndicator: showsPageIndicator)
     }
 
-    @State var showTypeInfoScreen = false
-    
     var body: some View {
         //The message page sits a touch closer to the title than the type page.
         HStack(spacing: scrolledPageID == 1 ? 2 : 4) {
@@ -96,6 +97,7 @@ extension InviteTypeRow {
             onOpen: { ui.activePopup = .type },
             onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
             onLabelTap: handleLabelTap,
+            openRequest: $openTypeMenu,
             footer: { AnyView(addMessageFooter) },
             content: { selectTypeView },
             label: { menuLabel }
@@ -184,10 +186,6 @@ extension InviteTypeRow {
         .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
-        .sheet(isPresented: $showTypeInfoScreen) {
-            Text("Type Info Here")
-        }
-
     }
 
     //Never inserted or removed, so no transition can ever pair it with a second copy of
@@ -200,12 +198,12 @@ extension InviteTypeRow {
             .foregroundStyle(isOpen ? Color.textPrimary : Color.textTertiary)
             .inviteRowTitleColumn()
             .offset(x: isOpen ? 24 : 0, y: isOpen ? openLift : 0)
-            .scaleEffect(isOpen ? 1 : 0.706, anchor: .leading) //Geometry: 12/17 — collapsed reads as 12pt
+            .scaleEffect(isOpen ? 1 : 0.765, anchor: .leading) //Geometry: 13/17 — collapsed reads as 13pt
             .animation(.smooth(duration: 0.2), value: isOpen)
             .opacity(onMessagePage ? 0 : 1)
             .blur(radius: onMessagePage ? 6 : 0) //the .blurReplace look, without a second copy
             .allowsHitTesting(!onMessagePage)
-            .shrinkPress { showTypeInfoScreen = true }
+            .shrinkPress { openTypeMenu = true }
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }

@@ -18,6 +18,9 @@ struct InviteTimeRow: View {
     @State private var scrollProgress: Double = 0
     @State private var scrolledPageID: Int?
 
+    //Set by a tap on the "When" caption, which sits outside the menu's label.
+    @State private var openTimeMenu = false
+
     //Global frames feeding the menu's morph anchor.
     @State private var activeTimeFrame: CGRect = .zero   //active time page (when populated)
     @State private var chooseTimeFrame: CGRect = .zero   //"Choose Time" (when empty)
@@ -65,21 +68,22 @@ extension InviteTimeRow {
 
         VStack(alignment: .trailing, spacing: 0) {
             
-            Menu {
-                Text("Test")
-                Text("Test")
-                Text("Test")
-                Text("Test")
-                Text("Test")
-            } label: {
-                Text("Sat 7 Aug · 14:30")
-            }
+//            Menu {
+//                Text("Test")
+//                Text("Test")
+//                Text("Test")
+//                Text("Test")
+//                Text("Test")
+//            } label: {
+//                Text("Sat 7 Aug · 14:30")
+//            }
 
 
             TimeCustomMenu(morphAnchor: morphAnchor,
                            estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
-                           placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 16,
-                           placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
+                           placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
+                           placementOffsetY: TimeCustomMenuSpec.placementOffsetY + 16,
+                           openRequest: $openTimeMenu,
                            onOpen: openMenu, onClose: closeMenu) {
                 SelectTimeView(proposedTimes: $draft)
                     .frame(width: timeMenuWidth)
@@ -150,6 +154,7 @@ extension InviteTimeRow {
         }
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
+        .shrinkPress { openTimeMenu = true } //Inside blurPop, so it can't fire while another popup owns the card
         .blurPop(visible: !ui.anyPopupOpenDelayed, scale: 1)
     }
 

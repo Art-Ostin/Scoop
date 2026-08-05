@@ -23,7 +23,8 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
             PlaceRow(place: place, style: style)
                 .blurPop(visible: !timeOpen, scale: 1)
         }
-        .font(.body(18, .medium))
+        .font(.body(17, .medium))
+        .kerning(0.1)
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
         .padding(.bottom, style.rowsBottomPadding)

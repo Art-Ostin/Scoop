@@ -23,7 +23,7 @@ struct OptionsMenu: View {
             if hasChanges { clearInviteButton}
             declineButton
         } label: {
-            optionsButton
+            optionsLabel
         }
     }
 }
@@ -66,21 +66,18 @@ extension OptionsMenu {
         }
     }
     
-    private var optionsButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .small) {
-            
-        } label: {
-            optionsLabel
-        }
-    }
 
     //The Options Label
     private var optionsLabel: some View {
-        HStack(spacing: 3) {
-            ForEach(0..<3, id: \.self) { _ in circle }
+        ScoopButton(style: .clearGlass, shape: .circle, size: .small) {
+            
+        } label: {
+            HStack(spacing: 3) {
+                ForEach(0..<3, id: \.self) { _ in circle }
+            }
+            .scaleEffect(0.9)
+            .contentShape(Circle())
         }
-        .scaleEffect(0.9)
-        .contentShape(Circle())
     }
 
     private var circle: some View {

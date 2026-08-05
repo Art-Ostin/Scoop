@@ -361,6 +361,11 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     var placementOffset: CGSize
     /// Optional binding kept in sync with the menu's presentation state.
     var isOpen: Binding<Bool>?
+    /// A one-shot programmatic open, for a control that sits OUTSIDE the label (the invite
+    /// rows' "When" caption). Set it `true` and the menu presents from the label's own frame,
+    /// exactly as touch-down on the label would; the menu clears it so the same binding can
+    /// fire again. It is not a presentation state — that's `isOpen`.
+    var openRequest: Binding<Bool>?
     /// Fires the instant the menu is requested to open (on touch-down, before the
     /// bloom animation) — not when the content view appears, so there's no
     /// morph lag. Use this instead of `.onAppear` on the content.
@@ -391,6 +396,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
          isOpen: Binding<Bool>? = nil,
+         openRequest: Binding<Bool>? = nil,
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
@@ -404,6 +410,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.alignment = alignment
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.isOpen = isOpen
+        self.openRequest = openRequest
         self.onOpen = onOpen
         self.onClose = onClose
         self.content = content
@@ -437,6 +444,13 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             .opacity(controller.hidesLabel ? 0 : (pressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
             .animation(pressed ? nil : TimeCustomMenuSpec.pressDimRelease, value: pressed)
             .simultaneousGesture(openAndDragSelect)
+            //Programmatic open from outside the label; cleared immediately so it can fire again.
+            .onChange(of: openRequest?.wrappedValue ?? false) { _, wants in
+                guard wants else { return }
+                openRequest?.wrappedValue = false
+                guard !controller.isPresented else { return }
+                presentMenu()
+            }
             // A cancelled touch (incoming call, app switch, system alert) never
             // delivers onEnded, which owns the resets — without these the label
             // would strand at the pressed dim and the latch would eat the next tap.
@@ -496,29 +510,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 }
                 guard !openAttempted else { return }
                 openAttempted = true
-                // Seed the morph collapse target before the overlay renders, so
-                // the open bloom starts from the first item (not the full label).
-                controller.updateMorphAnchor(morphAnchor)
-                controller.present(
-                    anchor: labelFrame,
-                    label: { AnyView(label()) },
-                    cornerRadius: cornerRadius,
-                    labelCornerRadius: labelCornerRadius,
-                    platterFill: platterFill,
-                    alignment: alignment,
-                    placementOffset: placementOffset,
-                    estimatedContentSize: estimatedContentSize,
-                    tracksContentSizeChanges: tracksContentSizeChanges,
-                    onPresent: {
-                        isOpen?.wrappedValue = true
-                        onOpen?()
-                    },
-                    onClose: {
-                        isOpen?.wrappedValue = false
-                        onClose?()
-                    },
-                    content: { AnyView(content()) }
-                )
+                presentMenu()
                 // Dim only when the menu could not open (rare: no active scene) —
                 // on the normal path the swallow itself is the press feedback.
                 if !controller.isPresented { pressed = true }
@@ -529,6 +521,34 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 guard controller.isPresented else { return }
                 controller.dragEnded(at: value.location, translation: value.translation)
             }
+    }
+
+    /// The present call itself, shared by the touch-down gesture and the programmatic
+    /// `openRequest`. Either way the menu blooms from the label's own frame.
+    private func presentMenu() {
+        // Seed the morph collapse target before the overlay renders, so
+        // the open bloom starts from the first item (not the full label).
+        controller.updateMorphAnchor(morphAnchor)
+        controller.present(
+            anchor: labelFrame,
+            label: { AnyView(label()) },
+            cornerRadius: cornerRadius,
+            labelCornerRadius: labelCornerRadius,
+            platterFill: platterFill,
+            alignment: alignment,
+            placementOffset: placementOffset,
+            estimatedContentSize: estimatedContentSize,
+            tracksContentSizeChanges: tracksContentSizeChanges,
+            onPresent: {
+                isOpen?.wrappedValue = true
+                onOpen?()
+            },
+            onClose: {
+                isOpen?.wrappedValue = false
+                onClose?()
+            },
+            content: { AnyView(content()) }
+        )
     }
 }
 

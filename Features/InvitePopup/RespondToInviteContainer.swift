@@ -52,7 +52,7 @@ extension RespondInviteContainer {
             imageCarousel
             inviteDetailsSection
         }
-        .modifier(InviteCardBackground())
+        .modifier(InviteCardBackground(tint: .red))
     }
 
     //Gone while the time or type popup owns the card — the DynamicTimeRow's popup counts on either page
@@ -110,7 +110,7 @@ extension RespondInviteContainer {
     }
     
     private var timeAndPlacePage: some View {
-        TimeAndPlacePage(ui: timeAndPlaceUI, draft: $vm.respondDraft.newEvent, showMessageScreen: $timeAndPlaceUI.showMessageScreen)
+        TimeAndPlacePage(ui: timeAndPlaceUI, draft: $vm.respondDraft.newEvent, showMessageScreen: $timeAndPlaceUI.showMessageScreen, tint: .red)
     }
 
     private var addMessageView: some View {

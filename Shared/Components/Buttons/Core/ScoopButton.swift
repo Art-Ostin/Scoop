@@ -82,6 +82,15 @@ private struct ScoopGlassSurface<S: Shape>: ViewModifier {
     }
 }
 
+extension View {
+    // ScoopButton's glass surface on its own, for a label the system already owns — a Menu's
+    // label, say, where nesting a Button would stack the system's control chrome over the glass
+    // and wash a `.clear` surface milky. Same look and same pre-26 fallback as ScoopButton.
+    func scoopGlassSurface<S: Shape>(clear: Bool = false, shape: S) -> some View {
+        modifier(ScoopGlassSurface(clear: clear, shape: shape))
+    }
+}
+
 // The iOS-26 tinted-glass surface, with a pre-26 flat fill fallback.
 private struct ScoopTintSurface<S: Shape>: ViewModifier {
     let color: Color

@@ -38,6 +38,7 @@ struct InvitePlaceRow: View {
             RowCaption(label: .where)
                 .frame(height: InviteRowMetrics.primaryLineHeight)
                 .offset(y: contentOffset)
+                .shrinkPress { openMap() }
             chooseButton
         }
         .frame(height: rowHeight)
@@ -48,9 +49,14 @@ struct InvitePlaceRow: View {
 extension InvitePlaceRow {
     
     
+    //Shared by the value button and the "Where" caption beside it
+    private func openMap() {
+        withAnimation(.present) { ui.showMapView.toggle() }
+    }
+
     private var chooseButton: some View {
         Button {
-            withAnimation(.present) { ui.showMapView.toggle() }
+            openMap()
         } label: {
             HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
                 valueSlot

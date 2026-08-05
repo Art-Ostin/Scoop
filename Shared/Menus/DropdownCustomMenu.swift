@@ -429,6 +429,12 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     /// the menu as usual. Only the open tap is gated — re-tapping an open menu to close it is
     /// unaffected (that path lives in the overlay window).
     var onLabelTap: (() -> Bool)?
+    /// A one-shot programmatic open, for a control that sits OUTSIDE the label (the invite
+    /// rows' "What" caption). Set it `true` and the menu opens exactly as a completed label
+    /// tap would — `onLabelTap` gate included, blooming from the label's own frame — then the
+    /// menu clears it so the same binding can fire again. It is not a presentation state:
+    /// read `onOpen`/`onClose` for that.
+    var openRequest: Binding<Bool>?
 
     @State private var controller = DropdownCustomMenuController()
     @State private var labelFrame: CGRect = .zero
@@ -451,6 +457,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
          onLabelTap: (() -> Bool)? = nil,
+         openRequest: Binding<Bool>? = nil,
          footer: (() -> AnyView)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
@@ -466,6 +473,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         self.onOpen = onOpen
         self.onClose = onClose
         self.onLabelTap = onLabelTap
+        self.openRequest = openRequest
         self.footer = footer
         self.content = content
         self.label = label
@@ -514,6 +522,12 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                                           : DropdownCustomMenuSpec.flexDown,
                        value: controller.flexing)
             .simultaneousGesture(pressGesture)
+            //Programmatic open from outside the label; cleared immediately so it can fire again.
+            .onChange(of: openRequest?.wrappedValue ?? false) { _, wants in
+                guard wants else { return }
+                openRequest?.wrappedValue = false
+                openMenu()
+            }
             .onDisappear { controller.dismiss(style: .instant) }
     }
 

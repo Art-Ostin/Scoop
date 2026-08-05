@@ -53,7 +53,7 @@ extension SendInviteContainer {
             imageSection
             inviteDetailsPager
         }
-        .modifier(InviteCardBackground())
+        .modifier(InviteCardBackground(tint: palette.secondaryText))
     }
     
     private var imageSection: some View {
@@ -68,6 +68,9 @@ extension SendInviteContainer {
             declineProfile: declineProfile,
             clearInvite: {withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
+        //Sits under the carousel's bottom mask fuzz, so the image dissolves into the same
+        //colour the rows' gradient starts on instead of the card behind it.
+        .background(palette.secondaryText.opacity(0.45))
     }
 
     private var inviteDetailsPager: some View {
@@ -124,7 +127,7 @@ extension SendInviteContainer {
     }
     
     private var timeAndPlacePage: some View {
-        TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen)
+        TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen, tint: palette.secondaryText)
     }
     
     @ViewBuilder
@@ -140,6 +143,11 @@ extension SendInviteContainer {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
                 } showInfo: {
                     ui.showInfoScreen = true
+                }
+                //Same top wash as TimeAndPlacePage, so both pages meet the carousel on one colour
+                .background(alignment: .top) {
+                    LinearGradient(colors: [palette.secondaryText.opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 50)
                 }
         }
     }

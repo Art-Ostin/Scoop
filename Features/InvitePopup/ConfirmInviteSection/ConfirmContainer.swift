@@ -84,7 +84,7 @@ extension ConfirmContainer {
     private var typeRow: some View {
         LineSection(image: .drinkIconDark, text: event.type.longTitle)
             .fixedSize(horizontal: true, vertical: false)
-            .font(.body(18, .medium))
+            .font(.body(17, .medium))
     }
 
     //Only used if it is the Confirm Screen within the Card

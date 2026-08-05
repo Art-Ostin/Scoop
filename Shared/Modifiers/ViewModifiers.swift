@@ -74,15 +74,18 @@ extension View {
     }
 
     //Configurable glass effect; falls back to a filled shape pre-iOS 26.
+    //`tint` colours the glass itself (and becomes the fallback fill) — pass it with
+    //an alpha to let more of the backdrop through.
     @ViewBuilder
-    func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, shape: S) -> some View {
+    func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, tint: Color? = nil, shape: S) -> some View {
         if #available(iOS 26.0, *) {
-            let glass: Glass = clear ? .clear : .regular
+            let base: Glass = clear ? .clear : .regular
+            let glass: Glass = base.tint(tint)
             self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
         } else {
-            self.background(shape.fill(Color.appCanvas))
+            self.background(shape.fill(tint ?? Color.appCanvas))
         }
-    }    
+    }
 }
 
 extension View {
