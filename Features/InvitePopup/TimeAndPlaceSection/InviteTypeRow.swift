@@ -188,10 +188,6 @@ extension InviteTypeRow {
         .animation(.transition, value: scrolledPageID)
     }
 
-    //Never inserted or removed, so no transition can ever pair it with a second copy of
-    //itself: one element that slides and grows into its open state, and hands off to the
-    //type name by fading in place. One font at one size too — a Font can't interpolate,
-    //so the size change rides on scale rather than a weight/size swap that would snap.
     private func whatTitle(isOpen: Bool) -> some View {
         Text("What")
             .font(.title(17, .medium))
@@ -222,7 +218,6 @@ extension InviteTypeRow {
 //Message bookkeeping: editor round-trips
 extension InviteTypeRow {
 
-    //Editor opened: snapshot the message. Editor closed: if it changed, park the pager on it.
     private func messageScreenChanged() {
         if showMessageScreen {
             messageBeforeEdit = unparsedMessage
@@ -231,9 +226,6 @@ extension InviteTypeRow {
         }
     }
 
-    //The message can empty out from under the pager (Clear Invite Draft, or deleting the text):
-    //page 1 would sit on its "Add Message" placeholder while the caption has already gone back
-    //to "What". Mirrors the park onto page 1 above.
     private func messageEmptied(_ isEmpty: Bool) {
         guard isEmpty, (scrolledPageID ?? 0) >= 1 else { return }
         withAnimation(.move) { scrolledPageID = 0 }
@@ -270,7 +262,7 @@ private struct TypeRowMenuLabel: View {
 
     //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
-    @State private var showScrollFades = false
+
     var body: some View {
         if isLive { liveLabel } else { collapsedLabel }
     }
@@ -288,7 +280,6 @@ private struct TypeRowMenuLabel: View {
                         .offset(x: ui.isPopupOpen(.type) ? -20 : 0,
                                 y: ui.isPopupOpen(.type) ? openLift : 0) //Fine tune so exact
                         .animation(.smooth(duration: 0.2), value: ui.isPopupOpen(.type))
-
                     messageView
                         .getRect($messageFrame)
                         .padding(.leading, Spacing.sm)
@@ -308,12 +299,6 @@ private struct TypeRowMenuLabel: View {
                 scrollProgress: $scrollProgress,
                 pageCount: 2
             ))
-            .onScrollPhaseChange { _, phase in
-                showScrollFades = phase.isScrolling && phase != .tracking
-            }
-            .customHorizontalScrollFade(width: showScrollFades ? 40 : 0, showFade: true)
-            .customHorizontalScrollFade(width: showScrollFades ? 12 : 0, showFade: true, fromLeading: false)
-            .animation(.quick, value: showScrollFades)
             chevron
                 .getRect($chevronFrame)
                 .offset(y: primaryContentOffset)
@@ -382,42 +367,5 @@ private struct TypeRowMenuLabel: View {
     }
 }
 
-//Own struct: renders in the menu's overlay window, where the dismiss env would otherwise no-op.
-private struct AddMessageFooter: View {
 
-    @Environment(\.dropdownCustomMenuDismiss) private var menuDismiss
 
-    let message: String
-    let corners: RectangleCornerRadii
-    let onSelect: () -> Void
-
-    //With no message yet the footer is the row's call to action, so it wears the accent fill.
-    private var isCallToAction: Bool { message.isEmpty }
-
-    var body: some View {
-        Text(isCallToAction ? "Add a Message" : "Edit Message")
-            .foregroundStyle(isCallToAction ? Color.white : Color.textAccent)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .font(.body(16, .bold))
-            .kerning(0.5)
-            .frame(height: 40)
-            .frame(width: SelectTypeView.cardWidth, alignment: .leading)
-            .background(accentFill)
-            .dropdownCustomMenuFooterPlatter(corners: corners)
-            .contentShape(.rect)
-            .shrinkPress {
-                onSelect()
-                Task {
-                    try? await Task.sleep(for: .seconds(0.04))
-                    menuDismiss(.instant)
-                }
-            }
-    }
-
-    @ViewBuilder
-    private var accentFill: some View {
-        if isCallToAction {
-            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.textAccent)
-        }
-    }
-}

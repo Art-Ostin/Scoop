@@ -12,9 +12,8 @@ struct TimeAndPlacePage: View {
     @Bindable var ui: TimeAndPlaceUIState
     @Binding var draft: EventFieldsDraft
     @Binding var showMessageScreen: Bool
-    
-    let tint: Color
-    
+
+    //The top wash is the card's, not the page's — see InviteSeamWash
     var body: some View {
         VStack(spacing: 0) {
             InviteTypeRow(ui: ui, type: $draft.type, unparsedMessage: $draft.message, showMessageScreen: $showMessageScreen)
@@ -25,10 +24,6 @@ struct TimeAndPlacePage: View {
         .padding(.bottom, draft.place == nil ? 6 : 0)
         .padding(.horizontal, Spacing.lg)
         .zIndex(1)
-        .background(alignment: .top) {
-            LinearGradient(colors: [tint.opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
-                .frame(height: 50)
-        }
     }
 }
 

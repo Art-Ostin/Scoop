@@ -82,6 +82,9 @@ extension SendInviteContainer {
                 screen1: { timeAndPlacePage },
                 screen2: { confirmationPage }
             )
+            //Worn here, not by either page: pinned to the seam, so a page swap can never
+            //slide it off the carousel's bottom edge
+            .modifier(InviteSeamWash(tint: palette.secondaryText))
             actionButton
         }
     }
@@ -127,7 +130,7 @@ extension SendInviteContainer {
     }
     
     private var timeAndPlacePage: some View {
-        TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen, tint: palette.secondaryText)
+        TimeAndPlacePage(ui: ui, draft: $vm.event, showMessageScreen: $ui.showMessageScreen)
     }
     
     @ViewBuilder
@@ -143,11 +146,6 @@ extension SendInviteContainer {
                     StaticTimeRow(proposedTimes: inviteSummary.time)
                 } showInfo: {
                     ui.showInfoScreen = true
-                }
-                //Same top wash as TimeAndPlacePage, so both pages meet the carousel on one colour
-                .background(alignment: .top) {
-                    LinearGradient(colors: [palette.secondaryText.opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
-                        .frame(height: 50)
                 }
         }
     }

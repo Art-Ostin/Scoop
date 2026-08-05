@@ -110,7 +110,7 @@ extension RespondInviteContainer {
     }
     
     private var timeAndPlacePage: some View {
-        TimeAndPlacePage(ui: timeAndPlaceUI, draft: $vm.respondDraft.newEvent, showMessageScreen: $timeAndPlaceUI.showMessageScreen, tint: .red)
+        TimeAndPlacePage(ui: timeAndPlaceUI, draft: $vm.respondDraft.newEvent, showMessageScreen: $timeAndPlaceUI.showMessageScreen)
     }
 
     private var addMessageView: some View {
@@ -131,6 +131,9 @@ extension RespondInviteContainer {
             screen1: { timeAndPlacePage },
             screen2: { newEventConfirmPage }
         )
+        //Worn here, not by either page: pinned to the seam, so a page swap can never
+        //slide it off the carousel's bottom edge
+        .modifier(InviteSeamWash(tint: .red))
     }
 
     @ViewBuilder

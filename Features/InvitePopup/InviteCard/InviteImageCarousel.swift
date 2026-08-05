@@ -49,7 +49,7 @@ struct InviteImageCarousel: View {
             .overlay { if showOverlayText { backgroundBlur } }
             .overlay(alignment: .topTrailing) { optionsMenu }
             .overlay(alignment: .bottomLeading) { popupTitle }
-            .overlay(alignment: .bottomTrailing) { if !isConfirm { pageIndicator } }
+            .overlay(alignment: .bottomTrailing) { pageIndicator }
             .overlay(alignment: .topLeading) { if showConfirmScreen == true { confirmBackButton} }
             .coordinateSpace(.named("InviteImageCarousel")) //Last, so the overlays measure inside the space
     }
@@ -83,28 +83,25 @@ extension InviteImageCarousel {
 extension InviteImageCarousel {
     
     
-    @ViewBuilder
-        private var popupTitle: some View {
-            //If its the confirm invite screen (not in respond mode) don't show anyting
-            if isRespondScreen || !isConfirm {
-                let firstWord: String = isRespondScreen ? "\(name)'s" : "Invite"
-                let secondWord: String = isRespondScreen ? "invite" : "\(name)"
-                
-                HStack(spacing: 6) {
-                    Text(firstWord)
-                        .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+    private var popupTitle: some View {
+        let firstWord: String = isRespondScreen ? "\(name)'s" : "Invite"
+        let secondWord: String = isRespondScreen ? "invite" : "\(name)"
 
-                    
-                    Text(secondWord)
-                        .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
-                }
-                .font(.title(22))
-                .scaleEffect(isRespondScreen ? 0.85 : 1, anchor: .bottomLeading)
-                .foregroundStyle(Color.white)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 12)
-            }
+        return HStack(spacing: 6) {
+            Text(firstWord)
+                .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+
+            Text(secondWord)
+                .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
         }
+        .font(.title(22))
+        .scaleEffect(isRespondScreen ? 0.85 : 1, anchor: .bottomLeading)
+        .foregroundStyle(Color.white)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 12)
+        .opacityPop(visible: showOverlayText)
+        .animation(.transition, value: showOverlayText)
+    }
     
     private var optionsMenu: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -138,12 +135,14 @@ extension InviteImageCarousel {
     }
     
     private var pageIndicator: some View {
-        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
+        let visible = !isPopupOpen && !isConfirm
+
+        return ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
             .padding(.horizontal, 24)
             .padding(.bottom, Spacing.xs)
-            .opacityPop(visible: !isPopupOpen) //the overlay above already gates on isConfirm
-            .animation(.transition, value: isPopupOpen)
+            .opacityPop(visible: visible)
+            .animation(.transition, value: visible)
     }
     
     private var confirmBackButton: some View {

@@ -29,7 +29,10 @@ struct TwoPageScrollView<Screen1: View, Screen2: View>: View {
     
     var body: some View {
         
-        HorizontalScrollView(progress: $scrollProgress) {
+        //Top-pinned, never centred: the frame below interpolates between two unequal page
+        //heights, and a centred page would float down from its container mid-swap. The slack
+        //belongs at the bottom, where nothing meets it.
+        HorizontalScrollView(progress: $scrollProgress, alignment: .top) {
             screen1()
                 .containerRelativeFrame(.horizontal)
                 .fixedSize(horizontal: false, vertical: true)

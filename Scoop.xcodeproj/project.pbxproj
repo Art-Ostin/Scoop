@@ -48,6 +48,7 @@
 		652882D42F707331000B724D /* RespondTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652882D32F707331000B724D /* RespondTimes.swift */; };
 		652882E22F70881C000B724D /* SFProRounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 652882E12F70881C000B724D /* SFProRounded-Semibold.otf */; };
 		6528F4BD3020E91200C75507 /* MapSheetFlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528F4BC3020E91200C75507 /* MapSheetFlight.swift */; };
+		6528F4C23023516A00C75507 /* AddMessageFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528F4C13023516A00C75507 /* AddMessageFooter.swift */; };
 		652B2184301115E700646BB0 /* InviteImageCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B2183301115E700646BB0 /* InviteImageCarousel.swift */; };
 		652B21C43016FDD200646BB0 /* TwoPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */; };
 		652B21D4301705C100646BB0 /* ProfileZoomTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */; };
@@ -342,6 +343,7 @@
 		652882D32F707331000B724D /* RespondTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimes.swift; sourceTree = "<group>"; };
 		652882E12F70881C000B724D /* SFProRounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Semibold.otf"; sourceTree = "<group>"; };
 		6528F4BC3020E91200C75507 /* MapSheetFlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSheetFlight.swift; sourceTree = "<group>"; };
+		6528F4C13023516A00C75507 /* AddMessageFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMessageFooter.swift; sourceTree = "<group>"; };
 		652B2183301115E700646BB0 /* InviteImageCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteImageCarousel.swift; sourceTree = "<group>"; };
 		652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPageScrollView.swift; sourceTree = "<group>"; };
 		652B21D3301705C100646BB0 /* ProfileZoomTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileZoomTransition.swift; sourceTree = "<group>"; };
@@ -653,6 +655,14 @@
 				65F993D42F5893B200EC810B /* ChatState.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		6528F4C03023515E00C75507 /* InviteTypeRow */ = {
+			isa = PBXGroup;
+			children = (
+				6528F4C13023516A00C75507 /* AddMessageFooter.swift */,
+			);
+			path = InviteTypeRow;
 			sourceTree = "<group>";
 		};
 		652B15482F301B770042A3E1 /* App */ = {
@@ -1034,6 +1044,7 @@
 			children = (
 				65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */,
 				657B8D4E2F2D3F1C00583ADA /* InviteTypeRow.swift */,
+				6528F4C03023515E00C75507 /* InviteTypeRow */,
 				657B8D522F2D41C300583ADA /* InviteTimeRow.swift */,
 				65ED38912F68575100AD5600 /* InvitePlaceRow.swift */,
 				6549DA762F9E87D700C89DF2 /* AddDetails */,
@@ -1876,6 +1887,7 @@
 				65140B1E2F55E92400ED1DDE /* ChatMessage.swift in Sources */,
 				65FEDBA52E2306C5006CF3CD /* EditProfileButton.swift in Sources */,
 				6579F19B2FE2CEA1005F8CD7 /* InfoComponents.swift in Sources */,
+				6528F4C23023516A00C75507 /* AddMessageFooter.swift in Sources */,
 				656B9B3F30022817000BE57D /* MessagesPlaceholder.swift in Sources */,
 				65FFB9952FAFD4220006ED96 /* ProfileGestures.swift in Sources */,
 				65C7D6292E54007000B726B8 /* PendingProfile.swift in Sources */,
