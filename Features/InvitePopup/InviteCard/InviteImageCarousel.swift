@@ -4,60 +4,145 @@
 //
 //  Created by Art Ostin on 22/07/2026.
 //
+enum InviteScreen {
+    //The Five Different Image Screens Possible
+    case send, sendConfirm
+    case accept, newInvite, newInviteConfirm
+    
+    //A struct storing all overlay booleans for the view
+    struct Overlays {
+        var backButton = false
+        var options = false
+        var toggle = false
+        var title = false
+        var pageIndicator = false
+        var compactImage = false
+    }
+    
+    //For Each view, now declare which overlay visible or not
+    var chrome: Overlays {
+         switch self {
+         case .send:             Overlays(options: true, title: true, pageIndicator: true)
+         case .newInvite:        Overlays(options: true, toggle: true, title: true, pageIndicator: true)
+         case .accept:           Overlays(toggle: true, title: true, compactImage: true)
+         case .sendConfirm:      Overlays(backButton: true, compactImage: true)
+         case .newInviteConfirm: Overlays(backButton: true, toggle: true, compactImage: true)
+         }
+     }
+}
+
 
 import SwiftUI
-
 struct InviteImageCarousel: View {
 
-    //Only show 'clear Invite' in options Menu if there are changes to invite
-    let inviteHasChanges: Bool
-    
-    //Only used if not responding
-    let isConfirm: Bool
-
-    //A menu is on screen below: the title and page indicator pop away for it
-    let isPopupOpen: Bool
-
-    //In response mode when not nil
-    var responseType: Binding<ResponseType>? = nil
-    var isRespondScreen: Bool { responseType != nil && responseType?.wrappedValue != .newEvent}
-    var showOverlayText: Bool { isRespondScreen || !isConfirm }
-    
+    //Injected Properties
+    let screen: InviteScreen
     let name: String
     let images: [UIImage]
-    
-    //The back button out of the confirm screen overlays the image
+
+    //Only offer 'Clear Invite' in the options menu once the draft has something to clear
+    let inviteHasChanges: Bool
+
+    //A menu owns the card below: the top row and the page indicator pop away for it
+    let isPopupOpen: Bool
+
+    //The back button leaves the confirm screen & Options Menu opens Info Screen
     @Binding var showConfirmScreen: Bool?
-    
-    //The options menu triggers infoScreen
     @Binding var showInfoScreen: Bool
-    
+
+    //Respond screens only — the toggle swaps between their invite and one of your own
+    var responseType: Binding<ResponseType>? = nil
+
+    //Both offered by the options menu
     let declineProfile: () -> Void
     let clearInvite: () -> Void
-    
-    //Stores scrollProgress needed the animatedPageIndicator
+
+    //Local view state
     @State private var scrollProgress: Double = 0
-    
-    //Gets the CGRects for all the imageoverlayContent, to apply a blur behind them
+
+    //Measured so the blur halo can lift just behind the overlay text
     @State private var nameFrame: CGRect = .zero
     @State private var inviteFrame: CGRect = .zero
     @State private var optionsFrame: CGRect = .zero
-    
-        
+
+    private var chrome: InviteScreen.Overlays  { screen.chrome }
+
     var body: some View {
-        InviteCarousel(images: images, isCompact: isConfirm, scrollProgress: $scrollProgress)
-            .overlay { if showOverlayText { backgroundBlur } }
-            .overlay(alignment: .topTrailing) { optionsMenu }
-            .overlay(alignment: .bottomLeading) { popupTitle }
+        InviteCarousel(images: images, isCompact: chrome.compactImage, scrollProgress: $scrollProgress)
+            .overlay(alignment: .topLeading) { backButton }
+            .overlay(alignment: .topTrailing) { topRow }
+            .overlay(alignment: .bottomLeading) { inviteTitle }
             .overlay(alignment: .bottomTrailing) { pageIndicator }
-            .overlay(alignment: .topLeading) { if showConfirmScreen == true { confirmBackButton} }
+            .overlay { backgroundBlur }
             .coordinateSpace(.named("InviteImageCarousel")) //Last, so the overlays measure inside the space
     }
 }
 
-//Background Blur
+//The overlays
 extension InviteImageCarousel {
 
+    //Top Right to Bottom Left, the Four different visible Screens
+    private var backButton: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), action: { showConfirmScreen = false }) {
+            Image(systemName: "chevron.left")
+                .font(.body(17))
+                .fontWeight(.heavy)
+                .foregroundStyle(Color.black)
+                .frame(width: 38, height: 38)
+        }
+        .chromeItem(visible: chrome.backButton)
+        .padding(.horizontal, 20) //Geometry: as the title — one shared inset from the artwork edge
+        .padding(.top, Spacing.sm)
+    }
+
+    private var topRow: some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            if chrome.toggle, let responseType {
+                ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
+            }
+
+            if chrome.options {
+                OptionsMenu(
+                    hasChanges: inviteHasChanges,
+                    optionsFrame: $optionsFrame,
+                    onDecline: declineProfile,
+                    deleteDraft: clearInvite,
+                    onInfo: { showInfoScreen = true }
+                )
+            }
+        }
+        .padding(Spacing.sm)
+        .chromeItem(visible: !isPopupOpen)
+        .animation(.transition, value: screen) //Its two buttons mount and unmount as the screen changes
+    }
+    
+    private var inviteTitle: some View {
+        let answering = screen == .accept
+
+        return HStack(spacing: 6) { //Geometry: tighter than a word space, so the pair reads as one line of display type
+            Text(answering ? "\(name)'s" : "Invite")
+                .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+
+            Text(answering ? "invite" : name)
+                .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
+        }
+        .font(.title(22))
+        .scaleEffect(answering ? 0.85 : 1, anchor: .bottomLeading) //Their name runs longer than "Invite"
+        .foregroundStyle(Color.white)
+        .padding(.horizontal, 20)
+        .padding(.bottom, Spacing.sm)
+        .chromeItem(visible: chrome.title)
+    }
+    
+    private var pageIndicator: some View {
+        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
+            .scaleEffect(0.7, anchor: .trailing)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.bottom, Spacing.xs)
+            .chromeItem(visible: chrome.pageIndicator && !isPopupOpen)
+    }
+    
+    //Apply background blur where necessary under the content
     private var backgroundBlur: some View {
         let progress = min(max(scrollProgress, 0), Double(images.count - 1))
         let page = Int(progress)
@@ -72,89 +157,19 @@ extension InviteImageCarousel {
                     .opacity(fraction)
             }
         }
+        .chromeItem(visible: chrome.title) //Only shows
     }
-
+    
     private var haloFrames: [CGRect] {
-        isConfirm ? [nameFrame, inviteFrame] : [nameFrame, inviteFrame, optionsFrame]
+        chrome.options ? [nameFrame, inviteFrame, optionsFrame] : [nameFrame, inviteFrame]
     }
 }
 
-
-extension InviteImageCarousel {
-    
-    
-    private var popupTitle: some View {
-        let firstWord: String = isRespondScreen ? "\(name)'s" : "Invite"
-        let secondWord: String = isRespondScreen ? "invite" : "\(name)"
-
-        return HStack(spacing: 6) {
-            Text(firstWord)
-                .getRect($nameFrame, coordSpace: "InviteImageCarousel")
-
-            Text(secondWord)
-                .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
-        }
-        .font(.title(22))
-        .scaleEffect(isRespondScreen ? 0.85 : 1, anchor: .bottomLeading)
-        .foregroundStyle(Color.white)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 12)
-        .opacityPop(visible: showOverlayText)
-        .animation(.transition, value: showOverlayText)
-    }
-    
-    private var optionsMenu: some View {
-        HStack(alignment: .top, spacing: 16) {
-
-            //Only show when its in response mode (so there is a response type)
-            if let responseType {
-                ChangeButton(responseType: responseType, showConfirmScreen: $showConfirmScreen)
-            }
-            
-            if showsOptions {
-                OptionsMenu(
-                    hasChanges: inviteHasChanges,
-                    optionsFrame: $optionsFrame,
-                    onDecline: {declineProfile()},
-                    deleteDraft: { clearInvite()},
-                    onInfo: {showInfoScreen = true }
-                )
-                .transition(.scale(scale: 0.4).combined(with: .opacity))
-            }
-        }
-        .padding(12)
-        .opacityPop(visible: !isPopupOpen)
-        .animation(.transition, value: isPopupOpen) //opacityPop carries no curve of its own
-        .animation(.transition, value: showsOptions)
-    }
-    
-    private var showsOptions: Bool {
-        guard !isConfirm else { return false }
-        guard let responseType else { return true } //Send mode always offers the menu
-        return responseType.wrappedValue == .newEvent //If is response mode, only show options if new event
-    }
-    
-    private var pageIndicator: some View {
-        let visible = !isPopupOpen && !isConfirm
-
-        return ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7, anchor: .trailing)
-            .padding(.horizontal, 24)
-            .padding(.bottom, Spacing.xs)
-            .opacityPop(visible: visible)
+//All Overlay Items are shown and hidden in exactly the same way. So convenience modifier created here
+private extension View {
+    func chromeItem(visible: Bool) -> some View {
+        opacityPop(visible: visible)
+            .allowsHitTesting(visible)
             .animation(.transition, value: visible)
-    }
-    
-    private var confirmBackButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), action: {showConfirmScreen = false}) {
-            Image(systemName: "chevron.left")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .foregroundStyle(Color.black)
-                .frame(width: 38, height: 38)
-        }
-        .blurPop(visible: isConfirm)
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
     }
 }

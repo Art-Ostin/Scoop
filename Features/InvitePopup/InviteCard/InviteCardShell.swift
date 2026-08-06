@@ -16,7 +16,7 @@ struct InvitePopupBackground: View {
     var body: some View {
         Rectangle()
             .fill(.regularMaterial)
-            .fill(tint?.opacity(0.2) ?? .clear)
+            .fill(tint?.opacity(1) ?? .clear)
             .background(Color.white.opacity(0.1))
             .ignoresSafeArea()
     }

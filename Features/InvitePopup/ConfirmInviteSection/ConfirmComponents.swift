@@ -37,7 +37,6 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
         .overlay(alignment: .bottomTrailing) {if style.showScrollView { pageIndicator }}
         .padding(.top, style.timeAndPlaceTopPadding)
         .scrollClipDisabled()
-        .customHScrollFade(showFade: style.showScrollView) //Don't show fade if its on card
         .padding(.horizontal, -Spacing.margin) //So scroll view goes to the edges
         .scrollDisabled(!style.showScrollView)
     }
@@ -56,6 +55,7 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
         InvitePageIndicator(count: 2, progress: scrollProgress)
             .padding(.trailing, Spacing.lg)
             .offset(y: -22) //The Time and Place rows apply 26 vertical padding. This is to offset that so only 4points below that view
+            .offset(x: -6)
     }
 }
 
@@ -102,9 +102,9 @@ struct WarningLabel: View {
                 .lineSpacing(6)
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .frame(height: 35)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.fillGray.opacity(0.5), in: .rect(cornerRadius: CornerRadius.sm))
+        .background(Color.fillGray, in: .rect(cornerRadius: CornerRadius.sm))
     }
 }
 
@@ -116,7 +116,7 @@ struct InviteInfoButton: View {
             .font(.body(12, .medium))
             .foregroundStyle(Color.textSecondary)
             .frame(width: 28, height: 28)
-            .background(Color.fillGray.opacity(0.5), in: Circle())
+            .background(Color.fillGray, in: Circle())
             .shrinkPress {showInfo() }
             .padding()
             .padding(.top, -6)

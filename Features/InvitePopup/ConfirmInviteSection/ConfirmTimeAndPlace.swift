@@ -23,7 +23,7 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
             PlaceRow(place: place, style: style)
                 .blurPop(visible: !timeOpen, scale: 1)
         }
-        .font(.body(17, .medium))
+        .font(.body(style.timeAndPlaceSizing, .medium))
         .kerning(0.1)
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
         .padding(.horizontal, Spacing.margin)
@@ -139,6 +139,7 @@ struct LineSection: View {
     var body: some View {
         HStack(spacing:  ConfirmStyle.card.iconRowSpacing) {
             Image(image)
+                .renderingMode(style.iconRendering)
                 .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
 
             Text(text)

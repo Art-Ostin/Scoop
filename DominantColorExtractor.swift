@@ -64,11 +64,19 @@ enum TextProminence {
         }
     }
 
-    /// For cards that draw white type only. A tint preset would solve the scrim
-    /// against text that is never drawn; this solves it against white, so
-    /// `achievedContrast` describes the type the card actually shows.
-    static func white(clearing contrast: CGFloat) -> TextProminence {
-        .custom(saturation: 0, brightness: 1, contrast: contrast)
+    /// Ceiling on how much color the tint ships with, applied after the solve
+    /// rather than folded into `saturation`: lowering that would brighten the
+    /// tint, which raises the scrim's ceiling and leaves the artwork less
+    /// covered. Capping here quiets the text over the same scrim.
+    ///
+    /// The presets ship quiet. `.custom` is taken at its word — a caller that
+    /// names a saturation has already made the decision, so it is not quieted
+    /// again.
+    var chromaCap: CGFloat {
+        switch self {
+        case .subtle, .standard, .prominent: 0.12
+        case .custom(let saturation, _, _): saturation
+        }
     }
 }
 
@@ -189,6 +197,13 @@ final class PopupColorExtractor {
     ///     dark enough behind the text.
     ///   - maximumScrimOpacity: How opaque the scrim may become while chasing
     ///     the contrast target.
+    ///   - maximumDominantLuminance: Prefer a source color the artwork already
+    ///     has at or below this luminance, over the most frequent one darkened.
+    ///     Choosing beats blackening — the tone belongs to the photo.
+    ///   - minimumSurfaceChroma: Saturation the scrim tint is brought up to when
+    ///     the artwork's own is quieter. Holds luminance, so the scrim reads more
+    ///     colored without getting any lighter. Gamut-bounded — a very dark hue
+    ///     reaches what it can.
     ///   - maximumSurfaceLuminance: Lightest the scrim tint is allowed to be.
     ///     Contrast already caps it; pass a lower value when the design wants a
     ///     deeper tint than legibility alone asks for. Note the solver spends the
@@ -203,19 +218,23 @@ final class PopupColorExtractor {
         cardAspectRatio: CGFloat = 1 / 1.2,
         preferredScrimOpacity: CGFloat = 0.5,
         maximumScrimOpacity: CGFloat = 0.95,
+        maximumDominantLuminance: CGFloat = 1,
+        minimumSurfaceChroma: CGFloat = 0,
         maximumSurfaceLuminance: CGFloat = 1,
         fallbackColor: UIColor = .black
     ) async -> OverlayPalette {
         let saturation = prominence.saturation
         let brightness = prominence.brightness
         let contrast = prominence.contrast
+        let chromaCap = prominence.chromaCap
 
         let cacheKey = [
             id,
-            "\(saturation)", "\(brightness)", "\(contrast)",
+            "\(saturation)", "\(brightness)", "\(contrast)", "\(chromaCap)",
             "\(textRegionHeight)", "\(cardAspectRatio)",
             "\(preferredScrimOpacity)", "\(maximumScrimOpacity)",
-            "\(maximumSurfaceLuminance)"
+            "\(maximumDominantLuminance)", "\(maximumSurfaceLuminance)",
+            "\(minimumSurfaceChroma)"
         ].joined(separator: "|") as NSString
 
         if let cached = paletteCache.object(forKey: cacheKey) {
@@ -231,7 +250,10 @@ final class PopupColorExtractor {
             priority: .userInitiated
         ) { () -> (dominant: CGColor?, backdrop: UIColor?, strip: UIColor?) in
             (
-                Self.extractDominantSource(from: cgImage),
+                Self.extractDominantSource(
+                    from: cgImage,
+                    preferringLuminanceAtMost: maximumDominantLuminance
+                ),
                 Self.brightestBottomSample(
                     of: cgImage,
                     fraction: textRegionHeight,
@@ -253,9 +275,11 @@ final class PopupColorExtractor {
             saturation: saturation,
             brightness: brightness,
             contrast: contrast,
+            chromaCap: chromaCap,
             preferredOpacity: preferredScrimOpacity,
             maximumOpacity: maximumScrimOpacity,
-            maximumSurfaceLuminance: maximumSurfaceLuminance
+            maximumSurfaceLuminance: maximumSurfaceLuminance,
+            minimumSurfaceChroma: minimumSurfaceChroma
         )
 
         if artwork.dominant != nil {
@@ -284,8 +308,16 @@ private final class PaletteBox {
 
 extension PopupColorExtractor {
 
+    /// The artwork's source color, optionally biased toward a dark one.
+    ///
+    /// `limit` picks the most frequent color the photo already contains that is
+    /// dark enough to scrim with, rather than taking the most frequent overall
+    /// and blackening it. Same darkness either way, but a tone the artwork owns
+    /// instead of a fabricated one. Falls back to the most frequent color when
+    /// nothing qualifies, so the solve still has something to darken.
     nonisolated static func extractDominantSource(
-        from image: CGImage
+        from image: CGImage,
+        preferringLuminanceAtMost limit: CGFloat = 1
     ) -> CGColor? {
         // Exclude black and white as source colors, but allow gray.
         if let palette = try? DominantColors.dominantColors(
@@ -295,7 +327,7 @@ extension PopupColorExtractor {
             options: [.excludeBlack, .excludeWhite],
             sorting: .frequency
         ),
-        let dominantColor = palette.first {
+        let dominantColor = darkest(in: palette, atMost: limit) {
             return dominantColor
         }
 
@@ -309,19 +341,23 @@ extension PopupColorExtractor {
             return nil
         }
 
-        return palette.first
+        return darkest(in: palette, atMost: limit)
+    }
+
+    /// The most frequent color at or below `limit`, else the most frequent overall.
+    /// Frequency order is kept inside the qualifying set, so this is "the photo's
+    /// main dark tone", not "the darkest pixel it happens to contain".
+    nonisolated static func darkest(
+        in palette: [CGColor],
+        atMost limit: CGFloat
+    ) -> CGColor? {
+        palette.first { luminance(of: UIColor(cgColor: $0)) <= limit } ?? palette.first
     }
 }
 
 // MARK: - Palette solving
 
 private extension PopupColorExtractor {
-
-    /// Ceiling on how much color `secondaryText` ships with. Applied after the
-    /// solve rather than folded into the preset's `saturation`: lowering that
-    /// would brighten the tint, which raises the scrim's ceiling and leaves the
-    /// artwork less covered. Capping here quiets the text over the same scrim.
-    nonisolated static var secondaryChromaCap: CGFloat { 0.12 }
 
     /// Builds the scrim and the text tint so that the text is guaranteed to
     /// clear `contrast` against what it actually lands on: the artwork with the
@@ -333,9 +369,11 @@ private extension PopupColorExtractor {
         saturation: CGFloat,
         brightness: CGFloat,
         contrast: CGFloat,
+        chromaCap: CGFloat,
         preferredOpacity: CGFloat,
         maximumOpacity: CGFloat,
-        maximumSurfaceLuminance: CGFloat
+        maximumSurfaceLuminance: CGFloat,
+        minimumSurfaceChroma: CGFloat
     ) -> OverlayPalette {
         // 1. Pick the tint the text wants: the hue of the strip it sits on —
         //    when the photo as a whole corroborates it — at the preset's
@@ -384,13 +422,14 @@ private extension PopupColorExtractor {
             )
         }
 
-        // 4. Quiet the tint down to the cap. This moves no luminance, so the
-        //    contrast solved above still holds and the scrim stays put — the
-        //    only thing that changes is how loud the color reads.
+        // 4. Quiet the tint down to its cap and bring the scrim up to its floor.
+        //    Neither moves luminance, so the contrast solved above still holds
+        //    and the scrim stays put — the only thing that changes is how loud
+        //    the colors read.
         return OverlayPalette(
-            surface: Color(uiColor: scrim.surface),
+            surface: Color(uiColor: chromaRaised(scrim.surface, to: minimumSurfaceChroma)),
             scrimOpacity: Double(scrim.opacity),
-            secondaryText: Color(uiColor: chromaCapped(text, to: secondaryChromaCap)),
+            secondaryText: Color(uiColor: chromaCapped(text, to: chromaCap)),
             achievedContrast: Double(
                 (luminance(of: text) + 0.05) / (composited + 0.05)
             )
@@ -737,6 +776,74 @@ private extension PopupColorExtractor {
             blue: encoded(blue + (target - blue) * amount),
             alpha: color.cgColor.alpha
         )
+    }
+
+    /// Pushes `color`'s chroma up until its HSB saturation reads about `floor` —
+    /// the mirror of `chromaCapped`, and the only way to make a scrim's hue read
+    /// louder without lightening it. Mixing toward black scales all three
+    /// channels together, so it leaves saturation exactly where it was; this
+    /// spreads them apart instead, and holds luminance for the same reason
+    /// `chromaCapped` does.
+    ///
+    /// Bounded by the gamut rather than clamped into it: a dark hue with no room
+    /// left stops where it stops, instead of clipping a channel and dragging its
+    /// luminance off the value the contrast solve depends on.
+    nonisolated static func chromaRaised(
+        _ color: UIColor,
+        to floor: CGFloat
+    ) -> UIColor {
+        guard
+            let tone = hsb(of: color),
+            tone.saturation < floor,
+            let rgb = components(of: color)
+        else {
+            return color
+        }
+
+        let red = linearized(rgb.red)
+        let green = linearized(rgb.green)
+        let blue = linearized(rgb.blue)
+        let target = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+        func spread(by amount: CGFloat) -> (CGFloat, CGFloat, CGFloat) {
+            (red + (red - target) * amount,
+             green + (green - target) * amount,
+             blue + (blue - target) * amount)
+        }
+
+        func fits(_ channels: (CGFloat, CGFloat, CGFloat)) -> Bool {
+            [channels.0, channels.1, channels.2].allSatisfy { $0 >= 0 && $0 <= 1 }
+        }
+
+        func made(_ channels: (CGFloat, CGFloat, CGFloat)) -> UIColor {
+            UIColor(
+                red: encoded(channels.0),
+                green: encoded(channels.1),
+                blue: encoded(channels.2),
+                alpha: color.cgColor.alpha
+            )
+        }
+
+        // Saturation and gamut pressure both rise with the amount, so the usable
+        // amounts are one range from zero — bisect for where it ends.
+        var lower: CGFloat = 0
+        var upper: CGFloat = 8
+        var result = color
+
+        for _ in 0..<16 {
+            let amount = (lower + upper) / 2
+            let channels = spread(by: amount)
+            let candidate = made(channels)
+
+            if fits(channels), (hsb(of: candidate)?.saturation ?? floor) <= floor {
+                result = candidate
+                lower = amount
+            } else {
+                upper = amount
+            }
+        }
+
+        return result
     }
 
     /// Lowest luminance a foreground can have and still reach `contrast`.

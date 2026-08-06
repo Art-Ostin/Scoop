@@ -19,10 +19,13 @@ extension Color {
     static let textPlaceholder = Color.black.opacity(0.22) //Glancable no sentences this light
 
 
-    //2. Grays used throughout app
+    //2. Grays used throughout app — all on the palette's warm axis (hue 30°, ~2% saturation),
+    //so a gray never reads cool against appCanvas. A neutral gray here looks blue by contrast.
     static let border = Color(red: 0.88, green: 0.87, blue: 0.86)
 
-    static let fillGray = Color(red: 0.93, green: 0.93, blue: 0.92)
+    static let borderStrong = Color(red: 0.75, green: 0.74, blue: 0.73) //Outlined controls that need to hold their own against a filled sibling (the decline button).
+
+    static let fillGray = Color(red: 0.94, green: 0.93, blue: 0.92)
 
 
     //3. Background Color App

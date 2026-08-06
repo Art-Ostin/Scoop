@@ -78,6 +78,7 @@ extension InviteSlot {
             .overlay(alignment: .bottomLeading) {
                 inviteOverlay
             }
+            .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }
     
     private func blurAndColour(image: UIImage) -> some View {
@@ -99,6 +100,7 @@ extension InviteSlot {
             style: .card,
             timeOpen: timePopupOpen,
             showMessageSection: true,
+            color: palette.secondaryText,
             showMessageScreen: .constant(false)) {
                 DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, style: .card)
             } showInfo: {
@@ -109,16 +111,18 @@ extension InviteSlot {
             .padding(.bottom, 28) //The card owns its bottom inset; ConfirmContainer adds none on .card
     }
     
-    //The card draws white type only, so the scrim is solved against white
+    //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint
     private func fetchColour(image: UIImage) async {
         palette = await PopupColorExtractor.shared
             .extractPalette(
                 image,
                 id: eventProfile.profile.id,
-                prominence: .white(clearing: 4.5),
-                textRegionHeight: BlurAndGradientBackground.textRegion,
+                prominence: .custom(saturation: 0.05, brightness: 1, contrast: 4.5), //Off-white: full brightness, just enough chroma to read as the artwork's hue
+                textRegionHeight: BlurAndGradientBackground.inviteRegion,
                 cardAspectRatio: AspectRatio.inviteCard.ratio, //Matches AppImage(type: .invite)
-                preferredScrimOpacity: 0.65, //How heavy the scrim rests when contrast doesn't force it
+                preferredScrimOpacity: 0.9, //How heavy the scrim rests when contrast doesn't force it
+                maximumDominantLuminance: 0.15, //Prefer a dark tone the photo already has
+                minimumSurfaceChroma: 0.4, //Let the hue read, without lightening the scrim
                 maximumSurfaceLuminance: 0.05 //Never a pale tint, however light the artwork
             )
     }
@@ -127,25 +131,31 @@ extension InviteSlot {
 
 struct BlurAndGradientBackground: ViewModifier {
 
-    /// Fraction of the card, up from the bottom, that the scrim covers. The gradient
-    /// and `extractPalette`'s sampling both derive from this one value.
-    static let textRegion: CGFloat = 0.4
+    /// How far up the card the treatment reaches, as a fraction of its height. The one
+    /// knob: the blur's start and ramp are held at a fixed ratio to it, and
+    /// `extractPalette`'s sampling derives from it too.
+    static let inviteRegion: CGFloat = 0.4   //1:1.5 art under a whole confirm block
+    static let profileRegion: CGFloat = 0.28 //1:1.2 art under two lines — starts lower, at 0.72
 
-    /// Where the blur begins and how far it takes to reach full radius, both measured
-    /// down from the top. Their sum is where it lands at full strength — keep it at or
-    /// under 1, or the blur is still ramping when it runs out of card.
-    static let blurStart: CGFloat = 0.67
-    static let blurRamp: CGFloat = 0.32
+    //Injected Parameters
+    var textRegion: CGFloat = Self.inviteRegion
+    var blurRadius: CGFloat = 24
 
     let palette: OverlayPalette
+
+    /// Where the blur begins and how far it takes to reach full radius, both measured
+    /// down from the top. Their sum stays just under 1 at any region, so the blur lands
+    /// at full strength on the bottom edge instead of running out of card mid-ramp.
+    private var blurStart: CGFloat { 1 - textRegion * 0.825 }
+    private var blurRamp: CGFloat { textRegion * 0.8 }
 
 
     func body(content: Content) -> some View {
         content
             .glur(
-                radius: 24,
-                offset: Self.blurStart,
-                interpolation: Self.blurRamp,
+                radius: blurRadius,
+                offset: blurStart,
+                interpolation: blurRamp,
                 direction: .down,
                 noise: 0
             )
@@ -155,7 +165,7 @@ struct BlurAndGradientBackground: ViewModifier {
 
     //Hand-tuned ramp through the region, reaching the solved veil at the bottom edge
     private var scrimGradient: some View {
-        let region = Self.textRegion
+        let region = textRegion
         let top = 1 - region
         let colour = palette.surface
         let veil = palette.scrimOpacity

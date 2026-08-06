@@ -40,9 +40,10 @@ extension ProfileCard {
         blurAndColour
             .overlay(alignment: .bottomLeading) {
                 overlayText
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.bottom, Spacing.md)
+                    .padding(.horizontal, Spacing.lg)
+                    .padding(.bottom, 18)
             }
+            .animation(.transition, value: palette) //Extraction lands a frame late — the scrim fades in rather than snaps
     }
 
     //A pixel-aligned copy of the card image wearing the blur + scrim: glur needs image pixels beneath it, and the raw card base then matches the flying image exactly
@@ -54,19 +55,23 @@ extension ProfileCard {
                     .scaledToFill()
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .modifier(BlurAndColorBackground(color: palette.surface, opacity: palette.scrimOpacity))
+            .modifier(BlurAndGradientBackground(
+                textRegion: BlurAndGradientBackground.profileRegion,
+                blurRadius: 10, //A far shorter ramp than the invite card's — the scrim carries this card, not the blur
+                palette: palette
+            ))
     }
     
     private var overlayText: some View {
         let p = profile.profile
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 10) {
             Text(profile.profile.name)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
 
             
             Text("\(p.year) · \(p.degree) · \(p.hometown)")
-                 .font(.body(15, .medium))
+                 .font(.body(17, .medium))
                  .foregroundStyle(palette.secondaryText)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
@@ -77,8 +82,7 @@ extension ProfileCard {
         InviteButton {
             ui.showInvite = profile
         }
-        .padding(.horizontal, Spacing.md)
-        .padding(.bottom, Spacing.md)
+        .offset(y: -3) //Now in line with the content
     }
 }
 
@@ -97,42 +101,21 @@ extension ProfileCard {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
+    //Scrim only: the invite card's deep, hue-carrying veil. `prominence` and
+    //`textRegionHeight` stay defaulted on purpose — those two feed the text tint, and
+    //this card's secondary line keeps `.subtle`'s colour.
     private func fetchColour() async {
         palette = await PopupColorExtractor.shared
-            .extractPalette(profile.image, id: profile.id, prominence: .subtle)
+            .extractPalette(
+                profile.image,
+                id: profile.id,
+                preferredScrimOpacity: 0.9, //How heavy the scrim rests when contrast doesn't force it
+                minimumSurfaceChroma: 0.55,  //Let the hue read, without lightening the scrim
+                maximumSurfaceLuminance: 0.05 //Never a pale tint, however light the artwork
+            )
     }
     
     private func images() -> [UIImage] {
         vm.profileImages[profile.id] ?? seedImages(for: profile.profile)
-    }
-}
-
-struct BlurAndColorBackground: ViewModifier {
-    
-    var color: Color = .black
-    var opacity: Double = 0.45
-    
-    var mixedColor: Color {
-        color.mix(with: .black, by: 0.35, in: .device)
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .glur(radius: 12, offset: 0.82, interpolation: 0.4, direction: .down, noise: 0)
-            .overlay { blackGradient }
-            .clipShape(.rect(cornerRadius: CornerRadius.image))
-    }
-    
-    private var blackGradient: some View {
-        LinearGradient(
-            stops: [
-                .init(color: mixedColor.opacity(0),    location: 0.65),
-                .init(color: mixedColor.opacity(0.3),  location: 0.8),
-                .init(color: mixedColor.opacity(0.55), location: 0.85),
-                .init(color: mixedColor.opacity(0.65), location: 1)
-            ],
-            startPoint: .top, endPoint: .bottom
-        )
-        .allowsHitTesting(false)
     }
 }

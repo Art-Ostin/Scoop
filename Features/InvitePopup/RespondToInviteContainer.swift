@@ -48,7 +48,7 @@ struct RespondInviteContainer: View {
 extension RespondInviteContainer {
     
     private var inviteCard: some View {
-        VStack(spacing: Spacing.hairline) {
+        VStack(spacing: 0) { //Butted, same as the send card — a gap here shows the card's glass as a white seam
             imageCarousel
             inviteDetailsSection
         }
@@ -93,17 +93,22 @@ extension RespondInviteContainer {
             }
     }
     
+    //Answering their invite until you counter with an event of your own, which pages like the send card
+    private var carouselScreen: InviteScreen {
+        guard vm.responseType == .newEvent else { return .accept }
+        return timeAndPlaceUI.showConfirmScreen == true ? .newInviteConfirm : .newInvite
+    }
+
     private var imageCarousel: some View {
-        let isConfirmMode = vm.responseType != .newEvent || (timeAndPlaceUI.showConfirmScreen == true)
-        return InviteImageCarousel(
-            inviteHasChanges: vm.respondDraft.newEvent.hasChanges,
-            isConfirm: isConfirmMode ,
-            isPopupOpen: timeAndPlaceUI.anyPopupOpenDelayed,
-            responseType: $vm.respondDraft.respondType,
+        InviteImageCarousel(
+            screen: carouselScreen,
             name: vm.profile.name,
             images: images,
+            inviteHasChanges: vm.respondDraft.newEvent.hasChanges,
+            isPopupOpen: timeAndPlaceUI.anyPopupOpenDelayed,
             showConfirmScreen: $timeAndPlaceUI.showConfirmScreen,
             showInfoScreen: $timeAndPlaceUI.showInfoScreen,
+            responseType: $vm.respondDraft.respondType,
             declineProfile: {respond(.decline)},
             clearInvite: { withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
@@ -183,7 +188,7 @@ extension RespondInviteContainer {
                 .font(.body(18, .bold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
-                .capsuleStroke(lineWidth: 1, color: Color(white: 0.75))
+                .capsuleStroke(lineWidth: 1, color: .borderStrong)
                 .geometryGroup()
                 .shrinkPress {respond(.decline)}
         }

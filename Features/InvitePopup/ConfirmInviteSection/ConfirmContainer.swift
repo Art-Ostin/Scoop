@@ -19,16 +19,20 @@ enum ConfirmStyle {
     var foreground: Color { isCard ? .white : .textPrimary }
     var clockIcon: ImageResource { isCard ? .whiteClock : .eventClockIcon }
     var mapIcon: ImageResource { isCard ? .whiteMap : .eventMapIcon }
+
+    //The card's icons are flat white glyphs, so they can wear the artwork tint; a popup's are drawn art
+    var iconRendering: Image.TemplateRenderingMode { isCard ? .template : .original }
     
     var timePopupFill: Color? { isCard ? .white : nil }
     
     //The layout metrics set here
-    var topPadding: CGFloat { isCard ? 0 : 26} //No top padding needed if is card
+    var topPadding: CGFloat { isCard ? 0 : 20 } //No top padding needed if is card
     var timeAndPlaceTopPadding: CGFloat { isCard ? 24 : 26} //Padding to title if card (matches the row spacing, so card reads as one even stack)
     var rowSpacing: CGFloat { isCard ? 26 : 26}
-    var rowsBottomPadding: CGFloat { isCard ? 0 : 26} //Below the place row: popup → warning; the card insets at container level instead
+    var rowsBottomPadding: CGFloat { isCard ? 0 : 18} //Below the place row: popup → warning; the card insets at container level instead
     var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → card bottom, popup → action button
     var iconRowSpacing: CGFloat { isCard ? Spacing.sm : Spacing.lg}
+    var timeAndPlaceSizing: CGFloat { isCard ? 20 : 19 }
     
     //Only a popup shows these
     var showsWarning: Bool { !isCard }
@@ -43,7 +47,8 @@ struct ConfirmContainer<TimeRow: View>: View {
     let style: ConfirmStyle
     let timeOpen: Bool
     let showMessageSection: Bool
-        
+    var color: Color? = nil //Artwork-derived tint for the card's rows; nil keeps the style's own foreground
+
     @Binding var showMessageScreen: Bool
     @ViewBuilder var timeRow: TimeRow
 
@@ -59,12 +64,12 @@ struct ConfirmContainer<TimeRow: View>: View {
             warning
                 .blurPop(visible: !timeOpen, scale: 1)
         }
-        .foregroundStyle(style.foreground)
+        .foregroundStyle(color ?? style.foreground) //Title and type chip set their own white, so only the rows take the tint
         .overlay(alignment: .bottomTrailing) { openInviteButton }
         .padding(.top, style.topPadding)
         .padding(.bottom, style.bottomPadding)
         .padding(.horizontal, Spacing.lg)
-        .overlay(alignment: .topTrailing) { if style != .card { InviteInfoButton(showInfo: showInfo) } }
+        .overlay(alignment: .topTrailing) { if style != .card { InviteInfoButton(showInfo: showInfo).offset(x: -4, y: 2) } }
     }
 }
 
@@ -83,9 +88,9 @@ extension ConfirmContainer {
     }
 
     private var typeRow: some View {
-        LineSection(image: .drinkIconDark, text: event.type.longTitle, style: style)
+        LineSection(image: .drinkIconDark, text: event.type == .drink ? "Grab a Drink" : event.type == .socialMeet ? "Social Meetup" : event.type.longTitle, style: style)
             .fixedSize(horizontal: true, vertical: false)
-            .font(.body(17, .medium))
+            .font(.body(19, .medium))
     }
 
     //Only used if it is the Confirm Screen within the Card
@@ -107,9 +112,6 @@ extension ConfirmContainer {
             "\(name)"
         }
     }
-    
-    
-    
 
     private var timeAndPlaceRows: some View {
         ConfirmTimeAndPlace(

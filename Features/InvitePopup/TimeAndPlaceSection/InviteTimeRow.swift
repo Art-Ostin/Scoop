@@ -67,6 +67,21 @@ extension InviteTimeRow {
     private var timeMenu: some View {
 
         VStack(alignment: .trailing, spacing: 0) {
+            
+            Menu {
+                Text("HEllo World")
+                Text("HEllo World")
+                Text("HEllo World")
+                Text("HEllo World")
+                Text("HEllo World")
+            } label: {
+                Text("Sun 9 Aug · 22:30")
+            }
+
+            
+            
+            
+            
             TimeCustomMenu(morphAnchor: morphAnchor,
                            estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
                            placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,

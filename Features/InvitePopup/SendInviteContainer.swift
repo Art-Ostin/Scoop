@@ -49,7 +49,8 @@ struct SendInviteContainer: View {
 extension SendInviteContainer {
 
     private var inviteCard: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 0) { //Butted: the carousel's bottom fuzz and the rows' wash are the same
+                             //colour, so any gap here shows the card's appCanvas glass as a white seam
             imageSection
             inviteDetailsPager
         }
@@ -58,11 +59,11 @@ extension SendInviteContainer {
     
     private var imageSection: some View {
         InviteImageCarousel(
-            inviteHasChanges: vm.event.hasChanges,
-            isConfirm: ui.showConfirmScreen == true,
-            isPopupOpen: ui.anyPopupOpenDelayed,
+            screen: ui.showConfirmScreen == true ? .sendConfirm : .send,
             name: name,
             images: images,
+            inviteHasChanges: vm.event.hasChanges,
+            isPopupOpen: ui.anyPopupOpenDelayed,
             showConfirmScreen: $ui.showConfirmScreen,
             showInfoScreen: $ui.showInfoScreen,
             declineProfile: declineProfile,
@@ -82,8 +83,6 @@ extension SendInviteContainer {
                 screen1: { timeAndPlacePage },
                 screen2: { confirmationPage }
             )
-            //Worn here, not by either page: pinned to the seam, so a page swap can never
-            //slide it off the carousel's bottom edge
             .modifier(InviteSeamWash(tint: palette.secondaryText))
             actionButton
         }
