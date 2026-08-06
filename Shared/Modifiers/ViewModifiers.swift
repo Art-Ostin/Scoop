@@ -76,12 +76,36 @@ extension View {
     //Configurable glass effect; falls back to a filled shape pre-iOS 26.
     //`tint` colours the glass itself (and becomes the fallback fill) — pass it with
     //an alpha to let more of the backdrop through.
+    //Only for a surface with NO glass inside it — see `containerGlassEffect` below.
     @ViewBuilder
     func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, tint: Color? = nil, shape: S) -> some View {
         if #available(iOS 26.0, *) {
             let base: Glass = clear ? .clear : .regular
             let glass: Glass = base.tint(tint)
             self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
+        } else {
+            self.background(shape.fill(tint ?? Color.appCanvas))
+        }
+    }
+
+    //Glass for a surface that itself CONTAINS glass — the invite card, whose photo carries the
+    //options and back buttons. `.glassEffect` applied to the content pulls every DESCENDANT glass
+    //effect into its own glass group: the nested buttons stop drawing their own lens and go
+    //near-transparent. Drawing the same glass on a `Color.clear` layer in the background is
+    //pixel-identical for the surface but forms its own group, so the children keep their glass.
+    //Sim-probed on iOS 26.0 — an options disc over a solid blue photo, mean RGB at its centre:
+    //      alone (120,140,200) · inside a `.glassEffect` card (46,93,206) · inside this (120,140,200)
+    //and the card's own body reads the same (249,241,232) either way. Siblings of the glassed
+    //view were never affected, so a button next to the card (BottomBackButton) needs nothing.
+    //`compositingGroup`, a nested `GlassEffectContainer`, an alpha'd tint and an opaque fill over
+    //the glass were all probed and none of them break the grouping — only moving the glass does.
+    //No `interactive:`: a card-sized lens shouldn't react to touch, and interactive glass on a
+    //background layer would swallow the content's taps.
+    @ViewBuilder
+    func containerGlassEffect<S: InsettableShape>(clear: Bool = false, tint: Color? = nil, shape: S) -> some View {
+        if #available(iOS 26.0, *) {
+            let base: Glass = clear ? .clear : .regular
+            self.background { Color.clear.glassEffect(base.tint(tint), in: shape) }
         } else {
             self.background(shape.fill(tint ?? Color.appCanvas))
         }

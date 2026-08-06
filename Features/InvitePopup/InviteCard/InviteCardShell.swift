@@ -35,11 +35,7 @@ struct InviteCardBackground: ViewModifier {
             .frame(maxWidth: .infinity)
             .padding(.bottom, Spacing.sm)
             .clipShape(shape)
-            .background(Color.appCanvas, in: shape)//Clip before the fill, so the carousel can't cut the card's rim
-            //No .glassEffect on the card — keep it that way. It renders BEHIND this opaque fill, so it
-            //paints nothing, but it still stacks with the .clearGlass buttons inside (options, back
-            //chevron) and washes them into milky frosted discs.
-//            .stroke(CornerRadius.xl, lineWidth: 1, color: tint)
+            .containerGlassEffect(tint: Color.appCanvas, shape: shape)
             .shadow(.softFloating)
             .padding(.horizontal, 10)
             .padding(.top, 16) //Consistent 24 top padding works well (regardless of confirm screen or not)
@@ -47,9 +43,6 @@ struct InviteCardBackground: ViewModifier {
 }
 
 
-//The card's image → rows seam. Owned by the card and pinned to the top of the rows region,
-//so no page motion can open a canvas-coloured gap under the carousel: every page meets the
-//image on one colour. Matches the wash the image section sits on.
 struct InviteSeamWash: ViewModifier {
 
     let tint: Color

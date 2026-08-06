@@ -29,7 +29,7 @@ struct ProfileCard : View {
                     .onAppear { isProfilePresented = true }
                     .onDisappear { isProfilePresented = false }
             }
-            .overlay(alignment: .bottomTrailing) { inviteButton }
+        
     }
 }
 
@@ -70,6 +70,7 @@ extension ProfileCard {
                  .foregroundStyle(palette.secondaryText)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .overlay(alignment: .bottomTrailing) {inviteButton }
     }
 
     private var inviteButton: some View {

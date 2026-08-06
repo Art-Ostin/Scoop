@@ -34,9 +34,10 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
 
 struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
+    let style: ConfirmStyle
     
     var body: some View {
-        LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays())
+        LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays(), style: style)
             .oneLineLimitAndShrink()
     }
 }
@@ -93,7 +94,7 @@ struct DynamicTimeRow: View {
     
     private var timeRow: some View {
         HStack {
-            LineSection(image: style.clockIcon, text: timeText)
+            LineSection(image: style.clockIcon, text: timeText, style: style)
                 .padding(.top, -1)
             timeChevron
         }
@@ -116,7 +117,7 @@ struct PlaceRow: View {
 
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
-        LineSection(image: style.mapIcon, text: placeName)
+        LineSection(image: style.mapIcon, text: placeName, style: style)
             .padding(.vertical, Spacing.xs)
             .shrinkPress(action: openMap)
             .padding(.vertical, -Spacing.xs)
@@ -132,9 +133,11 @@ struct PlaceRow: View {
 struct LineSection: View {
     let image: ImageResource
     let text: String
-
+    let style: ConfirmStyle
+    
+    
     var body: some View {
-        HStack(spacing: Spacing.md) {
+        HStack(spacing:  ConfirmStyle.card.iconRowSpacing) {
             Image(image)
                 .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
 

@@ -11,15 +11,12 @@ struct SelectTypeView: View {
 
     static let cardWidth: CGFloat = 300
     
-    //1. Needed to sharply display a divider under 1 CGFloat
-    @Environment(\.displayScale) private var displayScale
-
-    //2. Needed to dismiss menu
+    //1. Needed to dismiss menu
     @Environment(\.dropdownCustomMenuDismiss) private var dismissMenu
     @Environment(\.timeCustomMenuDismiss) private var dismissTimeMenu
     @Environment(\.dropdownCustomMenuFreezeLabel) private var freezeMenuLabel
-    
-    //3. types with info open given in a binding, as needed to pass up to
+
+    //2. types with info open given in a binding, as needed to pass up to
     @Binding var openTypes: Set<Event.EventType>
     
 
@@ -27,8 +24,6 @@ struct SelectTypeView: View {
     @Binding var showMessageScreen: Bool
 
     let message: String
-
-    var onMessagePage: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,15 +83,6 @@ extension SelectTypeView {
     private func typeInfo(_ type: Event.EventType) -> some View {
         RevealingInfoText(text: type.howItWorks, isOpen: openTypes.contains(type))
     }
-    
-    private var thinDivider: some View {
-        //Display scale gives 1 point height. Must do this method to get half height consistently
-        let thickness = (0.5 * displayScale).rounded() / displayScale
-        return Capsule()
-            .frame(maxWidth: .infinity)
-            .frame(height: thickness)
-            .foregroundStyle(Color.fillGray)
-    }
 }
 
 //Key Functions
@@ -124,12 +110,6 @@ extension SelectTypeView {
             }
         } else {
             let changed = eventType != selectedType
-            if changed && onMessagePage {
-                selectedType = eventType
-                dismissMenu(.morphPlatterOnly)
-                dismissTimeMenu()
-                return
-            }
             if changed {
                 freezeMenuLabel()
                 selectedType = eventType

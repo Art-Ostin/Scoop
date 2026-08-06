@@ -69,19 +69,19 @@ struct TypeButton: View {
     var body: some View {
         HStack(alignment: .center, spacing: Spacing.xxs) {
             Text(type.emoji)
-                .font(.body(15))
+                .font(.body(13))
 
             Text(type.longTitle)
-                .font(.body(15, .bold))
+                .font(.body(13, .bold))
         }
         .foregroundStyle(Color.white)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .stroke(CornerRadius.sm, color: Color.white.opacity(0.6))
+        .frame(height: 25)
+        .padding(.trailing, 8)
+        .padding(.leading, 6) //Leading edge bit extra padding
+        .capsuleStroke(lineWidth: 1, color: .white)
         .shrinkPress(action: showInfo)
-        .offset(y: 1.5)
-        .scaleEffect(0.8, anchor: .bottomTrailing)
         .opacityPop(visible: !timeOpen)
+        .offset(y: 4.5)
     }
 }
 

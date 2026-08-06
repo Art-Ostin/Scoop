@@ -67,18 +67,6 @@ extension InviteTimeRow {
     private var timeMenu: some View {
 
         VStack(alignment: .trailing, spacing: 0) {
-            
-//            Menu {
-//                Text("Test")
-//                Text("Test")
-//                Text("Test")
-//                Text("Test")
-//                Text("Test")
-//            } label: {
-//                Text("Sat 7 Aug · 14:30")
-//            }
-
-
             TimeCustomMenu(morphAnchor: morphAnchor,
                            estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
                            placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
@@ -170,7 +158,7 @@ extension InviteTimeRow {
 
     @ViewBuilder
     private var pageIndicator: some View {
-        if times.count > 1 {
+        if showsPageIndicator {
             InvitePageIndicator(count: times.count, progress: scrollProgress)
         }
     }

@@ -48,7 +48,7 @@ extension InvitesContainer {
         InviteSlot(
             vm: vm,
             eventProfile: invite,
-            onRespond: { respond(invite.event.id, $0) },
+            onRespond: { respond(invite.event.id, $0)},
             draft: vm.draftBinding(for: invite),
             openInvite: $ui.showQuickResponse
         )

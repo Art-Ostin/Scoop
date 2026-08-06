@@ -10,10 +10,14 @@ import SwiftUI
 //How far the row's title, value and chevron lift while the type menu is open.
 private let openLift: CGFloat = -4
 
+//Geometry: the value and chevron slide left by this while the type menu is open — paired with
+//openLift on y, so the two must move together or they drift apart mid-open.
+private let openShiftX: CGFloat = -20
+
 struct InviteTypeRow: View {
 
     //Injected
-    @Bindable var ui: TimeAndPlaceUIState
+    var ui: TimeAndPlaceUIState
     @Binding var type: Event.EventType
     @Binding var unparsedMessage: String?
     @Binding var showMessageScreen: Bool
@@ -22,7 +26,6 @@ struct InviteTypeRow: View {
     @State private var messageBeforeEdit: String?
 
     @State private var openInfoTypes: Set<Event.EventType> = []
-    @State private var typePulse = false
 
     //Set by a tap on the "What" caption, which sits outside the menu's label.
     @State private var openTypeMenu = false
@@ -32,7 +35,6 @@ struct InviteTypeRow: View {
 
     //Global frames feeding the menu's morph anchor.
     @State private var typeFrame: CGRect = .zero
-    @State private var messageFrame: CGRect = .zero
     @State private var chevronFrame: CGRect = .zero
 
     private let menuCorners = RectangleCornerRadii(top: 20, bottom: 6)
@@ -75,7 +77,6 @@ struct InviteTypeRow: View {
                 .opacityPop(visible: !typePopupOpen)
                 .animation(.transition, value: typePopupOpen) //opacityPop carries no curve of its own
         }
-        .onChange(of: type) { if onMessagePage { pulseTypeTitle() } }
         .onChange(of: showMessageScreen) { messageScreenChanged() }
         .onChange(of: message.isEmpty) { _, isEmpty in messageEmptied(isEmpty) }
         .blurPop(visible: !ui.delayedTimePopupOpen, scale: 1)
@@ -89,7 +90,6 @@ extension InviteTypeRow {
         DropdownCustomMenu(
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
-            morphsFromTrailingPoint: onMessagePage,
             morphAnchor: morphAnchor,
             flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
             placementOffsetX: -12,
@@ -114,17 +114,16 @@ extension InviteTypeRow {
             scrollProgress: $scrollProgress,
             scrolledPageID: $scrolledPageID,
             typeFrame: $typeFrame,
-            messageFrame: $messageFrame,
             chevronFrame: $chevronFrame,
             rowHeight: rowHeight,
             primaryContentOffset: primaryContentOffset
         )
     }
 
-    //Union of the active content page and the chevron, ignoring frames not yet measured.
+    //Union of the type page and the chevron, ignoring frames not yet measured. The menu can only
+    //ever present from the type page — `handleLabelTap` claims every tap on the message page.
     private var morphAnchor: CGRect? {
-        let content = onMessagePage ? messageFrame : typeFrame
-        let union = [content, chevronFrame].filter { $0 != .zero }.reduce(CGRect.null) { $0.union($1) }
+        let union = [typeFrame, chevronFrame].filter { $0 != .zero }.reduce(CGRect.null) { $0.union($1) }
         return union.isNull ? nil : union
     }
 
@@ -141,8 +140,7 @@ extension InviteTypeRow {
             openTypes: $openInfoTypes,
             selectedType: $type,
             showMessageScreen: $showMessageScreen,
-            message: message,
-            onMessagePage: onMessagePage
+            message: message
         )
     }
 
@@ -154,7 +152,7 @@ extension InviteTypeRow {
 
     @ViewBuilder
     private var pageIndicator: some View {
-        if !message.isEmpty {
+        if showsPageIndicator {
             InvitePageIndicator(count: 2, progress: scrollProgress)
         }
     }
@@ -181,9 +179,6 @@ extension InviteTypeRow {
                     .transition(.blurReplace)
             }
         }
-        .scaleEffect(typePulse ? DropdownCustomMenuSpec.flexScale : 1, anchor: .leading)
-        .offset(y: typePulse ? DropdownCustomMenuSpec.flexOffsetY : 0)
-        .animation(typePulse ? DropdownCustomMenuSpec.flexUp : DropdownCustomMenuSpec.flexDown, value: typePulse)
         .animation(.transition, value: rowTitleTransitionID)
         .animation(.transition, value: scrolledPageID)
     }
@@ -203,16 +198,6 @@ extension InviteTypeRow {
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
-
-    //Echoes the menu's `.flex` dismiss on the title when a type is picked from the message page.
-    private func pulseTypeTitle() {
-        typePulse = true
-        Task {
-            try? await Task.sleep(for: .seconds(DropdownCustomMenuSpec.flexHold))
-            typePulse = false
-        }
-    }
-
 }
 
 //Message bookkeeping: editor round-trips
@@ -241,6 +226,13 @@ private extension View {
             .lineLimit(1)
             .minimumScaleFactor(0.75)
     }
+
+    //The lift the value and the chevron ride while the type menu is open. Both wear it so they
+    //travel as one — the title's own lift differs (it shifts the other way and scopes its scale).
+    func typeMenuOpenLift(_ isOpen: Bool) -> some View {
+        offset(x: isOpen ? openShiftX : 0, y: isOpen ? openLift : 0)
+            .animation(.smooth(duration: 0.2), value: isOpen)
+    }
 }
 
 //The menu's label: the live type/message pager in the row, or the collapsed form the morph carries.
@@ -253,7 +245,6 @@ private struct TypeRowMenuLabel: View {
     @Binding var scrollProgress: Double
     @Binding var scrolledPageID: Int?
     @Binding var typeFrame: CGRect
-    @Binding var messageFrame: CGRect
     @Binding var chevronFrame: CGRect
     let rowHeight: CGFloat
     let primaryContentOffset: CGFloat
@@ -277,11 +268,9 @@ private struct TypeRowMenuLabel: View {
                         .frame(width: pageWidth, alignment: .trailing)
                         .offset(y: primaryContentOffset)
                         .id(0)
-                        .offset(x: ui.isPopupOpen(.type) ? -20 : 0,
-                                y: ui.isPopupOpen(.type) ? openLift : 0) //Fine tune so exact
-                        .animation(.smooth(duration: 0.2), value: ui.isPopupOpen(.type))
+                        .typeMenuOpenLift(ui.isPopupOpen(.type))
+
                     messageView
-                        .getRect($messageFrame)
                         .padding(.leading, Spacing.sm)
                         .frame(width: pageWidth, alignment: .trailing)
                         .offset(y: primaryContentOffset)
@@ -305,16 +294,17 @@ private struct TypeRowMenuLabel: View {
         }
     }
 
+    //The copy the menu morph carries keeps the plain crossfade, so the platter dismiss
+    //doesn't animate the name a second time on its own curve.
     private var collapsedLabel: some View {
         HStack(spacing: InviteRowMetrics.valueChevronSpacing) {
-            typeText
+            typeName
             chevron
         }
         .geometryGroup()
         .contentTransition(.opacity)
     }
 
-    
     private var liveTypeText: some View {
         //Must go in ZSTack for blur replace works
         ZStack(alignment: .trailing) {
@@ -325,13 +315,6 @@ private struct TypeRowMenuLabel: View {
         .animation(.dissolve, value: type)
     }
 
-    //The copy the menu morph carries keeps the plain crossfade, so the platter dismiss
-    //doesn't animate the name a second time on its own curve.
-    private var typeText: some View {
-        typeName
-            .contentTransition(.opacity)
-    }
-
     private var typeName: some View {
         Text(type.longTitle)
             .font(.body(17, .medium))
@@ -340,9 +323,7 @@ private struct TypeRowMenuLabel: View {
 
     private var chevron: some View {
         DropDownButton(isOpen: ui.isPopupOpen(.type) || showMessageScreen)
-            .offset(x: ui.isPopupOpen(.type) ? -20 : 0,
-                    y: ui.isPopupOpen(.type) ? openLift : 0)
-            .animation(.smooth(duration: 0.2), value: ui.isPopupOpen(.type))
+            .typeMenuOpenLift(ui.isPopupOpen(.type))
     }
 
     @ViewBuilder
@@ -367,5 +348,42 @@ private struct TypeRowMenuLabel: View {
     }
 }
 
+//Own struct: renders in the menu's overlay window, where the dismiss env would otherwise no-op.
+struct AddMessageFooter: View {
 
+    @Environment(\.dropdownCustomMenuDismiss) private var menuDismiss
 
+    let message: String
+    let corners: RectangleCornerRadii
+    let onSelect: () -> Void
+
+    //With no message yet the footer is the row's call to action, so it wears the accent fill.
+    private var isCallToAction: Bool { message.isEmpty }
+
+    var body: some View {
+        Text(isCallToAction ? "Add a Message" : "Edit Message")
+            .foregroundStyle(isCallToAction ? Color.white : Color.textAccent)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .font(.body(16, .bold))
+            .kerning(0.5)
+            .frame(height: 40)
+            .frame(width: SelectTypeView.cardWidth, alignment: .leading)
+            .background(accentFill)
+            .dropdownCustomMenuFooterPlatter(corners: corners)
+            .contentShape(.rect)
+            .shrinkPress {
+                onSelect()
+                Task {
+                    try? await Task.sleep(for: .seconds(0.04))
+                    menuDismiss(.instant)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var accentFill: some View {
+        if isCallToAction {
+            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.textAccent)
+        }
+    }
+}

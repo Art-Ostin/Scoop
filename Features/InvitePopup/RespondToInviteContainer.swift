@@ -149,7 +149,7 @@ extension RespondInviteContainer {
                 timeOpen: timeAndPlaceUI.delayedTimePopupOpen,
                 showMessageSection: showMessageSection,
                 showMessageScreen: $timeAndPlaceUI.showMessageScreen) {
-                    StaticTimeRow(proposedTimes: inviteSummary.time)
+                    StaticTimeRow(proposedTimes: inviteSummary.time, style: .respondPopup)
                 } showInfo:  {
                     timeAndPlaceUI.showInfoScreen = true
                 }

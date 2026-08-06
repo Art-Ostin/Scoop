@@ -308,13 +308,12 @@ enum DropdownCustomMenuSpec {
     /// acknowledgement. A `flexing` pulse on the controller drives it; the label reads it.
     static let flexScale: CGFloat = 1.10
     static let flexOffsetY: CGFloat = -7
-    /// Wait for the platter to melt away (the `.scoopPop` is ~0.3s) before flexing, so the
-    /// pulse lands on the now-exposed label instead of peaking *under* the fading platter
-    /// where it's invisible. Verified in the sim: without this the flex peaks ~0.15s in,
-    /// while the platter is still clearing, and reads as almost nothing.
-    static let flexDelay: TimeInterval = 0.16
     /// How long the label holds at the peak before settling back. The settle interrupts the
     /// rise if it hasn't finished, which is fine — SwiftUI carries the velocity through.
+    ///
+    /// Note: an earlier `flexDelay` (0.16s, to let the `.scoopPop` platter melt before the
+    /// pulse) was never wired to a driver and has been removed. If the flex ever reads as
+    /// "almost nothing", that sim finding is why — reintroduce the wait at the driver, not here.
     static let flexHold: TimeInterval = 0.12
     /// Quick rise, then a softer settle with a hair of bounce so it reads as a flex, not a jump.
     static let flexUp = Animation.spring(response: 0.18, dampingFraction: 0.7)

@@ -143,7 +143,7 @@ extension SendInviteContainer {
                 timeOpen: ui.delayedTimePopupOpen,
                 showMessageSection: true,
                 showMessageScreen: $ui.showMessageScreen) {
-                    StaticTimeRow(proposedTimes: inviteSummary.time)
+                    StaticTimeRow(proposedTimes: inviteSummary.time, style: ConfirmStyle.popup)
                 } showInfo: {
                     ui.showInfoScreen = true
                 }

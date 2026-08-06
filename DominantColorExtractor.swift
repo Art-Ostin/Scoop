@@ -63,6 +63,13 @@ enum TextProminence {
         case .custom(_, _, let contrast): contrast
         }
     }
+
+    /// For cards that draw white type only. A tint preset would solve the scrim
+    /// against text that is never drawn; this solves it against white, so
+    /// `achievedContrast` describes the type the card actually shows.
+    static func white(clearing contrast: CGFloat) -> TextProminence {
+        .custom(saturation: 0, brightness: 1, contrast: contrast)
+    }
 }
 
 /// The colors a card's overlay needs, derived from the artwork.
@@ -182,6 +189,11 @@ final class PopupColorExtractor {
     ///     dark enough behind the text.
     ///   - maximumScrimOpacity: How opaque the scrim may become while chasing
     ///     the contrast target.
+    ///   - maximumSurfaceLuminance: Lightest the scrim tint is allowed to be.
+    ///     Contrast already caps it; pass a lower value when the design wants a
+    ///     deeper tint than legibility alone asks for. Note the solver spends the
+    ///     slack: a darker tint clears the ceiling sooner, so it hands opacity
+    ///     back. Raise `preferredScrimOpacity` too if you want a heavier scrim.
     ///   - fallbackColor: Used when the image or extraction fails.
     func extractPalette(
         _ image: UIImage,
@@ -191,6 +203,7 @@ final class PopupColorExtractor {
         cardAspectRatio: CGFloat = 1 / 1.2,
         preferredScrimOpacity: CGFloat = 0.5,
         maximumScrimOpacity: CGFloat = 0.95,
+        maximumSurfaceLuminance: CGFloat = 1,
         fallbackColor: UIColor = .black
     ) async -> OverlayPalette {
         let saturation = prominence.saturation
@@ -200,7 +213,9 @@ final class PopupColorExtractor {
         let cacheKey = [
             id,
             "\(saturation)", "\(brightness)", "\(contrast)",
-            "\(textRegionHeight)", "\(cardAspectRatio)"
+            "\(textRegionHeight)", "\(cardAspectRatio)",
+            "\(preferredScrimOpacity)", "\(maximumScrimOpacity)",
+            "\(maximumSurfaceLuminance)"
         ].joined(separator: "|") as NSString
 
         if let cached = paletteCache.object(forKey: cacheKey) {
@@ -239,7 +254,8 @@ final class PopupColorExtractor {
             brightness: brightness,
             contrast: contrast,
             preferredOpacity: preferredScrimOpacity,
-            maximumOpacity: maximumScrimOpacity
+            maximumOpacity: maximumScrimOpacity,
+            maximumSurfaceLuminance: maximumSurfaceLuminance
         )
 
         if artwork.dominant != nil {
@@ -318,7 +334,8 @@ private extension PopupColorExtractor {
         brightness: CGFloat,
         contrast: CGFloat,
         preferredOpacity: CGFloat,
-        maximumOpacity: CGFloat
+        maximumOpacity: CGFloat,
+        maximumSurfaceLuminance: CGFloat
     ) -> OverlayPalette {
         // 1. Pick the tint the text wants: the hue of the strip it sits on —
         //    when the photo as a whole corroborates it — at the preset's
@@ -346,7 +363,8 @@ private extension PopupColorExtractor {
             backdrop: backdrop,
             ceiling: ceiling,
             preferredOpacity: preferredOpacity,
-            maximumOpacity: maximumOpacity
+            maximumOpacity: maximumOpacity,
+            maximumSurfaceLuminance: maximumSurfaceLuminance
         )
 
         // 3. If the scrim ran out of room, spend the shortfall on the text —
@@ -387,12 +405,18 @@ private extension PopupColorExtractor {
         backdrop: UIColor,
         ceiling: CGFloat,
         preferredOpacity: CGFloat,
-        maximumOpacity: CGFloat
+        maximumOpacity: CGFloat,
+        maximumSurfaceLuminance: CGFloat
     ) -> (surface: UIColor, opacity: CGFloat) {
-        // A little under the ceiling, so opacity has something to work with.
+        // A little under the ceiling, so opacity has something to work with,
+        // and never lighter than the caller will accept.
         let surface = adjust(
             tint,
-            toLuminance: min(luminance(of: tint), ceiling * 0.6)
+            toLuminance: min(
+                luminance(of: tint),
+                ceiling * 0.6,
+                maximumSurfaceLuminance
+            )
         )
 
         func composited(_ opacity: CGFloat, _ color: UIColor) -> CGFloat {

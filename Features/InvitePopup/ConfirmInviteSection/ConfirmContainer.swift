@@ -24,10 +24,11 @@ enum ConfirmStyle {
     
     //The layout metrics set here
     var topPadding: CGFloat { isCard ? 0 : 26} //No top padding needed if is card
-    var timeAndPlaceTopPadding: CGFloat { isCard ? Spacing.lg : 26} //Padding to title if card (matches the row spacing, so card reads as one even stack)
-    var rowSpacing: CGFloat { isCard ? 22 : 26}
-    var rowsBottomPadding: CGFloat { isCard ? 28 : 26} //Below the place row: card → card bottom, popup → warning
-    var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → rowsBottomPadding already reaches the card bottom, popup → action button
+    var timeAndPlaceTopPadding: CGFloat { isCard ? 24 : 26} //Padding to title if card (matches the row spacing, so card reads as one even stack)
+    var rowSpacing: CGFloat { isCard ? 26 : 26}
+    var rowsBottomPadding: CGFloat { isCard ? 0 : 26} //Below the place row: popup → warning; the card insets at container level instead
+    var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → card bottom, popup → action button
+    var iconRowSpacing: CGFloat { isCard ? Spacing.sm : Spacing.lg}
     
     //Only a popup shows these
     var showsWarning: Bool { !isCard }
@@ -82,21 +83,33 @@ extension ConfirmContainer {
     }
 
     private var typeRow: some View {
-        LineSection(image: .drinkIconDark, text: event.type.longTitle)
+        LineSection(image: .drinkIconDark, text: event.type.longTitle, style: style)
             .fixedSize(horizontal: true, vertical: false)
             .font(.body(17, .medium))
     }
 
     //Only used if it is the Confirm Screen within the Card
     private var cardTitle: some View {
-        HStack {
-            Text(name)
+        HStack(alignment: .top) {
+            Text(nameText)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
             Spacer(minLength: 4)
             TypeButton(type: event.type, timeOpen: timeOpen, showInfo: showInfo)
         }
     }
+    
+    //If Name is 7 or less characters say 'Arthur's Invite' otherwise just their name i.e. Genevieve
+    private var nameText: String {
+        if name.count <= 7 {
+            "\(name)'s Invite"
+        } else {
+            "\(name)"
+        }
+    }
+    
+    
+    
 
     private var timeAndPlaceRows: some View {
         ConfirmTimeAndPlace(
@@ -121,8 +134,8 @@ extension ConfirmContainer {
     @ViewBuilder
     private var openInviteButton: some View {
         if let openInvite {
-            InviteButton(onTap: openInvite)
-                .padding(.bottom, Spacing.lg)
+            InviteButton(onTap: openInvite) //Sits on the rows' bottom edge; the card's inset lifts both
+                .offset(y: 4)
         }
     }
 }
