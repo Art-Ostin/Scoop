@@ -1315,12 +1315,19 @@ private struct TimeCustomMenuOverlayRoot: View {
             let ftc = ft.clamped(to: 0...1)
             let w0 = max(1, lerp(ballW, expanded.width, ft))
             let fx = lerp(bx - ballW / 2, expanded.minX, ft) + w0 / 2
-            let overshoot = TimeCustomMenuSpec.flowerOvershoot * expanded.height
-                * sin(.pi * ((ftc - 0.25) / 0.75).clamped(to: 0...1))
+            // The free edge ARRIVES early (eased in by ~75% of the flowering)
+            // and then runs the full-amplitude overshoot in the final stretch —
+            // computed against the LANDED position, so the pulse is never
+            // swallowed by a still-travelling lerp on tall platters.
+            let approach = (ftc / 0.75).clamped(to: 0...1)
+            let eased = 1 - (1 - approach) * (1 - approach)
+            let ret = ((ftc - 0.6) / 0.4).clamped(to: 0...1)
+            let dip = TimeCustomMenuSpec.flowerOvershoot * expanded.height
+                * sin(.pi * ret)
             let opensUpward = target.y > expanded.midY
-            var top = lerp(by - ballH / 2, expanded.minY, opensUpward ? ft : ftc)
-            var bottom = lerp(by + ballH / 2, expanded.maxY, opensUpward ? ftc : ft)
-            if opensUpward { top -= overshoot } else { bottom += overshoot }
+            var top = lerp(by - ballH / 2, expanded.minY, opensUpward ? eased : ftc)
+            var bottom = lerp(by + ballH / 2, expanded.maxY, opensUpward ? ftc : eased)
+            if opensUpward { top -= dip } else { bottom += dip }
             let bulge = 1 + TimeCustomMenuSpec.flowerBulge * sin(.pi * ftc)
             let w = w0 * bulge
             let h = max(1, bottom - top)

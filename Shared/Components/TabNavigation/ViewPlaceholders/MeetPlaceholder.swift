@@ -53,8 +53,11 @@ struct MeetPlaceholder: View {
                 .font(.body(17, .medium))
                 .foregroundStyle(.blue)
         }
+        //Geometry: container-relative — the card's overlay origin sits ~145pt
+        //below the screen top, so 595 lands the label at ~740pt on screen,
+        //low enough that the platter blooms UPWARD like the reference.
         .padding(.leading, 48)
-        .padding(.top, 660)
+        .padding(.top, 595)
     }
 }
 

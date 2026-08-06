@@ -57,10 +57,9 @@ extension RespondInviteContainer {
 
     //Gone while the time or type popup owns the card — the DynamicTimeRow's popup counts on either page
     private var backButton: some View {
-        let visible = !timeAndPlaceUI.isPopupOpen()
+        let hide = timeAndPlaceUI.isPopupOpen() || timeAndPlaceUI.showConfirmScreen == true
         
-        return BottomBackButton(visible: visible) { showInvitePopup = nil }
-        
+        return BottomBackButton(visible: !hide) { showInvitePopup = nil }
     }
 
     private var inviteDetailsSection: some View {
@@ -75,7 +74,6 @@ extension RespondInviteContainer {
             actionMenu
         }
     }
-    
     
     private var confirmInvitePage: some View {
         let inviteSummary = InviteSummary(event: vm.respondDraft.originalInvite.event)

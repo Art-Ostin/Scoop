@@ -10,7 +10,6 @@ import SwiftUI
 
 struct InvitePopupBackground: View {
 
-    //The artwork's text tint. Nil keeps the plain frosted backdrop
     var tint: Color?
 
     var body: some View {
@@ -22,7 +21,6 @@ struct InvitePopupBackground: View {
     }
 }
 
-//All that is not on the actual InviteCard
 struct InviteCardBackground: ViewModifier {
     
     private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
@@ -42,9 +40,7 @@ struct InviteCardBackground: ViewModifier {
     }
 }
 
-
 struct InviteSeamWash: ViewModifier {
-
     let tint: Color
 
     func body(content: Content) -> some View {
@@ -77,8 +73,3 @@ struct BottomBackButton: View {
         .padding(.horizontal, Spacing.sm) // 12
     }
 }
-
-/*
- //            .stroke(CornerRadius.xl, lineWidth: 1, color: Color.fillGray)
-
- */

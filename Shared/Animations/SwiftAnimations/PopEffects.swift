@@ -11,17 +11,19 @@ import SwiftUI
 private struct OpacityPop: ViewModifier {
     var visible: Bool
     var shrunkScale: CGFloat
+    var anchor: UnitPoint
 
     func body(content: Content) -> some View {
         content
-            .scaleEffect(visible ? 1 : shrunkScale)
+            .scaleEffect(visible ? 1 : shrunkScale, anchor: anchor)
             .opacity(visible ? 1 : 0)
     }
 }
 
 extension View {
-    func opacityPop(visible: Bool, scale: CGFloat = 0.4) -> some View {
-        modifier(OpacityPop(visible: visible, shrunkScale: scale))
+    //An edge-pinned view has to shrink toward the edge it's pinned to, or it slides as it fades
+    func opacityPop(visible: Bool, scale: CGFloat = 0.4, anchor: UnitPoint = .center) -> some View {
+        modifier(OpacityPop(visible: visible, shrunkScale: scale, anchor: anchor))
     }
 }
 

@@ -8,7 +8,7 @@ enum InviteScreen {
     //The Five Different Image Screens Possible
     case send, sendConfirm
     case accept, newInvite, newInviteConfirm
-    
+
     //A struct storing all overlay booleans for the view
     struct Overlays {
         var backButton = false
@@ -18,17 +18,17 @@ enum InviteScreen {
         var pageIndicator = false
         var compactImage = false
     }
-    
+
     //For Each view, now declare which overlay visible or not
     var chrome: Overlays {
-         switch self {
-         case .send:             Overlays(options: true, title: true, pageIndicator: true)
-         case .newInvite:        Overlays(options: true, toggle: true, title: true, pageIndicator: true)
-         case .accept:           Overlays(toggle: true, title: true, compactImage: true)
-         case .sendConfirm:      Overlays(backButton: true, compactImage: true)
-         case .newInviteConfirm: Overlays(backButton: true, toggle: true, compactImage: true)
-         }
-     }
+        switch self {
+        case .send:             Overlays(options: true, title: true, pageIndicator: true)
+        case .newInvite:        Overlays(options: true, toggle: true, title: true, pageIndicator: true)
+        case .accept:           Overlays(toggle: true, title: true, compactImage: true)
+        case .sendConfirm:      Overlays(backButton: true, compactImage: true)
+        case .newInviteConfirm: Overlays(backButton: true, compactImage: true)
+        }
+    }
 }
 
 
@@ -63,17 +63,16 @@ struct InviteImageCarousel: View {
     //Measured so the blur halo can lift just behind the overlay text
     @State private var nameFrame: CGRect = .zero
     @State private var inviteFrame: CGRect = .zero
-    @State private var optionsFrame: CGRect = .zero
 
-    private var chrome: InviteScreen.Overlays  { screen.chrome }
+    private var chrome: InviteScreen.Overlays { screen.chrome }
 
     var body: some View {
         InviteCarousel(images: images, isCompact: chrome.compactImage, scrollProgress: $scrollProgress)
+            .overlay { backgroundBlur }
             .overlay(alignment: .topLeading) { backButton }
             .overlay(alignment: .topTrailing) { topRow }
             .overlay(alignment: .bottomLeading) { inviteTitle }
             .overlay(alignment: .bottomTrailing) { pageIndicator }
-            .overlay { backgroundBlur }
             .coordinateSpace(.named("InviteImageCarousel")) //Last, so the overlays measure inside the space
     }
 }
@@ -104,10 +103,9 @@ extension InviteImageCarousel {
             if chrome.options {
                 OptionsMenu(
                     hasChanges: inviteHasChanges,
-                    optionsFrame: $optionsFrame,
-                    onDecline: declineProfile,
-                    deleteDraft: clearInvite,
-                    onInfo: { showInfoScreen = true }
+                    onInfo: { showInfoScreen = true },
+                    onClear: clearInvite,
+                    onDecline: declineProfile
                 )
             }
         }
@@ -115,7 +113,7 @@ extension InviteImageCarousel {
         .chromeItem(visible: !isPopupOpen)
         .animation(.transition, value: screen) //Its two buttons mount and unmount as the screen changes
     }
-    
+
     private var inviteTitle: some View {
         let answering = screen == .accept
 
@@ -133,7 +131,7 @@ extension InviteImageCarousel {
         .padding(.bottom, Spacing.sm)
         .chromeItem(visible: chrome.title)
     }
-    
+
     private var pageIndicator: some View {
         ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
@@ -141,7 +139,7 @@ extension InviteImageCarousel {
             .padding(.bottom, Spacing.xs)
             .chromeItem(visible: chrome.pageIndicator && !isPopupOpen)
     }
-    
+
     //Apply background blur where necessary under the content
     private var backgroundBlur: some View {
         let progress = min(max(scrollProgress, 0), Double(images.count - 1))
@@ -150,25 +148,25 @@ extension InviteImageCarousel {
         let fraction = progress - Double(page)
 
         return ZStack {
-            BackgroundBlur(image: images[page], frames: haloFrames)
+            BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame])
                 .opacity(1 - fraction)
             if next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: haloFrames)
+                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame])
                     .opacity(fraction)
             }
         }
-        .chromeItem(visible: chrome.title) //Only shows
-    }
-    
-    private var haloFrames: [CGRect] {
-        chrome.options ? [nameFrame, inviteFrame, optionsFrame] : [nameFrame, inviteFrame]
+        //A full-bleed wash has no corner to pop from — scaling it drags both halos toward the middle.
+        //BackgroundBlur already refuses hits, so a plain fade is all it needs.
+        .opacity(chrome.title ? 1 : 0)
+        .animation(.transition, value: chrome.title)
     }
 }
 
 //All Overlay Items are shown and hidden in exactly the same way. So convenience modifier created here
 private extension View {
-    func chromeItem(visible: Bool) -> some View {
-        opacityPop(visible: visible)
+    //anchor: the corner the overlay is pinned to, so it pops from there rather than drifting to its own centre
+    func chromeItem(visible: Bool, anchor: UnitPoint = .center) -> some View {
+        opacityPop(visible: visible, anchor: anchor)
             .allowsHitTesting(visible)
             .animation(.transition, value: visible)
     }

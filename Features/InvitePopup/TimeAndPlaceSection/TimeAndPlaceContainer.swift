@@ -27,7 +27,6 @@ struct TimeAndPlacePage: View {
     }
 }
 
-
 struct RowCaption: View {
     enum Label: String { case what, when, `where` }
 
