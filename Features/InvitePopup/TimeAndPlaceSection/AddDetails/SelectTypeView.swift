@@ -114,7 +114,7 @@ extension SelectTypeView {
                 freezeMenuLabel()
                 selectedType = eventType
             }
-            dismissMenu(changed ? .morph : .flex)
+            dismissMenu(changed ? .morph : .retract)
             dismissTimeMenu()
         }
     }

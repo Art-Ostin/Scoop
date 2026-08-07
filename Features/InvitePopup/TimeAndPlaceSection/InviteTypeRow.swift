@@ -91,7 +91,7 @@ extension InviteTypeRow {
             cornerRadii: menuCorners,
             footerCornerRadii: footerCorners,
             morphAnchor: morphAnchor,
-            flexOnEmptyDismiss: true, //no type change flexes the label instead of morphing
+            retractOnEmptyDismiss: true, //no change retracts the platter back into the label
             placementOffsetX: -12,
             placementOffsetY: 28,
             onOpen: { ui.activePopup = .type },
@@ -188,13 +188,20 @@ extension InviteTypeRow {
             .font(.title(17, .medium))
             .foregroundStyle(isOpen ? Color.textPrimary : Color.textTertiary)
             .inviteRowTitleColumn()
-            .offset(x: isOpen ? 24 : 0, y: isOpen ? openLift : 0)
+            .offset(x: isOpen ? 24 : 0, y: isOpen ? openLift + openCaptionLift : 0)
             .scaleEffect(isOpen ? 1 : 0.765, anchor: .leading) //Geometry: 13/17 — collapsed reads as 13pt
             .animation(.smooth(duration: 0.2), value: isOpen)
             .opacity(onMessagePage ? 0 : 1)
             .blur(radius: onMessagePage ? 6 : 0) //the .blurReplace look, without a second copy
             .allowsHitTesting(!onMessagePage)
             .shrinkPress { openTypeMenu = true }
+    }
+
+    //Geometry: with a message the row grows for the indicator and the caption rides 2pt lower, while
+    //the value rides primaryContentOffset up — open, the caption trades the one for the other so the
+    //two sit on the same line instead of the caption hanging into the platter.
+    private var openCaptionLift: CGFloat {
+        showsPageIndicator ? primaryContentOffset - InviteRowMetrics.indicatorCaptionOffset : 0
     }
 
     private var rowTitleTransitionID: String { onMessagePage ? "type-\(type.title)" : "what" }
@@ -289,6 +296,7 @@ private struct TypeRowMenuLabel: View {
                 pageCount: 2
             ))
             chevron
+                .typeMenuOpenLift(ui.isPopupOpen(.type))
                 .getRect($chevronFrame)
                 .offset(y: primaryContentOffset)
         }
@@ -321,9 +329,11 @@ private struct TypeRowMenuLabel: View {
             .lineLimit(1)
     }
 
+    //Bare — no open lift. The menu freezes/carries the COLLAPSED copy as a flat bitmap, and
+    //a lift baked in there shoved the chevron 20pt onto the text tail during the dismiss
+    //morph. The live pager applies the lift at its call site instead.
     private var chevron: some View {
         DropDownButton(isOpen: ui.isPopupOpen(.type) || showMessageScreen)
-            .typeMenuOpenLift(ui.isPopupOpen(.type))
     }
 
     @ViewBuilder
@@ -357,18 +367,14 @@ struct AddMessageFooter: View {
     let corners: RectangleCornerRadii
     let onSelect: () -> Void
 
-    //With no message yet the footer is the row's call to action, so it wears the accent fill.
-    private var isCallToAction: Bool { message.isEmpty }
-
     var body: some View {
-        Text(isCallToAction ? "Add a Message" : "Edit Message")
-            .foregroundStyle(isCallToAction ? Color.white : Color.textAccent)
+        Text(message.isEmpty ? "Add a Message" : "Edit Message")
+            .foregroundStyle(Color.textAccent)
             .frame(maxWidth: .infinity, alignment: .center)
             .font(.body(16, .bold))
             .kerning(0.5)
             .frame(height: 40)
             .frame(width: SelectTypeView.cardWidth, alignment: .leading)
-            .background(accentFill)
             .dropdownCustomMenuFooterPlatter(corners: corners)
             .contentShape(.rect)
             .shrinkPress {
@@ -378,12 +384,5 @@ struct AddMessageFooter: View {
                     menuDismiss(.instant)
                 }
             }
-    }
-
-    @ViewBuilder
-    private var accentFill: some View {
-        if isCallToAction {
-            UnevenRoundedRectangle(cornerRadii: corners).fill(Color.textAccent)
-        }
     }
 }

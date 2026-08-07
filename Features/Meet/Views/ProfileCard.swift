@@ -29,7 +29,6 @@ struct ProfileCard : View {
                     .onAppear { isProfilePresented = true }
                     .onDisappear { isProfilePresented = false }
             }
-        
     }
 }
 
@@ -55,12 +54,18 @@ extension ProfileCard {
                     .scaledToFill()
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .modifier(BlurAndGradientBackground(
-                textRegion: BlurAndGradientBackground.profileRegion,
-                blurRadius: 10, //A far shorter ramp than the invite card's — the scrim carries this card, not the blur
-                palette: palette
-            ))
+            .modifier(blurBackground)
     }
+    
+    private var blurBackground: BlurAndGradientBackground {
+        BlurAndGradientBackground(
+            textRegion: BlurAndGradientBackground.profileRegion,
+            blurRadius: 10, //A far shorter ramp than the invite card's — the scrim carries this card, not the blur
+            colour: palette.surface,
+            scrimOpacity: palette.scrimOpacity
+        )
+    }
+    
     
     private var overlayText: some View {
         let p = profile.profile
@@ -101,18 +106,9 @@ extension ProfileCard {
         vm.profiles.first { $0.profile.id == profile.id }.map { [$0.image] } ?? []
     }
     
-    //Scrim only: the invite card's deep, hue-carrying veil. `prominence` and
-    //`textRegionHeight` stay defaulted on purpose — those two feed the text tint, and
-    //this card's secondary line keeps `.subtle`'s colour.
     private func fetchColour() async {
         palette = await PopupColorExtractor.shared
-            .extractPalette(
-                profile.image,
-                id: profile.id,
-                preferredScrimOpacity: 0.9, //How heavy the scrim rests when contrast doesn't force it
-                minimumSurfaceChroma: 0.55,  //Let the hue read, without lightening the scrim
-                maximumSurfaceLuminance: 0.05 //Never a pale tint, however light the artwork
-            )
+            .extractPalette(profile.image, id: profile.id)
     }
     
     private func images() -> [UIImage] {

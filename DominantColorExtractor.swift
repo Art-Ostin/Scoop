@@ -216,11 +216,11 @@ final class PopupColorExtractor {
         prominence: TextProminence = .subtle,
         textRegionHeight: CGFloat = 0.18,
         cardAspectRatio: CGFloat = 1 / 1.2,
-        preferredScrimOpacity: CGFloat = 0.5,
+        preferredScrimOpacity: CGFloat = 0.9,
         maximumScrimOpacity: CGFloat = 0.95,
         maximumDominantLuminance: CGFloat = 1,
-        minimumSurfaceChroma: CGFloat = 0,
-        maximumSurfaceLuminance: CGFloat = 1,
+        minimumSurfaceChroma: CGFloat = 0.55,
+        maximumSurfaceLuminance: CGFloat = 0.05,
         fallbackColor: UIColor = .black
     ) async -> OverlayPalette {
         let saturation = prominence.saturation

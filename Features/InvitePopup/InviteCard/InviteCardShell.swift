@@ -15,7 +15,7 @@ struct InvitePopupBackground: View {
     var body: some View {
         Rectangle()
             .fill(.regularMaterial)
-            .fill(tint?.opacity(1) ?? .clear)
+            .fill(tint?.opacity(0.2) ?? .clear)
             .background(Color.white.opacity(0.1))
             .ignoresSafeArea()
     }
@@ -46,8 +46,8 @@ struct InviteSeamWash: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(alignment: .top) {
-                LinearGradient(colors: [tint.opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
-                    .frame(height: 50)
+                LinearGradient(colors: [tint.opacity(0.5), .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 150)
             }
     }
 }

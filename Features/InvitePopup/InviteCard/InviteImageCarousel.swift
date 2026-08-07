@@ -29,6 +29,14 @@ enum InviteScreen {
         case .newInviteConfirm: Overlays(backButton: true, compactImage: true)
         }
     }
+
+    //Only the two composing screens soften the artwork's bottom — the title and dots sit on it there
+    var blursBottom: Bool {
+        switch self {
+        case .send, .newInvite:                        true
+        case .accept, .sendConfirm, .newInviteConfirm: false
+        }
+    }
 }
 
 
@@ -67,7 +75,7 @@ struct InviteImageCarousel: View {
     private var chrome: InviteScreen.Overlays { screen.chrome }
 
     var body: some View {
-        InviteCarousel(images: images, isCompact: chrome.compactImage, scrollProgress: $scrollProgress)
+        InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, scrollProgress: $scrollProgress)
             .overlay { backgroundBlur }
             .overlay(alignment: .topLeading) { backButton }
             .overlay(alignment: .topTrailing) { topRow }

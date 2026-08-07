@@ -6,11 +6,12 @@
 //  own type (all symbols renamed `TypeCustomMenu*` → `DropdownCustomMenu*`): the label
 //  stays visible underneath while the menu opens (it is never hidden/captured then),
 //  and the platter blooms straight out of the button's frame.
-//  The DISMISS is NO LONGER a simple reverse. It now plays a polished
-//  circle→label reveal borrowed from TimeCustomMenu: the platter and a hidden copy of
-//  the label both shrink STRAIGHT into ONE centred glass circle (the platter no longer
-//  pauses at the label's rectangle on the way down), which finally expands back out and
-//  reveals the label. See the "iOS 26 dismiss" block in `DropdownCustomMenuSpec` and
+//  The DISMISS is NO LONGER a simple reverse. It plays a circle→label reveal borrowed
+//  from TimeCustomMenu as ONE OVERLAPPED flow: the platter and a hidden copy of the
+//  label pinch toward ONE centred glass circle while the reveal spring launches under
+//  the still-landing collapse (`revealLaunchDelay`), so the shape bottoms out just
+//  short of the circle — never parking on it — and flows straight back out to reveal
+//  the label. See the "iOS 26 dismiss" block in `DropdownCustomMenuSpec` and
 //  `PlatterDismissMorph` / `LabelCollapseMorph`.
 //
 //  Created by Art Ostin on 11/06/2026.
@@ -46,10 +47,11 @@
 //  start/end geometry was widened to the whole button by request.)
 //  On DISMISS (the default `.morph`) the label DOES participate — see the
 //  `dismissPresentation` / `PlatterDismissMorph` / `LabelCollapseMorph` block below:
-//  the platter and a hidden copy of the label both shrink straight into one centred
-//  glass circle (the platter goes directly to the circle, not via the label's rect),
-//  which expands back out and reveals the label (the TimeCustomMenu reveal). Two timed
-//  phases driven by `morphProgress` (1→0) then `revealProgress` (0→1), both meeting at the circle.
+//  the platter and a hidden copy of the label both pinch toward one centred glass
+//  circle while the reveal launches underneath the still-landing collapse, expanding
+//  back out to reveal the label (the TimeCustomMenu reveal). Two OVERLAPPED phases
+//  driven by `morphProgress` (1→0) and `revealProgress` (0→1), blended additively in
+//  the morph modifiers so the pair reads as one continuous flow through the pinch.
 //  Implementation: ONE persistent glass view whose frame/radius/content are
 //  interpolated by an Animatable modifier (MenuLensMorph) under withAnimation.
 //  No glass transitions are used — verified broken/limited on iOS 26.0:
@@ -207,6 +209,8 @@ enum DropdownCustomMenuSpec {
     /// Bloom timing (slightly quicker than the native ~0.45s open, same slight settle).
     static let bloomOpen = Animation.spring(response: 0.32, dampingFraction: 0.82) //0.82
     /// Shrinking back into the button frame never bounces (~0.4s on device).
+    /// Also drives the `.retract` dismiss — the no-change close is literally the open
+    /// played backwards.
     static let bloomClose = Animation.snappy(duration: 0.25) //Slightly snappier close
     /// After the menu is open, content can reflow (e.g. an info row expands) and
     /// change the platter's height. Grow it with this curve — matched to the
@@ -244,80 +248,54 @@ enum DropdownCustomMenuSpec {
     static let dismissCircleScale: CGFloat = 1.45
     static let dismissCircleMinDiameter: CGFloat = 28
     static let dismissCircleMaxDiameter: CGFloat = 64
-    /// Phase 1 curve (platter → circle, label → circle — both shrink straight into the same
-    /// centred circle, no intermediate label-rect stop). The overlay chains
-    /// phase 2 off this animation's *completion* (logicallyComplete), so the reveal kicks
-    /// in the instant the collapse reaches the circle — no fixed wall-clock wait that could
-    /// desync from the animation under load.
-    ///
-    /// LINEAR, deliberately not an ease-out. An ease-out curve (`.smooth`) decelerates to
-    /// ~zero velocity *exactly as it arrives at the circle*, so the collapse visibly stalled
-    /// at the apex for a beat before the reveal launched — the "velocity comes to nil, then
-    /// springs sharply out" hitch. Linear reaches the circle still moving at full speed and
-    /// hands straight off to the momentum-launched reveal (`circleReveal`'s `initialVelocity`),
-    /// so the motion rolls continuously through the apex as one clean velocity cusp (reverse-
-    /// through, like a bounce) instead of stop-then-relaunch. Verified frame-by-frame in the
-    /// simulator: switching `.smooth`→`.linear` here cut the apex dwell from ~0.05s to ~1
-    /// frame (the irreducible latency of the two-`withAnimation` handoff). The shape morph
-    /// (rect→circle) masks the constant speed, so it doesn't read as mechanical.
-    /// Kept FAST (a snappy shrink) even though the expand is gentler: the launch velocity (20)
-    /// is high enough that the shape still leaves the circle faster than it arrives at this
-    /// quick collapse (out/in ~2.25 measured), so the fast-in / slower-out pairing still rolls
-    /// through the apex with no catch. Only if you drop `circleRevealLaunchVelocity` much below
-    /// ~18 does the arrival outrun the launch — then slow this too to rematch them.
-    static let collapseToCircle = Animation.linear(duration: 0.14)
-    /// Phase 2 — the circle expands back into the label's rectangle and the label is
-    /// revealed. Driven as an INTERPOLATING spring with a nonzero `initialVelocity` so the
-    /// reveal LAUNCHES with the momentum the collapse carried in, instead of starting from
-    /// rest. A plain `.spring` here starts at velocity 0, so the platter comes to a dead stop
-    /// at the circle before springing out — the exact hitch we don't want. Injecting launch
-    /// velocity lets it "roll" through the circle as one continuous motion (squash in, spring
-    /// straight back out, like a bounce). The reveal geometry may overshoot slightly past the
-    /// label's resting size (see `revealOvershoot`) for an organic pop.
-    /// `circleRevealLaunchVelocity` is the feel knob: higher = more momentum out of the circle
-    /// (less dwell, punchier), lower = gentler. In `initialVelocity` units (1 = the full
-    /// circle→label distance per second). Tuned frame-by-frame in the simulator (slowed 4×,
-    /// measuring the morph's size-over-time): even against the fast 0.14 collapse the shape
-    /// leaves the circle ~2.25× faster than it arrived (a clear roll-through, never a stop) and
-    /// the apex dwell is one frame; `dampingRatio` 0.78 gives a clean ~5–6% landing pop that
-    /// sits just under the `revealOvershoot` cap, so it reads as an organic settle without
-    /// hard-clipping. The slower `response` (0.40) lengthens the expand/settle for a gentler
-    /// reveal, while the launch velocity keeps the apex stop-free against the quick collapse.
-    static let circleRevealLaunchVelocity: Double = 20
+    /// Phase 1 curve (platter → circle, label → circle — both pinch toward the same centred
+    /// circle). EASE-OUT (`.smooth`) — a deliberate reversal of the earlier deliberately-
+    /// LINEAR choice. That linearity existed to hide a stall the SEQUENTIAL handoff had at
+    /// the apex (ease-out arrived at the circle at ~zero velocity, then phase 2 sprang out
+    /// of a dead stop). The phases now OVERLAP instead (`revealLaunchDelay`): the reveal is
+    /// already accelerating underneath while this curve decelerates into the pinch, and the
+    /// additive blend in `PlatterDismissMorph` / `LabelCollapseMorph` sums the two into ONE
+    /// smooth size-over-time valley — the shape bottoms out just short of the circle, still
+    /// moving, where the old back-to-back phases always met in a V-cusp (however well their
+    /// velocities were matched) and read as shrink-then-snap-open. Deceleration into the
+    /// turn is exactly what makes it read liquid; the ~2× longer clock spends its extra
+    /// time under the overlap, so the wall-clock total still matches the old dismiss
+    /// (~launch delay + reveal settle).
+    static let collapseToCircle = Animation.smooth(duration: 0.26)
+    /// How long after the collapse starts the reveal launches — THE liquidity knob. The
+    /// collapse still has about half its clock to run past this point; everything after is
+    /// overlap. Larger delays deepen the pinch toward a full circle-stop (past the
+    /// collapse's ~0.3s settle it degenerates to the old sequential two-stage handoff);
+    /// smaller ones make it shallower and blobbier — but keep it ≥ ~0.05s: the old label
+    /// needs the collapse to reach c ≈ 0.35 (~0.09s in) to fully fade before the new one
+    /// can start appearing (r ≥ 0.3, ~0.045s after launch), or both ghost in one frame.
+    /// At 0.13 the two fade windows sit ~80ms apart, so the turn-around is always label-free.
+    static let revealLaunchDelay: TimeInterval = 0.13
+    /// Phase 2 — the shape expands back into the label's rectangle and the label is
+    /// revealed. Still an interpolating spring, but the launch velocity drops from the old
+    /// 20 to a nudge: continuity through the pinch now comes from the OVERLAP (this spring
+    /// is already mid-flight when the collapse lands), not from punching out of a dead stop
+    /// — at 20 the reveal would cover most of its distance in its first ~100ms and flatten
+    /// the pinch to nothing under the overlap. In `initialVelocity` units (1 = the full
+    /// circle→label distance per second). `dampingRatio` drops 0.78 → 0.70 to keep the
+    /// ~5–6% landing pop the old launch velocity used to contribute (a 0.78 spring from
+    /// near-rest overshoots only ~2%); it still sits under the `revealOvershoot` cap, so
+    /// the landing reads as the same organic settle as before.
+    static let circleRevealLaunchVelocity: Double = 4
     static let circleReveal = Animation.interpolatingSpring(
-        Spring(response: 0.37, dampingRatio: 0.78),
+        Spring(response: 0.37, dampingRatio: 0.70),
         initialVelocity: circleRevealLaunchVelocity
     )
     /// Upper bound the reveal geometry may extrapolate the label past its resting size, so
     /// the spring's overshoot reads as a real pop without ever running away.
     static let revealOvershoot: CGFloat = 1.08
     /// Safety net: if the completion-chained morph ever fails to fire, tear the window down
-    /// after this long so it can't leak. The normal path tears down ~0.45s via completions.
+    /// after this long so it can't leak. The normal path tears down ~0.7s via completions.
     static let dismissSafetyTimeout: TimeInterval = 1.2
     /// On the reveal, the glass is fully present at the circle and melts to nothing over
     /// the final relax onto the label (mirrors TimeCustomMenu's `closeGlassFadeProgress`),
     /// so the label alone lands and there's no glass left to pop.
     static let revealGlassFadeProgress: CGFloat = 0.35
-
-    // ── `.flex` dismiss (no-change close) ──
-    /// When a dismiss leaves the selection unchanged (tap-away, or re-picking the already-
-    /// selected row) the circle morph is wasted motion — the label would suck into a circle
-    /// and pop back as the *same* label. The `.flex` style instead melts the platter away
-    /// (the `.pop` transition) and gives the real label — which stays visible underneath the
-    /// whole time — a quick scale-up + lift that settles back: a light "nothing changed"
-    /// acknowledgement. A `flexing` pulse on the controller drives it; the label reads it.
-    static let flexScale: CGFloat = 1.10
-    static let flexOffsetY: CGFloat = -7
-    /// How long the label holds at the peak before settling back. The settle interrupts the
-    /// rise if it hasn't finished, which is fine — SwiftUI carries the velocity through.
-    ///
-    /// Note: an earlier `flexDelay` (0.16s, to let the `.scoopPop` platter melt before the
-    /// pulse) was never wired to a driver and has been removed. If the flex ever reads as
-    /// "almost nothing", that sim finding is why — reintroduce the wait at the driver, not here.
-    static let flexHold: TimeInterval = 0.12
-    /// Quick rise, then a softer settle with a hair of bounce so it reads as a flex, not a jump.
-    static let flexUp = Animation.spring(response: 0.18, dampingFraction: 0.7)
-    static let flexDown = Animation.spring(response: 0.34, dampingFraction: 0.6)
 
     // ── Pre-26 fallback (classic menu) ──
     /// Scale the menu collapses to at the anchor point when hidden.
@@ -400,10 +378,11 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     /// Placement still uses the full label frame; only the morph geometry uses this.
     /// Mirrors `TimeCustomMenu.morphAnchor`.
     var morphAnchor: CGRect?
-    /// When `true`, a no-change dismiss flexes the label instead of running the circle morph:
-    /// re-selecting the already-selected row uses `dismiss(.flex)`, and a tap-away (which is
-    /// always no-change) flexes too. `false` (default) keeps every dismiss on the morph.
-    var flexOnEmptyDismiss: Bool
+    /// When `true`, a no-change dismiss retracts the platter back into the label (the
+    /// reverse of the open bloom) instead of running the circle morph: re-selecting the
+    /// already-selected row uses `dismiss(.retract)`, and a tap-away (which is always
+    /// no-change) retracts too. `false` (default) keeps every dismiss on the morph.
+    var retractOnEmptyDismiss: Bool
     /// Nudge applied to the final placement (positive = right / down). Defaults
     /// to the spec values; override per call site to fine-tune.
     var placementOffset: CGSize
@@ -450,7 +429,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
          alignment: DropdownCustomMenuAlignment = .automatic,
          morphsFromTrailingPoint: Bool = false,
          morphAnchor: CGRect? = nil,
-         flexOnEmptyDismiss: Bool = false,
+         retractOnEmptyDismiss: Bool = false,
          placementOffsetX: CGFloat = DropdownCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = DropdownCustomMenuSpec.placementOffsetY,
          onOpen: (() -> Void)? = nil,
@@ -467,7 +446,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         self.alignment = alignment
         self.morphsFromTrailingPoint = morphsFromTrailingPoint
         self.morphAnchor = morphAnchor
-        self.flexOnEmptyDismiss = flexOnEmptyDismiss
+        self.retractOnEmptyDismiss = retractOnEmptyDismiss
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.onOpen = onOpen
         self.onClose = onClose
@@ -513,13 +492,6 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                               : .spring(response: PressEffect.shrink.release.response,
                                         dampingFraction: PressEffect.shrink.release.damping),
                        value: shrunk)
-            // `.flex` dismiss: a quick scale-up + lift that settles back, in place of the
-            // circle morph when nothing changed.
-            .scaleEffect(controller.flexing ? DropdownCustomMenuSpec.flexScale : 1)
-            .offset(y: controller.flexing ? DropdownCustomMenuSpec.flexOffsetY : 0)
-            .animation(controller.flexing ? DropdownCustomMenuSpec.flexUp
-                                          : DropdownCustomMenuSpec.flexDown,
-                       value: controller.flexing)
             .simultaneousGesture(pressGesture)
             //Programmatic open from outside the label; cleared immediately so it can fire again.
             .onChange(of: openRequest?.wrappedValue ?? false) { _, wants in
@@ -598,7 +570,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
             labelCornerRadius: labelCornerRadius,
             alignment: alignment,
             morphsFromTrailingPoint: morphsFromTrailingPoint,
-            flexOnEmptyDismiss: flexOnEmptyDismiss,
+            retractOnEmptyDismiss: retractOnEmptyDismiss,
             placementOffset: placementOffset,
             onClose: onClose,
             footer: footer,
@@ -621,12 +593,13 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
 ///   the full `morph` would flash the type over the message and yank the pager back, so we
 ///   only zoom the platter into the chevron and let the row update its own label.
 /// - `pop`: removes the platter + footer with the `.scoopPop` transition (blur + scale).
-/// - `flex`: pops the platter like `.pop`, but instead of the circle morph it gives the
-///   (still-visible) label a quick scale-up + lift that settles back — for a no-change
-///   dismiss, where the morph would just shrink and re-expand the same label. See the
-///   `.flex` spec block and `flexLabel()`.
+/// - `retract`: the no-change close — the exact reverse of the open bloom. The platter
+///   shrinks back into the label's frame on `bloomClose` (footer sliding back underneath,
+///   glass melting over the final stretch) while the real label — never hidden, never
+///   pulsed — just finishes its own settle. Open and close read symmetric, which is
+///   exactly what "nothing changed" should look like.
 /// - `instant`: tears the window down immediately, no animation.
-enum DropdownCustomMenuDismissStyle { case morph, morphPlatterOnly, pop, flex, instant }
+enum DropdownCustomMenuDismissStyle { case morph, morphPlatterOnly, pop, retract, instant }
 
 struct DropdownCustomMenuDismissAction {
     /// Pass a `DropdownCustomMenuDismissStyle` to pick the exit (default `.morph`). E.g.
@@ -746,6 +719,14 @@ final class DropdownCustomMenuController {
     /// when set, so the lens morphs around the tight content instead of the padded label
     /// frame. See `DropdownCustomMenu.morphAnchor`.
     private(set) var morphAnchor: CGRect?
+    /// The morph anchor as it stood the instant dismissal began — i.e. where the label
+    /// VISUALLY is at that moment. The live anchors are model-space reads, so any open-state
+    /// displacement the row animates away on close (the invite row's −20/−4 lift) vanishes
+    /// from them on the very first dismiss frame; the frozen OLD copy and the pinch circle
+    /// ride this snapshot instead, so the collapse starts exactly on the on-screen label.
+    /// The reveal side keeps tracking the live anchor and lands on the label's RESTING
+    /// place — the lifted→resting travel rides inside the reveal flow rather than snapping.
+    private(set) var dismissAnchor: CGRect?
     private(set) var content: (() -> AnyView)?
     /// Pixel-identical copy of the label, carried by the overlay only during the iOS 26
     /// dismiss so it can morph (label → centred circle → label). The real label hides
@@ -770,15 +751,10 @@ final class DropdownCustomMenuController {
     /// iOS 26 dismiss: the real label hides while the overlay carries + morphs its copy
     /// (it is the morphing circle now), then is restored under the copy at the very end.
     private(set) var hidesLabel = false
-    /// iOS 26 dismiss phase 2: flipped true once the rectangular collapse has reached the
-    /// circle, so the overlay runs the circle → label reveal (borrowed from TimeCustomMenu).
-    private(set) var revealing = false
-    /// `.flex` dismiss pulse: pulsed true→false so the (visible) label scales up + lifts and
-    /// settles back. The label observes it; see `DropdownCustomMenuSpec`'s `.flex` block.
-    private(set) var flexing = false
-    /// Caller opt-in: a tap-away (dismiss with no selection) uses `.flex` instead of `.morph`,
-    /// so backing out of the menu flexes the label rather than running the circle morph.
-    private(set) var flexOnEmptyDismiss = false
+    /// Caller opt-in: a tap-away (dismiss with no selection) uses `.retract` instead of
+    /// `.morph`, so backing out of the menu shrinks the platter back into the label rather
+    /// than running the circle morph.
+    private(set) var retractOnEmptyDismiss = false
     /// The label as it looked the instant dismissal began, frozen to a bitmap so a
     /// just-selected NEW value doesn't appear while the label shrinks: the OLD label
     /// collapses into the circle, and only the live/new label is revealed as it expands
@@ -816,7 +792,7 @@ final class DropdownCustomMenuController {
                  labelCornerRadius: CGFloat? = nil,
                  alignment: DropdownCustomMenuAlignment,
                  morphsFromTrailingPoint: Bool = false,
-                 flexOnEmptyDismiss: Bool = false,
+                 retractOnEmptyDismiss: Bool = false,
                  placementOffset: CGSize,
                  onClose: (() -> Void)? = nil,
                  footer: (() -> AnyView)? = nil,
@@ -836,7 +812,7 @@ final class DropdownCustomMenuController {
         self.labelCornerRadius = labelCornerRadius
         self.alignment = alignment
         self.morphsFromTrailingPoint = morphsFromTrailingPoint
-        self.flexOnEmptyDismiss = flexOnEmptyDismiss
+        self.retractOnEmptyDismiss = retractOnEmptyDismiss
         self.placementOffset = placementOffset
         self.onClose = onClose
         self.footer = footer
@@ -905,14 +881,16 @@ final class DropdownCustomMenuController {
         // so callers don't wait out the animation + teardown.
         onClose?()
         guard style != .instant else { tearDown(); return }
+        // Snapshot where the label visually sits BEFORE the model-space anchor updates from
+        // onClose's state resets can land (layout + the anchor syncs are deferred, so the
+        // pre-close open lift is still in the last-synced rect here).
+        dismissAnchor = morphAnchor ?? (collapseAnchor == .zero ? anchor : collapseAnchor)
         dismissStyle = style
         phase = .dismissing
         let gen = generation
-        if style == .pop || style == .flex {
-            // Both melt the platter + footer with the `.scoopPop` transition (driven by the
-            // overlay off `phase`); `.flex` additionally pulses the still-visible label.
-            // Tear the window down once that spring has settled.
-            if style == .flex { flexLabel() }
+        if style == .pop {
+            // Melts the platter + footer with the `.scoopPop` transition (driven by the
+            // overlay off `phase`). Tear the window down once that spring has settled.
             Task {
                 try? await Task.sleep(for: .seconds(DropdownCustomMenuSpec.popCloseDuration))
                 if generation == gen { tearDown() }
@@ -920,18 +898,18 @@ final class DropdownCustomMenuController {
             return
         }
         if #available(iOS 26.0, *) {
-            // New dismiss choreography (see DropdownCustomMenuSpec dismiss block):
-            //   Phase 1 — the platter does its normal rectangular collapse toward the
-            //             label, then pinches into a centred glass circle, while the
-            //             label copy shrinks into that same circle.
-            //   Phase 2 — the circle expands back into the label's rectangle and the
-            //             label is revealed.
-            //   Tail   — restore the real label under the copy → melt the halo → teardown.
-            // The overlay (DropdownCustomMenuOverlayRoot.runMorphDismiss) drives all three,
-            // chaining each step off the previous animation's *completion* rather than a
-            // wall-clock timer, so the sequence can't desync from the animation under load
-            // and there's no dead stop at the apex. The hand-offs call back into
-            // `enterRevealPhase` / `restoreLabel` / `finishMorphDismiss` below.
+            // Overlapped dismiss choreography (see DropdownCustomMenuSpec dismiss block):
+            //   Collapse — the platter and the label copy pinch toward a centred glass
+            //              circle, while `revealLaunchDelay` in the reveal spring launches
+            //              UNDERNEATH the still-landing collapse.
+            //   Reveal   — the pair, blended additively in the morph modifiers, bottoms
+            //              out just short of the circle and expands back onto the label,
+            //              revealing the new value — one continuous flow, no parked apex.
+            //   Tail     — restore the real label under the copy → melt the halo → teardown.
+            // The overlay (DropdownCustomMenuOverlayRoot.runMorphDismiss) drives all three;
+            // the tail chains off the reveal animation's *completion* rather than a
+            // wall-clock timer, so teardown can't desync from the animation under load.
+            // The hand-offs call back into `restoreLabel` / `finishMorphDismiss` below.
             // `.morphPlatterOnly` keeps the real label on screen the whole time (the platter
             // just shrinks into the chevron and melts), so it neither freezes a copy nor hides
             // the label. The full `.morph` does both so the label can ride the circle morph.
@@ -959,31 +937,10 @@ final class DropdownCustomMenuController {
         }
     }
 
-    /// The `.flex` pulse: lift the label, then settle it back. The label reads `flexing` and
-    /// animates the scale/offset itself (`flexUp` on the way up, `flexDown` on the settle); we
-    /// just toggle the flag with a brief hold between. The label lives in the app tree (not the
-    /// overlay window), so it keeps settling after the window tears down. No-op if not presented.
-    private func flexLabel() {
-        guard window != nil else { return }
-        flexing = true
-        let gen = generation
-        Task {
-            try? await Task.sleep(for: .seconds(DropdownCustomMenuSpec.flexHold))
-            if generation == gen { flexing = false }
-        }
-    }
+    // MARK: iOS 26 morph dismiss hand-offs (called by the overlay on the reveal's completion)
 
-    // MARK: iOS 26 morph dismiss hand-offs (called by the overlay on each animation's completion)
-
-    /// Phase 1 → 2: the rectangular collapse has reached the circle, so reveal the live/new
-    /// label as it expands back out. Guarded so a stale completion can't act after teardown.
-    func enterRevealPhase() {
-        guard phase == .dismissing else { return }
-        revealing = true
-    }
-
-    /// Phase 2 done: restore the real (now-current) label under the copy, just before the
-    /// overlay melts the leftover halo.
+    /// Reveal done: restore the real (now-current) label under the copy, just before the
+    /// overlay melts the leftover halo. Guarded so a stale completion can't act after teardown.
     func restoreLabel() {
         guard phase == .dismissing else { return }
         hidesLabel = false
@@ -1012,13 +969,12 @@ final class DropdownCustomMenuController {
         placementOffset = .zero
         collapseAnchor = .zero
         morphAnchor = nil
+        dismissAnchor = nil
         items = [:]
         highlightedItemID = nil
         menuFrame = .zero
         hidesLabel = false
-        revealing = false
-        flexing = false
-        flexOnEmptyDismiss = false
+        retractOnEmptyDismiss = false
         frozenLabelImage = nil
         labelPressed = false
         dismissStyle = .morph
@@ -1129,9 +1085,10 @@ private struct DropdownCustomMenuOverlayRoot: View {
                             }
                             .onEnded { _ in
                                 controller.labelPressed = false
-                                // Tap-away is always a no-change dismiss: flex the label
-                                // instead of the circle morph when the caller opted in.
-                                controller.dismiss(style: controller.flexOnEmptyDismiss ? .flex : .morph)
+                                // Tap-away is always a no-change dismiss: retract the platter
+                                // back into the label instead of the circle morph when the
+                                // caller opted in.
+                                controller.dismiss(style: controller.retractOnEmptyDismiss ? .retract : .morph)
                             }
                     )
 
@@ -1172,9 +1129,8 @@ private struct DropdownCustomMenuOverlayRoot: View {
             }
             .onChange(of: controller.phase) { _, newPhase in
                 guard newPhase == .dismissing else { return }
-                if controller.dismissStyle == .pop || controller.dismissStyle == .flex {
-                    // Remove the platter + footer with the scoopPop transition. (`.flex` also
-                    // pulses the label, driven by the controller — see `flexLabel()`.)
+                if controller.dismissStyle == .pop {
+                    // Remove the platter + footer with the scoopPop transition.
                     withAnimation(.dismiss) { popExit = true }
                 } else if #available(iOS 26.0, *) {
                     runMorphDismiss()
@@ -1184,15 +1140,18 @@ private struct DropdownCustomMenuOverlayRoot: View {
         .ignoresSafeArea()
     }
 
-    /// Drives the iOS 26 morph dismiss as one completion-chained sequence, so each phase
-    /// starts off the *previous animation's completion* rather than a wall-clock timer —
-    /// the steps can't desync from the animation under load, and phase 2 picks up the
-    /// instant the collapse logically reaches the circle (no dead stop at the apex).
+    /// Drives the iOS 26 morph dismiss as one OVERLAPPED flow: the collapse starts, and the
+    /// reveal spring launches `revealLaunchDelay` later — while the collapse is still
+    /// landing — so both progresses are mid-flight together and the additive blend in the
+    /// morph modifiers rounds the pinch into a single continuous curve (no dead stop, no
+    /// cusp at the apex). The tail (restore label → melt halo → teardown) still chains off
+    /// the reveal animation's *completion*, never a wall-clock timer, so teardown can't
+    /// desync from the animation under load.
     @available(iOS 26.0, *)
     private func runMorphDismiss() {
         // `.morphPlatterOnly`: no label copy and the real label was never hidden, so there's
-        // nothing to reveal. Just shrink the platter into the chevron circle (phase 1) and
-        // melt the glass — the row's own label handles the value change underneath.
+        // nothing to reveal. Just shrink the platter into the chevron circle and melt the
+        // glass — the row's own label handles the value change underneath.
         if controller.dismissStyle == .morphPlatterOnly {
             withAnimation(DropdownCustomMenuSpec.collapseToCircle, completionCriteria: .logicallyComplete) {
                 morphProgress = 0
@@ -1205,20 +1164,41 @@ private struct DropdownCustomMenuOverlayRoot: View {
             }
             return
         }
-        // Phase 1 — rectangular collapse → centred circle. `logicallyComplete` fires the
-        // moment the collapse reaches the circle (a touch before it fully settles), so the
-        // reveal flows straight out of it.
-        withAnimation(DropdownCustomMenuSpec.collapseToCircle, completionCriteria: .logicallyComplete) {
+        // `.retract`: the no-change close — the open bloom played backwards. The platter is
+        // still on the MenuLensMorph branch (`isMorphDismiss` excludes `.retract`), so
+        // animating the bloom progress home shrinks it back into the label's frame, glass
+        // melting over the final stretch (`closeGlassFadeProgress`) and the footer sliding
+        // back underneath on the same progress. The real label was never hidden or pulsed —
+        // it just finishes its own settle as the glass lands on it.
+        if controller.dismissStyle == .retract {
+            withAnimation(DropdownCustomMenuSpec.bloomClose, completionCriteria: .logicallyComplete) {
+                morphProgress = 0
+            } completion: {
+                withAnimation(DropdownCustomMenuSpec.lensFadeOut) {
+                    lensOpacity = 0
+                } completion: {
+                    controller.finishMorphDismiss()
+                }
+            }
+            return
+        }
+        // Collapse and reveal, overlapped. The reveal's launch offset rides the animation
+        // clock (`.delay`), and its state write escapes the collapse's update turn (the
+        // async hop) so each progress gets its own animation record on the shared
+        // animatable pair — they compose additively instead of one transaction retargeting
+        // the other's component. The old/new label swap needs no timed flip at all: both
+        // label layers are mounted throughout, each fading on its own progress window (see
+        // dismissPresentation), so nothing here can desync under load.
+        withAnimation(DropdownCustomMenuSpec.collapseToCircle) {
             morphProgress = 0
-        } completion: {
-            // Phase 2 — circle → label reveal. The label layer switches to the live/new
-            // label here (controller.revealing flips); it may overshoot slightly for the pop.
-            controller.enterRevealPhase()
-            withAnimation(DropdownCustomMenuSpec.circleReveal, completionCriteria: .removed) {
+        }
+        DispatchQueue.main.async {
+            withAnimation(DropdownCustomMenuSpec.circleReveal.delay(DropdownCustomMenuSpec.revealLaunchDelay),
+                          completionCriteria: .removed) {
                 revealProgress = 1
             } completion: {
-                // Tail — the copy has settled on the label, so restore the real (now-current)
-                // label under it, melt the leftover halo, then tear the window down.
+                // Tail — the live copy has settled on the label, so restore the real
+                // (now-current) label under it, melt the leftover halo, then tear down.
                 controller.restoreLabel()
                 withAnimation(DropdownCustomMenuSpec.lensFadeOut) {
                     lensOpacity = 0
@@ -1383,7 +1363,8 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 ?? (controller.collapseAnchor == .zero ? controller.anchor : controller.collapseAnchor)
             // The `.morph` / `.morphPlatterOnly` dismisses hand off to the circle-collapse
             // choreography (dismissPresentation); the open bloom (and the brief pre-removal
-            // frame of a `.pop` dismiss) stay on MenuLensMorph.
+            // frame of a `.pop` dismiss) stay on MenuLensMorph. `.retract` stays here ON
+            // PURPOSE — its close IS this morph run in reverse (see runMorphDismiss).
             let isMorphDismiss = controller.phase == .dismissing
                 && (controller.dismissStyle == .morph || controller.dismissStyle == .morphPlatterOnly)
             // No GlassEffectContainer: with a single glass shape it isn't needed,
@@ -1415,30 +1396,43 @@ private struct DropdownCustomMenuOverlayRoot: View {
 
     // MARK: iOS 26 — dismiss (rectangular collapse → centred circle → reveal)
 
-    /// The new dismiss: two stacked layers driven by `morphProgress` (phase 1, 1 → 0) and
-    /// `revealProgress` (phase 2, 0 → 1), both ending at / starting from one centred glass
-    /// circle so the hand-off is seamless.
-    ///   • The PLATTER (`PlatterDismissMorph`) shrinks directly into the centred circle —
-    ///     the same circle the label copy collapses into — then on reveal relaxes back onto
-    ///     the label as its glass melts off — exactly the TimeCustomMenu close ending.
-    ///   • The LABEL COPY (`LabelCollapseMorph`) shrinks into the same circle, then is
-    ///     revealed on top so it is what finally lands on the label (the real label is
-    ///     hidden meanwhile and restored under it just before teardown).
+    /// The dismiss: stacked layers driven by `morphProgress` (collapse, 1 → 0) and
+    /// `revealProgress` (reveal, 0 → 1) — OVERLAPPED in time and blended ADDITIVELY inside
+    /// the modifiers, so the motion flows through the pinch as one continuous curve.
+    ///   • The PLATTER (`PlatterDismissMorph`) pinches from the menu rect toward the centred
+    ///     circle, then relaxes back onto the label as its glass melts off — exactly the
+    ///     TimeCustomMenu close ending.
+    ///   • TWO LABEL COPIES (`LabelCollapseMorph`) ride the same pinch, both mounted for the
+    ///     whole dismiss: the frozen OLD value fades out with the collapse, the live NEW
+    ///     value fades in over the reveal and is what finally lands on the label (the real
+    ///     label is hidden meanwhile and restored under it just before teardown).
     @available(iOS 26.0, *)
     @ViewBuilder
     private func dismissPresentation(content: AnyView, metrics: Metrics,
                                      menuRect: CGRect, labelRect: CGRect) -> some View {
-        // The circle both layers collapse into. Sized off the SMALLER label dimension and
-        // clamped, so a tall multi-line label collapses to a tidy circle (not a big blob)
-        // and a tiny label still gets a visible one. Always centred vertically; placed at the
-        // label's TRAILING edge when the open bloomed from there (`morphsFromTrailingPoint` —
-        // e.g. a wide pager label whose content hugs the trailing edge), otherwise centred.
-        // This makes the close collapse onto the same point the open grew from, instead of the
-        // empty middle of a wide label (which read as "close in the centre, then snap right").
-        let side = (min(labelRect.width, labelRect.height) * DropdownCustomMenuSpec.dismissCircleScale)
+        // Two label rects drive the dismiss:
+        //   • `collapseSource` — the dismissAnchor snapshot: where the label VISUALLY sat
+        //     when dismissal began (the invite row's open lift still applied). The frozen
+        //     OLD copy and the pinch circle ride it, so the collapse starts exactly on the
+        //     on-screen label instead of jumping to the already-reset model rect.
+        //   • `labelRect` (live) — where the label will REST. The platter's landing and the
+        //     NEW copy ride it, so the lifted→resting travel glides inside the reveal flow
+        //     and the hand-off to the restored real label is seamless. It may update
+        //     mid-dismiss (lift release, new text width), but only while the reveal side is
+        //     weightless (r ≈ 0) and invisible, so the retarget is never seen.
+        let collapseSource = controller.dismissAnchor ?? labelRect
+        // The circle both layers collapse toward. Sized off the SMALLER dimension of the
+        // on-screen rect and clamped, so a tall multi-line label collapses to a tidy circle
+        // (not a big blob) and a tiny label still gets a visible one. Always centred
+        // vertically on the dismiss-start frame; placed at its TRAILING edge when the open
+        // bloomed from there (`morphsFromTrailingPoint` — e.g. a wide pager label whose
+        // content hugs the trailing edge), otherwise centred. This makes the close collapse
+        // onto the same point the open grew from, instead of the empty middle of a wide
+        // label (which read as "close in the centre, then snap right").
+        let side = (min(collapseSource.width, collapseSource.height) * DropdownCustomMenuSpec.dismissCircleScale)
             .clamped(to: DropdownCustomMenuSpec.dismissCircleMinDiameter ... DropdownCustomMenuSpec.dismissCircleMaxDiameter)
-        let circleX = controller.morphsFromTrailingPoint ? labelRect.maxX - side : labelRect.midX - side / 2
-        let circleRect = CGRect(x: circleX, y: labelRect.midY - side / 2,
+        let circleX = controller.morphsFromTrailingPoint ? collapseSource.maxX - side : collapseSource.midX - side / 2
+        let circleRect = CGRect(x: circleX, y: collapseSource.midY - side / 2,
                                 width: side, height: side)
         let platterCorners = controller.cornerRadii
             ?? RectangleCornerRadii(uniform: controller.cornerRadius ?? DropdownCustomMenuSpec.platterCornerRadius)
@@ -1458,27 +1452,46 @@ private struct DropdownCustomMenuOverlayRoot: View {
                 ))
                 .opacity(lensOpacity)
 
-            // Collapse shows the OLD label (frozen bitmap, captured before any selection
-            // mutated state); the reveal shows the live/new label. They swap at the circle
-            // apex where the label's opacity is 0, so the change is never seen mid-air.
-            // `.morphPlatterOnly` carries no label copy — the real label stays on screen —
-            // so this layer is skipped and only the platter collapses into the chevron.
-            let labelLayer: AnyView? = {
-                guard controller.dismissStyle == .morph else { return nil }
-                if !controller.revealing, let frozen = controller.frozenLabelImage {
-                    return AnyView(Image(uiImage: frozen))
+            // Both label copies are mounted for the whole dismiss, so the old→new swap is
+            // purely declarative: the OLD value (frozen bitmap, captured before any
+            // selection mutated state) fades out with the collapse, the NEW value (the live
+            // label) fades in over the reveal. The opacity windows never overlap, so the
+            // change is never seen mid-air — and no timed flip exists to desync from the
+            // overlapped animations. `.morphPlatterOnly` carries no label copy — the real
+            // label stays on screen — so both layers are skipped and only the platter
+            // collapses into the chevron.
+            if controller.dismissStyle == .morph {
+                let oldLabel: AnyView? = {
+                    if let frozen = controller.frozenLabelImage { return AnyView(Image(uiImage: frozen)) }
+                    return controller.labelView.map { AnyView($0()) } // no bitmap — fall back to live
+                }()
+                // Both copies are pure chrome: hit-testing off, because an `.opacity(0)`
+                // view still hit-tests and the live copy could otherwise swallow a tap
+                // meant for the screen behind the dismissing menu.
+                if let oldLabel {
+                    oldLabel
+                        .modifier(LabelCollapseMorph(
+                            collapse: morphProgress,
+                            reveal: revealProgress,
+                            labelRect: collapseSource, //collapses from where it visually sat
+                            circleRect: circleRect,
+                            isRevealLayer: false
+                        ))
+                        .opacity(lensOpacity)
+                        .allowsHitTesting(false)
                 }
-                return controller.labelView.map { AnyView($0()) }
-            }()
-            if let labelLayer {
-                labelLayer
-                    .modifier(LabelCollapseMorph(
-                        collapse: morphProgress,
-                        reveal: revealProgress,
-                        labelRect: labelRect,
-                        circleRect: circleRect
-                    ))
-                    .opacity(lensOpacity)
+                if let liveLabel = controller.labelView {
+                    liveLabel()
+                        .modifier(LabelCollapseMorph(
+                            collapse: morphProgress,
+                            reveal: revealProgress,
+                            labelRect: labelRect,
+                            circleRect: circleRect,
+                            isRevealLayer: true
+                        ))
+                        .opacity(lensOpacity)
+                        .allowsHitTesting(false)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -1659,11 +1672,12 @@ private struct DropdownCustomMenuOverlayRoot: View {
         }
     }
 
-    /// The dismiss platter morph. Phase 1 (`collapse` 1 → 0): the platter shrinks directly
-    /// from the menu rect into the centred circle — the SAME circle the label copy collapses
-    /// into — its corners rounding from the platter's radii to the circle as it goes (no
-    /// intermediate stop at the label's rectangle). Phase 2 (`reveal` 0 → 1): the circle
-    /// relaxes back onto the label while the glass melts off, so the label copy (layered
+    /// The dismiss platter morph. The two progresses blend ADDITIVELY around the circle —
+    /// `collapse` (1 → 0) contributes the platter's displacement from it, `reveal` (0 → 1)
+    /// the label's — so run back-to-back they retrace the old two-branch GEOMETRY exactly, and
+    /// run OVERLAPPED (the reveal launches while the collapse is still landing) they sum
+    /// into one smooth valley: the glass bottoms out just short of the circle, still
+    /// moving, then relaxes onto the label as it melts off, so the label copy (layered
     /// above) is what lands. Animatable on both progresses so SwiftUI interpolates every
     /// spring frame.
     @available(iOS 26.0, *)
@@ -1681,63 +1695,49 @@ private struct DropdownCustomMenuOverlayRoot: View {
             set { collapse = newValue.first; reveal = newValue.second }
         }
 
-        private func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat { a + (b - a) * t }
-        private func lerpRect(_ a: CGRect, _ b: CGRect, _ t: CGFloat) -> CGRect {
-            CGRect(x: lerp(a.minX, b.minX, t), y: lerp(a.minY, b.minY, t),
-                   width: lerp(a.width, b.width, t), height: lerp(a.height, b.height, t))
-        }
-        private func lerpCorners(_ a: RectangleCornerRadii, _ b: RectangleCornerRadii, _ t: CGFloat) -> RectangleCornerRadii {
-            RectangleCornerRadii(topLeading: lerp(a.topLeading, b.topLeading, t),
-                                 bottomLeading: lerp(a.bottomLeading, b.bottomLeading, t),
-                                 bottomTrailing: lerp(a.bottomTrailing, b.bottomTrailing, t),
-                                 topTrailing: lerp(a.topTrailing, b.topTrailing, t))
-        }
-
         func body(content: Content) -> some View {
             let circleRadius = min(circleRect.width, circleRect.height) / 2
             // The label's resting radius, capped so a short label stays a clean capsule.
-            // Only the reveal (phase 2) lands on it; the collapse goes straight to the circle.
+            // Only the reveal end lands on it; the collapse pulls toward the circle.
             let labelRadius = min(labelCornerRadius, min(labelRect.width, labelRect.height) / 2)
 
-            let rect: CGRect
-            let corners: RectangleCornerRadii
-            let contentOpacity: Double
-            let glassOpacity: Double
-            let blur: CGFloat
-            let shadowScale: CGFloat
+            let c = collapse.clamped(to: 0...1)
+            let r = reveal.clamped(to: 0...1)
 
-            if reveal <= 0 {
-                let c = collapse.clamped(to: 0...1)
-                // menuRect → circle, directly: the platter shrinks straight into the SAME
-                // centred circle the label copy collapses into (no intermediate label-rect
-                // stop), so platter and label pinch into one circle together. `t` 0 = full
-                // menu, 1 = circle; the corners round from the platter's radii to the circle
-                // as it shrinks, each capped at a half-side so it stays a clean shape.
-                let t = 1 - c
-                rect = lerpRect(expanded, circleRect, t)
-                let cap = min(rect.width, rect.height) / 2
-                let lerped = lerpCorners(platterCorners, RectangleCornerRadii(uniform: circleRadius), t)
-                corners = RectangleCornerRadii(
-                    topLeading: min(cap, lerped.topLeading),
-                    bottomLeading: min(cap, lerped.bottomLeading),
-                    bottomTrailing: min(cap, lerped.bottomTrailing),
-                    topTrailing: min(cap, lerped.topTrailing)
-                )
-                contentOpacity = Double(((c - 0.55) / 0.45).clamped(to: 0...1))
-                glassOpacity = 1
-                blur = (1 - c).clamped(to: 0...1) * DropdownCustomMenuSpec.lensBlur * 0.5
-                shadowScale = c.clamped(to: 0...1)
-            } else {
-                let r = reveal.clamped(to: 0...1)
-                rect = lerpRect(circleRect, labelRect, r)
-                let cap = min(rect.width, rect.height) / 2
-                corners = RectangleCornerRadii(uniform: min(cap, lerp(circleRadius, labelRadius, r)))
-                contentOpacity = 0
-                // Glass melts to nothing over the final relax onto the label.
-                glassOpacity = Double(((1 - r) / DropdownCustomMenuSpec.revealGlassFadeProgress).clamped(to: 0...1))
-                blur = 0
-                shadowScale = 0
+            // Additive blend around the circle: each progress contributes its own
+            // displacement from it. (c 1→0 then r 0→1) run sequentially reproduces the old
+            // two-branch path; overlapped, the two displacements sum into one smooth
+            // size-over-time valley — the shape bottoms out just short of the circle, still
+            // moving, instead of parking on it. This blend is what turns the old
+            // shrink-stop-expand into a single liquid flow.
+            let rect = CGRect(
+                x: circleRect.minX + (expanded.minX - circleRect.minX) * c + (labelRect.minX - circleRect.minX) * r,
+                y: circleRect.minY + (expanded.minY - circleRect.minY) * c + (labelRect.minY - circleRect.minY) * r,
+                width: circleRect.width + (expanded.width - circleRect.width) * c + (labelRect.width - circleRect.width) * r,
+                height: circleRect.height + (expanded.height - circleRect.height) * c + (labelRect.height - circleRect.height) * r
+            )
+            // Corners blend the same way (platter radii ↔ circle ↔ label capsule), each
+            // capped at a half-side so the shape stays clean at every step.
+            let cap = min(rect.width, rect.height) / 2
+            func corner(_ platter: CGFloat) -> CGFloat {
+                min(cap, circleRadius + (platter - circleRadius) * c + (labelRadius - circleRadius) * r)
             }
+            let corners = RectangleCornerRadii(
+                topLeading: corner(platterCorners.topLeading),
+                bottomLeading: corner(platterCorners.bottomLeading),
+                bottomTrailing: corner(platterCorners.bottomTrailing),
+                topTrailing: corner(platterCorners.topTrailing)
+            )
+
+            // Opacities and shadow each ride ONE progress, so the overlap can't
+            // double-drive them: menu rows fade out with the collapse, the glass melts over
+            // the reveal's final relax onto the label, and the shadow shrinks away with the
+            // platter. Blur alone blends both — it joins the old branches' (1-c) / zero
+            // legs continuously, and only ever touches the already-faded content layer.
+            let contentOpacity = Double(((c - 0.55) / 0.45).clamped(to: 0...1))
+            let glassOpacity = Double(((1 - r) / DropdownCustomMenuSpec.revealGlassFadeProgress).clamped(to: 0...1))
+            let blur = (1 - c) * (1 - r) * DropdownCustomMenuSpec.lensBlur * 0.5
+            let shadowScale = c
 
             let w = rect.width
             let h = rect.height
@@ -1759,17 +1759,26 @@ private struct DropdownCustomMenuOverlayRoot: View {
     }
 
     /// The dismiss label-copy morph, on its OWN trajectory (the label and the platter
-    /// start apart — the menu is offset from the label — and meet only at the circle).
-    /// Phase 1 (`collapse` 1 → 0): labelRect → circle, fading/refracting out as it nears
-    /// the circle so the glass circle is all that's left at the apex. Phase 2 (`reveal`
-    /// 0 → 1): circle → labelRect, materializing over the back half so it lands as the
-    /// restored label. Animatable on both progresses.
+    /// start apart — the menu is offset from the label — and meet only near the circle).
+    /// TWO instances ride every `.morph` dismiss, both mounted throughout: the OLD-value
+    /// layer (`isRevealLayer` false — the frozen bitmap) collapses labelRect → circle and
+    /// fades out with the collapse; the NEW-value layer (`isRevealLayer` true — the live
+    /// label) flows back out circle → labelRect, fading in over the reveal and popping
+    /// slightly past resting size on the spring's overshoot. Both phases travel the same
+    /// circle↔label axis, so the additive blend reduces to `c + r`: run sequentially it
+    /// retraces the old two-branch geometry (the old value's fade completes earlier — by
+    /// c ≈ 0.35 — the margin that keeps the turn-around label-free), overlapped it turns
+    /// around just short of the circle without stopping. The opacity windows never overlap,
+    /// so the old→new swap is never seen mid-air and needs no timed flip. Animatable on
+    /// both progresses.
     @available(iOS 26.0, *)
     private struct LabelCollapseMorph: ViewModifier, Animatable {
         var collapse: CGFloat
         var reveal: CGFloat
         let labelRect: CGRect
         let circleRect: CGRect
+        /// False = the old value collapsing in; true = the new value revealing out.
+        let isRevealLayer: Bool
 
         var animatableData: AnimatablePair<CGFloat, CGFloat> {
             get { AnimatablePair(collapse, reveal) }
@@ -1783,29 +1792,33 @@ private struct DropdownCustomMenuOverlayRoot: View {
         }
 
         func body(content: Content) -> some View {
-            let rect: CGRect
+            let c = collapse.clamped(to: 0...1)
+            let r = reveal.clamped(to: 0...1)
+            // One blended parameter along the circle↔label axis: 1 = at rest on the label
+            // (either end of the dismiss), 0 = at the circle.
+            let t = (c + r).clamped(to: 0...1)
+            let rect = lerpRect(circleRect, labelRect, t)
+            // Refraction rises toward the pinch and melts back out — shared by both layers.
+            let blur = (1 - t) * DropdownCustomMenuSpec.lensBlur
+
             let opacity: Double
-            let blur: CGFloat
             // A small uniform pop applied on top of the base scale during the reveal's
             // overshoot. Driven explicitly (not through the circle→label lerp) because the
             // clamped circle and the label can share a dimension, which would let
             // `min(widthRatio, heightRatio)` cancel a lerp-based overshoot.
             var popScale: CGFloat = 1
-            if reveal <= 0 {
-                let c = collapse.clamped(to: 0...1)
-                rect = lerpRect(labelRect, circleRect, 1 - c)
-                opacity = Double(((c - 0.15) / 0.85).clamped(to: 0...1))
-                blur = (1 - c).clamped(to: 0...1) * DropdownCustomMenuSpec.lensBlur
-            } else {
-                let r = reveal.clamped(to: 0...1)
-                rect = lerpRect(circleRect, labelRect, r)
+            if isRevealLayer {
+                // Resolve the new label over the reveal's back stretch so it snaps in
+                // crisply as the shape re-approaches the label.
+                opacity = Double(((r - 0.3) / 0.7).clamped(to: 0...1))
                 // The spring overshoots reveal past 1; turn that into a hair of pop on the
                 // settled label so it lands organically instead of a hard-clipped stop.
                 popScale = 1 + (reveal - 1).clamped(to: 0...(DropdownCustomMenuSpec.revealOvershoot - 1))
-                // Resolve the label early in the (now short) reveal so it snaps back
-                // crisply rather than fading in only at the very end.
-                opacity = Double(((r - 0.3) / 0.7).clamped(to: 0...1))
-                blur = (1 - r).clamped(to: 0...1) * DropdownCustomMenuSpec.lensBlur
+            } else {
+                // Fully faded by c ≈ 0.35 — comfortably before the overlapped reveal starts
+                // pulling this (now invisible) layer back out, so the old value never
+                // ghosts back in at the turn-around.
+                opacity = Double(((c - 0.35) / 0.65).clamped(to: 0...1))
             }
             // Shrink uniformly so the (fixedSize) label keeps its intrinsic layout — no
             // reflow or truncation — and stays inside the circle. `popScale` adds the

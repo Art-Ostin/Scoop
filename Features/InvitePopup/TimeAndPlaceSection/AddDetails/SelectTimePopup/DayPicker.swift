@@ -50,7 +50,7 @@ extension DayPicker {
         ForEach(0..<7) { idx in
             Text(availableDays[idx].formatted(.dateTime.weekday(.abbreviated)))
                 .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(Color.textPlaceholder)
+                .foregroundStyle(Color.black.opacity(0.3))
                 .fixedSize()// natural width, centered on its column → overflows the 27pt track symmetrically
         }
     }

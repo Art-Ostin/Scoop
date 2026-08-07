@@ -34,8 +34,9 @@
 //  across nearly the whole flight) and blooms STRAIGHT into the rounded-rect
 //  platter — no separate circle phase. The width pinches slightly while the
 //  body rises, then re-expands trailing the height; the alignment edge stays
-//  pinned; the trailing edge bows toward the flight mid-way; the content rides
-//  the platter scaled, fading in with progress. The platter COVERS the
+//  pinned; the trailing edge bows toward the flight mid-way; the content sits
+//  full-size on its resting rect, MASKED to the glass — the lens uncovers it
+//  as it blooms across the rect. The platter COVERS the
 //  button's rect (near edges flush, no gap). Dismissal is the reverse; the
 //  label re-materializes inside the landing capsule as the glass melts off it.
 //  Implementation: ONE persistent glass view whose measured-curve frame/radius/
@@ -206,8 +207,8 @@ enum TimeCustomMenuSpec {
     static let platterCornerRadius = CornerRadius.customMenu
     /// Glass shapes closer than this blend/morph inside the container.
     static let morphSpacing: CGFloat = 40
-    /// Peak refraction blur while the label is being swallowed / content
-    /// materializes (matched against device recordings of the native lens).
+    /// Peak refraction blur while the label is being swallowed (matched
+    /// against device recordings of the native lens).
     static let lensBlur: CGFloat = 8
     // Device-measured open morph (frame-diffed 59fps recording, 2026-08-04):
     // the shape is born AS the label text's rect and inflates UP-AND-LEFT as a
@@ -217,8 +218,9 @@ enum TimeCustomMenuSpec {
     // and material/content/label-occlusion ride that same platterize phase.
     // The label itself stays PINNED in place — it never rides the lens.
     /// The label IMPLODES into the collapse point together with the glass: it
-    /// shrinks and is dragged in fast, its fade completing INSIDE the droplet —
-    /// never a blur trail outside it (the close re-emerges it in reverse). The
+    /// shrinks and is dragged in fast, MASKED to the lens the whole way — never
+    /// a glimpse or a blur trail outside the glass — its dissolve completing
+    /// INSIDE the droplet (the close re-emerges it in reverse). The
     /// ride completes at this rise progress...
     static let labelRideEnd: CGFloat = 0.22
     /// ...shrinking down to this scale as it merges into the droplet.
@@ -231,7 +233,7 @@ enum TimeCustomMenuSpec {
     /// The fraction of the platterize clock where the held circle starts to
     /// flower into the platter rect. Before this the lens is a (distorted)
     /// circle; after it the corners resolve, the sides bulge and settle, and
-    /// the rows materialize. Device: circle holds ~150ms of a ~300ms open.
+    /// the rows are uncovered. Device: circle holds ~150ms of a ~300ms open.
     static let flowerStart: CGFloat = 0.55
     /// Barrel beat: mid-flowering the sides bow OUTWARD past the lerp by this
     /// fraction and settle — the liquid bulge the device frames show as the
@@ -248,9 +250,13 @@ enum TimeCustomMenuSpec {
     /// material across this platterize window — the device circle is already
     /// heavily frosted while still round (+95ms), well before the flowering.
     static let glassMaterialRange: ClosedRange<CGFloat> = 0.12...0.5
-    /// The rows materialize inside the flowering, not before: faint under the
-    /// rippling edges mid-flower, crisp as the corners settle.
-    static let contentRevealRange: ClosedRange<CGFloat> = 0.6...0.95
+    /// Content opacity's short on-ramp, straddling `flowerStart`: the circle
+    /// flies EMPTY (device — the ball travels frosted and bare), the rows
+    /// snapping to full strength just as the flowering begins. From there the
+    /// lens MASK alone carries the reveal — the glass uncovers full-size,
+    /// full-opacity rows (device frames: the row text is crisp and clipped by
+    /// the glass edges, never faded in place or squashed).
+    static let contentArriveRange: ClosedRange<CGFloat> = 0.45...0.6
     /// The glass presence follows the native's measured material fade-in
     /// (CASDFLayer alpha: .18 at p≈.13, .32 at .24, .71 at .59, full ~.9):
     /// presence = p^exponent — the lens is BARELY THERE at birth and
@@ -279,7 +285,7 @@ enum TimeCustomMenuSpec {
     /// spring: its early progress is naturally tiny, so the ball beat still
     /// reads, but the expansion never pauses — one continuous fluid open that
     /// unfolds with momentum, overshoots ~3% and settles (the end bounce).
-    static let widthBloom = Animation.spring(response: 0.42 * timeScale, dampingFraction: 0.72)
+    static let widthBloom = Animation.spring(response: 0.46 * timeScale, dampingFraction: 0.76)
     /// Keeps the glass platter attached to content whose height changes while
     /// the menu is open (for example, when a pager reveals a taller page).
     static let reflowResize = Animation.spring(duration: 0.2)
@@ -287,48 +293,66 @@ enum TimeCustomMenuSpec {
     /// reverses the open geometry on this back-loaded clock. The full droplet
     /// close below assumes it starts from the settled platter.
     static let bloomClose = Animation.easeIn(duration: 0.26)
-    // ── The droplet close (frame-measured 50fps device recording, 2026-08-06) ──
-    // NOT the open in reverse. Four beats on ONE linear clock, all geometry and
-    // opacity read from the keyframe tables below (springs fitted to the three
-    // out-of-phase channels never matched the footage):
-    //   defrost   (0→15%): frost, fill and rows fade out at full platter size —
-    //     only the width has started to move — leaving pure CLEAR glass;
-    //   collapse (15→23%): the clear lens crashes shut, HEIGHT leading
-    //     (237→32pt in 25ms) while the width lags — a wide flat blob left
-    //     hovering above the label (the squash);
-    //   droplet  (23→57%): the blob falls onto the label, stretching TALL along
-    //     its travel (the velocity distortion: ~100pt high × ~50pt wide
-    //     mid-fall), the label fading in beneath it — revealed only through,
-    //     and refracted by, the moving glass;
-    //   landing  (57→100%): the droplet spreads back out to the label's width
-    //     (the flatten-on-impact bounce) and the lens melts off the settled text.
-    /// One linear clock so the keyframe tables own every curve.
+    // ── The droplet close (frame-fitted to the default menu, 2026-08-06 20:10
+    //    device recording) ── NOT the open in reverse. Three stages on ONE
+    //    linear clock:
+    //   the shrink (0→30%): frost, fill and rows defrost off the collapsing
+    //     platter while it shrinks FAST — no shape warp, a plain rounded rect —
+    //     into a small line-height capsule at the CENTRE of the label line
+    //     (device: platter → capsule in ~85ms);
+    //   the spread (30→60%): the mini capsule widens FROM THE CENTRE OUTWARDS
+    //     across the line into the landing capsule, the text revealed through
+    //     (and refracted by) the widening glass — its mask IS the reveal;
+    //   the settle (60→100%): the text emerges displaced a few points DOWN —
+    //     pushed by the arriving glass — and rises to rest (the down-and-up
+    //     bounce, device: ~3pt low at first legibility, level by ~85%) while
+    //     the lens melts off it.
+    /// One linear clock so the stage curves own every channel.
     static let closeMorph = Animation.linear(duration: closeMorphDuration)
-    /// Keyframes: (τ of the close clock, fraction of the platter→label lerp).
-    /// Fractions may exceed 1 — narrower/flatter than the landing capsule
-    /// mid-flight is exactly the squash-and-stretch the footage shows.
-    static let closeCenterKeys: [(Double, Double)] = [
-        (0, 0), (0.15, 0.02), (0.233, 0.466), (0.317, 0.728), (0.40, 0.79),
-        (0.483, 0.86), (0.567, 0.87), (0.667, 0.95), (0.78, 0.99), (1.0, 1.0),
-    ]
-    static let closeWidthKeys: [(Double, Double)] = [
-        (0, 0), (0.15, 0.35), (0.233, 0.85), (0.317, 1.03), (0.40, 1.41),
-        (0.483, 1.67), (0.567, 1.59), (0.667, 1.27), (0.78, 1.0), (1.0, 1.0),
-    ]
-    static let closeHeightKeys: [(Double, Double)] = [
-        (0, 0), (0.15, 0.0), (0.233, 0.97), (0.317, 0.73), (0.40, 0.65),
-        (0.483, 0.73), (0.567, 0.80), (0.667, 0.92), (0.78, 0.99),
-        (0.85, 1.05), (0.93, 0.98), (1.0, 1.0),
-    ]
-    /// Frost, fill and rows are gone by this fraction of the close clock.
-    static let closeDefrostEnd: Double = 0.15
-    /// The label fades in under the falling droplet across this window —
-    /// revealed through the glass, never beside it.
-    static let closeRevealRange: ClosedRange<Double> = 0.40...0.60
-    /// The clear lens starts melting off the landed text here and is gone at 1.
-    static let closeLensFadeStart: Double = 0.78
-    /// The platter radius has fully relaxed into the travelling capsule by here.
-    static let closeCapsuleEnd: Double = 0.25
+    /// The rows dissolve INSIDE the collapsing circle, gone by here.
+    static let closeContentFadeEnd: Double = 0.28
+    /// Beat 1 — the platter is a fully ROUND, still-large circle by here
+    /// (22:11 reference: round at ~200pt within ~65ms; early roundness is
+    /// what lets the speed read as liquid instead of aggressive)…
+    static let closeCircleEnd: Double = 0.16
+    /// …its diameter as a fraction of the platter's short side…
+    static let closeCircleScale: CGFloat = 0.58
+    /// Beat 2 — …and has condensed onto the text line's centre by here…
+    static let closeCollapseEnd: Double = 0.33
+    /// …arriving as a small pale capsule this wide…
+    static let closeArriveWidth: CGFloat = 76
+    /// Reverse `opacityPop`: the text EXPANDS WITH the glass — born small and
+    /// faint at the line's centre, scaling up and brightening on exactly the
+    /// spread's own curve, so glass and text inflate as one thing (never a
+    /// static line uncovered by a sliding edge).
+    static let closeTextGrowFrom: CGFloat = 0.4
+    /// Beat 3's reveal curve — the SelectType (DropdownCustomMenu) landing
+    /// pop, sampled onto the close clock: a damped spring LAUNCHED with the
+    /// condense's momentum (no apex dwell — the Dropdown's measured
+    /// stop-then-relaunch hitch), overshooting ~11% of the travel (≈5–6% of
+    /// the landed size, its measured organic pop) and blending to land
+    /// exactly at 1 for the label swap. Glass AND text ride it together —
+    /// the whole reveal pops as one thing, like the Dropdown's label.
+    static func closeReveal(_ t: CGFloat) -> CGFloat {
+        let a: CGFloat = 3.22, b: CGFloat = 4.6, c: CGFloat = 0.5
+        let raw = 1 - exp(-a * t) * (cos(b * t) + c * sin(b * t))
+        let land = ((t - 0.85) / 0.15).clamped(to: 0...1)
+        let blend = land * land * (3 - 2 * land)
+        return raw + (1 - raw) * blend
+    }
+    /// The bounce: the text emerges this far BELOW its rest — carried down by
+    /// the landing glass — and rises level (zero by `closeTextSettleEnd`, so
+    /// the copy lands pixel-identical before the real label is restored).
+    static let closeTextDrop: CGFloat = 3
+    static let closeTextSettleEnd: Double = 0.72
+    /// The milky wash (frost + platterFill) does NOT defrost early: it stays
+    /// on the collapsing circle — content ghosting inside it — and lingers as
+    /// the soft pill behind the revealed text, fading across this window.
+    static let closeWashFade: ClosedRange<Double> = 0.35...0.85
+    /// The clear lens melts through the reveal and the wash fade, gone by
+    /// `closeLensFadeEnd` — never a full-strength lens popping at the end.
+    static let closeLensFadeStart: Double = 0.50
+    static let closeLensFadeEnd: Double = 0.95
     /// The landing capsule stands this much taller than the label rect.
     static let closeLandHeightPad: CGFloat = 8
     /// The row-collapse beat: the label capsule contracts into a TINY circle ON
@@ -336,12 +360,16 @@ enum TimeCustomMenuSpec {
     static let collapseEnd: CGFloat = 0.10
     /// ...this small (device-measured ~40pt lens on the word itself)...
     static let collapseCircleDiameter: CGFloat = 40
-    /// ...offset from the label's centre TOWARD the platter's centre — the
-    /// direction the menu will expand (bottom-left when it grows down-left,
-    /// leading-top when it grows up-leading) — clamped to these fractions of
-    /// the label's own size.
+    /// ...offset from the label's centre TOWARD the platter's centre in X —
+    /// clamped to this fraction of the label's own width...
     static let collapsePullX: CGFloat = 0.25
-    static let collapsePullY: CGFloat = 0.5
+    /// ...and lifted JUST PAST the text on the platter's side (device: the
+    /// birth droplet forms immediately above the label, never on it) by this
+    /// many label-heights.
+    static let collapseLift: CGFloat = 1.0
+    /// Comet-tail taper: trailing control points pinch toward the travel axis
+    /// by this fraction — the tail narrows while the leading dome stays full.
+    static let dragPinch: CGFloat = 0.22
     /// Aerodynamic DRAG: the ball's tail lags behind — the leading edge stays
     /// on the spring's path while the trailing side stretches BACKWARD along
     /// the travel line (a comet/teardrop), by this fraction of the ball's
@@ -354,8 +382,8 @@ enum TimeCustomMenuSpec {
     /// under the lens's pixel-identical copy and the copy melts off it.
     static let lensFadeOut = Animation.easeOut(duration: 0.10)
     /// Close morph length before the label is restored and the residual lens
-    /// melts off it (device: text re-forms through the melting lens ~300ms).
-    static let closeMorphDuration: TimeInterval = 0.30 * timeScale
+    /// melts off it (22:11 reference: text readable ~230ms, wash gone ~400ms).
+    static let closeMorphDuration: TimeInterval = 0.40 * timeScale
     static let lensFadeDuration: TimeInterval = 0.10 * timeScale
     /// An opaque platter fill (`TimeCustomMenu.platterFill`) ramps in across the
     /// eruption: nothing at birth, where the lens is pure refraction over the label
@@ -390,6 +418,13 @@ enum TimeCustomMenuSpec {
     static let screenMargin: CGFloat = 9
     /// Drags shorter than this count as a tap on the label (menu stays open).
     static let tapSlop: CGFloat = 10
+    /// Touch-down open waits this long for the finger to prove it isn't a
+    /// horizontal pan (the label can sit on a pager row): stationary touches
+    /// open after this beat — imperceptible on a press — fast taps open at
+    /// release, and a dominant-horizontal move past `tapSlop` cancels the open
+    /// so the pager (never disabled until the menu actually opens) takes the
+    /// gesture. UIKit's own delaysContentTouches disambiguation, in miniature.
+    static let openStillDelay: TimeInterval = 0.08
 
     static let highlightFill = Color(.tertiarySystemFill)
     /// iOS 26 rows highlight with a rounded, inset shape rather than full-bleed.
@@ -409,6 +444,14 @@ enum TimeCustomMenuSpec {
 /// enough that its centre is ambiguous (e.g. a full-width row with a Spacer).
 enum TimeCustomMenuAlignment {
     case leading, trailing, automatic
+}
+
+/// Which side of the label the menu opens toward. `.automatic` follows the
+/// native rule — the roomier side when the menu fits on both, else the side
+/// that fits; `.above` / `.below` pin the side for call sites with a designed
+/// position (the morph adapts its travel and flowering direction either way).
+enum TimeCustomMenuVerticalPlacement {
+    case automatic, above, below
 }
 
 struct TimeCustomMenu<Content: View, Label: View>: View {
@@ -442,6 +485,9 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     var tracksContentSizeChanges: Bool
     /// Which label edge the menu aligns to (see `TimeCustomMenuAlignment`).
     var alignment: TimeCustomMenuAlignment
+    /// Which side of the label the menu opens toward (see
+    /// `TimeCustomMenuVerticalPlacement`).
+    var verticalPlacement: TimeCustomMenuVerticalPlacement
     /// Nudge applied to the final placement (positive = right / down). Defaults
     /// to the spec values; override per call site to fine-tune.
     var placementOffset: CGSize
@@ -471,6 +517,10 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     //Present-once latch for the current touch, so a mid-touch teardown (e.g. a
     //second finger selecting an item) can't instantly re-present on the next move.
     @State private var openAttempted = false
+    /// The armed touch-down open, waiting out `openStillDelay`.
+    @State private var pendingOpen: Task<Void, Never>?
+    /// This touch became a horizontal pan — no open until the finger lifts.
+    @State private var panCancelled = false
 
     init(cornerRadius: CGFloat = TimeCustomMenuSpec.platterCornerRadius,
          labelCornerRadius: CGFloat? = nil,
@@ -479,6 +529,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          estimatedContentSize: CGSize? = nil,
          tracksContentSizeChanges: Bool = false,
          alignment: TimeCustomMenuAlignment = .automatic,
+         verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic,
          placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
          isOpen: Binding<Bool>? = nil,
@@ -494,6 +545,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
         self.alignment = alignment
+        self.verticalPlacement = verticalPlacement
         self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
         self.isOpen = isOpen
         self.openRequest = openRequest
@@ -544,10 +596,16 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                 guard phase != .active else { return }
                 pressed = false
                 openAttempted = false
+                pendingOpen?.cancel()
+                pendingOpen = nil
+                panCancelled = false
             }
             .onDisappear {
                 pressed = false
                 openAttempted = false
+                pendingOpen?.cancel()
+                pendingOpen = nil
+                panCancelled = false
                 controller.dismiss(animated: false)
             }
     }
@@ -594,14 +652,41 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                     }
                     return
                 }
-                guard !openAttempted else { return }
-                openAttempted = true
-                presentMenu()
-                // Dim only when the menu could not open (rare: no active scene) —
-                // on the normal path the swallow itself is the press feedback.
-                if !controller.isPresented { pressed = true }
+                guard !openAttempted, !panCancelled else { return }
+                // A dominant-horizontal move past the slop is the pager's pan,
+                // not an open: stand down for the rest of this touch.
+                if abs(value.translation.width) >= TimeCustomMenuSpec.tapSlop,
+                   abs(value.translation.width) > abs(value.translation.height) {
+                    pendingOpen?.cancel()
+                    pendingOpen = nil
+                    panCancelled = true
+                    return
+                }
+                // Arm the touch-down open: it fires after `openStillDelay` of
+                // stillness (a press), or at release for a fast tap (onEnded).
+                guard pendingOpen == nil else { return }
+                pendingOpen = Task { @MainActor in
+                    try? await Task.sleep(nanoseconds:
+                        UInt64(TimeCustomMenuSpec.openStillDelay * 1_000_000_000))
+                    guard !Task.isCancelled, !openAttempted, !panCancelled else { return }
+                    pendingOpen = nil
+                    openAttempted = true
+                    presentMenu()
+                    // Dim only when the menu could not open (rare: no active
+                    // scene) — normally the swallow itself is the feedback.
+                    if !controller.isPresented { pressed = true }
+                }
             }
             .onEnded { value in
+                pendingOpen?.cancel()
+                pendingOpen = nil
+                // A fast tap released inside the still-delay opens at release.
+                let moved = hypot(value.translation.width, value.translation.height)
+                if !openAttempted, !panCancelled, !controller.isPresented,
+                   moved < TimeCustomMenuSpec.tapSlop {
+                    presentMenu()
+                }
+                panCancelled = false
                 openAttempted = false
                 pressed = false
                 guard controller.isPresented else { return }
@@ -622,6 +707,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             labelCornerRadius: labelCornerRadius,
             platterFill: platterFill,
             alignment: alignment,
+            verticalPlacement: verticalPlacement,
             placementOffset: placementOffset,
             estimatedContentSize: estimatedContentSize,
             tracksContentSizeChanges: tracksContentSizeChanges,
@@ -721,6 +807,7 @@ final class TimeCustomMenuController {
     /// Caller's opaque platter fill, painted over the glass. See `TimeCustomMenu.platterFill`.
     private(set) var platterFill: Color?
     private(set) var alignment: TimeCustomMenuAlignment = .automatic
+    private(set) var verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic
     private(set) var placementOffset: CGSize = .zero
     /// iOS 26: the real label hides while the overlay's lens carries its copy.
     private(set) var hidesLabel = false
@@ -762,6 +849,7 @@ final class TimeCustomMenuController {
                  labelCornerRadius: CGFloat?,
                  platterFill: Color?,
                  alignment: TimeCustomMenuAlignment,
+                 verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic,
                  placementOffset: CGSize,
                  estimatedContentSize: CGSize? = nil,
                  tracksContentSizeChanges: Bool = false,
@@ -782,6 +870,7 @@ final class TimeCustomMenuController {
         self.labelCornerRadius = labelCornerRadius
         self.platterFill = platterFill
         self.alignment = alignment
+        self.verticalPlacement = verticalPlacement
         self.placementOffset = placementOffset
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
@@ -871,6 +960,7 @@ final class TimeCustomMenuController {
         labelCornerRadius = nil
         platterFill = nil
         alignment = .automatic
+        verticalPlacement = .automatic
         placementOffset = .zero
         tracksContentSizeChanges = false
         collapseAnchor = .zero
@@ -966,8 +1056,17 @@ private struct TimeCustomMenuOverlayRoot: View {
 
     var body: some View {
         GeometryReader { geo in
-            let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: overlapsAnchor,
-                                  alignment: controller.alignment, placementOffset: controller.placementOffset)
+            // Placement anchors to the TIGHT morph anchor (the visible
+            // text ∪ chevron) when the caller provides one: the label VIEW
+            // itself can be vertically greedy (pager labels fill whatever
+            // height their row offers), which drifts the platter far off the
+            // visible text. The close morph already lands on the same rect.
+            let metrics = Metrics(geo: geo,
+                                  anchor: controller.morphAnchor ?? controller.anchor,
+                                  overlapsAnchor: overlapsAnchor,
+                                  alignment: controller.alignment,
+                                  verticalPlacement: controller.verticalPlacement,
+                                  placementOffset: controller.placementOffset)
             ZStack(alignment: .topLeading) {
                 // Swallows every outside touch, exactly like the native menu.
                 Color.clear
@@ -1024,9 +1123,9 @@ private struct TimeCustomMenuOverlayRoot: View {
         // Bloom from a size known up front — measured on a previous open (cached on
         // the controller) or the caller's estimate — so the morph starts on the tap
         // frame. The content is already warm (pre-built by the caller, see the picker
-        // warm-up at the call site) so it rides the morph from frame 0 and fades in
-        // with it (MenuLensMorph ramps content opacity over progress 0.55→1) without
-        // a build hitch.
+        // warm-up at the call site) so it is mounted from frame 0 and revealed through
+        // the lens mask as the morph blooms over it (MenuLensMorph) without a build
+        // hitch.
         let knownSize = menuSize ?? controller.cachedMenuSize ?? controller.estimatedContentSize
 
         // Dynamic menus keep a non-interactive sizing copy mounted while open;
@@ -1184,6 +1283,99 @@ private struct TimeCustomMenuOverlayRoot: View {
         .fixedSize(horizontal: true, vertical: false)
     }
 
+    /// The travelling lens's shape: an explicit 8-segment Bézier rounded rect
+    /// (which IS a circle when the frame is square and the radius is half the
+    /// side) with a VELOCITY WARP applied to every control point — trailing
+    /// points are dragged backward along the travel vector and pinched toward
+    /// the axis (the comet tail), the leading dome stays full. `drag == .zero`
+    /// reproduces the continuous rounded rect exactly, so the resting platter,
+    /// the flowering and the droplet close are untouched; only a MOVING lens
+    /// is ever distorted. One shape type carries every phase, so the glass
+    /// never remounts mid-flight.
+    @available(iOS 26.0, *)
+    private struct MenuLensShape: Shape {
+        var cornerRadius: CGFloat
+        /// Travel drag: unit direction × magnitude in points.
+        var drag: CGVector
+
+        func path(in rect: CGRect) -> Path {
+            let mag = hypot(drag.dx, drag.dy)
+            // Undistorted, the lens is the NATIVE continuous-curvature rounded
+            // rect — the hand-built Bézier ring below exists only for the
+            // comet warp. Its eight segment joins carry tiny curvature breaks
+            // that a plain fill hides but the glass REFRACTS into a wavy,
+            // lumpy outline (device screenshots, mid-flowering) — so it must
+            // never render when the warp is effectively off.
+            guard mag > 2 else {
+                return RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .path(in: rect)
+            }
+            // The frame already includes the tail allowance; the base rounded
+            // rect occupies the LEADING side and the warp fills the rest.
+            var base = rect
+            if mag > 0.5 {
+                let ux = drag.dx / mag, uy = drag.dy / mag
+                base.size.width -= abs(ux) * mag
+                base.size.height -= abs(uy) * mag
+                if ux > 0 { base.origin.x += abs(ux) * mag }
+                if uy > 0 { base.origin.y += abs(uy) * mag }
+            }
+            let r = min(cornerRadius, min(base.width, base.height) / 2)
+            let k = r * 0.5523  // κ: circle-faithful cubic corner handles
+            let x0 = base.minX, x1 = base.maxX, y0 = base.minY, y1 = base.maxY
+
+            // Anchors and handles, clockwise from the top-left corner's end.
+            var pts: [CGPoint] = [
+                CGPoint(x: x0 + r, y: y0),                                    // 0 start
+                CGPoint(x: x1 - r, y: y0),                                    // 1 top edge end
+                CGPoint(x: x1 - r + k, y: y0), CGPoint(x: x1, y: y0 + r - k), // 2,3 TR handles
+                CGPoint(x: x1, y: y0 + r),                                    // 4 TR end
+                CGPoint(x: x1, y: y1 - r),                                    // 5 right edge end
+                CGPoint(x: x1, y: y1 - r + k), CGPoint(x: x1 - r + k, y: y1), // 6,7 BR handles
+                CGPoint(x: x1 - r, y: y1),                                    // 8 BR end
+                CGPoint(x: x0 + r, y: y1),                                    // 9 bottom edge end
+                CGPoint(x: x0 + r - k, y: y1), CGPoint(x: x0, y: y1 - r + k), // 10,11 BL handles
+                CGPoint(x: x0, y: y1 - r),                                    // 12 BL end
+                CGPoint(x: x0, y: y0 + r),                                    // 13 left edge end
+                CGPoint(x: x0, y: y0 + r - k), CGPoint(x: x0 + r - k, y: y0), // 14,15 TL handles
+            ]
+
+            if mag > 0.5 {
+                let ux = drag.dx / mag, uy = drag.dy / mag
+                let cx = base.midX, cy = base.midY
+                let half = min(base.width, base.height) / 2
+                let pinch = TimeCustomMenuSpec.dragPinch
+                for i in pts.indices {
+                    let dx = pts[i].x - cx, dy = pts[i].y - cy
+                    // +1 at the nose, −1 at the tail along the travel axis.
+                    let t = (dx * ux + dy * uy) / max(half, 1)
+                    let tail = pow(max(0, (1 - t) / 2).clamped(to: 0...1.2), 1.6)
+                    // Stretch backward…
+                    pts[i].x -= ux * mag * tail
+                    pts[i].y -= uy * mag * tail
+                    // …and taper toward the travel axis.
+                    let px = -uy, py = ux
+                    let perp = dx * px + dy * py
+                    pts[i].x -= px * perp * pinch * tail
+                    pts[i].y -= py * perp * pinch * tail
+                }
+            }
+
+            var p = Path()
+            p.move(to: pts[0])
+            p.addLine(to: pts[1])
+            p.addCurve(to: pts[4], control1: pts[2], control2: pts[3])
+            p.addLine(to: pts[5])
+            p.addCurve(to: pts[8], control1: pts[6], control2: pts[7])
+            p.addLine(to: pts[9])
+            p.addCurve(to: pts[12], control1: pts[10], control2: pts[11])
+            p.addLine(to: pts[13])
+            p.addCurve(to: pts[0], control1: pts[14], control2: pts[15])
+            p.closeSubpath()
+            return p
+        }
+    }
+
     /// The lens morph, frame-diffed from DEVICE recordings of the real menu
     /// (the simulator's menu animates differently — do not fit to it):
     ///   OPEN — the shape is born as the label rect, collapses to a tiny ball
@@ -1192,8 +1384,9 @@ private struct TimeCustomMenuOverlayRoot: View {
     ///   corner nearest the label; it HOLDS that circle for roughly half the
     ///   open, frosting while still round, then FLOWERS into the platter rect
     ///   across the late platterize clock — sides bulging out and settling,
-    ///   corners resolving, rows materializing under the ripple. The label
-    ///   copy stays PINNED at its own rect — it never rides the lens.
+    ///   corners resolving, the full-size rows UNCOVERED beneath it (the glass
+    ///   is their mask — text exists only where it covers). The label copy is
+    ///   masked the same way, extinguished as the departing ball leaves it.
     ///   CLOSE — the droplet choreography (see the spec's keyframe tables):
     ///   frost and rows defrost off the still-full platter, the remaining CLEAR
     ///   lens crashes shut height-first into a wide blob, falls onto the label
@@ -1231,23 +1424,23 @@ private struct TimeCustomMenuOverlayRoot: View {
             a + (b - a) * t
         }
 
-        /// The point the row collapses into: offset from the label's centre
-        /// toward the platter's centre — the direction the menu will expand —
-        /// clamped inside the label's own bounds.
+        /// The point the row collapses into: pulled toward the platter's
+        /// centre in X, and lifted JUST ABOVE the text — the birth droplet
+        /// always forms above the label, never on it (device recordings; the
+        /// whole open is top-anchored, see `lensFrame`).
         private var collapsePoint: CGPoint {
             CGPoint(
                 x: collapsed.midX + (expanded.midX - collapsed.midX)
                     .clamped(to: -collapsed.width * TimeCustomMenuSpec.collapsePullX
                               ... collapsed.width * TimeCustomMenuSpec.collapsePullX),
-                y: collapsed.midY + (expanded.midY - collapsed.midY)
-                    .clamped(to: -collapsed.height * TimeCustomMenuSpec.collapsePullY
-                              ... collapsed.height * TimeCustomMenuSpec.collapsePullY))
+                y: collapsed.midY - collapsed.height * TimeCustomMenuSpec.collapseLift)
         }
 
         /// Device-measured OPEN lens geometry — see the type doc for the model.
         /// Only a close that aborts a half-open bloom runs this path in reverse;
         /// the settled-platter close runs `closeLensFrame` instead.
-        private func lensFrame(_ p: CGFloat, _ wp: CGFloat) -> (rect: CGRect, radius: CGFloat) {
+        private func lensFrame(_ p: CGFloat, _ wp: CGFloat)
+            -> (rect: CGRect, radius: CGFloat, drag: CGVector) {
             let pc = p.clamped(to: 0...1)
             let wpc = wp.clamped(to: 0...1)
             let a = TimeCustomMenuSpec.collapseEnd
@@ -1256,7 +1449,7 @@ private struct TimeCustomMenuOverlayRoot: View {
 
             if pc < a {
                 // The row-collapse beat: the label capsule contracts into the
-                // tiny circle at the collapse point — a frame or two at speed.
+                // tiny circle just past the text — a frame or two at speed.
                 let t = (pc / a).clamped(to: 0...1)
                 let w = max(1, lerp(collapsed.width, d0, t))
                 let h = max(1, lerp(collapsed.height, d0, t))
@@ -1264,23 +1457,23 @@ private struct TimeCustomMenuOverlayRoot: View {
                 let cy = lerp(collapsed.midY, cp.y, t)
                 let radius = min(min(w, h) / 2, lerp(collapsedRadius, d0 / 2, t))
                 return (CGRect(x: cx - w / 2, y: cy - h / 2,
-                               width: w, height: h), radius)
+                               width: w, height: h), radius, .zero)
             }
 
-            // THE RISE: the circle's CENTRE is launched from the collapse
-            // point toward its rest — a circle of (nearly) the platter's short
-            // side, inscribed in the platter rect and PINNED to the corner
-            // nearest the label it grew from, so the later flowering unfolds
-            // toward the far side (device: bottom edge holds at the label
-            // while the top opens up).
+            // THE RISE: the circle is launched from just above the label
+            // toward the platter's TOP-MIDDLE — always the top, wherever the
+            // label sits (the whole open is top-anchored: the menu unfolds
+            // DOWNWARD from its minY, like the native) — arriving slightly
+            // PAST the top edge, the arrival overshoot the flowering then
+            // releases as its gentle settle down.
             let pb = (p - a) / (1 - a)
             let pbc = pb.clamped(to: 0...1)
             let dCircle = max(d0, TimeCustomMenuSpec.ballArriveScale
                         * min(expanded.width, expanded.height))
-            let r0 = dCircle / 2
+            let dip = TimeCustomMenuSpec.flowerOvershoot * expanded.height
             let target = CGPoint(
-                x: cp.x.clamped(to: (expanded.minX + r0)...(expanded.maxX - r0)),
-                y: cp.y.clamped(to: (expanded.minY + r0)...(expanded.maxY - r0)))
+                x: expanded.midX,
+                y: expanded.minY - dip + dCircle / 2)
             let cx = lerp(cp.x, target.x, pb)
             let cy = lerp(cp.y, target.y, pb)
 
@@ -1289,91 +1482,100 @@ private struct TimeCustomMenuOverlayRoot: View {
             // rect.
             let dBall = lerp(d0, dCircle, pbc)
 
-            // Aerodynamic DRAG: the tail lags. The leading edge keeps riding
-            // the spring's path; the trailing side stretches BACKWARD along the
-            // travel line in proportion to speed — a comet, not an oval. This
-            // is the circle's velocity distortion: never a clean circle while
-            // it moves.
+            // VELOCITY DISTORTION: the travel drag, handed to MenuLensShape,
+            // which stretches the trailing side backward along the travel line
+            // and tapers it — a comet, never a clean circle while it moves.
+            // The frame reserves the tail's room; sin(π·p) shapes the speed
+            // envelope and the platterize clock kills it before the flowering.
             let dirX = target.x - cp.x, dirY = target.y - cp.y
             let len = max(1, hypot(dirX, dirY))
             let sx = dirX / len, sy = dirY / len
-            let drag = dBall * TimeCustomMenuSpec.dragStretch * sin(.pi * pbc)
-            let ballW = dBall + abs(sx) * drag
-            let ballH = dBall + abs(sy) * drag
-            let bx = cx - sx * drag / 2
-            let by = cy - sy * drag / 2
+            let dragMag = dBall * TimeCustomMenuSpec.dragStretch
+                * sin(.pi * pbc) * (1 - wpc)
+            let drag = CGVector(dx: sx * dragMag, dy: sy * dragMag)
+            let ballW = dBall + abs(sx) * dragMag
+            let ballH = dBall + abs(sy) * dragMag
+            let bx = cx - sx * dragMag / 2
+            let by = cy - sy * dragMag / 2
 
             // THE FLOWERING: only across the LATE part of the platterize clock
-            // does the held circle open into the platter rect — corners
-            // resolving while the sides bow outward past the lerp and settle
-            // (the barrel beat). The vertical channel is asymmetric: the edge
-            // pinned at the label holds its lerp while the FREE edge opens
-            // past its rest and BOUNCES BACK (device: the native top rises 8%
-            // of the platter above final, then settles down onto it).
+            // does the arrived circle fold open into the rect — and it does so
+            // SYMMETRICALLY: every edge expands on the SAME fraction around
+            // the shape's centre (per-edge curves read as lopsided mid-morph),
+            // the comet warp fully faded out by mid-flower, corners resolving
+            // uniformly, the whole shape gliding down from its arrival
+            // overshoot as one translation: the soft landing. The unclamped
+            // spring fraction still supplies the small end bounce — uniformly.
             let fs = TimeCustomMenuSpec.flowerStart
             let ft = max(0, (wp - fs) / (1 - fs))
             let ftc = ft.clamped(to: 0...1)
-            let w0 = max(1, lerp(ballW, expanded.width, ft))
-            let fx = lerp(bx - ballW / 2, expanded.minX, ft) + w0 / 2
-            // The free edge ARRIVES early (eased in by ~75% of the flowering)
-            // and then runs the full-amplitude overshoot in the final stretch —
-            // computed against the LANDED position, so the pulse is never
-            // swallowed by a still-travelling lerp on tall platters.
-            let approach = (ftc / 0.75).clamped(to: 0...1)
-            let eased = 1 - (1 - approach) * (1 - approach)
-            let ret = ((ftc - 0.6) / 0.4).clamped(to: 0...1)
-            let dip = TimeCustomMenuSpec.flowerOvershoot * expanded.height
-                * sin(.pi * ret)
-            let opensUpward = target.y > expanded.midY
-            var top = lerp(by - ballH / 2, expanded.minY, opensUpward ? eased : ftc)
-            var bottom = lerp(by + ballH / 2, expanded.maxY, opensUpward ? ftc : eased)
-            if opensUpward { top -= dip } else { bottom += dip }
             let bulge = 1 + TimeCustomMenuSpec.flowerBulge * sin(.pi * ftc)
-            let w = w0 * bulge
-            let h = max(1, bottom - top)
+            let w = max(1, lerp(ballW, expanded.width, ft)) * bulge
+            let h = max(1, lerp(ballH, expanded.height, ft)) * bulge
+            let settle = ftc * ftc * (3 - 2 * ftc)
+            let fx = lerp(bx, expanded.midX, ftc)
+            let fy = lerp(by, expanded.midY, settle)
             let cap = min(w, h) / 2
             let radius = min(cap, lerp(cap, expandedRadius, ftc))
-            return (CGRect(x: fx - w / 2, y: top, width: w, height: h), radius)
+            let fade = 1 - ftc
+            let dragOut = CGVector(dx: drag.dx * fade, dy: drag.dy * fade)
+            return (CGRect(x: fx - w / 2, y: fy - h / 2, width: w, height: h),
+                    radius, dragOut)
         }
 
-        /// Cubic Hermite through the spec's keyframes (finite-difference
-        /// tangents): the measured curves flow through each sample instead of
-        /// pulsing to a stop at every key the way per-segment easing would.
-        private static func keyed(_ t: Double, _ pts: [(Double, Double)]) -> Double {
-            guard let first = pts.first, let last = pts.last else { return 0 }
-            if t <= first.0 { return first.1 }
-            if t >= last.0 { return last.1 }
-            var i = 0
-            while i < pts.count - 2 && pts[i + 1].0 < t { i += 1 }
-            let (t0, v0) = pts[i], (t1, v1) = pts[i + 1]
-            let dt = max(t1 - t0, 1e-6)
-            let u = (t - t0) / dt
-            let prev = i > 0 ? pts[i - 1] : (t0 - dt, v0)
-            let next = i + 2 < pts.count ? pts[i + 2] : (t1 + dt, v1)
-            let m0 = (v1 - prev.1) / max(t1 - prev.0, 1e-6) * dt
-            let m1 = (next.1 - v0) / max(next.0 - t0, 1e-6) * dt
-            let u2 = u * u, u3 = u2 * u
-            return (2 * u3 - 3 * u2 + 1) * v0 + (u3 - 2 * u2 + u) * m0
-                 + (-2 * u3 + 3 * u2) * v1 + (u3 - u2) * m1
-        }
-
-        /// The droplet close geometry: every channel read off the measured
-        /// keyframe tables against the close clock. The width/height fractions
-        /// run past 1 mid-flight — that overshoot IS the squash-and-stretch.
-        private func closeLensFrame(_ tau: Double) -> (rect: CGRect, radius: CGFloat) {
+        /// The droplet close geometry — frame-fitted to the default menu (see
+        /// the spec beats): the platter shrinks fast into a line-height
+        /// capsule at the label line's centre, then the capsule spreads
+        /// centre-outwards across the line. No shape warp on close — the
+        /// default's collapse is a plain rounded rect all the way.
+        private func closeLensFrame(_ tau: Double) -> (rect: CGRect, radius: CGFloat, drag: CGVector) {
             let landW = collapsed.width
             let landH = collapsed.height + TimeCustomMenuSpec.closeLandHeightPad
-            let f = CGFloat(Self.keyed(tau, TimeCustomMenuSpec.closeCenterKeys))
-            let uw = CGFloat(Self.keyed(tau, TimeCustomMenuSpec.closeWidthKeys))
-            let vh = CGFloat(Self.keyed(tau, TimeCustomMenuSpec.closeHeightKeys))
-            let cx = lerp(expanded.midX, collapsed.midX, f)
-            let cy = lerp(expanded.midY, collapsed.midY, f)
-            let w = max(8, lerp(expanded.width, landW, uw))
-            let h = max(8, lerp(expanded.height, landH, vh))
-            let cap = min(w, h) / 2
-            let relax = CGFloat((tau / TimeCustomMenuSpec.closeCapsuleEnd).clamped(to: 0...1))
-            let radius = min(cap, lerp(expandedRadius, cap, relax))
-            return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h), radius)
+            let circleEnd = TimeCustomMenuSpec.closeCircleEnd
+            let cEnd = TimeCustomMenuSpec.closeCollapseEnd
+            let dia = TimeCustomMenuSpec.closeCircleScale
+                * min(expanded.width, expanded.height)
+            let arriveW = TimeCustomMenuSpec.closeArriveWidth
+            let cx0 = collapsed.midX, cy0 = collapsed.midY
+
+            if tau < circleEnd {
+                // Beat 1 — the platter becomes a fully ROUND circle while
+                // still large: the radius races to circular well before the
+                // size lands, content dissolving inside it.
+                let t = CGFloat((tau / circleEnd).clamped(to: 0...1))
+                let ease = t * t * (3 - 2 * t)
+                let w = max(1, lerp(expanded.width, dia, ease))
+                let h = max(1, lerp(expanded.height, dia, ease))
+                let cap = min(w, h) / 2
+                let radius = min(cap, lerp(expandedRadius, cap, (t * 2).clamped(to: 0...1)))
+                return (CGRect(x: expanded.midX - w / 2, y: expanded.midY - h / 2,
+                               width: w, height: h), radius, .zero)
+            }
+
+            if tau < cEnd {
+                // Beat 2 — the circle condenses onto the text line's centre,
+                // arriving as a small pale capsule AT SPEED (ease-in, not
+                // smoothstep): the reveal spring launches off this momentum,
+                // rolling through the capsule with no apex dwell.
+                let t = CGFloat(((tau - circleEnd) / (cEnd - circleEnd)).clamped(to: 0...1))
+                let ease = t * t
+                let w = max(1, lerp(dia, arriveW, ease))
+                let h = max(1, lerp(dia, landH, ease))
+                let cx = lerp(expanded.midX, cx0, ease)
+                let cy = lerp(expanded.midY, cy0, ease)
+                return (CGRect(x: cx - w / 2, y: cy - h / 2, width: w, height: h),
+                        min(w, h) / 2, .zero)
+            }
+
+            // Beat 3 — the capsule springs open centre-outwards across the
+            // line, text growing with it (reverse opacityPop in `body`): the
+            // Dropdown's landing pop, overshooting together and settling while
+            // the wash and lens fade.
+            let t = CGFloat(((tau - cEnd) / (1 - cEnd)).clamped(to: 0...1))
+            let u = TimeCustomMenuSpec.closeReveal(t)
+            let w = max(1, lerp(arriveW, landW, u))
+            return (CGRect(x: cx0 - w / 2, y: cy0 - landH / 2, width: w, height: landH),
+                    landH / 2, .zero)
         }
 
         func body(content: Content) -> some View {
@@ -1387,23 +1589,31 @@ private struct TimeCustomMenuOverlayRoot: View {
             let lens = droplet ? closeLensFrame(tau) : lensFrame(p, widthProgress)
             let w = lens.rect.width
             let h = lens.rect.height
+            // One shape type for every phase (glass must never remount):
+            // rounded rect at rest, velocity-warped comet while travelling.
+            let lensShape = MenuLensShape(cornerRadius: lens.radius, drag: lens.drag)
             // Aborted half-open closes keep the legacy ghost dissolve; the
             // droplet close scripts its opacities from the close clock instead.
             let dissolve: Double = isClosing && !droplet ? 0.25 + 0.75 * pow(Double(pc), 3) : 1
-            // Frost, fill and rows DEFROST off the still-full platter in the
-            // close's first beat, leaving the clear lens to do the falling.
-            let defrost = droplet
-                ? 1 - (tau / TimeCustomMenuSpec.closeDefrostEnd).clamped(to: 0...1) : 1
+            // The rows dissolve INSIDE the collapsing circle; the milky wash
+            // (frost + fill) stays ON the circle and lingers as the soft pill
+            // behind the revealed text, fading late.
+            let contentFade = droplet
+                ? 1 - (tau / TimeCustomMenuSpec.closeContentFadeEnd).clamped(to: 0...1) : 1
+            let washR = TimeCustomMenuSpec.closeWashFade
+            let wash = droplet
+                ? 1 - ((tau - washR.lowerBound) /
+                       (washR.upperBound - washR.lowerBound)).clamped(to: 0...1) : 1
             // The opaque fill, material crossfade, presence, and content all
             // ride the PLATTERIZE phase (device: the circle is pure refraction;
             // frost, rows and label-occlusion arrive as the platter forms), with
             // a whisper of presence during the rise itself.
             let fillRange = TimeCustomMenuSpec.platterFillRange
-            let fillOpacity = droplet ? defrost
+            let fillOpacity = droplet ? wash
                 : Double(((wpc - fillRange.lowerBound) /
                           (fillRange.upperBound - fillRange.lowerBound)).clamped(to: 0...1))
             let matRange = TimeCustomMenuSpec.glassMaterialRange
-            let material = droplet ? defrost
+            let material = droplet ? wash
                 : Double(((wpc - matRange.lowerBound) /
                           (matRange.upperBound - matRange.lowerBound)).clamped(to: 0...1))
             let presence = droplet ? 1
@@ -1412,11 +1622,12 @@ private struct TimeCustomMenuOverlayRoot: View {
             // only the frost materializes on the slow presence ramp above.
             let presenceClear = droplet ? 1
                 : pow(Double(max(pc, wpc)), TimeCustomMenuSpec.clearPresenceExponent)
-            // The clear lens holds full strength through the fall and melts off
-            // the landed text across the final beat.
+            // The clear lens melts WHILE the spread runs — the expansion
+            // dissolves as it goes, never a full-strength lens at the end.
             let fadeStart = TimeCustomMenuSpec.closeLensFadeStart
+            let fadeEnd = TimeCustomMenuSpec.closeLensFadeEnd
             let glassOpacity = droplet
-                ? 1 - ((tau - fadeStart) / (1 - fadeStart)).clamped(to: 0...1) : dissolve
+                ? 1 - ((tau - fadeStart) / (fadeEnd - fadeStart)).clamped(to: 0...1) : dissolve
 
             ZStack(alignment: .topLeading) {
                 // The platter's regular material sits BENEATH the content (glass on
@@ -1430,7 +1641,7 @@ private struct TimeCustomMenuOverlayRoot: View {
                 if material > 0 {
                     Color.clear
                         .frame(width: w, height: h)
-                        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: lens.radius))
+                        .glassEffect(.regular, in: lensShape)
                         .opacity(glassOpacity * material * presence)
                 }
 
@@ -1443,69 +1654,67 @@ private struct TimeCustomMenuOverlayRoot: View {
                 // and early eruption, where the fill has not ramped in yet.
                 // Only for menus that bloom over imagery — see `platterFill`.
                 if let platterFill {
-                    RoundedRectangle(cornerRadius: lens.radius)
+                    lensShape
                         .fill(platterFill)
                         .frame(width: w, height: h)
                         .opacity(glassOpacity * fillOpacity * presence)
                 }
 
-                // Content rides the platter SCALED, but reveals only inside the
-                // FLOWERING — the device circle flies empty and frosted, the
-                // rows ghosting in under the rippling edges as the square
-                // opens, crisp when the corners settle. On the droplet close
-                // the rows defrost in place — a fade with no added blur
-                // (device: they dim crisply, never smear).
-                let rr = TimeCustomMenuSpec.contentRevealRange
-                let reveal: Double = droplet ? defrost
-                    : Double(((wpc - rr.lowerBound) /
-                              (rr.upperBound - rr.lowerBound)).clamped(to: 0...1))
+                // Content sits FULL-SIZE on its resting rect from frame 0 and
+                // is MASKED to the lens: the glass IS the reveal — the rows
+                // exist exactly where it covers them, uncovered as the
+                // flowering opens across the rect and swallowed again as the
+                // close shrinks off them (device frames: the row text is crisp
+                // and full-size mid-morph, clipped by the glass edges — never
+                // squashed, blurred or faded in place). Opacity only keeps the
+                // flying circle EMPTY (`contentArriveRange`); on the droplet
+                // close the rows dissolve inside the collapsing circle.
+                let ar = TimeCustomMenuSpec.contentArriveRange
+                let arrive: Double = droplet ? contentFade
+                    : Double(((wpc - ar.lowerBound) /
+                              (ar.upperBound - ar.lowerBound)).clamped(to: 0...1))
                 content
                     .frame(width: expanded.width, height: expanded.height, alignment: .topLeading)
-                    .scaleEffect(x: w / max(expanded.width, 1),
-                                 y: h / max(expanded.height, 1),
-                                 anchor: .topLeading)
-                    .blur(radius: droplet ? 0
-                          : CGFloat(1 - reveal) * TimeCustomMenuSpec.lensBlur)
-                    .opacity(reveal * dissolve)
+                    .offset(x: expanded.minX - lens.rect.minX,
+                            y: expanded.minY - lens.rect.minY)
+                    .opacity(arrive * dissolve)
                     .frame(width: w, height: h, alignment: .topLeading)
+                    .mask { lensShape }
 
-                // The label IMPLODES with the glass on open: it shrinks and is
-                // dragged into the collapse point, staying readable while it
-                // travels and vanishing on arrival. On the droplet close it does
-                // NOT ride back — it fades in PINNED on its own rect, MASKED to
-                // the lens shape, so the date is revealed only through the
-                // falling glass (which magnifies it for real — the clear lens
-                // above refracts this copy), the reveal widening as the droplet
-                // spreads across the text on landing. Both states are invisible
-                // at the switch (open ride ends faded; reveal starts at 0).
-                if let label {
-                    if droplet {
-                        let r = TimeCustomMenuSpec.closeRevealRange
-                        let show = ((tau - r.lowerBound) /
-                                    (r.upperBound - r.lowerBound)).clamped(to: 0...1)
-                        label
-                            .fixedSize()
-                            .offset(x: collapsed.minX - lens.rect.minX,
-                                    y: collapsed.minY - lens.rect.minY)
-                            .frame(width: w, height: h, alignment: .topLeading)
-                            .opacity(show)
-                            .mask { RoundedRectangle(cornerRadius: lens.radius) }
-                    } else {
-                        let ride = (pc / TimeCustomMenuSpec.labelRideEnd).clamped(to: 0...1)
-                        let cp = collapsePoint
-                        // Fade completes INSIDE the droplet — no trail outside it.
-                        let fade = ((ride - 0.5) / 0.5).clamped(to: 0...1)
-                        label
-                            .fixedSize()
-                            .scaleEffect(lerp(1, TimeCustomMenuSpec.labelRideScale, ride))
-                            .offset(x: lerp(collapsed.minX - lens.rect.minX,
-                                            cp.x - lens.rect.minX - collapsed.width / 2, ride),
-                                    y: lerp(collapsed.minY - lens.rect.minY,
-                                            cp.y - lens.rect.minY - collapsed.height / 2, ride))
-                            .frame(width: w, height: h, alignment: .topLeading)
-                            .blur(radius: ride * TimeCustomMenuSpec.lensBlur * 0.5)
-                            .opacity(Double(1 - fade * fade))
-                    }
+                // The label's visibility is MASKED to the lens both ways — the
+                // text exists only where the glass covers it. OPEN: the copy
+                // shrinks and is dragged up into the collapse point WITH the
+                // glass (the swallow), never showing outside it, its dissolve
+                // completing inside the droplet. On the
+                // droplet close it does NOT ride back — it fades in PINNED on
+                // its own rect, revealed only through the widening glass (which
+                // magnifies it for real — the clear lens above refracts this
+                // copy), the mask doing the centre-outward reveal as the dot
+                // expands across the text; then the end hop — glass and text
+                // rise together and settle back level. Both states are
+                // invisible at the switch (the ball has left the collapse
+                // point; the close reveal starts at 0).
+                if let label, !droplet {
+                    let ride = (pc / TimeCustomMenuSpec.labelRideEnd).clamped(to: 0...1)
+                    let cp = collapsePoint
+                    // The dissolve must still complete INSIDE the droplet: the
+                    // flowering re-covers the collapse point late in the open
+                    // (the platter overlays the label's rect), so the mask alone
+                    // would re-admit the shrunken copy as a smudge at rest. The
+                    // mask's job is the other half — the copy never shows
+                    // OUTSIDE the glass while it is being swallowed.
+                    let fade = ((ride - 0.5) / 0.5).clamped(to: 0...1)
+                    label
+                        .fixedSize()
+                        .scaleEffect(lerp(1, TimeCustomMenuSpec.labelRideScale, ride))
+                        .offset(x: lerp(collapsed.minX - lens.rect.minX,
+                                        cp.x - lens.rect.minX - collapsed.width / 2, ride),
+                                y: lerp(collapsed.minY - lens.rect.minY,
+                                        cp.y - lens.rect.minY - collapsed.height / 2, ride))
+                        .frame(width: w, height: h, alignment: .topLeading)
+                        .blur(radius: ride * TimeCustomMenuSpec.lensBlur * 0.5)
+                        .opacity(Double(1 - fade * fade))
+                        .mask { lensShape }
                 }
 
                 // The CLEAR glass — the liquid lens — rides ON TOP of the content
@@ -1516,8 +1725,45 @@ private struct TimeCustomMenuOverlayRoot: View {
                 if material < 1 {
                     Color.clear
                         .frame(width: w, height: h)
-                        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: lens.radius))
+                        .glassEffect(.clear, in: lensShape)
                         .opacity(glassOpacity * (1 - material) * presenceClear)
+                }
+
+                // The close's revealed text sits ABOVE the clear lens — the
+                // pill (wash + lens) stays fully glass, but the text is never
+                // optically behind it, so the near-static end-of-close lens
+                // can't print refraction echoes around the crisp glyphs. The
+                // open's swallow keeps its refracted copy below the lens.
+                if let label, droplet {
+                    // Reverse opacityPop, on the SPREAD'S OWN CURVE: the
+                    // text is born small and faint at the line's centre
+                    // and scales up + brightens exactly as the glass
+                    // widens — one thing inflating, never a static line
+                    // uncovered by a sliding edge.
+                    let cEnd = TimeCustomMenuSpec.closeCollapseEnd
+                    let spread = CGFloat(((tau - cEnd) / (1 - cEnd))
+                        .clamped(to: 0...1))
+                    // Glass and text ride the SAME spring — the whole
+                    // reveal launches, overshoots and settles as one
+                    // thing, exactly like the Dropdown's label pop.
+                    let grow = TimeCustomMenuSpec.closeReveal(spread)
+                    let scale = lerp(TimeCustomMenuSpec.closeTextGrowFrom, 1, grow)
+                    // The settle: the text emerges pushed DOWN by the
+                    // landing glass and rises to rest — drop hits zero by
+                    // closeTextSettleEnd, so the copy lands pixel-identical
+                    // for the seamless swap to the real label.
+                    let sEnd = TimeCustomMenuSpec.closeTextSettleEnd
+                    let rise = ((tau - cEnd) / (sEnd - cEnd)).clamped(to: 0...1)
+                    let drop = TimeCustomMenuSpec.closeTextDrop
+                        * CGFloat(1 - rise * rise * (3 - 2 * rise))
+                    label
+                        .fixedSize()
+                        .scaleEffect(scale, anchor: .center)
+                        .offset(x: collapsed.minX - lens.rect.minX,
+                                y: collapsed.minY - lens.rect.minY + drop)
+                        .frame(width: w, height: h, alignment: .topLeading)
+                        .opacity(Double(grow.clamped(to: 0...1)))
+                        .mask { lensShape }
                 }
             }
             .frame(width: w, height: h, alignment: .topLeading)
@@ -1536,6 +1782,8 @@ private struct TimeCustomMenuOverlayRoot: View {
         let overlapsAnchor: Bool
         /// Which label edge the menu aligns to.
         let alignment: TimeCustomMenuAlignment
+        /// Which side of the label the menu opens toward.
+        let verticalPlacement: TimeCustomMenuVerticalPlacement
         /// Nudge applied to the final placement (positive = right / down).
         let placementOffset: CGSize
         let spaceBelow: CGFloat
@@ -1545,7 +1793,9 @@ private struct TimeCustomMenuOverlayRoot: View {
         var maxWidth: CGFloat { available.width }
 
         init(geo: GeometryProxy, anchor: CGRect, overlapsAnchor: Bool,
-             alignment: TimeCustomMenuAlignment, placementOffset: CGSize) {
+             alignment: TimeCustomMenuAlignment,
+             verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic,
+             placementOffset: CGSize) {
             let safe = geo.safeAreaInsets
             let margin = TimeCustomMenuSpec.screenMargin
             bounds = geo.size
@@ -1558,6 +1808,7 @@ private struct TimeCustomMenuOverlayRoot: View {
             self.anchor = anchor
             self.overlapsAnchor = overlapsAnchor
             self.alignment = alignment
+            self.verticalPlacement = verticalPlacement
             self.placementOffset = placementOffset
             if overlapsAnchor {
                 spaceBelow = available.maxY - anchor.minY
@@ -1568,19 +1819,30 @@ private struct TimeCustomMenuOverlayRoot: View {
             }
         }
 
-        /// Below the label when it fits, else above, else whichever side is
-        /// larger. iOS 26: top (or bottom) edge flush with the label's; classic:
-        /// 6pt gap. Both edge-align horizontally to the label (left edge for a
-        /// leading label, right edge for a trailing one). The unit anchor is the
-        /// point on the menu nearest the label (legacy scale transform origin).
+        /// The native opens toward the ROOMIER side of the label when the menu
+        /// fits on both (device recordings: a label past mid-screen blooms
+        /// upward even though the menu would fit below — fits-below-first put
+        /// the platter under the row and sent the whole open diving down);
+        /// otherwise the side that fits, else the larger one. iOS 26: top (or
+        /// bottom) edge flush with the label's; classic: 6pt gap. Both
+        /// edge-align horizontally to the label (left edge for a leading
+        /// label, right edge for a trailing one). The unit anchor is the point
+        /// on the menu nearest the label (legacy scale transform origin).
         func placement(for size: CGSize) -> (origin: CGPoint, anchor: UnitPoint) {
             let below: Bool
-            if size.height <= spaceBelow {
-                below = true
-            } else if size.height <= spaceAbove {
-                below = false
-            } else {
-                below = spaceBelow >= spaceAbove
+            switch verticalPlacement {
+            case .below: below = true
+            case .above: below = false
+            case .automatic:
+                if size.height <= spaceBelow && size.height <= spaceAbove {
+                    below = spaceBelow >= spaceAbove
+                } else if size.height <= spaceBelow {
+                    below = true
+                } else if size.height <= spaceAbove {
+                    below = false
+                } else {
+                    below = spaceBelow >= spaceAbove
+                }
             }
 
             var y: CGFloat

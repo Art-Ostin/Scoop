@@ -68,24 +68,11 @@ extension InviteTimeRow {
 
         VStack(alignment: .trailing, spacing: 0) {
             
-            Menu {
-                Text("HEllo World")
-                Text("HEllo World")
-                Text("HEllo World")
-                Text("HEllo World")
-                Text("HEllo World")
-            } label: {
-                Text("Sun 9 Aug · 22:30")
-            }
-
-            
-            
-            
-            
             TimeCustomMenu(morphAnchor: morphAnchor,
                            estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
+                           verticalPlacement: .below, //The designed spot: centered over the card's rows
                            placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
-                           placementOffsetY: TimeCustomMenuSpec.placementOffsetY + 16,
+                           placementOffsetY: TimeCustomMenuSpec.placementOffsetY,
                            openRequest: $openTimeMenu,
                            onOpen: openMenu, onClose: closeMenu) {
                 SelectTimeView(proposedTimes: $draft)
@@ -199,7 +186,6 @@ private struct TimeRowMenuLabel: View {
 
     //Local to the live pager — the parent never reads it.
     @State private var pageWidth: CGFloat = 0
-    @State private var showScrollFades = false
 
     private var activeIndex: Int {
         guard !times.isEmpty else { return 0 }
@@ -272,11 +258,6 @@ private struct TimeRowMenuLabel: View {
             scrollProgress: $scrollProgress,
             pageCount: times.count
         ))
-        .onScrollPhaseChange { _, phase in
-            showScrollFades = phase.isScrolling && phase != .tracking
-        }
-        .customHorizontalScrollFade(width: showScrollFades ? 40 : 0, showFade: true)
-        .customHorizontalScrollFade(width: showScrollFades ? 12 : 0, showFade: true, fromLeading: false)
     }
 
     private func page(_ time: Date, isActive: Bool) -> some View {

@@ -89,7 +89,11 @@ extension InviteSlot {
                     .scaledToFill()
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .modifier(BlurAndGradientBackground(palette: palette))
+            .modifier(BlurAndGradientBackground(
+                textRegion: BlurAndGradientBackground.inviteRegion,
+                colour: palette.surface,
+                scrimOpacity: palette.scrimOpacity
+            ))
     }
     
     private var inviteOverlay: some View {
@@ -120,67 +124,10 @@ extension InviteSlot {
                 prominence: .custom(saturation: 0.05, brightness: 1, contrast: 4.5), //Off-white: full brightness, just enough chroma to read as the artwork's hue
                 textRegionHeight: BlurAndGradientBackground.inviteRegion,
                 cardAspectRatio: AspectRatio.inviteCard.ratio, //Matches AppImage(type: .invite)
-                preferredScrimOpacity: 0.9, //How heavy the scrim rests when contrast doesn't force it
                 maximumDominantLuminance: 0.15, //Prefer a dark tone the photo already has
-                minimumSurfaceChroma: 0.4, //Let the hue read, without lightening the scrim
-                maximumSurfaceLuminance: 0.05 //Never a pale tint, however light the artwork
+                minimumSurfaceChroma: 0.4 //Quieter than the standard tint — the rows carry the hue here
             )
     }
 }
 
 
-struct BlurAndGradientBackground: ViewModifier {
-
-    /// How far up the card the treatment reaches, as a fraction of its height. The one
-    /// knob: the blur's start and ramp are held at a fixed ratio to it, and
-    /// `extractPalette`'s sampling derives from it too.
-    static let inviteRegion: CGFloat = 0.4   //1:1.5 art under a whole confirm block
-    static let profileRegion: CGFloat = 0.28 //1:1.2 art under two lines — starts lower, at 0.72
-
-    //Injected Parameters
-    var textRegion: CGFloat = Self.inviteRegion
-    var blurRadius: CGFloat = 24
-
-    let palette: OverlayPalette
-
-    /// Where the blur begins and how far it takes to reach full radius, both measured
-    /// down from the top. Their sum stays just under 1 at any region, so the blur lands
-    /// at full strength on the bottom edge instead of running out of card mid-ramp.
-    private var blurStart: CGFloat { 1 - textRegion * 0.825 }
-    private var blurRamp: CGFloat { textRegion * 0.8 }
-
-
-    func body(content: Content) -> some View {
-        content
-            .glur(
-                radius: blurRadius,
-                offset: blurStart,
-                interpolation: blurRamp,
-                direction: .down,
-                noise: 0
-            )
-            .overlay { scrimGradient }
-            .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
-    }
-
-    //Hand-tuned ramp through the region, reaching the solved veil at the bottom edge
-    private var scrimGradient: some View {
-        let region = textRegion
-        let top = 1 - region
-        let colour = palette.surface
-        let veil = palette.scrimOpacity
-
-        //Measures top of Colour based of blur
-        return LinearGradient(
-            stops: [
-                .init(color: colour.opacity(0),           location: top),
-                .init(color: colour.opacity(veil * 0.67), location: top + region * 0.5),
-                .init(color: colour.opacity(veil * 0.78), location: top + region * 0.625),
-                .init(color: colour.opacity(veil),        location: 1)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .allowsHitTesting(false)
-    }
-}

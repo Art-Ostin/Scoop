@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Glur
 
 
 enum AppImageType {case meet, invite}
@@ -37,8 +38,15 @@ struct InviteCarousel: View {
     //Injected Properties
     let images: [UIImage]
     let isCompact: Bool
+    let blursBottom: Bool
 
     @Binding var scrollProgress: Double
+
+    //Glur drops its whole layerEffect at exactly 0, and that structural swap flashes the page
+    //mid-morph. A hair above zero keeps the shader mounted through the screen change: its
+    //64-tap Gaussian collapses onto the centre sample, so it reads as untouched artwork.
+    private static let blurOff: CGFloat = 0.01
+    private static let blurOn: CGFloat = 14
 
     private var ratio: CGFloat {
         (isCompact ? AspectRatio.confirmInviteImage : .invitedImage).ratio
@@ -59,6 +67,7 @@ struct InviteCarousel: View {
                     .resizable()
                     .scaledToFill()
             }
+            .glur(radius: blursBottom ? Self.blurOn : Self.blurOff, offset: 0.85, interpolation: 0.3, direction: .down, noise: 0)
             .mask {
                 VStack(spacing: 0) {
                     Rectangle() // Left, right and top stay razor sharp.
