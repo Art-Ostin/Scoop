@@ -17,6 +17,7 @@ struct AppContainer: View {
     @State private var messagesVM: MessagesViewModel
 
     @State private var zoomPresentations = ZoomPresentationHost()
+    @State private var inviteZoomPresenter = InviteZoomPresenter()
 
     init(dependencies dep: AppDependencies) {
         _meetVM = State(initialValue: MeetViewModel(
@@ -83,11 +84,16 @@ struct AppContainer: View {
                 .accessibilityLabel("Messages")
             }
 
+            //Quick-invite popup plane: above the TabView so its backdrop covers the
+            //never-hidden tab bar, below the profile zoom plane
+            InviteZoomLayer(presenter: inviteZoomPresenter)
+
             ZoomPresentationLayer(host: zoomPresentations)
                 .ignoresSafeArea()
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)
+        .environment(inviteZoomPresenter)
     }
 }
 

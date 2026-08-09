@@ -27,13 +27,7 @@ struct MeetContainer: View {
         }
         .ignoresSafeArea()
         .overlay(alignment: .topTrailing) {infoButton}
-        .overlay {
-            if let pending = ui.showInvite {
-                inviteView(pending: pending)
-            }
-        }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .hideTabBar(ui.showInvite != nil)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
 }
@@ -63,25 +57,6 @@ extension MeetContainer {
 }
 
 
-//3. Quick Invite Logic
-extension MeetContainer {
-    
-    private func inviteView(pending: PendingProfile) -> some View {
-        let profileImages = vm.profileImages[pending.profile.id] ?? [pending.image]
-        let inviteVM = TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults)
-        
-        return SendInviteContainer(
-            images: profileImages,
-            name: pending.profile.name,
-            showInvite:  ui.showInviteBinding(profile: pending),
-            vm: inviteVM) { inviteDraft in
-                sendInvite(pending, draft: inviteDraft)
-            } declineProfile: {
-                Task { await respondToProfile(profile: pending.profile) }
-            }
-    }
-}
-
 //Key Functions
 extension MeetContainer {
 
@@ -92,10 +67,6 @@ extension MeetContainer {
 
 //Logic of actually responding to a profile
 extension MeetContainer {
-    
-    private func sendInvite(_ profileEvent: PendingProfile, draft: EventFieldsDraft) {
-        Task {await respondToProfile(event: draft, profile: profileEvent.profile)}
-    }
     
     private func inviteMode(for profile: UserProfile) -> ProfileMode {
         return .sendInvite { draft in

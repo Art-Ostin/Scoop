@@ -22,12 +22,17 @@ struct InvitePopupBackground: View {
 }
 
 struct InviteCardBackground: ViewModifier {
-    
+
+    //Geometry: card inset from the screen edge — off the 4pt scale, matched to the Meet card.
+    //Shared with the invite flight chassis (SendInviteContainer) so the two cards can't drift.
+    static let horizontalInset: CGFloat = 10
+    static let topInset = Spacing.md
+
     private let shape = RoundedRectangle(cornerRadius: CornerRadius.xl)
     var isInvite: Bool = false
 
     let tint: Color
-    
+
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)
@@ -35,8 +40,8 @@ struct InviteCardBackground: ViewModifier {
             .clipShape(shape)
             .containerGlassEffect(tint: Color.appCanvas, shape: shape)
             .shadow(.softFloating)
-            .padding(.horizontal, 10)
-            .padding(.top, 16) //Consistent 24 top padding works well (regardless of confirm screen or not)
+            .padding(.horizontal, Self.horizontalInset)
+            .padding(.top, Self.topInset)
     }
 }
 

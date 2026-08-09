@@ -33,14 +33,9 @@ struct AppImage: View {
     }
 }
 
-struct InviteCarousel: View {
-
-    //Injected Properties
-    let images: [UIImage]
-    let isCompact: Bool
-    let blursBottom: Bool
-
-    @Binding var scrollProgress: Double
+//One carousel page: fill-crop, softened bottom, sharp edges. Shared between the live pager
+//and the invite flight's static covers so the swap between them is pixel-identical.
+struct InvitePagePhoto: View {
 
     //Glur drops its whole layerEffect at exactly 0, and that structural swap flashes the page
     //mid-morph. A hair above zero keeps the shader mounted through the screen change: its
@@ -48,19 +43,10 @@ struct InviteCarousel: View {
     private static let blurOff: CGFloat = 0.01
     private static let blurOn: CGFloat = 14
 
-    private var ratio: CGFloat {
-        (isCompact ? AspectRatio.confirmInviteImage : .invitedImage).ratio
-    }
+    let image: UIImage
+    let blursBottom: Bool
 
     var body: some View {
-        HorizontalScrollView(progress: $scrollProgress) {
-            ForEach(images, id: \.self) { photo($0) }
-        }
-        .aspectRatio(ratio, contentMode: .fit) //Sizes the greedy pager to the image shape
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func photo(_ image: UIImage) -> some View {
         Color.clear
             .overlay {
                 Image(uiImage: image)
@@ -75,8 +61,47 @@ struct InviteCarousel: View {
                         .frame(height: 2)
                 }
             }
-            .clipped() //scaledToFill overflows the page cell
-            .containerRelativeFrame(.horizontal)
+            .clipped() //scaledToFill overflows the cell
+    }
+}
+
+struct InviteCarousel: View {
+
+    //Injected Properties
+    let images: [UIImage]
+    let isCompact: Bool
+    let blursBottom: Bool
+
+    //The invite flight frames this carousel itself; aspect sizing would fight the animated frame
+    var fillsFrame: Bool = false
+
+    //The flight snaps the pager home under a cover before resizing it
+    var position: Binding<ScrollPosition>? = nil
+
+    @Binding var scrollProgress: Double
+
+    private var ratio: CGFloat {
+        (isCompact ? AspectRatio.confirmInviteImage : .invitedImage).ratio
+    }
+
+    @ViewBuilder
+    var body: some View {
+        if fillsFrame {
+            pager
+        } else {
+            pager
+                .aspectRatio(ratio, contentMode: .fit) //Sizes the greedy pager to the image shape
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var pager: some View {
+        HorizontalScrollView(progress: $scrollProgress, position: position) {
+            ForEach(images, id: \.self) { image in
+                InvitePagePhoto(image: image, blursBottom: blursBottom)
+                    .containerRelativeFrame(.horizontal)
+            }
+        }
     }
 }
 

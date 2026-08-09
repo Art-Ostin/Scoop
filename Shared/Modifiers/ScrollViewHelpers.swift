@@ -14,9 +14,23 @@ struct HorizontalScrollView<Content: View>: View {
     //How pages of unequal height sit against each other
     var alignment: VerticalAlignment = .center
 
+    //Programmatic page control, for callers that must snap under a cover (the invite flight).
+    //Optional and branch-applied: callers that layer their own .scrollPosition(id:) on top
+    //(TwoPageScrollView) must not get a second, competing position binding.
+    var position: Binding<ScrollPosition>? = nil
+
     @ViewBuilder var content: Content
 
+    @ViewBuilder
     var body: some View {
+        if let position {
+            pager.scrollPosition(position)
+        } else {
+            pager
+        }
+    }
+
+    private var pager: some View {
         ScrollView(.horizontal) {
             HStack(alignment: alignment, spacing: 0) {
                 content

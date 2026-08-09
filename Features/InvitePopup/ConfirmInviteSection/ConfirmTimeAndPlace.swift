@@ -112,8 +112,12 @@ struct DynamicTimeRow: View {
 
 
 struct PlaceRow: View {
+    
     let place: EventLocation
     let style: ConfirmStyle
+//    let addNote: Bool
+    
+    
 
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
@@ -122,6 +126,7 @@ struct PlaceRow: View {
             .shrinkPress(action: openMap)
             .padding(.vertical, -Spacing.xs)
             .accessibilityAddTraits(.isButton)
+            .oneLineLimitAndShrink()
     }
 
     private func openMap() {

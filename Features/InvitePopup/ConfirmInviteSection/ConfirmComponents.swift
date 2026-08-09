@@ -110,17 +110,52 @@ struct WarningLabel: View {
 
 struct InviteInfoButton: View {
     let showInfo: () -> ()
-    
+
     var body: some View {
         Image(systemName: "info.circle")
             .font(.body(12, .medium))
             .foregroundStyle(Color.textSecondary)
             .frame(width: 28, height: 28)
-            .background(Color.fillGray, in: Circle())
+            .background { glassDisc }
             .shrinkPress {showInfo() }
             .padding()
             .padding(.top, -6)
     }
+
+    //Glass casts a drop shadow no API can switch off, and at disc size over the card's
+    //near-white body `.regular` reads as a grey halo. THE CLIP IS LOAD-BEARING — it crops the
+    //spill outside the circle. Sim-measured on iOS 26.0 (mean luminance in annuli outside the
+    //28pt edge, against a no-shadow `.ultraThinMaterial` control):
+    //      unclipped −2.5% / −2.3% / −1.6% · this −0.9% / −0.8% / −0.6% · control −0.9% / −0.8% / −0.6%
+    //Drawn on its own background layer, not on the content, so the clip can't take the glyph
+    //with it. (`.clear` is shadowless even unclipped, but blows to pure white on a body this
+    //light — nothing behind it to refract.)
+    @ViewBuilder
+    private var glassDisc: some View {
+        if #available(iOS 26.0, *) {
+            Color.clear
+                .glassEffect(.regular, in: Circle())
+                .clipShape(Circle())
+        } else {
+            Circle().fill(Color.fillGray)
+        }
+    }
+}
+
+struct AddNoteButton: View {
+    
+    @Binding var showInfoScreen: Bool
+    
+    var body: some View {
+        Text("Add a Note")
+            .frame(width: 82, height: 22)
+            .capsuleStroke(lineWidth: 1, color: .accent)
+            .shrinkPress { showInfoScreen = true }
+    }
 }
 
 
+/*
+ .background(Color.fillGray, in: Circle())
+
+ */

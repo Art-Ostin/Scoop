@@ -61,12 +61,28 @@ struct InviteImageCarousel: View {
     //Respond screens only — the toggle swaps between their invite and one of your own
     var responseType: Binding<ResponseType>? = nil
 
+    //The invite flight frames this carousel itself instead of letting it self-size
+    var fillsFrame: Bool = false
+
+    //The flight owns the page position when it needs the cover dissolve on close
+    var scrollProgress: Binding<Double>? = nil
+
+    //…and snaps the pager home under that cover before the collapse resizes it
+    var pagerPosition: Binding<ScrollPosition>? = nil
+
+    //False through the open flight, so the chrome fades in over the flying image
+    var chromeVisible: Bool = true
+
+    //The flight defers the heavy pager until the card lands — its static covers stand in
+    //beneath this view meanwhile, so only the chrome overlays render during the flight
+    var showsPager: Bool = true
+
     //Both offered by the options menu
     let declineProfile: () -> Void
     let clearInvite: () -> Void
 
     //Local view state
-    @State private var scrollProgress: Double = 0
+    @State private var internalScrollProgress: Double = 0
 
     //Measured so the blur halo can lift just behind the overlay text
     @State private var nameFrame: CGRect = .zero
@@ -74,8 +90,15 @@ struct InviteImageCarousel: View {
 
     private var chrome: InviteScreen.Overlays { screen.chrome }
 
+    private var progressBinding: Binding<Double> { scrollProgress ?? $internalScrollProgress }
+    private var progress: Double { progressBinding.wrappedValue }
+
     var body: some View {
-        InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, scrollProgress: $scrollProgress)
+        ZStack {
+            if showsPager {
+                InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, fillsFrame: fillsFrame, position: pagerPosition, scrollProgress: progressBinding)
+            }
+        }
             .overlay { backgroundBlur }
             .overlay(alignment: .topLeading) { backButton }
             .overlay(alignment: .topTrailing) { topRow }
@@ -97,7 +120,7 @@ extension InviteImageCarousel {
                 .foregroundStyle(Color.black)
                 .frame(width: 38, height: 38)
         }
-        .chromeItem(visible: chrome.backButton)
+        .chromeItem(visible: chrome.backButton && chromeVisible)
         .padding(.horizontal, 20) //Geometry: as the title — one shared inset from the artwork edge
         .padding(.top, Spacing.sm)
     }
@@ -118,7 +141,7 @@ extension InviteImageCarousel {
             }
         }
         .padding(Spacing.sm)
-        .chromeItem(visible: !isPopupOpen)
+        .chromeItem(visible: !isPopupOpen && chromeVisible)
         .animation(.transition, value: screen) //Its two buttons mount and unmount as the screen changes
     }
 
@@ -137,23 +160,25 @@ extension InviteImageCarousel {
         .foregroundStyle(Color.white)
         .padding(.horizontal, 20)
         .padding(.bottom, Spacing.sm)
-        .chromeItem(visible: chrome.title)
+        .chromeItem(visible: chrome.title && chromeVisible)
     }
 
     private var pageIndicator: some View {
-        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
+        ImagePageIndicator(count: images.count, progress: progress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
             .padding(.horizontal, Spacing.lg)
             .padding(.bottom, Spacing.xs)
-            .chromeItem(visible: chrome.pageIndicator && !isPopupOpen)
+            .chromeItem(visible: chrome.pageIndicator && !isPopupOpen && chromeVisible)
     }
 
     //Apply background blur where necessary under the content
     private var backgroundBlur: some View {
-        let progress = min(max(scrollProgress, 0), Double(images.count - 1))
-        let page = Int(progress)
+        let clamped = min(max(progress, 0), Double(images.count - 1))
+        let page = Int(clamped)
         let next = min(page + 1, images.count - 1)
-        let fraction = progress - Double(page)
+        let fraction = clamped - Double(page)
+        //Gated on the pager: the halo is a blur effect and must not render during the flight
+        let visible = chrome.title && chromeVisible && showsPager
 
         return ZStack {
             BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame])
@@ -165,8 +190,8 @@ extension InviteImageCarousel {
         }
         //A full-bleed wash has no corner to pop from — scaling it drags both halos toward the middle.
         //BackgroundBlur already refuses hits, so a plain fade is all it needs.
-        .opacity(chrome.title ? 1 : 0)
-        .animation(.transition, value: chrome.title)
+        .opacity(visible ? 1 : 0)
+        .animation(.transition, value: visible)
     }
 }
 

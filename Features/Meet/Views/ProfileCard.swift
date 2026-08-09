@@ -29,6 +29,13 @@ struct ProfileCard : View {
                     .onAppear { isProfilePresented = true }
                     .onDisappear { isProfilePresented = false }
             }
+            //Outside the zoom transition, so hiding the source while the invite is up hides the
+            //whole card — image, chrome overlay and resting shadow — never a duplicate
+            .inviteZoom(id: profile.id, isPresented: ui.showInviteBinding(profile: profile)) {
+                cardOverlay //The flight fades this chrome copy over the flying image, then back in on collapse
+            } popup: {
+                invitePopup
+            }
     }
 }
 
@@ -93,7 +100,22 @@ extension ProfileCard {
 
 //Functions
 extension ProfileCard {
-    
+
+    //The quick-invite popup growing out of this card; send/decline stay MeetContainer's via the mode
+    @ViewBuilder
+    private var invitePopup: some View {
+        if case .sendInvite(let onSend, let onDecline) = inviteMode(profile.profile) {
+            SendInviteContainer(
+                images: images(),
+                name: profile.profile.name,
+                showInvite: ui.showInviteBinding(profile: profile),
+                vm: TimeAndPlaceViewModel(profileId: profile.profile.id, defaults: vm.defaults),
+                onSendInvite: onSend,
+                declineProfile: onDecline
+            )
+        }
+    }
+
     private func profileView(_ profile: UserProfile) -> some View {
         ProfileContainer(
             vm: ProfileViewModel(profile: profile, imageLoader: vm.imageLoader, defaults: vm.defaults),
