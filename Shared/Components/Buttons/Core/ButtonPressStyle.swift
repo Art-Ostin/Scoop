@@ -117,7 +117,7 @@ extension View {
         pressButton(.grow, shadow: shadow, tint: tint)
     }
 
-    private func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {
+    func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {
         buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, tint: tint))
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }

@@ -20,6 +20,8 @@ struct ScoopButton<Content: View, S: Shape>: View {
     let shape: S
 
     var size: ButtonSize? = nil
+    // The pressed look. Tinted-only: the iOS 26 glass path is interactive on its own.
+    var press: PressEffect = .shrink
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -62,7 +64,7 @@ extension ScoopButton {
                 .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass))
                 .expandHitArea(hitInset)
         }
-        .shrinkButton(shadow: shadow, tint: color)
+        .pressButton(press, shadow: shadow, tint: color)
         .foregroundStyle(Color.white)
     }
 }

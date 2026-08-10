@@ -11,6 +11,7 @@ struct ProfileImageView: View {
 
     let disableScroll: Bool
     let images: [UIImage]
+    let isUserProfile: Bool
     var selectedIndex: Binding<Int>? = nil //Reports the settled page used to seed Quick Invite.
 
     //Local view state
@@ -23,8 +24,20 @@ struct ProfileImageView: View {
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            ImageCarousel(horizontalPadding: 8, aspectRatio: 1.05)
-                .padding(.top, 12)
+            
+            //If its user profile, no imageCarousel zoom so must create it manually here
+            Group {
+                if isUserProfile {
+                    UserProfileImagePager(images: images)
+                        .onAppear {
+                            print("Correcyly triggered this mode")
+                        }
+                } else {
+                    ImageCarousel(horizontalPadding: 8, aspectRatio: 1.05)
+                }
+            }
+            .padding(.top, 12)
+            
             imageScroller
         }
         .onChange(of: selection) { _, new in selectedIndex?.wrappedValue = new }
@@ -65,5 +78,37 @@ extension ProfileImageView {
                 scrollPosition.scrollTo(id: newIndex, anchor: .trailing)
             }
         }
+    }
+}
+
+
+struct UserProfileImagePager: View {
+    
+    let images: [UIImage]
+    
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(images, id: \.self) { img in
+                    profileImage(img: img)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+    }
+    
+    private func profileImage(img: UIImage) -> some View {
+        Color.clear
+            .aspectRatio(1/1.05, contentMode: .fit)
+            .overlay {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .padding(.horizontal, 8)
+            .containerRelativeFrame(.horizontal)
+        
     }
 }

@@ -23,22 +23,19 @@ struct EditProfileContainer: View {
     var body: some View {
         ZStack {
             if isEdit {
-                NavigationStack(path: $path) {
+                NavigationStack(path: $path) { // As EditProfile appears in full screen cover
                     EditProfileView(vm: vm, selectedImage: $selectedImage)
-                        .clipped()
-                        .transition(.move(edge: .trailing))
+                        .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
                 }
+                .transition(.move(edge: .trailing))
             } else {
                 ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
-//                    .clipped() //Fixes bug of content over extending
+                    .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
                     .transition(.move(edge: .leading))
             }
         }
         .navigationDestination(for: EditProfileRoute.self, destination: destination)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        
-        
-        
         .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty) }
         .overlay(alignment: .top) { editProfileHeader }
         .toolbar(.hidden, for: .navigationBar)
@@ -52,9 +49,9 @@ struct EditProfileContainer: View {
 extension EditProfileContainer {
     private var editProfileHeader: some View {
         HStack {
-            editProfileDismissButton
-            Spacer()
             saveButton
+            Spacer()
+            editProfileDismissButton
         }
         .padding(.horizontal, Spacing.md)
     }
@@ -71,7 +68,7 @@ extension EditProfileContainer {
         }
         .offset(x: !isEdit ? -1 : 0, y: !isEdit ? -1 : 0)
         .offset(x: shrinkDismiss ? -2 : 0) // Put it in top corner if shrink mode
-        .scaleEffect(shrinkDismiss ? 0.7 : !isEdit ? 0.7 :  1, anchor: .topLeading)
+        .scaleEffect(shrinkDismiss ? 0.7 : !isEdit ? 0.7 :  1, anchor: .trailing)
         .animation(.move, value: shrinkDismiss)
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
         .allowsHitTesting(path.isEmpty ? true  : false)

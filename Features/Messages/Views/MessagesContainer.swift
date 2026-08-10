@@ -101,7 +101,7 @@ extension MessagesContainer {
             .resizable()
             .scaledToFit()
             .foregroundStyle(Color.black)
-            .frame(width: 23, height: 23)
+            .frame(width: 22, height: 22)
             .background(Color.clear)
             .shrinkPress {
                 showSettings = true

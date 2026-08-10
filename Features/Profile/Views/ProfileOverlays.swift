@@ -14,7 +14,9 @@ extension ProfileContainer {
             Text(displayProfile.name)
             ForEach(displayProfile.nationality, id: \.self) { flag in Text(flag) }
             Spacer()
-            profileDismissButton
+            if !isUserProfile {
+                profileDismissButton
+            }
         }
         .font(.title(24))
         .padding(.horizontal, Spacing.sm)

@@ -61,10 +61,10 @@ struct PageScrollView<Content: View>: View {
     var body: some View {
         ScrollView {
             content
+                .padding(.top, Spacing.titlePadding)
+                .padding(.bottom, Spacing.clearance)
         }
         .navigationTitle(title)
         .colorBackground()
-        .padding(.top, Spacing.titlePadding)
-        .padding(.bottom, Spacing.clearance)
     }
 }

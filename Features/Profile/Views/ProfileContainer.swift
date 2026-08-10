@@ -44,8 +44,8 @@ struct ProfileContainer: View {
         ScrollView {
             VStack(spacing: Spacing.lg) {
                 profileTitle
-
-                ProfileImageView(disableScroll: false, images: displayImages, selectedIndex: $ui.selectedImageIndex)
+                
+                ProfileImageView(disableScroll: false, images: displayImages, isUserProfile: isUserProfile, selectedIndex: $ui.selectedImageIndex)
                     .task { await vm.loadImagesIfNeeded() }
 
                 ProfileDetailsView(vm: vm, p: displayProfile, event: vm.event)

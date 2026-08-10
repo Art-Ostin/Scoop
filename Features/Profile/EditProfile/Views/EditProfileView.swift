@@ -25,9 +25,5 @@ struct EditProfileView: View {
             }
             .padding(.horizontal, Spacing.gutter)
         }
-        .navigationTitle("Edit Profile")
-        .colorBackground()
-        .padding(.top, Spacing.titlePadding)
-        .padding(.bottom, Spacing.clearance)
     }
 }
