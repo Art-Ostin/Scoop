@@ -3,7 +3,7 @@
 //  Scoop Test
 //
 //  Created by Art Ostin on 11/07/2026.
-//
+
 
 import SwiftUI
 
@@ -28,8 +28,9 @@ struct SettingsButton: View {
     let action: () -> ()
     var body: some View {
         ScoopButton(shape: Circle(), size: .medium, action: action) {
-            Image(systemName: "gear")
+            Image("SettingsIcon")
                 .font(.body(14, .medium))
+                .foregroundStyle(Color.black)
         }
     }
 }

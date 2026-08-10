@@ -80,46 +80,52 @@ extension InvitePagePhoto {
     ///flight flies images, never live shaders — a glur layerEffect at animated size drops the
     ///device to ~15fps — so the blur can only ride the open flight pre-rendered.
     static func bakedBottomBlur(for image: UIImage, aspect: CGFloat, displayWidth: CGFloat, scale: CGFloat) -> UIImage? {
-        let target = CGSize(width: (displayWidth * scale).rounded(),
-                            height: (displayWidth / aspect * scale).rounded())
-        guard target.width > 0, target.height > 0, image.size.width > 0, image.size.height > 0 else { return nil }
+        let pxSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
+        guard pxSize.width > 0, pxSize.height > 0, displayWidth > 0 else { return nil }
 
-        //One draw normalises orientation, centre-crops (scaledToFill) and downsamples to the
-        //page's on-screen pixel size, so the blur radius below is in glur's own units.
+        //FULL-FRAME bake, never pre-cropped: the flight shows this through the same
+        //scaledToFill as the sharp cover, so their crops agree at EVERY in-flight aspect —
+        //a pre-cropped bake double-exposed the whole photo mid-flight (device video,
+        //2026-08-10). The band is blurred where the DESTINATION crop will need it; mid-flight
+        //it sits a few points off inside the image, hidden by its own fade-in.
         //Standard range: extended/P3 content through the default CIContext gamut-shifts the
         //sharp region against rawCover's original (this project's P3 scars run deep).
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.preferredRange = .standard
-        let flat = UIGraphicsImageRenderer(size: target, format: format).image { _ in
-            let fill = max(target.width / image.size.width, target.height / image.size.height)
-            let drawSize = CGSize(width: image.size.width * fill, height: image.size.height * fill)
-            image.draw(in: CGRect(x: (target.width - drawSize.width) / 2,
-                                  y: (target.height - drawSize.height) / 2,
-                                  width: drawSize.width, height: drawSize.height))
+        let flat = UIGraphicsImageRenderer(size: pxSize, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: pxSize)) //Normalises orientation at full resolution
         }
         guard let source = flat.cgImage else { return nil }
 
-        //Core Image's origin is bottom-left: the ramp runs from clear at (1 − blurStart)·h
-        //down to the edge. LINEAR gradient and the capped edge σ — glur's shader ramps
-        //σ = radius·(y/h − start)/interpolation linearly, reaching only radius·(1−start)/
-        //interpolation (7pt) at the bottom edge; a smoothstep to the full 14 baked a band
-        //2× too blurry that visibly sharpened under the landing crossfade (shader-read).
+        //The destination's aspect-fill crop within the full image, and its bottom blur band
+        let cropSize = pxSize.width / pxSize.height > aspect
+            ? CGSize(width: pxSize.height * aspect, height: pxSize.height)
+            : CGSize(width: pxSize.width, height: pxSize.width / aspect)
+        let cropMaxY = (pxSize.height + cropSize.height) / 2 //Centred crop, top-down coords
+        let bandTop = cropMaxY - cropSize.height * (1 - Self.blurStart)
+
+        //Core Image's origin is bottom-left; a LINEAR gradient matches glur's ramp, and it
+        //clamps past its endpoints, so anything below the crop (visible only mid-flight)
+        //stays fully blurred. Glur's shader ramps σ = radius·(y/h − start)/interpolation
+        //linearly, reaching only radius·(1−start)/interpolation (7pt) at the bottom edge; a
+        //smoothstep to the full 14 baked a band 2× too blurry (shader-read).
         let gradient = CIFilter.linearGradient()
-        gradient.point0 = CGPoint(x: 0, y: target.height * (1 - Self.blurStart))
-        gradient.point1 = .zero
+        gradient.point0 = CGPoint(x: 0, y: pxSize.height - bandTop)
+        gradient.point1 = CGPoint(x: 0, y: pxSize.height - cropMaxY)
         gradient.color0 = CIColor.black
         gradient.color1 = CIColor.white
 
         let blur = CIFilter.maskedVariableBlur()
         blur.inputImage = CIImage(cgImage: source).clampedToExtent() //Clamped so the edge doesn't darken
         blur.mask = gradient.outputImage
-        blur.radius = Float(Self.blurOn * scale * (1 - Self.blurStart) / Self.blurInterpolation)
+        //The capped 7pt on-screen σ converted to this image's pixels (crop width ↔ display width)
+        blur.radius = Float(Self.blurOn * (1 - Self.blurStart) / Self.blurInterpolation * cropSize.width / displayWidth)
 
-        let extent = CGRect(origin: .zero, size: target)
+        let extent = CGRect(origin: .zero, size: pxSize)
         guard let output = blur.outputImage?.cropped(to: extent),
               let baked = Self.bakeContext.createCGImage(output, from: extent) else { return nil }
-        return UIImage(cgImage: baked, scale: scale, orientation: .up)
+        return UIImage(cgImage: baked, scale: image.scale, orientation: .up)
     }
 }
 

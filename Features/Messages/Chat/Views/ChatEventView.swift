@@ -80,7 +80,7 @@ extension ChatEventView {
     }
 
     private func eventDetailsText(event: UserEvent, isLocationPressed: Bool) -> AttributedString {
-        var details = AttributedString("\(FormatEvent.dayAndTime(event.acceptedTime ?? Date())) · ")
+        var details = AttributedString("\(FormatEvent.shortDayAndTime(event.acceptedTime ?? Date())) · ")
         var location = AttributedString(event.location.name ?? event.location.address ?? "")
         location.link = Self.locationURL
         location.foregroundColor = isLocationPressed ? Color.textAccent.opacity(0.5) : Color.textAccent

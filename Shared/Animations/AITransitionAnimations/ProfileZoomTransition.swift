@@ -420,6 +420,7 @@ public final class ZoomRootController: UIViewController {
         let aspect = f.width > 0 ? f.height / f.width : ZoomStyle.detailAspect
         let detail = ZoomDetailController(
             images: marker.images, sourceAspect: aspect,
+            cardRadii: marker.cardRadii,
             detailContent: marker.detail())
         presentedDetail = detail
         sceneIsBehindTabBar = false // every open starts above the bar
@@ -489,13 +490,35 @@ public extension View {
     /// hides during flights and fades back in over the landing card. The
     /// library also draws the card's resting drop shadow
     /// (ZoomStyle.cardShadows) — do not add your own .shadow to the card.
+    /// `showsCardShadow: false` opts out of it entirely — for a source that
+    /// is not a free-floating card (one nested inside a surface that already
+    /// carries its own elevation, so a second shadow would ring the image
+    /// inside its own container). It suppresses the resting shadow AND the
+    /// landing rig together; the two are one shadow rendered by two owners,
+    /// and dropping only one would pop it in at the collapse.
+    /// `bottomCornerRadius` is the card's OWN bottom radius when it differs
+    /// from `ZoomStyle.cornerRadius` — a card whose image is the top of a
+    /// taller surface is clipped square along its bottom edge. The flight
+    /// then morphs the reveal AND the hero image's bottom corners to it,
+    /// instead of landing round and snapping square at the hand-off.
+    /// `page` binds the card's own carousel page to the destination's: the
+    /// open flies the photo the card is showing (not always the first), and
+    /// a dismissal writes the destination's page back, so the card returns
+    /// showing whatever the profile ended on. A source with a single image —
+    /// or one whose card should never follow — leaves it unbound.
     func zoomTransition<Overlay: View, Content: View>(
         images: [UIImage],
+        page: Binding<Int> = .constant(0),
+        showsCardShadow: Bool = true,
+        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
         @ViewBuilder cardOverlay: @escaping () -> Overlay,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         modifier(ZoomTransitionModifier(
             images: images,
+            page: page,
+            showsCardShadow: showsCardShadow,
+            bottomCornerRadius: bottomCornerRadius,
             cardOverlay: { AnyView(cardOverlay()) },
             detail: { AnyView(content()) }))
     }
@@ -503,9 +526,14 @@ public extension View {
     /// Overlay-less variant.
     func zoomTransition<Content: View>(
         images: [UIImage],
+        page: Binding<Int> = .constant(0),
+        showsCardShadow: Bool = true,
+        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        zoomTransition(images: images, cardOverlay: { EmptyView() }, content: content)
+        zoomTransition(images: images, page: page, showsCardShadow: showsCardShadow,
+                       bottomCornerRadius: bottomCornerRadius,
+                       cardOverlay: { EmptyView() }, content: content)
     }
 
     /// Registers this view as the morph source without adding another Button.
@@ -514,11 +542,17 @@ public extension View {
     func zoomTransition<Content: View>(
         images: [UIImage],
         trigger: Int,
+        page: Binding<Int> = .constant(0),
+        showsCardShadow: Bool = true,
+        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         modifier(TriggeredZoomTransitionModifier(
             trigger: trigger,
             images: images,
+            page: page,
+            showsCardShadow: showsCardShadow,
+            bottomCornerRadius: bottomCornerRadius,
             detail: { AnyView(content()) }))
     }
 }
@@ -612,6 +646,9 @@ extension EnvironmentValues {
 private struct ZoomTransitionModifier: ViewModifier {
     @StateObject private var state = ZoomSourceState()
     let images: [UIImage]
+    let page: Binding<Int>
+    let showsCardShadow: Bool
+    let bottomCornerRadius: CGFloat
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
 
@@ -628,7 +665,9 @@ private struct ZoomTransitionModifier: ViewModifier {
                 .overlay { cardOverlay() } // rest-state chrome; hides with the card
                 .opacity(state.isHidden ? 0 : 1)
                 .background(ZoomSourceRepresentable(
-                    state: state, images: images,
+                    state: state, images: images, page: page,
+                    showsCardShadow: showsCardShadow,
+                    bottomCornerRadius: bottomCornerRadius,
                     cardOverlay: cardOverlay, detail: detail))
                 .contentShape(Rectangle())
         }
@@ -643,6 +682,9 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
     @StateObject private var state = ZoomSourceState()
     let trigger: Int
     let images: [UIImage]
+    let page: Binding<Int>
+    let showsCardShadow: Bool
+    let bottomCornerRadius: CGFloat
     let detail: () -> AnyView
 
     func body(content: Content) -> some View {
@@ -651,6 +693,9 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
             .background(ZoomSourceRepresentable(
                 state: state,
                 images: images,
+                page: page,
+                showsCardShadow: showsCardShadow,
+                bottomCornerRadius: bottomCornerRadius,
                 cardOverlay: { AnyView(EmptyView()) },
                 detail: detail))
             .onChange(of: trigger) { _, _ in
@@ -683,6 +728,9 @@ final class ZoomSourceState: ObservableObject {
 private struct ZoomSourceRepresentable: UIViewRepresentable {
     let state: ZoomSourceState
     let images: [UIImage]
+    let page: Binding<Int>
+    let showsCardShadow: Bool
+    let bottomCornerRadius: CGFloat
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
 
@@ -705,8 +753,87 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
         v.state = state
         state.marker = v
         v.images = images
+        v.page = page
+        v.showsCardShadow = showsCardShadow
+        v.bottomCornerRadius = bottomCornerRadius
         v.cardOverlay = cardOverlay
         v.detail = detail
+    }
+}
+
+// MARK: - Split-corner geometry
+
+/// A card's corner radii: the top pair, and the bottom pair a card may square
+/// off (`zoomTransition(bottomCornerRadius:)`) when its image is the TOP of a
+/// taller surface rather than a free-floating card. Carried as a pair so no
+/// seam can move one radius without the other.
+struct CardRadii {
+    var top: CGFloat
+    var bottom: CGFloat
+
+    static func uniform(_ r: CGFloat) -> CardRadii { CardRadii(top: r, bottom: r) }
+
+    /// Mask geometry is PRE-transform: a radius must be divided by the
+    /// flight's scale to render at its intended on-screen size.
+    func scaled(by s: CGFloat) -> CardRadii {
+        CardRadii(top: top / s, bottom: bottom / s)
+    }
+
+    static func lerp(_ a: CardRadii, _ b: CardRadii, _ t: CGFloat) -> CardRadii {
+        CardRadii(top: DragTuning.lerp(a.top, b.top, t),
+                  bottom: DragTuning.lerp(a.bottom, b.bottom, t))
+    }
+}
+
+/// A rounded rect whose bottom corners carry their own radius. A layer's
+/// `cornerRadius` is uniform, so the shape is the UNION of two ordinary
+/// rounded rects: one over the full bounds at the top radius, and a
+/// bottom-anchored band at the bottom radius whose own rounded top corners
+/// always sit under full-width pixels of the first.
+///
+/// Both are plain views, so endpoints set inside an animator block interpolate
+/// on that block's own spring and the union tracks the flight exactly — no
+/// per-frame work, and no custom animatable layer property. (The obvious
+/// alternative, a `CAShapeLayer` path, cannot ride a UIViewPropertyAnimator
+/// spring at all: `path` takes no implicit action from a UIView animation.)
+final class SplitCornerView: UIView {
+    private let topShape = UIView()
+    private let bottomShape = UIView()
+
+    /// Read back from the layers rather than a stored copy: a caught flight
+    /// folds its presentation values into them (finishAnimation(at: .current))
+    /// and the regrab baseline has to see that truth.
+    var radii: CardRadii {
+        CardRadii(top: topShape.layer.cornerRadius,
+                  bottom: bottomShape.layer.cornerRadius)
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isUserInteractionEnabled = false
+        for shape in [topShape, bottomShape] {
+            shape.backgroundColor = .black // opaque: this view is only ever a mask
+            shape.layer.cornerCurve = .continuous
+            addSubview(shape)
+        }
+    }
+
+    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+    /// Frame and radii together — the band's inset is derived from the top
+    /// radius, so a seam that moved one without the other would unfit it.
+    func apply(frame: CGRect, radii: CardRadii) {
+        self.frame = frame
+        let full = CGRect(origin: .zero, size: frame.size)
+        topShape.frame = full
+        topShape.layer.cornerRadius = radii.top
+        // A continuous corner runs ~1.53·r along each edge; starting the band
+        // past that keeps its own top corners covered at every radius pair.
+        let inset = min(radii.top * 1.6, max(full.height - radii.bottom * 2, 0))
+        bottomShape.frame = CGRect(x: 0, y: inset, width: full.width,
+                                   height: max(full.height - inset, 0))
+        bottomShape.layer.cornerRadius = radii.bottom
     }
 }
 
@@ -767,6 +894,14 @@ final class CardRestingShadowView: UIView {
 final class ZoomSourceMarkerView: UIView {
     weak var state: ZoomSourceState?
     var images: [UIImage] = []
+    /// The card's carousel page, bound both ways: the open flies THIS page,
+    /// and a dismissal writes the destination's back so the card lands
+    /// showing what the profile showed. `.constant(0)` for a single-image
+    /// card — the write is then a no-op and every flight is page 1's, exactly
+    /// as before the binding existed.
+    var page: Binding<Int> = .constant(0)
+    /// Clamped into the images actually present.
+    var pageIndex: Int { min(max(page.wrappedValue, 0), max(images.count - 1, 0)) }
     var cardOverlay: () -> AnyView = { AnyView(EmptyView()) }
     var detail: () -> AnyView = { AnyView(EmptyView()) }
     private weak var host: ZoomHostController?
@@ -774,6 +909,21 @@ final class ZoomSourceMarkerView: UIView {
     /// The card's resting shadow: hidden with the card at the open, faded
     /// back in by the landing spring, retreated on cancel/catch.
     let restingShadow = CardRestingShadowView()
+
+    /// Opt-out for a source nested inside a surface that already carries its
+    /// own elevation (`zoomTransition(showsCardShadow:)`). Hidden rather than
+    /// unbuilt, so every alpha write on the flight paths stays a no-op
+    /// instead of needing a nil check at each seam.
+    var showsCardShadow = true {
+        didSet { restingShadow.isHidden = !showsCardShadow }
+    }
+
+    /// The card's own bottom radius (`zoomTransition(bottomCornerRadius:)`);
+    /// `ZoomStyle.cornerRadius` for an ordinary uniformly-rounded card.
+    var bottomCornerRadius = ZoomStyle.cornerRadius
+    var cardRadii: CardRadii {
+        CardRadii(top: ZoomStyle.cornerRadius, bottom: bottomCornerRadius)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -811,7 +961,10 @@ final class ZoomSourceMarkerView: UIView {
     /// overlay carries the exact card pixels through the gap so the landing
     /// never blinks.
     func showLandingOverlay() {
-        guard let image = images.first else { return }
+        // The page the card is about to show — a dismissal has already
+        // written the destination's page here.
+        guard images.indices.contains(pageIndex) else { return }
+        let image = images[pageIndex]
         let iv = UIImageView(image: image)
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
@@ -819,6 +972,15 @@ final class ZoomSourceMarkerView: UIView {
         iv.layer.cornerCurve = .continuous
         iv.frame = bounds
         iv.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // A square-bottomed card needs the same silhouette here, or the
+        // bridge re-rounds what the flight just finished squaring off. The
+        // shape is static for its 100ms, so a plain mask carries it.
+        if bottomCornerRadius != ZoomStyle.cornerRadius {
+            iv.layer.cornerRadius = 0
+            let shape = SplitCornerView()
+            shape.apply(frame: bounds, radii: cardRadii)
+            iv.mask = shape
+        }
         addSubview(iv)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             iv.removeFromSuperview()
@@ -1328,10 +1490,17 @@ final class ZoomHeroContainer: UIView {
     private(set) var pageImages: [UIImageView] = []
     private var flightConstraints: [NSLayoutConstraint] = []
     private var restingConstraints: [NSLayoutConstraint] = []
+    /// Bottom-corner square-off bands, one per page — built only for a card
+    /// that squares its own bottom (see the page loop). Empty otherwise, and
+    /// every hero-radius write is then a no-op.
+    private var bottomPatches: [UIView] = []
+    /// Tall enough to clear the top radius's curvature (~1.53·r) and to hold
+    /// its own corner pair without clamping.
+    private static let bottomPatchHeight: CGFloat = 44
 
     private let aspect: CGFloat
 
-    init(images: [UIImage], sourceAspect: CGFloat) {
+    init(images: [UIImage], sourceAspect: CGFloat, cardBottomRadius: CGFloat) {
         aspect = sourceAspect
         super.init(frame: .zero)
         // Overflow must draw: nothing between the image views and the
@@ -1398,6 +1567,40 @@ final class ZoomHeroContainer: UIView {
                 curtain.trailingAnchor.constraint(equalTo: page.trailingAnchor),
                 curtain.heightAnchor.constraint(equalToConstant: 1200),
             ])
+
+            // A card that squares its own bottom needs the hero image to
+            // square its own as it lands, or the reveal's new corners just
+            // expose the image's old ones. A layer carries ONE radius, so the
+            // square-off is ADDITIVE: this band republishes the image's
+            // bottom strip at a radius of its own, over an inner copy pinned
+            // to the image's exact frame (same size, same contentMode → the
+            // same crop, pixel for pixel), and its own rounded top corners
+            // sit under full-width image. Constraint-driven, so it rides the
+            // crop morph for free — only the radius is ever animated.
+            if cardBottomRadius != ZoomStyle.cornerRadius {
+                let patch = UIView()
+                patch.clipsToBounds = true
+                patch.layer.cornerRadius = ZoomStyle.cornerRadius
+                patch.layer.cornerCurve = .continuous
+                patch.translatesAutoresizingMaskIntoConstraints = false
+                let copy = UIImageView(image: image)
+                copy.contentMode = iv.contentMode
+                copy.translatesAutoresizingMaskIntoConstraints = false
+                patch.addSubview(copy)
+                page.addSubview(patch)
+                NSLayoutConstraint.activate([
+                    patch.leadingAnchor.constraint(equalTo: iv.leadingAnchor),
+                    patch.trailingAnchor.constraint(equalTo: iv.trailingAnchor),
+                    patch.bottomAnchor.constraint(equalTo: iv.bottomAnchor),
+                    patch.heightAnchor.constraint(equalToConstant: Self.bottomPatchHeight),
+
+                    copy.leadingAnchor.constraint(equalTo: iv.leadingAnchor),
+                    copy.trailingAnchor.constraint(equalTo: iv.trailingAnchor),
+                    copy.topAnchor.constraint(equalTo: iv.topAnchor),
+                    copy.bottomAnchor.constraint(equalTo: iv.bottomAnchor),
+                ])
+                bottomPatches.append(patch)
+            }
             // The crop, per state: resting fills the container; flight is the
             // source card's aspect, extending DOWNWARD past the container.
             restingConstraints.append(iv.bottomAnchor.constraint(equalTo: page.bottomAnchor))
@@ -1419,6 +1622,27 @@ final class ZoomHeroContainer: UIView {
     /// veiled), 0 at rest and through drags (the live screen shows normally).
     func setCurtainAlpha(_ alpha: CGFloat) {
         curtains.forEach { $0.alpha = alpha }
+    }
+
+    /// Animatable: the hero image's bottom radius — `ZoomStyle.cornerRadius`
+    /// at rest, morphing to the card's own as a dismissal lands.
+    func setBottomRadius(_ radius: CGFloat) {
+        bottomPatches.forEach { $0.layer.cornerRadius = radius }
+    }
+
+    /// The live value (a folded flight writes its presentation value here).
+    var bottomRadius: CGFloat {
+        bottomPatches.first?.layer.cornerRadius ?? ZoomStyle.cornerRadius
+    }
+
+    /// Jumps to a page with no animation. The open calls this BEFORE the
+    /// flight reads any geometry: the morph measures and flies whatever page
+    /// is showing, so the card's page has to be in place first.
+    func setPage(_ index: Int) {
+        layoutIfNeeded() // the offset is in points; the page width must be real
+        let width = carousel.bounds.width
+        guard width > 0, pageImages.indices.contains(index) else { return }
+        carousel.contentOffset.x = CGFloat(index) * width
     }
 
     /// Marks the page layout dirty so an ANIMATED layoutIfNeeded can carry
@@ -1530,6 +1754,8 @@ final class ZoomDetailController: UIViewController {
     let images: [UIImage]
     /// The source card's aspect, measured at push — the flight crop.
     let sourceAspect: CGFloat
+    /// The source card's corner radii — the shape every flight lands on.
+    let cardRadii: CardRadii
     private let detailHost: UIHostingController<AnyView>
 
     /// Drives the overlay presentation and its gesture dismissal.
@@ -1542,10 +1768,13 @@ final class ZoomDetailController: UIViewController {
     private var dragging = false
     private var landed = false // Only a landed screen is grabbable
 
-    init(images: [UIImage], sourceAspect: CGFloat, detailContent: AnyView) {
+    init(images: [UIImage], sourceAspect: CGFloat, cardRadii: CardRadii,
+         detailContent: AnyView) {
         self.images = images
         self.sourceAspect = sourceAspect
-        let hero = ZoomHeroContainer(images: images, sourceAspect: sourceAspect)
+        self.cardRadii = cardRadii
+        let hero = ZoomHeroContainer(images: images, sourceAspect: sourceAspect,
+                                     cardBottomRadius: cardRadii.bottom)
         heroContainer = hero
         detailHost = UIHostingController(rootView: AnyView(EmptyView()))
         super.init(nibName: nil, bundle: nil)
@@ -1677,10 +1906,9 @@ final class ZoomDetailController: UIViewController {
 
     // MARK: Morph hooks (used by the present morph and the dismissal flights)
 
-    /// The first carousel page image's frame in `view` coordinates.
-    func heroImageFrame() -> CGRect {
-        view.layoutIfNeeded()
-        return pageImages[0].convert(pageImages[0].bounds, to: view)
+    /// Positions the hero on the card's page (ZoomHeroContainer.setPage).
+    func setHeroPage(_ index: Int) {
+        heroContainer.setPage(index)
     }
 
     /// The hero image's RESTING height — valid under either active crop,
@@ -1691,8 +1919,11 @@ final class ZoomDetailController: UIViewController {
     /// home on an interactive dismiss.
     var currentPageImageView: UIImageView { pageImages[currentPageIndex()] }
 
-    /// Page 1's content, which a close-from-page-N fades into mid-flight.
-    var firstPageContent: UIImage? { images.first }
+    /// A page's image — what a close from a DIFFERENT page fades into
+    /// mid-flight, so the landing matches the card underneath.
+    func pageContent(_ index: Int) -> UIImage? {
+        images.indices.contains(index) ? images[index] : nil
+    }
 
     func currentPageIndex() -> Int {
         let width = max(carousel.bounds.width, 1)
@@ -1716,6 +1947,13 @@ final class ZoomDetailController: UIViewController {
     func setHeroCurtain(_ alpha: CGFloat) {
         heroContainer.setCurtainAlpha(alpha)
     }
+
+    /// Animatable: the hero image's own bottom radius, morphing to the card's
+    /// alongside the reveal mask's (ZoomHeroContainer.setBottomRadius).
+    func setHeroBottomRadius(_ radius: CGFloat) {
+        heroContainer.setBottomRadius(radius)
+    }
+    var heroBottomRadius: CGFloat { heroContainer.bottomRadius }
 
     /// See ZoomHeroContainer.setNeedsCropLayout — the caught-open arm uses
     /// this so the grab beat's animated layout re-solves the folded crop.
@@ -2009,7 +2247,10 @@ final class MorphDismissController: NSObject {
     private weak var detailView: UIView?
     private var scrim: UIView?
     private var shadowHost: UIView?
-    private var maskView: UIView?
+    private var maskView: SplitCornerView?
+    /// The card's corner radii — the shape every flight lands on. Read from
+    /// the detail (which took them from the marker at push).
+    private var cardRadii: CardRadii { detail?.cardRadii ?? .uniform(ZoomStyle.cornerRadius) }
     private var sourceRect = CGRect.zero  // home card, root coords
     private var presentSourceRect = CGRect.zero // landing fallback if the card unmounts
     /// The hero's RESTING frame in detail coords, recorded at present time:
@@ -2098,14 +2339,19 @@ final class MorphDismissController: NSObject {
     /// arm.
     private func installCardChrome() {
         guard let root, let marker = home?.activeSource else { return }
-        let rig = CardRestingShadowView(frame: sourceRect)
-        rig.alpha = 0
-        if let shadowHost {
-            root.overlayContainer.insertSubview(rig, belowSubview: shadowHost)
-        } else {
-            root.overlayContainer.addSubview(rig)
+        // A shadow-less source builds no rig at all: every landingShadowRig
+        // touch downstream is optional, so the whole flight simply carries
+        // no card shadow — matching the marker it lands on.
+        if marker.showsCardShadow {
+            let rig = CardRestingShadowView(frame: sourceRect)
+            rig.alpha = 0
+            if let shadowHost {
+                root.overlayContainer.insertSubview(rig, belowSubview: shadowHost)
+            } else {
+                root.overlayContainer.addSubview(rig)
+            }
+            landingShadowRig = rig
         }
-        landingShadowRig = rig
 
         let overlay = UIHostingController(rootView: marker.cardOverlay())
         overlay.view.backgroundColor = .clear
@@ -2143,7 +2389,8 @@ final class MorphDismissController: NSObject {
     private var coverFade: UIImageView? // mid-commit page-N cover, undone on catch
     private var regrabTransform: CGAffineTransform? // caught pose blend baseline
     private var regrabMaskFrame = CGRect.zero
-    private var regrabMaskRadius: CGFloat = 0
+    private var regrabMaskRadii = CardRadii.uniform(0)
+    private var regrabHeroBottom = ZoomStyle.cornerRadius
 
     // MARK: Present (the open morph; builds the persistent scene)
 
@@ -2201,6 +2448,9 @@ final class MorphDismissController: NSObject {
         detailView.frame = shadowHost.bounds
         detailView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         detailView.layoutIfNeeded() // flight crop: hero matches the card's aspect
+        // Open on the card's OWN page: everything below measures and flies
+        // whatever page the hero is showing, so it has to be in place first.
+        detail.setHeroPage(home.activeSource?.pageIndex ?? 0)
 
         // Start and end rects of the flight, both in root coordinates.
         sourceRect = container.convert(home.cardFrame, from: home.view)
@@ -2220,7 +2470,7 @@ final class MorphDismissController: NSObject {
                      sourceRect.minX, sourceRect.minY,
                      sourceRect.width, sourceRect.height))
         #endif
-        let heroRect = detail.heroImageFrame()
+        let heroRect = detail.currentHeroFrame()
         displayRadius = estimatedDisplayCornerRadius(around: container)
 
         guard heroRect.width > 0, sourceRect.width > 0 else {
@@ -2402,6 +2652,19 @@ final class MorphDismissController: NSObject {
     /// Re-arms the persistent scene for a dismissal: settles the detail's
     /// scroll geometry, measures the flight's endpoints, and installs the
     /// closing mask and the landing chrome copy. Idempotent per dismissal.
+    /// Hands the card the page the destination is on, at ARM time — the card
+    /// is hidden from the open until the landing, so SwiftUI has the whole
+    /// flight to settle its carousel there and the reveal is already right.
+    /// The page cannot change after this: an armed dismissal owns the screen
+    /// and the hero's scroll is frozen. Unbound sources hold a `.constant`,
+    /// where this writes nothing.
+    private func handCardItsPage() {
+        guard let marker = home?.activeSource, let detail else { return }
+        let page = detail.currentPageIndex()
+        guard marker.page.wrappedValue != page else { return }
+        marker.page.wrappedValue = page
+    }
+
     private func armDismissal() {
         guard let detail, let detailView, let root else { return }
         // Behind the tab bar for the whole collapse — before the landing target
@@ -2411,6 +2674,7 @@ final class MorphDismissController: NSObject {
         root.moveSceneBehindTabBar()
         detail.prepareForCollapse()
         detail.markInFlight()
+        handCardItsPage()
         // Measure the landing target AS IF the home plane were at identity:
         // the scene holds the 0.94 recede while presented, but the collapse
         // spring expands the plane back to identity in the same flight — a
@@ -2435,10 +2699,8 @@ final class MorphDismissController: NSObject {
         heroRect = detail.currentHeroFrame()
         anchor = CGPoint(x: heroRect.midX, y: heroRect.midY)
 
-        let mask = UIView(frame: detailView.bounds)
-        mask.backgroundColor = .black
-        mask.layer.cornerRadius = displayRadius
-        mask.layer.cornerCurve = .continuous
+        let mask = SplitCornerView()
+        mask.apply(frame: detailView.bounds, radii: .uniform(displayRadius))
         detailView.mask = mask
         maskView = mask
 
@@ -2494,8 +2756,8 @@ final class MorphDismissController: NSObject {
     func updateDrag(translation t: CGPoint) {
         guard let pose = dragPose(for: t) else { return }
         detailView?.transform = pose.transform
-        maskView?.frame = pose.maskFrame
-        maskView?.layer.cornerRadius = pose.maskRadius
+        maskView?.apply(frame: pose.maskFrame, radii: pose.maskRadii)
+        detail?.setHeroBottomRadius(pose.heroBottom)
         // System-zoom behavior: the underlying home plane HOLDS its
         // presented recede (0.94) and dim for the entire interactive phase —
         // releasing them is the commit's job; a cancel leaves a plane that
@@ -2546,7 +2808,8 @@ final class MorphDismissController: NSObject {
     /// replays this same rule along the momentum's decay — a fast dive is
     /// pixel-equivalent to a slow drag at every height.
     private func dragPose(for t: CGPoint)
-        -> (transform: CGAffineTransform, maskFrame: CGRect, maskRadius: CGFloat)? {
+        -> (transform: CGAffineTransform, maskFrame: CGRect,
+            maskRadii: CardRadii, heroBottom: CGFloat)? {
         guard let detailView else { return nil }
         let progress = min(max(t.y / DragTuning.collapseDistance, 0), 1)
         let offset = CGSize(
@@ -2567,7 +2830,10 @@ final class MorphDismissController: NSObject {
         // radius to the image's. Progress is clamped, so dragging past
         // collapseDistance never shrinks the reveal below the image.
         var maskFrame = DragTuning.lerp(detailView.bounds, heroRect, progress)
-        var maskRadius = DragTuning.lerp(displayRadius, ZoomStyle.cornerRadius, progress)
+        var maskRadii = CardRadii.lerp(.uniform(displayRadius), cardRadii, progress)
+        // The image's own bottom corners square off on the same progress —
+        // the reveal alone would only expose the round ones underneath.
+        var heroBottom = DragTuning.lerp(ZoomStyle.cornerRadius, cardRadii.bottom, progress)
         // A caught flight re-enters the drag from wherever the card was
         // seized: blend from the caught pose onto the drag rule over the
         // first ~120pt of new finger travel — no jump at the catch instant.
@@ -2581,10 +2847,11 @@ final class MorphDismissController: NSObject {
                 tx: DragTuning.lerp(base.tx, transform.tx, w),
                 ty: DragTuning.lerp(base.ty, transform.ty, w))
             maskFrame = DragTuning.lerp(regrabMaskFrame, maskFrame, w)
-            maskRadius = DragTuning.lerp(regrabMaskRadius, maskRadius, w)
+            maskRadii = CardRadii.lerp(regrabMaskRadii, maskRadii, w)
+            heroBottom = DragTuning.lerp(regrabHeroBottom, heroBottom, w)
             if w >= 1 { regrabTransform = nil }
         }
-        return (transform, maskFrame, maskRadius)
+        return (transform, maskFrame, maskRadii, heroBottom)
     }
 
     #if DEBUG
@@ -2909,9 +3176,10 @@ final class MorphDismissController: NSObject {
             // and eases onto the closed crop exactly at the pivot.
             let closing = f * f * (3 - 2 * f)
             let raced = DragTuning.lerp(pose.maskFrame, flightHero, closing)
-            maskView?.frame = raced
-            maskView?.layer.cornerRadius = DragTuning.lerp(
-                pose.maskRadius, ZoomStyle.cornerRadius / s, closing)
+            maskView?.apply(frame: raced, radii: CardRadii.lerp(
+                pose.maskRadii, cardRadii.scaled(by: s), closing))
+            detail.setHeroBottomRadius(DragTuning.lerp(
+                pose.heroBottom, cardRadii.bottom, closing))
             // The crop morph rides the dive ahead of this racing mask, so
             // the band between them is image, not curtain — the curtain
             // still guards any residual sliver beneath.
@@ -3005,12 +3273,16 @@ final class MorphDismissController: NSObject {
             y: sourceRect.midY - c.y - s * (heroCenter.y - c.y)
         ).scaledBy(x: s, y: s)
 
-        // Close-from-page-N: the flying page fades into the card's own image
-        // mid-flight; geometry is unaffected.
+        // Landing on a DIFFERENT page than the one flying: the flying page
+        // fades into the card's own image mid-flight; geometry is unaffected.
+        // A card whose page follows the destination (zoomTransition(page:))
+        // never takes this path — it lands on the very page in the air.
         var cover: UIImageView?
-        if detail.currentPageIndex() != 0, let first = detail.firstPageContent {
+        let landingPage = home.activeSource?.pageIndex ?? 0
+        if detail.currentPageIndex() != landingPage,
+           let landing = detail.pageContent(landingPage) {
             let page = detail.currentPageImageView
-            let fade = UIImageView(image: first)
+            let fade = UIImageView(image: landing)
             fade.contentMode = .scaleAspectFill
             fade.clipsToBounds = true
             fade.layer.cornerRadius = page.layer.cornerRadius
@@ -3075,8 +3347,10 @@ final class MorphDismissController: NSObject {
                 timingParameters: UISpringTimingParameters(
                     dampingRatio: 1, initialVelocity: .zero))
             race.addAnimations {
-                maskView.frame = flightHero
-                maskView.layer.cornerRadius = ZoomStyle.cornerRadius / s
+                maskView.apply(frame: flightHero, radii: self.cardRadii.scaled(by: s))
+                // The image's own bottom corners square off on this same
+                // clock: they are what the reveal's new corners expose.
+                detail.setHeroBottomRadius(self.cardRadii.bottom)
                 detail.setHeroCurtain(1) // curtain rides the racing crop
                 // The crop's dirty constraints resolve HERE, on the race
                 // clock: mask bottom and image bottom animate in the SAME
@@ -3183,8 +3457,9 @@ final class MorphDismissController: NSObject {
             duration: DragTuning.openFlightDuration, timingParameters: spring)
         animator.addAnimations {
             detailView.transform = .identity
-            self.maskView?.frame = detailView.bounds
-            self.maskView?.layer.cornerRadius = self.displayRadius
+            self.maskView?.apply(frame: detailView.bounds,
+                                 radii: .uniform(self.displayRadius))
+            self.detail?.setHeroBottomRadius(ZoomStyle.cornerRadius)
             self.scrim?.alpha = 0.25
             homeView.transform = self.recedeTransform(0.94)
             self.sceneOverlayHost?.view.alpha = 0 // chrome retreats with the cancel
@@ -3245,7 +3520,8 @@ final class MorphDismissController: NSObject {
         // drag rule over the first stretch of new finger travel.
         regrabTransform = detailView.transform
         regrabMaskFrame = maskView?.frame ?? .zero
-        regrabMaskRadius = maskView?.layer.cornerRadius ?? 0
+        regrabMaskRadii = maskView?.radii ?? .uniform(0)
+        regrabHeroBottom = detail.heroBottomRadius
         // Re-establish the held-drag scene in one grab beat: shadow back up,
         // scrim/home to their hold values, the resting hero crop, and any
         // mid-commit page-N cover fade undone.
@@ -3291,6 +3567,7 @@ final class MorphDismissController: NSObject {
         isInteracting = true
         detail.prepareForCollapse() // idempotent; scrolls already frozen
         detail.markInFlight()
+        handCardItsPage()
         // A caught drag is a live dismissal drag — content touches return
         // to their normal-drag state (the finger owns the screen anyway).
         detail.setContentTouchesEnabled(true)
@@ -3313,11 +3590,13 @@ final class MorphDismissController: NSObject {
         } else {
             sourceRect = presentSourceRect
         }
+        // The open's layered mask is uniformly rounded, so its caught radius
+        // is both radii of the dismissal mask that replaces it (the hero's
+        // own bottom corners are still at rest — the open never moves them).
         let caught = detailView.mask
-        let mask = UIView(frame: caught?.frame ?? detailView.bounds)
-        mask.backgroundColor = .black
-        mask.layer.cornerRadius = caught?.layer.cornerRadius ?? displayRadius
-        mask.layer.cornerCurve = .continuous
+        let mask = SplitCornerView()
+        mask.apply(frame: caught?.frame ?? detailView.bounds,
+                   radii: .uniform(caught?.layer.cornerRadius ?? displayRadius))
         detailView.mask = mask
         maskView = mask
         heroRect = presentRestingHeroRect

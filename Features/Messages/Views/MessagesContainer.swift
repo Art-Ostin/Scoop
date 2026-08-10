@@ -32,7 +32,16 @@ struct MessagesContainer: View {
                     }
                     .padding(.top, -24)
                 }
-                .toolbar {settingsButton ; profileButton}
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        settingsButton
+                    }
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        profileImage
+                    }
+                }
+                
                 .navigationDestination(for: PastEventsRoute.self, destination: destination)
                 .fullScreenCover(isPresented: $showSettings) {settingScreen()}
                 .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
@@ -75,42 +84,29 @@ extension MessagesContainer {
 //2. Components used in Container
 extension MessagesContainer {
     
-    @ToolbarContentBuilder
-    private var settingsButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            SettingsButton { showSettings = true }
-                .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
-                    source
-                        .clipShape(.rect(cornerRadius: 27, style: .circular)) //Circle in disguise: matchedTransitionSource only accepts RoundedRectangle
-                        .background(Color.appCanvas)
+    @ViewBuilder
+    private var profileImage: some View {
+        if let img = userProfileImages.first {
+            SmallImage(image: img, size: 32, isCircle: true)
+                .matchedTransitionSource(id: "profile", in: profileZoom)
+                .shrinkPress {
+                    showProfile = true
                 }
-                .padding(.leading, -10) //So it anchors to the left
         }
-        .hideToolbarBackground()
     }
     
-    @ToolbarContentBuilder
-    private var profileButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            if let img = userProfileImages.first {
-                ScoopButton(shape: Circle()) {
-                    showProfile = true
-                } label: {
-                    Image(uiImage: img)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 35, height: 35, alignment: .trailing)
-                        .clipShape(Circle())
-                        .padding(10)
-                }
-                .matchedTransitionSource(id: "profile", in: profileZoom)
-            } else {
-                Circle()
-                    .fill(Color.fillGray)
-                    .frame(width: 35, height: 35)
+    @ViewBuilder
+    private var settingsButton: some View {
+        Image("SettingsEmpty")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(Color.black)
+            .frame(width: 23, height: 23)
+            .background(Color.clear)
+            .shrinkPress {
+                showSettings = true
             }
-        }
-        .hideToolbarBackground()
+            .matchedTransitionSource(id: "settings", in: settingsZoom)
     }
 }
     
@@ -173,3 +169,46 @@ extension MessagesContainer {
         try await vm.readMessages(userEventId: eventProfile.event.id, userId: vm.user.id)
     }
 }
+
+
+/*
+ @ToolbarContentBuilder
+ private var profileButton: some ToolbarContent {
+     ToolbarItem(placement: .topBarTrailing) {
+         if let img = userProfileImages.first {
+             ScoopButton(shape: Circle()) {
+                 showProfile = true
+             } label: {
+                 Image(uiImage: img)
+                     .resizable()
+                     .scaledToFill()
+                     .frame(width: 35, height: 35, alignment: .trailing)
+                     .clipShape(Circle())
+                     .padding(10)
+             }
+             .matchedTransitionSource(id: "profile", in: profileZoom)
+         } else {
+             Circle()
+                 .fill(Color.fillGray)
+                 .frame(width: 35, height: 35)
+         }
+     }
+     .hideToolbarBackground()
+ }
+ 
+ @ToolbarContentBuilder
+ private var settingsButton: some ToolbarContent {
+     ToolbarItem(placement: .topBarLeading) {
+         SettingsButton { showSettings = true }
+             .matchedTransitionSource(id: "settings", in: settingsZoom) { source in
+                 source
+                     .clipShape(.rect(cornerRadius: 27, style: .circular)) //Circle in disguise: matchedTransitionSource only accepts RoundedRectangle
+                     .background(Color.appCanvas)
+             }
+             .padding(.leading, -10) //So it anchors to the left
+     }
+     .hideToolbarBackground()
+ }
+
+
+ */

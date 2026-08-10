@@ -15,13 +15,10 @@ struct EventMap: View {
 
     var body: some View {
         VStack(spacing: Spacing.sm) {
-            EventLocationMap(location: location, disableMap: $disableMap, openMaps: openMaps)
+            EventLocationMap(location: location, disableMap: $disableMap)
             locationInfo
         }
-        .padding([.horizontal, .top], 4)
         .padding(.bottom, Spacing.md)
-        .stroke(CornerRadius.md, lineWidth: disableMap ? 1 : 0)
-        .shadow(.image, strength: !disableMap ? 1 : 0)
         .eventCardBackground()
     }
 }
@@ -65,7 +62,7 @@ extension EventMap {
             Spacer()
             locationIcon(text: "23 min", icon: "EventWalkIcon", isMap: false)
             Spacer()
-            locationIcon(text: "Maps", icon: "EventMapsIcon", isMap: true)
+            locationIcon(text: "Maps", icon: "EventMapsIcon", isMap: true) // TODO: wire this tile to openMaps — it's the only reader left
         }
     }
     

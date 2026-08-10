@@ -939,7 +939,6 @@
 				6598527C2FD7FDDB00D75CA5 /* EventDetails.swift */,
 				65761E392FD9C5B9007CA835 /* EventDetailsHowItWorks.swift */,
 				659852812FD7FDFA00D75CA5 /* EventMap.swift */,
-				659852832FD7FE0E00D75CA5 /* EventInfo.swift */,
 				653FB5772F68886700440E41 /* EventLocationMap.swift */,
 				6536063E2F239E02006334D6 /* CantMakeIt.swift */,
 			);
@@ -1468,6 +1467,7 @@
 				65F7044D2F6EDA4100CE29C5 /* RespondDetails.swift */,
 				651ECEB3301B1D3D0017F206 /* InviteCardOverlay.swift */,
 				654C58942F6B5021002060C5 /* RespondButtons.swift */,
+				659852832FD7FE0E00D75CA5 /* EventInfo.swift */,
 			);
 			path = "OldRespond (Don't delete yet)";
 			sourceTree = "<group>";

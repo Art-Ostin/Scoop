@@ -13,7 +13,13 @@ struct EventSlot: View {
     @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
     let userImage: UIImage?
+    
+    let imageLoader: ImageLoading
+    let defaults: DefaultsManaging
+    
     let openMaps: () -> ()
+    
+    
 
     //Local view state
     @State private var disableMap: Bool = true
@@ -40,6 +46,9 @@ extension EventSlot {
     private var eventImageCard: some View {
         eventProfile.event.acceptedTime.map { targetTime in
             EventImageCard(
+                eventProfile: eventProfile,
+                defaults: defaults,
+                imageLoader: imageLoader,
                 profileImages: ui.profileImages[eventProfile.profile.id] ?? [],
                 userImage: userImage,
                 targetTime: targetTime
@@ -50,10 +59,7 @@ extension EventSlot {
 
     @ViewBuilder
     private var eventInfoSection: some View {
-        let e = eventProfile.event
-        if let acceptedTime = e.acceptedTime {
-            EventInfo(location: e.location, eventTime: acceptedTime, otherUserName: e.otherUserName, eventType: e.type)
-        }
+        InviteInfo(event: eventProfile, isEventSlot: true)
     }
     
     @ViewBuilder
@@ -82,7 +88,7 @@ extension EventSlot {
     
     private var eventDivider: some View {
         Capsule()
-            .fill(Color.border)
+            .fill(Color.fillGray)
             .frame(maxWidth: .infinity, maxHeight: 1)
             .padding(.horizontal, 72) //Geometry: sets the divider's length, not a rhythm gap
             .padding(.vertical, Spacing.xxs)//add tad more padding here than default

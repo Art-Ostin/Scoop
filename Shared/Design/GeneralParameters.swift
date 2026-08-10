@@ -87,7 +87,7 @@ enum Spacing {
 
 // MARK:  Aspect Ratio
 enum AspectRatio {
-    case square, card, `default`, inviteCard, invitedImage, confirmInviteImage
+    case square, card, `default`, inviteCard, invitedImage, confirmInviteImage, eventLocationMap
 
     var ratio: CGFloat {
         switch self {
@@ -97,6 +97,7 @@ enum AspectRatio {
         case .inviteCard:         1 / 1.5
         case .invitedImage:       1 / 0.95
         case .confirmInviteImage: 1 / 0.88
+        case .eventLocationMap:   1 / 1.02
         }
     }
 }

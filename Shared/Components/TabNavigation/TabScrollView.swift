@@ -36,13 +36,8 @@ struct TabScrollView<Content: View>: View {
         .colorBackground()
         .animation(.transition, value: showEmptyView)
         .scrollIndicators(.hidden)
-        //Meet's cards fly ABOVE the scroll during the zoom transition, where the
-        //system's bottom edge fade can't reach them. The landing swaps the flying
-        //card for the real one INSIDE the scroll in a single transaction, so the
-        //fade would appear in that one frame — a white flash over any card sitting
-        //under the tab bar. No fade, nothing to mismatch.
         .hidesBottomScrollEdgeEffect(type == .meet)
-        .scoopNavigationBarFonts(largeTitleSize:titleSize)
+        .scoopNavigationBarFonts(title: title, largeTitleSize: titleSize)
     }
 }
 

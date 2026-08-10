@@ -48,42 +48,74 @@ struct EventsContainer: View {
 extension EventsContainer {
 
     private var eventsList: some View {
-        HorizontalScrollView(progress: .constant(0)) {
+        EventsPager(selectedEventId: $ui.selectedEventId) {
             ForEach(vm.events) { eventProfile in
                 eventSlot(eventProfile)
             }
         }
-        .scrollPosition(id: $ui.selectedEventId)
     }
     
     
     //userImage is optional all the way down: it lands asynchronously and must never gate the page.
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
-        EventSlot(ui: ui, eventProfile: eventProfile, userImage: userImage) {
-            openMaps(eventProfile)
-        }
+        EventSlot(
+            ui: ui,
+            eventProfile: eventProfile,
+            userImage: userImage,
+            imageLoader: vm.imageLoader,
+            defaults: vm.defaults) {
+                openMaps(eventProfile)
+            }
         .padding(.horizontal, Spacing.gutter)
         .containerRelativeFrame(.horizontal)
         .id(eventProfile.id)
         .task {await loadProfileImages(eventProfile.profile)}
     }
-
-    //Floats above the current event page and zooms into its chat
+    
     @ViewBuilder
     private var messageButton: some View {
         if let eventProfile = currentProfile {
-            NavigationLink(value: eventProfile) {
+            ScoopButton(shape: Circle()) {
+                path.append(eventProfile)
+            } label: {
                 Image("NewMessageIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)
                     .padding(Spacing.sm)
-                    .glassEffectIfAvailable(shape: Circle())
-                    .expandHitArea(24)
             }
             .matchedTransitionSource(id: eventProfile.id, in: zoomNS)
             .padding(.bottom, Spacing.xxl)
             .padding(.horizontal, Spacing.margin)
+        }
+    }
+}
+
+///The pager keeps its own page id. Routing every landing straight into `ui` would invalidate
+///EventsContainer — the title and the message button read `selectedEventId` — while the paging
+///animation is still running, and the re-applied `scrollPosition` then snaps the offset to the
+///target instead of letting it settle. Only the resting page travels back up.
+private struct EventsPager<Content: View>: View {
+
+    //Injected
+    @Binding var selectedEventId: String?
+    @ViewBuilder let content: Content
+
+    //Local view state
+    @State private var pagedId: String?
+
+    var body: some View {
+        HorizontalScrollView(progress: .constant(0)) {
+            content
+        }
+        .scrollPosition(id: $pagedId)
+        .onScrollPhaseChange { _, phase in
+            guard phase == .idle, pagedId != selectedEventId else { return }
+            selectedEventId = pagedId
+        }
+        .onChange(of: selectedEventId) { _, newId in
+            guard let newId, newId != pagedId else { return } //Deep links jump the pager
+            pagedId = newId
         }
     }
 }

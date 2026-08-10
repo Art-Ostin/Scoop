@@ -30,13 +30,13 @@ struct ProfileCard : View {
                     .onAppear { isProfilePresented = true }
                     .onDisappear { isProfilePresented = false }
             }
-            //Outside the zoom transition, so hiding the source while the invite is up hides the
-            //whole card — image, chrome overlay and resting shadow — never a duplicate
-            .inviteZoom(id: profile.id, isPresented: ui.showInviteBinding(profile: profile)) {
-                cardOverlay //The flight fades this chrome copy over the flying image, then back in on collapse
-            } popup: {
-                invitePopup
-            }
+            .inviteZoom(
+                id: profile.id,
+                isPresented: ui.showInviteBinding(profile: profile),
+                sourceChrome: { cardOverlay }, //The flight drives this copy's per-element exits over the flying image
+                sourceNameRect: { ProfileCardChrome.nameRect(in: $0, name: profile.profile.name) },
+                popup: { invitePopup }
+            )
     }
 }
 
@@ -76,6 +76,7 @@ struct ProfileCardChrome: View {
     @Environment(\.inviteChromeCollapse) private var chromeCollapse
     @Environment(\.inviteChromeExiting) private var chromeExiting
     @Environment(\.inviteChromeArrived) private var chromeArrived
+    @Environment(\.inviteChromeNameFlying) private var nameFlying
 
     var body: some View {
         ZStack {
@@ -92,10 +93,29 @@ struct ProfileCardChrome: View {
         .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image))) //As the modifier drew it
         .overlay(alignment: .bottomLeading) {
             overlayText
-                .padding(.horizontal, Spacing.lg)
-                .padding(.bottom, 18)
+                .padding(.horizontal, Self.overlayTextInset)
+                .padding(.bottom, Self.overlayBottomInset)
         }
         .animation(.transition, value: palette) //Extraction lands a frame late — the scrim fades in rather than snaps
+    }
+
+    //Overlay text geometry, shared with nameRect(in:name:) so the flight's derived anchor
+    //can't drift from the layout
+    static let overlayTextInset: CGFloat = Spacing.lg
+    static let overlayBottomInset: CGFloat = 18 //Geometry: optically balances the side inset against the descender
+    static let overlayStackGap: CGFloat = 10
+
+    ///Where the resting card draws its name, derived from the card's frame + the overlay's
+    ///constants and font metrics — the invite flight's hero text launches from exactly here.
+    ///DERIVED, never measured: it stays consistent with the flight's frozen source rect, and
+    ///no preference/hosting boundary can lose it (a measured anchor blanked on device).
+    static func nameRect(in card: CGRect, name: String) -> CGRect {
+        let nameSize = (name as NSString).size(withAttributes: [.font: UIFont.title(26, .bold)])
+        let subtitleHeight = ("X" as NSString).size(withAttributes: [.font: UIFont.body(17, .medium)]).height
+        let width = min(nameSize.width, card.width - overlayTextInset * 2) //A long name truncates at the card edge
+        let bottom = card.maxY - overlayBottomInset - subtitleHeight - overlayStackGap
+        return CGRect(x: card.minX + overlayTextInset, y: bottom - nameSize.height,
+                      width: width, height: nameSize.height)
     }
 }
 
@@ -137,11 +157,12 @@ extension ProfileCardChrome {
     }
 
     private var overlayText: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Self.overlayStackGap) {
             Text(name)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
-                .opacity(chromeFade) //Rushes out with the wash — the invite title takes its place
+                .lineLimit(1) //The hero text is single-line; a wrapping card name would hand it a two-line frame
+                .opacity(nameFlying ? 0 : chromeFade) //While a hero owns the word it never renders here; at rest it rushes out with the wash
 
             Text(subtitle)
                  .font(.body(17, .medium))

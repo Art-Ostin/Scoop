@@ -37,7 +37,7 @@ struct EventDetails: View {
     }
 
     private var frontFace: some View {
-        VStack(spacing: Spacing.md) {
+        VStack(spacing: Spacing.md + 2) {
             detailSection(title: "WHAT", mainText: type.longTitle, image: type.emoji, isType: true)
             LightDivider()
             detailSection(title: "WHEN", mainText: FormatEvent.dayAndTime(time), image: "EventClockIcon")
@@ -123,7 +123,7 @@ struct DetailsBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, Spacing.xl)
-            .padding(.vertical, Spacing.lg)
+            .padding(.vertical, Spacing.lg + 2)
             .eventCardBackground()
     }
 }

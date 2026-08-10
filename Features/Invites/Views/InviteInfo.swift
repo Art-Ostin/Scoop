@@ -13,9 +13,10 @@ struct InviteInfo: View {
     
     @State private var scrollProgress: Double = 0
     
+    var isEventSlot: Bool = false
     var body: some View {
         
-        VStack(spacing: 54) {
+        VStack(spacing: isEventSlot ? Spacing.xxl : 54) {
             Text("How It Goes")
                 .font(.title(28))
                 .foregroundStyle(Color.textPrimary)
@@ -36,8 +37,10 @@ extension InviteInfo {
             ForEach(ScrollSections.allCases, id: \.self) {section in
                 scrollSection(for: section)
                     .containerRelativeFrame(.horizontal)
+                    .fixedSize(horizontal: false, vertical: true)//Page reports its wrapped height, so the greedy pager can't squeeze the copy
             }
         }
+        .fixedSize(horizontal: false, vertical: true)//Pager keeps the tallest page's height instead of collapsing to what it's offered
     }
     
     
@@ -46,18 +49,19 @@ extension InviteInfo {
             section.image(type: event.event.type)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 275, height: 275)
+                .frame(width: isEventSlot ? 250 : 275, height: isEventSlot ? 250 : 275)
             
-            VStack(spacing: 16) {
+            VStack(spacing: Spacing.md) {
                 Text(section.title(type: event.event.type))
                     .font(.body(17, .bold))
-                
+
                 Text(section.detailText(event: event.event))
                     .font(.body(16, .medium))
                     .foregroundStyle(Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 42)
                     .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)//Takes every line it needs — no tail ellipsis
             }
         }
     }

@@ -70,7 +70,7 @@ struct InviteImageCarousel: View {
     //…and snaps the pager home under that cover before the collapse resizes it
     var pagerPosition: Binding<ScrollPosition>? = nil
 
-    //False until the open flight's tail, so the chrome pops in at its resting position over the flying image
+    //Flipped as the open flight launches, so the chrome pops in over the flying image and grows with it
     var chromeVisible: Bool = true
 
     //The flight defers the heavy pager until the card lands — its static covers stand in
@@ -85,6 +85,20 @@ struct InviteImageCarousel: View {
     //cover double-exposes two photos
     var pagerInteractive: Bool = true
 
+    //The invite flight flies the name as its own hero text: the title's name renders as a
+    //layout ghost (measured, invisible) while true, and reports its slot through the binding.
+    //The slot is published as FLIGHT-INVARIANT offsets (x: leading inset to the name, y:
+    //bottom inset, size: the 22pt text) — identical at any carousel size, so a measurement
+    //taken at the collapsed model size can never stomp an in-flight lerp target
+    //([[measured-frames-dont-track-animation]]: position measurements hold model values only).
+    var nameFlying: Bool = false
+    var titleNameSlot: Binding<CGRect>? = nil
+
+    //Shared with the flight's slot maths — literals here and there must be the same numbers
+    static let titleInset: CGFloat = 20 //Geometry: as the back button — one shared inset from the artwork edge
+    static let titleWordGap: CGFloat = 6 //Geometry: tighter than a word space, so the pair reads as one line of display type
+    static let titleBottomInset: CGFloat = Spacing.sm
+
     //Both offered by the options menu
     let declineProfile: () -> Void
     let clearInvite: () -> Void
@@ -95,6 +109,12 @@ struct InviteImageCarousel: View {
     //Measured so the blur halo can lift just behind the overlay text
     @State private var nameFrame: CGRect = .zero
     @State private var inviteFrame: CGRect = .zero
+
+    //LAYOUT sizes for the name slot — the getRect frames above pass through chromeItem's
+    //opacityPop, so while the title chrome is hidden they carry its 0.4 shrunk scale;
+    //GeometryProxy.size is transform-independent and truly flight-invariant
+    @State private var inviteWordWidth: CGFloat = 0
+    @State private var titleNameSize: CGSize = .zero
 
     private var chrome: InviteScreen.Overlays { screen.chrome }
 
@@ -160,19 +180,33 @@ extension InviteImageCarousel {
     private var inviteTitle: some View {
         let answering = screen == .accept
 
-        return HStack(spacing: 6) { //Geometry: tighter than a word space, so the pair reads as one line of display type
+        return HStack(spacing: Self.titleWordGap) {
             Text(answering ? "\(name)'s" : "Invite")
                 .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { inviteWordWidth = $0; publishNameSlot() }
 
             Text(answering ? "invite" : name)
                 .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
+                .opacity(nameFlying ? 0 : 1) //Layout ghost while the flight's hero text owns the word
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { titleNameSize = $0; publishNameSlot() }
         }
         .font(.title(22))
         .scaleEffect(answering ? 0.85 : 1, anchor: .bottomLeading) //Their name runs longer than "Invite"
         .foregroundStyle(Color.white)
-        .padding(.horizontal, 20)
-        .padding(.bottom, Spacing.sm)
+        .padding(.horizontal, Self.titleInset)
+        .padding(.bottom, Self.titleBottomInset)
         .chromeItem(visible: chrome.title && chromeVisible)
+    }
+
+    //The name's slot from LAYOUT sizes + the title's own constants — never from measured
+    //positions (model-valued mid-flight) and never from getRect frames (scaled by the pop)
+    private func publishNameSlot() {
+        guard let titleNameSlot, titleNameSize.width > 0, inviteWordWidth > 0 else { return }
+        titleNameSlot.wrappedValue = CGRect(
+            x: Self.titleInset + inviteWordWidth + Self.titleWordGap,
+            y: Self.titleBottomInset,
+            width: titleNameSize.width, height: titleNameSize.height
+        )
     }
 
     private var pageIndicator: some View {

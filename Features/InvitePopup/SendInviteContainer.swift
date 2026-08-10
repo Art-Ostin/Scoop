@@ -12,11 +12,10 @@ struct SendInviteContainer: View {
     //Flight tuning — a geometry-matched hero flight keeps its measured curves in-file.
     //The close overlaps two clocks, like the profile dismiss: the mask races the chrome
     //down to image-only on `chromeRace` while the image flies home on `closeFlight`.
-    static let openFlight = Animation.spring(Spring(duration: 0.4, bounce: 0.1)) //ProfileZoom's open clock (0.4s, dampingRatio 0.9): a gentle settle instead of smooth's front-loaded rush
+    static let openFlight = Animation.spring(Spring(duration: 0.4, bounce: 0.1)) //ProfileZoom's open clock stretched ~12% (was 0.4s, 2026-08-10): a gentle settle instead of smooth's front-loaded rush
     static let closeFlight = Animation.smooth(duration: 0.28)
     static let chromeRace = Animation.smooth(duration: 0.15)
     static let sourceChromeExit = Animation.smooth(duration: 0.12) //The meet-card chrome copy only needs to cover frame 1 — then it's out of the flight's way
-    static let chromeArrival: TimeInterval = 0.18 //Destination chrome lifts off this far into the open flight: its .transition pop completes right as the card lands
     static let snapBackSpring = Spring(duration: 0.3, bounce: 0.3) //ProfileZoom's cancel clock, with enough bounce to read (SwiftUI springs damp far harder than UIKit's for the same ratio — Spring.value-probed)
     static let diveFlight = Spring(duration: 0.45, bounce: 0.4) //A committed drag: the carried velocity dives the card past the slot and the spring expands it back in (the profile's landing)
     static let settleFlight = Spring(duration: 0.4, bounce: 0.12) //Button close / slow release: a gentle settle onto the slot
@@ -27,7 +26,7 @@ struct SendInviteContainer: View {
     //Interactive dismiss tuning (see dismissDrag) — the numbers ProfileZoom's drag proved out
     static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the collapse 0→1
     static let dismissThreshold: CGFloat = 0.3 //Release past this progress (or a downward flick) dismisses
-    static let minDragScale: CGFloat = 0.82 //Progressive shrink of the whole card at full collapse
+    static let minDragScale: CGFloat = 0.82 
 
     //Injected Properties
     let images: [UIImage]
@@ -73,8 +72,11 @@ struct SendInviteContainer: View {
     @State private var coversDropped = false //Paging latch: a swipe over a held cover double-exposes two photos, so the pager stays inert until the covers are gone
     @State private var blurCover: Double = 0 //The covers' glur layer: 1 only at close start (pager-identical), gone in 0.15s — shaders never fly
     @State private var sourceChromeFade: Double = 1 //Caps the chrome copy's opacity: rushed to 0 at open start, reset for the collapse
-    @State private var chromeIn = false //Destination image chrome (title, options, dots): pops in over the flight's tail, out at close start
+    @State private var chromeIn = false //Destination image chrome (title, options, dots): pops in from the flight's first frame, out at close start
     @State private var sourceChromeExiting = false //Drives the source copy's per-element exits (subtitle blur-pop, invite-icon pop) via the inviteChrome environment
+    @State private var titleNameSlot: CGRect = .zero //The title name's flight-invariant offsets (leading inset / bottom inset / 22pt size) — the hero's destination derives from these + the frozen carousel target, never from a measured mid-flight position
+    @State private var nameLanded = false //Hands the name from the hero text to the real title, a beat after land() so the spring's last sub-pixel settle can't jump the swap
+    @State private var heroFadesWithCollapse = false //A close from the confirm screen has no visible title to leave from — the name rides in with the chrome copy instead
     @State private var flightTargets: (card: CGRect, image: CGRect)? //Destination frames frozen per flight: a mid-flight reflow must not retarget the animation
 
     //Drag Logic
@@ -87,6 +89,12 @@ struct SendInviteContainer: View {
     private var sourceFrame: CGRect { zoom?.source ?? .zero }
     private var hasFlight: Bool { sourceFrame.width > 1 } //No measured source: open and close stay instant
     private var shown: Bool { expanded || !hasFlight } //A no-flight mount is presented from its first frame — its chrome must never animate in
+    //The hero owns the name through both flights; the real title takes over at rest. A flight
+    //with no measured source name (the chrome-less inviteZoom overload — the debug harness)
+    //degrades to the plain title: without this gate the ghost hides a name nothing replaces.
+    private var nameHeroActive: Bool {
+        hasFlight && (zoom?.sourceName.width ?? 0) > 1 && (!nameLanded || !expanded)
+    }
 
     //The drag scrub and the close's mask race share the chrome-collapse axis. max, not a sum:
     //the commit unwinds dragProgress on the flight clock, and a sum would feed that decay back
@@ -144,6 +152,7 @@ extension SendInviteContainer {
                 layoutColumn
                 carouselLayer(origin)
                 sourceChromeLayer(origin)
+                nameFlightLayer(origin)
                 flightTapCatcher(origin)
                 reopenTapTarget(origin)
             }
@@ -251,13 +260,51 @@ extension SendInviteContainer {
                 //revealed on the way home by the collapse multiplier. The blur band ignores both:
                 //it rides the flight full-strength and crossfades against the baked invite blur
                 //when the destination chrome arrives (chromeIn) — and back again over the close.
+                //That handover waits on the bake as well: the chrome leads the flight now, so it
+                //can beat blurredHero to the screen, and exiting into a layer that doesn't exist
+                //yet would strand the title on bare artwork for the bake's last few ms.
                 .environment(\.inviteChromeFade, min(Double(closeP), sourceChromeFade))
                 .environment(\.inviteChromeCollapse, Double(closeP))
                 .environment(\.inviteChromeExiting, sourceChromeExiting)
-                .environment(\.inviteChromeArrived, chromeIn)
+                .environment(\.inviteChromeArrived, chromeIn && blurredHero != nil)
+                //Conditional, NOT constant true: if the hero can't anchor (no sourceNameRect —
+                //the chrome-less harness, or a failed derivation) the copy's name keeps its
+                //old chromeFade exits instead of blanking for the whole flight (device video)
+                .environment(\.inviteChromeNameFlying, nameHeroActive)
                 .scaleEffect(x: rect.width / max(sourceFrame.width, 1),
                              y: rect.height / max(sourceFrame.height, 1))
                 .position(x: rect.midX, y: rect.midY)
+                .allowsHitTesting(false)
+        }
+    }
+
+    //The name's own hero flight: the name never blinks — it rides from the meet card's
+    //bottom-left (26pt) to its slot beside "Invite" in the title (22pt) as ONE text, scaled
+    //along the flight. The title's real name is a layout ghost meanwhile (nameFlying), and
+    //the chrome copy's name is env-hidden for the whole presentation. Rendered at the SOURCE
+    //size and transform-scaled: the 22pt landing is 26 × ~0.85, sub-pixel from the true title.
+    @ViewBuilder
+    private func nameFlightLayer(_ origin: CGPoint) -> some View {
+        let sourceName = zoom?.sourceName ?? .zero
+        if nameHeroActive, sourceName.width > 1 {
+            //Destination built declaratively: frozen flight target + the title's invariant
+            //offsets. Never a measured global position — those hold model values and would
+            //teleport the lerp target mid-flight ([[measured-frames-dont-track-animation]]).
+            let target = carouselTargetFrame
+            let dest = titleNameSlot.width > 1
+                ? CGRect(x: target.minX + titleNameSlot.minX,
+                         y: target.maxY - titleNameSlot.minY - titleNameSlot.height,
+                         width: titleNameSlot.width, height: titleNameSlot.height)
+                : sourceName //First frames only: the title publishes its slot from its first layout pass
+            let rect = local(lerp(dest, sourceName, closeP), origin)
+            Text(name)
+                .font(.title(26, .bold))
+                .foregroundStyle(Color.white)
+                .lineLimit(1)
+                .fixedSize()
+                .scaleEffect(rect.height / max(sourceName.height, 1), anchor: .center)
+                .position(x: rect.midX, y: rect.midY)
+                .opacity(heroFadesWithCollapse ? Double(closeP) : 1)
                 .allowsHitTesting(false)
         }
     }
@@ -305,7 +352,7 @@ extension SendInviteContainer {
                 .opacity(coverPage != nil ? 1 : 0)
                 ZStack {
                     rawCover(images[0])
-                    if let blurredHero { //Baked off-main at mount; inserted (animated) well before the chrome arrives
+                    if let blurredHero { //Baked off-main at mount; inserted (animated), and the source band holds its blur until it lands
                         rawCover(blurredHero) //Identical pixels above the ramp — only the bottom band crossfades
                             .opacity(currentScreen.blursBottom && chromeIn ? 1 : 0) //In with the chrome, out with it on close; never on the sharp-bottomed confirm screen
                             .animation(.transition, value: chromeIn)
@@ -384,16 +431,15 @@ extension SendInviteContainer {
         let generation = flightGeneration
         Task { @MainActor in //One committed frame at the source rect before the flight animates from it
             sourceChromeExiting = true //Subtitle + invite icon pop away on their own clocks
+            heroFadesWithCollapse = false //A fresh open always leaves from the send screen's visible title
             withAnimation(Self.sourceChromeExit) { sourceChromeFade = 0 }
+            chromeIn = true //The chrome LEADS the flight: its 0.25s .transition pop runs from frame 1, so the card arrives already dressed
             withAnimation(Self.openFlight, completionCriteria: .removed) {
                 expanded = true
                 closeP = 0
             } completion: {
                 land(generation)
             }
-            try? await Task.sleep(for: .seconds(Self.chromeArrival)) //The chrome pop rides the flight's tail…
-            guard expanded, generation == flightGeneration else { return } //…unless a close owns the card already
-            chromeIn = true
         }
     }
 
@@ -416,6 +462,7 @@ extension SendInviteContainer {
             chromeIn = false //Chrome pops out at close start, ahead of the flight home
             pagerReveal = 0 //The pager unmounts in this same commit; reset for the next landing
             coversDropped = false
+            nameLanded = false //The hero text takes the name back for the flight home
         }
     }
 
@@ -428,6 +475,11 @@ extension SendInviteContainer {
         chromeIn = true //Normally already in on its own clock — this covers the fallback land
         flightTargets = nil //Live measurements own the geometry again
         blurCover = 0 //The pager carries the bottom blur from here
+        Task { @MainActor in //The name swap waits out the spring's last sub-pixel settle — swapping at land() can still jump ~1pt
+            try? await Task.sleep(for: .seconds(0.15))
+            guard expanded, generation == flightGeneration else { return }
+            nameLanded = true
+        }
         if let coverPage, images.indices.contains(coverPage) { //A reopen mid-close: give the pager its page back
             snapPager { $0.scrollTo(id: images[coverPage], anchor: .leading) }
         }
@@ -483,16 +535,11 @@ extension SendInviteContainer {
     private func reopen() {
         sourceChromeExiting = true
         withAnimation(Self.sourceChromeExit) { sourceChromeFade = 0 }
+        chromeIn = true //Leads the flight, as on the first open
         withAnimation(Self.openFlight) {
             expanded = true
             closeP = 0
             chromeRaceP = 0
-        }
-        let generation = flightGeneration
-        Task { @MainActor in //Same tail-of-flight arrival as the first open
-            try? await Task.sleep(for: .seconds(Self.chromeArrival))
-            guard expanded, generation == flightGeneration else { return }
-            chromeIn = true
         }
     }
 
@@ -500,6 +547,7 @@ extension SendInviteContainer {
         flightTargets = (cardFrame, imageFrame) //Freeze the collapse's from-geometry
         sourceChromeFade = 1 //The cap steps aside: the chrome copy rides the collapse back in via closeP
         sourceChromeExiting = false //Subtitle + invite icon pop back in, revealed by the collapse
+        heroFadesWithCollapse = !currentScreen.chrome.title //No visible title to leave from (confirm screen): the name rides in with the collapse instead
         //The covers must match the pager on its unmount frame; the race fades the blur out.
         //At rest that pager is fully glur'd. Mid-reveal it is only fraction-opaque, and full
         //glur on top would POP the bottom fifth — the baked blurredHero layer (already in via
@@ -632,13 +680,15 @@ extension SendInviteContainer {
             fillsFrame: true, //The flight frames the carousel; self-sizing would fight the animated rect
             scrollProgress: $scrollProgress,
             pagerPosition: $pagerPosition,
-            //The chrome pops in on its own delayed clock (chromeArrival), completing as the
-            //flight lands. The title's blur halo still waits for the pager (shaders never fly)
-            //and fades in at landing, under the pop's tail. No flight in a no-flight mount.
+            //The chrome pops in on its own .transition clock from the flight's first frame, so
+            //it grows with the card rather than landing on it. The title's blur halo still waits
+            //for the pager (shaders never fly) and fades in at landing. No flight in a no-flight mount.
             chromeVisible: chromeIn,
             showsPager: landed, //The heavy pager mounts only at rest, over the held covers…
             pagerFade: pagerReveal, //…and fades in above them, so the bottom blur arrives smoothly…
             pagerInteractive: coversDropped, //…but can't page until they're gone (double-exposure)
+            nameFlying: nameHeroActive, //The hero text owns the name; the title keeps a layout ghost
+            titleNameSlot: $titleNameSlot, //Flight-invariant offsets — no drag/flight freezing needed
             declineProfile: declineProfile,
             clearInvite: {withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
@@ -767,6 +817,7 @@ extension EnvironmentValues {
     @Entry var inviteChromeCollapse: Double = 1
     @Entry var inviteChromeExiting: Bool = false
     @Entry var inviteChromeArrived: Bool = false
+    @Entry var inviteChromeNameFlying: Bool = false //The hero text layer owns the name for the whole presentation — the chrome copy's name never renders
 }
 
 @MainActor
@@ -781,15 +832,18 @@ final class InviteZoomPresenter {
 
     private(set) var slot: Slot?
     private(set) var source: CGRect = .zero //Frozen source frame of the flight in progress
+    private(set) var sourceName: CGRect = .zero //The resting name's frozen frame — the hero text flight's source anchor
 
     @ObservationIgnored private var sourceRects: [String: CGRect] = [:]
 
     func reportSource(id: String, rect: CGRect) { sourceRects[id] = rect }
 
-    func present(id: String, sourceChrome: @escaping () -> AnyView, view: @escaping () -> AnyView) {
+    func present(id: String, sourceChrome: @escaping () -> AnyView, sourceNameRect: ((CGRect) -> CGRect)?, view: @escaping () -> AnyView) {
         if let current = slot, current.id != id { clear(id: current.id) } //Handoff: presenting over a closing card evicts it
         guard slot == nil else { return } //A same-id re-present (a remount's initial onChange) is a no-op
         source = sourceRects[id] ?? .zero //Freeze the tapped card's frame for this flight
+        //DERIVED from the frozen rect, never measured — a measured anchor proved lossy on device
+        sourceName = source.width > 1 ? (sourceNameRect?(source) ?? .zero) : .zero
         slot = Slot(id: id, view: view, sourceChrome: sourceChrome)
     }
 
@@ -798,6 +852,7 @@ final class InviteZoomPresenter {
         guard slot?.id == id else { return }
         slot = nil
         source = .zero
+        sourceName = .zero
     }
 }
 
@@ -823,6 +878,7 @@ private struct InviteZoomModifier<SourceChrome: View, Popup: View>: ViewModifier
     let id: String
     @Binding var isPresented: Bool
     @ViewBuilder let sourceChrome: () -> SourceChrome
+    let sourceNameRect: ((CGRect) -> CGRect)?
     @ViewBuilder let popup: () -> Popup
 
     //The flight IS the card while a slot is live: the source hides for the whole presented
@@ -839,7 +895,7 @@ private struct InviteZoomModifier<SourceChrome: View, Popup: View>: ViewModifier
             .onChange(of: isPresented, initial: true) { _, presented in
                 guard let presenter else { return }
                 if presented {
-                    presenter.present(id: id, sourceChrome: { AnyView(sourceChrome()) }) { AnyView(popup()) }
+                    presenter.present(id: id, sourceChrome: { AnyView(sourceChrome()) }, sourceNameRect: sourceNameRect) { AnyView(popup()) }
                 } else {
                     presenter.clear(id: id)
                 }
@@ -854,14 +910,16 @@ extension View {
     ///back on dismissal. The source view hides while the popup is presented — the flight is the
     ///card. `sourceChrome` is a copy of the card chrome drawn over the flying image: it must
     ///read the `inviteChrome…` environment drivers to exit over the open and ride the collapse
-    ///back in (ProfileCard.cardOverlay is the reference).
+    ///back in (ProfileCard.cardOverlay is the reference). `sourceNameRect` derives the resting
+    ///name's frame from the frozen card rect — the hero text flight's source anchor.
     func inviteZoom(
         id: String,
         isPresented: Binding<Bool>,
         @ViewBuilder sourceChrome: @escaping () -> some View,
+        sourceNameRect: ((CGRect) -> CGRect)? = nil,
         @ViewBuilder popup: @escaping () -> some View
     ) -> some View {
-        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: sourceChrome, popup: popup))
+        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect, popup: popup))
     }
 
     ///For a plain image source with no chrome to fade (the debug harness, a bare photo)
@@ -870,6 +928,6 @@ extension View {
         isPresented: Binding<Bool>,
         @ViewBuilder popup: @escaping () -> some View
     ) -> some View {
-        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: { EmptyView() }, popup: popup))
+        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: { EmptyView() }, sourceNameRect: nil, popup: popup))
     }
 }

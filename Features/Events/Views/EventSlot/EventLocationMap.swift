@@ -12,21 +12,13 @@ struct EventLocationMap: View {
     //Injected
     let location: EventLocation
     @Binding var disableMap: Bool
-    let openMaps: () -> ()
 
     //Local view state
     @State private var cameraPosition: MapCameraPosition = .automatic
-    @State private var mapWidth: CGFloat = 0
-
-    //Measured here, not handed down: the map fills the card it sits in, so its own
-    //width is the only honest source for the near-square height.
-    private var mapHeight: CGFloat {
-        mapWidth > 50 ? mapWidth - 36 : mapWidth
-    }
 
     //Squared-off top, tucked-in bottom; the hit area follows the visible shape.
     private var mapShape: UnevenRoundedRectangle {
-        UnevenRoundedRectangle(cornerRadii: .init(top: CornerRadius.md, bottom: CornerRadius.xs))
+        UnevenRoundedRectangle(cornerRadii: .init(top: CornerRadius.lg, bottom: 0))
     }
 
     private var defaultCamera: MapCamera {
@@ -41,41 +33,43 @@ struct EventLocationMap: View {
     }
 
     var body: some View {
-        ZStack {
-            Map(position: $cameraPosition) {
-                Marker(location.name ?? "", systemImage: "mappin", coordinate: coord)
-                    .tint(.red)
-                
-                UserAnnotation()
-                    .tint(.blue)
+        //Shaped by the card, not by measuring itself: the card hands down the width,
+        //the ratio sets the height. fixedSize keeps a squeezed proposal from narrowing it.
+        Color.clear
+            .aspectRatio(AspectRatio.eventLocationMap.ratio, contentMode: .fit)
+            .fixedSize(horizontal: false, vertical: true)
+            .overlay {
+                Map(position: $cameraPosition) {
+                    Marker(location.name ?? "", systemImage: "mappin", coordinate: coord)
+                        .tint(.red)
+
+                    UserAnnotation()
+                        .tint(.blue)
+                }
+                .allowsHitTesting(!disableMap)
             }
-            .allowsHitTesting(!disableMap)
-        }
-        .tint(.blue)
-        .clipShape(mapShape)
-        .contentShape(mapShape)
-        .frame(maxWidth: .infinity)
-        .getWidth($mapWidth)
-        .frame(height: max(mapHeight, 0))
-        .scaleEffect(disableMap ? 1 : 1.03)
-        .overlay(alignment: .bottomTrailing) {
-            enableMapButton
-        }
-        .onAppear {
-            cameraPosition = .camera(defaultCamera)
-        }
-        .animation(.toggle, value: disableMap)
-        .task(id: disableMap) {
-            guard disableMap else { return }
-            await Task.yield()
-            guard disableMap else { return }
-            
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.45)) {
-                    cameraPosition = .camera(defaultCamera)
+            .tint(.blue)
+            .clipShape(mapShape)
+            .contentShape(mapShape)
+            .scaleEffect(disableMap ? 1 : 1.03)
+            .overlay(alignment: .bottomTrailing) {
+                enableMapButton
+            }
+            .onAppear {
+                cameraPosition = .camera(defaultCamera)
+            }
+            .animation(.toggle, value: disableMap)
+            .task(id: disableMap) {
+                guard disableMap else { return }
+                await Task.yield()
+                guard disableMap else { return }
+
+                await MainActor.run {
+                    withAnimation(.move) {
+                        cameraPosition = .camera(defaultCamera)
+                    }
                 }
             }
-        }
     }
 }
 
@@ -100,5 +94,4 @@ extension EventLocationMap {
                 .padding(Spacing.xxs)
         }
     }
-    
 }
