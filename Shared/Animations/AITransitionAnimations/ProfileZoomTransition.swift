@@ -114,8 +114,14 @@ public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
         return controller
     }
 
-    public func updateUIViewController(_ root: ZoomRootController, context: Context) {
-        root.adoptPresentationPlane(presentationHost?.controller)
+    public func updateUIViewController(_ controller: ZoomRootController, context: Context) {
+        controller.adoptPresentationPlane(presentationHost?.controller)
+        // The hosted root is a VALUE, snapshotted at make time. Anything the caller's own
+        // body computes — a toolbar built from its @State, a ForEach over its model — is
+        // frozen at first render unless it is handed over again on every update. State read
+        // inside a child's own body, and Bindings, update through their own channels and
+        // hide the staleness; a post-mount @State read up in the caller's body does not.
+        controller.updateRoot(AnyView(root))
     }
 }
 
@@ -219,6 +225,12 @@ public final class ZoomRootController: UIViewController {
     func adoptPresentationPlane(_ host: ZoomPresentationHostController?) {
         guard presentedDetail == nil else { return }
         presentationHost = host
+    }
+
+    /// Re-hands the home's content to the host on every SwiftUI update, so the hosted tree
+    /// tracks the caller's body instead of the snapshot taken at make time.
+    func updateRoot(_ root: AnyView) {
+        host.updateRoot(root)
     }
 
     /// Drops a live presentation behind the tab bar. Called at every seam that
@@ -1130,6 +1142,12 @@ final class ZoomHostController: UIViewController {
     }
 
     @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+    /// The home's content, re-handed on every SwiftUI update. Structure is identical across
+    /// updates, so SwiftUI diffs it and hosted @State survives — only the values change.
+    func updateRoot(_ root: AnyView) {
+        contentHost.rootView = root
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

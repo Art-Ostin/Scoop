@@ -13,9 +13,11 @@ struct BlurAndGradientBackground: ViewModifier {
     let textRegion: CGFloat
     var blurRadius: CGFloat = 24
 
-    //Blur starts below the text Region, and the blur Ramp is based on where it starts
-    private var blurStart: CGFloat { 1 - textRegion * 0.825 }
-    private var blurRamp: CGFloat { textRegion * 0.8 }
+    //Blur starts below the text Region, and the blur Ramp is based on where it starts.
+    //Internal, not private: the invite flight's blur band (ProfileCardChrome) renders the
+    //same glur from this spec so the two can't drift apart.
+    var blurStart: CGFloat { 1 - textRegion * 0.825 }
+    var blurRamp: CGFloat { textRegion * 0.8 }
 
     //The Overlay Color
     let colour: Color
@@ -40,8 +42,10 @@ struct BlurAndGradientBackground: ViewModifier {
             .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
     }
     
-    //Hand-tuned ramp through the region, reaching the solved veil at the bottom edge
-    private var scrimGradient: some View {
+    //Hand-tuned ramp through the region, reaching the solved veil at the bottom edge.
+    //Internal, not private: ProfileCardChrome draws it as its own layer so the invite flight
+    //can exit the veil separately from the blur band.
+    var scrimGradient: some View {
         let region = textRegion
         let top = 1 - region
 

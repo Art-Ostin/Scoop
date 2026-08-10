@@ -12,8 +12,7 @@ struct EventSlot: View {
     //Injected
     @Bindable var ui: EventsUIState
     let eventProfile: EventProfile
-    let imageSize: CGFloat
-    let userImage: UIImage
+    let userImage: UIImage?
     let openMaps: () -> ()
 
     //Local view state
@@ -28,7 +27,7 @@ struct EventSlot: View {
             eventDivider
             eventInfoSection
             eventDivider
-            EventMap(location: eventProfile.event.location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+            EventMap(location: eventProfile.event.location, disableMap: $disableMap, openMaps: openMaps)
         }
         .padding(.bottom, Spacing.xxl)
     }

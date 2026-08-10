@@ -57,17 +57,15 @@ extension EventsContainer {
     }
     
     
-    @ViewBuilder
+    //userImage is optional all the way down: it lands asynchronously and must never gate the page.
     private func eventSlot(_ eventProfile: EventProfile) -> some View {
-        if let userImage {
-            EventSlot(ui: ui, eventProfile: eventProfile, imageSize: ui.imageSize, userImage: userImage) {
-                openMaps(eventProfile)
-            }
-            .padding(.horizontal, Spacing.gutter)
-            .containerRelativeFrame(.horizontal)
-            .id(eventProfile.id)
-            .task {await loadProfileImages(eventProfile.profile)}
+        EventSlot(ui: ui, eventProfile: eventProfile, userImage: userImage) {
+            openMaps(eventProfile)
         }
+        .padding(.horizontal, Spacing.gutter)
+        .containerRelativeFrame(.horizontal)
+        .id(eventProfile.id)
+        .task {await loadProfileImages(eventProfile.profile)}
     }
 
     //Floats above the current event page and zooms into its chat

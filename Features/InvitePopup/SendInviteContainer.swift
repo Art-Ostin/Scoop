@@ -16,6 +16,7 @@ struct SendInviteContainer: View {
     static let closeFlight = Animation.smooth(duration: 0.28)
     static let chromeRace = Animation.smooth(duration: 0.15)
     static let sourceChromeExit = Animation.smooth(duration: 0.12) //The meet-card chrome copy only needs to cover frame 1 — then it's out of the flight's way
+    static let chromeArrival: TimeInterval = 0.18 //Destination chrome lifts off this far into the open flight: its .transition pop completes right as the card lands
     static let snapBackSpring = Spring(duration: 0.3, bounce: 0.3) //ProfileZoom's cancel clock, with enough bounce to read (SwiftUI springs damp far harder than UIKit's for the same ratio — Spring.value-probed)
     static let diveFlight = Spring(duration: 0.45, bounce: 0.4) //A committed drag: the carried velocity dives the card past the slot and the spring expands it back in (the profile's landing)
     static let settleFlight = Spring(duration: 0.4, bounce: 0.12) //Button close / slow release: a gentle settle onto the slot
@@ -49,6 +50,11 @@ struct SendInviteContainer: View {
     //Same solve the Meet card wears: asked for by profile id, served from the shared cache
     @State private var palette: OverlayPalette = .placeholder
 
+    //The hero page's glur baked into pixels (InvitePagePhoto.bakedBottomBlur), so the bottom
+    //blur can fade in DURING the open flight as a plain flying image — shaders never fly
+    @State private var blurredHero: UIImage?
+    @Environment(\.displayScale) private var displayScale
+
     //Flight state — continuous scalars so the drag scrub, the chrome race and the position
     //flight compose additively on the same geometry (a bool branch can't overlap clocks)
     @State private var closeP: CGFloat = 1 //1 = collapsed at the source image, 0 = landed card
@@ -63,8 +69,12 @@ struct SendInviteContainer: View {
     @State private var pagerPosition = ScrollPosition()
     @State private var coverPage: Int? //Close off the hero page: the visible page, frozen over the live pager
     @State private var coverFade: Double = 1 //The static hero cover: 1 through flights, faded out at rest
+    @State private var pagerReveal: Double = 0 //The live pager's landing crossfade: faded in over the HELD covers, so the pages' bottom blur arrives smoothly
+    @State private var coversDropped = false //Paging latch: a swipe over a held cover double-exposes two photos, so the pager stays inert until the covers are gone
     @State private var blurCover: Double = 0 //The covers' glur layer: 1 only at close start (pager-identical), gone in 0.15s — shaders never fly
     @State private var sourceChromeFade: Double = 1 //Caps the chrome copy's opacity: rushed to 0 at open start, reset for the collapse
+    @State private var chromeIn = false //Destination image chrome (title, options, dots): pops in over the flight's tail, out at close start
+    @State private var sourceChromeExiting = false //Drives the source copy's per-element exits (subtitle blur-pop, invite-icon pop) via the inviteChrome environment
     @State private var flightTargets: (card: CGRect, image: CGRect)? //Destination frames frozen per flight: a mid-flight reflow must not retarget the animation
 
     //Drag Logic
@@ -100,6 +110,7 @@ struct SendInviteContainer: View {
         //A cache hit in practice: ProfileCard extracts the same key when the meet card loads,
         //so the tint is present from the flight's first frame instead of warming up late
         .task(id: vm.profileId) { await fetchColour() }
+        .task(id: images.first) { await bakeHeroBlur() }
         .task(id: ui.activePopup) { await ui.syncDelayedPopups() } //Owned here: the delayed mirrors must track on every page, not just the one that hosts a menu
 
         .fullScreenCover(isPresented: $ui.showMapView) { MapView(defaults: vm.defaults, eventLocation: $vm.event.place) }
@@ -223,7 +234,7 @@ extension SendInviteContainer {
         .allowsHitTesting(expanded && landed && !dragging)
     }
 
-    //A copy of the source card's chrome riding the flying image: fades out over the open,
+    //A copy of the source card's chrome riding the flying image: exits over the open,
     //back in over the collapse, so the hidden source card reappears under identical chrome.
     //Laid out ONCE at source size and transform-scaled to the flying rect — its blur wash must
     //render at a fixed size, never re-layout per frame (the stretch hides under the fade).
@@ -234,12 +245,19 @@ extension SendInviteContainer {
             chrome()
                 .frame(width: sourceFrame.width, height: sourceFrame.height)
                 .clipShape(RoundedRectangle(cornerRadius: Self.sourceRadius))
+                //Per-element exits, distributed by the chrome itself (ProfileCard.cardOverlay):
+                //the scrim + name rush out on sourceChromeFade's 0.12s clock and ride closeP back
+                //in over the collapse; the subtitle and invite icon pop away on their own effects,
+                //revealed on the way home by the collapse multiplier. The blur band ignores both:
+                //it rides the flight full-strength and crossfades against the baked invite blur
+                //when the destination chrome arrives (chromeIn) — and back again over the close.
+                .environment(\.inviteChromeFade, min(Double(closeP), sourceChromeFade))
+                .environment(\.inviteChromeCollapse, Double(closeP))
+                .environment(\.inviteChromeExiting, sourceChromeExiting)
+                .environment(\.inviteChromeArrived, chromeIn)
                 .scaleEffect(x: rect.width / max(sourceFrame.width, 1),
                              y: rect.height / max(sourceFrame.height, 1))
                 .position(x: rect.midX, y: rect.midY)
-                //Open: rushed out on its own 0.12s clock so it never muddies the growing card.
-                //Close: the cap sits at 1, so it fades back in with the collapse (closeP).
-                .opacity(min(Double(closeP), sourceChromeFade))
                 .allowsHitTesting(false)
         }
     }
@@ -271,7 +289,9 @@ extension SendInviteContainer {
     //Shaders never fly: the base layers are SHARP images (a plain image resize is GPU-cheap; a
     //glur layerEffect at animated size drops frames). The glur variants exist only in `blurCover`
     //— 1 for the single frame the pager unmounts at close start, faded out over the chrome race.
-    //The bottom blur "arrives" at landing through the pager under the sharp cover's fade-out.
+    //The bottom blur RIDES the open flight as `blurredHero` — the hero's glur baked into plain
+    //pixels — fading in with the chrome (chromeIn); the pager's real glur then refines it
+    //invisibly under the landing reveal (pagerReveal) over these held covers.
     @ViewBuilder
     private var flightCovers: some View {
         if !images.isEmpty {
@@ -285,6 +305,11 @@ extension SendInviteContainer {
                 .opacity(coverPage != nil ? 1 : 0)
                 ZStack {
                     rawCover(images[0])
+                    if let blurredHero { //Baked off-main at mount; inserted (animated) well before the chrome arrives
+                        rawCover(blurredHero) //Identical pixels above the ramp — only the bottom band crossfades
+                            .opacity(currentScreen.blursBottom && chromeIn ? 1 : 0) //In with the chrome, out with it on close; never on the sharp-bottomed confirm screen
+                            .animation(.transition, value: chromeIn)
+                    }
                     InvitePagePhoto(image: images[0], blursBottom: currentScreen.blursBottom)
                         .opacity(blurCover)
                 }
@@ -348,6 +373,9 @@ extension SendInviteContainer {
         guard hasFlight else { //No source (profile flow): present complete on the first laid-out frame, as before
             expanded = true
             landed = true
+            chromeIn = true
+            pagerReveal = 1
+            coversDropped = true
             closeP = 0
             coverFade = 0
             return
@@ -355,6 +383,7 @@ extension SendInviteContainer {
         flightTargets = (cardFrame, imageFrame) //Freeze the destination for this flight
         let generation = flightGeneration
         Task { @MainActor in //One committed frame at the source rect before the flight animates from it
+            sourceChromeExiting = true //Subtitle + invite icon pop away on their own clocks
             withAnimation(Self.sourceChromeExit) { sourceChromeFade = 0 }
             withAnimation(Self.openFlight, completionCriteria: .removed) {
                 expanded = true
@@ -362,11 +391,17 @@ extension SendInviteContainer {
             } completion: {
                 land(generation)
             }
+            try? await Task.sleep(for: .seconds(Self.chromeArrival)) //The chrome pop rides the flight's tail…
+            guard expanded, generation == flightGeneration else { return } //…unless a close owns the card already
+            chromeIn = true
         }
     }
 
     private func expandedChanged(_ isExpanded: Bool) {
         if isExpanded {
+            //A no-flight mount landed inline in openWhenMeasured: re-covering it here would
+            //strand coverFade at 1 forever now that land() is single-shot (!landed latch)
+            guard hasFlight else { return }
             dragging = false //A reopen mid-close revives the card; unfreeze frames and hand hits back
             springingBack = false
             coverFade = 1 //Cover the pager until this flight lands (identical pixels — instant is invisible)
@@ -378,19 +413,43 @@ extension SendInviteContainer {
         } else {
             flightGeneration += 1
             landed = false
+            chromeIn = false //Chrome pops out at close start, ahead of the flight home
+            pagerReveal = 0 //The pager unmounts in this same commit; reset for the next landing
+            coversDropped = false
         }
     }
 
     private func land(_ generation: Int) {
-        guard expanded, generation == flightGeneration else { return } //A newer close/reopen owns the flight now
-        landed = true //Mounts the live pager beneath the covers
+        //!landed: every flighted open calls land twice (flight completion + the 0.6s fallback,
+        //same generation) — the second call's no-change withAnimation fires its completion
+        //SYNCHRONOUSLY (sim-probed), which would drop the covers mid-reveal
+        guard expanded, !landed, generation == flightGeneration else { return } //A newer close/reopen owns the flight now
+        landed = true //Mounts the live pager over the covers, transparent until the reveal below
+        chromeIn = true //Normally already in on its own clock — this covers the fallback land
         flightTargets = nil //Live measurements own the geometry again
         blurCover = 0 //The pager carries the bottom blur from here
-        if let coverPage, images.indices.contains(coverPage) { //A reopen mid-close: give the pager its page back…
+        if let coverPage, images.indices.contains(coverPage) { //A reopen mid-close: give the pager its page back
             snapPager { $0.scrollTo(id: images[coverPage], anchor: .leading) }
         }
-        coverPage = nil //…then drop the snapshot over identical pixels
-        withAnimation(.transition) { coverFade = 0 }
+        if coverPage != nil {
+            //Reopen mid-close from a non-hero page: the snapshot matching the pager sits
+            //BENEATH the opaque hero cover, so a reveal here dissolves two different photos.
+            //Keep the pre-reveal cut: opaque pager in one frame, covers dropped beneath it.
+            pagerReveal = 1
+            coversDropped = true
+            coverPage = nil
+            withAnimation(.transition) { coverFade = 0 } //Under the opaque pager; the wash arrives with it
+            return
+        }
+        //The pager (and the pages' bottom blur) fades in over the HELD covers — fading a cover
+        //out under the still-transparent pager dips the composite toward the card fill instead
+        //of crossfading, so the covers only drop once the pager above them is opaque.
+        withAnimation(.transition, completionCriteria: .removed) { pagerReveal = 1 } completion: {
+            guard expanded, generation == flightGeneration else { return } //A close mid-reveal still needs its covers
+            coversDropped = true //Paging unlocks with the drop
+            coverPage = nil //Dropped under the now-opaque pager…
+            withAnimation(.transition) { coverFade = 0 } //…as is the hero cover (the bottom fuzz hands off to the wash)
+        }
     }
 
     private func closeInvite() {
@@ -422,18 +481,30 @@ extension SendInviteContainer {
     }
 
     private func reopen() {
+        sourceChromeExiting = true
         withAnimation(Self.sourceChromeExit) { sourceChromeFade = 0 }
         withAnimation(Self.openFlight) {
             expanded = true
             closeP = 0
             chromeRaceP = 0
         }
+        let generation = flightGeneration
+        Task { @MainActor in //Same tail-of-flight arrival as the first open
+            try? await Task.sleep(for: .seconds(Self.chromeArrival))
+            guard expanded, generation == flightGeneration else { return }
+            chromeIn = true
+        }
     }
 
     private func prepareClose() {
         flightTargets = (cardFrame, imageFrame) //Freeze the collapse's from-geometry
         sourceChromeFade = 1 //The cap steps aside: the chrome copy rides the collapse back in via closeP
-        blurCover = 1 //The covers must match the glur'd pager on its unmount frame; the race fades the blur out
+        sourceChromeExiting = false //Subtitle + invite icon pop back in, revealed by the collapse
+        //The covers must match the pager on its unmount frame; the race fades the blur out.
+        //At rest that pager is fully glur'd. Mid-reveal it is only fraction-opaque, and full
+        //glur on top would POP the bottom fifth — the baked blurredHero layer (already in via
+        //chromeIn) carries the bottom blur there instead.
+        blurCover = coversDropped ? 1 : 0
         guard scrollProgress > 0.001 else { //Resting on the hero page: the hero cover is identical pixels
             coverFade = 1
             return
@@ -561,22 +632,27 @@ extension SendInviteContainer {
             fillsFrame: true, //The flight frames the carousel; self-sizing would fight the animated rect
             scrollProgress: $scrollProgress,
             pagerPosition: $pagerPosition,
-            //One coordinated arrival at landing: title, dots, options and the title's halo fade
-            //in together (a white title without its halo is invisible on a bright photo — fading
-            //it mid-flight read as the halo "snapping" in later). No flight in a no-flight mount.
-            chromeVisible: landed,
-            showsPager: landed, //The heavy pager mounts only at rest, behind the pixel-identical covers
+            //The chrome pops in on its own delayed clock (chromeArrival), completing as the
+            //flight lands. The title's blur halo still waits for the pager (shaders never fly)
+            //and fades in at landing, under the pop's tail. No flight in a no-flight mount.
+            chromeVisible: chromeIn,
+            showsPager: landed, //The heavy pager mounts only at rest, over the held covers…
+            pagerFade: pagerReveal, //…and fades in above them, so the bottom blur arrives smoothly…
+            pagerInteractive: coversDropped, //…but can't page until they're gone (double-exposure)
             declineProfile: declineProfile,
             clearInvite: {withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
         //Sits under the carousel's bottom mask fuzz, so the image dissolves into the same
-        //colour the rows' gradient starts on instead of the card behind it. Only with the
-        //pager: while the flight covers stand in beneath this (empty) view, the wash would
-        //tint the flying image through it.
+        //colour the rows' gradient starts on instead of the card behind it. Rides the cover
+        //drop (1 − coverFade), NOT `landed` alone: keyed on landed it fades in during the
+        //pager reveal, sandwiched between the held covers and the semi-transparent pager —
+        //an ~11% tint pulse across the whole photo (sim-measured). The landed gate makes the
+        //EXIT instant on every close path: the page-N close animates coverFade on closeFlight
+        //while the pager unmounts in the commit, which would strand the wash at full
+        //strength over the exposed covers for 0.28s.
         .background {
             palette.secondaryText.opacity(0.45)
-                .opacity(landed ? 1 : 0)
-                .animation(.transition, value: landed)
+                .opacity(landed ? 1 - coverFade : 0)
         }
     }
 
@@ -601,6 +677,22 @@ extension SendInviteContainer {
 
         palette = await PopupColorExtractor.shared
             .extractPalette(first, id: vm.profileId, prominence: .subtle)
+    }
+
+    //Bakes the hero's bottom glur into pixels off-main (~tens of ms — ready well before the
+    //chrome arrives at 0.18s). Re-runs when the hero's identity changes (a seed image swapped
+    //for the loaded set mid-presentation). Animated set: a bake landing AFTER chromeIn flips
+    //would otherwise insert the layer at full opacity in one frame.
+    private func bakeHeroBlur() async {
+        guard let hero = images.first else { return }
+        let aspect = AspectRatio.invitedImage.ratio
+        let width = UIScreen.main.bounds.width - InviteCardBackground.horizontalInset * 2
+        let scale = displayScale
+        let baked = await Task.detached(priority: .userInitiated) {
+            InvitePagePhoto.bakedBottomBlur(for: hero, aspect: aspect, displayWidth: width, scale: scale)
+        }.value
+        guard images.first == hero else { return } //A newer hero owns the slot; its own task rebakes
+        withAnimation(.transition) { blurredHero = baked }
     }
 
     //Gone until the flight lands its chrome, on the confirm screen, while dragging,
@@ -662,6 +754,20 @@ extension SendInviteContainer {
 }
 
 //MARK: InviteZoom — presents the invite popup on the root plane, growing out of a source image
+
+//The flight's drivers for the source chrome copy's per-element exits; defaults are the resting
+//card wearing its full chrome. The chrome itself distributes them (ProfileCard.cardOverlay):
+//the scrim + name wear `inviteChromeFade`, the subtitle and invite icon pop on
+//`inviteChromeExiting` and multiply by `inviteChromeCollapse` so the close reveals them in
+//step with the flight home. `inviteChromeArrived` mirrors the destination chrome's arrival:
+//the card's blur band rides the flight at full strength until it flips, then crossfades
+//against the invite card's baked bottom blur — one continuous blur, reshaping.
+extension EnvironmentValues {
+    @Entry var inviteChromeFade: Double = 1
+    @Entry var inviteChromeCollapse: Double = 1
+    @Entry var inviteChromeExiting: Bool = false
+    @Entry var inviteChromeArrived: Bool = false
+}
 
 @MainActor
 @Observable
@@ -746,8 +852,9 @@ extension View {
 
     ///Grows the invite popup out of this image when `isPresented` flips true, and collapses it
     ///back on dismissal. The source view hides while the popup is presented — the flight is the
-    ///card. `sourceChrome` is a copy of the card chrome drawn over the flying image: the flight
-    ///fades it out over the open and back in over the collapse.
+    ///card. `sourceChrome` is a copy of the card chrome drawn over the flying image: it must
+    ///read the `inviteChrome…` environment drivers to exit over the open and ride the collapse
+    ///back in (ProfileCard.cardOverlay is the reference).
     func inviteZoom(
         id: String,
         isPresented: Binding<Bool>,

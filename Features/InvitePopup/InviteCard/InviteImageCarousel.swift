@@ -70,12 +70,20 @@ struct InviteImageCarousel: View {
     //…and snaps the pager home under that cover before the collapse resizes it
     var pagerPosition: Binding<ScrollPosition>? = nil
 
-    //False through the open flight, so the chrome fades in over the flying image
+    //False until the open flight's tail, so the chrome pops in at its resting position over the flying image
     var chromeVisible: Bool = true
 
     //The flight defers the heavy pager until the card lands — its static covers stand in
     //beneath this view meanwhile, so only the chrome overlays render during the flight
     var showsPager: Bool = true
+
+    //The landing crossfade: the pager fades in over the flight's held sharp cover, so the
+    //pages' bottom blur arrives smoothly instead of snapping in with the mount
+    var pagerFade: Double = 1
+
+    //…and stays inert until that cover drops — paging a semi-transparent pager over a held
+    //cover double-exposes two photos
+    var pagerInteractive: Bool = true
 
     //Both offered by the options menu
     let declineProfile: () -> Void
@@ -97,6 +105,10 @@ struct InviteImageCarousel: View {
         ZStack {
             if showsPager {
                 InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, fillsFrame: fillsFrame, position: pagerPosition, scrollProgress: progressBinding)
+                    .opacity(pagerFade)
+                    .allowsHitTesting(pagerInteractive)
+            } else {
+                Color.clear //The flight frames this carousel before the pager mounts; without a filled base the corner-pinned overlays collapse to a zero-size centre
             }
         }
             .overlay { backgroundBlur }

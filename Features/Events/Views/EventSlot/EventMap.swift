@@ -10,13 +10,12 @@ import MapKit
 
 struct EventMap: View {
     let location: EventLocation
-    let imageSize: CGFloat
     @Binding var disableMap: Bool
     let openMaps: () -> ()
-    
+
     var body: some View {
         VStack(spacing: Spacing.sm) {
-            EventLocationMap(location: location, imageSize: imageSize, disableMap: $disableMap, openMaps: openMaps)
+            EventLocationMap(location: location, disableMap: $disableMap, openMaps: openMaps)
             locationInfo
         }
         .padding([.horizontal, .top], 4)

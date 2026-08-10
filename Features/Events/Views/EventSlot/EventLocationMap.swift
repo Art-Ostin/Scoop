@@ -11,15 +11,17 @@ struct EventLocationMap: View {
 
     //Injected
     let location: EventLocation
-    let imageSize: CGFloat
     @Binding var disableMap: Bool
     let openMaps: () -> ()
 
     //Local view state
     @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var mapWidth: CGFloat = 0
 
+    //Measured here, not handed down: the map fills the card it sits in, so its own
+    //width is the only honest source for the near-square height.
     private var mapHeight: CGFloat {
-        imageSize > 50 ? imageSize - 36 : imageSize
+        mapWidth > 50 ? mapWidth - 36 : mapWidth
     }
 
     //Squared-off top, tucked-in bottom; the hit area follows the visible shape.
@@ -52,7 +54,9 @@ struct EventLocationMap: View {
         .tint(.blue)
         .clipShape(mapShape)
         .contentShape(mapShape)
-        .frame(width: max(imageSize, 0), height: max(mapHeight, 0))
+        .frame(maxWidth: .infinity)
+        .getWidth($mapWidth)
+        .frame(height: max(mapHeight, 0))
         .scaleEffect(disableMap ? 1 : 1.03)
         .overlay(alignment: .bottomTrailing) {
             enableMapButton

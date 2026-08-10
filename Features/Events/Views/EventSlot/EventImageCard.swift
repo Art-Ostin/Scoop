@@ -11,7 +11,7 @@ struct EventImageCard: View {
 
     //Injected
     let profileImages: [UIImage]
-    let userImage: UIImage
+    let userImage: UIImage?
     let targetTime: Date
 
     //Local view state
@@ -43,7 +43,7 @@ extension EventImageCard {
     
     var photoOverlap: some View {
         ZStack(alignment: .topLeading) {
-            SmallImage(image: userImage, size: 38, isCircle: true)
+            SmallImage(image: userImage ?? UIImage(), size: 38, isCircle: true)
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
             
             SmallImage(image: profileImages.first ?? UIImage(), size: 38, isCircle: true)

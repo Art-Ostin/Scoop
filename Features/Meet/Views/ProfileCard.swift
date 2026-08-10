@@ -6,6 +6,7 @@
 
 
 import SwiftUI
+import Glur
 
 struct ProfileCard : View {
     
@@ -41,29 +42,91 @@ struct ProfileCard : View {
 
 extension ProfileCard {
     
-    //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights fade it as one unit over the flying image
+    //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights
+    //fade it as one unit over the flying image. Built as a real View struct: the invite
+    //flight's exit drivers arrive by environment, and @Environment only resolves on an
+    //installed node — a closure-captured copy silently reads defaults (the CustomMenu gotcha)
     private var cardOverlay: some View {
-        blurAndColour
-            .overlay(alignment: .bottomLeading) {
-                overlayText
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.bottom, 18)
-            }
-            .animation(.transition, value: palette) //Extraction lands a frame late — the scrim fades in rather than snaps
+        let p = profile.profile
+        return ProfileCardChrome(
+            image: profile.image,
+            name: p.name,
+            subtitle: "\(p.year) · \(p.degree) · \(p.hometown)",
+            palette: palette,
+            onInvite: { ui.showInvite = profile }
+        )
     }
+}
 
-    //A pixel-aligned copy of the card image wearing the blur + scrim: glur needs image pixels beneath it, and the raw card base then matches the flying image exactly
-    private var blurAndColour: some View {
-        Color.clear
+//The card's chrome copy, shared by the resting card and both flights. The invite flight drives
+//per-element exits through the inviteChrome… environment (defaults = the resting card): the
+//wash + name rush out on the flight's fade, the subtitle blur-pops, the invite icon
+//opacity-pops, and the collapse multiplier reveals the pops again on the way home.
+struct ProfileCardChrome: View {
+
+    //Injected
+    let image: UIImage
+    let name: String
+    let subtitle: String
+    let palette: OverlayPalette
+    let onInvite: () -> Void
+
+    //The invite flight's exit drivers; at rest every one is identity
+    @Environment(\.inviteChromeFade) private var chromeFade
+    @Environment(\.inviteChromeCollapse) private var chromeCollapse
+    @Environment(\.inviteChromeExiting) private var chromeExiting
+    @Environment(\.inviteChromeArrived) private var chromeArrived
+
+    var body: some View {
+        ZStack {
+            blurBand
+                //The card's blur never exits with the chrome: it rides the flight at full
+                //strength — shrinking with the rect — then crossfades against the invite
+                //card's baked bottom blur as the destination chrome arrives, and back again
+                //over the close. One continuous blur, reshaping.
+                .opacity(chromeArrived ? 0 : 1)
+                .animation(.transition, value: chromeArrived)
+            blurBackground.scrimGradient
+                .opacity(chromeFade) //The colour veil rushes out with the name — a lingering scrim muddied the flight
+        }
+        .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image))) //As the modifier drew it
+        .overlay(alignment: .bottomLeading) {
+            overlayText
+                .padding(.horizontal, Spacing.lg)
+                .padding(.bottom, 18)
+        }
+        .animation(.transition, value: palette) //Extraction lands a frame late — the scrim fades in rather than snaps
+    }
+}
+
+//The chrome's layers
+extension ProfileCardChrome {
+
+    //The image copy wearing ONLY the blur: glur'd from the card's own spec and MASKED to the
+    //ramp. The sharp region above shows the true flying image beneath (this copy is
+    //transform-scaled in flight — unblurred stretched pixels would double-image against the
+    //re-cropping cover), while the band's own blur swallows the stretch.
+    private var blurBand: some View {
+        let spec = blurBackground
+        return Color.clear
             .overlay {
-                Image(uiImage: profile.image)
+                Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .modifier(blurBackground)
+            .glur(radius: spec.blurRadius, offset: spec.blurStart, interpolation: spec.blurRamp, direction: .down, noise: 0)
+            .mask {
+                //Soft-topped, tucked just above the glur's start so the mask edge lives in
+                //pixels the ramp has already softened
+                LinearGradient(stops: [
+                    .init(color: .clear, location: spec.blurStart - 0.06), //Geometry: the feather strip hugs the ramp's start
+                    .init(color: .black, location: spec.blurStart + 0.02),
+                    .init(color: .black, location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+            }
     }
-    
+
     private var blurBackground: BlurAndGradientBackground {
         BlurAndGradientBackground(
             textRegion: BlurAndGradientBackground.profileRegion,
@@ -72,29 +135,30 @@ extension ProfileCard {
             scrimOpacity: palette.scrimOpacity
         )
     }
-    
-    
+
     private var overlayText: some View {
-        let p = profile.profile
-        return VStack(alignment: .leading, spacing: 10) {
-            Text(profile.profile.name)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(name)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
+                .opacity(chromeFade) //Rushes out with the wash — the invite title takes its place
 
-            
-            Text("\(p.year) · \(p.degree) · \(p.hometown)")
+            Text(subtitle)
                  .font(.body(17, .medium))
                  .foregroundStyle(palette.secondaryText)
+                 .blurPop(visible: !chromeExiting)
+                 .opacity(chromeCollapse) //The collapse reveals the pop in step with the flight home
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-        .overlay(alignment: .bottomTrailing) {inviteButton }
+        .overlay(alignment: .bottomTrailing) { inviteButton }
     }
 
     private var inviteButton: some View {
-        InviteButton {
-            ui.showInvite = profile
-        }
-        .offset(y: -3) //Now in line with the content
+        InviteButton(onTap: onInvite)
+            .offset(y: -3) //Now in line with the content
+            .opacityPop(visible: !chromeExiting)
+            .animation(.transition, value: chromeExiting)
+            .opacity(chromeCollapse)
     }
 }
 
