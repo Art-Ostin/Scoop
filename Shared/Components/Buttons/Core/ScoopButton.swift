@@ -20,8 +20,12 @@ struct ScoopButton<Content: View, S: Shape>: View {
     let shape: S
 
     var size: ButtonSize? = nil
-    // The pressed look. Tinted-only: the iOS 26 glass path is interactive on its own.
+    // The pressed look. Only drives the paths that own their press: the iOS 26 glass path
+    // and a tinted button with nativeGlassPress hand theirs to the system instead.
     var press: PressEffect = .shrink
+    // Tinted glass only, iOS 26 only: hand the press to Apple's interactive lens
+    // (press-and-drag deformation) instead of PressEffect. See coloredButton.
+    var nativeGlassPress: Bool = false
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -59,19 +63,22 @@ extension ScoopButton {
     }
 
     private func coloredButton(color: Color, shadow: Elevation?, glass: Bool) -> some View {
-        Button(action: action) {
+        // No glass, no lens to press: a flat tinted button keeps PressEffect either way.
+        let native = nativeGlassPress && glass
+        return Button(action: action) {
             sizedLabel()
-                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass))
+                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass, interactive: native))
                 .expandHitArea(hitInset)
         }
-        .pressButton(press, shadow: shadow, tint: color)
+        .modifier(TintPress(native: native, effect: press, shadow: shadow, tint: color))
         .foregroundStyle(Color.white)
     }
 }
 
-// The iOS-26 Liquid Glass surface, with a pre-26 material fallback. No contentShape
-// on the glass path: interactive glass overrides any contentShape beneath it, so the
-// tappable area is set by expandHitArea sitting above the glass.
+// The iOS-26 Liquid Glass surface, with a pre-26 material fallback. No contentShape on the
+// glass path: interactive glass overrides any contentShape beneath it. It also clamps the one
+// above — sim-measured, expandHitArea buys ~10pt here, not 16 — so don't glass a control that
+// needs the full margin to clear 44pt.
 private struct ScoopGlassSurface<S: Shape>: ViewModifier {
     let clear: Bool
     let shape: S
@@ -98,8 +105,24 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
     let color: Color
     let shape: S
     var glass: Bool = true
+    // Draws the glass ON the content so the system's press-and-drag lens carries the label
+    // with it. Only opt in for a label with no glass of its own — content-applied glass
+    // pulls descendant glass into its group.
+    var interactive: Bool = false
 
     func body(content: Content) -> some View {
+        // Glass on a Color.clear background layer never gets the system's touch interaction
+        // installed at all, so its lens can't deform however it's configured. No contentShape
+        // either — same rule as the glass path: expandHitArea above it owns the tap region.
+        if #available(iOS 26.0, *), interactive {
+            content.glassEffect(.regular.tint(color).interactive(), in: shape)
+        } else {
+            layeredSurface(content)
+        }
+    }
+
+    // Both layers stay mounted so a caller can crossfade fill <-> glass without a structural swap.
+    private func layeredSurface(_ content: Content) -> some View {
         content
             .background {
                 ZStack {
@@ -116,6 +139,24 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
             Color.clear.glassEffect(.regular.tint(color), in: shape)
         } else {
             shape.fill(color)
+        }
+    }
+}
+
+// PressEffect and Apple's lens are two press languages: a scale would swamp the native
+// squish and re-render the lens at the scaled size, so the native path drops the ButtonStyle.
+// The Elevation shadow rides inside PressAnimation, so it is re-applied here or it goes with it.
+private struct TintPress: ViewModifier {
+    let native: Bool
+    let effect: PressEffect
+    let shadow: Elevation?
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *), native {
+            content.shadow(shadow, tint: tint)
+        } else {
+            content.pressButton(effect, shadow: shadow, tint: tint)
         }
     }
 }

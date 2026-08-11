@@ -10,22 +10,28 @@ import PhotosUI
 
 struct ImageCell: View {
     let image: UIImage
-    let size: CGFloat
+    var size: CGFloat? = nil //nil squares off to whatever width the container offers (the photo grid)
+
     var body: some View {
-        ZStack {
-            
+        photo
+            .shadow(.tile)
+            .overlay(alignment: .topTrailing) {
+                ImageEditButton()
+                    .padding(Spacing.xxs)
+            }
+            .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private var photo: some View {
+        if let size {
             SmallImage(image: image, size: size)
-                .shadow(.floating)
-            
-            RoundedRectangle(cornerRadius: CornerRadius.smallImage)
-                .frame(width: size, height: size)
-                .foregroundStyle(Color.clear)
-                .overlay(alignment: .topTrailing) {
-                    ImageEditButton()
-                        .padding(Spacing.xxs)
-                }
+        } else {
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
+                .overlay { Image(uiImage: image).resizable().scaledToFill() }
+                .clipShape(.rect(cornerRadius: CornerRadius.smallImage))
         }
-        .contentShape(Rectangle())
     }
 }
 
@@ -79,15 +85,17 @@ extension OnboardingPhotoCell {
 }
 
 struct ImageEditButton: View {
-   
-   private var editButton: String {
-       if #available(iOS 26.0, *) {
-           return "EditWhiteButton" //If Using liquid glass
-       } else {
-           return "EditButtonBlack"  // If not just black
-       }
-   }
-   var body: some View {
-       EmptyView() // TODO: restore the glass edit badge (removed during ButtonTest preview work)
-   }
+
+    var body: some View {
+        Image("PhotoChangeBadge3D")
+            .resizable()
+            .renderingMode(.original)
+            .interpolation(.high)
+            .scaledToFit()
+            .frame(width: 28, height: 28)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .scaleEffect(0.7, anchor: .trailing)
+            .offset(y: -1)
+    }
 }

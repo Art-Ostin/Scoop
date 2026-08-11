@@ -18,7 +18,8 @@ struct EditProfileButton: View {
 
     var body: some View {
 
-        ScoopButton(style: .tinted(.textAccent, shadow: .button, glass: true), shape: .capsule, press: .grow) {
+        ScoopButton(style: .tinted(.textAccent, shadow: .button),
+                    shape: .capsule, press: .grow, nativeGlassPress: true) {
             withAnimation(.transition) { isEdit.toggle() }
         } label: {
             ZStack {

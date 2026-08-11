@@ -33,7 +33,7 @@ enum CornerRadius {
 
 // MARK: Shadow
 enum Elevation {
-    case card, image, button, softFloating, floating
+    case card, tile, image, button, softFloating, floating
 
     //liquid glass shadow for fallback components & onPress shadowreduce
     static let glass: Elevation = .card
@@ -51,6 +51,7 @@ enum Elevation {
     var layers: (contact: Layer, ambient: Layer) {
         switch self {
         case .card:         (Layer(opacity: 0.03, radius: 8,  y: 3), Layer(opacity: 0.01, radius: 24, y: 9))
+        case .tile:         (Layer(opacity: 0.08, radius: 1.5, y: 1), Layer(opacity: 0.12, radius: 6,  y: 4))
         case .image:        (Layer(opacity: 0.1, radius: 3,  y: 3), Layer(opacity: 0.12, radius: 12, y: 8))
         case .button:       (Layer(opacity: 0.12, radius: 4,  y: 2), Layer(opacity: 0.08, radius: 16, y: 8))
         case .softFloating: (Elevation.floating.layers.contact.halved, Elevation.floating.layers.ambient.halved)

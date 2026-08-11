@@ -30,7 +30,9 @@ extension Color {
 
     //3. Background Color App
     static let appCanvas = Color(red: 0.99, green: 0.98, blue: 0.97)
-    
+
+    static let canvasSunken = Color(red: 0.96, green: 0.95, blue: 0.91) //Recessed canvas for card-on-canvas screens (edit profile) — a step deeper and warmer than appCanvas so white cards read as raised.
+
     static let blackFill = Color(red: 0.13, green: 0.13, blue: 0.13) //Opaque near-black fill for selected cells & small controls (selected day, clear buttons) — never for type.
 
 

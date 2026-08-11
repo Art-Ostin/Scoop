@@ -19,22 +19,10 @@ struct PreferencesView: View {
     }
     
     var body: some View {
-        
-        CustomList(title: "Dating Preferences (Not Public)") {
+        Section("Dating Preferences (Not Public)") {
             ForEach(preferences) { info in
-                VStack(spacing: 0) {
-                    
-                    
-                    ListItem(title: info.title, response: info.response, value: info.route)
-                    if info.title != "Age Preference" {
-                        MapDivider()
-                            .padding(.leading, Spacing.lg)
-                            .foregroundStyle(.red)
-                    }
-                }
-                .frame(maxWidth: .infinity)
+                ListItem(title: info.title, response: info.response, value: info.route)
             }
         }
-        .padding(.bottom, Spacing.xxl)
     }
 }

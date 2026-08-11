@@ -7,6 +7,22 @@
 
 import SwiftUI
 
+
+enum EditProfileRoute: Hashable {
+    case prompt(Int)
+    case interests
+    case textField(TextFieldOptions)
+    case languages
+    case option(OptionField)
+    case height
+    case nationality
+    case lifestyle
+    case myLifeAs
+    case desiredAgeRange
+}
+
+
+
 struct EditProfileContainer: View {
     //Injected
     @Environment(\.dismiss) private var dismiss
@@ -23,30 +39,54 @@ struct EditProfileContainer: View {
     var body: some View {
         ZStack {
             if isEdit {
-                NavigationStack(path: $path) { // As EditProfile appears in full screen cover
-                    EditProfileView(vm: vm, selectedImage: $selectedImage)
-                        .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
-                }
-                .transition(.move(edge: .trailing))
+                editProfileView
             } else {
-                ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
-                    .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
-                    .transition(.move(edge: .leading))
+                profileView
             }
         }
-        .navigationDestination(for: EditProfileRoute.self, destination: destination)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) { EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty) }
+        //Overlays
+        .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .top) { editProfileHeader }
-        .toolbar(.hidden, for: .navigationBar)
-        .fullScreenCover(item: $selectedImage) {imageEditScreen($0)}
-        .task {if vm.images.isEmpty  {await vm.loadImages()}}
+                
+        //Different Screens can go to
+        .navigationDestination(for: EditProfileRoute.self, destination: destination)
+        .fullScreenCover(item: $selectedImage) {editImageView($0)}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
-        .onPreferenceChange(ProfileDetailsOpenKey.self) { isDetailsOpen = $0 }
     }
 }
 
+
+//Different Views
 extension EditProfileContainer {
+    
+    private var editProfileView: some View {
+        NavigationStack(path: $path) { // As EditProfile appears in full screen cover
+            EditProfileView(vm: vm, selectedImage: $selectedImage, path: $path)
+                .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
+        }
+        .transition(.move(edge: .trailing))
+    }
+    
+    private var profileView: some View {
+        ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
+            .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
+            .transition(.move(edge: .leading))
+    }
+    
+    private func editImageView(_ slot: ImageSlot) -> some View {
+        ProfileImageEditor(importedImage: slot) {updatedImage in
+            Task { try await vm.changeImage(image: updatedImage) }
+        }
+    }
+    
+    private var editProfileButton: some View {
+        EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty)
+    }
+}
+
+//Header Components
+extension EditProfileContainer {
+    
     private var editProfileHeader: some View {
         HStack {
             saveButton
@@ -55,6 +95,7 @@ extension EditProfileContainer {
         }
         .padding(.horizontal, Spacing.md)
     }
+    
     
     @ViewBuilder
     private var editProfileDismissButton: some View {
@@ -73,7 +114,7 @@ extension EditProfileContainer {
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
         .allowsHitTesting(path.isEmpty ? true  : false)
     }
-
+    
     @ViewBuilder
     private var saveButton: some View {
         if vm.showSaveButton {
@@ -97,13 +138,10 @@ extension EditProfileContainer {
             .allowsHitTesting(path.isEmpty ? true : false)
         }
     }
-    
-    private func imageEditScreen(_ slot: ImageSlot) -> some View {
-        ProfileImageEditor(importedImage: slot) {updatedImage in
-            Task { try await vm.changeImage(image: updatedImage) }
-        }
-    }
-    
+}
+
+//Destination Router
+extension EditProfileContainer {
     @ViewBuilder
     private func destination(for route: EditProfileRoute) -> some View {
         switch route {
@@ -119,25 +157,4 @@ extension EditProfileContainer {
         case .desiredAgeRange:       EditPreferredYears(vm: vm)
         }
     }
-}
-
-struct ProfileDetailsOpenKey: PreferenceKey {
-    static var defaultValue: Bool = false
-
-    static func reduce(value: inout Bool, nextValue: () -> Bool) {
-        value = value || nextValue()
-    }
-}
-
-enum EditProfileRoute: Hashable {
-    case prompt(Int)
-    case interests
-    case textField(TextFieldOptions)
-    case languages
-    case option(OptionField)
-    case height
-    case nationality
-    case lifestyle
-    case myLifeAs
-    case desiredAgeRange
 }

@@ -1,43 +1,11 @@
 //
-//  InterestsTest.swift
+//  InterestsView.swift
 //  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
 //
 
 import SwiftUI
-
-struct InterestsHolder<Content: View, Value: Hashable>: View {
-    
-    let title: String
-    let value: Value
-    let content: Content
-    
-    init(title: String, value: Value, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.content = content()
-        self.value = value
-    }
-    
-    var body: some View {
-        NavigationLink(value: value) {
-            VStack(spacing: Spacing.xs) {
-                HStack {
-                    Text("Interests & Character")
-                        .font(.body(12, .bold))
-                        .foregroundStyle(Color.textTertiary)
-                    Spacer()
-                    Image("EditGray")
-                        .offset(x: -8)
-                        .offset(y: -4)
-                }
-                .padding(.horizontal, Spacing.md)
-                content
-            }
-        }
-    }
-}
-
 
 struct InterestsLayout: View {
     
@@ -53,7 +21,7 @@ struct InterestsLayout: View {
     }
     
     var body: some View {
-        VStack(spacing: forProfile ? 12 : 16) {
+        VStack(spacing: forProfile ? Spacing.sm : Spacing.md) {
             ForEach(rows.indices, id: \.self) { index in
                 let row = rows[index]
                 HStack {
@@ -73,7 +41,7 @@ struct InterestsLayout: View {
         }
         .padding()
         .font(.body())
-        .foregroundStyle(passions.count < 1 ? Color.accent : Color.black)
+        .foregroundStyle(passions.count < 1 ? Color.textAccent : Color.textPrimary)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.lg)
                 .fill( Color.white)
@@ -89,11 +57,21 @@ extension Array {
 
 
 struct InterestsView: View {
+
+    //Injected
     @Bindable var vm: EditProfileViewModel
-        
+    @Binding var path: [EditProfileRoute]
+
     var body: some View {
-        InterestsHolder(title: "Interests", value: EditProfileRoute.interests) {
-            InterestsLayout(passions: vm.draft.interests, forProfile: false)
+        Section("Interests & Character") {
+            //A Button, not a NavigationLink: the card carries its own chrome and takes no disclosure chevron
+            Button { path.append(.interests) } label: {
+                InterestsLayout(passions: vm.draft.interests, forProfile: false)
+            }
+            .buttonStyle(.plain)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: Spacing.xxs, leading: Spacing.md,
+                                      bottom: Spacing.xxs, trailing: Spacing.md))
         }
     }
 }

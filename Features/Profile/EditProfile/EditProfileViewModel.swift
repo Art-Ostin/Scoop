@@ -52,6 +52,19 @@ import FirebaseFirestore
         updatedFields[key] = ["prompt": value.prompt, "response": value.response]
     }
     
+    func movePrompts(from source: IndexSet, to destination: Int) {
+        var reordered = [draft.prompt1, draft.prompt2, draft.prompt3]
+        reordered.move(fromOffsets: source, toOffset: destination)
+
+        let keys: [UserProfile.Field] = [.prompt1, .prompt2, .prompt3]
+        let paths: [WritableKeyPath<UserProfile, PromptResponse>] =
+            [\.prompt1, \.prompt2, \.prompt3]
+
+        for i in reordered.indices where reordered[i] != draft[keyPath: paths[i]] {
+            setPrompt(keys[i], paths[i], to: reordered[i])
+        }
+    }
+    
     func saveUser() async throws {
         guard !updatedFields.isEmpty else { return }
         try await userRepo.updateUser(userId: user.id, values: updatedFields)
