@@ -23,7 +23,7 @@ struct ProfileDetailsView: View {
             PromptView(prompt: p.prompt1)
             profileInterests
             PromptView(prompt: p.prompt2)
-            DetailsSection(title: "Extra Info", adaptivePadding: true) {DetailsExtraInfo(p: p)}
+            DetailsSection(title: "Extra", adaptivePadding: true) {DetailsExtraInfo(p: p)}
             if !p.prompt3.response.isEmpty {PromptView(prompt: p.prompt3)}
         }
     }
@@ -50,7 +50,7 @@ extension ProfileDetailsView {
     }
 
     private var profileInterests: some View {
-        DetailsSection(color: .border, title: "Interests & Character") {
+        DetailsSection(color: .border, title: "Character") {
             UserInterests(p: p)
                 .padding(.vertical, -12)
         }

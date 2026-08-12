@@ -19,7 +19,7 @@ struct PreferencesView: View {
     }
     
     var body: some View {
-        Section("Dating Preferences (Not Public)") {
+        Section("Preferences") {
             ForEach(preferences) { info in
                 ListItem(title: info.title, response: info.response, value: info.route)
             }

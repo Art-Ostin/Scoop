@@ -12,14 +12,14 @@ import SwiftyCrop
 struct ProfileImageEditor: View {
     
     //Injected
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.zoomDismiss) private var zoomDismiss //Collapses the screen back into its photo cell
     let onSave: (ImageSlot) -> Void
 
     //Local view state
     @State private var importedImage: ImageSlot
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
-    
+
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
         self.onSave = onSave
@@ -30,18 +30,15 @@ struct ProfileImageEditor: View {
             VStack(spacing: Spacing.xl) {
                 Text("Edit Picture")
                     .font(.body(17, .bold))
-                
-                AppImage(image: importedImage.image, type: .meet)
-                    .overlay(alignment: .bottomTrailing) { changeImageButton }
-                    .overlay(alignment: .bottomLeading) { cropPhotoIcon }
-                
-                
+
+                heroPhoto
+
                 saveButton
                     .padding(.top, Spacing.lg)
             }
             .padding(.top, 120) //Geometry: drops the editor block clear of the status/cancel zone
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            
+
             cancelButton
         }
         .task(id: item) { await loadImage() }
@@ -51,10 +48,23 @@ struct ProfileImageEditor: View {
 
 //Buttons
 extension ProfileImageEditor {
-    
+
+    //The image that flew in. These pixels belong to the transition's UIKit hero, so the
+    //editor's working copy is handed DOWN to it — drawing our own would double the photo.
+    //The chips carry the hero's own side inset so they hug the image, not the slot.
+    private var heroPhoto: some View {
+        ImageCarousel(horizontalPadding: Spacing.md, aspectRatio: Self.heroAspect,
+                      displaying: importedImage.image)
+            .overlay(alignment: .bottomTrailing) { changeImageButton.padding(.horizontal, Spacing.md) }
+            .overlay(alignment: .bottomLeading) { cropPhotoIcon.padding(.horizontal, Spacing.md) }
+    }
+
+    //Height = width × this: the crop AppImage(.meet) drew here before the hero took the slot
+    private static let heroAspect: CGFloat = 1.2
+
     private var cancelButton: some View {
         Button {
-            dismiss()
+            zoomDismiss()
         } label: {
             Text("Cancel")
                 .foregroundStyle(Color.textTertiary)
@@ -71,7 +81,7 @@ extension ProfileImageEditor {
     private var saveButton: some View {
         Button {
             onSave(importedImage)
-            dismiss()
+            zoomDismiss()
         } label : {
             Text("Save")
                 .font(.body(20, .bold))

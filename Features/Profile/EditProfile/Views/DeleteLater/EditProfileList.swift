@@ -8,41 +8,10 @@
 import SwiftUI
 
 
-struct ListItem<Value: Hashable>: View {
-    
-    let title: String
-    
-    var response: [String]
-    
-    let value: Value
-    
-    var body: some View {
-        let isEmpty = response.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-        
-        let writeAll = response == ["U0", "U1", "U2", "U3", "U4"]
-        
-        NavigationLink(value: value) {
-            HStack {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(title)
-                        .font(.body(.bold))
-                        .foregroundStyle(Color.textPrimary)
-                    Text(isEmpty ? "Add Info" : (writeAll ? "All" : response.joined(separator: ", ")))
-                        .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
-                        .font(.body(15))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(1)
-                }
-                Spacer()
-            }
-        }
-        .listRowInsets(EdgeInsets(top: Spacing.lg, leading: Spacing.lg,
-                                  bottom: Spacing.lg, trailing: Spacing.lg))
-    }
-}
 
 
-/*
+
+
  
  
  struct CustomList<Content: View> : View {
@@ -89,4 +58,3 @@ struct ListItem<Value: Hashable>: View {
  #Preview {
      CustomList(content: {})
  }
- */

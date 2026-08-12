@@ -10,28 +10,33 @@ import PhotosUI
 
 struct ImageCell: View {
     let image: UIImage
-    var size: CGFloat? = nil //nil squares off to whatever width the container offers (the photo grid)
+    let size: CGFloat //The onboarding grid's fixed cell; the profile grid draws its own ProfilePhoto, so its badge can hide in flight
 
     var body: some View {
-        photo
-            .shadow(.tile)
+        SmallImage(image: image, size: size)
             .overlay(alignment: .topTrailing) {
                 ImageEditButton()
                     .padding(Spacing.xxs)
             }
             .contentShape(Rectangle())
     }
+}
 
-    @ViewBuilder
-    private var photo: some View {
-        if let size {
-            SmallImage(image: image, size: size)
-        } else {
-            Color.clear
-                .aspectRatio(1, contentMode: .fit)
-                .overlay { Image(uiImage: image).resizable().scaledToFill() }
-                .clipShape(.rect(cornerRadius: CornerRadius.smallImage))
-        }
+/// One cell of the profile photo grid: a near-square fill crop, sized by whatever
+/// width the grid column offers. It is a zoom-morph SOURCE, so it carries no
+/// chrome of its own — the edit badge rides above it as card overlay, where the
+/// flight can fade it out instead of flying it.
+struct ProfilePhoto: View {
+    static let aspectRatio: CGFloat = 1/1.02
+
+    let image: UIImage
+    var cornerRadius: CGFloat = CornerRadius.smallImage
+
+    var body: some View {
+        Color.clear
+            .aspectRatio(Self.aspectRatio, contentMode: .fit)
+            .overlay { Image(uiImage: image).resizable().scaledToFill() }
+            .clipShape(.rect(cornerRadius: cornerRadius))
     }
 }
 
@@ -95,7 +100,7 @@ struct ImageEditButton: View {
             .frame(width: 28, height: 28)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .scaleEffect(0.7, anchor: .trailing)
-            .offset(y: -1)
+            .scaleEffect(0.6, anchor: .trailing)
+            .offset(y: -2)
     }
 }

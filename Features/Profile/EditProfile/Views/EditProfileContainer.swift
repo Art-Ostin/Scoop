@@ -31,7 +31,6 @@ struct EditProfileContainer: View {
 
     //Local view state
     @State private var isEdit: Bool = false
-    @State private var selectedImage: ImageSlot? = nil
     @State private var showSavingScreen: Bool = false
     @State private var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
     @State private var path: [EditProfileRoute] = [] //Non-empty (an edit screen is pushed) hides certain views
@@ -47,10 +46,9 @@ struct EditProfileContainer: View {
         //Overlays
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .top) { editProfileHeader }
-                
+
         //Different Screens can go to
         .navigationDestination(for: EditProfileRoute.self, destination: destination)
-        .fullScreenCover(item: $selectedImage) {editImageView($0)}
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
 }
@@ -59,11 +57,20 @@ struct EditProfileContainer: View {
 //Different Views
 extension EditProfileContainer {
     
+    //The photo grid's cells are morph sources, so this screen needs a zoom host of its own.
+    //It has to be THIS one: Edit Profile is itself a full-screen cover, and the app-root
+    //presentation plane lives behind that cover — a photo editor parented there would open
+    //underneath the screen it was launched from. Clearing the host keeps the presentation
+    //inside this stack, which is the only plane above the cover's content.
     private var editProfileView: some View {
-        NavigationStack(path: $path) { // As EditProfile appears in full screen cover
-            EditProfileView(vm: vm, selectedImage: $selectedImage, path: $path)
-                .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
+        ZoomNavigationStack {
+            NavigationStack(path: $path) { // As EditProfile appears in full screen cover
+                EditProfileView(vm: vm, path: $path)
+                    .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
+            }
         }
+        .environment(ZoomPresentationHost?.none)
+        .ignoresSafeArea()
         .transition(.move(edge: .trailing))
     }
     
@@ -73,14 +80,8 @@ extension EditProfileContainer {
             .transition(.move(edge: .leading))
     }
     
-    private func editImageView(_ slot: ImageSlot) -> some View {
-        ProfileImageEditor(importedImage: slot) {updatedImage in
-            Task { try await vm.changeImage(image: updatedImage) }
-        }
-    }
-    
     private var editProfileButton: some View {
-        EditProfileButton(isEdit: $isEdit, pathIsEmpty: path.isEmpty)
+        ViewAndEditProfileToggle(isEdit: $isEdit, pathIsEmpty: path.isEmpty)
     }
 }
 

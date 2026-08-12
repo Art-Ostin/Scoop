@@ -12,21 +12,22 @@ struct EditProfileView: View {
     //Injected
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
-    @Binding var selectedImage: ImageSlot?
 
     @Binding var path: [EditProfileRoute]
 
     var body: some View {
         //One scroll view: the photo grid is a bare row so it scrolls with the sections
         List {
-            ProfileImages(vm: vm, selectedImage: $selectedImage)
-                .plainRow(inset: 0, vertical: Spacing.sm) //flush with the section cards' edges
+            ProfileImages(vm: vm)
             PromptsSection(vm: vm, path: $path)
-            CoreInfo(vm: vm)
             ExtraInfo(vm: vm)
             InterestsView(vm: vm, path: $path)
+                .listSectionSpacing(20)
             PreferencesView(vm: vm)
+            CoreInfo(vm: vm)
         }
+        .environment(\.defaultMinListRowHeight, 0)
+        .contentMargins(.top, 12, for: .scrollContent)
         .contentMargins(.bottom, Spacing.clearance, for: .scrollContent) //clears the floating edit button
         .listBackground(color: .canvasSunken)
         .navigationTitle("Edit Profile")
@@ -51,3 +52,8 @@ private extension View {
             .listRowBackground(Color.clear)
     }
 }
+
+
+/*
+ .plainRow(inset: 0, vertical: Spacing.sm) //flush with the section cards' edges
+ */

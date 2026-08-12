@@ -227,6 +227,31 @@ public final class ZoomRootController: UIViewController {
         presentationHost = host
     }
 
+    /// The presentation this whole stack lives INSIDE, when it lives inside one
+    /// (Edit Profile is itself a full-screen cover). Such a host usually carries
+    /// an interactive dismissal of its own — a zoom-presented cover is dragged
+    /// down to leave it — and that gesture reads the very drag our collapse is
+    /// driving: the detail flies home and takes its host screen with it. So the
+    /// host is held modal for exactly as long as a detail is up, then restored
+    /// to whatever it was. A stack hosted in a tab has no presenting controller
+    /// and never reaches past the guard.
+    private weak var modalHost: UIViewController?
+    private var hostWasModal = false
+
+    private func holdHostModal() {
+        var top: UIViewController = self
+        while let parent = top.parent { top = parent }
+        guard top.presentingViewController != nil else { return }
+        modalHost = top
+        hostWasModal = top.isModalInPresentation
+        top.isModalInPresentation = true
+    }
+
+    private func releaseHostModal() {
+        modalHost?.isModalInPresentation = hostWasModal
+        modalHost = nil
+    }
+
     /// Re-hands the home's content to the host on every SwiftUI update, so the hosted tree
     /// tracks the caller's body instead of the snapshot taken at make time.
     func updateRoot(_ root: AnyView) {
@@ -423,6 +448,8 @@ public final class ZoomRootController: UIViewController {
             cardRadii: marker.cardRadii,
             detailContent: marker.detail())
         presentedDetail = detail
+        detail.dismissController.continuousCollapse = marker.continuousCollapse
+        detail.dismissController.dismissDurationScale = marker.dismissDurationScale
         sceneIsBehindTabBar = false // every open starts above the bar
         // Parented to whoever owns the plane the views are added to — UIKit
         // checks exactly that as the detail enters the window.
@@ -431,6 +458,8 @@ public final class ZoomRootController: UIViewController {
         detail.didMove(toParent: presentationParent)
         // The covered home must not scroll or retap.
         homePlane.view.isUserInteractionEnabled = false
+        // ...and a host presentation must not read our drag as its own dismissal.
+        holdHostModal()
     }
 
     /// Fail-safe for a home that leaves the window mid-presentation: dismantle
@@ -449,6 +478,8 @@ public final class ZoomRootController: UIViewController {
         presentedDetail = nil
         sceneIsBehindTabBar = false
         homePlane.view.isUserInteractionEnabled = true
+        releaseHostModal() // The host owns its own dismissal again
+
         // Status bar authority returns to the home in one crossfade.
         detailOwnsStatusBar = false
         presentationHost?.statusBarChild = nil
@@ -506,11 +537,35 @@ public extension View {
     /// a dismissal writes the destination's page back, so the card returns
     /// showing whatever the profile ended on. A source with a single image —
     /// or one whose card should never follow — leaves it unbound.
+    /// `cornerRadius` is the card's OWN top radius when it is not the library's
+    /// card radius — a small cell in a grid rounds tighter than a full-width
+    /// card. The flight starts and lands on it, so the first frame matches the
+    /// card that was tapped instead of popping to the hero's radius.
+    /// `pressScale` is that card's press depth: press travel reads by absolute
+    /// distance, so a small source needs a deeper factor than a big one.
+    /// `continuousCollapse` opts a source out of the TWO-BEAT ARC its slot
+    /// would otherwise earn (see DragTuning): the release shrinks and travels
+    /// home as ONE motion — exactly the collapse a card sitting past
+    /// `arcCutoffY` already flies — instead of diving below the slot and
+    /// springing up into it. For a source whose card is small and sits in a
+    /// dense grid, where a dive past the destination reads as a detour rather
+    /// than as weight. Default false: the arc is the tuned default and every
+    /// existing card keeps it.
+    /// `dismissDurationScale` stretches this source's dismissal clock — 1.5
+    /// plays the whole collapse half again as long. It scales the travel, the
+    /// mask's condense race and the settle as one, so the flight only ever
+    /// gets slower, never looser. A big screen folding into a SMALL card
+    /// travels a short way while shrinking enormously, and the tuned clock
+    /// reads fast on it. Default 1: no existing card's timing is touched.
     func zoomTransition<Overlay: View, Content: View>(
         images: [UIImage],
         page: Binding<Int> = .constant(0),
         showsCardShadow: Bool = true,
-        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        cornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        bottomCornerRadius: CGFloat? = nil,
+        pressScale: CGFloat = ZoomStyle.pressScale,
+        continuousCollapse: Bool = false,
+        dismissDurationScale: Double = 1,
         @ViewBuilder cardOverlay: @escaping () -> Overlay,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
@@ -518,7 +573,11 @@ public extension View {
             images: images,
             page: page,
             showsCardShadow: showsCardShadow,
-            bottomCornerRadius: bottomCornerRadius,
+            cornerRadius: cornerRadius,
+            bottomCornerRadius: bottomCornerRadius ?? cornerRadius,
+            pressScale: pressScale,
+            continuousCollapse: continuousCollapse,
+            dismissDurationScale: dismissDurationScale,
             cardOverlay: { AnyView(cardOverlay()) },
             detail: { AnyView(content()) }))
     }
@@ -528,11 +587,17 @@ public extension View {
         images: [UIImage],
         page: Binding<Int> = .constant(0),
         showsCardShadow: Bool = true,
-        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        cornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        bottomCornerRadius: CGFloat? = nil,
+        pressScale: CGFloat = ZoomStyle.pressScale,
+        continuousCollapse: Bool = false,
+        dismissDurationScale: Double = 1,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         zoomTransition(images: images, page: page, showsCardShadow: showsCardShadow,
-                       bottomCornerRadius: bottomCornerRadius,
+                       cornerRadius: cornerRadius, bottomCornerRadius: bottomCornerRadius,
+                       pressScale: pressScale, continuousCollapse: continuousCollapse,
+                       dismissDurationScale: dismissDurationScale,
                        cardOverlay: { EmptyView() }, content: content)
     }
 
@@ -544,7 +609,10 @@ public extension View {
         trigger: Int,
         page: Binding<Int> = .constant(0),
         showsCardShadow: Bool = true,
-        bottomCornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        cornerRadius: CGFloat = ZoomStyle.cornerRadius,
+        bottomCornerRadius: CGFloat? = nil,
+        continuousCollapse: Bool = false,
+        dismissDurationScale: Double = 1,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         modifier(TriggeredZoomTransitionModifier(
@@ -552,8 +620,20 @@ public extension View {
             images: images,
             page: page,
             showsCardShadow: showsCardShadow,
-            bottomCornerRadius: bottomCornerRadius,
+            cornerRadius: cornerRadius,
+            bottomCornerRadius: bottomCornerRadius ?? cornerRadius,
+            continuousCollapse: continuousCollapse,
+            dismissDurationScale: dismissDurationScale,
             detail: { AnyView(content()) }))
+    }
+
+    /// The card press-down on its own, without the morph: a Button wearing the
+    /// same slow App Store shrink a zoom source wears. Inside a scroll, pair it
+    /// with `instantPressDelivery()` so the press lands on touch-down — a pan
+    /// still cancels it and scrolls, which a press *gesture* can't do.
+    /// `scale` overrides the card's press depth for small sources.
+    func zoomCardPress(scale: CGFloat = ZoomStyle.pressScale) -> some View {
+        buttonStyle(ZoomCardPressStyle(scale: scale))
     }
 }
 
@@ -585,21 +665,30 @@ public extension EnvironmentValues {
 /// - `aspectRatio`: the resting image crop, as height = width × aspectRatio.
 ///   The in-flight crop is always the tapped card's own measured aspect,
 ///   morphing to this one.
+/// - `displaying`: the image the destination itself owns, when the screen EDITS
+///   what it flew in (crop, replace). The hero is UIKit's — a SwiftUI copy drawn
+///   over it would be a second image — so the editor hands its working value
+///   down here and the flown-in pixels are swapped in place. Leave it nil and
+///   the hero keeps showing what the source handed over.
 public struct ImageCarousel: View {
     @Environment(\.zoomHeroContainer) private var container
     private let horizontalPadding: CGFloat
     private let aspectRatio: CGFloat
+    private let displaying: UIImage?
 
     public init(horizontalPadding: CGFloat = ZoomStyle.detailInset,
-                aspectRatio: CGFloat = ZoomStyle.detailAspect) {
+                aspectRatio: CGFloat = ZoomStyle.detailAspect,
+                displaying: UIImage? = nil) {
         self.horizontalPadding = horizontalPadding
         self.aspectRatio = aspectRatio
+        self.displaying = displaying
     }
 
     public var body: some View {
         ZoomHeroRepresentable(container: container,
                               horizontalPadding: horizontalPadding,
-                              aspectRatio: aspectRatio)
+                              aspectRatio: aspectRatio,
+                              displaying: displaying)
     }
 }
 
@@ -607,14 +696,20 @@ private struct ZoomHeroRepresentable: UIViewRepresentable {
     let container: ZoomHeroContainer?
     let horizontalPadding: CGFloat
     let aspectRatio: CGFloat
+    let displaying: UIImage?
 
     func makeUIView(context: Context) -> UIView {
-        container?.setHorizontalPadding(horizontalPadding)
+        configure()
         return container ?? UIView()
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
+        configure()
+    }
+
+    private func configure() {
         container?.setHorizontalPadding(horizontalPadding)
+        if let displaying { container?.setImage(displaying, at: 0) }
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIView, context: Context) -> CGSize? {
@@ -648,7 +743,11 @@ private struct ZoomTransitionModifier: ViewModifier {
     let images: [UIImage]
     let page: Binding<Int>
     let showsCardShadow: Bool
+    let cornerRadius: CGFloat
     let bottomCornerRadius: CGFloat
+    let pressScale: CGFloat
+    let continuousCollapse: Bool
+    let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
 
@@ -667,11 +766,14 @@ private struct ZoomTransitionModifier: ViewModifier {
                 .background(ZoomSourceRepresentable(
                     state: state, images: images, page: page,
                     showsCardShadow: showsCardShadow,
+                    cornerRadius: cornerRadius,
                     bottomCornerRadius: bottomCornerRadius,
+                    continuousCollapse: continuousCollapse,
+                    dismissDurationScale: dismissDurationScale,
                     cardOverlay: cardOverlay, detail: detail))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(ZoomCardPressStyle())
+        .buttonStyle(ZoomCardPressStyle(scale: pressScale))
     }
 }
 
@@ -684,7 +786,10 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
     let images: [UIImage]
     let page: Binding<Int>
     let showsCardShadow: Bool
+    let cornerRadius: CGFloat
     let bottomCornerRadius: CGFloat
+    let continuousCollapse: Bool
+    let dismissDurationScale: Double
     let detail: () -> AnyView
 
     func body(content: Content) -> some View {
@@ -695,7 +800,10 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
                 images: images,
                 page: page,
                 showsCardShadow: showsCardShadow,
+                cornerRadius: cornerRadius,
                 bottomCornerRadius: bottomCornerRadius,
+                continuousCollapse: continuousCollapse,
+                dismissDurationScale: dismissDurationScale,
                 cardOverlay: { AnyView(EmptyView()) },
                 detail: detail))
             .onChange(of: trigger) { _, _ in
@@ -707,10 +815,15 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
 /// The App Store press-down: shrink to pressScale on a no-overshoot spring,
 /// spring back on release — no bounce either way, no dim. A rendering
 /// effect on the unmodified label; layout is untouched.
+/// `scale` is the card's own depth unless a caller overrides it: press travel
+/// reads by absolute distance, so a small cell needs a deeper factor than a
+/// full-width card to feel the same.
 private struct ZoomCardPressStyle: ButtonStyle {
+    var scale: CGFloat = ZoomStyle.pressScale
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? ZoomStyle.pressScale : 1)
+            .scaleEffect(configuration.isPressed ? scale : 1)
             .animation(
                 configuration.isPressed
                     ? .spring(response: ZoomStyle.pressDownResponse, dampingFraction: 1)
@@ -730,7 +843,10 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
     let images: [UIImage]
     let page: Binding<Int>
     let showsCardShadow: Bool
+    let cornerRadius: CGFloat
     let bottomCornerRadius: CGFloat
+    let continuousCollapse: Bool
+    let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
 
@@ -755,7 +871,10 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
         v.images = images
         v.page = page
         v.showsCardShadow = showsCardShadow
+        v.topCornerRadius = cornerRadius
         v.bottomCornerRadius = bottomCornerRadius
+        v.continuousCollapse = continuousCollapse
+        v.dismissDurationScale = dismissDurationScale
         v.cardOverlay = cardOverlay
         v.detail = detail
     }
@@ -918,11 +1037,19 @@ final class ZoomSourceMarkerView: UIView {
         didSet { restingShadow.isHidden = !showsCardShadow }
     }
 
-    /// The card's own bottom radius (`zoomTransition(bottomCornerRadius:)`);
-    /// `ZoomStyle.cornerRadius` for an ordinary uniformly-rounded card.
+    /// The card's own radii (`zoomTransition(cornerRadius:bottomCornerRadius:)`);
+    /// both `ZoomStyle.cornerRadius` for an ordinary card cut to the library's
+    /// radius. The top differs for a source that rounds tighter than a card
+    /// (a photo-grid cell); the bottom for one squared off inside a surface.
+    var topCornerRadius = ZoomStyle.cornerRadius
     var bottomCornerRadius = ZoomStyle.cornerRadius
+    /// `zoomTransition(continuousCollapse:)` — handed to the dismiss
+    /// controller at push, read only when a release picks its flight.
+    var continuousCollapse = false
+    /// `zoomTransition(dismissDurationScale:)` — likewise handed over at push.
+    var dismissDurationScale: Double = 1
     var cardRadii: CardRadii {
-        CardRadii(top: ZoomStyle.cornerRadius, bottom: bottomCornerRadius)
+        CardRadii(top: topCornerRadius, bottom: bottomCornerRadius)
     }
 
     override init(frame: CGRect) {
@@ -968,14 +1095,14 @@ final class ZoomSourceMarkerView: UIView {
         let iv = UIImageView(image: image)
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.layer.cornerRadius = ZoomStyle.cornerRadius
+        iv.layer.cornerRadius = topCornerRadius
         iv.layer.cornerCurve = .continuous
         iv.frame = bounds
         iv.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         // A square-bottomed card needs the same silhouette here, or the
         // bridge re-rounds what the flight just finished squaring off. The
         // shape is static for its 100ms, so a plain mask carries it.
-        if bottomCornerRadius != ZoomStyle.cornerRadius {
+        if bottomCornerRadius != topCornerRadius {
             iv.layer.cornerRadius = 0
             let shape = SplitCornerView()
             shape.apply(frame: bounds, radii: cardRadii)
@@ -1265,6 +1392,17 @@ private enum DragTuning {
 
 // MARK: - Host controller (the presenting side)
 
+private extension UIView {
+    ///The navigation bar of a stack hosted below this view, once it has one.
+    var firstNavigationBar: UINavigationBar? {
+        if let bar = self as? UINavigationBar { return bar }
+        for view in subviews {
+            if let bar = view.firstNavigationBar { return bar }
+        }
+        return nil
+    }
+}
+
 final class ZoomHostController: UIViewController {
 
     /// The overlay container presentations run in (set by ZoomRootController).
@@ -1295,6 +1433,39 @@ final class ZoomHostController: UIViewController {
             activeSourceView = newValue
             activeSourceState = newValue?.state
         }
+    }
+
+    /// UIKit's `systemMinimumLayoutMargins` for a window-root controller on
+    /// iPhone — the side margin a navigation bar's large title sits on.
+    private static let systemSideMargin: CGFloat = 16
+
+    /// A hosted stack draws its OWN navigation bar, and a bar takes the column
+    /// its large title sits on from the layout margins it INHERITS, never from
+    /// the screen. Inside a presented cover UIKit hands this controller's
+    /// subtree a minimum of leading 0 / trailing 16 — sim-measured, and the
+    /// asymmetry is the cover's own presentation geometry, frozen when the
+    /// stack was hosted and never recomputed — so every view down to the bar
+    /// arrives at 0 and the large title lays out flush on the screen edge. The
+    /// same controller hosted in a tab inherits the full 16 and reads right,
+    /// which is why only a presented stack shows it.
+    ///
+    /// The bar preserves its superview's margins, so restoring its own floor is
+    /// enough. It is also the only rung of that chain we own — the two above it
+    /// belong to SwiftUI's navigation representable, and the controller-level
+    /// minimum is derived, not settable.
+    private func pinNavigationBarMargins() {
+        guard let bar = contentHost.view.firstNavigationBar else { return }
+        var margins = bar.directionalLayoutMargins
+        guard margins.leading < Self.systemSideMargin
+                || margins.trailing < Self.systemSideMargin else { return }
+        margins.leading = max(margins.leading, Self.systemSideMargin)
+        margins.trailing = max(margins.trailing, Self.systemSideMargin)
+        bar.directionalLayoutMargins = margins
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pinNavigationBarMargins()
     }
 
     init(root: AnyView, title: String?) {
@@ -1617,6 +1788,20 @@ final class ZoomHeroContainer: UIView {
     private var curtains: [UIView] = []
     private var leadingInsets: [NSLayoutConstraint] = []
     private var trailingInsets: [NSLayoutConstraint] = []
+
+    /// Swaps the pixels a page shows while it is on screen — for a destination
+    /// that EDITS its own hero (the photo editor replaces and crops the very
+    /// image it flew in). Only the image changes: the page's frame, crop and
+    /// every flight constraint are the geometry the morph is mid-way through,
+    /// and are left untouched.
+    func setImage(_ image: UIImage, at index: Int) {
+        guard pageImages.indices.contains(index), pageImages[index].image !== image else { return }
+        pageImages[index].image = image
+        // The square-off band republishes the same strip, so it has to agree.
+        if bottomPatches.indices.contains(index) {
+            (bottomPatches[index].subviews.first as? UIImageView)?.image = image
+        }
+    }
 
     /// Animatable: 1 while a flight crop owns the hero (content beneath is
     /// veiled), 0 at rest and through drags (the live screen shows normally).
@@ -2253,6 +2438,12 @@ final class MorphDismissController: NSObject {
     private var cardRadii: CardRadii { detail?.cardRadii ?? .uniform(ZoomStyle.cornerRadius) }
     private var sourceRect = CGRect.zero  // home card, root coords
     private var presentSourceRect = CGRect.zero // landing fallback if the card unmounts
+    /// Opt-in (`zoomTransition(continuousCollapse:)`): releases fly the
+    /// arc-less collapse wherever the card sits — see `finishDismiss`.
+    var continuousCollapse = false
+    /// Opt-in (`zoomTransition(dismissDurationScale:)`): stretches every
+    /// dismissal clock this scene runs — see `runCollapse`.
+    var dismissDurationScale: Double = 1
     /// The hero's RESTING frame in detail coords, recorded at present time:
     /// a caught open arms the drag rule from this without forcing a layout
     /// pass mid-grab.
@@ -2931,7 +3122,11 @@ final class MorphDismissController: NSObject {
                                              velocity: velocity.y)))
         #endif
         flightIsDismissal = true
-        if sourceRect.minY < DragTuning.arcCutoffY {
+        // A `continuousCollapse` source takes the AT-AND-BELOW-THE-LINE branch
+        // whatever its slot's height: no dive, no second beat — the shrink
+        // rides the travel home as one motion. Nothing else changes, so an
+        // ordinary card's release is bit-identical to before this existed.
+        if !continuousCollapse, sourceRect.minY < DragTuning.arcCutoffY {
             runArc(translation: translation, velocity: velocity)
         } else if velocity.y >= DragTuning.fastFlickVelocity {
             runDirectCollapse(translation: translation, velocity: velocity)
@@ -3246,12 +3441,19 @@ final class MorphDismissController: NSObject {
     /// earns the bounce), a throw hand-over (physical spring), or the Back
     /// button (near-critical: a tap earns none). `damping` only shapes the
     /// duration-fitted spring; the physical path derives its own.
-    private func runCollapse(velocity: CGPoint, duration: TimeInterval,
+    private func runCollapse(velocity: CGPoint, duration rawDuration: TimeInterval,
                              damping: CGFloat = 1,
                              descentSpeed: CGFloat = 0, physicalSpring: Bool = false,
-                             physicalSettle: TimeInterval = DragTuning.throwSettle,
+                             physicalSettle rawSettle: TimeInterval = DragTuning.throwSettle,
                              signedDescent: Bool = false,
                              raceDuration: TimeInterval? = nil) {
+        // The collapse runs on ONE paced clock: travel, the mask's condense
+        // race and the settle stretch together. Stretching only the travel
+        // would let the shape finish early and read as a shrink followed by a
+        // drift — the very split `continuousCollapse` exists to avoid.
+        // The scale is 1 for every source but an opted-in one, and ×1 is exact.
+        let duration = rawDuration * dismissDurationScale
+        let physicalSettle = rawSettle * dismissDurationScale
         guard let detail, let detailView, let home, let homeView else {
             // FAIL-SAFE: a silent return here mid-dismissal would leave the
             // overlay stuck on screen forever. If the scene has fallen
@@ -3342,8 +3544,9 @@ final class MorphDismissController: NSObject {
                 (maskView.frame.height - flightHero.height)
                     / max(detailView.bounds.height - flightHero.height, 1), 0), 1)
             let race = UIViewPropertyAnimator(
-                duration: raceDuration
-                    ?? DragTuning.maskRaceDuration * max(TimeInterval(openness), 0.2),
+                duration: (raceDuration
+                    ?? DragTuning.maskRaceDuration * max(TimeInterval(openness), 0.2))
+                    * dismissDurationScale,
                 timingParameters: UISpringTimingParameters(
                     dampingRatio: 1, initialVelocity: .zero))
             race.addAnimations {

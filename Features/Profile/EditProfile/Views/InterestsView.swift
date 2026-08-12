@@ -7,71 +7,70 @@
 
 import SwiftUI
 
-struct InterestsLayout: View {
-    
-    var passions: [String]
-    
-    let forProfile: Bool
-    
-    
-    private var rows: [[String]] {
-        stride(from: 0, to: passions.count, by: 2).map {
-            Array(passions[$0..<min($0+2, passions.count)])
-        }
-    }
-    
-    var body: some View {
-        VStack(spacing: forProfile ? Spacing.sm : Spacing.md) {
-            ForEach(rows.indices, id: \.self) { index in
-                let row = rows[index]
-                HStack {
-                    Text(row[safe: 0] ?? "")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Divider()
-                        .frame(height: 20)
-                    
-                    Text(row.count > 1 ? row[1] : "")
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                if index < rows.count - 1 {
-                    Divider()
-                }
-            }
-        }
-        .padding()
-        .font(.body())
-        .foregroundStyle(passions.count < 1 ? Color.textAccent : Color.textPrimary)
-        .background(
-            RoundedRectangle(cornerRadius: CornerRadius.lg)
-                .fill( Color.white)
-        )
-    }
-}
-
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
-
-
 struct InterestsView: View {
 
     //Injected
     @Bindable var vm: EditProfileViewModel
     @Binding var path: [EditProfileRoute]
 
+    private var interests: [String] { vm.draft.interests }
+
+    //Two interests to a row: every other index starts one and takes the next along if it's there
+    private var rowStarts: [Int] { Array(stride(from: 0, to: interests.count, by: 2)) }
+
+
     var body: some View {
-        Section("Interests & Character") {
-            //A Button, not a NavigationLink: the card carries its own chrome and takes no disclosure chevron
-            Button { path.append(.interests) } label: {
-                InterestsLayout(passions: vm.draft.interests, forProfile: false)
+        Section {
+            titleRow
+            ForEach(rowStarts, id: \.self) { start in
+                InterestsRow(left: interests[start],
+                             right: start + 1 < interests.count ? interests[start + 1] : nil,
+                             topInset: start == 0 ? Spacing.lg : nil) { path.append(.interests) }
+                    .padding(.bottom, start == rowStarts.last ? Spacing.xs - 2 : 0)
             }
-            .buttonStyle(.plain)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: Spacing.xxs, leading: Spacing.md,
-                                      bottom: Spacing.xxs, trailing: Spacing.md))
+            .padding(.horizontal, 2)
         }
+    }
+}
+
+extension InterestsView {
+
+    private var titleRow: some View {
+        HStack {
+            Text("Interests")
+                .font(.body(16, .bold))
+                .foregroundStyle(Color.black)
+            Spacer()
+            Image("EditButton")
+                .scaleEffect(0.7, anchor: .topTrailing)
+        }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: Spacing.md + 2, leading: Spacing.lg,
+                                      bottom: 0, trailing: Spacing.lg))
+    }
+}
+
+private struct InterestsRow: View {
+
+    let left: String
+    //Only the last row can come up short, when the interests count is odd
+    let right: String?
+    var topInset: CGFloat? = nil
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack {
+                Text(left)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(right ?? "")
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .font(.body(15))
+            .foregroundStyle(Color.textSecondary)
+        }
+        .buttonStyle(.plain)
+        .editProfileRow(top: topInset)
     }
 }

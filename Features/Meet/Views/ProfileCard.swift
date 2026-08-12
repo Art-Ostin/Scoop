@@ -42,10 +42,6 @@ struct ProfileCard : View {
 
 extension ProfileCard {
     
-    //All card chrome (blur + scrim + text) lives in the transition's overlay, so the flights
-    //fade it as one unit over the flying image. Built as a real View struct: the invite
-    //flight's exit drivers arrive by environment, and @Environment only resolves on an
-    //installed node — a closure-captured copy silently reads defaults (the CustomMenu gotcha)
     private var cardOverlay: some View {
         let p = profile.profile
         return ProfileCardChrome(
