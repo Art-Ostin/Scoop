@@ -49,29 +49,46 @@ struct DismissButton: View {
     }
 }
 
-///Dismiss Button with check used for onboarding
-struct CloseAndCheckNavButton: ViewModifier {
-    @Environment(\.dismiss) private var dismiss
-    let check: Bool
+/// A pushed screen's veto over the back button its container owns. The flow's leading slot
+/// holds ONE lens (see `EditProfileContainer.leadingAction`), so a screen that can refuse to
+/// be left publishes its check here rather than drawing a second chevron the lens would cover.
+private struct PopGuardKey: EnvironmentKey {
+    static let defaultValue: Binding<(() -> Bool)?> = .constant(nil)
+}
+
+extension EnvironmentValues {
+    /// Written by the pushed screen, read by the container's back button. `nil` = nothing to ask.
+    var popGuard: Binding<(() -> Bool)?> {
+        get { self[PopGuardKey.self] }
+        set { self[PopGuardKey.self] = newValue }
+    }
+}
+
+/// Refuses the pop while `invalid`, raising the screen's own alert instead.
+struct CheckBeforePop: ViewModifier {
+    let invalid: Bool
     @Binding var triggerAlert: Bool
-    
+
+    @Environment(\.popGuard) private var popGuard
+
     func body(content: Content) -> some View {
         content
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { check ? (triggerAlert = true) : dismiss() } label: {
-                        Image(systemName: "chevron.left")
-                            .dismissGlyphStyle()
-                    }
+            //Rewritten on every change: the closure has to answer with the validity at TAP time,
+            //not the one captured when the screen appeared.
+            .onChange(of: invalid, initial: true) {
+                popGuard.wrappedValue = {
+                    guard invalid else { return true }
+                    triggerAlert = true
+                    return false
                 }
             }
+            .onDisappear { popGuard.wrappedValue = nil }
     }
 }
 
 extension View {
-    func closeAndCheckNavButton(check: Bool, triggerAlert: Binding<Bool>) -> some View {
-        modifier(CloseAndCheckNavButton(check: check, triggerAlert: triggerAlert))
+    func checkBeforePop(invalid: Bool, triggerAlert: Binding<Bool>) -> some View {
+        modifier(CheckBeforePop(invalid: invalid, triggerAlert: triggerAlert))
     }
 }
 

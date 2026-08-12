@@ -14,11 +14,12 @@ struct EditProfileView: View {
     @Bindable var vm: EditProfileViewModel
 
     @Binding var path: [EditProfileRoute]
+    @Binding var isEditingImage: Bool //Written by the photo grid's editor, read by the container's dismissal
 
     var body: some View {
         //One scroll view: the photo grid is a bare row so it scrolls with the sections
         List {
-            ProfileImages(vm: vm)
+            ProfileImages(vm: vm, isEditingImage: $isEditingImage)
             PromptsSection(vm: vm, path: $path)
             CoreInfo(vm: vm)
             ExtraInfo(vm: vm)

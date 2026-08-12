@@ -10,7 +10,9 @@ import SwiftUI
 enum MediaField: String, CaseIterable, Hashable, Identifiable {
     case movie, song, book
     var id: Self { self }
+    
     var title: String { rawValue.capitalized }
+    
     var placeholder: String {
         switch self {
         case .movie: "E.g. La Haine"
@@ -22,127 +24,132 @@ enum MediaField: String, CaseIterable, Hashable, Identifiable {
 
 
 struct EditMyMedia: View {
+    
+    //Injected
     @Bindable var vm: EditProfileViewModel
 
+    //Local view state
     @State private var selection: MediaField? = .movie
     @State private var selectedValues: [MediaField: String] = [:]
 
     @FocusState private var focus: MediaField?
     @Namespace private var tabNamespace
 
+
+    //Writes through to the draft as it goes, so only the edited field is ever set
     private func binding(for field: MediaField) -> Binding<String> {
         .init(
             get: { selectedValues[field, default: ""] },
-            set: { selectedValues[field] = $0 }
+            set: { new in
+                selectedValues[field] = new
+                store(new, in: field)
+            }
         )
     }
 
-    //A blank box means "not set", not an empty string: the model stores these as String? and every
-    //display site unwraps with `if let`, so "" would render an icon with no text beside it.
-    private func stored(_ field: MediaField, in values: [MediaField: String]) -> String? {
-        let trimmed = values[field]?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return (trimmed?.isEmpty ?? true) ? nil : trimmed
+    private func stored(_ text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     var body: some View {
         HorizontalScrollView(progress: .constant(0)) {
             ForEach(MediaField.allCases) { field in
                 page(for: field)
-                    .containerRelativeFrame([.horizontal, .vertical])
-                    .id(field)
             }
         }
         .scrollPosition(id: $selection)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .overlay(alignment: .bottom) {
-            tabs
-        }
-        //Cancels itself when selection moves again, so a fast swipe can't leave a stale timer
-        //behind that yanks focus onto a page the user has already left.
-        .task(id: selection) {
-            if focus != nil {                                   //A page change, not first appearance
-                focus = nil                                     //Every page stays mounted: resign first or the old field eats the keystrokes
-                try? await Task.sleep(for: .milliseconds(300))  //Delay removes bug of half swiping for user
-                guard !Task.isCancelled else { return }
-            }
-            focus = selection
-        }
-        .onChange(of: selectedValues) { _, values in
-            vm.set(.favouriteMovie, \.favouriteMovie, to: stored(.movie, in: values))
-            vm.set(.favouriteSong,  \.favouriteSong,  to: stored(.song,  in: values))
-            vm.set(.favouriteBook,  \.favouriteBook,  to: stored(.book,  in: values))
-        }
-        .onAppear {
-            selectedValues = [
-                .movie: vm.draft.favouriteMovie ?? "",
-                .song:  vm.draft.favouriteSong  ?? "",
-                .book:  vm.draft.favouriteBook  ?? ""
-            ]
-        }
+        .scrollDismissesKeyboard(.never) //Pins the mapping across OS versions: the SDK's prose and its behaviour disagree on the default
+        .safeAreaInset(edge: .bottom) {selectionMenu}
+
+        .task(id: selection) { focusSettledPage() }
+        .onAppear {loadValues()}
     }
 }
 
 //Tab bar
 extension EditMyMedia {
 
-    private var tabs: some View {
+    private var selectionMenu: some View {
         CustomScrollTab(height: 20) {
             HStack(spacing: Spacing.xxxl) {
                 ForEach(MediaField.allCases) { field in
-                    let isSelected = field == selection
-
-                    Text(field.title)
-                        .font(.body(17, .bold))
-                        .contentShape(Rectangle())
-                        .onTapGesture { selection = field }
-                        .foregroundStyle(isSelected ? .accent : .textPrimary)
-                        .overlay(alignment: .bottom) {
-                            if isSelected {
-                                Capsule()
-                                    .frame(width: 50, height: 3)
-                                    .offset(y: 8)
-                                    .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
-                                    .foregroundStyle(.accent)
-                            }
-                        }
+                    text(field)
                 }
             }
-            //Keyed off selection on a stable ancestor so a swipe animates the underline too —
-            //a withAnimation inside the tap only ever covered the tap.
             .animation(.toggle, value: selection)
         }
         .padding(.horizontal, Spacing.margin)
+    }
+    
+    private func text(_ field: MediaField) -> some View {
+        let isSelected = field == selection
+        return Text(field.title)
+            .font(.body(17, .bold))
+            .foregroundStyle(isSelected ? .accent : .textPrimary)
+            .contentShape(Rectangle())
+            .shrinkPress { selection = field }
+            .overlay(alignment: .bottom) { if isSelected { underLine } }
+    }
+    
+    private var underLine: some View {
+        Capsule()
+            .frame(width: 50, height: 3)
+            .offset(y: 8)
+            .matchedGeometryEffect(id: "tabUnderline", in: tabNamespace)
+            .foregroundStyle(.accent)
     }
 }
 
 //Pages
 extension EditMyMedia {
-
     private func page(for field: MediaField) -> some View {
         VStack(alignment: .leading, spacing: Spacing.titleGap) {
             Text("Favourite \(field.title)")
                 .font(.title())
             
-            VStack {
-                TextField(field.placeholder, text: binding(for: field))
-                    .frame(maxWidth: .infinity)
-                    .font(.body(24,.medium))
-                    .focused($focus, equals: field)
-                    .autocorrectionDisabled(true)
-                    .tint(.accent)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                
-                Capsule()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 1)
-                    .foregroundStyle (Color.textPlaceholder)
-            }
-            Spacer()
+            UnderlinedTextField(text: binding(for: field), placeholder: field.placeholder)
+                .focused($focus, equals: field)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.top, Spacing.clearance)
+        .padding(.horizontal, Spacing.xl)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .containerRelativeFrame(.horizontal)
     }
+}
+
+//Functions required
+extension EditMyMedia {
+    
+    //Moves the keyboard to the page the pager has landed on.
+    //`.scrollPosition(id:)` reports nil for the whole flight and the landed page at the end, so
+    //this only ever runs at rest — that gate, not a resign-and-wait, is what stops a focus change
+    //from making UIKit scroll the field into view and strand the pager half-way. Focus is handed
+    //straight from one mounted field to the next: `becomeFirstResponder` resigns the old one
+    //inside its own bracket, so first responder is never vacant and the keyboard re-targets
+    //instead of collapsing. Never write `focus = nil` here — that is what made it drop.
+    //`.task`'s hop is load-bearing: it lands the write after the tab bar's instant jump has
+    //committed its offset.
+    private func focusSettledPage() {
+        guard let selection, focus != selection else { return }
+        focus = selection
+    }
+    
+    private func store(_ text: String, in field: MediaField) {
+        switch field {
+        case .movie: vm.set(.favouriteMovie, \.favouriteMovie, to: stored(text))
+        case .song:  vm.set(.favouriteSong,  \.favouriteSong,  to: stored(text))
+        case .book:  vm.set(.favouriteBook,  \.favouriteBook,  to: stored(text))
+        }
+    }
+    
+    private func loadValues() {
+        selectedValues = [
+            .movie: vm.draft.favouriteMovie ?? "",
+            .song:  vm.draft.favouriteSong  ?? "",
+            .book:  vm.draft.favouriteBook  ?? ""
+        ]
+    }
+    
 }

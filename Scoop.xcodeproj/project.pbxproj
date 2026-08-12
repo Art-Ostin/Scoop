@@ -1149,7 +1149,6 @@
 				6509DDC62E37A1CC0042917B /* EditTextfield.swift */,
 				6509DDC22E36F6EE0042917B /* EditOption.swift */,
 				656E3D262EB17FED00303D9D /* SelectPrompt.swift */,
-				6580997D302CCCD7006D1A9D /* OptionCell.swift */,
 			);
 			path = Fields;
 			sourceTree = "<group>";
@@ -1223,6 +1222,7 @@
 				657F303A2F68B61C0057D42C /* DismissButtons.swift */,
 				65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */,
 				6566B96B2FEAD33C0075C3B2 /* HidePopup.swift */,
+				6580997D302CCCD7006D1A9D /* OptionCell.swift */,
 				6570CADC2F28D6EE00CBEA67 /* DropDownButton.swift */,
 				650F5F342F297C6D0099CECC /* OkDismissButton.swift */,
 				6577D7E42E20454200FFCF82 /* OptionPill.swift */,

@@ -33,7 +33,6 @@ struct OnboardingInterests: View {
 
 struct EditInterests: View {
     //Injected
-    @Environment(\.dismiss) private var dismiss
     let vm: EditProfileViewModel
 
     //Local view state
@@ -47,7 +46,7 @@ struct EditInterests: View {
     
     var body: some View {
         GenericInterests(selected: $selected)
-            .closeAndCheckNavButton(check: selected.count < 6, triggerAlert: $showEmptyAlert)
+            .checkBeforePop(invalid: selected.count < 6, triggerAlert: $showEmptyAlert)
             .onDisappear {
                 guard selected != vm.draft.interests else { return}
                 vm.set(.interests, \.interests, to: selected)
@@ -84,6 +83,7 @@ struct GenericInterests: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollTitle(selectedCount: selected.count, totalCount: maxCount, title: "Passions")
+                .padding(.top, Spacing.xxxl)
             selectedInterestsView
             interestsSections
         }
@@ -101,10 +101,10 @@ extension GenericInterests {
                 HStack(alignment: .top) {
                     ForEach(selected, id: \.self) { selection in
                         OptionCell(text: selection, selection: $selected, style: .outlined)
-                            .offset(y: 5) //Geometry: drops the chips clear of the title baseline
                     }
                 }
-                .frame(height: 45)
+                .padding(.top, Spacing.xs) //Geometry: headroom for the xmark badge, which overhangs its chip by 6
+                .frame(minHeight: 48, alignment: .top) //holds the row open while nothing is selected
             }
             .contentMargins(.all, EdgeInsets(top: 0, leading: Spacing.md, bottom: 0, trailing: Spacing.xl), for: .scrollContent)
             .scrollPosition($selectedScrollPos)
@@ -117,8 +117,8 @@ extension GenericInterests {
                 }
             }
             .scrollIndicators(.never)
-            .frame(maxWidth: .infinity, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding(.vertical, Spacing.md)
         }
 
     @ViewBuilder
@@ -130,10 +130,10 @@ extension GenericInterests {
                     InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected, maxCount: maxCount)
                 }
             }
-            .contentMargins(.top, Spacing.xl)
             .scrollTargetLayout()
             .padding(.bottom, Spacing.clearance)
         }
+        .contentMargins(.top, 36, for: .scrollContent)
         .scrollContentBackground(.hidden)
         .scrollPosition(id: $currentScroll, anchor: .leading)
         .scrollIndicators(.never)

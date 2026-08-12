@@ -47,7 +47,6 @@ struct EditNationality: View {
             guard countriesSelected != vm.draft.nationality else { return }
             vm.set(.nationality, \.nationality, to: countriesSelected)
         }
-        .padding(.top, Spacing.lg)
     }
 }
 
@@ -76,10 +75,14 @@ struct GenericNationality: View {
     var body: some View {
             VStack(spacing: 0) {
                 ScrollTitle(selectedCount: countriesSelected.count, totalCount: 3, title: "Nationality")
+                    .padding(.horizontal, 6)
                 selectedCountries
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 6)
                 nationalitiesView
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, Spacing.xxxl)
             .background(Color.appCanvas)
             .overlay {alphabet}
     }
@@ -115,11 +118,12 @@ extension GenericNationality {
                         withAnimation(.move) { scrollPosition = String(char) }
                     } label: {
                         Text(String(char))
-                            .font(.body(20, .bold))
+                            .font(.title(20, .bold))
                             .foregroundStyle(letterColor(String(char)))
                             .overlay(alignment: .bottom) {
                                 if scrollPosition == String(char) {
                                     Capsule()
+                                        .fill(Color.textAccent)
                                         .frame(width: 16, height: 2)
                                         .offset(y: 2)
                                         .matchedGeometryEffect(id: "underline", in: alphabetUnderline)
@@ -199,9 +203,11 @@ private struct FlagItem: View {
                 )
                 .overlay(alignment: .topTrailing) {
                     CircleIcon(isSelected ? "minus" : "plus")
+                        .contentTransition(.symbolEffect(.replace.offUp))
                         .offset(x: 3, y: -3)
                 }
                 .showShakeAnimation(bool: shake)
+                .sensoryFeedback(.warning, trigger: shake)
 
             if flashMax {
                 Text("max 3")

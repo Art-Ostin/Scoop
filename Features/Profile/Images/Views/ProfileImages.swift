@@ -13,6 +13,7 @@ import PhotosUI
 struct ProfileImages: View {
 
     @Bindable var vm: EditProfileViewModel
+    @Binding var isEditingImage: Bool //Raised while a cell's editor owns the screen
 
     private let columnCount = 3
     private let photoCount = 6
@@ -83,5 +84,9 @@ extension ProfileImages {
         ProfileImageEditor(importedImage: ImageSlot(index: index, image: image)) { updatedImage in
             Task { try await vm.changeImage(image: updatedImage) }
         }
+        //The screen's own presence IS the flag — nothing else here knows the zoom is up. It drops
+        //on teardown, i.e. AFTER the collapse lands, so the drag stays disowned for the whole flight.
+        .onAppear { isEditingImage = true }
+        .onDisappear { isEditingImage = false }
     }
 }

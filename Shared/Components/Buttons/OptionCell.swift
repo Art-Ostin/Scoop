@@ -25,7 +25,7 @@ struct OptionCell: View {
     var isSelected: Bool { selection.contains(text) }
     var optionFilled: Bool { isSelected && style == .filled }
 
-    var fontColor: Color { hasHitMax ? .textAccent : optionFilled ? .white : .textPrimary }
+    var fontColor: Color { optionFilled ? .white : .textPrimary }
     var strokeColor: Color { isSelected || hasHitMax ? .accent : .border }
     var backgroundColor: Color { optionFilled ? .accent : .appCanvas }
 
@@ -51,9 +51,13 @@ extension OptionCell {
             .lineLimit(1)
             .minimumScaleFactor(0.5)
 
-            //The Color of the button
+            //The Color of the button — the selection colours land whole. Inside the tap's
+            //`.toggle` (which the rows above need for their insert) they would ramp in from the
+            //old colour, and a fill that catches up with the tap reads as lag. Sits under the
+            //badge overlay, so the xmark still fades.
             .background(backgroundColor, in: .rect(cornerRadius: CornerRadius.sm))
             .stroke(CornerRadius.sm, color: strokeColor)
+            .animation(nil, value: isSelected)
 
             .overlay(alignment: .topTrailing) {xmarkIcon}
 
@@ -61,12 +65,19 @@ extension OptionCell {
             .animation(.transition, value: hasHitMax)
     }
 
+    /// Two branches, not one `Text` swapping its string on an `.id` — a leaf whose
+    /// value changes is diffed as an update, and the transition never fires.
     private var label: some View {
         Text(text).hidden().overlay {
-            Text(hasHitMax ? "Max \(maxCount)" : text)
-                .foregroundStyle(fontColor)
-                .id(hasHitMax)
-                .transition(.blurReplace)
+            if hasHitMax {
+                Text("Max \(maxCount)")
+                    .foregroundStyle(Color.textAccent)
+                    .transition(.blurReplace)
+            } else {
+                Text(text)
+                    .foregroundStyle(fontColor)
+                    .transition(.blurReplace)
+            }
         }
     }
 
@@ -77,7 +88,6 @@ extension OptionCell {
     }
 }
 
-// MARK: - Selection
 extension OptionCell {
 
     private func onTap() {

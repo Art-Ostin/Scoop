@@ -20,6 +20,9 @@ extension ProfileContainer {
         }
         .font(.title(24))
         .padding(.horizontal, Spacing.sm)
+        .padding(.leading, showsSaveButton ? Spacing.xxxl : 0) //Steps out from under the Save lens
+        .offset(y: showsSaveButton ? -Spacing.hairline : 0) //Rides up onto the lens' optical centre
+        .animation(.present, value: showsSaveButton) //Arrives on the lens' own curve
     }
 
 

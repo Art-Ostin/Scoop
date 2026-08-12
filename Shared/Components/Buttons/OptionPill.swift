@@ -24,6 +24,7 @@ struct OptionPill: View {
                 .frame(width: width, height: 44) //Geometry: pill height / min tap target
                 .background(isSelected ? Color.accent : Color.fillGray, in: Capsule())
         }
+        .selectButton() //no dim: the accent lands at full strength on release
         .buttonStyle(.plain)
     }
 }

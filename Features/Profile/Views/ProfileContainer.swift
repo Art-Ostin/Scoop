@@ -1,7 +1,9 @@
 import SwiftUI
 
 enum ProfileMode {
-    case ownProfile(draft: UserProfile)
+    //`showsSaveButton` is EditProfileContainer's leading lens: it floats over this screen's
+    //top-left, so the title has to step aside for it. Only own-profile can be under it.
+    case ownProfile(draft: UserProfile, showsSaveButton: Bool)
     case viewProfile
     case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: () -> Void)
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
@@ -19,7 +21,11 @@ struct ProfileContainer: View {
     //Local view state
     @State var ui = ProfileUIState()
 
-    var displayProfile: UserProfile {if case .ownProfile(let draft) = mode { draft } else { vm.profile }}
+    var displayProfile: UserProfile {if case .ownProfile(let draft, _) = mode { draft } else { vm.profile }}
+
+    var showsSaveButton: Bool {
+        if case .ownProfile(_, let shows) = mode { shows } else { false }
+    }
 
     var displayImages: [UIImage] {
         isUserProfile ? profileImages : vm.images

@@ -52,7 +52,6 @@ struct OnboardingPrompt: View {
 
 struct EditPrompt: View {
     //Injected
-    @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
     let promptIndex: Int
 
@@ -76,7 +75,7 @@ struct EditPrompt: View {
         let check = (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty
         
         PromptGeneric(prompt: prompt, promptIndex: promptIndex)
-            .closeAndCheckNavButton(check: check, triggerAlert: $showEmptyAlert)
+            .checkBeforePop(invalid: check, triggerAlert: $showEmptyAlert)
             .customAlert(isPresented: $showEmptyAlert, message: "Can't leave this prompt empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
     }
 }

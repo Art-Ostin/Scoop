@@ -36,12 +36,14 @@ struct EditLanguages: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xl)  {
             VStack(spacing: Spacing.xs) {
-                SignUpTitle(text: "Languages Spoken")
+                SignUpTitle(text: "I Speak")
                     .padding(.horizontal, Spacing.margin)
                 selectedView
+                    .padding(.top, 12)
             }
             VStack(spacing: 0) {
-                customTextField
+                UnderlinedTextField(text: $searchText, placeholder: "Language")
+                    .focused($isFocused)
                     .padding(.horizontal, Spacing.margin)
                 languagesView
                     .padding(.horizontal, Spacing.margin)
@@ -50,7 +52,7 @@ struct EditLanguages: View {
         .focusable()
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
-        .padding(.top, Spacing.lg)
+        .padding(.top, Spacing.xxxl)
         .background(Color.appCanvas)
         .ignoresSafeArea(.keyboard)
         .onChange(of: isScrolling) {
@@ -73,25 +75,6 @@ struct EditLanguages: View {
 }
 
 extension EditLanguages {
-    
-    private var customTextField: some View {
-        VStack {
-            TextField("Language", text: $searchText)
-                .frame(maxWidth: .infinity)
-                .font(.body(24))
-                .font(.body(.medium))
-                .focused($isFocused)
-                .autocorrectionDisabled(true)
-                .tint(.blue)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-            
-            Capsule()
-                .frame(maxWidth: .infinity)
-                .frame(height: 1)
-                .foregroundStyle (Color.textPlaceholder)
-        }
-    }
     
     private var languagesView: some View {
         ScrollView(.vertical) {
@@ -128,7 +111,8 @@ extension EditLanguages {
                         OptionCell(text: selection, selection: $selected, style: .outlined)
                     }
                 }
-                .frame(height: 48)
+                .padding(.top, Spacing.xs) //Geometry: headroom for the xmark badge, which overhangs its chip by 6
+                .frame(minHeight: 48, alignment: .top) //holds the row open while nothing is selected
             }
             .contentMargins(.all, EdgeInsets(top: 0, leading: Spacing.lg, bottom: 0, trailing: Spacing.xxl), for: .scrollContent)
             .scrollPosition($selectedScrollPos)

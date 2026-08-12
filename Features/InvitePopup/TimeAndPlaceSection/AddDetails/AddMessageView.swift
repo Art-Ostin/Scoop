@@ -29,7 +29,7 @@ struct AddMessageView: View {
             messageTitle
             VStack(spacing: 20) {
                 typeDropdown
-                CustomTextField(
+                MessageComposerField(
                     text: $message,
                     isFocused: $messageFieldFocused,
                     placeHolder: eventType.textPlaceholder

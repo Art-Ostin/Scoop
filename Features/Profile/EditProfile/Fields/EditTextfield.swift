@@ -1,5 +1,5 @@
 //
-//  TextFieldEdit.swift
+//  EditTextfield.swift
 //  Scoop
 //
 //  Created by Art Ostin on 28/07/2025.
@@ -36,7 +36,6 @@ struct OnboardingTextField: View  {
 
 struct EditTextfield : View {
     //Injected
-    @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
     let field: TextFieldOptions
 
@@ -49,7 +48,7 @@ struct EditTextfield : View {
     
     var body: some View {
         TextFieldGeneric(text: selection, field: field.title)
-            .closeAndCheckNavButton(check: selection.wrappedValue.isEmpty, triggerAlert: $showEmptyAlert)
+            .checkBeforePop(invalid: selection.wrappedValue.isEmpty, triggerAlert: $showEmptyAlert)
             .customAlert(isPresented: $showEmptyAlert, message: "You can't leave '\(field.title.lowercased())' empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
     }
 }
@@ -66,7 +65,8 @@ struct TextFieldGeneric: View {
     var body: some View {
         VStack(spacing: Spacing.titleGap)  {
             SignUpTitle(text: field)
-            customTextField
+            UnderlinedTextField(text: $text, placeholder: "Type \(field) here")
+                .focused($isFocused)
         }
         .focusable()
         .padding(.horizontal)
@@ -79,29 +79,6 @@ struct TextFieldGeneric: View {
     }
 }
 
-
-
-extension TextFieldGeneric {
-    
-     var customTextField: some View  {
-        VStack {
-            TextField("Type \(field) here", text: $text)
-                .frame(maxWidth: .infinity)
-                .font(.body(24,.medium))
-                .focused($isFocused)
-                .autocorrectionDisabled(true)
-                .tint(.blue)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-
-            
-            Capsule()
-                .frame(maxWidth: .infinity)
-                .frame(height: 1)
-                .foregroundStyle (Color.textPlaceholder)
-        }
-    }
-}
 
 
 enum TextFieldOptions: CaseIterable {

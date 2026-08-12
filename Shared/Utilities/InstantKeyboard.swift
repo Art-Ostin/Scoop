@@ -33,7 +33,7 @@ Step 2: Show the actual keyboard and adjust layout like textEditor
 Step 3: In a sheet with a keyboard-safe bottom button, opt into interactive
 sheet overlap handling:
 
- CustomTextField(...)
+ MessageComposerField(...)
      .sheetKeyboardOverlapTarget()
 
  content

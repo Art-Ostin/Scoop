@@ -7,16 +7,11 @@
 import SwiftUI
 import UIKit
 
-//MARK: Horizontal Scroll default Layout
 struct HorizontalScrollView<Content: View>: View {
     @Binding var progress: Double
 
-    //How pages of unequal height sit against each other
     var alignment: VerticalAlignment = .center
 
-    //Programmatic page control, for callers that must snap under a cover (the invite flight).
-    //Optional and branch-applied: callers that layer their own .scrollPosition(id:) on top
-    //(TwoPageScrollView) must not get a second, competing position binding.
     var position: Binding<ScrollPosition>? = nil
 
     @ViewBuilder var content: Content
@@ -24,7 +19,8 @@ struct HorizontalScrollView<Content: View>: View {
     @ViewBuilder
     var body: some View {
         if let position {
-            pager.scrollPosition(position)
+            pager
+                .scrollPosition(position)
         } else {
             pager
         }
@@ -107,8 +103,6 @@ extension View {
         modifier(TrackScrollProgess(scrollProgress: scrollProgress))
     }
     
-    /// Place inside a ScrollView's content: buttons in that scroll press on
-    /// touch-down (the ProfileCard feel) instead of after the system delay.
     func instantPressDelivery() -> some View {
         background(InstantPressDelivery())
     }

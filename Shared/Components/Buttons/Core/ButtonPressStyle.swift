@@ -14,10 +14,17 @@ struct PressEffect {
     var opacity: Double = 1
     var brightness: Double = 0
     var pressDuration: Double
+    // Dead time between the lift and the release animation, so a fast tap still shows the
+    // press. Only worth paying when there's a dim to see — scale alone reads on the way down.
+    var releaseHold: Double = 0.12
     var release: (response: Double, damping: Double)
 
     // Shrinks and dims — the standard tinted-button press.
     static let shrink = PressEffect(scale: 0.9, opacity: 0.75, pressDuration: 0.12, release: (0.4, 0.45))
+    // Shrinks without dimming — for buttons whose fill flips on tap. The dim's slow return
+    // would wash out the new color, and a bouncy settle keeps the label rasterized at a
+    // fractional scale (soft glyphs) long after the fill has landed. Releases at once, flat.
+    static let select = PressEffect(scale: 0.9, pressDuration: 0.12, releaseHold: 0, release: (0.25, 1))
     // Grows and brightens — used for the iOS 18 glass fallback.
     static let grow = PressEffect(scale: 1.22, brightness: 0.2, pressDuration: 0.15, release: (0.35, 0.38))
 }
@@ -55,13 +62,18 @@ private struct PressAnimation: ViewModifier {
             return
         }
         // Hold off the bounce so the press stays visible on a fast tap.
-        let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) {
-            withAnimation(.spring(response: effect.release.response, dampingFraction: effect.release.damping)) {
-                scale = 1; shadowStrength = 1
-            }
-            withAnimation(.easeOut(duration: 0.48)) { opacity = 1; brightness = 0 }
+        let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? effect.releaseHold
+        let hold = max(0, effect.releaseHold - elapsed)
+        // No hold means release on this frame — an async hop would cost one anyway.
+        guard hold > 0 else { return release() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + hold) { release() }
+    }
+
+    func release() {
+        withAnimation(.spring(response: effect.release.response, dampingFraction: effect.release.damping)) {
+            scale = 1; shadowStrength = 1
         }
+        withAnimation(.easeOut(duration: 0.48)) { opacity = 1; brightness = 0 }
     }
 }
 
@@ -115,6 +127,10 @@ extension View {
 
     func growButton(shadow: Elevation? = .glass, tint: Color = .accent) -> some View {
         pressButton(.grow, shadow: shadow, tint: tint)
+    }
+
+    func selectButton(shadow: Elevation? = nil, tint: Color = .accent) -> some View {
+        pressButton(.select, shadow: shadow, tint: tint)
     }
 
     func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {

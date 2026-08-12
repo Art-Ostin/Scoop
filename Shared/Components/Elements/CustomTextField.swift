@@ -1,13 +1,37 @@
 //
 //  CustomTextField.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 21/07/2026.
 //
 
 import SwiftUI
 
-struct CustomTextField: View {
+struct UnderlinedTextField: View {
+
+    //Injected
+    @Binding var text: String
+    let placeholder: String
+
+    var body: some View {
+        VStack {
+            TextField(placeholder, text: $text)
+                .frame(maxWidth: .infinity)
+                .font(.body(24, .medium))
+                .autocorrectionDisabled(true)
+                .tint(.accent)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+
+            Capsule()
+                .frame(maxWidth: .infinity)
+                .frame(height: 1) //Geometry: hairline rule under the text column
+                .foregroundStyle(Color.textPlaceholder)
+        }
+    }
+}
+
+struct MessageComposerField: View {
 
     @Binding var text: String?
     @Binding var isFocused: Bool

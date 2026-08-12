@@ -35,6 +35,8 @@ struct EditProfileContainer: View {
     @State private var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
     @State private var path: [EditProfileRoute] = [] //Non-empty (an edit screen is pushed) hides certain views
     @State private var saveLabelWidth: CGFloat = 0 //Measured, so the lens knows how wide to grow
+    @State private var popGuard: (() -> Bool)? = nil //Set by a pushed screen that can refuse to be left
+    @State private var isEditingImage = false //A photo editor is up; its drag is not the cover's
 
     var body: some View {
         ZStack {
@@ -44,11 +46,12 @@ struct EditProfileContainer: View {
                 profileView
             }
         }
-        //Overlays
+        //All three float above the zoom-presented photo editor, so each blur-pops away on
+        //`isEditingImage` — the editor owns the screen from the moment the flight starts.
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .topLeading) { leadingAction }
         .overlay(alignment: .topTrailing) { editProfileDismissButton }
-        .interactiveDismissDisabled(!path.isEmpty)
+        .interactiveDismissDisabled(!path.isEmpty || isEditingImage)
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
 }
@@ -60,7 +63,7 @@ extension EditProfileContainer {
     private var editProfileView: some View {
         ZoomNavigationStack {
             NavigationStack(path: $path) { // As EditProfile appears in full screen cover
-                EditProfileView(vm: vm, path: $path)
+                EditProfileView(vm: vm, path: $path, isEditingImage: $isEditingImage)
                     .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
                     .navigationDestination(for: EditProfileRoute.self, destination: destination)
             }
@@ -71,7 +74,8 @@ extension EditProfileContainer {
     }
     
     private var profileView: some View {
-        ProfileContainer(vm: profileVM, profileImages: vm.images, mode: .ownProfile(draft: vm.draft))
+        ProfileContainer(vm: profileVM, profileImages: vm.images,
+                         mode: .ownProfile(draft: vm.draft, showsSaveButton: vm.showSaveButton))
             .mask { Rectangle().ignoresSafeArea(edges: .vertical) }
             .transition(.move(edge: .leading))
     }
@@ -86,6 +90,7 @@ extension EditProfileContainer {
             .opacityPop(visible: visible)
             .allowsHitTesting(visible) //An opacity-0 view still takes taps
             .animation(visible ? .transition : .quick, value: visible)
+            .blurPop(visible: !isEditingImage) //Out of the photo editor's way
             .ignoresSafeArea(.keyboard)
     }
 }
@@ -104,7 +109,7 @@ extension EditProfileContainer {
         let diameter = ButtonSize.large.size
 
         ScoopButton(style: .clearGlass, shape: Capsule()) {
-            if isRoot { saveProfile() } else { path.removeLast() }
+            if isRoot { saveProfile() } else if popGuard?() ?? true { path.removeLast() }
         } label: {
             //Both labels stay mounted: the hidden one keeps reporting its width, and a
             //`.transition` here would unmount it and take the measurement with it.
@@ -113,22 +118,23 @@ extension EditProfileContainer {
                     .font(.icon(14))
                     .opacity(isRoot ? 0 : 1)
 
-                Text("Save")
-                    .font(.body(14, .bold))
+                Text(visible ? "Save" : "")
+                    .font(.body(15, .bold))
                     .foregroundStyle(.accent)
                     .fixedSize()
-                    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { saveLabelWidth = $0 }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { if $0 > 0 { saveLabelWidth = $0 } }
                     .opacity(isRoot ? 1 : 0)
             }
-            //A Capsule at a square frame IS the circle, so one shape spans both states and the
-            //width can tween. Swapping Circle()->Capsule() would be a structural change, i.e. a cut.
-            .frame(width: isRoot ? saveLabelWidth + Spacing.md * 2 : diameter, height: diameter)
+            .frame(width: isRoot ? saveLabelWidth + Spacing.sm * 2 : diameter,
+                   height: isRoot ? ButtonSize.medium.size : diameter)
         }
         .animation(.expand, value: isRoot) //The morph
-        .opacityPop(visible: visible)
+        .opacityPop(visible: visible, anchor: .leading) //Pinned to the edge, so it shrinks toward it
         .allowsHitTesting(visible) //opacityPop leaves it mounted at opacity 0
-        .animation(.present, value: visible) //Its arrival, which opacityPop carries no curve for
+        .animation(isRoot ? .present : .expand, value: visible)
+        .blurPop(visible: !isEditingImage, anchor: .leading) //Out of the photo editor's way
         .padding(.leading, Spacing.md)
+        .offset(y: isEdit ? 0 : 6) //Fixes bug and lines up with title
     }
 
     @ViewBuilder
@@ -189,10 +195,7 @@ extension EditProfileContainer {
             case .desiredAgeRange:       EditPreferredYears(vm: vm)
             }
         }
-        //`leadingAction` is the back button now, so the pushed screen must not draw one of its
-        //own. The empty bar stays (hiding it too would lift every destination ~44pt); what this
-        //does cost is the edge-swipe pop, which the system disables without a back item —
-        //sim-verified on iOS 26.0, and true of `.toolbar(.hidden, for: .navigationBar)` as well.
         .navigationBarBackButtonHidden(true)
+        .environment(\.popGuard, $popGuard)
     }
 }
