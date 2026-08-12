@@ -18,6 +18,9 @@ struct InterestsView: View {
     //Two interests to a row: every other index starts one and takes the next along if it's there
     private var rowStarts: [Int] { Array(stride(from: 0, to: interests.count, by: 2)) }
 
+    //Half the gap between two interest rows — they sit tighter than a ListItem, with no divider to hold them apart
+    private let rowInset = Spacing.md
+
 
     var body: some View {
         Section {
@@ -25,25 +28,28 @@ struct InterestsView: View {
             ForEach(rowStarts, id: \.self) { start in
                 InterestsRow(left: interests[start],
                              right: start + 1 < interests.count ? interests[start + 1] : nil,
-                             topInset: start == 0 ? Spacing.lg : nil) { path.append(.interests) }
+                             topInset: start == 0 ? Spacing.lg : rowInset,
+                             bottomInset: rowInset) { path.append(.interests) }
                     .padding(.bottom, start == rowStarts.last ? Spacing.xs - 2 : 0)
             }
-            .padding(.horizontal, 2)
+            .listRowSeparator(.hidden)
+            .padding(.horizontal, 1)
         }
+        .listSectionSpacing(Spacing.lg) //Closes the gap to the card above
     }
 }
 
 extension InterestsView {
 
+    //A NavigationLink, not a plain heading: it wears the same system chevron as the rows in the cards above, and opens the same screen the pairs do
     private var titleRow: some View {
-        HStack {
+        NavigationLink(value: EditProfileRoute.interests) {
             Text("Interests")
-                .font(.body(16, .bold))
-                .foregroundStyle(Color.black)
-            Spacer()
-            Image("EditButton")
-                .scaleEffect(0.7, anchor: .topTrailing)
+                .font(.body(.bold))
+                .foregroundStyle(Color.textPrimary)
+                .offset(y: 0.5) //Geometry: holds the heading still while the row lifts the chevron
         }
+            .offset(y: -0.5) //Geometry: the system chevron sits low against the heading's cap height
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: Spacing.md + 2, leading: Spacing.lg,
                                       bottom: 0, trailing: Spacing.lg))
@@ -56,6 +62,7 @@ private struct InterestsRow: View {
     //Only the last row can come up short, when the interests count is odd
     let right: String?
     var topInset: CGFloat? = nil
+    var bottomInset: CGFloat? = nil
     let onTap: () -> Void
 
     var body: some View {
@@ -71,6 +78,6 @@ private struct InterestsRow: View {
             .foregroundStyle(Color.textSecondary)
         }
         .buttonStyle(.plain)
-        .editProfileRow(top: topInset)
+        .editProfileRow(top: topInset, bottom: bottomInset)
     }
 }

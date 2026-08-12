@@ -20,21 +20,20 @@ struct EditProfileView: View {
         List {
             ProfileImages(vm: vm)
             PromptsSection(vm: vm, path: $path)
+            CoreInfo(vm: vm)
             ExtraInfo(vm: vm)
             InterestsView(vm: vm, path: $path)
-                .listSectionSpacing(20)
             PreferencesView(vm: vm)
-            CoreInfo(vm: vm)
         }
         .environment(\.defaultMinListRowHeight, 0)
         .contentMargins(.top, 12, for: .scrollContent)
-        .contentMargins(.bottom, Spacing.clearance, for: .scrollContent) //clears the floating edit button
+        .contentMargins(.bottom, Spacing.clearance + 24, for: .scrollContent) //clears the floating edit button
         .listBackground(color: .canvasSunken)
         .navigationTitle("Edit Profile")
     }
 }
 
-//Renders a section that builds its own chrome as one bare, full-width list row
+
 private extension View {
     func plainRow(inset: CGFloat = Spacing.gutter, vertical: CGFloat = 0) -> some View {
         listRowInsets(EdgeInsets(top: vertical, leading: inset, bottom: vertical, trailing: inset))

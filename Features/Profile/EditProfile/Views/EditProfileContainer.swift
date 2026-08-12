@@ -34,6 +34,7 @@ struct EditProfileContainer: View {
     @State private var showSavingScreen: Bool = false
     @State private var isDetailsOpen = false //If details open and is edit, need to shrink the dismiss button
     @State private var path: [EditProfileRoute] = [] //Non-empty (an edit screen is pushed) hides certain views
+    @State private var saveLabelWidth: CGFloat = 0 //Measured, so the lens knows how wide to grow
 
     var body: some View {
         ZStack {
@@ -45,10 +46,9 @@ struct EditProfileContainer: View {
         }
         //Overlays
         .overlay(alignment: .bottom) { editProfileButton }
-        .overlay(alignment: .top) { editProfileHeader }
-
-        //Different Screens can go to
-        .navigationDestination(for: EditProfileRoute.self, destination: destination)
+        .overlay(alignment: .topLeading) { leadingAction }
+        .overlay(alignment: .topTrailing) { editProfileDismissButton }
+        .interactiveDismissDisabled(!path.isEmpty)
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
 }
@@ -57,16 +57,12 @@ struct EditProfileContainer: View {
 //Different Views
 extension EditProfileContainer {
     
-    //The photo grid's cells are morph sources, so this screen needs a zoom host of its own.
-    //It has to be THIS one: Edit Profile is itself a full-screen cover, and the app-root
-    //presentation plane lives behind that cover — a photo editor parented there would open
-    //underneath the screen it was launched from. Clearing the host keeps the presentation
-    //inside this stack, which is the only plane above the cover's content.
     private var editProfileView: some View {
         ZoomNavigationStack {
             NavigationStack(path: $path) { // As EditProfile appears in full screen cover
                 EditProfileView(vm: vm, path: $path)
                     .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
+                    .navigationDestination(for: EditProfileRoute.self, destination: destination)
             }
         }
         .environment(ZoomPresentationHost?.none)
@@ -80,24 +76,61 @@ extension EditProfileContainer {
             .transition(.move(edge: .leading))
     }
     
+    @ViewBuilder
     private var editProfileButton: some View {
-        ViewAndEditProfileToggle(isEdit: $isEdit, pathIsEmpty: path.isEmpty)
+        let visible = path.isEmpty
+
+        ViewAndEditProfileToggle(isEdit: $isEdit)
+            .blur(radius: visible ? 0 : 8)
+            .animation(visible ? nil : .quick, value: visible)
+            .opacityPop(visible: visible)
+            .allowsHitTesting(visible) //An opacity-0 view still takes taps
+            .animation(visible ? .transition : .quick, value: visible)
+            .ignoresSafeArea(.keyboard)
     }
 }
 
 //Header Components
 extension EditProfileContainer {
-    
-    private var editProfileHeader: some View {
-        HStack {
-            saveButton
-            Spacer()
-            editProfileDismissButton
+
+    //The leading slot belongs to the flow, not to either screen inside it: ONE lens that reads
+    //"Save" at the root and a back chevron in a field editor. Because the view survives the push,
+    //the glass morphs between the two states instead of two separate buttons crossfading — which
+    //is the whole point, and is impossible while the back button is the pushed screen's own.
+    @ViewBuilder
+    private var leadingAction: some View {
+        let isRoot = path.isEmpty
+        let visible = isRoot ? vm.showSaveButton : true
+        let diameter = ButtonSize.large.size
+
+        ScoopButton(style: .clearGlass, shape: Capsule()) {
+            if isRoot { saveProfile() } else { path.removeLast() }
+        } label: {
+            //Both labels stay mounted: the hidden one keeps reporting its width, and a
+            //`.transition` here would unmount it and take the measurement with it.
+            ZStack {
+                Image(systemName: "chevron.left")
+                    .font(.icon(14))
+                    .opacity(isRoot ? 0 : 1)
+
+                Text("Save")
+                    .font(.body(14, .bold))
+                    .foregroundStyle(.accent)
+                    .fixedSize()
+                    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { saveLabelWidth = $0 }
+                    .opacity(isRoot ? 1 : 0)
+            }
+            //A Capsule at a square frame IS the circle, so one shape spans both states and the
+            //width can tween. Swapping Circle()->Capsule() would be a structural change, i.e. a cut.
+            .frame(width: isRoot ? saveLabelWidth + Spacing.md * 2 : diameter, height: diameter)
         }
-        .padding(.horizontal, Spacing.md)
+        .animation(.expand, value: isRoot) //The morph
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible) //opacityPop leaves it mounted at opacity 0
+        .animation(.present, value: visible) //Its arrival, which opacityPop carries no curve for
+        .padding(.leading, Spacing.md)
     }
-    
-    
+
     @ViewBuilder
     private var editProfileDismissButton: some View {
         let shrinkDismiss: Bool = !isEdit && isDetailsOpen
@@ -114,29 +147,26 @@ extension EditProfileContainer {
         .animation(.move, value: shrinkDismiss)
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
         .allowsHitTesting(path.isEmpty ? true  : false)
+        .padding(.trailing, Spacing.md)
     }
-    
-    @ViewBuilder
-    private var saveButton: some View {
-        if vm.showSaveButton {
-            Button {
-                if !vm.updatedImages.isEmpty {
-                    showSavingScreen = true
-                }
-                Task {
-                    try await vm.saveProfileChanges()
-                    await MainActor.run {dismiss()}
-                }
-            } label : {
-                Text("Save")
-                    .font(.body(14, .bold))
-                    .foregroundStyle(.accent)
-                    .padding(.horizontal)
-                    .padding(.vertical, Spacing.xs)
-                    .glassEffectIfAvailable(shape: .capsule)
+}
+
+//Actions
+extension EditProfileContainer {
+
+    //Handed to EditProfileView's toolbar: the loading screen and the cover's dismissal are
+    //this container's state, so the write stays here and only the button moves to the bar.
+    private func saveProfile() {
+        Task { @MainActor in
+            if !vm.updatedImages.isEmpty {
+                showSavingScreen = true
             }
-            .opacity(path.isEmpty ? 1 : 0)
-            .allowsHitTesting(path.isEmpty ? true : false)
+            do {
+                try await vm.saveProfileChanges()
+                dismiss()
+            } catch {
+                showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
+            }
         }
     }
 }
@@ -145,17 +175,24 @@ extension EditProfileContainer {
 extension EditProfileContainer {
     @ViewBuilder
     private func destination(for route: EditProfileRoute) -> some View {
-        switch route {
-        case .prompt(let index):     EditPrompt(vm: vm, promptIndex: index)
-        case .interests:             EditInterests(vm: vm)
-        case .textField(let field):  EditTextfield(vm: vm, field: field)
-        case .option(let field):     EditOption(vm: vm, field: field)
-        case .height:                EditHeight(vm: vm)
-        case .nationality:           EditNationality(vm: vm)
-        case .lifestyle:             EditLifestyle(vm: vm)
-        case .myLifeAs:              EditMyLifeAs(vm: vm)
-        case .languages:             EditLanguages(vm: vm)
-        case .desiredAgeRange:       EditPreferredYears(vm: vm)
+        Group {
+            switch route {
+            case .prompt(let index):     EditPrompt(vm: vm, promptIndex: index)
+            case .interests:             EditInterests(vm: vm)
+            case .textField(let field):  EditTextfield(vm: vm, field: field)
+            case .option(let field):     EditOption(vm: vm, field: field)
+            case .height:                EditHeight(vm: vm)
+            case .nationality:           EditNationality(vm: vm)
+            case .lifestyle:             EditLifestyle(vm: vm)
+            case .myLifeAs:              EditMyMedia(vm: vm)
+            case .languages:             EditLanguages(vm: vm)
+            case .desiredAgeRange:       EditPreferredYears(vm: vm)
+            }
         }
+        //`leadingAction` is the back button now, so the pushed screen must not draw one of its
+        //own. The empty bar stays (hiding it too would lift every destination ~44pt); what this
+        //does cost is the edge-swipe pop, which the system disables without a back item —
+        //sim-verified on iOS 26.0, and true of `.toolbar(.hidden, for: .navigationBar)` as well.
+        .navigationBarBackButtonHidden(true)
     }
 }

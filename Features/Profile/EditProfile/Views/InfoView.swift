@@ -51,18 +51,18 @@ struct ExtraInfo: View {
             EditPreview("Seeking", [u.lookingFor], route: .option(.lookingFor)),
             EditPreview("Degree", [u.degree], route: .textField(.degree)),
             EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
-//            EditPreview("Lifestyle", [lifestyle], route: .lifestyle),
+            EditPreview("Vices", [""], route: .lifestyle),
             EditPreview("Media", [favouriteMedia.joined(separator: "    ")], route: .myLifeAs),
             EditPreview("Languages", u.languages, route: .languages)
         ]
     }
 
     var body: some View {
-        Section("Info") {
+        Section("Extra") {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, info in
                 ListItem(title: info.title, response: info.response, value: info.route)
                     .padding(.top, index == 0 ? Spacing.xs : 0)
-                    .padding(.bottom, index == items.count - 1 ? Spacing.xxs : 0)
+                    .padding(.bottom, index == items.count - 1 ? Spacing.xs : 0)
             }
         }
     }

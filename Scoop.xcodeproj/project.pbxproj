@@ -142,7 +142,7 @@
 		6577D7AE2E1FFD2F00FFCF82 /* SettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7AD2E1FFD2F00FFCF82 /* SettingsContainer.swift */; };
 		6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7DC2E20424300FFCF82 /* EditHeight.swift */; };
 		6577D7E52E20454200FFCF82 /* OptionPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7E42E20454200FFCF82 /* OptionPill.swift */; };
-		6577D7EB2E2077A200FFCF82 /* EditMyLifeAs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */; };
+		6577D7EB2E2077A200FFCF82 /* EditMyMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7EA2E2077A200FFCF82 /* EditMyMedia.swift */; };
 		6577D7FD2E21BBD000FFCF82 /* EditLifestyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */; };
 		6577D7FF2E21C0A400FFCF82 /* EditPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */; };
 		6579F19B2FE2CEA1005F8CD7 /* InfoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6579F19A2FE2CEA1005F8CD7 /* InfoComponents.swift */; };
@@ -162,6 +162,7 @@
 		657F61C12FDF18CC00B2F903 /* DeclineButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C02FDF18CC00B2F903 /* DeclineButton.swift */; };
 		657F61C32FDFC0EF00B2F903 /* RespondContainerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C22FDFC0EF00B2F903 /* RespondContainerOld.swift */; };
 		657F61C52FDFD6F900B2F903 /* MeasureModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */; };
+		6580997E302CCCD7006D1A9D /* OptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6580997D302CCCD7006D1A9D /* OptionCell.swift */; };
 		65837E852FF50A8C00569F22 /* DominantColors in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E842FF50A8C00569F22 /* DominantColors */; };
 		65837E882FF50B1800569F22 /* Glur in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E872FF50B1800569F22 /* Glur */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
@@ -433,7 +434,7 @@
 		6577D7AD2E1FFD2F00FFCF82 /* SettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsContainer.swift; sourceTree = "<group>"; };
 		6577D7DC2E20424300FFCF82 /* EditHeight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHeight.swift; sourceTree = "<group>"; };
 		6577D7E42E20454200FFCF82 /* OptionPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPill.swift; sourceTree = "<group>"; };
-		6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMyLifeAs.swift; sourceTree = "<group>"; };
+		6577D7EA2E2077A200FFCF82 /* EditMyMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMyMedia.swift; sourceTree = "<group>"; };
 		6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLifestyle.swift; sourceTree = "<group>"; };
 		6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPrompt.swift; sourceTree = "<group>"; };
 		6578382C2DE773CC00770B49 /* Scoop Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Scoop Test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -456,6 +457,7 @@
 		657F61C02FDF18CC00B2F903 /* DeclineButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclineButton.swift; sourceTree = "<group>"; };
 		657F61C22FDFC0EF00B2F903 /* RespondContainerOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondContainerOld.swift; sourceTree = "<group>"; };
 		657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureModifiers.swift; sourceTree = "<group>"; };
+		6580997D302CCCD7006D1A9D /* OptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionCell.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65871F4D2F3A543200C9A87A /* ClearIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearIcon.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
@@ -1139,7 +1141,7 @@
 				656126642E23212C00088B6D /* EditInterests.swift */,
 				6509DCEC2F1D79AE00455AB5 /* EditLanguages.swift */,
 				6577D7FC2E21BBD000FFCF82 /* EditLifestyle.swift */,
-				6577D7EA2E2077A200FFCF82 /* EditMyLifeAs.swift */,
+				6577D7EA2E2077A200FFCF82 /* EditMyMedia.swift */,
 				65E8209A2E37CCCE0098CC36 /* EditNationality.swift */,
 				65F28E092F1E882A008BF4DA /* EditPreferredYears.swift */,
 				6577D7FE2E21C0A400FFCF82 /* EditPrompt.swift */,
@@ -1147,6 +1149,7 @@
 				6509DDC62E37A1CC0042917B /* EditTextfield.swift */,
 				6509DDC22E36F6EE0042917B /* EditOption.swift */,
 				656E3D262EB17FED00303D9D /* SelectPrompt.swift */,
+				6580997D302CCCD7006D1A9D /* OptionCell.swift */,
 			);
 			path = Fields;
 			sourceTree = "<group>";
@@ -1821,6 +1824,7 @@
 				657F61C12FDF18CC00B2F903 /* DeclineButton.swift in Sources */,
 				654982C02E2FA54100CA335F /* StorageService.swift in Sources */,
 				655441492FE9769100425CBF /* InviteCardInfoOld.swift in Sources */,
+				6580997E302CCCD7006D1A9D /* OptionCell.swift in Sources */,
 				65988F372FA7AB9600953BB4 /* PreferredMapsView.swift in Sources */,
 				65FAF9882E4140740015E231 /* EventsPlaceholder.swift in Sources */,
 				6509DCED2F1D79AE00455AB5 /* EditLanguages.swift in Sources */,
@@ -1904,7 +1908,7 @@
 				65F660C82F23EF9E00AF791F /* BlockedContext.swift in Sources */,
 				659CE9F630106E2500E0F735 /* InviteSlot.swift in Sources */,
 				6576831E2F5910C20094A02D /* ChatScrollView.swift in Sources */,
-				6577D7EB2E2077A200FFCF82 /* EditMyLifeAs.swift in Sources */,
+				6577D7EB2E2077A200FFCF82 /* EditMyMedia.swift in Sources */,
 				65CB2A693018962E0002DFCD /* ConfirmMessageSection.swift in Sources */,
 				6577D7E52E20454200FFCF82 /* OptionPill.swift in Sources */,
 				659109242E19AEC00065696F /* NextButton.swift in Sources */,

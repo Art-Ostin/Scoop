@@ -19,9 +19,19 @@ struct PreferencesView: View {
     }
     
     var body: some View {
-        Section("Preferences") {
+        Section {
             ForEach(preferences) { info in
                 ListItem(title: info.title, response: info.response, value: info.route)
+            }
+        } header: {
+            HStack(alignment: .bottom) {
+                //Bare, so it keeps the section header's own styling — only the note opposite it is styled
+                Text("Preferences")
+                Spacer()
+                //These fields feed matching, they are not profile content: says so before the rows are read
+                Text("Not visible on profile")
+                    .font(.body(12))
+                    .foregroundStyle(Color.textTertiary)
             }
         }
     }

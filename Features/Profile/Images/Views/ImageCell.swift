@@ -30,13 +30,14 @@ struct ProfilePhoto: View {
     static let aspectRatio: CGFloat = 1/1.02
 
     let image: UIImage
-    var cornerRadius: CGFloat = CornerRadius.smallImage
+    //Per corner, so a cell on the grid's edge can round the corner it presents to the card harder than its inward ones
+    var corners = CornerRadius.uniform(CornerRadius.smallImage)
 
     var body: some View {
         Color.clear
             .aspectRatio(Self.aspectRatio, contentMode: .fit)
             .overlay { Image(uiImage: image).resizable().scaledToFill() }
-            .clipShape(.rect(cornerRadius: cornerRadius))
+            .clipShape(.rect(cornerRadii: corners))
     }
 }
 

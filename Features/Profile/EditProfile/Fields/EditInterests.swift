@@ -17,7 +17,7 @@ struct OnboardingInterests: View {
     @State private var selected: [String] = []
 
     var body: some View {
-        GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
+        GenericInterests(selected: $selected)
             .nextButton(isValid: selected.count >= 6, padding: 120) {
                 vm.saveAndNextStep(kp: \.interests, to: selected)
             }
@@ -46,7 +46,7 @@ struct EditInterests: View {
     }
     
     var body: some View {
-        GenericInterests(selected: $selected) {selected.toggle($0, limit: 10)}
+        GenericInterests(selected: $selected)
             .closeAndCheckNavButton(check: selected.count < 6, triggerAlert: $showEmptyAlert)
             .onDisappear {
                 guard selected != vm.draft.interests else { return}
@@ -60,7 +60,6 @@ struct GenericInterests: View {
     
     //Injected
     @Binding var selected: [String]
-    let onInterestTap: (String) -> ()
 
     //Local view state
     @State private var currentScroll: Int? = 0
@@ -68,7 +67,7 @@ struct GenericInterests: View {
     @State private var selectedScrollPos = ScrollPosition()
     @Namespace private var tabNamespace
 
-    var selectedMax: Bool {selected.count >= 10}
+    private let maxCount = 10
 
     var sections: [(title: String?, image: String?, data: [String])] {
         let i = Interests.instance
@@ -84,7 +83,7 @@ struct GenericInterests: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ScrollTitle(selectedCount: selected.count, totalCount: 10, title: "Passions")
+            ScrollTitle(selectedCount: selected.count, totalCount: maxCount, title: "Passions")
             selectedInterestsView
             interestsSections
         }
@@ -101,12 +100,8 @@ extension GenericInterests {
             ScrollView(.horizontal) {
                 HStack(alignment: .top) {
                     ForEach(selected, id: \.self) { selection in
-                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                            withAnimation(.toggle) {
-                                selected.removeAll { $0 == text }
-                            }
-                        }
-                        .offset(y: 5)
+                        OptionCell(text: selection, selection: $selected, style: .outlined)
+                            .offset(y: 5) //Geometry: drops the chips clear of the title baseline
                     }
                 }
                 .frame(height: 45)
@@ -132,9 +127,7 @@ extension GenericInterests {
             VStack(spacing: 0) {
                 ForEach(sections.indices, id: \.self) { idx in
                     let section = sections[idx]
-                    InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected) { text in
-                        onInterestTap(text)
-                    }
+                    InterestSection(options: section.data, title: section.title, image: section.image, selected: $selected, maxCount: maxCount)
                 }
             }
             .contentMargins(.top, Spacing.xl)
@@ -193,10 +186,7 @@ struct InterestSection: View {
 
     @Binding var selected: [String]
 
-
-    let onInterestTap: (String) -> ()
-
-    var selectedMax: Bool {selected.count >= 10}
+    let maxCount: Int
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -216,99 +206,10 @@ struct InterestSection: View {
             .padding(.bottom, Spacing.md)
 
             FlowLayout(mode: .scrollable, items: options, itemSpacing: Spacing.xs) { input in
-                InterestOptionCell(text: input, selected: $selected, onInterestTap: onInterestTap)
+                OptionCell(text: input, maxCount: maxCount, selection: $selected)
             }
             .offset(x: -Spacing.xxs) //Keeps the chips aligned with the section header
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
-    }
-}
-
-private struct InterestOptionCell: View {
-    let text: String
-    @Binding var selected: [String]
-    let onInterestTap: (String) -> Void
-
-    @State private var shake = false
-    @State private var flashMax = false
-
-    var body: some View {
-        OptionCell(text: text,
-                   selection: $selected,
-                   overlayText: flashMax ? "max 10" : nil) { tapped in
-            if selected.contains(tapped) {
-                onInterestTap(tapped)
-            } else if selected.count >= 10 {
-                shake.toggle()
-                flashMax = true
-                Task { @MainActor in
-                    try? await Task.sleep(for: .seconds(1))
-                    flashMax = false
-                }
-            } else {
-                onInterestTap(tapped)
-            }
-        }
-        .showShakeAnimation(bool: shake)
-        .animation(.transition, value: flashMax)
-    }
-}
-
-struct OptionCell: View {
-    let text: String
-    @Binding var selection: [String]
-    let onTap: (String) -> Void
-    let fillColour: Bool
-    let overlayText: String?
-    let isLanguages: Bool
-    
-    init(text: String, selection: Binding<[String]>, fillColour: Bool = true, overlayText: String? = nil, isLanguages: Bool = false, onTap: @escaping (String) -> Void) {
-        self.text = text
-        self._selection = selection
-        self.fillColour = fillColour
-        self.overlayText = overlayText
-        self.isLanguages = isLanguages
-        self.onTap = onTap
-    }
-    
-    var body: some View {
-        
-        let isSelected = selection.contains(text)
-
-        Text(text)
-            .padding(.horizontal, isLanguages ? Spacing.sm : Spacing.xs)
-            .padding(.vertical, Spacing.sm)
-            .font(.body(isLanguages ? 15 : 14))
-            .foregroundStyle(isSelected && fillColour ? Color.white : Color.black)
-            .background (
-                RoundedRectangle(cornerRadius: CornerRadius.sm)
-                    .fill(isSelected && fillColour ? Color.accent : Color.appCanvas)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CornerRadius.sm)
-                            .stroke(isSelected && !fillColour ? .accent : Color.border, lineWidth: 1)
-                    )
-            )
-            .overlay {
-                if let overlayText {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: CornerRadius.sm)
-                            .fill(Color.appCanvas.opacity(1))
-                        Text(overlayText)
-                            .font(.body(14))
-                            .foregroundStyle(Color.accent)
-                    }
-                    .allowsHitTesting(false)
-                }
-            }
-            .onTapGesture {
-                withAnimation(.toggle) {
-                    onTap(text)
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                CircleIcon("xmark")
-                    .opacity(selection.contains(text) ? 1 : 0)
-                    .offset(x: 6,  y: -6)
-            }
     }
 }

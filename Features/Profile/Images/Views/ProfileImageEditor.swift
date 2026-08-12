@@ -19,6 +19,7 @@ struct ProfileImageEditor: View {
     @State private var importedImage: ImageSlot
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
+    @State private var chipsIn: Bool = false //The image's own chips arrive over the zoom, not after it
 
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
@@ -55,8 +56,22 @@ extension ProfileImageEditor {
     private var heroPhoto: some View {
         ImageCarousel(horizontalPadding: Spacing.md, aspectRatio: Self.heroAspect,
                       displaying: importedImage.image)
-            .overlay(alignment: .bottomTrailing) { changeImageButton.padding(.horizontal, Spacing.md) }
-            .overlay(alignment: .bottomLeading) { cropPhotoIcon.padding(.horizontal, Spacing.md) }
+            //The chips ride the flight in, so they arrive on the growing image
+            //rather than landing on a screen that has already settled. The fade
+            //sits on the chips alone — the hero's pixels belong to the
+            //transition and must never fade with them.
+            .overlay(alignment: .bottomTrailing) {
+                changeImageButton
+                    .padding(.horizontal, Spacing.md)
+                    .opacity(chipsIn ? 1 : 0)
+            }
+            .overlay(alignment: .bottomLeading) {
+                cropPhotoIcon
+                    .padding(.horizontal, Spacing.md)
+                    .opacity(chipsIn ? 1 : 0)
+            }
+            .animation(.transition, value: chipsIn)
+            .onAppear { chipsIn = true }
     }
 
     //Height = width × this: the crop AppImage(.meet) drew here before the hero took the slot

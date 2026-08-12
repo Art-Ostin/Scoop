@@ -15,8 +15,9 @@ struct EditLanguages: View {
     @State private var selected: [String]
     @State private var isTopOfScroll: Bool = false
     @State private var isScrolling = false
-    @State private var flashMaxText: Set<String> = []
     @State private var selectedScrollPos = ScrollPosition()
+
+    private let maxCount = 5
     
     private var filteredLanguages: [String] {
         let all = WorldLanguages.top120Alphabetical
@@ -98,23 +99,11 @@ extension EditLanguages {
                 if !selected.contains(country) {
                     OptionCell(
                         text: country,
+                        maxCount: maxCount,
                         selection: $selected,
-                        fillColour: false,
-                        overlayText: flashMaxText.contains(country) ? "max 5" : nil,
+                        style: .outlined,
                         isLanguages: true
-                    ) { text in
-                        if selected.count >= 5 {
-                            flashMaxText.insert(text)
-                            Task { @MainActor in
-                                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                                flashMaxText.remove(text)
-                            }
-                        } else {
-                            withAnimation(.toggle) {
-                                selected.append(text)
-                            }
-                        }
-                    }
+                    )
                 }
             }
             .padding(.horizontal, -16) //Offsets default Flowlayout padding
@@ -136,11 +125,7 @@ extension EditLanguages {
             ScrollView(.horizontal) {
                 HStack(alignment: .bottom, spacing: Spacing.lg) {
                     ForEach(selected, id: \.self) { selection in
-                        OptionCell(text: selection, selection: $selected, fillColour: false) { text in
-                            withAnimation(.toggle) {
-                                selected.removeAll { $0 == text }
-                            }
-                        }
+                        OptionCell(text: selection, selection: $selected, style: .outlined)
                     }
                 }
                 .frame(height: 48)

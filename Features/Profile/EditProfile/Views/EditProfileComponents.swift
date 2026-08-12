@@ -12,8 +12,6 @@ struct ViewAndEditProfileToggle: View {
 
     @Binding var isEdit: Bool
 
-    let pathIsEmpty: Bool
-
     private let textShift: CGFloat = 7.5
     private let arrowShift: CGFloat = 20
 
@@ -66,8 +64,9 @@ struct ListItem<Value: Hashable>: View {
                     .font(.body(.bold))
                     .foregroundStyle(Color.textPrimary)
                 Spacer()
+                //An empty field is a hole, not an action: it stays quieter than a filled one rather than louder
                 Text(isEmpty ? "Add" : (writeAll ? "All" : response.joined(separator: ", ")))
-                    .foregroundStyle(isEmpty ? Color.textAccent : Color.textTertiary)
+                    .foregroundStyle(isEmpty ? Color.textPlaceholder : Color.textTertiary)
                     .font(.body(15))
                     .multilineTextAlignment(.trailing)
                     .lineLimit(1)

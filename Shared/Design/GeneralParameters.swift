@@ -29,6 +29,12 @@ enum CornerRadius {
     static func concentric(in parent: CGFloat, inset: CGFloat) -> CGFloat {
         max(parent - inset, 4)
     }
+
+    //Every corner alike — the even starting point a cell varies one corner from
+    static func uniform(_ radius: CGFloat) -> RectangleCornerRadii {
+        RectangleCornerRadii(topLeading: radius, bottomLeading: radius,
+                             bottomTrailing: radius, topTrailing: radius)
+    }
 }
 
 // MARK: Shadow

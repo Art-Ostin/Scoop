@@ -73,7 +73,7 @@ enum OptionField: CaseIterable {
         switch self {
         case .sex: "Sex"
         case .attractedTo: "Attracted To"
-        case .lookingFor: "Looking For"
+        case .lookingFor: "Seeking"
         case .year: "Year"
         }
     }

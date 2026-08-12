@@ -14,16 +14,23 @@ struct ProfileImages: View {
 
     @Bindable var vm: EditProfileViewModel
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3) //Geometry: photo-grid gutter, held clear for the .tile shadow
+    private let columnCount = 3
+    private let photoCount = 6
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 12), count: columnCount) //Geometry: photo-grid gutter, held clear for the .tile shadow
+    }
+
+    //The one corner a grid-edge photo presents to the card's own corner — the dial for how concentric the grid reads
+    private let outerCorner: CGFloat = CornerRadius.lg
 
     var body: some View {
         Section {
             LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(0..<6) {index in
+                ForEach(0..<photoCount, id: \.self) {index in
                     photoCell(index)
                 }
             }
-            .padding(.horizontal, -6)
+            .padding(-6)
         } header: {
             Text("Images")
                 .padding(.leading, -Spacing.sm) //Geometry: negates the header's row inset so it lines up with the large title
@@ -33,12 +40,25 @@ struct ProfileImages: View {
 }
 
 extension ProfileImages {
+    
+    //Adjust hte corner Radius
+    private func corners(for index: Int) -> RectangleCornerRadii {
+        let inner = CornerRadius.smallImage
+        let firstColumn = index % columnCount == 0
+        let lastColumn = index % columnCount == columnCount - 1
+        let firstRow = index < columnCount
+        let lastRow = index >= photoCount - columnCount
 
-    //The tapped photo morphs into its editor, the same flight a Meet card wears — one image,
-    //cut to the cell's own radius, pressing deeper than a full-width card would.
+        return RectangleCornerRadii(
+            topLeading:     firstRow && firstColumn ? outerCorner : inner,
+            bottomLeading:  lastRow  && firstColumn ? outerCorner : inner,
+            bottomTrailing: lastRow  && lastColumn  ? outerCorner : inner,
+            topTrailing:    firstRow && lastColumn  ? outerCorner : inner)
+    }
+
     private func photoCell(_ index: Int) -> some View {
         let image = vm.images[index]
-        return ProfilePhoto(image: image)
+        return ProfilePhoto(image: image, corners: corners(for: index))
             .zoomTransition(
                 images: [image],
                 showsCardShadow: false, //The grid's cells rest flat on the section surface

@@ -1905,10 +1905,31 @@ final class ZoomHeroContainer: UIView {
         applyProminence()
     }
 
+    /// Whether the flight crop actually hangs BELOW the resting slot.
+    ///
+    /// A source TALLER than the destination's resting crop overflows and has to
+    /// draw over the screen's own content — that is what the elevation is for. A
+    /// source SQUARER than the slot (a photo-grid cell landing in a 1.2 band)
+    /// resolves entirely inside it and never overflows, so elevating it buys
+    /// nothing and costs the destination its own on-image chrome: an `.overlay`
+    /// on `ImageCarousel` overlaps the hero, so the elevation buries it for the
+    /// whole flight and it only appears when the landing drops it again.
+    ///
+    /// Unmeasured (pre-layout) counts as overflowing: `layoutSubviews`
+    /// re-asserts this the moment real bounds arrive, and the conservative
+    /// answer keeps a tall source covered for those first frames.
+    private var flightCropOverflows: Bool {
+        let inset = leadingInsets.first?.constant ?? ZoomStyle.detailInset
+        let imageWidth = bounds.width - 2 * inset
+        guard imageWidth > 0, bounds.height > 0 else { return true }
+        return imageWidth * aspect > bounds.height + 0.5 //Geometry: sub-point slack, not a real overhang
+    }
+
     private func applyProminence() {
+        let elevated = prominent && flightCropOverflows
         var v: UIView? = self
         while let cur = v, cur !== prominenceBoundary {
-            cur.layer.zPosition = prominent ? 1 : 0
+            cur.layer.zPosition = elevated ? 1 : 0
             v = cur.superview
         }
     }
