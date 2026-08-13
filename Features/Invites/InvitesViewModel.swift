@@ -150,6 +150,5 @@ extension InvitesViewModel {
 }
 
 @Observable final class InvitesUIState {
-    var showRespondedCover: ProfileResponse?
     var showQuickResponse: EventProfile?
 }

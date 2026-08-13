@@ -19,7 +19,6 @@ enum ProfileResponse: Identifiable {
 
 struct RespondedToProfileCover: View {
     let responseType: ProfileResponse
-    var visible: Bool = true
 
     var body: some View {
         VStack(alignment: .center, spacing: Spacing.xl) {
@@ -43,9 +42,37 @@ struct RespondedToProfileCover: View {
             }
         }
         .colorBackground()
-        .opacity(visible ? 1 : 0) //Outside colorBackground so the canvas fades too, not just the contents
-        .animation(.transition, value: visible)
-        .zIndex(10)
+    }
+}
+
+//Presents the response cover on the app root's own plane: a non-nil response presents,
+//nil dismisses. Shared by Meet and Invites — both respond flows drive this one slot.
+@MainActor
+@Observable
+final class ResponseCoverPresenter {
+    var response: ProfileResponse?
+}
+
+//Mounted once in AppContainer, LAST in the root ZStack: the cover must cover the
+//never-hidden tab bar AND a profile playing its reverse-zoom flight home behind it
+//(decline fires from inside an open profile, which calls zoomDismiss() then onDecline()).
+struct ResponseCoverLayer: View {
+
+    var presenter: ResponseCoverPresenter
+
+    var body: some View {
+        //A stable container for the insert/remove to animate within. Nothing unconditional
+        //inside it, so an empty layer never swallows taps meant for the tab bar.
+        ZStack {
+            if let response = presenter.response {
+                RespondedToProfileCover(responseType: response)
+                    //Self-animating, so the fade survives a call site that sets the
+                    //response outside withAnimation. The removal keeps the cover alive
+                    //while it fades — no hand-timed sleep before the unmount.
+                    .transition(.opacity.animation(.transition))
+            }
+        }
+        .ignoresSafeArea() //DeclineTest places its title off the FULL screen height (419/852)
     }
 }
 

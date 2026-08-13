@@ -11,6 +11,7 @@ struct InvitesContainer: View {
     
     //Injected
     @Environment(AppRouter.self) private var router
+    @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
     let vm: InvitesViewModel
 
     //Local view state
@@ -28,9 +29,6 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea()
         .background { TimePickerWarmUp() }
-        .fullScreenCover(item: $ui.showRespondedCover) { responseType in
-            RespondedToProfileCover(responseType: responseType)
-        }
         .overlay {
             if let invite = ui.showQuickResponse {
                 respondPoup(invite)
@@ -82,8 +80,8 @@ extension InvitesContainer {
         //Step 1: Min time for whole process 0.85 seconds
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
         
-        //Step 2: Show respond fullScreencover. Animation to open takes 0.2
-        ui.showRespondedCover = respondType
+        //Step 2: Fade the response cover in on the root plane, above the tab bar
+        responseCover?.response = respondType
         
         //Step 3: After 0.2s, dismiss the profile & invite popups beneath the respond cover
         try? await Task.sleep(for: .milliseconds(200))
@@ -92,9 +90,9 @@ extension InvitesContainer {
         //Step 4: Actually respond to Invite
         try? await vm.respond(to: respondType, eventId: eventId)
         
-        //Step 5: Once minimum of 0.85 seconds done, dismiss the screen
+        //Step 5: Once minimum of 0.85 seconds done, fade the cover back out
         try? await minDelay
-        ui.showRespondedCover = nil
+        responseCover?.response = nil
 
         //Step 6: If Accepted go to the 'accepted' Tab
         if respondType == .accepted {

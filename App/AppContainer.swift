@@ -18,6 +18,7 @@ struct AppContainer: View {
 
     @State private var zoomPresentations = ZoomPresentationHost()
     @State private var inviteZoomPresenter = InviteZoomPresenter()
+    @State private var responseCover = ResponseCoverPresenter()
 
     init(dependencies dep: AppDependencies) {
         _meetVM = State(initialValue: MeetViewModel(
@@ -90,10 +91,15 @@ struct AppContainer: View {
 
             ZoomPresentationLayer(host: zoomPresentations)
                 .ignoresSafeArea()
+
+            //Response cover plane: above every other plane, so it covers the tab bar and
+            //the profile receding behind it while a respond flow tears both down
+            ResponseCoverLayer(presenter: responseCover)
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)
         .environment(inviteZoomPresenter)
+        .environment(responseCover)
     }
 }
 

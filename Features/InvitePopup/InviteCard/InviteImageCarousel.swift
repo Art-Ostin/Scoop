@@ -85,6 +85,11 @@ struct InviteImageCarousel: View {
     //cover double-exposes two photos
     var pagerInteractive: Bool = true
 
+    //Continuous multiplier over ALL image chrome (title, halo, options, dots, back button):
+    //the dismiss drag dissolves the dressing proportionally as the card travels, restored by
+    //the snap-back spring on a cancelled release
+    var chromeOpacity: Double = 1
+
     //The invite flight flies the name as its own hero text: the title's name renders as a
     //layout ghost (measured, invisible) while true, and reports its slot through the binding.
     //The slot is published as FLIGHT-INVARIANT offsets (x: leading inset to the name, y:
@@ -127,6 +132,7 @@ struct InviteImageCarousel: View {
                 InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, fillsFrame: fillsFrame, position: pagerPosition, scrollProgress: progressBinding)
                     .opacity(pagerFade)
                     .allowsHitTesting(pagerInteractive)
+                    .scrollDisabled(!pagerInteractive) //Hit-testing alone doesn't stop a pan the scroll view is already tracking — the dismiss drag must truly own the gesture
             } else {
                 Color.clear //The flight frames this carousel before the pager mounts; without a filled base the corner-pinned overlays collapse to a zero-size centre
             }
@@ -265,9 +271,11 @@ extension InviteImageCarousel {
 
 //All Overlay Items are shown and hidden in exactly the same way. So convenience modifier created here
 private extension View {
-    //anchor: the corner the overlay is pinned to, so it pops from there rather than drifting to its own centre
-    func chromeItem(visible: Bool, anchor: UnitPoint = .center) -> some View {
+    //anchor: the corner the overlay is pinned to, so it pops from there rather than drifting to its own centre.
+    //fade: the drag's continuous dissolve, multiplied over the pop (unanimated — it tracks the finger)
+    func chromeItem(visible: Bool, fade: Double = 1, anchor: UnitPoint = .center) -> some View {
         opacityPop(visible: visible, anchor: anchor)
+            .opacity(fade)
             .allowsHitTesting(visible)
             .animation(.transition, value: visible)
     }

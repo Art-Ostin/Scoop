@@ -10,6 +10,7 @@ import SwiftUI
 struct MeetContainer: View {
     
     //Inject Dependencies
+    @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
     let vm: MeetViewModel
 
     //Local view state
@@ -29,12 +30,6 @@ struct MeetContainer: View {
         .overlay(alignment: .topTrailing) {infoButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
-        .overlay {
-            if let type = ui.respondedToProfile {
-                RespondedToProfileCover(responseType: type, visible: ui.coverVisible)
-                    .animation(.dissolve, value: ui.respondedToProfile)
-            }
-        }
     }
 }
 
@@ -95,9 +90,9 @@ extension MeetContainer {
         //Step 1: Min time for whole process 0.85 seconds
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
         
-        //Step 2: Show respond fullScreencover. Animation to open takes 0.2
-        ui.respondedToProfile = event == nil ? .decline : .newInvite
-        
+        //Step 2: Fade the response cover in on the root plane, above the tab bar
+        responseCover?.response = event == nil ? .decline : .newInvite
+
         //Step 3: After 0.2s, dismiss the quick invite beneath the response cover
         try? await Task.sleep(for: .milliseconds(200))
         hideInviteInBackground()
@@ -105,9 +100,9 @@ extension MeetContainer {
         //Step 4: Actually send invite or decline profile
 //        await submitResponse(event: event, profile: profile)
         
-        //Step 5: Once minimum of 0.85 seconds done, dismiss the screen
+        //Step 5: Once minimum of 0.85 seconds done, fade the cover back out
         try? await minDelay
-        ui.respondedToProfile = nil
+        responseCover?.response = nil
     }
 }
 
