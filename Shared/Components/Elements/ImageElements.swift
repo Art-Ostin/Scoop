@@ -72,7 +72,14 @@ struct InvitePagePhoto: View {
 //MARK: Baked bottom blur — the invite flight's flyable copy of this page's glur
 extension InvitePagePhoto {
 
-    private static let bakeContext = CIContext()
+    //GAMMA working space, deliberately: Core Image defaults to linear-light, where blur
+    //averages of dark↔bright neighborhoods come out bright; the live glur shader this bake
+    //stands in for sums the layer's gamma-encoded samples directly (shader-read). Baked in
+    //linear, the band visibly DARKENED when the live pager replaced it at the reveal
+    //(device frames, 2026-08-13). Matching the mixing space makes the hand-off a null swap.
+    private static let bakeContext = CIContext(options: [
+        .workingColorSpace: CGColorSpace(name: CGColorSpace.sRGB) as Any
+    ])
 
     ///The page's progressive bottom blur baked into plain pixels, matching the `.glur` call in
     ///`body` (ramp from `blurStart` of the height to `blurOn` at the bottom edge; glur's

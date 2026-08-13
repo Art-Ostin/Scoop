@@ -198,6 +198,21 @@ extension InviteImageCarousel {
         .chromeItem(visible: chrome.title && chromeVisible)
     }
 
+    ///The send-screen title's word frames inside a `size` slot — the halo bake's anchors,
+    ///derived from the same constants and font the live title lays out with, so the baked
+    ///halo and the live BackgroundBlur (which uses the getRect-measured frames) coincide
+    static func titleFrames(name: String, in size: CGSize) -> [CGRect] {
+        let font = UIFont.title(22)
+        let inviteSize = ("Invite" as NSString).size(withAttributes: [.font: font])
+        let nameSize = (name as NSString).size(withAttributes: [.font: font])
+        let top = size.height - titleBottomInset - inviteSize.height
+        return [
+            CGRect(x: titleInset, y: top, width: inviteSize.width, height: inviteSize.height),
+            CGRect(x: titleInset + inviteSize.width + titleWordGap, y: top,
+                   width: nameSize.width, height: nameSize.height),
+        ]
+    }
+
     //The name's slot from LAYOUT sizes + the title's own constants — never from measured
     //positions (model-valued mid-flight) and never from getRect frames (scaled by the pop)
     private func publishNameSlot() {
@@ -217,27 +232,34 @@ extension InviteImageCarousel {
             .chromeItem(visible: chrome.pageIndicator && !isPopupOpen && chromeVisible)
     }
 
-    //Apply background blur where necessary under the content
+    //Apply background blur where necessary under the content.
+    //Gated STRUCTURALLY on the pager: the halo is a live 40pt blur over a card-sized photo
+    //copy, and it must not be resident on the flight's animating rect even at opacity 0. It
+    //mounts with the pager at land() — at rest, never mid-flight — and arrives by riding
+    //pagerFade, which is already animating in land()'s transaction (a value-scoped .animation
+    //on a freshly inserted subtree has no prior state and would pop instead).
+    @ViewBuilder
     private var backgroundBlur: some View {
-        let clamped = min(max(progress, 0), Double(images.count - 1))
-        let page = Int(clamped)
-        let next = min(page + 1, images.count - 1)
-        let fraction = clamped - Double(page)
-        //Gated on the pager: the halo is a blur effect and must not render during the flight
-        let visible = chrome.title && chromeVisible && showsPager
+        if showsPager {
+            let clamped = min(max(progress, 0), Double(images.count - 1))
+            let page = Int(clamped)
+            let next = min(page + 1, images.count - 1)
+            let fraction = clamped - Double(page)
+            let visible = chrome.title && chromeVisible
 
-        return ZStack {
-            BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame])
-                .opacity(1 - fraction)
-            if next != page && fraction > 0 {
-                BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame])
-                    .opacity(fraction)
+            ZStack {
+                BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame])
+                    .opacity(1 - fraction)
+                if next != page && fraction > 0 {
+                    BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame])
+                        .opacity(fraction)
+                }
             }
+            //A full-bleed wash has no corner to pop from — scaling it drags both halos toward
+            //the middle. BackgroundBlur already refuses hits, so a plain fade is all it needs.
+            .opacity(visible ? pagerFade : 0)
+            .animation(.transition, value: visible)
         }
-        //A full-bleed wash has no corner to pop from — scaling it drags both halos toward the middle.
-        //BackgroundBlur already refuses hits, so a plain fade is all it needs.
-        .opacity(visible ? 1 : 0)
-        .animation(.transition, value: visible)
     }
 }
 

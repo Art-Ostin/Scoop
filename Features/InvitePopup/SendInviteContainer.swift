@@ -12,7 +12,7 @@ struct SendInviteContainer: View {
     //Flight tuning — a geometry-matched hero flight keeps its measured curves in-file.
     //The close overlaps two clocks, like the profile dismiss: the mask races the chrome
     //down to image-only on `chromeRace` while the image flies home on `closeFlight`.
-    static let openFlight = Animation.spring(Spring(duration: 0.4, bounce: 0.1)) //ProfileZoom's open clock stretched ~12% (was 0.4s, 2026-08-10): a gentle settle instead of smooth's front-loaded rush
+    static let openFlight = Animation.spring(Spring(duration: 0.34, bounce: 0.2)) //ProfileZoom's open clock stretched ~12% (was 0.4s, 2026-08-10): a gentle settle instead of smooth's front-loaded rush
     static let closeFlight = Animation.smooth(duration: 0.28)
     static let chromeRace = Animation.smooth(duration: 0.15)
     static let sourceChromeExit = Animation.smooth(duration: 0.12) //The meet-card chrome copy only needs to cover frame 1 — then it's out of the flight's way
@@ -22,6 +22,17 @@ struct SendInviteContainer: View {
 
     static let sourceRadius = CornerRadius.image //Source card image clip radius (collapsed state)
     static let cardRadius = CornerRadius.xl //Expanded card surface radius
+
+    //The flight shadow's two endpoints, lerped on closeP so no frame swaps shadows discretely.
+    //Source end: the meet card's UIKit resting shadow (ZoomStyle.cardShadows' two stacked
+    //pairs) folded into one pair — two stacked layers of opacity a composite to 1-(1-a)², so
+    //2×0.05 → 0.0975 and 2×0.08 → 0.1536 at the pairs' shared radius/offset. Landed end: the
+    //card's resting .softFloating (InviteCardBackground). The UIKit shadow's 8pt cast inset
+    //(bottom-only pool) has no SwiftUI .shadow equivalent; the hand-off difference is a
+    //slightly wider side pool, frame-diffed imperceptible.
+    static let sourceShadow = (contact: Elevation.Layer(opacity: 0.0975, radius: 4, y: 3),
+                               ambient: Elevation.Layer(opacity: 0.1536, radius: 16, y: 10))
+    static let landedShadow = Elevation.softFloating.layers
 
     //Interactive dismiss tuning (see dismissDrag) — the numbers ProfileZoom's drag proved out
     static let collapseDistance: CGFloat = 300 //Vertical drag that scrubs the collapse 0→1
@@ -39,6 +50,28 @@ struct SendInviteContainer: View {
     let onSendInvite: (EventFieldsDraft) -> ()
     let declineProfile: () -> ()
 
+    //Explicit only to seed the band layer from the warm-bake cache SYNCHRONOUSLY: the band
+    //must be at full depth on the committed source frame. A bake that instead lands mid-task
+    //(cold cache) fades in over the source copy's exit — the fallback, not the design.
+    init(images: [UIImage], name: String, showInvite: Binding<Bool>, vm: TimeAndPlaceViewModel,
+         onSendInvite: @escaping (EventFieldsDraft) -> (), declineProfile: @escaping () -> ()) {
+        self.images = images
+        self.name = name
+        self._showInvite = showInvite
+        self._vm = State(initialValue: vm)
+        self.onSendInvite = onSendInvite
+        self.declineProfile = declineProfile
+        //Views are constructed on the main actor; the cache is main-actor state
+        if let hero = images.first,
+           let warmed = MainActor.assumeIsolated({ InviteBandBake.cached(for: hero) }) {
+            self._blurredHero = State(initialValue: warmed.band)
+            self._bakedHero = State(initialValue: hero)
+            if warmed.haloName == name {
+                self._bakedHalo = State(initialValue: warmed.halo)
+            }
+        }
+    }
+
     //The flight's frozen source frame and chrome. Nil outside an .inviteZoom presentation —
     //the profile flow mounts this screen directly and keeps its instant open/close.
     @Environment(InviteZoomPresenter.self) private var zoom: InviteZoomPresenter?
@@ -50,8 +83,19 @@ struct SendInviteContainer: View {
     @State private var palette: OverlayPalette = .placeholder
 
     //The hero page's glur baked into pixels (InvitePagePhoto.bakedBottomBlur), so the bottom
-    //blur can fade in DURING the open flight as a plain flying image — shaders never fly
+    //blur can fade in DURING the open flight as a plain flying image — shaders never fly.
+    //Its layer is ALWAYS mounted (rendering the sharp hero until this lands): the bake finishes
+    //mid-flight, and a structural insertion there resolves at destination geometry.
+    //`bakedHero` records which image the bake came from: when the seed image swaps for the
+    //loaded set mid-presentation, the stale bake must drop out instead of riding at full
+    //opacity over the new photo (a whole-image mismatch for the rebake's few frames).
     @State private var blurredHero: UIImage?
+    @State private var bakedHero: UIImage?
+
+    //The title's halo as baked pixels (BackgroundBlur.bakedHalo, bottom strip only): the live
+    //BackgroundBlur is a 40pt shader that mounts with the pager at rest — this copy carries
+    //the halo through the flight so the title's backdrop never changes after landing
+    @State private var bakedHalo: UIImage?
     @Environment(\.displayScale) private var displayScale
 
     //Flight state — continuous scalars so the drag scrub, the chrome race and the position
@@ -70,9 +114,10 @@ struct SendInviteContainer: View {
     @State private var coverFade: Double = 1 //The static hero cover: 1 through flights, faded out at rest
     @State private var pagerReveal: Double = 0 //The live pager's landing crossfade: faded in over the HELD covers, so the pages' bottom blur arrives smoothly
     @State private var coversDropped = false //Paging latch: a swipe over a held cover double-exposes two photos, so the pager stays inert until the covers are gone
-    @State private var blurCover: Double = 0 //The covers' glur layer: 1 only at close start (pager-identical), gone in 0.15s — shaders never fly
+    @State private var blurCover: Double = 0 //The snapshot cover's glur: 1 only at close start (pager-identical), gone in 0.15s — shaders never fly. The hero cover needs none: its baked band layer is already pager-identical
     @State private var sourceChromeFade: Double = 1 //Caps the chrome copy's opacity: rushed to 0 at open start, reset for the collapse
     @State private var chromeIn = false //Destination image chrome (title, options, dots): pops in from the flight's first frame, out at close start
+    @State private var bandIn = true //The baked band belongs to the card from its FIRST committed frame (warm bake) — unlike the chrome it must not wait for the launch commit; it exits with the chrome at close start
     @State private var sourceChromeExiting = false //Drives the source copy's per-element exits (subtitle blur-pop, invite-icon pop) via the inviteChrome environment
     @State private var titleNameSlot: CGRect = .zero //The title name's flight-invariant offsets (leading inset / bottom inset / 22pt size) — the hero's destination derives from these + the frozen carousel target, never from a measured mid-flight position
     @State private var nameLanded = false //Hands the name from the hero text to the real title, a beat after land() so the spring's last sub-pixel settle can't jump the swap
@@ -107,6 +152,19 @@ struct SendInviteContainer: View {
     private var currentImageAspect: AspectRatio {
         ui.showConfirmScreen == true ? .confirmInviteImage : .invitedImage
     }
+
+    //The bake is usable only while it matches the current hero — a mid-presentation image
+    //swap (seed → loaded set) makes it stale until the rebake lands
+    private var bakeReady: Bool { blurredHero != nil && bakedHero == images.first }
+
+    //The baked band's single opacity scope: at full depth from the committed source frame
+    //when the bake is warm (bandIn starts true — keyed on chromeIn it would fade in on the
+    //launch commit and under-blur the bottom while the source copy exits), fading in mid-
+    //flight only on the cold-cache fallback, out with the chrome at close start, and
+    //crossfaded (not popped) when the confirm swap flips blursBottom.
+    private var bandVisible: Bool {
+        currentScreen.blursBottom && bandIn && bakeReady
+    }
     private var currentRadius: CGFloat { lerp(Self.cardRadius, Self.sourceRadius, closeP) }
 
     var body: some View {
@@ -115,8 +173,9 @@ struct SendInviteContainer: View {
             flightCard
         }
         .animation(.transition, value: ui.showConfirmScreen)
-        //A cache hit in practice: ProfileCard extracts the same key when the meet card loads,
-        //so the tint is present from the flight's first frame instead of warming up late
+        //A true cache hit: ProfileCard warms THIS key (.subtle prominence — a different cache
+        //entry from the card's own palette) when the meet card loads, so the tint family is
+        //present from the flight's first frame instead of crossfading in at the end
         .task(id: vm.profileId) { await fetchColour() }
         .task(id: images.first) { await bakeHeroBlur() }
         .task(id: ui.activePopup) { await ui.syncDelayedPopups() } //Owned here: the delayed mirrors must track on every page, not just the one that hosts a menu
@@ -166,34 +225,62 @@ extension SendInviteContainer {
     //The card's surface and shadow, worn by the flying rect rather than the content. The FLIGHT
     //flies a plain appCanvas fill (the old animation's surface — a Liquid Glass lens rebuilt at
     //a new size every frame drops the device to ~15fps); the real glass crossfades in at
-    //landing over the near-identical fill. The resting shadow crossfades to the source card's
-    //image shadow along the flight.
+    //landing over the near-identical fill (the .animation scope covers only that fill swap —
+    //the shadows below ride the flight transaction).
     private func cardSurface(_ origin: CGPoint) -> some View {
         let rect = maskRect(origin)
+        let contact = flightShadowLayer(Self.landedShadow.contact, Self.sourceShadow.contact)
+        let ambient = flightShadowLayer(Self.landedShadow.ambient, Self.sourceShadow.ambient)
         return ZStack {
+            //PERMANENTLY opaque beneath the glass: a fill↔glass cross-dissolve dips the
+            //stack's opacity mid-fade and the dimmed backdrop (and the shadow under the card)
+            //bleeds through — the landed card visibly darkens then recovers (device-measured
+            //2% trough, 2026-08-13). The glass transmits ~3%, so resting it on the fill
+            //instead of the backdrop shifts the landed look by under 0.3%.
             RoundedRectangle(cornerRadius: currentRadius)
                 .fill(Color.appCanvas)
-                .opacity(landed ? 0 : 1)
             Color.clear
-                .containerGlassEffect(tint: Color.appCanvas, shape: RoundedRectangle(cornerRadius: currentRadius))
+                //clipped: the unclipped material carries its own built-in shadow, which
+                //arrived WITH the glass at landing and hardened the already-settled
+                //.softFloating (device-measured +4.6% under-edge, on the glass's fade clock,
+                //2026-08-13). Clipped glass sits at the no-shadow floor: the card wears only
+                //its declared elevation, and nothing about the shadow changes after landing.
+                .containerGlassEffect(tint: Color.appCanvas, clipped: true, shape: RoundedRectangle(cornerRadius: currentRadius))
                 .opacity(landed ? 1 : 0)
         }
         .animation(.transition, value: landed)
         .frame(width: rect.width, height: rect.height)
-        .shadow(.softFloating, strength: Double(1 - closeP))
-        .shadow(.image, strength: Double(closeP))
-        .shadow(.image, strength: Double(closeP))
+        //Raw .shadow, sanctioned as a measured spec that interpolates geometry: the source
+        //card's resting composite travels into .softFloating with opacity, radius AND offset
+        //all lerped on the flight clock, so the shadow is exact at both hand-off frames and
+        //continuous between them. (The old form stacked TWO .image strength-crossfades at
+        //fixed full-size radii — a frame-one pop ~1.6× the resting card, frame-measured
+        //2026-08-13.)
+        .shadow(color: .black.opacity(contact.opacity), radius: contact.radius, x: 0, y: contact.y)
+        .shadow(color: .black.opacity(ambient.opacity), radius: ambient.radius, x: 0, y: ambient.y)
         .position(x: rect.midX, y: rect.midY)
         .allowsHitTesting(false)
     }
 
-    //The real layout, centred exactly as the static screen was
+    //lerp(landed, source, closeP): closeP 1 wears the source card's resting shadow, 0 the
+    //landed card's. The dive overshoots closeP past 1; .opacity clamps and the radius/offset
+    //extrapolation is transient and sub-point.
+    private func flightShadowLayer(_ landed: Elevation.Layer, _ source: Elevation.Layer) -> Elevation.Layer {
+        Elevation.Layer(opacity: Double(lerp(CGFloat(landed.opacity), CGFloat(source.opacity), closeP)),
+                        radius: lerp(landed.radius, source.radius, closeP),
+                        y: lerp(landed.y, source.y, closeP))
+    }
+
+    //The real layout, centred as the static screen was, lifted 12pt above true centre.
+    //The lift sits ABOVE the measuring modifiers, so the flight's destination frames (and
+    //everything derived from them — covers, halo pin, name-hero target) follow it for free.
     private var layoutColumn: some View {
         VStack(spacing: Spacing.xl) {
             cardColumn
             backButton
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .offset(y: -Spacing.sm)
     }
 
     //The card content at its final layout; the expanding mask reveals it. The image layer is a
@@ -220,7 +307,13 @@ extension SendInviteContainer {
     }
 
     private var imageSlot: some View {
-        Color.clear
+        //The wash backstop: the tinted layers all ride the FLYING rect (the carousel wash) or
+        //sit below the slot (the rows' seam gradient), so a bouncy open that overshoots the
+        //image above its slot exposed a strip of bare appCanvas — a white flash at the
+        //overshoot peak (device frames, 2026-08-13). Painting the slot with the seam's own
+        //tint makes any overshoot gap read as the wash instead; at rest the opaque image
+        //covers it completely.
+        palette.secondaryText.opacity(0.45)
             .aspectRatio(currentImageAspect.ratio, contentMode: .fit)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
                 guard !dragging else { return }
@@ -233,7 +326,13 @@ extension SendInviteContainer {
         let rect = local(lerp(carouselTargetFrame, sourceFrame, closeP), origin)
 
         return ZStack {
+            //The seam wash lives UNDER the covers: the covers' bottom fuzz dissolves into it
+            //from mid-flight on, so the landed seam colour is already there when the card
+            //arrives (drawn above the covers it pulsed the whole photo during the reveal,
+            //and gated on the cover drop it arrived as its own late beat — a colour snap)
+            palette.secondaryText.opacity(0.45)
             flightCovers //Static stand-ins beneath the chrome: the live pager only exists at rest
+            bakedHaloLayer //The title's halo rides the flight; the live one only exists at rest
             imageSection
         }
         .frame(width: rect.width, height: rect.height)
@@ -266,7 +365,11 @@ extension SendInviteContainer {
                 .environment(\.inviteChromeFade, min(Double(closeP), sourceChromeFade))
                 .environment(\.inviteChromeCollapse, Double(closeP))
                 .environment(\.inviteChromeExiting, sourceChromeExiting)
-                .environment(\.inviteChromeArrived, chromeIn && blurredHero != nil)
+                //bakeReady, not blurredHero alone: a stale bake must not hold the hand-off.
+                //`|| landed` keeps the source band OUT at rest — a mid-presentation image
+                //swap briefly drops bakeReady, and the landed pager carries its own live
+                //glur, so the stretched source band must not fade back in over it.
+                .environment(\.inviteChromeArrived, chromeIn && (bakeReady || landed))
                 //Conditional, NOT constant true: if the hero can't anchor (no sourceNameRect —
                 //the chrome-less harness, or a failed derivation) the copy's name keeps its
                 //old chromeFade exits instead of blanking for the whole flight (device video)
@@ -330,15 +433,19 @@ extension SendInviteContainer {
     }
 
     //The flight's static image layers, pixel-identical to a resting carousel page so every swap
-    //between them and the live pager is invisible. Always mounted — views inserted mid-flight
-    //resolve at destination geometry. The hero cover carries the whole open flight and the
-    //close; the page snapshot freezes a non-hero page so the pager can snap home unseen.
-    //Shaders never fly: the base layers are SHARP images (a plain image resize is GPU-cheap; a
-    //glur layerEffect at animated size drops frames). The glur variants exist only in `blurCover`
-    //— 1 for the single frame the pager unmounts at close start, faded out over the chrome race.
-    //The bottom blur RIDES the open flight as `blurredHero` — the hero's glur baked into plain
-    //pixels — fading in with the chrome (chromeIn); the pager's real glur then refines it
-    //invisibly under the landing reveal (pagerReveal) over these held covers.
+    //between them and the live pager is invisible. ALWAYS MOUNTED, every one of them: a view
+    //inserted while the spring is airborne resolves its layout at DESTINATION geometry and
+    //animates there on the insertion transaction's clock, outrunning the flight — geometryGroup
+    //does not rescue a newly-inserted child (frame-measured 2026-08-13: the old `if let
+    //blurredHero` insertion produced a same-scale, ~30pt-translated destination-crop ghost
+    //early in the flight and a leading bottom clip edge — the "detached band" — late in it).
+    //The hero cover carries the whole open flight and the close; the page snapshot freezes a
+    //non-hero page so the pager can snap home unseen. Shaders never fly: the hero stack is
+    //sharp pixels plus the PRE-BAKED band — no live glur (the old glur'd hero cover was
+    //pixel-identical to the bake and rode every flight as a resident layerEffect for nothing).
+    //The snapshot keeps its glur variant, lit by `blurCover` only for the single frame the
+    //pager unmounts at close start, faded out over the chrome race. The pager's real glur
+    //refines the baked band invisibly under the landing reveal (pagerReveal).
     @ViewBuilder
     private var flightCovers: some View {
         if !images.isEmpty {
@@ -352,18 +459,47 @@ extension SendInviteContainer {
                 .opacity(coverPage != nil ? 1 : 0)
                 ZStack {
                     rawCover(images[0])
-                    if let blurredHero { //Baked off-main at mount; inserted (animated), and the source band holds its blur until it lands
-                        rawCover(blurredHero) //Identical pixels above the ramp — only the bottom band crossfades
-                            .opacity(currentScreen.blursBottom && chromeIn ? 1 : 0) //In with the chrome, out with it on close; never on the sharp-bottomed confirm screen
-                            .animation(.transition, value: chromeIn)
-                    }
-                    InvitePagePhoto(image: images[0], blursBottom: currentScreen.blursBottom)
-                        .opacity(blurCover)
+                    rawCover(blurredHero ?? images[0]) //Identical pixels until the bake lands (a leaf content swap under opacity 0, never an insertion); after it, only the bottom band differs
+                        .opacity(bandVisible ? 1 : 0)
+                        .animation(.transition, value: bandVisible)
                 }
                 .opacity(coverFade)
             }
+            //The pager page's own 2pt bottom fade (InvitePagePhoto's mask), worn once by the
+            //whole cover stack: the covers dissolve into the wash beneath exactly like a
+            //resting page, so the seam reads the same mid-flight, through the reveal, and at
+            //rest — nothing about it changes at landing
+            .mask {
+                VStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 2)
+                }
+            }
             .allowsHitTesting(false)
         }
+    }
+
+    //The title's halo as flat pixels, pinned bottomLeading at its baked (destination) size —
+    //the strip rides the flying rect exactly like the title words it backs. In with the
+    //chrome, out with it at close start, gone with the title on the confirm screen, and
+    //crossfaded out beneath the live BackgroundBlur during the pager reveal — so nothing
+    //about the title's backdrop changes after landing. Always mounted: a bake landing
+    //mid-flight is a leaf content swap, never an insertion.
+    private var bakedHaloLayer: some View {
+        Color.clear
+            .overlay(alignment: .bottomLeading) {
+                Image(uiImage: bakedHalo ?? UIImage())
+                    .resizable()
+                    .frame(width: bakedHalo?.size.width ?? 0, height: bakedHalo?.size.height ?? 0)
+            }
+            .opacity(haloVisible ? 1 - pagerReveal : 0)
+            .animation(.transition, value: haloVisible)
+            .allowsHitTesting(false)
+    }
+
+    private var haloVisible: Bool {
+        currentScreen.chrome.title && chromeIn && bakedHalo != nil
     }
 
     //A cover that FLIES carries no shader at all: glur smears while its layer resizes (even at
@@ -450,16 +586,23 @@ extension SendInviteContainer {
             guard hasFlight else { return }
             dragging = false //A reopen mid-close revives the card; unfreeze frames and hand hits back
             springingBack = false
+            bandIn = true //A reopen takes the band back from the source copy
             coverFade = 1 //Cover the pager until this flight lands (identical pixels — instant is invisible)
             let generation = flightGeneration
             Task {
-                try? await Task.sleep(for: .seconds(0.6)) //Redundant with the flight completion, in case it never fires
+                //Redundant with the flight completion, in case it never fires. Must sit WELL
+                //past the spring's settling tail (~0.65s to .removed): at 0.6s this fallback
+                //usually WON the race and mounted the pager while the presentation was still
+                //1–5pt from home — an offset pager crossfading over the covers for the whole
+                //reveal, the rare near-landed double image (device screenshot, 2026-08-13).
+                try? await Task.sleep(for: .seconds(1.0))
                 land(generation)
             }
         } else {
             flightGeneration += 1
             landed = false
             chromeIn = false //Chrome pops out at close start, ahead of the flight home
+            bandIn = false //The baked band exits with it; the source copy's band rides the collapse back in
             pagerReveal = 0 //The pager unmounts in this same commit; reset for the next landing
             coversDropped = false
             nameLanded = false //The hero text takes the name back for the flight home
@@ -473,6 +616,7 @@ extension SendInviteContainer {
         guard expanded, !landed, generation == flightGeneration else { return } //A newer close/reopen owns the flight now
         landed = true //Mounts the live pager over the covers, transparent until the reveal below
         chromeIn = true //Normally already in on its own clock — this covers the fallback land
+        bandIn = true //As above
         flightTargets = nil //Live measurements own the geometry again
         blurCover = 0 //The pager carries the bottom blur from here
         Task { @MainActor in //The name swap waits out the spring's last sub-pixel settle — swapping at land() can still jump ~1pt
@@ -536,6 +680,7 @@ extension SendInviteContainer {
         sourceChromeExiting = true
         withAnimation(Self.sourceChromeExit) { sourceChromeFade = 0 }
         chromeIn = true //Leads the flight, as on the first open
+        withAnimation(Self.chromeRace) { blurCover = 0 } //A reopen inside the close's first beats must not fly the snapshot's live glur at partial opacity
         withAnimation(Self.openFlight) {
             expanded = true
             closeP = 0
@@ -548,10 +693,11 @@ extension SendInviteContainer {
         sourceChromeFade = 1 //The cap steps aside: the chrome copy rides the collapse back in via closeP
         sourceChromeExiting = false //Subtitle + invite icon pop back in, revealed by the collapse
         heroFadesWithCollapse = !currentScreen.chrome.title //No visible title to leave from (confirm screen): the name rides in with the collapse instead
-        //The covers must match the pager on its unmount frame; the race fades the blur out.
-        //At rest that pager is fully glur'd. Mid-reveal it is only fraction-opaque, and full
-        //glur on top would POP the bottom fifth — the baked blurredHero layer (already in via
-        //chromeIn) carries the bottom blur there instead.
+        //The snapshot cover must match the pager on its unmount frame; the race fades the blur
+        //out. At rest that pager is fully glur'd. Mid-reveal it is only fraction-opaque, and
+        //full glur on top would POP the bottom fifth — the baked band layer (already in via
+        //bandVisible) carries the bottom blur there instead. The hero cover never needs this:
+        //its baked band is pager-identical at rest by construction.
         blurCover = coversDropped ? 1 : 0
         guard scrollProgress > 0.001 else { //Resting on the hero page: the hero cover is identical pixels
             coverFade = 1
@@ -692,18 +838,10 @@ extension SendInviteContainer {
             declineProfile: declineProfile,
             clearInvite: {withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
-        //Sits under the carousel's bottom mask fuzz, so the image dissolves into the same
-        //colour the rows' gradient starts on instead of the card behind it. Rides the cover
-        //drop (1 − coverFade), NOT `landed` alone: keyed on landed it fades in during the
-        //pager reveal, sandwiched between the held covers and the semi-transparent pager —
-        //an ~11% tint pulse across the whole photo (sim-measured). The landed gate makes the
-        //EXIT instant on every close path: the page-N close animates coverFade on closeFlight
-        //while the pager unmounts in the commit, which would strand the wash at full
-        //strength over the exposed covers for 0.28s.
-        .background {
-            palette.secondaryText.opacity(0.45)
-                .opacity(landed ? 1 - coverFade : 0)
-        }
+        //The seam wash the pager's bottom fuzz dissolves into lives in carouselLayer, UNDER
+        //the flight covers — present from mid-flight, immune to the reveal (an above-covers
+        //wash pulsed the whole photo ~11% while the pager was fraction-opaque, sim-measured),
+        //and covered naturally by the opaque covers on every close path.
     }
 
     private var inviteDetailsPager: some View {
@@ -729,20 +867,21 @@ extension SendInviteContainer {
             .extractPalette(first, id: vm.profileId, prominence: .subtle)
     }
 
-    //Bakes the hero's bottom glur into pixels off-main (~tens of ms — ready well before the
-    //chrome arrives at 0.18s). Re-runs when the hero's identity changes (a seed image swapped
-    //for the loaded set mid-presentation). Animated set: a bake landing AFTER chromeIn flips
-    //would otherwise insert the layer at full opacity in one frame.
+    //Resolves the hero's baked band and halo: a no-op when init already seeded them from the
+    //warm cache; otherwise InviteBandBake.warm bakes off-main (the cold fallback — the bakes
+    //land a frame or two into the flight and fade in via their own scopes). Re-runs when the
+    //hero's identity changes (a seed image swapped for the loaded set mid-presentation).
+    //Plain assignments, deliberately: both layers are always mounted, so landing a bake is a
+    //leaf content swap — no view is ever inserted mid-flight.
     private func bakeHeroBlur() async {
         guard let hero = images.first else { return }
-        let aspect = AspectRatio.invitedImage.ratio
-        let width = UIScreen.main.bounds.width - InviteCardBackground.horizontalInset * 2
-        let scale = displayScale
-        let baked = await Task.detached(priority: .userInitiated) {
-            InvitePagePhoto.bakedBottomBlur(for: hero, aspect: aspect, displayWidth: width, scale: scale)
-        }.value
-        guard images.first == hero else { return } //A newer hero owns the slot; its own task rebakes
-        withAnimation(.transition) { blurredHero = baked }
+        guard bakedHero != hero || bakedHalo == nil else { return } //Init-seeded from a warm entry
+        if bakedHero != hero { bakedHalo = nil } //A swapped hero drops the stale halo while the rebake runs
+        await InviteBandBake.warm(for: hero, name: name)
+        guard images.first == hero, let entry = InviteBandBake.cached(for: hero) else { return } //A newer hero owns the slot; its own task rebakes
+        blurredHero = entry.band
+        bakedHero = hero //bakeReady flips in the same commit — one fade via bandVisible's scope
+        if entry.haloName == name { bakedHalo = entry.halo }
     }
 
     //Gone until the flight lands its chrome, on the confirm screen, while dragging,
@@ -800,6 +939,55 @@ extension SendInviteContainer {
             isRespondMessage: false,
             eventType: $vm.event.type
         )
+    }
+}
+
+//MARK: Warm-bake cache — the flight's band and title halo must be there on frame one
+
+//Bakes of the hero's bottom blur AND the title's halo, warmed at meet-card load
+//(ProfileCard) and consulted synchronously in SendInviteContainer.init. Without the warm
+//entry the bakes land mid-flight and fade in late — the squashed source band covering the
+//band's wait was the residual double image, and the live halo mounting at the reveal was
+//the title backdrop's after-landing change (device frames, 2026-08-13). Keyed by image
+//identity: the loaded profile images are stable instances. Capped small — the band bake is
+//full-resolution.
+@MainActor
+enum InviteBandBake {
+
+    struct Entry {
+        let band: UIImage
+        let halo: UIImage? //Bottom strip only (BackgroundBlur.bakedStripHeight), pinned bottomLeading
+        let haloName: String //The halo is anchored to the title's word rects — a different name needs a rebake
+    }
+
+    private static var cache: [ObjectIdentifier: Entry] = [:]
+    private static var order: [ObjectIdentifier] = []
+    private static let capacity = 6
+
+    static func cached(for image: UIImage) -> Entry? { cache[ObjectIdentifier(image)] }
+
+    ///Bake ahead of any tap; a no-op when the image is already warm for this name
+    static func warm(for image: UIImage, name: String) async {
+        if let entry = cached(for: image), entry.haloName == name { return }
+        let aspect = AspectRatio.invitedImage.ratio
+        let width = UIScreen.main.bounds.width - InviteCardBackground.horizontalInset * 2
+        let slot = CGSize(width: width, height: width / aspect)
+        let scale = UIScreen.main.scale
+        let frames = InviteImageCarousel.titleFrames(name: name, in: slot) //Font metrics on the main actor
+        let existingBand = cached(for: image)?.band //A name change reuses the band
+        let baked = await Task.detached(priority: .userInitiated) { () -> (UIImage?, UIImage?) in
+            let band = existingBand ?? InvitePagePhoto.bakedBottomBlur(for: image, aspect: aspect, displayWidth: width, scale: scale)
+            let halo = BackgroundBlur.bakedHalo(for: image, slot: slot, frames: frames, scale: scale)
+            return (band, halo)
+        }.value
+        guard let band = baked.0 else { return }
+        let key = ObjectIdentifier(image)
+        if cache[key] == nil { order.append(key) }
+        cache[key] = Entry(band: band, halo: baked.1, haloName: name)
+        if order.count > capacity, let evicted = order.first {
+            order.removeFirst()
+            cache[evicted] = nil
+        }
     }
 }
 

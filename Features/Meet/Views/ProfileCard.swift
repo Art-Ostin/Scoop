@@ -23,6 +23,13 @@ struct ProfileCard : View {
     var body: some View {
         AppImage(image: profile.image, type: .meet)
             .task(id: profile.image) {await fetchColour()}
+            //Warm the invite flight's baked band + title halo for the CURRENT hero (re-runs
+            //when the loaded set replaces the seed): the flight needs both on its first
+            //committed frame
+            .task(id: images().first) {
+                guard let hero = images().first else { return }
+                await InviteBandBake.warm(for: hero, name: profile.profile.name)
+            }
             .zoomTransition(images: images()) {
                 cardOverlay
             } content: {
@@ -77,12 +84,15 @@ struct ProfileCardChrome: View {
     var body: some View {
         ZStack {
             blurBand
-                //The card's blur never exits with the chrome: it rides the flight at full
-                //strength — shrinking with the rect — then crossfades against the invite
-                //card's baked bottom blur as the destination chrome arrives, and back again
-                //over the close. One continuous blur, reshaping.
+                //This copy's band is laid out at SOURCE size and transform-squashed over the
+                //flight, so its content misregisters against the re-cropping flying image as
+                //the aspect departs — visible doubling wherever the band has contrast (device
+                //frames, 2026-08-13). It must exit FAST at flight launch, while the two
+                //mappings still coincide, handing off to the invite card's baked band beneath
+                //(warm from frame one). The return on close stays on the slow clock: it
+                //arrives as the collapse approaches source geometry, where it registers.
                 .opacity(chromeArrived ? 0 : 1)
-                .animation(.transition, value: chromeArrived)
+                .animation(chromeArrived ? SendInviteContainer.sourceChromeExit : .transition, value: chromeArrived)
             blurBackground.scrimGradient
                 .opacity(chromeFade) //The colour veil rushes out with the name — a lingering scrim muddied the flight
         }
@@ -133,11 +143,14 @@ extension ProfileCardChrome {
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .glur(radius: spec.blurRadius, offset: spec.blurStart, interpolation: spec.blurRamp, direction: .down, noise: 0)
             .mask {
-                //Soft-topped, tucked just above the glur's start so the mask edge lives in
-                //pixels the ramp has already softened
+                //Feather INSIDE the ramp, so every pixel the mask reveals already carries
+                //blur. The old clear-at-blurStart−0.06 start exposed a ~6%-of-card strip of
+                //SHARP source-cropped pixels; invisible at rest (identical pixels beneath)
+                //but doubled against the invite flight's re-cropping image while this copy
+                //is transform-stretched (frame-measured 2026-08-13).
                 LinearGradient(stops: [
-                    .init(color: .clear, location: spec.blurStart - 0.06), //Geometry: the feather strip hugs the ramp's start
-                    .init(color: .black, location: spec.blurStart + 0.02),
+                    .init(color: .clear, location: spec.blurStart), //Geometry: the feather starts where the σ ramp starts
+                    .init(color: .black, location: spec.blurStart + 0.08),
                     .init(color: .black, location: 1)
                 ], startPoint: .top, endPoint: .bottom)
             }
@@ -212,6 +225,11 @@ extension ProfileCard {
     private func fetchColour() async {
         palette = await PopupColorExtractor.shared
             .extractPalette(profile.image, id: profile.id)
+        //Warm the invite popup's variant too — it extracts with .subtle, a DIFFERENT cache
+        //key. Cold, that extraction lands mid-flight and the whole popup's tint family
+        //(backdrop, seam wash) crossfades in at the end of the open — a colour snap.
+        _ = await PopupColorExtractor.shared
+            .extractPalette(profile.image, id: profile.id, prominence: .subtle)
     }
     
     private func images() -> [UIImage] {

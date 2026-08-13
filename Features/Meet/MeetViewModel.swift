@@ -62,7 +62,8 @@ import SwiftUI
     var openPastInvites = false
     var showInvite: PendingProfile?
     var respondedToProfile: ProfileResponse?
-    
+    var coverVisible = false //Drives the response cover's fade; the cover itself is presented unanimated
+
     
     //Custom Binding so can be a bool in the InviteView, but a PendingProfile? in Meet container
     func showInviteBinding(profile: PendingProfile) -> Binding<Bool> {

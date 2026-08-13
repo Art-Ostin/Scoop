@@ -38,7 +38,10 @@ struct InviteCardBackground: ViewModifier {
             .frame(maxWidth: .infinity)
             .padding(.bottom, Spacing.sm)
             .clipShape(shape)
-            .containerGlassEffect(tint: Color.appCanvas, shape: shape)
+            //clipped: only the declared .softFloating below — the unclipped material's
+            //built-in halo made this card heavier than its token, and made the popup
+            //flight's landing (which lerps into .softFloating exactly) harden at the end
+            .containerGlassEffect(tint: Color.appCanvas, clipped: true, shape: shape)
             .shadow(.softFloating)
             .padding(.horizontal, Self.horizontalInset)
             .padding(.top, Self.topInset)

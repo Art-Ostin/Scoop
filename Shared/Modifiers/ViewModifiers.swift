@@ -102,10 +102,20 @@ extension View {
     //No `interactive:`: a card-sized lens shouldn't react to touch, and interactive glass on a
     //background layer would swallow the content's taps.
     @ViewBuilder
-    func containerGlassEffect<S: InsettableShape>(clear: Bool = false, tint: Color? = nil, shape: S) -> some View {
+    //`clipped` strips the material's built-in halo: unclipped .regular glass carries a shadow
+    //no API disables, while glass clipped to its own shape sits at the measured no-shadow
+    //floor (same lens, same tint). Opt in where a surface must wear ONLY its declared
+    //Elevation — the invite card does, so its landing can hand shadows off continuously.
+    func containerGlassEffect<S: InsettableShape>(clear: Bool = false, tint: Color? = nil, clipped: Bool = false, shape: S) -> some View {
         if #available(iOS 26.0, *) {
             let base: Glass = clear ? .clear : .regular
-            self.background { Color.clear.glassEffect(base.tint(tint), in: shape) }
+            self.background {
+                if clipped {
+                    Color.clear.glassEffect(base.tint(tint), in: shape).clipShape(shape)
+                } else {
+                    Color.clear.glassEffect(base.tint(tint), in: shape)
+                }
+            }
         } else {
             self.background(shape.fill(tint ?? Color.appCanvas))
         }

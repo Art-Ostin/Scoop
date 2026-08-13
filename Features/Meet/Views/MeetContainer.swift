@@ -29,6 +29,12 @@ struct MeetContainer: View {
         .overlay(alignment: .topTrailing) {infoButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
+        .overlay {
+            if let type = ui.respondedToProfile {
+                RespondedToProfileCover(responseType: type, visible: ui.coverVisible)
+                    .animation(.dissolve, value: ui.respondedToProfile)
+            }
+        }
     }
 }
 
@@ -83,7 +89,7 @@ extension MeetContainer {
             try? await vm.declineProfile(profile: profile)
         }
     }
-
+    
     
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         //Step 1: Min time for whole process 0.85 seconds
@@ -91,14 +97,14 @@ extension MeetContainer {
         
         //Step 2: Show respond fullScreencover. Animation to open takes 0.2
         ui.respondedToProfile = event == nil ? .decline : .newInvite
-
+        
         //Step 3: After 0.2s, dismiss the quick invite beneath the response cover
         try? await Task.sleep(for: .milliseconds(200))
         hideInviteInBackground()
         
         //Step 4: Actually send invite or decline profile
-        await submitResponse(event: event, profile: profile)
-
+//        await submitResponse(event: event, profile: profile)
+        
         //Step 5: Once minimum of 0.85 seconds done, dismiss the screen
         try? await minDelay
         ui.respondedToProfile = nil
