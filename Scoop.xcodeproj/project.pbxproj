@@ -163,6 +163,7 @@
 		657F61C32FDFC0EF00B2F903 /* RespondContainerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C22FDFC0EF00B2F903 /* RespondContainerOld.swift */; };
 		657F61C52FDFD6F900B2F903 /* MeasureModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */; };
 		6580997E302CCCD7006D1A9D /* OptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6580997D302CCCD7006D1A9D /* OptionCell.swift */; };
+		65809980302D29A9006D1A9D /* VicesAndMediaRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6580997F302D29A9006D1A9D /* VicesAndMediaRows.swift */; };
 		65837E852FF50A8C00569F22 /* DominantColors in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E842FF50A8C00569F22 /* DominantColors */; };
 		65837E882FF50B1800569F22 /* Glur in Frameworks */ = {isa = PBXBuildFile; productRef = 65837E872FF50B1800569F22 /* Glur */; };
 		6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585043C2E59105D0005C643 /* DefaultsManager.swift */; };
@@ -458,6 +459,7 @@
 		657F61C22FDFC0EF00B2F903 /* RespondContainerOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondContainerOld.swift; sourceTree = "<group>"; };
 		657F61C42FDFD6F900B2F903 /* MeasureModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureModifiers.swift; sourceTree = "<group>"; };
 		6580997D302CCCD7006D1A9D /* OptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionCell.swift; sourceTree = "<group>"; };
+		6580997F302D29A9006D1A9D /* VicesAndMediaRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VicesAndMediaRows.swift; sourceTree = "<group>"; };
 		6585043C2E59105D0005C643 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		65871F4D2F3A543200C9A87A /* ClearIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearIcon.swift; sourceTree = "<group>"; };
 		658B74972E6B53D700BE8B6B /* SFProRounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Medium.otf"; sourceTree = "<group>"; };
@@ -1126,6 +1128,7 @@
 				6522EF262E1EFDE6004531F9 /* EditProfileView.swift */,
 				65FEDAF22E229E19006CF3CD /* PromptsView.swift */,
 				65E820A82E3836CA0098CC36 /* InfoView.swift */,
+				6580997F302D29A9006D1A9D /* VicesAndMediaRows.swift */,
 				65E820A42E382C7F0098CC36 /* InterestsView.swift */,
 				65F28E072F1E82CB008BF4DA /* PreferencesView.swift */,
 				65FEDBA42E2306C5006CF3CD /* EditProfileComponents.swift */,
@@ -1737,6 +1740,7 @@
 				657683262F59CA380094A02D /* MessageBubbleShape.swift in Sources */,
 				657B8D4B2F2CFA5F00583ADA /* AppIcons.swift in Sources */,
 				652882D42F707331000B724D /* RespondTimes.swift in Sources */,
+				65809980302D29A9006D1A9D /* VicesAndMediaRows.swift in Sources */,
 				657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */,
 				65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */,
 				651702DE2FCEB14500CB0D3E /* ButtonSizing.swift in Sources */,

@@ -153,6 +153,7 @@ extension EditProfileContainer {
         .animation(.move, value: shrinkDismiss)
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
         .allowsHitTesting(path.isEmpty ? true  : false)
+        .blurPop(visible: !isEditingImage, anchor: .trailing) //Out of the photo editor's way
         .padding(.trailing, Spacing.md)
     }
 }
