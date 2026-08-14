@@ -97,25 +97,59 @@ struct PressEffectModifier: ViewModifier {
     var tint: Color = .accent
     var action: (() -> Void)?
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isPressed = false
+    // Latched once the touch travels past the slop: a drag never fires the action,
+    // even when the finger circles back near its start before release.
+    @State private var wasDrag = false
+
+    // Finger travel below this still counts as a tap. Straight-line (hypot), so the
+    // slop nests inside container drag recognizers' Euclidean slop (the invite card's
+    // dismiss drag claims at 12pt) — a per-axis box would let ~13pt diagonals read as taps.
+    private static let tapSlop: CGFloat = 10
 
     func body(content: Content) -> some View {
         content
             .modifier(PressAnimation(isPressed: isPressed, effect: effect, elevation: elevation, tint: tint))
             .contentShape(Rectangle())
+            // GLOBAL coordinates: a view that rides its container's drag (the invite card
+            // chasing a dismiss flick) cancels the finger's travel out of a local-space
+            // translation, so a committed drag would read as a tap at release.
             .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in isPressed = true }
+                DragGesture(minimumDistance: 0, coordinateSpace: .global)
+                    .onChanged { value in
+                        if hypot(value.translation.width, value.translation.height) >= Self.tapSlop {
+                            wasDrag = true
+                            isPressed = false // turned into a drag — let the press go
+                        } else if !wasDrag {
+                            isPressed = true
+                        }
+                    }
                     .onEnded { value in
                         isPressed = false
-                        // Only fire if released inside the view's bounds.
-                        if let action,
-                           value.translation.width.magnitude < 10,
-                           value.translation.height.magnitude < 10 {
+                        let dragged = wasDrag
+                        wasDrag = false
+                        // Only fire on a true tap: never after a drag, and only released
+                        // where it started.
+                        if let action, !dragged,
+                           hypot(value.translation.width, value.translation.height) < Self.tapSlop {
                             action()
                         }
                     }
             )
+            // A cancelled touch (incoming call, app switch, system alert) never
+            // delivers onEnded, which owns the resets — without these the press
+            // would strand shrunk and the latch would eat the next tap
+            // (TimeCustomMenu's guard, mirrored).
+            .onChange(of: scenePhase) { _, phase in
+                guard phase != .active else { return }
+                isPressed = false
+                wasDrag = false
+            }
+            .onDisappear {
+                isPressed = false
+                wasDrag = false
+            }
     }
 }
 

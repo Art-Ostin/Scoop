@@ -77,11 +77,11 @@ extension InvitesContainer {
     
     //This deals with presenting the respond screen cover & dismissing invitePopup behind
     private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse) async {
-        //Step 1: Min time for whole process 0.85 seconds
+        //Step 1: Minimum time the cover stays on screen
         async let minDelay: Void = Task.sleep(for: .milliseconds(850))
-        
+
         //Step 2: Fade the response cover in on the root plane, above the tab bar
-        responseCover?.response = respondType
+        let cover = responseCover?.show(respondType)
         
         //Step 3: After 0.2s, dismiss the profile & invite popups beneath the respond cover
         try? await Task.sleep(for: .milliseconds(200))
@@ -90,9 +90,9 @@ extension InvitesContainer {
         //Step 4: Actually respond to Invite
         try? await vm.respond(to: respondType, eventId: eventId)
         
-        //Step 5: Once minimum of 0.85 seconds done, fade the cover back out
+        //Step 5: Once the minimum display time is done, fade the cover back out
         try? await minDelay
-        responseCover?.response = nil
+        responseCover?.close(cover)
 
         //Step 6: If Accepted go to the 'accepted' Tab
         if respondType == .accepted {

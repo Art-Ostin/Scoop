@@ -79,6 +79,7 @@ struct ProfileCardChrome: View {
     @Environment(\.inviteChromeCollapse) private var chromeCollapse
     @Environment(\.inviteChromeExiting) private var chromeExiting
     @Environment(\.inviteChromeArrived) private var chromeArrived
+    @Environment(\.inviteChromeCloseRamp) private var closeRamp
     @Environment(\.inviteChromeNameFlying) private var nameFlying
 
     var body: some View {
@@ -88,10 +89,12 @@ struct ProfileCardChrome: View {
                 //flight, so its content misregisters against the re-cropping flying image as
                 //the aspect departs — visible doubling wherever the band has contrast (device
                 //frames, 2026-08-13). It must exit FAST at flight launch, while the two
-                //mappings still coincide, handing off to the invite card's baked band beneath
-                //(warm from frame one). The return on close stays on the slow clock: it
-                //arrives as the collapse approaches source geometry, where it registers.
-                .opacity(chromeArrived ? 0 : 1)
+                //mappings still coincide. On a GESTURE close, `arrived` holds and the return
+                //is the geometry-derived closeRamp — the band materialises only over the
+                //final approach, where the squash is ~identity (an event fade from commit
+                //rode the whole flight visibly stretched — the "squish"). The tap close
+                //keeps the event fade: arrived flips and the .transition below runs it.
+                .opacity(chromeArrived ? closeRamp : 1)
                 .animation(chromeArrived ? SendInviteContainer.sourceChromeExit : .transition, value: chromeArrived)
             blurBackground.scrimGradient
                 .opacity(chromeFade) //The colour veil rushes out with the name — a lingering scrim muddied the flight

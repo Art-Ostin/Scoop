@@ -382,8 +382,11 @@ enum TimeCustomMenuSpec {
     /// under the lens's pixel-identical copy and the copy melts off it.
     static let lensFadeOut = Animation.easeOut(duration: 0.10)
     /// Close morph length before the label is restored and the residual lens
-    /// melts off it (22:11 reference: text readable ~230ms, wash gone ~400ms).
-    static let closeMorphDuration: TimeInterval = 0.40 * timeScale
+    /// melts off it. Deliberately stretched past the device reference (22:11:
+    /// text readable ~230ms, wash gone ~400ms) — the native pace read too snappy
+    /// here. Every beat above is a fraction of this clock, so they all stretch
+    /// with it and the choreography's proportions are unchanged.
+    static let closeMorphDuration: TimeInterval = 0.50 * timeScale
     static let lensFadeDuration: TimeInterval = 0.10 * timeScale
     /// An opaque platter fill (`TimeCustomMenu.platterFill`) ramps in across the
     /// eruption: nothing at birth, where the lens is pure refraction over the label
@@ -419,11 +422,12 @@ enum TimeCustomMenuSpec {
     /// Drags shorter than this count as a tap on the label (menu stays open).
     static let tapSlop: CGFloat = 10
     /// Touch-down open waits this long for the finger to prove it isn't a
-    /// horizontal pan (the label can sit on a pager row): stationary touches
-    /// open after this beat — imperceptible on a press — fast taps open at
-    /// release, and a dominant-horizontal move past `tapSlop` cancels the open
-    /// so the pager (never disabled until the menu actually opens) takes the
-    /// gesture. UIKit's own delaysContentTouches disambiguation, in miniature.
+    /// pan (the label can sit on a pager row, and the invite card behind it
+    /// dismisses on a vertical drag): stationary touches open after this beat
+    /// — imperceptible on a press — fast taps open at release, and any move
+    /// past `tapSlop` cancels the open so the pan (pager scroll or card
+    /// dismiss drag, whichever owns that axis) takes the gesture instead of
+    /// both firing. UIKit's own delaysContentTouches disambiguation, in miniature.
     static let openStillDelay: TimeInterval = 0.08
 
     static let highlightFill = Color(.tertiarySystemFill)
@@ -519,7 +523,8 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     @State private var openAttempted = false
     /// The armed touch-down open, waiting out `openStillDelay`.
     @State private var pendingOpen: Task<Void, Never>?
-    /// This touch became a horizontal pan — no open until the finger lifts.
+    /// This touch became a pan (pager scroll or card dismiss drag) — no open
+    /// until the finger lifts.
     @State private var panCancelled = false
 
     init(cornerRadius: CGFloat = TimeCustomMenuSpec.platterCornerRadius,
@@ -637,8 +642,10 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     /// (`dragEnded`; a sub-`tapSlop` release keeps the menu open, so a quick tap just
     /// opens it). A `.simultaneousGesture` so touch-down fires even over the time
     /// pager's ScrollView (a plain `.gesture` defers to the scroll and only fires at
-    /// release). Accepted trade-off, exactly like a native Menu label: a drag that
-    /// starts on the label opens the menu instead of scrolling/paging.
+    /// release). Unlike a native Menu label, a drag that starts on the label does
+    /// NOT open the menu: any move past `tapSlop` before the open fires stands the
+    /// touch down — horizontal belongs to the pager, vertical to the card's dismiss
+    /// drag, and neither may race a menu bloom.
     private var openAndDragSelect: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
@@ -653,10 +660,12 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
                     return
                 }
                 guard !openAttempted, !panCancelled else { return }
-                // A dominant-horizontal move past the slop is the pager's pan,
-                // not an open: stand down for the rest of this touch.
-                if abs(value.translation.width) >= TimeCustomMenuSpec.tapSlop,
-                   abs(value.translation.width) > abs(value.translation.height) {
+                // A move past the slop before the open fires is a pan, not a press —
+                // horizontal is the pager's, vertical the card's dismiss drag (which
+                // must never see the menu bloom mid-flight): stand down for the rest
+                // of this touch.
+                if hypot(value.translation.width, value.translation.height)
+                    >= TimeCustomMenuSpec.tapSlop {
                     pendingOpen?.cancel()
                     pendingOpen = nil
                     panCancelled = true

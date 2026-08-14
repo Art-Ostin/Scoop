@@ -158,7 +158,7 @@ extension InviteImageCarousel {
                 .foregroundStyle(Color.black)
                 .frame(width: 38, height: 38)
         }
-        .chromeItem(visible: chrome.backButton && chromeVisible)
+        .chromeItem(visible: chrome.backButton && chromeVisible, fade: chromeOpacity)
         .padding(.horizontal, 20) //Geometry: as the title — one shared inset from the artwork edge
         .padding(.top, Spacing.sm)
     }
@@ -179,7 +179,7 @@ extension InviteImageCarousel {
             }
         }
         .padding(Spacing.sm)
-        .chromeItem(visible: !isPopupOpen && chromeVisible)
+        .chromeItem(visible: !isPopupOpen && chromeVisible, fade: chromeOpacity)
         .animation(.transition, value: screen) //Its two buttons mount and unmount as the screen changes
     }
 
@@ -201,7 +201,7 @@ extension InviteImageCarousel {
         .foregroundStyle(Color.white)
         .padding(.horizontal, Self.titleInset)
         .padding(.bottom, Self.titleBottomInset)
-        .chromeItem(visible: chrome.title && chromeVisible)
+        .chromeItem(visible: chrome.title && chromeVisible, fade: chromeOpacity)
     }
 
     ///The send-screen title's word frames inside a `size` slot — the halo bake's anchors,
@@ -235,7 +235,7 @@ extension InviteImageCarousel {
             .scaleEffect(0.7, anchor: .trailing)
             .padding(.horizontal, Spacing.lg)
             .padding(.bottom, Spacing.xs)
-            .chromeItem(visible: chrome.pageIndicator && !isPopupOpen && chromeVisible)
+            .chromeItem(visible: chrome.pageIndicator && !isPopupOpen && chromeVisible, fade: chromeOpacity)
     }
 
     //Apply background blur where necessary under the content.
@@ -263,7 +263,8 @@ extension InviteImageCarousel {
             }
             //A full-bleed wash has no corner to pop from — scaling it drags both halos toward
             //the middle. BackgroundBlur already refuses hits, so a plain fade is all it needs.
-            .opacity(visible ? pagerFade : 0)
+            //chromeOpacity rides along: a halo without its fading title is a stray smudge.
+            .opacity((visible ? pagerFade : 0) * chromeOpacity)
             .animation(.transition, value: visible)
         }
     }

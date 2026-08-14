@@ -1129,7 +1129,9 @@ final class ZoomSourceMarkerView: UIView {
 
 // MARK: - Drag tuning
 
-private enum DragTuning {
+//Internal (not private): SendInviteContainer's gesture dismissal reuses these exact constants
+//and pure functions so the two flick dismissals share one source of truth and cannot drift.
+enum DragTuning {
     /// Vertical drag that scrubs the collapse 0→1.
     static let collapseDistance: CGFloat = 300
     /// Release past this progress (or a downward flick) dismisses.

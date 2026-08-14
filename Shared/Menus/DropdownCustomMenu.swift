@@ -414,6 +414,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     /// read `onOpen`/`onClose` for that.
     var openRequest: Binding<Bool>?
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var controller = DropdownCustomMenuController()
     @State private var labelFrame: CGRect = .zero
     //Touch-down press state, driven by `pressGesture` (a simultaneous gesture so it fires on
@@ -421,6 +422,9 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     //holds the shrink briefly on a fast tap, like PressEffectModifier.
     @State private var pressed = false
     @State private var pressStart: Date?
+    /// This touch became a pan (pager scroll or card dismiss drag) — no open
+    /// until the finger lifts, even if it circles back under the slop.
+    @State private var panCancelled = false
 
     init(cornerRadius: CGFloat? = nil,
          cornerRadii: RectangleCornerRadii? = nil,
@@ -499,31 +503,55 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                 openRequest?.wrappedValue = false
                 openMenu()
             }
-            .onDisappear { controller.dismiss(style: .instant) }
+            // A cancelled touch (incoming call, app switch, system alert) never
+            // delivers onEnded, which owns the resets — without these the label
+            // would strand at the pressed shrink and the latch would eat the next
+            // tap (TimeCustomMenu's guard, mirrored).
+            .onChange(of: scenePhase) { _, phase in
+                guard phase != .active else { return }
+                pressed = false
+                panCancelled = false
+            }
+            .onDisappear {
+                pressed = false
+                panCancelled = false
+                controller.dismiss(style: .instant)
+            }
     }
 
     /// Drives the touch-DOWN shrink and the tap-to-open. A `.simultaneousGesture` so it recognises
     /// alongside the pager's scroll instead of waiting for it to fail (which only happens at
     /// release). `onChanged` with translation ~0 = touch-down → shrink; a drag past `tapSlop` is a
-    /// scroll/page → release the shrink and don't open; a release under `tapSlop` is a tap → open.
+    /// scroll/page/card-dismiss → release the shrink and stand down for the rest of the touch
+    /// (`panCancelled` — the latch, not the final translation, decides, so a drag that circles
+    /// back near its start can't read as a tap); a release that never left `tapSlop` is a tap →
+    /// open. GLOBAL coordinates: the invite card CHASES the finger during its dismiss drag, so a
+    /// local-space translation reads ~zero on a downward flick and the release would open the menu
+    /// over the collapsing card.
     private var pressGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { value in
                 guard !controller.isPresented else { return }
-                let moved = max(abs(value.translation.width), abs(value.translation.height))
-                if moved < DropdownCustomMenuSpec.tapSlop {
-                    if !pressed { pressed = true; pressStart = .now }
-                } else if pressed {
-                    pressed = false   // turned into a scroll/page — let the shrink go
+                // Straight-line travel (hypot, like TimeCustomMenu): the slop must nest
+                // inside the card's Euclidean 12pt drag recognition, and a per-axis box
+                // would let ~13pt diagonals — already claimed by the card — read as taps.
+                let moved = hypot(value.translation.width, value.translation.height)
+                if moved >= DropdownCustomMenuSpec.tapSlop {
+                    panCancelled = true // turned into a scroll/page/dismiss drag — never an open
+                    pressed = false     // let the shrink go
+                } else if !panCancelled, !pressed {
+                    pressed = true; pressStart = .now
                 }
             }
             .onEnded { value in
+                let wasPan = panCancelled
+                panCancelled = false
                 guard !controller.isPresented else { pressed = false; return }
                 // Hold the shrink briefly so a fast tap still reads, then release (PressEffect's hold).
                 let elapsed = pressStart.map { Date.now.timeIntervalSince($0) } ?? 0.12
                 DispatchQueue.main.asyncAfter(deadline: .now() + max(0, 0.12 - elapsed)) { pressed = false }
-                let moved = max(abs(value.translation.width), abs(value.translation.height))
-                guard moved < DropdownCustomMenuSpec.tapSlop else { return }  // a scroll, not a tap
+                let moved = hypot(value.translation.width, value.translation.height)
+                guard !wasPan, moved < DropdownCustomMenuSpec.tapSlop else { return }  // a drag, not a tap
                 openMenu()
             }
     }

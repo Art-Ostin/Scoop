@@ -85,21 +85,17 @@ struct AppContainer: View {
                 .accessibilityLabel("Messages")
             }
 
-            //Quick-invite popup plane: above the TabView so its backdrop covers the
-            //never-hidden tab bar, below the profile zoom plane
             InviteZoomLayer(presenter: inviteZoomPresenter)
 
             ZoomPresentationLayer(host: zoomPresentations)
                 .ignoresSafeArea()
 
-            //Response cover plane: above every other plane, so it covers the tab bar and
-            //the profile receding behind it while a respond flow tears both down
-            ResponseCoverLayer(presenter: responseCover)
+            ResponseCoverLayer(presenter: responseCover) //Response cover shows over the tap view when present.
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)
         .environment(inviteZoomPresenter)
-        .environment(responseCover)
+        .environment(responseCover) //Inject the response cover into the environment so can be updated anywhere
     }
 }
 
