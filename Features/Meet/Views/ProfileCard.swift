@@ -23,9 +23,6 @@ struct ProfileCard : View {
     var body: some View {
         AppImage(image: profile.image, type: .meet)
             .task(id: profile.image) {await fetchColour()}
-            //Warm the invite flight's baked band + title halo for the CURRENT hero (re-runs
-            //when the loaded set replaces the seed): the flight needs both on its first
-            //committed frame
             .task(id: images().first) {
                 guard let hero = images().first else { return }
                 await InviteBandBake.warm(for: hero, name: profile.profile.name)
@@ -61,10 +58,6 @@ extension ProfileCard {
     }
 }
 
-//The card's chrome copy, shared by the resting card and both flights. The invite flight drives
-//per-element exits through the inviteChrome… environment (defaults = the resting card): the
-//wash + name rush out on the flight's fade, the subtitle blur-pops, the invite icon
-//opacity-pops, and the collapse multiplier reveals the pops again on the way home.
 struct ProfileCardChrome: View {
 
     //Injected

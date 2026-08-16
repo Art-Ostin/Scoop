@@ -90,7 +90,7 @@ struct AppContainer: View {
             ZoomPresentationLayer(host: zoomPresentations)
                 .ignoresSafeArea()
 
-            ResponseCoverLayer(presenter: responseCover) //Response cover shows over the tap view when present.
+            ResponseCoverLayer(presenter: responseCover) //Response cover shows over the tab view when present.
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)

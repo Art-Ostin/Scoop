@@ -10,6 +10,8 @@ import CoreHaptics
 
 struct AcceptInviteCard: View {
 
+    //Injected
+    var closing = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     //Local view state
@@ -23,10 +25,6 @@ struct AcceptInviteCard: View {
     var body: some View {
         VStack(spacing: Spacing.xxl) {
             ZStack {
-                //Shadow bloom BEHIND the lens — never a .shadow on the glass node: a shadow whose
-                //alpha animates 0→nonzero flattens the glass to the gray no-backdrop puck until the
-                //last spring settles internally (~3.3s). A neutral sibling behind also gives the
-                //lens something to refract without tinting it, so the ring reads as glass.
                 Circle()
                     .fill(.accent.opacity(0.1))
                     .frame(width: 275, height: 275)
@@ -38,6 +36,8 @@ struct AcceptInviteCard: View {
                     .fill(.clear)
                     .frame(width: 275, height: 275)
                     .glassEffectIfAvailable(shape: Circle())
+                    .opacity(closing ? 0 : 1)
+                    .animation(.quick, value: closing)
 
                 Image("ProfileMockB")
                     .resizable()
@@ -49,15 +49,22 @@ struct AcceptInviteCard: View {
                     .modifier(BackfaceCulled(angle: angle))
             }
             .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.1)
-            .scaleEffect(scale)
-            .offset(y: lift)
+            //Leaves last, still rising on the axis it arrived on — the entrance's momentum
+            //carried through rather than rewound. Keyed to `closing` only, so the entrance
+            //springs driving scale/lift are untouched.
+            .scaleEffect(scale * (closing ? ResponseCoverExit.endScale : 1))
+            .offset(y: lift + (closing ? ResponseCoverExit.riseTravel : 0))
+            .opacity(closing ? 0 : 1)
+            .animation(ResponseCoverExit.card, value: closing)
             .task { await enter() }
 
+            //First out, since it was last in
             Text("You’re Meeting \n Arthur!")
                 .font(.title(32, .bold))
                 .multilineTextAlignment(.center)
-                .opacity(landed ? 1 : 0)
-                .offset(y: landed ? 0 : Spacing.sm)
+                .opacity(landed && !closing ? 1 : 0)
+                .offset(y: landed ? (closing ? Spacing.xs : 0) : Spacing.sm)
+                .animation(ResponseCoverExit.title, value: closing)
         }
     }
 }

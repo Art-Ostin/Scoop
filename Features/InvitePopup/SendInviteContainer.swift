@@ -71,8 +71,11 @@ struct SendInviteContainer: View {
         }
     }
 
-    //The flight's frozen source frame and chrome. Nil outside an .inviteZoom presentation —
-    //the profile flow mounts this screen directly and keeps its instant open/close.
+    //The flight's source anchor and chrome. The anchor is LIVE (the presenter rides the
+    //hidden cell's geometry reports), so every rect lerped toward it — mask, covers, chrome
+    //copy, name hero — follows the list if it scrolls under the close. Nil outside an
+    //.inviteZoom presentation — the profile flow mounts this screen directly and keeps its
+    //instant open/close.
     @Environment(InviteZoomPresenter.self) private var zoom: InviteZoomPresenter?
 
     //Local Properties
@@ -138,6 +141,7 @@ struct SendInviteContainer: View {
     @State private var springingBack = false
     @State private var dragOffset: CGSize = .zero
     @State private var dragProgress: CGFloat = 0
+    @State private var actionButtonHitArea: CGRect = .zero //The live action button's touch region (global, resting): a drag that STARTS in it belongs to the button
 
     private var sourceFrame: CGRect { zoom?.source ?? .zero }
     private var hasFlight: Bool { sourceFrame.width > 1 } //No measured source: open and close stay instant
@@ -240,7 +244,7 @@ extension SendInviteContainer {
             //flights — it only ever fades in place, holding the spot the frozen card frame
             //gives it while the card moves independently
             .overlay(alignment: .top) { stationaryBackButton(origin) }
-            .simultaneousGesture(dismissDrag)
+            .simultaneousGesture(dismissDrag(origin))
             .onChange(of: expanded) { _, isExpanded in expandedChanged(isExpanded) }
         }
     }
@@ -323,6 +327,7 @@ extension SendInviteContainer {
         .contentShape(Rectangle()) //Whole card is a drag surface, including gaps between rows
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
             guard !dragging, gestureFlight == nil else { return } //Frames are the drag's model space; frozen while the finger OR the flight driver owns them (unfrozen, each tick's pose feeds back into the measurements — the anchor migrates and the dive runs away; device frames, 2026-08-13)
+            retargetFrozenFlight(card: newFrame) //A confirm swap under the freeze glides the frozen targets instead of staying pinned
             withAnimation(landed ? .transition : nil) { cardFrame = newFrame }
             openWhenMeasured()
         }
@@ -344,6 +349,7 @@ extension SendInviteContainer {
             .aspectRatio(currentImageAspect.ratio, contentMode: .fit)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
                 guard !dragging, gestureFlight == nil else { return } //Same freeze as the card frame above
+                retargetFrozenFlight(image: newFrame) //As above: a deliberate reflow retargets the frozen flight
                 withAnimation(landed ? .transition : nil) { imageFrame = newFrame }
                 openWhenMeasured()
             }
@@ -434,11 +440,21 @@ extension SendInviteContainer {
                          width: titleNameSlot.width, height: titleNameSlot.height)
                 : sourceName //First frames only: the title publishes its slot from its first layout pass
             let rect = local(lerp(dest, sourceName, closeP), origin)
+            //Standing in for the title's name means wearing the title's exits too. The hand-off
+            //back to the real title waits land + 0.15s, so a fast tap through to the confirm
+            //screen pops the title away while the hero still owns the word: without this it hangs
+            //over the title-less screen and vanishes in one frame when nameLanded unmounts it.
+            //Exempt on the close from confirm, where the collapse fade below owns the name.
+            let popsWithTitle = !heroFadesWithCollapse && !currentScreen.chrome.title
             Text(name)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
                 .lineLimit(1)
                 .fixedSize()
+                //Leaf-side, under the flight transforms: the same pop chromeItem gives the real
+                //title, and a scope this tight can't swallow the flight's own transaction
+                .opacityPop(visible: !popsWithTitle)
+                .animation(.transition, value: popsWithTitle)
                 .scaleEffect(rect.height / max(sourceName.height, 1), anchor: .center)
                 .position(x: rect.midX, y: rect.midY)
                 .opacity(heroFadesWithCollapse ? Double(closeP) : 1)
@@ -554,6 +570,23 @@ extension SendInviteContainer {
     //unanimated retarget reads as a jump).
     private var targetCardFrame: CGRect { flightTargets?.card ?? cardFrame }
     private var targetImageFrame: CGRect { flightTargets?.image ?? imageFrame }
+
+    //A DELIBERATE reflow under the freeze — the confirm swap committed before land() — must
+    //glide the frozen targets to the new layout. Left pinned, the mask holds the stale
+    //send-screen frame while the content reflows beneath it, then jumps to the live frame
+    //in land()'s commit when the freeze drops — the lag-then-snap (device report,
+    //2026-08-16; the Invite button is hittable from the open's first frame, so the swap
+    //can land any time inside the open spring's ~0.65s .removed tail). The 8pt gate keeps
+    //the freeze's actual job: sub-point pager settles mid-flight still never retarget.
+    private func retargetFrozenFlight(card: CGRect? = nil, image: CGRect? = nil) {
+        guard expanded, hasOpened, let targets = flightTargets else { return }
+        if let card, abs(card.height - targets.card.height) > 8 || abs(card.minY - targets.card.minY) > 8 {
+            withAnimation(.transition) { flightTargets?.card = card }
+        }
+        if let image, abs(image.height - targets.image.height) > 8 || abs(image.minY - targets.image.minY) > 8 {
+            withAnimation(.transition) { flightTargets?.image = image }
+        }
+    }
 
     //The carousel's destination frame — height derived from the width and the current aspect,
     //so a confirm-screen swap retargets the flight before the slot finishes measuring.
@@ -832,12 +865,13 @@ private enum InviteDragTuning {
 //slotTop + overshoot(D, v)), which this port pins identically.
 extension SendInviteContainer {
 
-    private var dismissDrag: some Gesture {
+    private func dismissDrag(_ origin: CGPoint) -> some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 if dragAxis == nil {
                     let vertical = abs(value.translation.height) >= abs(value.translation.width)
                     let canBegin = hasFlight && expanded && landed && !springingBack && !ui.isPopupOpen()
+                        && !startsOnActionButton(value.startLocation, origin)
                     if vertical, catchCancelSpring() {
                         //A cancel spring mid-air is catchable — the finger re-owns the card.
                         //Committed dismissals refuse the grab and fly home (the profile's rule).
@@ -848,7 +882,7 @@ extension SendInviteContainer {
                         beginDrag()
                         dragStart = slopOrigin(value.translation) //Zero the recognition slop so the card departs from rest (the profile zeroes its pan)
                     } else {
-                        dragAxis = .horizontal //Voided: horizontal belongs to the pager
+                        dragAxis = .horizontal //Voided for this touch: horizontals belong to the pager, and a press that began on the action button belongs to the button
                     }
                 }
                 guard dragAxis == .vertical, dragging, expanded else { return }
@@ -885,6 +919,18 @@ extension SendInviteContainer {
         let m = max((t.width * t.width + t.height * t.height).squareRoot(), 0.001)
         let s = min(m, 12) / m
         return CGSize(width: t.width * s, height: t.height * s)
+    }
+
+    //The action button owns every touch that lands on it: pressing "Invite <name>" and sliding
+    //off it must not scrub the card away under the finger. Only the touch-DOWN point decides
+    //(startLocation), so the card still drags normally from anywhere else, and a drag already
+    //under way is untouched. Compared in the flight layer's space: the stored rect is a
+    //RESTING measurement, and every earlier term of `canBegin` (landed, !springingBack,
+    //expanded) has already established the card is at rest — pose transforms are identity
+    //there, so the two spaces differ by `origin` alone. An INACTIVE button never takes the
+    //touch, so that area is plain card surface and keeps dragging as before.
+    private func startsOnActionButton(_ start: CGPoint, _ origin: CGPoint) -> Bool {
+        vm.event.isComplete && local(actionButtonHitArea, origin).contains(start)
     }
 
     private func beginDrag() {
@@ -1187,9 +1233,14 @@ extension SendInviteContainer {
                 chromeRaceP = 1 //A throw hand-over: the dive already raced the mask and finished the crop
             }
         }
-        //Done when the envelope is spent (the fitted curves reach ~0.1% at duration; the
-        //physical settle carries a short polynomial tail past it)
-        if elapsed >= flight.springDuration, abs(u) < 0.002 || elapsed >= flight.springDuration * 1.5 {
+        //Done at perceptual rest: sub-1% of the release pose (a few points at most, zeroed
+        //at the handback onto pixel-identical content). The old 0.002 gate was
+        //unsatisfiable at t = duration for the ζ=1 beats — their envelope leaves
+        //u(duration) = e⁻⁶·⁶(1+6.6) ≈ 1.03% by construction — so every arc and
+        //deep-release close silently overran to ~1.28× its settle before showInvite
+        //flipped, stretching the window where the landed card sits input-dead over the
+        //live list (the tap close hands back at .logicallyComplete for the same reason).
+        if elapsed >= flight.springDuration, abs(u) < 0.01 || elapsed >= flight.springDuration * 1.5 {
             #if DEBUG
             print(String(format: "INVITE FLIGHT DONE elapsed=%.3f spring=%.3f cancel=%d",
                          elapsed, flight.springDuration, flight.isCancel ? 1 : 0))
@@ -1217,6 +1268,24 @@ extension SendInviteContainer {
     //MARK: Cancel + catch — the profile's cancelDismiss / catchFlight pair
 
     private func cancelDrag(velocity: CGSize) {
+        //A sub-perceptual pose — a swipey tap that still fired a button — resets on the
+        //plain animation path instead of the flight driver. The driver freezes the
+        //geometry measurements for its whole 0.3s spring (the onGeometryChange guards),
+        //and a confirm swap committed in that window reflows the card under a frozen
+        //mask: the surface visibly lags the content, catching up only at the flight's
+        //finish (device video, 2026-08-16). A single at-rest model write has no per-tick
+        //feedback for the guards to protect against, so measurements stay live and the
+        //swap's reflow reaches the mask in its own commit. MUST precede springingBack:
+        //returning after setting it would strand it true (only finishGestureFlight
+        //clears it) and refuse every future dismiss drag.
+        if dragProgress < 0.04, abs(dragOffset.width) < 8, abs(dragOffset.height) < 8 {
+            dragging = false
+            withAnimation(.transition) {
+                dragProgress = 0
+                dragOffset = .zero
+            }
+            return
+        }
         springingBack = true
         //Toward-target is UPWARD here: −velocity.y over the pose's own displacement back to
         //rest; a downward release floors to 0 so the spring starts from rest
@@ -1397,6 +1466,14 @@ extension SendInviteContainer {
         .opacity(popupDim ? 0.4 : 1)
         .allowsHitTesting(!popupDim)
         .animation(.transition, value: popupDim)
+        //The dismiss drag's stand-down region (startsOnActionButton). Frozen while the finger
+        //or the flight driver owns the card, like every other frame here — the check only ever
+        //reads it at rest, and a posed report would move the region under the next touch.
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
+            guard !dragging, gestureFlight == nil else { return }
+            //Geometry: ScoopButton's expandHitArea margin — the button takes touches that far outside its capsule
+            actionButtonHitArea = newFrame.insetBy(dx: -16, dy: -16)
+        }
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
 
@@ -1564,23 +1641,38 @@ final class InviteZoomPresenter {
         let id: String
         let view: () -> AnyView
         let sourceChrome: () -> AnyView //A copy of the source card's chrome for the flight to fade
+        let sourceNameRect: ((CGRect) -> CGRect)? //Retained so live source updates re-derive the name anchor with the rect
     }
 
     private(set) var slot: Slot?
-    private(set) var source: CGRect = .zero //Frozen source frame of the flight in progress
-    private(set) var sourceName: CGRect = .zero //The resting name's frozen frame — the hero text flight's source anchor
+    private(set) var source: CGRect = .zero //The flight's source anchor: seeded at present(), then riding the cell's live reports for the slot's lifetime
+    private(set) var sourceName: CGRect = .zero //The resting name's frame, re-derived alongside `source` — the hero text flight's source anchor
 
     @ObservationIgnored private var sourceRects: [String: CGRect] = [:]
 
-    func reportSource(id: String, rect: CGRect) { sourceRects[id] = rect }
+    func reportSource(id: String, rect: CGRect) {
+        sourceRects[id] = rect
+        //The live endpoint: while this id's slot is presented, the source anchor tracks the
+        //cell's real geometry — the hidden card still lays out and reports, so the flight
+        //lands wherever the list has scrolled it. Frozen, the overlay sat pinned at the
+        //present()-time rect while the list scrolled beneath it (input passes through once
+        //the backdrop fades), then swapped to the real cell at the handback — the
+        //freeze-then-snap (device video, 2026-08-16). Guarded: a no-flight presentation
+        //(zero seed) stays no-flight, and a same-value write must not invalidate observers.
+        guard let slot, slot.id == id, source.width > 1, rect.width > 1, rect != source else { return }
+        source = rect
+        //DERIVED from the anchor rect, never measured — a measured anchor proved lossy on device
+        let name = slot.sourceNameRect?(rect) ?? .zero
+        if name != sourceName { sourceName = name }
+    }
 
     func present(id: String, sourceChrome: @escaping () -> AnyView, sourceNameRect: ((CGRect) -> CGRect)?, view: @escaping () -> AnyView) {
         if let current = slot, current.id != id { clear(id: current.id) } //Handoff: presenting over a closing card evicts it
         guard slot == nil else { return } //A same-id re-present (a remount's initial onChange) is a no-op
-        source = sourceRects[id] ?? .zero //Freeze the tapped card's frame for this flight
-        //DERIVED from the frozen rect, never measured — a measured anchor proved lossy on device
+        source = sourceRects[id] ?? .zero //Seed from the last report; reportSource keeps it live from here
+        //DERIVED from the anchor rect, never measured — a measured anchor proved lossy on device
         sourceName = source.width > 1 ? (sourceNameRect?(source) ?? .zero) : .zero
-        slot = Slot(id: id, view: view, sourceChrome: sourceChrome)
+        slot = Slot(id: id, view: view, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect)
     }
 
     //Id-guarded so a stale clear can't drop a newer card
@@ -1644,7 +1736,9 @@ extension View {
 
     ///Grows the invite popup out of this image when `isPresented` flips true, and collapses it
     ///back on dismissal. The source view hides while the popup is presented — the flight is the
-    ///card. `sourceChrome` is a copy of the card chrome drawn over the flying image: it must
+    ///card — and the flight's source anchor rides the hidden view's live geometry, so the
+    ///collapse lands on the card wherever a scroll has carried it. `sourceChrome` is a copy of
+    ///the card chrome drawn over the flying image: it must
     ///read the `inviteChrome…` environment drivers to exit over the open and ride the collapse
     ///back in (ProfileCard.cardOverlay is the reference). `sourceNameRect` derives the resting
     ///name's frame from the frozen card rect — the hero text flight's source anchor.

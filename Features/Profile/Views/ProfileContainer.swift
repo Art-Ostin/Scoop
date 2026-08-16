@@ -1,8 +1,6 @@
 import SwiftUI
 
 enum ProfileMode {
-    //`showsSaveButton` is EditProfileContainer's leading lens: it floats over this screen's
-    //top-left, so the title has to step aside for it. Only own-profile can be under it.
     case ownProfile(draft: UserProfile, showsSaveButton: Bool)
     case viewProfile
     case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: () -> Void)
@@ -53,6 +51,7 @@ struct ProfileContainer: View {
                 
                 ProfileImageView(disableScroll: false, images: displayImages, isUserProfile: isUserProfile, selectedIndex: $ui.selectedImageIndex)
                     .task { await vm.loadImagesIfNeeded() }
+                    .overlay(alignment: .topLeading) { declineButton.padding(.bottom, 48) }
 
                 ProfileDetailsView(vm: vm, p: displayProfile, event: vm.event)
             }
@@ -62,8 +61,7 @@ struct ProfileContainer: View {
         .scrollIndicators(.hidden)
         .background(Color.appCanvas)
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
-        .overlay(alignment: .bottomTrailing) { inviteButton }
-        .overlay(alignment: .bottomLeading) { declineButton }
+        .overlay(alignment: .trailing) { inviteButton }
         .overlay { inviteOverlay }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
