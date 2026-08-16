@@ -216,8 +216,10 @@ extension SendInviteContainer {
             .opacity(max(0, Double((1 - chromeMix) * (1 - closeP))))
             .animation(.transition, value: palette) //Extraction lands a frame late — the tint fades in rather than snaps
             //No hit-testing gate: the never-hidden tab bar sits beneath this root-plane overlay,
-            //so input must stay blocked through the whole close flight — the layer unmounting at
-            //completion restores the bar, reproducing the old .hideTabBar guarantee
+            //and the material blocks it while visible. Once the fade reaches ~0 (a landed
+            //close), input DOES pass through to the list and bar beneath (device recording,
+            //2026-08-14) — which is why the close handback fires at .logicallyComplete: the
+            //overlay must become the real list card the moment the spring perceptually rests.
     }
 
     private var flightCard: some View {
@@ -721,10 +723,16 @@ extension SendInviteContainer {
     //frames, 2026-08-13.) The hop keeps the close's committed from-pose. The spring's small
     //overshoot extrapolates closeP past 1 — the card dips through the slot and expands back.
     //Gesture releases never come here: they fly the ported profile machine (routeRelease).
+    //
+    //.logicallyComplete, NOT .removed: the handback (showInvite = false → the overlay unmounts
+    //and the REAL list card reappears in the same commit) must land at the spring's perceptual
+    //rest. .removed waits out the interpolating spring's full physical tail (~1s of sub-1%
+    //motion), and the faded backdrop no longer blocks input there — the list scrolled under a
+    //landed copy pinned at its frozen frame (device recording, 2026-08-14).
     private func launchCloseFlight() {
         Task { @MainActor in
             withAnimation(Self.chromeRace) { blurCover = 0 } //The glur layers leave before the collapse needs its frames
-            withAnimation(.interpolatingSpring(Self.settleFlight, initialVelocity: 0), completionCriteria: .removed) {
+            withAnimation(.interpolatingSpring(Self.settleFlight, initialVelocity: 0), completionCriteria: .logicallyComplete) {
                 closeP = 1
                 chromeRaceP = 1
             } completion: {
@@ -794,6 +802,18 @@ private enum InviteDragTuning {
     /// Momentum-projected coast (≈0.5·velocity) past this commits a modest-travel flick
     /// (profile: 90) — a release moving ≥ ~120pt/s commits instead of ~180.
     static let flickFloor: CGFloat = 60
+    /// The arc's overshoot velocity band, invite scale (profile: 300…3000, blend steep 4 —
+    /// a band that pins every realistic invite flick to the gentle edge, so the dive read
+    /// as one fixed ~57pt depth). A commit-worthy flick starts deepening immediately and a
+    /// genuinely hard card flick reaches the full hard edge; the near-linear blend spreads
+    /// the ramp across the band instead of hoarding it at the top.
+    static let arcFlickFloor: CGFloat = 120
+    static let arcFlickCeil: CGFloat = 1400
+    static let arcFlickBlendSteep: CGFloat = 1.5
+    /// Releases slower than this morph straight in with no arc (profile: 250). Set AT the
+    /// flick-commit floor: any release that commits with real motion earns the dive; only
+    /// still let-gos (distance commits) keep the calm morph.
+    static let arcSlowMorphCeil: CGFloat = 120
 }
 
 //MARK: Interactive dismiss — ProfileZoom's gesture dismissal, ported exactly
@@ -910,7 +930,10 @@ extension SendInviteContainer {
         #if DEBUG
         print(String(format: "INVITE RELEASE minY=%.1f vy=%.0f overshoot=%.1f",
                      sourceFrame.minY, v.height,
-                     DragTuning.arcOvershoot(destinationTop: sourceFrame.minY, velocity: v.height)))
+                     DragTuning.arcOvershoot(destinationTop: sourceFrame.minY, velocity: v.height,
+                                             flickFloor: InviteDragTuning.arcFlickFloor,
+                                             flickCeil: InviteDragTuning.arcFlickCeil,
+                                             blendSteep: InviteDragTuning.arcFlickBlendSteep)))
         #endif
         if sourceFrame.minY < DragTuning.arcCutoffY {
             runArc(translation: t, velocity: v)
@@ -930,7 +953,7 @@ extension SendInviteContainer {
     //already at/past the pivot plays the climb alone; otherwise the ghost finger dives the
     //drag rule to the pivot and the physical spring takes the card up from rest.
     private func runArc(translation t: CGSize, velocity v: CGSize) {
-        if v.height < DragTuning.arcSlowMorphCeil {
+        if v.height < InviteDragTuning.arcSlowMorphCeil {
             //A drag let go, not a flick: the calm slow morph, its mask race spanning its
             //share of the flight instead of the quick openness-scaled race
             startSpring(duration: DragTuning.arcSlowMorphDuration, zeta: DragTuning.bounceDamping,
@@ -939,7 +962,10 @@ extension SendInviteContainer {
             return
         }
         let D = sourceFrame.minY
-        let overshootRaw = DragTuning.arcOvershoot(destinationTop: D, velocity: v.height)
+        let overshootRaw = DragTuning.arcOvershoot(destinationTop: D, velocity: v.height,
+                                                   flickFloor: InviteDragTuning.arcFlickFloor,
+                                                   flickCeil: InviteDragTuning.arcFlickCeil,
+                                                   blendSteep: InviteDragTuning.arcFlickBlendSteep)
         //The pivot pose's card: the flight crop at SOURCE aspect (scrubbed complete by the
         //pivot), deep-scaled — the profile's exact formula (heroWidth·sourceAspect·minScale).
         //The pivot anchors to the destination ON SCREEN so above-screen slots keep the arc.

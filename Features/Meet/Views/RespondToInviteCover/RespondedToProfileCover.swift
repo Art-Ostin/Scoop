@@ -65,19 +65,11 @@ struct RespondedToProfileCover: View {
         VStack(alignment: .center, spacing: Spacing.xl) {
             switch responseType {
             case .accepted:
-                Image("DancingCats")
-                Text("Accepted")
-                    .font(.body(16, .bold))
-                    .foregroundStyle(Color.successGreen)
+                AcceptInviteCard()
             case .newTime:
-                Image("DancingCats")
-                Text("NEW TIME SENT")
-                    .font(.body(16, .bold))
-                    .foregroundStyle(Color.accent)
+               AcceptInviteCard()
             case .newInvite:
-                Image("CoolGuys")
-                Text("Invite Sent")
-                    .font(.body(16, .bold))
+                AcceptInviteCard()
             case .decline:
                 DeclineOverlay()
             }

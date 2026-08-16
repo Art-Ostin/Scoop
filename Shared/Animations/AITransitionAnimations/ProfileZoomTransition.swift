@@ -1244,7 +1244,14 @@ enum DragTuning {
     /// workable window on gentle dives; the settle absorbs the remainder.
     static let arcMinDiveShare: TimeInterval = 0.4
 
-    static func arcOvershoot(destinationTop D: CGFloat, velocity vy: CGFloat) -> CGFloat {
+    /// The flick band (floor/ceil/blendSteep) is parameterized so a smaller surface can pass
+    /// its own velocity scale — the invite card's natural flicks live far below the profile's
+    /// 300…3000pt/s band, which pins its dives to the gentle edge. Defaults reproduce the
+    /// profile's blend exactly; the D-shapes (edges, cliff, cap) are never caller-tunable.
+    static func arcOvershoot(destinationTop D: CGFloat, velocity vy: CGFloat,
+                             flickFloor: CGFloat = arcFlickFloor,
+                             flickCeil: CGFloat = arcFlickCeil,
+                             blendSteep: CGFloat = arcFlickBlendSteep) -> CGFloat {
         func edge(_ plateau: CGFloat, _ shelf: CGFloat,
                   _ mid: CGFloat, _ steep: CGFloat, _ endHold: CGFloat) -> CGFloat {
             let sigmoid = 1 / (1 + exp((D - mid) / steep))
@@ -1252,8 +1259,8 @@ enum DragTuning {
             let cliff = c * c * (3 - 2 * c)
             return endHold + ((shelf + (plateau - shelf) * sigmoid) - endHold) * cliff
         }
-        let f = min(max((vy - arcFlickFloor) / (arcFlickCeil - arcFlickFloor), 0), 1)
-        let flick = (exp(arcFlickBlendSteep * f) - 1) / (exp(arcFlickBlendSteep) - 1)
+        let f = min(max((vy - flickFloor) / (flickCeil - flickFloor), 0), 1)
+        let flick = (exp(blendSteep * f) - 1) / (exp(blendSteep) - 1)
         let gentle: CGFloat
         if D > 0 && D < arcGentleJoin {
             let sig1 = 1 / (1 + exp((arcGentleJoin - arcGentleMid) / arcGentleSteep))

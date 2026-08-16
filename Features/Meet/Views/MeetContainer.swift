@@ -80,7 +80,7 @@ extension MeetContainer {
     
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
         //Step 1: Minimum time the cover stays on screen
-        async let minDelay: Void = Task.sleep(for: .milliseconds(1800))
+        async let minDelay: Void = Task.sleep(for: .seconds(3.5))
         
         //Step 2: Fade the response cover in on the root plane, above the tab bar
         let cover = responseCover?.show(event == nil ? .decline : .newInvite)
