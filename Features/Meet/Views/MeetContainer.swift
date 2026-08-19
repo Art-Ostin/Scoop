@@ -64,8 +64,8 @@ extension MeetContainer {
     private func inviteMode(for profile: UserProfile) -> ProfileMode {
         return .sendInvite { draft in
             Task {await respondToProfile(event: draft, profile: profile)}
-        } onDecline: {
-            Task { await respondToProfile(profile: profile) }
+        } onDecline: { declineSource in
+            Task { await respondToProfile(profile: profile, declineSource: declineSource) }
         }
     }
     
@@ -78,15 +78,16 @@ extension MeetContainer {
     }
     
     
-    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile) async {
+    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile, declineSource: CGRect? = nil) async {
         //Step 1: Minimum time the cover stays on screen
-        async let minDelay: Void = Task.sleep(for: .seconds(3.5))
-        
-        //Step 2: Fade the response cover in on the root plane, above the tab bar
-        let cover = responseCover?.show(event == nil ? .decline : .newInvite)
+        async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(2.2) : .seconds(3.5))
 
-        //Step 3: Once the cover is opaque, dismiss the quick invite beneath it
-        try? await Task.sleep(for: .milliseconds(400))
+        //Step 2: Fade the response cover in on the root plane, above the tab bar
+        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource)
+
+        //Step 3: Once the cover is opaque, dismiss the quick invite beneath it. Held past the
+        //cover's own fade-in — dismissing mid-morph shows the profile collapsing through it.
+        try? await Task.sleep(for: .milliseconds(650))
         ui.showInvite = nil
 
         //Step 4: Actually send invite or decline profile

@@ -70,4 +70,10 @@ enum ProfileViewType {
     //Current page of the header image pager — Quick Invite opens on this image.
     var selectedImageIndex: Int = 0
     var showInvite: Bool = false
+
+    //Set on the decline tap: the response cover's flying cross takes over from the button's icon
+    var didDecline: Bool = false
+
+    //The decline button's resting global frame — the launch pad the cover's cross leaps from
+    var declineButtonFrame: CGRect = .zero
 }

@@ -61,14 +61,18 @@ extension ProfileContainer {
         if vm.viewProfileType == .invite {
             DeclineButton {
                 if case .sendInvite(_, let onDecline) = mode {
+                    ui.didDecline = true //The cover's flying cross takes over from the icon
                     zoomDismiss()
-                    onDecline()
+                    onDecline(ui.declineButtonFrame)
                 }
+            }
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                ui.declineButtonFrame = $0
             }
             .padding(.horizontal, Spacing.margin)
             .padding(.bottom, Spacing.xs)
-            .opacity(ui.showInvite ? 0 : 1)
-            .allowsHitTesting(!ui.showInvite)
+            .opacity(ui.showInvite || ui.didDecline ? 0 : 1)
+            .allowsHitTesting(!ui.showInvite && !ui.didDecline)
         }
     }
 }
@@ -80,7 +84,7 @@ extension ProfileContainer {
         if case .sendInvite(let onSend, _) = mode { onSend } else { nil }
     }
 
-    private var onDeclineProfile: (() -> Void)? {
+    private var onDeclineProfile: ((CGRect?) -> Void)? {
         if case .sendInvite(_, let onDecline) = mode { onDecline } else { nil }
     }
 
@@ -114,7 +118,7 @@ extension ProfileContainer {
                 declineProfile: {
                     ui.showInvite = false
                     zoomDismiss()
-                    onDecline()
+                    onDecline(nil) //No measured launch pad — the popup's decline sits far from the button
                 }
             )
         }

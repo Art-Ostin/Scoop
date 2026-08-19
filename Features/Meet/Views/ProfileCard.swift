@@ -201,7 +201,7 @@ extension ProfileCard {
                 showInvite: ui.showInviteBinding(profile: profile),
                 vm: TimeAndPlaceViewModel(profileId: profile.profile.id, defaults: vm.defaults),
                 onSendInvite: onSend,
-                declineProfile: onDecline
+                declineProfile: { onDecline(nil) } //No measured launch pad from the card's popup
             )
         }
     }

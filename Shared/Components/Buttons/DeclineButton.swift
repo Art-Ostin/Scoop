@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct DeclineButton: View {
+    //The icon's rendered size — DeclineChoreo launches its flying cross at exactly this size
+    static let iconSize: CGFloat = 28
+
     private let image = "DeclineIconBlack"
     let onTap: () -> Void
 
@@ -19,7 +22,7 @@ struct DeclineButton: View {
 //                .font(.body(18, .bold))
             Image(image)
                 .resizable()
-                .frame(width: 27, height: 27)
+                .frame(width: Self.iconSize, height: Self.iconSize)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
                 .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 0)
         }

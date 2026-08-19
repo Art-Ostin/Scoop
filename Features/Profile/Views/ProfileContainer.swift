@@ -3,7 +3,9 @@ import SwiftUI
 enum ProfileMode {
     case ownProfile(draft: UserProfile, showsSaveButton: Bool)
     case viewProfile
-    case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: () -> Void)
+    //onDecline carries the decline button's global frame when the tap had one to measure —
+    //the response cover's cross launches from it (nil launches from the cover's fallback spot)
+    case sendInvite(onSend: (EventFieldsDraft) -> Void, onDecline: (CGRect?) -> Void)
     case respondToInvite(respondVM: RespondViewModel, onResponse: (ProfileResponse) -> Void)
 }
 
@@ -51,7 +53,6 @@ struct ProfileContainer: View {
                 
                 ProfileImageView(disableScroll: false, images: displayImages, isUserProfile: isUserProfile, selectedIndex: $ui.selectedImageIndex)
                     .task { await vm.loadImagesIfNeeded() }
-                    .overlay(alignment: .topLeading) { declineButton.padding(.bottom, 48) }
 
                 ProfileDetailsView(vm: vm, p: displayProfile, event: vm.event)
             }
@@ -62,6 +63,7 @@ struct ProfileContainer: View {
         .background(Color.appCanvas)
         .onAppear { if isUserProfile { vm.viewProfileType = .view } }
         .overlay(alignment: .trailing) { inviteButton }
+        .overlay(alignment: .leading) { declineButton }
         .overlay { inviteOverlay }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }

@@ -244,6 +244,7 @@
 		65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */; };
 		65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D978B02FD4340F00C22646 /* InviteCard.swift */; };
 		65DE8F12301B428A00E74D26 /* InviteCardShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE8F11301B428A00E74D26 /* InviteCardShell.swift */; };
+		65E0F1573035794F00D0D1B8 /* BlurCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E0F1563035794F00D0D1B8 /* BlurCover.swift */; };
 		65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */; };
 		65E1EC9F2F19706D004C9236 /* PinchZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1EC9E2F19706D004C9236 /* PinchZoom.swift */; };
 		65E1ECC12F1A4872004C9236 /* ProfileImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */; };
@@ -541,6 +542,7 @@
 		65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPressStyle.swift; sourceTree = "<group>"; };
 		65D978B02FD4340F00C22646 /* InviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCard.swift; sourceTree = "<group>"; };
 		65DE8F11301B428A00E74D26 /* InviteCardShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardShell.swift; sourceTree = "<group>"; };
+		65E0F1563035794F00D0D1B8 /* BlurCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurCover.swift; sourceTree = "<group>"; };
 		65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimeCell.swift; sourceTree = "<group>"; };
 		65E1EC9E2F19706D004C9236 /* PinchZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinchZoom.swift; sourceTree = "<group>"; };
 		65E1ECC02F1A4872004C9236 /* ProfileImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageEditor.swift; sourceTree = "<group>"; };
@@ -1369,6 +1371,7 @@
 				65E963D52F3F7C090022595F /* RespondedToProfileCover.swift */,
 				65809984302E2692006D1A9D /* DeclineScreen.swift */,
 				65809986302E3884006D1A9D /* AcceptInviteOverlay.swift */,
+				65E0F1563035794F00D0D1B8 /* BlurCover.swift */,
 			);
 			path = RespondToInviteCover;
 			sourceTree = "<group>";
@@ -1762,6 +1765,7 @@
 				657486DE2FA8F80900F38738 /* TimeAndPlaceScreens.swift in Sources */,
 				65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */,
 				651702DE2FCEB14500CB0D3E /* ButtonSizing.swift in Sources */,
+				65E0F1573035794F00D0D1B8 /* BlurCover.swift in Sources */,
 				651975862F1EF2DB0002F6A2 /* LoadingScreen.swift in Sources */,
 				6509DDC32E36F6EE0042917B /* EditOption.swift in Sources */,
 				65A4ADDB300BF4CA0074B2C8 /* DominantColorExtractor.swift in Sources */,

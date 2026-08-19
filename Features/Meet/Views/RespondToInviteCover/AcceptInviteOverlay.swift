@@ -49,9 +49,6 @@ struct AcceptInviteCard: View {
                     .modifier(BackfaceCulled(angle: angle))
             }
             .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.1)
-            //Leaves last, still rising on the axis it arrived on — the entrance's momentum
-            //carried through rather than rewound. Keyed to `closing` only, so the entrance
-            //springs driving scale/lift are untouched.
             .scaleEffect(scale * (closing ? ResponseCoverExit.endScale : 1))
             .offset(y: lift + (closing ? ResponseCoverExit.riseTravel : 0))
             .opacity(closing ? 0 : 1)
@@ -63,7 +60,7 @@ struct AcceptInviteCard: View {
                 .font(.title(32, .bold))
                 .multilineTextAlignment(.center)
                 .opacity(landed && !closing ? 1 : 0)
-                .offset(y: landed ? (closing ? Spacing.xs : 0) : Spacing.sm)
+                .offset(y: landed ? (closing ? Spacing.xs : 0) : ResponseCoverEntrance.titleRise)
                 .animation(ResponseCoverExit.title, value: closing)
         }
     }
@@ -83,7 +80,7 @@ extension AcceptInviteCard {
         static var spinDegrees: Double { spinTurns * 360 } //Multiple of 360 by construction: always lands facing front
         static var coinSpin: Animation { .spring(duration: 0.7 + 0.2 * spinTurns, bounce: 0.15) } //Bounce ≤ 0.15: the ~4.5° over-rotation is invisible at perspective 0.1 — settle physics for the beat, not a visible wobble
         static let coinLanding = Animation.spring(duration: 1.2, bounce: 0.3) //Shared by scale + lift so the pop and the vertical catch are one beat
-        static let reveal = Animation.spring(duration: 0.5, bounce: 0)
+        static let reveal = ResponseCoverEntrance.titleReveal
         static let startScale: CGFloat = 0.6
         static let liftTravel = Spacing.xxxl
         static let commitGuard: Duration = .milliseconds(30) //One rendered frame so the start pose is committed — a flip fired inside an in-flight parent transaction snaps to destination
@@ -129,10 +126,12 @@ extension AcceptInviteCard {
 }
 
 
-//Landing buzz: a thunk plus a rumble whose decay matches the springs' settle window
+//Landing buzz: a thunk plus a rumble whose decay matches the springs' settle window, and a
+//scheduled tap series for choreographies that land on more than one beat
 @MainActor
 final class LandingBuzz {
     private var engine: CHHapticEngine?
+    private var scheduled: CHHapticPatternPlayer?
 
     //Call ahead of the beat — a cold engine start adds latency or drops the first pattern
     func prepare() {
@@ -162,6 +161,27 @@ final class LandingBuzz {
               let pattern = try? CHHapticPattern(events: [thunk, rumble], parameterCurves: [decay]),
               let player = try? engine.makePlayer(with: pattern) else { return }
         try? player.start(atTime: CHHapticTimeImmediate)
+    }
+
+    func playImpacts(_ impacts: [(time: Double, intensity: Float, sharpness: Float)]) {
+        let events = impacts.map {
+            CHHapticEvent(eventType: .hapticTransient, parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: $0.intensity),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: $0.sharpness)
+            ], relativeTime: $0.time)
+        }
+
+        guard let engine,
+              let pattern = try? CHHapticPattern(events: events, parameters: []),
+              let player = try? engine.makePlayer(with: pattern) else { return }
+        scheduled = player
+        try? player.start(atTime: CHHapticTimeImmediate)
+    }
+
+    //A dismissal mid-flight takes the taps still sitting on the schedule with it
+    func stop() {
+        try? scheduled?.stop(atTime: CHHapticTimeImmediate)
+        scheduled = nil
     }
 }
 
