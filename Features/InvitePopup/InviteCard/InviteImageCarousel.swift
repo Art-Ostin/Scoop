@@ -204,9 +204,6 @@ extension InviteImageCarousel {
         .chromeItem(visible: chrome.title && chromeVisible, fade: chromeOpacity)
     }
 
-    ///The send-screen title's word frames inside a `size` slot — the halo bake's anchors,
-    ///derived from the same constants and font the live title lays out with, so the baked
-    ///halo and the live BackgroundBlur (which uses the getRect-measured frames) coincide
     static func titleFrames(name: String, in size: CGSize) -> [CGRect] {
         let font = UIFont.title(22)
         let inviteSize = ("Invite" as NSString).size(withAttributes: [.font: font])
@@ -220,7 +217,6 @@ extension InviteImageCarousel {
     }
 
     //The name's slot from LAYOUT sizes + the title's own constants — never from measured
-    //positions (model-valued mid-flight) and never from getRect frames (scaled by the pop)
     private func publishNameSlot() {
         guard let titleNameSlot, titleNameSize.width > 0, inviteWordWidth > 0 else { return }
         titleNameSlot.wrappedValue = CGRect(

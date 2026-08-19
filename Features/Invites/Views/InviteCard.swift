@@ -78,9 +78,6 @@ extension InviteSlot {
             .overlay(alignment: .bottomLeading) {
                 inviteOverlay
             }
-            //The overlay's pager parks its message page a card-width to the side and never clips it
-            //(ConfirmTimeAndPlace is .scrollClipDisabled), so the chrome must be clipped to the card
-            //itself — blurAndColour's own clipShape sits under the overlay and can't reach it
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }

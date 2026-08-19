@@ -31,7 +31,7 @@ enum ConfirmStyle {
     var rowSpacing: CGFloat { isCard ? 26 : 26}
     var rowsBottomPadding: CGFloat { isCard ? 0 : 18} //Below the place row: popup → warning; the card insets at container level instead
     var bottomPadding: CGFloat { isCard ? 0 : 12} //Below the section: card → card bottom, popup → action button
-    var iconRowSpacing: CGFloat { isCard ? Spacing.sm : Spacing.lg}
+    var iconRowSpacing: CGFloat { isCard ? Spacing.xs : Spacing.sm } //Card tightens to 8; popups keep the 12 they render today
     var timeAndPlaceSizing: CGFloat { isCard ? 20 : 19 }
     
     //Only a popup shows these

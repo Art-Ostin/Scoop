@@ -1453,7 +1453,7 @@ extension SendInviteContainer {
     //Smooth impercetible hiding when popup open
     private var actionButton: some View {
         let isConfirming = ui.showConfirmScreen == true
-        let buttonText = isConfirming ? "Send to \(name)" : "Invite \(name)"
+        let buttonText = isConfirming ? "Send to \(name)" : "Preview"
         let popupDim = !isConfirming && ui.isPopupOpenDelayed()
 
         return WideActionButton(text: buttonText, isActive: vm.event.isComplete, isDimmed: popupDim, showShadow: false) {

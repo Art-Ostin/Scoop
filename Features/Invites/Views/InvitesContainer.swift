@@ -98,7 +98,7 @@ extension InvitesContainer {
     //This deals with holding the respond screen cover & dismissing invitePopup behind
     private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse, cover: Int?) async {
         //Step 1: Minimum time the cover stays on screen. Decline holds longer — the cross
-        //choreography (1.15s of flight) must land and settle before the exit begins.
+        //choreography (~1.2s clock to the finish's end) must land before the exit begins.
         async let minDelay: Void = Task.sleep(for: respondType == .decline ? .seconds(2) : .milliseconds(850))
 
         //Step 2: After 0.2s, dismiss the profile & invite popups beneath the respond cover

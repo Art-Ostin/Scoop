@@ -123,10 +123,10 @@ extension View {
 }
 
 extension View {
-    func oneLineLimitAndShrink() -> some View {
+    func oneLineLimitAndShrink(minimum: CGFloat = 0.7) -> some View {
         self
             .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            .minimumScaleFactor(minimum)
             .allowsTightening(true)
     }
 }

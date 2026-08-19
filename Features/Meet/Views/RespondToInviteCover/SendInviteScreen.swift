@@ -66,10 +66,6 @@ struct SendInviteScreen: View {
         GeometryReader { geo in
             let center = CGPoint(x: geo.size.width / 2, y: geo.size.height / 2)
             let rect = imageRect(in: geo)
-            //The halo (glow + glass ring) RIDES the image: hidden inscribed behind it at the
-            //source, growing out past its shrinking edges on the same spring, landing as the
-            //resting 25pt annulus. Scale + position transforms only — a glass lens whose
-            //FRAME animates re-renders every frame and tanks the device to ~15fps.
             let haloSettled = atRest || arrived
             let haloCenter = haloSettled ? center : CGPoint(x: rect.midX, y: rect.midY)
             let haloScale = haloSettled ? 1 : min(rect.width, rect.height) / Self.ringSize

@@ -121,12 +121,11 @@ struct PlaceRow: View {
 
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
-        //A Button, never `.shrinkPress`: its zero-distance DragGesture would beat the invite
-        //pager's pan and eat every horizontal drag begun on this row. A ButtonStyle press is
-        //driven by `isPressed`, which the scroll cancels — same shrink, pan left alone.
         Button(action: openMap) {
             LineSection(image: style.mapIcon, text: placeName, style: style)
                 .padding(.vertical, Spacing.xs)
+                .padding(.trailing, style == .card ? 72 : 0) //On Card add trailing padding as Invite Button is an overlay
+                .oneLineLimitAndShrink(minimum: 0.8)
         }
         .shrinkButton()
         .padding(.vertical, -Spacing.xs)
@@ -146,7 +145,7 @@ struct LineSection: View {
     
     
     var body: some View {
-        HStack(spacing:  ConfirmStyle.card.iconRowSpacing) {
+        HStack(spacing: style.iconRowSpacing) {
             Image(image)
                 .renderingMode(style.iconRendering)
                 .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to

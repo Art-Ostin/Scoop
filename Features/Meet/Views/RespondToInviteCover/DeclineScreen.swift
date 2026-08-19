@@ -9,9 +9,10 @@ import SwiftUI
 
 /*
  The cross is the decline button's own icon made big: it launches from the button's measured
- frame, leaps up while growing to full size, and bounces into place. The beats are lifted
- frame-accurate from the retired declined.mov (impacts at 0.48 / 0.82 / 1.03s), one restitution
- family — every hop is a true parabola under a single gravity, so the whole flight derives
+ frame, leaps up while growing, bounces down its restitution ladder a touch low and small,
+ and rises into its final pose. The beats are anchored on the
+ retired declined.mov's first two impacts (0.48 / 0.82 at tempo 1), one restitution family —
+ every hop is a true parabola under a single gravity, so the whole flight derives
  from one bounce height. Measured choreography: the curves live here, never in the motion roles.
  */
 struct DeclineOverlay: View {
@@ -139,21 +140,49 @@ enum DeclineChoreo {
     static let showsTitle = false
 
     /*
-     Beats in seconds on the keyframe clock, taken at `tempo`. The launch and first bounce are
-     lifted from the retired video; the tail was A/B-retuned (2026-08-19) to a CONSTANT 0.70
-     restitution — each hop's gap is 0.70× the previous, so each bounce keeps the same fraction
-     of its height (70 → 34 → 17pt), the decay a real object has. The video's own ladder
-     (0.62/0.57) compressed at this tempo into a stutter, and an uneven ladder (0.75/0.55)
-     read as the object suddenly dying on its last hop. Heights always derive from gap *ratios*
-     (see ratioSq), so any beat choice stays one gravity family — keep the ladder constant,
-     and repace the whole flight only through `tempo`.
+     Beats in seconds on the keyframe clock, taken at `tempo`. impact1 and the first bounce
+     gap are the anchors lifted from the retired video; the tail derives as a CONSTANT
+     `restitution` ladder — each hop's gap is that fraction of the previous, so each bounce
+     keeps the same fraction of its height, the decay of one real material. Three hops
+     (70 → 39 → 22pt), then the arrival absorb hands into the rise-into-place finish —
+     Arthur's spec (2026-08-19): "spin to the position, bounce down getting smaller, then at
+     the end scale up a bit and move up a bit, about three bounces". A 4-hop tail with a
+     physics-consistent first impact was built and rejected the same day: longer than it
+     reads, and the violent first fall it required upstaged the bounces. Earlier A/B ground:
+     the video's uneven ladder (0.62/0.57) stuttered, 0.70 read overdamped, 0.78 × 3 died
+     abruptly with no finish. Heights always derive from gap *ratios* (see ratioSq), so any
+     beat choice stays one gravity family — keep the ladder constant, and repace the whole
+     flight only through `tempo`.
      */
-    static let tempo = 0.72
-    static let riseEnd = 0.30 * tempo
+    /*
+     Sim capture only: `-declineTimeScale N` slows every beat, squash window and haptic
+     offset N× shape-preservingly — heights derive from gap ratios, so the arcs are
+     identical, the same flight under 1/N² gravity. Release builds always run at 1×.
+     */
+    #if DEBUG
+    static let timeScale: Double = {
+        let v = UserDefaults.standard.double(forKey: "declineTimeScale")
+        return v > 0 ? v : 1
+    }()
+    #else
+    static let timeScale = 1.0
+    #endif
+
+    static let tempo = 0.72 * timeScale
+    static let restitution = 0.75
     static let impact1 = 0.48 * tempo
-    static let impact2 = 0.82 * tempo
-    static let impact3 = (0.82 + 0.34 * 0.70) * tempo
-    static let rest = (0.82 + 0.34 * 0.70 + 0.34 * 0.70 * 0.70) * tempo
+    static let bounceGap = 0.34 * tempo //Bounce 1's beat gap — the family's anchor
+    static let impact2 = impact1 + bounceGap
+    static let impact3 = impact2 + bounceGap * restitution
+    static let rest = impact3 + bounceGap * restitution * restitution
+    /*
+     Hand-set, deliberately OUTSIDE the restitution family: the leap is an authored arrival —
+     the icon flying to its position — not a free-falling object. Deriving riseEnd so the
+     first impact matched the ladder (tried 2026-08-19) forced a 124pt apex and a 1.5× faster
+     fall, and it read as the cross hurling itself down. The gentle 78pt fall keeps the launch
+     graceful; the ladder only has to hold BETWEEN the bounces, where the eye actually checks.
+     */
+    static let riseEnd = 0.30 * tempo
 
     //One gravity ties every arc to the beats: heights follow h ∝ gap², so the later
     //bounces and the leap's fall all derive from the first bounce's height
@@ -162,8 +191,8 @@ enum DeclineChoreo {
     static let bounce3Height: CGFloat = bounce1Height * ratioSq(rest - impact3)
     static let leapDrop: CGFloat = 4 * bounce1Height * ratioSq(impact1 - riseEnd)
 
-    //The resting cross sits dead-centre: its bottom edge — the flight's contact point —
-    //lands half a cross below the screen's midline
+    //The FINAL cross sits dead-centre: its bottom edge lands half a cross below the screen's
+    //midline. The bounces contact `riseIn` below that line — the finish rises up into it.
     static func restBottom(in size: CGSize) -> CGFloat { (size.height + finalSize) / 2 }
 
     /*
@@ -181,7 +210,8 @@ enum DeclineChoreo {
     //The clock has to outlive whatever runs longest on it: the flight plus its settle absorb,
     //and — when the caption shows — its reveal, which starts at impact1 and does NOT scale
     //with tempo. Without this guard a low enough tempo would silently truncate a tail mid-play.
-    static let clockEnd = max(rest + settleWindow, showsTitle ? impact1 + titleReveal : 0) + 0.05
+    static let clockEnd = max(riseInStart + riseInDur, rest + settleWindow,
+                              showsTitle ? impact1 + titleReveal : 0) + 0.05
     static let finalSize: CGFloat = 150
     static let iconSize: CGFloat = DeclineButton.iconSize //The launch size — the button's icon, exactly
     static let fallbackLaunchFraction: CGFloat = 0.78
@@ -194,19 +224,37 @@ enum DeclineChoreo {
     static let titleReveal = 0.5
 
     /*
-     Bottom-anchored impact squash. Deformation is a floor phenomenon: each recovery window is
-     capped to end early in the following hop, so the cross never rides the air half-squashed —
-     the old fixed window spent two-thirds of the smallest hop still recovering. The final
-     touch-down gets its own soft absorb over `settleWindow`: without it the cross arrives at
-     landing speed and freezes dead, which read as an abrupt stop.
+     Bottom-anchored impact squash, applied only AFTER contact. A window straddling the beat
+     was tried (2026-08-19) to put peak compression on the contact frame, but its pre-contact
+     half stacked the collapse on top of gravity — the falls read as the cross being yanked
+     into the floor. Now each impact compresses over a ~one-frame `squashAttack` (peak still
+     lands essentially on the contact frame — none of the original start-at-the-beat lag,
+     whose slow rise drifted the peak ~29ms into the rebound) and relaxes over the rest of
+     its window, capped to end early in the following hop so the cross never rides the air
+     half-squashed. Depths follow the impact-energy family (×e² per hop). The final
+     touch-down keeps its symmetric, slower absorb over `settleWindow` — a soft catch, not a
+     hit — the last visible motion of the flight.
      */
-    static let settleWindow = 0.06
+    static let settleWindow = 0.08 * timeScale
+    static let squashAttack = 0.016 * timeScale //~one frame: hit now, be flattest now
     static let squashDepths: [(beat: Double, depth: CGFloat, window: Double)] = [
         (impact1, 0.20, min(0.08 * tempo, 0.4 * (impact2 - impact1))),
-        (impact2, 0.12, min(0.08 * tempo, 0.4 * (impact3 - impact2))),
-        (impact3, 0.07, min(0.08 * tempo, 0.4 * (rest - impact3))),
-        (rest, 0.03, settleWindow),
+        (impact2, 0.11, min(0.08 * tempo, 0.4 * (impact3 - impact2))),
+        (impact3, 0.06, min(0.08 * tempo, 0.4 * (rest - impact3))),
+        (rest, 0.04, settleWindow),
     ]
+
+    /*
+     The finish (Arthur's spec, 2026-08-19): the flight and first bounces play `riseIn` low
+     at `bounceScale` size, and the resolution is WOVEN INTO the last hop — across
+     [impact3, rest] the floor eases up to the resting line while the cross grows to full
+     size, so the third bounce lands dead-centre, absorbs, and is done. The first cut
+     appended the rise AFTER the landing (40ms hold, then 8pt up over 0.19s) — two upward
+     moves that close together merged into a yank that never came back down. The end of the
+     bouncing must be the end of the motion.
+     */
+    static let riseIn: CGFloat = 8
+    static let bounceScale: CGFloat = 0.96
 
     //The buzz is the same event as the squash — one impact table, energy carried by depth, so a
     //retuned bounce can't leave the haptic behind. Sharper than the accept card's settling
@@ -220,7 +268,11 @@ enum DeclineChoreo {
     static func pose(at t: Double, launch: CGRect, in size: CGSize) -> Pose {
         let floor = restBottom(in: size)
         let startScale = iconSize / finalSize
-        let scale = startScale + (1 - startScale) * easeOut(t / impact1)
+        //Growth ends at the apex, not the first impact: a cross still inflating while it
+        //falls reads as motion toward the camera, which fights the drop — the fall is
+        //pure translation. It grows only to `bounceScale`; the finish supplies the rest.
+        let scale = startScale + (bounceScale - startScale) * easeOut(t / riseEnd)
+                  + (1 - bounceScale) * easeInOut((t - riseInStart) / riseInDur)
         let squash = squashFactor(at: t)
         return Pose(
             bottom: bottom(at: t, from: launch.maxY, floor: floor),
@@ -233,28 +285,41 @@ enum DeclineChoreo {
         )
     }
 
-    //The flight path of the contact point: decelerating leap, free fall, parabolic hops
+    //The flight path of the contact point: decelerating leap, free fall, parabolic hops on
+    //the low bounce floor, then the finish rises the last `riseIn` into the resting line
     private static func bottom(at t: Double, from start: CGFloat, floor: CGFloat) -> CGFloat {
-        let apex = floor - leapDrop
+        let bounceFloor = floor + riseIn
+        let apex = bounceFloor - leapDrop
         switch t {
         case ..<riseEnd:
             return start + (apex - start) * easeOut(t / riseEnd)
         case ..<impact1:
             return apex + leapDrop * easeIn((t - riseEnd) / (impact1 - riseEnd))
         case ..<impact2:
-            return floor - bounce1Height * hop((t - impact1) / (impact2 - impact1))
+            return bounceFloor - bounce1Height * hop((t - impact1) / (impact2 - impact1))
         case ..<impact3:
-            return floor - bounce2Height * hop((t - impact2) / (impact3 - impact2))
+            return bounceFloor - bounce2Height * hop((t - impact2) / (impact3 - impact2))
         case ..<rest:
-            return floor - bounce3Height * hop((t - impact3) / (rest - impact3))
+            return bounceFloor - bounce3Height * hop((t - impact3) / (rest - impact3))
+        case ..<riseInStart:
+            return bounceFloor //Held down through the absorb's compression
         default:
-            return floor
+            return bounceFloor - riseIn * easeInOut((t - riseInStart) / riseInDur)
         }
     }
 
+    /*
+     Two versine halves — zero velocity at entry, peak and release, so nothing clicks on.
+     Impacts get the fast `squashAttack` rise; the terminal absorb keeps a symmetric shape
+     (attack = half its window), identical to the plain versine it always wore.
+     */
     private static func squashFactor(at t: Double) -> CGFloat {
         for (beat, depth, window) in squashDepths where t >= beat && t < beat + window {
-            return 1 - depth * sin(.pi * (t - beat) / window)
+            let attack = beat >= rest ? window / 2 : min(squashAttack, window / 2)
+            let s = t - beat
+            return s < attack
+                ? 1 - depth * (1 - cos(.pi * s / attack)) / 2
+                : 1 - depth * (1 + cos(.pi * (s - attack) / (window - attack))) / 2
         }
         return 1
     }
@@ -280,5 +345,12 @@ enum DeclineChoreo {
     private static func easeOutCubic(_ u: Double) -> Double {
         let c = min(max(u, 0), 1)
         return 1 - (1 - c) * (1 - c) * (1 - c)
+    }
+
+    //Smoothstep — zero velocity at both ends: the finish breathes up rather than pops.
+    //An ease-out here left the floor at full speed from a dead stop.
+    private static func easeInOut(_ u: Double) -> Double {
+        let c = min(max(u, 0), 1)
+        return c * c * (3 - 2 * c)
     }
 }

@@ -48,10 +48,14 @@ extension ProfileCard {
     
     private var cardOverlay: some View {
         let p = profile.profile
+        
+        //Hide the hometown if degree, year and hometown is long, as it overlaps with like button
+        let hometown = p.year.count + p.degree.count + p.hometown.count <= 24 ? "· \(p.hometown)" : ""
+        
         return ProfileCardChrome(
             image: profile.image,
             name: p.name,
-            subtitle: "\(p.year) · \(p.degree) · \(p.hometown)",
+            subtitle: "\(p.year) · \(p.degree) \(hometown)",
             palette: palette,
             onInvite: { ui.showInvite = profile }
         )

@@ -72,7 +72,7 @@ struct MeetPlaceholder: View {
                         showInvite: $showInvite,
                         vm: vm,
                         onSendInvite: { _, sendFlight in sendInvite(sendFlight) },
-                        declineProfile: { }
+                        declineProfile: { decline() }
                     )
                 }
                 .padding(.top, Spacing.titleGap)
@@ -85,6 +85,20 @@ struct MeetPlaceholder: View {
         let cover = responseCover?.show(.newInvite, sendFlight: sendFlight)
         Task {
             async let minDelay: Void = Task.sleep(for: .seconds(3.5))
+            try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+            showInvite = false
+            try? await minDelay
+            responseCover?.close(cover)
+        }
+    }
+
+    //MeetContainer.respondToProfile's decline flow, minus Firebase: nil source — the popup
+    //path — so the cross hops from the fallback pad. Hold covers the (possibly slow-motion
+    //scaled) flight clock, so captures are never clipped by the real flow's 1.4s minimum.
+    private func decline() {
+        let cover = responseCover?.show(.decline)
+        Task {
+            async let minDelay: Void = Task.sleep(for: .seconds(max(1.4, DeclineChoreo.clockEnd + 0.4)))
             try? await Task.sleep(for: BlurCoverMotion.coveredAt)
             showInvite = false
             try? await minDelay
