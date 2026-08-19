@@ -72,6 +72,9 @@ final class ResponseCoverPresenter {
     //when the flow had one to measure. Read by the cover's SendInviteScreen.
     private(set) var sendFlight: SendInviteFlightSource?
 
+    //Who the cover is about — the invitee's name the send cover's title announces.
+    private(set) var inviteeName: String?
+
     //Whether the app behind should be blurred and washed out. Drops at the *start* of the
     //close so the backdrop clears while the card is still leaving, rather than after it.
     var backdropEngaged: Bool { response != nil && !isClosing }
@@ -79,11 +82,12 @@ final class ResponseCoverPresenter {
     //Fades a cover in, returning the handle its own flow must present to close it
     @discardableResult
     func show(_ response: ProfileResponse, from declineSource: CGRect? = nil,
-              sendFlight: SendInviteFlightSource? = nil) -> Int {
+              sendFlight: SendInviteFlightSource? = nil, inviteeName: String? = nil) -> Int {
         presentation += 1
         isClosing = false
         self.declineSource = declineSource
         self.sendFlight = sendFlight
+        self.inviteeName = inviteeName
         self.response = response
         return presentation
     }
@@ -113,13 +117,11 @@ struct ResponseCoverLayer: View {
         ZStack {
             if let response = presenter.response {
                 RespondedToProfileCover(responseType: response, closing: presenter.isClosing,
-                                        declineSource: presenter.declineSource, sendFlight: presenter.sendFlight)
+                                        declineSource: presenter.declineSource, sendFlight: presenter.sendFlight,
+                                        inviteeName: presenter.inviteeName)
             }
         }
         .ignoresSafeArea()
-        //A cover that launches from something on screen (the decline cross, the send flight's
-        //card image) mounts with .identity — a plane fade over the flying copy would double-dip
-        //its opacity mid-travel. Covers with nothing to hand off from keep the fade.
         .transition(.asymmetric(
             insertion: presenter.response == .decline || (presenter.sendFlight != nil && !reduceMotion)
                 ? .identity : .opacity.animation(.transition),
@@ -135,6 +137,7 @@ struct RespondedToProfileCover: View {
     var closing = false
     var declineSource: CGRect? = nil
     var sendFlight: SendInviteFlightSource? = nil
+    var inviteeName: String? = nil
 
     var body: some View {
         VStack(alignment: .center, spacing: Spacing.xl) {
@@ -142,9 +145,9 @@ struct RespondedToProfileCover: View {
             case .accepted:
                 AcceptInviteCard(closing: closing)
             case .newTime:
-                SendInviteScreen(flight: sendFlight, closing: closing)
+                SendInviteScreen(flight: sendFlight, closing: closing, name: inviteeName)
             case .newInvite:
-                SendInviteScreen(flight: sendFlight, closing: closing)
+                SendInviteScreen(flight: sendFlight, closing: closing, name: inviteeName)
             case .decline:
                 DeclineOverlay(closing: closing, source: declineSource)
             }

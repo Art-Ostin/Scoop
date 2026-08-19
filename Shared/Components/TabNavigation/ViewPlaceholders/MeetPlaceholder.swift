@@ -82,7 +82,7 @@ struct MeetPlaceholder: View {
     //MeetContainer.respondToProfile's cover flow, minus Firebase: the send cover (and its
     //hero flight) runs exactly as on a live profile, the popup leaves under the opaque wash
     private func sendInvite(_ sendFlight: SendInviteFlightSource?) {
-        let cover = responseCover?.show(.newInvite, sendFlight: sendFlight)
+        let cover = responseCover?.show(.newInvite, sendFlight: sendFlight, inviteeName: "Jason")
         Task {
             async let minDelay: Void = Task.sleep(for: .seconds(3.5))
             try? await Task.sleep(for: BlurCoverMotion.coveredAt)

@@ -62,7 +62,7 @@ extension InvitesContainer {
             vm: vm,
             eventProfile: invite,
             cardInset: cardInset,
-            onRespond: { respond(invite.event.id, $0)},
+            onRespond: { respond(invite.event.id, $0, name: invite.profile.name)},
             draft: vm.draftBinding(for: invite),
             openInvite: $ui.showQuickResponse
         )
@@ -79,7 +79,7 @@ extension InvitesContainer {
             vm: vm.respondVM(for: invite),
             timeAndPlaceVM: timeAndPlaceVM,
             showInvitePopup: $ui.showQuickResponse) { response in
-                respond(invite.id, response)
+                respond(invite.id, response, name: invite.profile.name)
         }
     }
 }
@@ -88,43 +88,43 @@ extension InvitesContainer {
 extension InvitesContainer {
     
     
-    private func respond(_ eventId: String, _ respondType: ProfileResponse) {
+    private func respond(_ eventId: String, _ respondType: ProfileResponse, name: String) {
         //Present the cover in the tap's own transaction — a Task hop before show() holds the
         //decline cross's takeoff back past the tap that triggered it
-        let cover = responseCover?.show(respondType)
+        let cover = responseCover?.show(respondType, inviteeName: name)
         Task { await respondToProfile(eventId, respondType, cover: cover) }
     }
 
     //This deals with holding the respond screen cover & dismissing invitePopup behind
     private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse, cover: Int?) async {
         //Step 1: Minimum time the cover stays on screen. Decline holds longer — the cross
-        //choreography (~1.2s clock to the finish's end) must land before the exit begins.
+        //choreography (~1.05s clock to the absorb's end) must land before the exit begins.
         async let minDelay: Void = Task.sleep(for: respondType == .decline ? .seconds(2) : .milliseconds(850))
 
-        //Step 2: After 0.2s, dismiss the profile & invite popups beneath the respond cover
-        try? await Task.sleep(for: .milliseconds(200))
-        //Find Out how to dismiss profile and popup here
+        //Step 2: Once the cover is opaque, dismiss the respond popup beneath it. Held past the
+        //cover's own fade-in — dismissing mid-morph shows the popup collapsing through it.
+        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+        ui.showQuickResponse = nil
 
-        //Step 3: Actually respond to Invite
-        try? await vm.respond(to: respondType, eventId: eventId)
+        //Step 3: Actually respond to Invite. A failed write leaves the invite in place, so the
+        //cover just fades back to the untouched list instead of landing on an event that isn't there.
+        let responded: Bool
+        do {
+            try await vm.respond(to: respondType, eventId: eventId)
+            responded = true
+        } catch {
+            responded = false // TODO: surface the failure once InAppNotification grows an error case
+        }
 
         //Step 4: Once the minimum display time is done, fade the cover back out
         try? await minDelay
         responseCover?.close(cover)
 
-        //Step 5: If Accepted go to the 'accepted' Tab
-        if respondType == .accepted {
+        //Step 5: An accepted invite lands on its event — id first, so a freshly
+        //mounted Events tab already finds it on appear
+        if respondType == .accepted && responded {
+            router.showEventId = eventId
             router.selectedTab = .events
         }
     }
 }
-
-
-/*
- .overlay(alignment: .topTrailing) {
-     PageIndicator(count: vm.invites.count, progress: scrollProgress)
-         .scaleEffect(0.7)
-         .offset(y: -24)
-         .padding(.horizontal)
- }
- */

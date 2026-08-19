@@ -11,6 +11,7 @@ struct EventsContainer: View {
     //Injected
     let vm: EventsViewModel
     @Binding var showMessageScreen: String?
+    @Binding var showEventId: String?
     @Binding var path: NavigationPath
 
     //Local View state
@@ -39,6 +40,8 @@ struct EventsContainer: View {
         .ignoresSafeArea()
         .hideTabBar(!path.isEmpty)
         .onChange(of: showMessageScreen) {handleDeepLink(eventId: $1)}
+        .onChange(of: showEventId) {focusEvent(id: $1)}
+        .onAppear {focusEvent(id: showEventId)} //A first tab switch mounts this container after the id was set — onChange never saw it
         .task {userImage = try? await vm.fetchUserImage() }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
     }
@@ -152,6 +155,13 @@ extension EventsContainer {
         ui.selectedEventId = eventProfile.id //Jump the pager to that event's page first
         if path.isEmpty { path.append(eventProfile) }
         showMessageScreen = nil
+    }
+
+    //A just-accepted invite: land the pager on its event (title and message button follow selectedEventId)
+    private func focusEvent(id: String?) {
+        guard let id else { return }
+        if vm.event(id: id) != nil { ui.selectedEventId = id }
+        showEventId = nil
     }
 
     private func openMaps(_ eventProfile: EventProfile) {

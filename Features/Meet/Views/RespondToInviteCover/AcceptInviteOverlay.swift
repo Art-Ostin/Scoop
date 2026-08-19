@@ -137,6 +137,14 @@ final class LandingBuzz {
     private var engineRunning = false
     private var pendingImpacts: (taps: [(time: Double, intensity: Float, sharpness: Float)], zero: Date)?
 
+    //A play() handed over before the start finished, stamped with its landing beat
+    private var pendingPlay: (duration: Double, zero: Date)?
+
+    //How late a deferred play() may still fire: within the title reveal it accompanies a
+    //slightly late thunk still reads as the landing; past it, as a stray (the schedule()
+    //rationale, applied to the beat at zero)
+    private static let pendingPlayWindow: TimeInterval = 0.3
+
     /*
      Call ahead of the beat — a cold engine start adds latency or drops the first pattern.
      The start is asynchronous: the blocking start() holds the main thread for the engine's
@@ -159,12 +167,33 @@ final class LandingBuzz {
 
     private func engineDidStart() {
         engineRunning = true
+        if let pendingPlay {
+            if Date().timeIntervalSince(pendingPlay.zero) < Self.pendingPlayWindow {
+                playNow(duration: pendingPlay.duration)
+            }
+            self.pendingPlay = nil
+        }
         guard let pendingImpacts else { return }
         schedule(pendingImpacts.taps, delayed: Date().timeIntervalSince(pendingImpacts.zero))
         self.pendingImpacts = nil
     }
 
+    /*
+     The beat may land before the start finished — SendInviteScreen's flightless covers call
+     this ~30ms after prepare() — and a pattern started then is rejected outright, so it
+     waits in `pendingPlay` and fires from the completion instead, or is dropped once it
+     would read as a stray rather than the landing.
+     */
     func play(duration: Double = 1) {
+        guard engine != nil else { return }
+        if engineRunning {
+            playNow(duration: duration)
+        } else {
+            pendingPlay = (duration, Date())
+        }
+    }
+
+    private func playNow(duration: Double) {
         let thunk = CHHapticEvent(eventType: .hapticTransient, parameters: [
             CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0),
             CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.6)
@@ -215,6 +244,7 @@ final class LandingBuzz {
     //A dismissal mid-flight takes the taps still sitting on the schedule with it
     func stop() {
         pendingImpacts = nil
+        pendingPlay = nil
         try? scheduled?.stop(atTime: CHHapticTimeImmediate)
         scheduled = nil
     }

@@ -27,7 +27,7 @@ struct MeetContainer: View {
             }
         }
         .ignoresSafeArea()
-        .overlay(alignment: .topTrailing) {infoButton}
+        .overlay(alignment: .topTrailing) {pastDeclineButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
@@ -41,6 +41,7 @@ extension MeetContainer {
             ForEach(vm.profiles) { profile in
                 profileCard(profile)
             }
+            .overlay(alignment: .topLeading) {titleInfoIcon}
         }
     }
             
@@ -48,12 +49,25 @@ extension MeetContainer {
         ProfileCard(vm: vm, ui: ui, profile: profile, inviteMode: { inviteMode(for: $0)}) //The send/decline path stays in this container
         .task { await vm.loadProfileImages(profile: profile.profile) }
     }
-
-    private var infoButton: some View {
-        InfoButton(
+    
+    private var pastDeclineButton: some View  {
+        PastDeclineButton(
             showScreen: $ui.showInfo,
             isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
         )
+    }
+
+    //Lives outside the scroll: content offset above the scroll's content origin never gets touches
+    private var titleInfoIcon: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.textTertiary)
+            .font(.body(14, .medium))
+            .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
+            .shrinkPress {
+                ui.showInfo = true
+            }
+            .padding(.top, 36)     //Geometry: 50 − 14 frame inset, keeps the glyph on the title's cap line
+            .padding(.leading, 81) //Geometry: 95 − 14 frame inset, keeps it clear of "Meet"
     }
 }
 
@@ -80,12 +94,13 @@ extension MeetContainer {
     
     private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile,
                                   declineSource: CGRect? = nil, sendFlight: SendInviteFlightSource? = nil) {
-        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource, sendFlight: sendFlight)
+        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource,
+                                        sendFlight: sendFlight, inviteeName: profile.name)
 
         Task {
             //Step 2: Minimum time the cover stays on screen. The decline flight rests at
-            //~1.02s + mount latency; 1.4 keeps ~0.3s of landed stillness before the exit.
-            async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(1.4) : .seconds(3.5))
+            //~0.99s + mount latency; 1.4 keeps ~0.35s of landed stillness before the exit.
+            async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(1.4) : .seconds(1.9))
 
             //Step 3: Once the cover is opaque, dismiss the quick invite beneath it. Held past the
             //cover's own fade-in — dismissing mid-morph shows the profile collapsing through it.

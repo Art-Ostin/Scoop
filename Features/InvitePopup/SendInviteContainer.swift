@@ -422,17 +422,12 @@ extension SendInviteContainer {
     }
 
     //The name's own hero flight: the name never blinks — it rides from the meet card's
-    //bottom-left (26pt) to its slot beside "Invite" in the title (22pt) as ONE text, scaled
-    //along the flight. The title's real name is a layout ghost meanwhile (nameFlying), and
-    //the chrome copy's name is env-hidden for the whole presentation. Rendered at the SOURCE
-    //size and transform-scaled: the 22pt landing is 26 × ~0.85, sub-pixel from the true title.
     @ViewBuilder
     private func nameFlightLayer(_ origin: CGPoint) -> some View {
         let sourceName = zoom?.sourceName ?? .zero
         if nameHeroActive, sourceName.width > 1 {
+            
             //Destination built declaratively: frozen flight target + the title's invariant
-            //offsets. Never a measured global position — those hold model values and would
-            //teleport the lerp target mid-flight ([[measured-frames-dont-track-animation]]).
             let target = carouselTargetFrame
             let dest = titleNameSlot.width > 1
                 ? CGRect(x: target.minX + titleNameSlot.minX,
@@ -440,11 +435,6 @@ extension SendInviteContainer {
                          width: titleNameSlot.width, height: titleNameSlot.height)
                 : sourceName //First frames only: the title publishes its slot from its first layout pass
             let rect = local(lerp(dest, sourceName, closeP), origin)
-            //Standing in for the title's name means wearing the title's exits too. The hand-off
-            //back to the real title waits land + 0.15s, so a fast tap through to the confirm
-            //screen pops the title away while the hero still owns the word: without this it hangs
-            //over the title-less screen and vanishes in one frame when nameLanded unmounts it.
-            //Exempt on the close from confirm, where the collapse fade below owns the name.
             let popsWithTitle = !heroFadesWithCollapse && !currentScreen.chrome.title
             Text(name)
                 .font(.title(26, .bold))

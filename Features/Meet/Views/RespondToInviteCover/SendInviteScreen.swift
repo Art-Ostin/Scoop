@@ -21,6 +21,10 @@ import SwiftUI
  image, which stays crisp until it moves. (An earlier fade-in of the copy let the rising
  blur show through at partial opacity — the image visibly hazed then re-sharpened before
  lift-off; sim frames, 2026-08-19. Opaque-from-frame-1 is the no-flash guarantee.)
+
+ The arrival is a beat, not just a stop: at the flight spring's first target-crossing
+ (.logicallyComplete — the perceptual touch-down) the title fades up into place and the
+ landing buzz fires as one event — the accept card's land(), replayed on this flight's clock.
  */
 
 //What the send button hands the cover to fly: captured at the tap, while the card is at rest.
@@ -42,6 +46,17 @@ enum SendFlightMotion {
     //One rendered frame so the source pose is committed — a flight fired inside the mount
     //transaction snaps to destination (the accept card's commitGuard, same trap).
     static let commitGuard: Duration = .milliseconds(30)
+
+    //The landing beat's reveal — the covers' shared title shape, same as the accept card's.
+    static let reveal = ResponseCoverEntrance.titleReveal
+
+    //The image's exit: the decline cross's pop (DeclineChoreo.vanish — a pop, not a slow
+    //shrink), replayed here in place of the covers' shared crossfade. Retune the two together.
+    static let vanish = Animation.easeOut(duration: 0.16)
+    //The pop travels back up the axis the image arrived on — it descended in, so it leaves
+    //rising, a longer throw than the shared exit's Spacing.lg because the fade is so short
+    static let exitRise: CGFloat = -60
+    static let exitScaleEnd: CGFloat = 0.22 //Collapses toward its own centre as it goes, like the cross
 }
 
 struct SendInviteScreen: View {
@@ -49,11 +64,14 @@ struct SendInviteScreen: View {
     //Injected
     var flight: SendInviteFlightSource? = nil
     var closing = false
+    var name: String? = nil //The invitee the title names; nil (previews) falls back to the mock, like the hero image
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     //Local view state
     @State private var arrived = false //The ONE flight flag: geometry, ring, glow and shadows all key on it
+    @State private var landed = false //The landing beat's flag: the title reveal keys on it
     @State private var hasFired = false
+    @State private var buzz = LandingBuzz()
 
     static let imageSize: CGFloat = 225
     static let ringSize: CGFloat = 275
@@ -70,40 +88,52 @@ struct SendInviteScreen: View {
             let haloCenter = haloSettled ? center : CGPoint(x: rect.midX, y: rect.midY)
             let haloScale = haloSettled ? 1 : min(rect.width, rect.height) / Self.ringSize
             ZStack {
-                Circle()
-                    .fill(.accent.opacity(0.1))
-                    .frame(width: Self.ringSize, height: Self.ringSize)
-                    .blur(radius: 50)
-                    .opacity(haloSettled ? 1 : 0)
-                    .scaleEffect(haloScale)
-                    .position(haloCenter)
-                    .allowsHitTesting(false)
+                ZStack {
+                    Circle()
+                        .fill(.accent.opacity(0.1))
+                        .frame(width: Self.ringSize, height: Self.ringSize)
+                        .blur(radius: 50)
+                        .opacity(haloSettled ? 1 : 0)
+                        .scaleEffect(haloScale)
+                        .position(haloCenter)
+                        .allowsHitTesting(false)
 
-                Circle()
-                    .fill(.clear)
-                    .frame(width: Self.ringSize, height: Self.ringSize)
-                    .glassEffectIfAvailable(shape: Circle())
-                    .opacity(haloSettled ? 1 : 0)
-                    .scaleEffect(haloScale)
-                    .position(haloCenter)
+                    Circle()
+                        .fill(.clear)
+                        .frame(width: Self.ringSize, height: Self.ringSize)
+                        .glassEffectIfAvailable(shape: Circle())
+                        .opacity(haloSettled ? 1 : 0)
+                        .scaleEffect(haloScale)
+                        .position(haloCenter)
 
-                heroImage
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: rect.width, height: rect.height)
-                    //Sanctioned .circular: a rounded rect standing in for a true circle — at
-                    //rest the radius is half the frame, a pixel-exact Circle(); in flight it
-                    //morphs continuously from the card's clip
-                    .clipShape(.rect(cornerRadius: imageRadius, style: .circular))
-                    .shadow(color: .black.opacity(haloSettled ? 0.25 : 0), radius: 2, x: 0, y: 0)
-                    .shadow(color: .black.opacity(haloSettled ? 0.15 : 0), radius: 10, x: 0, y: 0)
-                    .position(x: rect.midX, y: rect.midY)
+                    heroImage
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: rect.width, height: rect.height)
+                        //Sanctioned .circular: a rounded rect standing in for a true circle — at
+                        //rest the radius is half the frame, a pixel-exact Circle(); in flight it
+                        //morphs continuously from the card's clip
+                        .clipShape(.rect(cornerRadius: imageRadius, style: .circular))
+                        .shadow(color: .black.opacity(haloSettled ? 0.25 : 0), radius: 2, x: 0, y: 0)
+                        .shadow(color: .black.opacity(haloSettled ? 0.15 : 0), radius: 10, x: 0, y: 0)
+                        .position(x: rect.midX, y: rect.midY)
+                }
+                //The exit: a decline-style pop — collapsing hard toward its own centre while
+                //thrown up the axis the image arrived on; image, ring and glow leave as the
+                //one body they landed as (scale before offset, so the throw is the full 60pt)
+                .scaleEffect(closing ? SendFlightMotion.exitScaleEnd : 1)
+                .offset(y: closing ? SendFlightMotion.exitRise : 0)
+                .opacity(closing ? 0 : 1)
+                .animation(SendFlightMotion.vanish, value: closing)
+
+                //First out, since it was last in — a sibling of the card, exactly as on the
+                //accept card, so the title never rides the card's exit scale
+                title
+                    //Geometry: pinned where the accept card's VStack puts its title — the
+                    //resting ring's bottom edge plus the covers' shared title gap
+                    .padding(.top, center.y + Self.ringSize / 2 + Spacing.xxl)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            //The covers' shared exit: still rising on the axis it arrived on (see ResponseCoverExit)
-            .scaleEffect(closing ? ResponseCoverExit.endScale : 1)
-            .offset(y: closing ? ResponseCoverExit.riseTravel : 0)
-            .opacity(closing ? 0 : 1)
-            .animation(ResponseCoverExit.card, value: closing)
         }
         .task { await enter() }
     }
@@ -114,6 +144,17 @@ extension SendInviteScreen {
 
     private var heroImage: Image {
         if let flight { Image(uiImage: flight.image) } else { Image("ProfileMockB") }
+    }
+
+    //The accept card's title, word for word in structure: same font, same reveal
+    //(fade up while rising into place), same quick own-beat exit
+    private var title: some View {
+        Text("You’ve Invited \n \(name ?? "Arthur")!")
+            .font(.title(32, .bold))
+            .multilineTextAlignment(.center)
+            .opacity(landed && !closing ? 1 : 0)
+            .offset(y: landed ? (closing ? Spacing.xs : 0) : ResponseCoverEntrance.titleRise)
+            .animation(ResponseCoverExit.title, value: closing)
     }
 
     //The flight's two poses: the handed-over global rect, and the resting circle. Global →
@@ -141,12 +182,29 @@ extension SendInviteScreen {
      settle — the arrival is one movement.
      */
     private func enter() async {
-        guard flight != nil, !atRest, !hasFired else { return }
+        guard !hasFired else { return }
         hasFired = true
+        buzz.prepare() //Warm the engine now — it has the whole flight (~0.35s) before the beat
         try? await Task.sleep(for: SendFlightMotion.commitGuard)
         if Task.isCancelled { hasFired = false; return }
 
-        withAnimation(SendFlightMotion.flight) { arrived = true }
+        if atRest {
+            //No flight to wait on — the resting pose has been up since frame 1, so the
+            //landing beat runs straight from the mount (the accept card's reduce-motion shape)
+            land()
+        } else {
+            withAnimation(SendFlightMotion.flight, completionCriteria: .logicallyComplete) {
+                arrived = true
+            } completion: {
+                land()
+            }
+        }
+    }
+
+    //The landing beat: title reveal and the buzz fire as one event (the accept card's land())
+    private func land() {
+        withAnimation(SendFlightMotion.reveal) { landed = true }
+        buzz.play()
     }
 }
 

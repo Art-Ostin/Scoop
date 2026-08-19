@@ -50,6 +50,7 @@ extension FrozenWithEvents {
                 imageLoader: vm.imageLoader
             ),
             showMessageScreen: $router.showMessageScreen,
+            showEventId: $router.showEventId,
             path: $router.eventsPath
         )
     }

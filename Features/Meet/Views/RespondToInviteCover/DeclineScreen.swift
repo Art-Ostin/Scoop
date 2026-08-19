@@ -52,8 +52,6 @@ extension DeclineOverlay {
         return ZStack(alignment: .top) {
             if DeclineChoreo.showsTitle {
                 title(progress: pose.title)
-                    //Hangs off the cross's resting edge rather than a fraction of its own, so
-                    //the pair stays together if the rest pose moves
                     .padding(.top, DeclineChoreo.restBottom(in: size) + Spacing.xxxl)
             }
             cross(pose: pose)
@@ -210,8 +208,7 @@ enum DeclineChoreo {
     //The clock has to outlive whatever runs longest on it: the flight plus its settle absorb,
     //and — when the caption shows — its reveal, which starts at impact1 and does NOT scale
     //with tempo. Without this guard a low enough tempo would silently truncate a tail mid-play.
-    static let clockEnd = max(riseInStart + riseInDur, rest + settleWindow,
-                              showsTitle ? impact1 + titleReveal : 0) + 0.05
+    static let clockEnd = max(rest + settleWindow, showsTitle ? impact1 + titleReveal : 0) + 0.05
     static let finalSize: CGFloat = 150
     static let iconSize: CGFloat = DeclineButton.iconSize //The launch size — the button's icon, exactly
     static let fallbackLaunchFraction: CGFloat = 0.78
@@ -246,12 +243,13 @@ enum DeclineChoreo {
 
     /*
      The finish (Arthur's spec, 2026-08-19): the flight and first bounces play `riseIn` low
-     at `bounceScale` size, and the resolution is WOVEN INTO the last hop — across
-     [impact3, rest] the floor eases up to the resting line while the cross grows to full
-     size, so the third bounce lands dead-centre, absorbs, and is done. The first cut
-     appended the rise AFTER the landing (40ms hold, then 8pt up over 0.19s) — two upward
-     moves that close together merged into a yank that never came back down. The end of the
-     bouncing must be the end of the motion.
+     at `bounceScale` size, and the resolution is WOVEN INTO the last hop — its arc lands
+     `riseIn` higher, on the resting line, with the cross growing to full size across it,
+     so the third bounce lands dead-centre, absorbs, and is done. Two rejected shapes to
+     not revisit: a rise APPENDED after the landing (40ms hold + 8pt up) read as an extra
+     up-move that never came down; a SMOOTHSTEP floor-lift inside the hop bent the descent
+     ~1.3× gravity and read as a downward yank. The end of the bouncing must be the end of
+     the motion, and every airborne segment must keep the family gravity.
      */
     static let riseIn: CGFloat = 8
     static let bounceScale: CGFloat = 0.96
@@ -272,7 +270,7 @@ enum DeclineChoreo {
         //falls reads as motion toward the camera, which fights the drop — the fall is
         //pure translation. It grows only to `bounceScale`; the finish supplies the rest.
         let scale = startScale + (bounceScale - startScale) * easeOut(t / riseEnd)
-                  + (1 - bounceScale) * easeInOut((t - riseInStart) / riseInDur)
+                  + (1 - bounceScale) * easeInOut((t - impact3) / (rest - impact3))
         let squash = squashFactor(at: t)
         return Pose(
             bottom: bottom(at: t, from: launch.maxY, floor: floor),
@@ -286,7 +284,7 @@ enum DeclineChoreo {
     }
 
     //The flight path of the contact point: decelerating leap, free fall, parabolic hops on
-    //the low bounce floor, then the finish rises the last `riseIn` into the resting line
+    //the low bounce floor — the last one a true arc up onto the resting line's ledge
     private static func bottom(at t: Double, from start: CGFloat, floor: CGFloat) -> CGFloat {
         let bounceFloor = floor + riseIn
         let apex = bounceFloor - leapDrop
@@ -300,11 +298,17 @@ enum DeclineChoreo {
         case ..<impact3:
             return bounceFloor - bounce2Height * hop((t - impact2) / (impact3 - impact2))
         case ..<rest:
-            return bounceFloor - bounce3Height * hop((t - impact3) / (rest - impact3))
-        case ..<riseInStart:
-            return bounceFloor //Held down through the absorb's compression
+            /*
+             The last hop lands `riseIn` higher — on the resting line — as ONE true
+             parabola: a LINEAR lift plus the hop keeps the family gravity exactly (linear
+             + quadratic is still a parabola, launched a touch faster onto a higher ledge,
+             landing 9% softer). A smoothstep lift here bent the descent ~1.3× gravity in
+             the final 60ms, which read as a small downward yank after the second bounce.
+             */
+            let u = (t - impact3) / (rest - impact3)
+            return bounceFloor - riseIn * u - bounce3Height * hop(u)
         default:
-            return bounceFloor - riseIn * easeInOut((t - riseInStart) / riseInDur)
+            return floor
         }
     }
 

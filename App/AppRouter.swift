@@ -16,6 +16,9 @@ final class AppRouter {
     var pastEventPath = NavigationPath()
     
     var showMessageScreen: String?
+
+    //An accepted invite's event id — the Events tab consumes it to land its pager on that event
+    var showEventId: String?
 }
 
 extension AppRouter {

@@ -7,6 +7,27 @@
 
 import SwiftUI
 
+
+struct PastDeclineButton: View {
+    
+    @Binding var showScreen: Bool
+    
+    var isAtTopOfScroll: Bool = true
+    
+    var body: some View {
+        ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
+            Image("HistoryIcon")
+                .resizable()
+                .frame(width: 20, height: 20)
+        }
+        .blurPop(visible: isAtTopOfScroll)
+        .padding(.top, Spacing.md) //As its small icon, sits in correct position
+        .padding(.horizontal, Spacing.margin)
+    }
+}
+
+
+
 struct InfoButton: View {
     @Binding var showScreen: Bool
     var isAtTopOfScroll: Bool = true
