@@ -518,14 +518,8 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     //scene): on the normal path the lens swallows the label at full brightness one
     //frame after touch-down, so dimming first would flash 0.5 → 1 on every open.
     @State private var pressed = false
-    //Present-once latch for the current touch, so a mid-touch teardown (e.g. a
-    //second finger selecting an item) can't instantly re-present on the next move.
-    @State private var openAttempted = false
     /// The armed touch-down open, waiting out `openStillDelay`.
     @State private var pendingOpen: Task<Void, Never>?
-    /// This touch became a pan (pager scroll or card dismiss drag) — no open
-    /// until the finger lifts.
-    @State private var panCancelled = false
 
     init(cornerRadius: CGFloat = TimeCustomMenuSpec.platterCornerRadius,
          labelCornerRadius: CGFloat? = nil,
@@ -568,26 +562,32 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         // Keep the morph collapse target current too (the first item can reflow
         // after a selection), so the close morph lands on its latest bounds.
         let _ = syncMorphAnchor()
-        return label()
-            .contentShape(Rectangle())
-            .onGeometryChange(for: CGRect.self) { proxy in
-                proxy.frame(in: .global)
-            } action: { frame in
-                labelFrame = frame
-                // Keep the close target on the label's current frame (it reflows
-                // when a selection changes its text) so the lens lands cleanly.
-                controller.updateCollapseAnchor(frame)
-            }
+        // A Button, and specifically a Button: the label sits inside the invite card's own
+        // zoomTransition Button, and only a NESTED Button reliably wins that tap (sim-verified —
+        // a bare touch-observing view loses it and the card opens the profile instead). It also
+        // yields the pan to the pager, which the old zero-distance DragGesture never did.
+        return Button(action: openFromTap) {
+            label()
+                .contentShape(Rectangle())
+                .onGeometryChange(for: CGRect.self) { proxy in
+                    proxy.frame(in: .global)
+                } action: { frame in
+                    labelFrame = frame
+                    // Keep the close target on the label's current frame (it reflows
+                    // when a selection changes its text) so the lens lands cleanly.
+                    controller.updateCollapseAnchor(frame)
+                }
             // Dim-only press feedback (native labels dim, never shrink), shown only when
             // the touch-down present failed — the lens copy renders at full brightness, so
             // dimming on the normal path would flash 0.5 → 1 as it takes over. Applied
             // AFTER the geometry read so it never feeds back into the placement anchor.
             // iOS 26: `hidesLabel` swallows the real label while the menu's lens is up
             // (it is the menu now), like native.
-            .opacity(controller.hidesLabel ? 0 : (pressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
-            .animation(pressed ? nil : TimeCustomMenuSpec.pressDimRelease, value: pressed)
-            .simultaneousGesture(openAndDragSelect)
-            //Programmatic open from outside the label; cleared immediately so it can fire again.
+                .opacity(controller.hidesLabel ? 0 : (pressed ? TimeCustomMenuSpec.pressedLabelOpacity : 1))
+                .animation(pressed ? nil : TimeCustomMenuSpec.pressDimRelease, value: pressed)
+        }
+        .buttonStyle(MenuLabelPress(onPressChange: pressChanged))
+        .instantPressDelivery()
             .onChange(of: openRequest?.wrappedValue ?? false) { _, wants in
                 guard wants else { return }
                 openRequest?.wrappedValue = false
@@ -599,18 +599,10 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             // would strand at the pressed dim and the latch would eat the next tap.
             .onChange(of: scenePhase) { _, phase in
                 guard phase != .active else { return }
-                pressed = false
-                openAttempted = false
-                pendingOpen?.cancel()
-                pendingOpen = nil
-                panCancelled = false
+                resetTouchLatches()
             }
             .onDisappear {
-                pressed = false
-                openAttempted = false
-                pendingOpen?.cancel()
-                pendingOpen = nil
-                panCancelled = false
+                resetTouchLatches()
                 controller.dismiss(animated: false)
             }
     }
@@ -636,71 +628,52 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         }
     }
 
-    /// Presents the menu on touch-DOWN — the instant the finger lands, like native —
-    /// then the same continuing touch drives the native press-drag-release selection:
-    /// drag highlights items (`dragMoved`), release selects, dismisses, or holds open
-    /// (`dragEnded`; a sub-`tapSlop` release keeps the menu open, so a quick tap just
-    /// opens it). A `.simultaneousGesture` so touch-down fires even over the time
-    /// pager's ScrollView (a plain `.gesture` defers to the scroll and only fires at
-    /// release). Unlike a native Menu label, a drag that starts on the label does
-    /// NOT open the menu: any move past `tapSlop` before the open fires stands the
-    /// touch down — horizontal belongs to the pager, vertical to the card's dismiss
-    /// drag, and neither may race a menu bloom.
-    private var openAndDragSelect: some Gesture {
-        DragGesture(minimumDistance: 0, coordinateSpace: .global)
-            .onChanged { value in
-                if controller.isPresented {
-                    // Drag-select needs a real drag: a stationary opening tap must
-                    // not highlight (and later select) whatever item the platter
-                    // lays under the finger once it covers the anchor.
-                    let moved = hypot(value.translation.width, value.translation.height)
-                    if moved >= TimeCustomMenuSpec.tapSlop {
-                        controller.dragMoved(to: value.location)
-                    }
-                    return
-                }
-                guard !openAttempted, !panCancelled else { return }
-                // A move past the slop before the open fires is a pan, not a press —
-                // horizontal is the pager's, vertical the card's dismiss drag (which
-                // must never see the menu bloom mid-flight): stand down for the rest
-                // of this touch.
-                if hypot(value.translation.width, value.translation.height)
-                    >= TimeCustomMenuSpec.tapSlop {
-                    pendingOpen?.cancel()
-                    pendingOpen = nil
-                    panCancelled = true
-                    return
-                }
-                // Arm the touch-down open: it fires after `openStillDelay` of
-                // stillness (a press), or at release for a fast tap (onEnded).
-                guard pendingOpen == nil else { return }
-                pendingOpen = Task { @MainActor in
-                    try? await Task.sleep(nanoseconds:
-                        UInt64(TimeCustomMenuSpec.openStillDelay * 1_000_000_000))
-                    guard !Task.isCancelled, !openAttempted, !panCancelled else { return }
-                    pendingOpen = nil
-                    openAttempted = true
-                    presentMenu()
-                    // Dim only when the menu could not open (rare: no active
-                    // scene) — normally the swallow itself is the feedback.
-                    if !controller.isPresented { pressed = true }
-                }
-            }
-            .onEnded { value in
-                pendingOpen?.cancel()
-                pendingOpen = nil
-                // A fast tap released inside the still-delay opens at release.
-                let moved = hypot(value.translation.width, value.translation.height)
-                if !openAttempted, !panCancelled, !controller.isPresented,
-                   moved < TimeCustomMenuSpec.tapSlop {
-                    presentMenu()
-                }
-                panCancelled = false
-                openAttempted = false
-                pressed = false
-                guard controller.isPresented else { return }
-                controller.dragEnded(at: value.location, translation: value.translation)
-            }
+    /// Presents on touch-DOWN — the instant the finger lands, like native. The press comes from
+    /// the Button's own `isPressed`, which is exactly the signal wanted here: it arrives on
+    /// touch-down (given `instantPressDelivery`), and the enclosing scroll CANCELS it the moment
+    /// the finger becomes a pan, which is the pan stand-down the old gesture had to infer from a
+    /// slop threshold. Horizontal belongs to the pager, vertical to the card's dismiss drag, and
+    /// neither may race a menu bloom.
+    private func pressChanged(_ isPressed: Bool) {
+        guard isPressed else {
+            //Released, or the scroll took the touch — either way nothing pending survives it.
+            pendingOpen?.cancel()
+            pendingOpen = nil
+            pressed = false
+            return
+        }
+        guard !controller.isPresented, pendingOpen == nil else { return }
+        armTouchDownOpen()
+    }
+
+    /// The release path: a tap too quick to have crossed `openStillDelay` still opens. A pan never
+    /// reaches here — the scroll cancels the press and the Button's action never fires.
+    private func openFromTap() {
+        pendingOpen?.cancel()
+        pendingOpen = nil
+        guard !controller.isPresented else { return } //Touch-down already opened it
+        presentMenu()
+        if !controller.isPresented { pressed = true }
+    }
+
+    /// Fires after `openStillDelay` of stillness (a press); a faster tap opens at release instead.
+    private func armTouchDownOpen() {
+        pendingOpen = Task { @MainActor in
+            try? await Task.sleep(nanoseconds:
+                UInt64(TimeCustomMenuSpec.openStillDelay * 1_000_000_000))
+            guard !Task.isCancelled, !controller.isPresented else { return }
+            pendingOpen = nil
+            presentMenu()
+            // Dim only when the menu could not open (rare: no active
+            // scene) — normally the swallow itself is the feedback.
+            if !controller.isPresented { pressed = true }
+        }
+    }
+
+    private func resetTouchLatches() {
+        pendingOpen?.cancel()
+        pendingOpen = nil
+        pressed = false
     }
 
     /// The present call itself, shared by the touch-down gesture and the programmatic
@@ -1883,5 +1856,16 @@ private struct TimeCustomMenuOverlayRoot: View {
             let unitX = ((anchor.midX - x) / max(size.width, 1)).clamped(to: 0...1)
             return (CGPoint(x: x, y: y), UnitPoint(x: unitX, y: below ? 0 : 1))
         }
+    }
+}
+
+/// Surfaces a Button's `isPressed` to the menu without painting anything: the label keeps its
+/// own dim (`pressedLabelOpacity`), which is shown only when a present actually failed.
+private struct MenuLabelPress: ButtonStyle {
+    let onPressChange: (Bool) -> Void
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .onChange(of: configuration.isPressed) { _, isPressed in onPressChange(isPressed) }
     }
 }

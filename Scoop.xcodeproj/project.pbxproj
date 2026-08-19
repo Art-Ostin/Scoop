@@ -243,6 +243,7 @@
 		65D366C42FC95887000180B3 /* ScrollViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */; };
 		65D907C52FCC6CEA006EC5C8 /* ButtonPressStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */; };
 		65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D978B02FD4340F00C22646 /* InviteCard.swift */; };
+		65DC45373035C1C5007F5FD9 /* SendInviteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC45363035C1C5007F5FD9 /* SendInviteScreen.swift */; };
 		65DE8F12301B428A00E74D26 /* InviteCardShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE8F11301B428A00E74D26 /* InviteCardShell.swift */; };
 		65E0F1573035794F00D0D1B8 /* BlurCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E0F1563035794F00D0D1B8 /* BlurCover.swift */; };
 		65E1C99A2F719DFB00CBB388 /* InvitedTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */; };
@@ -541,6 +542,7 @@
 		65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewHelpers.swift; sourceTree = "<group>"; };
 		65D907C42FCC6CEA006EC5C8 /* ButtonPressStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPressStyle.swift; sourceTree = "<group>"; };
 		65D978B02FD4340F00C22646 /* InviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCard.swift; sourceTree = "<group>"; };
+		65DC45363035C1C5007F5FD9 /* SendInviteScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInviteScreen.swift; sourceTree = "<group>"; };
 		65DE8F11301B428A00E74D26 /* InviteCardShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardShell.swift; sourceTree = "<group>"; };
 		65E0F1563035794F00D0D1B8 /* BlurCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurCover.swift; sourceTree = "<group>"; };
 		65E1C9992F719DFB00CBB388 /* InvitedTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitedTimeCell.swift; sourceTree = "<group>"; };
@@ -1370,6 +1372,7 @@
 			children = (
 				65E963D52F3F7C090022595F /* RespondedToProfileCover.swift */,
 				65809984302E2692006D1A9D /* DeclineScreen.swift */,
+				65DC45363035C1C5007F5FD9 /* SendInviteScreen.swift */,
 				65809986302E3884006D1A9D /* AcceptInviteOverlay.swift */,
 				65E0F1563035794F00D0D1B8 /* BlurCover.swift */,
 			);
@@ -1926,6 +1929,7 @@
 				654C009B2E35689000FFD504 /* UserRepo.swift in Sources */,
 				651975912F1F91E80002F6A2 /* Facts.swift in Sources */,
 				65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */,
+				65DC45373035C1C5007F5FD9 /* SendInviteScreen.swift in Sources */,
 				65AF6CBD3006744A0028A4C2 /* InviteSectionContainer.swift in Sources */,
 				65C60BE72F78900D00740C0A /* ProposedTimesRow.swift in Sources */,
 				65D978B12FD4340F00C22646 /* InviteCard.swift in Sources */,

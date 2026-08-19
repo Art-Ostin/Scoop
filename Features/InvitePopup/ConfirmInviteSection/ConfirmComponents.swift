@@ -67,19 +67,23 @@ struct TypeButton: View {
     let showInfo: () -> ()
 
     var body: some View {
-        HStack(alignment: .center, spacing: Spacing.xxs) {
-            Text(type.emoji)
-                .font(.body(13))
+        //A Button, never `.shrinkPress` — the chip rides the invite pager, and a zero-distance
+        //DragGesture there swallows the pan (see PlaceRow).
+        Button(action: showInfo) {
+            HStack(alignment: .center, spacing: Spacing.xxs) {
+                Text(type.emoji)
+                    .font(.body(13))
 
-            Text(type.longTitle)
-                .font(.body(13, .bold))
+                Text(type.longTitle)
+                    .font(.body(13, .bold))
+            }
+            .foregroundStyle(Color.white)
+            .frame(height: 25)
+            .padding(.trailing, 8)
+            .padding(.leading, 6) //Leading edge bit extra padding
+            .capsuleStroke(lineWidth: 1, color: .white)
         }
-        .foregroundStyle(Color.white)
-        .frame(height: 25)
-        .padding(.trailing, 8)
-        .padding(.leading, 6) //Leading edge bit extra padding
-        .capsuleStroke(lineWidth: 1, color: .white)
-        .shrinkPress(action: showInfo)
+        .shrinkButton()
         .opacityPop(visible: !timeOpen)
         .offset(y: 4.5)
     }

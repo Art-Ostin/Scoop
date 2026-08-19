@@ -46,14 +46,14 @@ struct SendInviteContainer: View {
 
     @State var vm: TimeAndPlaceViewModel
 
-    let onSendInvite: (EventFieldsDraft) -> ()
+    let onSendInvite: (EventFieldsDraft, SendInviteFlightSource?) -> ()
     let declineProfile: () -> ()
 
     //Explicit only to seed the band layer from the warm-bake cache SYNCHRONOUSLY: the band
     //must be at full depth on the committed source frame. A bake that instead lands mid-task
     //(cold cache) fades in over the source copy's exit — the fallback, not the design.
     init(images: [UIImage], name: String, showInvite: Binding<Bool>, vm: TimeAndPlaceViewModel,
-         onSendInvite: @escaping (EventFieldsDraft) -> (), declineProfile: @escaping () -> ()) {
+         onSendInvite: @escaping (EventFieldsDraft, SendInviteFlightSource?) -> (), declineProfile: @escaping () -> ()) {
         self.images = images
         self.name = name
         self._showInvite = showInvite
@@ -1458,7 +1458,11 @@ extension SendInviteContainer {
 
         return WideActionButton(text: buttonText, isActive: vm.event.isComplete, isDimmed: popupDim, showShadow: false) {
             if isConfirming {
-                onSendInvite(vm.event)
+                if images.indices.contains(currentPage) { //Kill an in-flight flick (beginDrag's move):
+                    //the lifted copy must be the page that's on screen when the cover mounts
+                    snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) }
+                }
+                onSendInvite(vm.event, sendFlightSource())
             } else {
                 ui.showConfirmScreen = true
             }
@@ -1475,6 +1479,18 @@ extension SendInviteContainer {
             actionButtonHitArea = newFrame.insetBy(dx: -16, dy: -16)
         }
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
+    }
+
+    //What the send cover's hero flight lifts off with: the page the user is looking at, its
+    //resting global rect, and the card mask's clip radius so the flying copy's corners match
+    //on frame 1. Captured at the tap, AFTER the CTA snaps the pager home — the card itself is
+    //landed (the button is unreachable in flight) but the carousel can still be settling a
+    //flick, and the copy must lift the page that's actually on screen. Nil (no measurement
+    //yet) degrades the cover to its flightless fade-in.
+    private func sendFlightSource() -> SendInviteFlightSource? {
+        guard images.indices.contains(currentPage), imageFrame.width > 1 else { return nil }
+        return SendInviteFlightSource(image: images[currentPage], frame: imageFrame,
+                                      cornerRadius: Self.cardRadius)
     }
 
     private var timeAndPlacePage: some View {

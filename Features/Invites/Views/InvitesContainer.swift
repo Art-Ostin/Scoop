@@ -17,13 +17,28 @@ struct InvitesContainer: View {
     //Local view state
     @State private var ui = InvitesUIState()
 
+    @State var scrollProgress: Double = 0
+
+    //A lone invite has no neighbour to leave room for: the pager stops carving a peek out of
+    //itself and the card runs out to the nav title's edge instead
+    private var isSingleInvite: Bool { vm.invites.count == 1 }
+    private var peek: CGFloat { isSingleInvite ? 0 : Spacing.gutter }
+    ///nil leaves AppImage's own invite inset in charge — only the lone card overrides it
+    private var cardInset: CGFloat? { isSingleInvite ? Spacing.gutter : nil }
+    private var topPull: CGFloat { isSingleInvite ? -20 : -6 } //Geometry: pulls the column up under titlePadding, the lone card higher still
+
     var body: some View {
         ZoomNavigationStack {
             NavigationStack {
                 TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
-                    ForEach(vm.invites, id: \.self) { invite in
-                        inviteSlot(invite)
+                    HorizontalScrollView(progress: $scrollProgress, peek: peek) {
+                        ForEach(vm.invites, id: \.self) { invite in
+                            inviteSlot(invite)
+                        }
                     }
+                    .scrollClipDisabled()
+                    .padding(.top, topPull)
+                    .animation(.move, value: isSingleInvite) //Answering the second-to-last invite settles the card wider rather than snapping
                 }
             }
         }
@@ -46,10 +61,12 @@ extension InvitesContainer {
         InviteSlot(
             vm: vm,
             eventProfile: invite,
+            cardInset: cardInset,
             onRespond: { respond(invite.event.id, $0)},
             draft: vm.draftBinding(for: invite),
             openInvite: $ui.showQuickResponse
         )
+        .containerRelativeFrame(.horizontal)
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
     }
     
@@ -72,32 +89,42 @@ extension InvitesContainer {
     
     
     private func respond(_ eventId: String, _ respondType: ProfileResponse) {
-        Task { await respondToProfile(eventId, respondType)}
+        //Present the cover in the tap's own transaction — a Task hop before show() holds the
+        //decline cross's takeoff back past the tap that triggered it
+        let cover = responseCover?.show(respondType)
+        Task { await respondToProfile(eventId, respondType, cover: cover) }
     }
-    
-    //This deals with presenting the respond screen cover & dismissing invitePopup behind
-    private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse) async {
+
+    //This deals with holding the respond screen cover & dismissing invitePopup behind
+    private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse, cover: Int?) async {
         //Step 1: Minimum time the cover stays on screen. Decline holds longer — the cross
         //choreography (1.15s of flight) must land and settle before the exit begins.
         async let minDelay: Void = Task.sleep(for: respondType == .decline ? .seconds(2) : .milliseconds(850))
 
-        //Step 2: Fade the response cover in on the root plane, above the tab bar
-        let cover = responseCover?.show(respondType)
-        
-        //Step 3: After 0.2s, dismiss the profile & invite popups beneath the respond cover
+        //Step 2: After 0.2s, dismiss the profile & invite popups beneath the respond cover
         try? await Task.sleep(for: .milliseconds(200))
         //Find Out how to dismiss profile and popup here
-        
-        //Step 4: Actually respond to Invite
+
+        //Step 3: Actually respond to Invite
         try? await vm.respond(to: respondType, eventId: eventId)
-        
-        //Step 5: Once the minimum display time is done, fade the cover back out
+
+        //Step 4: Once the minimum display time is done, fade the cover back out
         try? await minDelay
         responseCover?.close(cover)
 
-        //Step 6: If Accepted go to the 'accepted' Tab
+        //Step 5: If Accepted go to the 'accepted' Tab
         if respondType == .accepted {
             router.selectedTab = .events
         }
     }
 }
+
+
+/*
+ .overlay(alignment: .topTrailing) {
+     PageIndicator(count: vm.invites.count, progress: scrollProgress)
+         .scaleEffect(0.7)
+         .offset(y: -24)
+         .padding(.horizontal)
+ }
+ */

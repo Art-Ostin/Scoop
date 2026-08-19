@@ -121,12 +121,16 @@ struct PlaceRow: View {
 
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"
-        LineSection(image: style.mapIcon, text: placeName, style: style)
-            .padding(.vertical, Spacing.xs)
-            .shrinkPress(action: openMap)
-            .padding(.vertical, -Spacing.xs)
-            .accessibilityAddTraits(.isButton)
-            .oneLineLimitAndShrink()
+        //A Button, never `.shrinkPress`: its zero-distance DragGesture would beat the invite
+        //pager's pan and eat every horizontal drag begun on this row. A ButtonStyle press is
+        //driven by `isPressed`, which the scroll cancels — same shrink, pan left alone.
+        Button(action: openMap) {
+            LineSection(image: style.mapIcon, text: placeName, style: style)
+                .padding(.vertical, Spacing.xs)
+        }
+        .shrinkButton()
+        .padding(.vertical, -Spacing.xs)
+        .oneLineLimitAndShrink()
     }
 
     private func openMap() {

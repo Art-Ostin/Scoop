@@ -17,7 +17,10 @@ struct AppImage: View {
 
     let image: UIImage
     let type: AppImageType
-    
+    ///Widens the card past the type's own inset — a lone invite has no neighbour to leave room for
+    var insetOverride: CGFloat? = nil
+
+    var inset: CGFloat { insetOverride ?? (type == .meet ? Spacing.gutter : 9) } //Geometry: invite cards run 18pt apart, most of the gap a screen − 48 card leaves
     var aspectRatio: CGFloat { type == .meet ? 1/1.2 : 1/1.55}
         
     var body: some View {
@@ -30,18 +33,13 @@ struct AppImage: View {
             }
             .clipShape(.rect(cornerRadius: 20))
             .containerRelativeFrame(.horizontal) { length, _ in
-                return max(length - 16 * 2, 0)
+                return max(length - inset * 2, 0)
             }//No padding but this method so overlay content works
     }
 }
 
-//One carousel page: fill-crop, softened bottom, sharp edges. Shared between the live pager
-//and the invite flight's static covers so the swap between them is pixel-identical.
 struct InvitePagePhoto: View {
 
-    //Glur drops its whole layerEffect at exactly 0, and that structural swap flashes the page
-    //mid-morph. A hair above zero keeps the shader mounted through the screen change: its
-    //64-tap Gaussian collapses onto the centre sample, so it reads as untouched artwork.
     private static let blurOff: CGFloat = 0.01
     private static let blurOn: CGFloat = 14
     private static let blurStart: CGFloat = 0.85 //Fraction of the height where the ramp begins — shared with the baked copy below
@@ -72,31 +70,14 @@ struct InvitePagePhoto: View {
 //MARK: Baked bottom blur — the invite flight's flyable copy of this page's glur
 extension InvitePagePhoto {
 
-    //GAMMA working space, deliberately: Core Image defaults to linear-light, where blur
-    //averages of dark↔bright neighborhoods come out bright; the live glur shader this bake
-    //stands in for sums the layer's gamma-encoded samples directly (shader-read). Baked in
-    //linear, the band visibly DARKENED when the live pager replaced it at the reveal
-    //(device frames, 2026-08-13). Matching the mixing space makes the hand-off a null swap.
     private static let bakeContext = CIContext(options: [
         .workingColorSpace: CGColorSpace(name: CGColorSpace.sRGB) as Any
     ])
 
-    ///The page's progressive bottom blur baked into plain pixels, matching the `.glur` call in
-    ///`body` (ramp from `blurStart` of the height to `blurOn` at the bottom edge; glur's
-    ///`interpolation` is approximated by the gradient's smooth hermite ramp). The invite
-    ///flight flies images, never live shaders — a glur layerEffect at animated size drops the
-    ///device to ~15fps — so the blur can only ride the open flight pre-rendered.
     static func bakedBottomBlur(for image: UIImage, aspect: CGFloat, displayWidth: CGFloat, scale: CGFloat) -> UIImage? {
         let pxSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
         guard pxSize.width > 0, pxSize.height > 0, displayWidth > 0 else { return nil }
 
-        //FULL-FRAME bake, never pre-cropped: the flight shows this through the same
-        //scaledToFill as the sharp cover, so their crops agree at EVERY in-flight aspect —
-        //a pre-cropped bake double-exposed the whole photo mid-flight (device video,
-        //2026-08-10). The band is blurred where the DESTINATION crop will need it; mid-flight
-        //it sits a few points off inside the image, hidden by its own fade-in.
-        //Standard range: extended/P3 content through the default CIContext gamut-shifts the
-        //sharp region against rawCover's original (this project's P3 scars run deep).
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.preferredRange = .standard
@@ -105,18 +86,12 @@ extension InvitePagePhoto {
         }
         guard let source = flat.cgImage else { return nil }
 
-        //The destination's aspect-fill crop within the full image, and its bottom blur band
         let cropSize = pxSize.width / pxSize.height > aspect
             ? CGSize(width: pxSize.height * aspect, height: pxSize.height)
             : CGSize(width: pxSize.width, height: pxSize.width / aspect)
         let cropMaxY = (pxSize.height + cropSize.height) / 2 //Centred crop, top-down coords
         let bandTop = cropMaxY - cropSize.height * (1 - Self.blurStart)
 
-        //Core Image's origin is bottom-left; a LINEAR gradient matches glur's ramp, and it
-        //clamps past its endpoints, so anything below the crop (visible only mid-flight)
-        //stays fully blurred. Glur's shader ramps σ = radius·(y/h − start)/interpolation
-        //linearly, reaching only radius·(1−start)/interpolation (7pt) at the bottom edge; a
-        //smoothstep to the full 14 baked a band 2× too blurry (shader-read).
         let gradient = CIFilter.linearGradient()
         gradient.point0 = CGPoint(x: 0, y: pxSize.height - bandTop)
         gradient.point1 = CGPoint(x: 0, y: pxSize.height - cropMaxY)

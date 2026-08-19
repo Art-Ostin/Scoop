@@ -87,6 +87,11 @@ extension EnterEmailView {
         .growButton()
     }
     
+    
+    
+    
+    
+    
     private var enterEmailSection: some View {
         let fieldHeight: CGFloat = 48
         let fieldFont = UIFont.body(17, .medium)

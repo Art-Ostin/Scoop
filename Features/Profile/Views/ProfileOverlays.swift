@@ -62,8 +62,11 @@ extension ProfileContainer {
             DeclineButton {
                 if case .sendInvite(_, let onDecline) = mode {
                     ui.didDecline = true //The cover's flying cross takes over from the icon
-                    zoomDismiss()
                     onDecline(ui.declineButtonFrame)
+                    Task { //The profile stays put and blurs; it collapses under the opaque wash
+                        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+                        zoomDismiss()
+                    }
                 }
             }
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
@@ -80,7 +83,7 @@ extension ProfileContainer {
 extension ProfileContainer {
 
     //The mode's send handler — present only when this profile can actually send an invite.
-    private var onSendInvite: ((EventFieldsDraft) -> Void)? {
+    private var onSendInvite: ((EventFieldsDraft, SendInviteFlightSource?) -> Void)? {
         if case .sendInvite(let onSend, _) = mode { onSend } else { nil }
     }
 
@@ -110,15 +113,22 @@ extension ProfileContainer {
                 name: pending.profile.name,
                 showInvite: $ui.showInvite,
                 vm: TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults),
-                onSendInvite: { draft in
-                    ui.showInvite = false
-                    zoomDismiss()
-                    onSend(draft)
+                onSendInvite: { draft, sendFlight in
+                    onSend(draft, sendFlight)
+                    Task { //Popup and profile stay put and blur, as on decline: the hero copy lifts
+                           //off the still-mounted card, and both leave under the opaque wash
+                        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+                        ui.showInvite = false
+                        zoomDismiss()
+                    }
                 },
                 declineProfile: {
-                    ui.showInvite = false
-                    zoomDismiss()
                     onDecline(nil) //No measured launch pad — the popup's decline sits far from the button
+                    Task { //Popup and profile stay put and blur; both leave under the opaque wash
+                        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+                        ui.showInvite = false
+                        zoomDismiss()
+                    }
                 }
             )
         }

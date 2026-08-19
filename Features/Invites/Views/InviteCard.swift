@@ -14,7 +14,9 @@ struct InviteSlot: View {
     //Injected Parameters
     let vm: InvitesViewModel
     let eventProfile: EventProfile
-    
+    ///Set by the container: the lone-invite layout runs its card out to the nav title's edge
+    var cardInset: CGFloat? = nil
+
     let onRespond: (ProfileResponse) -> Void
     
     @Binding var draft: RespondDraft
@@ -30,18 +32,16 @@ struct InviteSlot: View {
             if let image = eventProfile.image {
                 profileCard(image: image)
             }
-            
             CustomDivider().padding(.horizontal, 72)
             InviteInfo(event: eventProfile)
         }
-        .padding(.top, -20) //So it appears closer to the top
     }
 }
 
 extension InviteSlot {
     
     private func profileCard(image: UIImage) -> some View {
-        AppImage(image: image , type: .invite)
+        AppImage(image: image, type: .invite, insetOverride: cardInset)
             .task(id: eventProfile.id) {await fetchColour(image: image)}
             .zoomTransition(images: profileImages) {
                 cardOverlay(image: image)
@@ -78,6 +78,10 @@ extension InviteSlot {
             .overlay(alignment: .bottomLeading) {
                 inviteOverlay
             }
+            //The overlay's pager parks its message page a card-width to the side and never clips it
+            //(ConfirmTimeAndPlace is .scrollClipDisabled), so the chrome must be clipped to the card
+            //itself — blurAndColour's own clipShape sits under the overlay and can't reach it
+            .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }
     

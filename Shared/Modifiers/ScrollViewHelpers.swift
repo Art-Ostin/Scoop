@@ -14,6 +14,12 @@ struct HorizontalScrollView<Content: View>: View {
 
     var position: Binding<ScrollPosition>? = nil
 
+    ///Room kept on each side for the neighbouring page to show through. `.paging` always strides by
+    ///the pager's OWN width, so a peek can only come from narrowing the pager and letting the
+    ///neighbours render outside it — narrowing the pages instead drifts every landing by the
+    ///difference. What shows is `peek` minus whatever inset the page's own content carries.
+    var peek: CGFloat = 0
+
     @ViewBuilder var content: Content
 
     @ViewBuilder
@@ -36,6 +42,18 @@ struct HorizontalScrollView<Content: View>: View {
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
         .trackScrollProgress(scrollProgress: $progress)
+        .padding(.horizontal, peek) //The pitch IS the pager's width, so the peek is carved out of it
+        .peekClipDisabled(peek > 0)
+    }
+}
+
+private extension View {
+
+    ///Only ever DISABLES clipping: writing `false` here would beat a call site's own
+    ///`.scrollClipDisabled()` applied from outside, since the innermost value wins.
+    @ViewBuilder
+    func peekClipDisabled(_ disabled: Bool) -> some View {
+        if disabled { scrollClipDisabled() } else { self }
     }
 }
 
@@ -77,9 +95,14 @@ private struct InstantPressDelivery: UIViewRepresentable {
         override func didMoveToWindow() {
             super.didMoveToWindow()
             guard window != nil else { return }
+            //EVERY scroll ancestor, not just the nearest: the nearest is often not the one that
+            //would delay the touch — the invite card's time row sits inside ConfirmTimeAndPlace's
+            //own (disabled) inner pager, while the delay comes from the invites pager above it.
             var v: UIView? = superview
-            while let cur = v, !(cur is UIScrollView) { v = cur.superview }
-            (v as? UIScrollView)?.delaysContentTouches = false
+            while let cur = v {
+                (cur as? UIScrollView)?.delaysContentTouches = false
+                v = cur.superview
+            }
         }
     }
 
@@ -93,17 +116,19 @@ private struct InstantPressDelivery: UIViewRepresentable {
     func updateUIView(_ uiView: MarkerView, context: Context) {}
 }
 
+
 extension View {
 
     func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
         modifier(IsAtTopOfScroll(isAtTop: isAtTop))
     }
-    
+
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
         modifier(TrackScrollProgess(scrollProgress: scrollProgress))
     }
-    
+
     func instantPressDelivery() -> some View {
         background(InstantPressDelivery())
     }
+
 }

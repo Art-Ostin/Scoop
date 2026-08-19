@@ -133,12 +133,35 @@ final class LandingBuzz {
     private var engine: CHHapticEngine?
     private var scheduled: CHHapticPatternPlayer?
 
-    //Call ahead of the beat — a cold engine start adds latency or drops the first pattern
+    //Impacts handed over before the start finished, stamped with their choreography's zero
+    private var engineRunning = false
+    private var pendingImpacts: (taps: [(time: Double, intensity: Float, sharpness: Float)], zero: Date)?
+
+    /*
+     Call ahead of the beat — a cold engine start adds latency or drops the first pattern.
+     The start is asynchronous: the blocking start() holds the main thread for the engine's
+     cold spin-up (tens of ms on device), long enough to read as launch lag on paths that
+     animate the instant they call this. But a pattern started before the engine finishes is
+     rejected outright — the player checks the engine's running state synchronously — so
+     impacts that arrive during the warm-up wait in `pendingImpacts` and are rescheduled from
+     the completion, beats shifted by the elapsed wait: the taps land on the choreography's
+     clock, not a late copy of it.
+     */
     func prepare() {
         guard engine == nil, CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
         engine = try? CHHapticEngine()
         engine?.resetHandler = { [weak self] in try? self?.engine?.start() }
-        try? engine?.start()
+        engine?.start { [weak self] error in
+            guard error == nil else { return }
+            Task { @MainActor [weak self] in self?.engineDidStart() }
+        }
+    }
+
+    private func engineDidStart() {
+        engineRunning = true
+        guard let pendingImpacts else { return }
+        schedule(pendingImpacts.taps, delayed: Date().timeIntervalSince(pendingImpacts.zero))
+        self.pendingImpacts = nil
     }
 
     func play(duration: Double = 1) {
@@ -164,14 +187,25 @@ final class LandingBuzz {
     }
 
     func playImpacts(_ impacts: [(time: Double, intensity: Float, sharpness: Float)]) {
-        let events = impacts.map {
-            CHHapticEvent(eventType: .hapticTransient, parameters: [
+        guard engine != nil else { return }
+        if engineRunning {
+            schedule(impacts, delayed: 0)
+        } else {
+            pendingImpacts = (impacts, Date())
+        }
+    }
+
+    private func schedule(_ impacts: [(time: Double, intensity: Float, sharpness: Float)], delayed: TimeInterval) {
+        let events: [CHHapticEvent] = impacts.compactMap {
+            let beat = $0.time - delayed
+            guard beat > 0 else { return nil } //Its squash frame has passed — a late tap reads as a stray
+            return CHHapticEvent(eventType: .hapticTransient, parameters: [
                 CHHapticEventParameter(parameterID: .hapticIntensity, value: $0.intensity),
                 CHHapticEventParameter(parameterID: .hapticSharpness, value: $0.sharpness)
-            ], relativeTime: $0.time)
+            ], relativeTime: beat)
         }
 
-        guard let engine,
+        guard !events.isEmpty, let engine,
               let pattern = try? CHHapticPattern(events: events, parameters: []),
               let player = try? engine.makePlayer(with: pattern) else { return }
         scheduled = player
@@ -180,6 +214,7 @@ final class LandingBuzz {
 
     //A dismissal mid-flight takes the taps still sitting on the schedule with it
     func stop() {
+        pendingImpacts = nil
         try? scheduled?.stop(atTime: CHHapticTimeImmediate)
         scheduled = nil
     }

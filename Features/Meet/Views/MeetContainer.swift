@@ -62,10 +62,10 @@ extension MeetContainer {
 extension MeetContainer {
     
     private func inviteMode(for profile: UserProfile) -> ProfileMode {
-        return .sendInvite { draft in
-            Task {await respondToProfile(event: draft, profile: profile)}
+        return .sendInvite { draft, sendFlight in
+            respondToProfile(event: draft, profile: profile, sendFlight: sendFlight)
         } onDecline: { declineSource in
-            Task { await respondToProfile(profile: profile, declineSource: declineSource) }
+            respondToProfile(profile: profile, declineSource: declineSource)
         }
     }
     
@@ -78,24 +78,26 @@ extension MeetContainer {
     }
     
     
-    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile, declineSource: CGRect? = nil) async {
-        //Step 1: Minimum time the cover stays on screen
-        async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(2.2) : .seconds(3.5))
+    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile,
+                                  declineSource: CGRect? = nil, sendFlight: SendInviteFlightSource? = nil) {
+        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource, sendFlight: sendFlight)
 
-        //Step 2: Fade the response cover in on the root plane, above the tab bar
-        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource)
+        Task {
+            //Step 2: Minimum time the cover stays on screen
+            async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(1.3) : .seconds(3.5))
 
-        //Step 3: Once the cover is opaque, dismiss the quick invite beneath it. Held past the
-        //cover's own fade-in — dismissing mid-morph shows the profile collapsing through it.
-        try? await Task.sleep(for: .milliseconds(650))
-        ui.showInvite = nil
-
-        //Step 4: Actually send invite or decline profile
-//        await submitResponse(event: event, profile: profile)
-
-        //Step 5: Once the minimum display time is done, fade the cover back out
-        try? await minDelay
-        responseCover?.close(cover)
+            //Step 3: Once the cover is opaque, dismiss the quick invite beneath it. Held past the
+            //cover's own fade-in — dismissing mid-morph shows the profile collapsing through it.
+            try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+            ui.showInvite = nil
+            
+            //Step 4: Actually send invite or decline profile
+//            await submitResponse(event: event, profile: profile)
+            
+            //Step 5: Once the minimum display time is done, fade the cover back out
+            try? await minDelay
+            responseCover?.close(cover)
+        }
     }
 }
 

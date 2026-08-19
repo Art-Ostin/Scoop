@@ -15,6 +15,10 @@ import SwiftUI
 // TODO: revert to the plain "Hello World" placeholder before merge.
 struct MeetPlaceholder: View {
 
+    //Optional, as MeetContainer holds it: absent in the standalone preview, where a send
+    //simply does nothing — the harness only drives the cover inside the real app tree
+    @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
+
     @State private var showInvite = false
     @State private var palette: OverlayPalette = .placeholder
     @State private var vm = TimeAndPlaceViewModel(profileId: "debug-harness",
@@ -67,11 +71,24 @@ struct MeetPlaceholder: View {
                         name: "Jason",
                         showInvite: $showInvite,
                         vm: vm,
-                        onSendInvite: { _ in },
+                        onSendInvite: { _, sendFlight in sendInvite(sendFlight) },
                         declineProfile: { }
                     )
                 }
                 .padding(.top, Spacing.titleGap)
+        }
+    }
+
+    //MeetContainer.respondToProfile's cover flow, minus Firebase: the send cover (and its
+    //hero flight) runs exactly as on a live profile, the popup leaves under the opaque wash
+    private func sendInvite(_ sendFlight: SendInviteFlightSource?) {
+        let cover = responseCover?.show(.newInvite, sendFlight: sendFlight)
+        Task {
+            async let minDelay: Void = Task.sleep(for: .seconds(3.5))
+            try? await Task.sleep(for: BlurCoverMotion.coveredAt)
+            showInvite = false
+            try? await minDelay
+            responseCover?.close(cover)
         }
     }
 

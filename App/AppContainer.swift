@@ -63,39 +63,42 @@ struct AppContainer: View {
         @Bindable var router = router
 
         ZStack {
-            TabView(selection: $router.selectedTab) {
-                Tab("", image: icon(.meet), value: AppTab.meet) {
-                    MeetContainer(vm: meetVM)
-                }
-                .accessibilityLabel("Meet")
+            ZStack {
+                TabView(selection: $router.selectedTab) {
+                    Tab("", image: icon(.meet), value: AppTab.meet) {
+                        MeetContainer(vm: meetVM)
+                    }
+                    .accessibilityLabel("Meet")
 
-                Tab("", image: icon(.invites), value: AppTab.invites) {
-                    InvitesContainer(vm: invitesVM)
-                }
-                .accessibilityLabel("Invites")
+                    Tab("", image: icon(.invites), value: AppTab.invites) {
+                        InvitesContainer(vm: invitesVM)
+                    }
+                    .accessibilityLabel("Invites")
 
-                Tab("", image: icon(.events), value: AppTab.events) {
-                    EventsContainer(vm: eventsVM, showMessageScreen: $router.showMessageScreen, path: $router.eventsPath)
-                }
-                .accessibilityLabel("Events")
+                    Tab("", image: icon(.events), value: AppTab.events) {
+                        EventsContainer(vm: eventsVM, showMessageScreen: $router.showMessageScreen, path: $router.eventsPath)
+                    }
+                    .accessibilityLabel("Events")
 
-                Tab("", image: icon(.messages), value: AppTab.messages) {
-                    MessagesContainer(vm: messagesVM, path: $router.pastEventPath)
+                    Tab("", image: icon(.messages), value: AppTab.messages) {
+                        MessagesContainer(vm: messagesVM, path: $router.pastEventPath)
+                    }
+                    .accessibilityLabel("Messages")
                 }
-                .accessibilityLabel("Messages")
+
+                InviteZoomLayer(presenter: inviteZoomPresenter)
+
+                ZoomPresentationLayer(host: zoomPresentations)
+                    .ignoresSafeArea()
             }
-
-            InviteZoomLayer(presenter: inviteZoomPresenter)
-
-            ZoomPresentationLayer(host: zoomPresentations)
-                .ignoresSafeArea()
-
-            ResponseCoverLayer(presenter: responseCover) //Response cover shows over the tab view when present.
+            .blurCover(isPresented: responseCover.backdropEngaged) {
+                ResponseCoverLayer(presenter: responseCover)
+            }
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)
         .environment(inviteZoomPresenter)
-        .environment(responseCover) //Inject the response cover into the environment so can be updated anywhere
+        .environment(responseCover)
     }
 }
 
