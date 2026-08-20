@@ -55,6 +55,7 @@ extension Session {
         recentChatStream()
 
         subscribeImageLoad(for: user)
+        subscribeDeclinedLoad()
     }
     
 

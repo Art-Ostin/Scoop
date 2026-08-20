@@ -195,6 +195,12 @@ extension InviteImageCarousel {
                 Text(InviteCardTitle.text(name: name))
                     .getRect($nameFrame, coordSpace: "InviteImageCarousel")
                     .opacity(nameFlying ? 0 : 1) //Layout ghost while the flight's hero text owns the line
+                    //LAYOUT size, scaled by the answering shrink ourselves: GeometryProxy.size
+                    //is transform-independent, so the published slot is flight-invariant
+                    .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
+                        titleNameSize = size
+                        publishAcceptNameSlot()
+                    }
             } else {
                 HStack(spacing: Self.titleWordGap) {
                     Text("Invite")
@@ -235,6 +241,18 @@ extension InviteImageCarousel {
             x: Self.titleInset + inviteWordWidth + Self.titleWordGap,
             y: Self.titleBottomInset,
             width: titleNameSize.width, height: titleNameSize.height
+        )
+    }
+
+    //The accept title's slot: one line at the artwork's corner, worn at the answering scale
+    //(anchored bottomLeading, so inset and bottom hold and only the size shrinks)
+    private func publishAcceptNameSlot() {
+        guard let titleNameSlot, titleNameSize.width > 0 else { return }
+        let scale = Self.answeringTitleScale
+        titleNameSlot.wrappedValue = CGRect(
+            x: Self.titleInset,
+            y: Self.titleBottomInset,
+            width: titleNameSize.width * scale, height: titleNameSize.height * scale
         )
     }
 

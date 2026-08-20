@@ -27,6 +27,17 @@ struct InviteSlot: View {
     @State var palette: OverlayPalette = .placeholder
     @State private var timePopupOpen = false
 
+    //Where this card ACTUALLY draws its text set, measured on the real resting overlay (global
+    //space; the flight copy never reports — reportsFrames gates it). The quick-invite flight's
+    //hero anchors come from these — a font-metrics derivation sat ~0.7pt/row high and snapped
+    //at the close handback (device video, 2026-08-20); measurement is exact by construction.
+    @State private var cardRect: CGRect = .zero
+    @State private var titleRect: CGRect = .zero
+    @State private var chipRect: CGRect = .zero
+    @State private var timeRect: CGRect = .zero
+    @State private var placeRect: CGRect = .zero
+    @State private var envelopeRect: CGRect = .zero
+
     var body: some View {
         VStack(spacing: 72) {
             if let image = eventProfile.image {
@@ -44,7 +55,7 @@ extension InviteSlot {
         AppImage(image: image, type: .invite, insetOverride: cardInset)
             .task(id: eventProfile.id) {await fetchColour(image: image)}
             .zoomTransition(images: profileImages) {
-                cardOverlay(image: image)
+                cardOverlay(image: image, reportsFrames: true) //The REAL overlay — the flight's source anchors measure here
             } content: {
                 profileView
             }
@@ -56,6 +67,22 @@ extension InviteSlot {
                 sourceChrome: { cardOverlay(image: image) },
                 popup: { respondPopup }
             )
+    }
+
+    //The measured text set as card-relative offsets — read live at popup construction, so the
+    //flight lifts off from wherever the card genuinely drew its words
+    private var measuredSourceRects: InviteCardSourceRects {
+        guard cardRect.width > 1 else { return InviteCardSourceRects() }
+        func rel(_ r: CGRect) -> CGRect {
+            r.width > 1 ? r.offsetBy(dx: -cardRect.minX, dy: -cardRect.minY) : .zero
+        }
+        return InviteCardSourceRects(
+            title: rel(titleRect),
+            chip: rel(chipRect),
+            time: rel(timeRect),
+            place: rel(placeRect),
+            envelope: rel(envelopeRect)
+        )
     }
 
     //The envelope button writes the SHARED EventProfile? slot (openInvite); this narrows it to
@@ -80,6 +107,7 @@ extension InviteSlot {
             images: profileImages,
             vm: vm.respondVM(for: eventProfile),
             timeAndPlaceVM: TimeAndPlaceViewModel(profileId: eventProfile.profile.id, defaults: vm.defaults),
+            sourceRects: measuredSourceRects,
             showInvite: quickResponsePresented,
             respond: onRespond
         )
@@ -108,16 +136,21 @@ extension InviteSlot {
 //Overlay on the Card
 extension InviteSlot {
     
-    private func cardOverlay(image: UIImage) -> some View {
+    //reportsFrames: true only on the REAL overlay — the flight's chrome copy renders these
+    //same views at the flight layer and must never overwrite the measured source anchors
+    private func cardOverlay(image: UIImage, reportsFrames: Bool = false) -> some View {
         blurAndColour(image: image)
             //The flight's copy rushes the blur + scrim out in the launch's first beats (the
             //sharp flying image is what lands) and rides them back in over the collapse; the
             //resting card reads the identity default
             .modifier(InviteChromeFadeOpacity())
             .overlay(alignment: .bottomLeading) {
-                inviteOverlay
+                inviteOverlay(reportsFrames: reportsFrames)
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rect in
+                if reportsFrames { cardRect = rect } //The frame all measured offsets are relative to
+            }
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }
     
@@ -136,7 +169,7 @@ extension InviteSlot {
             ))
     }
     
-    private var inviteOverlay: some View {
+    private func inviteOverlay(reportsFrames: Bool) -> some View {
         //Container has already 24 horizontal padding.
         ConfirmContainer(
             event: InviteSummary(event: draft.originalInvite.event),
@@ -145,8 +178,15 @@ extension InviteSlot {
             timeOpen: timePopupOpen,
             showMessageSection: true,
             color: palette.secondaryText,
-            showMessageScreen: .constant(false)) {
+            showMessageScreen: .constant(false),
+            placeRowFrame: reportsFrames ? $placeRect : nil,
+            cardTitleFrame: reportsFrames ? $titleRect : nil,
+            chipFrame: reportsFrames ? $chipRect : nil,
+            envelopeFrame: reportsFrames ? $envelopeRect : nil) {
                 DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, style: .card)
+                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rect in
+                        if reportsFrames { timeRect = rect }
+                    }
             } showInfo: {
                 //Add scrollTo  code here to scroll to section below.
             } openInvite: {

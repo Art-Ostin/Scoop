@@ -13,11 +13,12 @@ struct EventImageCard: View {
     let eventProfile: EventProfile
     let defaults: DefaultsManaging
     let imageLoader: ImageLoading
-    
-    
+
+
     let profileImages: [UIImage]
     let userImage: UIImage?
     let targetTime: Date
+    @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
 
     //Local view state
     @State private var page: Int = 0
@@ -35,6 +36,13 @@ struct EventImageCard: View {
                                 showsCardShadow: false,
                                 bottomCornerRadius: 0) {
                     profileView
+                }
+                //The accept flight's landing pad: hidden while the flown copy owns the
+                //pixels (the hand-off un-hides it beneath the still-opaque copy), and its
+                //global rect reported live so the cover's close knows where to land.
+                .opacity((responseCover?.eventImageHidden(eventProfile.id) ?? false) ? 0 : 1)
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
+                    responseCover?.reportEventImageFrame($0, id: eventProfile.id)
                 }
             timerSection
                 .padding(.vertical, 6)

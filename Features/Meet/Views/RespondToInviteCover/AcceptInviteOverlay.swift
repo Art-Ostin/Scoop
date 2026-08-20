@@ -8,10 +8,47 @@
 import SwiftUI
 import CoreHaptics
 
+/*
+ The dismissal's flight (the send flight's shape, reversed): the resting circle grows and
+ seats into its event card's image slot in ONE spring — travel, size, clip radii and the
+ shadows' dissolve all in the same transaction, so the morph reads as a single movement while
+ the glass ring, glow and title dissolve in place and BlurCover's wash clears beneath it.
+
+ The hand-off is seam-free by construction: the card's own image sat hidden the whole flight
+ (armed at show(), behind the still-opaque wash), un-hides beneath the fully-settled, still-
+ OPAQUE copy in a no-animation transaction, and only then does the copy dissolve — over
+ pixel-identical artwork (one ImageLoader cache feeds both sides, and both crop the same
+ rect), so no frame exists in which the image doubles, gaps or jumps.
+
+ Geometry-matched hero flight: its measured curves live in-file, per the motion rules.
+ */
+enum AcceptFlightMotion {
+    //THE tuning knob — the flight's clock. Bounce 0 (chosen 2026-08-20 over a landing
+    //overshoot): the circle grows and seats into the card top as one continuous settle.
+    static let spring = Spring(duration: 0.55, bounce: 0)
+    static let flight = Animation.spring(spring)
+
+    //The copy's dissolve over the identical card image beneath — diffuses the sub-pixel
+    //corner seam (the copy's .circular clip over the card's continuous one) instead of
+    //betting the hand-off on shape identity.
+    static let handOff = Animation.smooth(duration: 0.12)
+
+    //Derived, never tuned: .removed — the hand-off's trigger — fires at the spring's
+    //SETTLING time (~0.9s here, well past the perceptual 0.55s), so both holds anchor to it
+    //and cannot drift under a retune. Teardown covers the hand-off dissolve plus margin;
+    //BlurCover's hold outlasts teardown, as BlurCoverMotion.contentHold outlasts the shared exit.
+    static var teardown: Duration { .seconds(spring.settlingDuration + 0.25) }
+    static var contentHold: Duration { .seconds(spring.settlingDuration + 0.33) }
+}
+
 struct AcceptInviteCard: View {
 
     //Injected
+    var flight: AcceptFlightSource? = nil //nil (previews) falls back to the mock hero
     var closing = false
+    var destination: CGRect? = nil //The landing rect the presenter resolved as `closing` flipped
+    var name: String? = nil
+    var onFlightLanded: () -> Void = {}
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     //Local view state
@@ -22,47 +59,122 @@ struct AcceptInviteCard: View {
     @State private var hasFired = false
     @State private var buzz = LandingBuzz()
 
+    //Flight state
+    @State private var clusterFrame: CGRect = .zero //The cluster's resting global rect — the flight's coordinate bridge
+    @State private var departed = false //The ONE flight flag: travel, size, clip and shadows all key on it
+    @State private var handedOff = false //The copy dissolving over the identical card image beneath
+
+    static let imageSize: CGFloat = 225
+    static let ringSize: CGFloat = 275
+
+    //A close with a resolved landing rect flies; anything else (no destination, reduced
+    //motion, an unmeasured cluster) keeps the shared fade exit.
+    private var canFly: Bool { destination != nil && clusterFrame != .zero && !reduceMotion }
+    private var exitFading: Bool { closing && !canFly }
+
     var body: some View {
         VStack(spacing: Spacing.xxl) {
             ZStack {
                 Circle()
                     .fill(.accent.opacity(0.1))
-                    .frame(width: 275, height: 275)
+                    .frame(width: Self.ringSize, height: Self.ringSize)
                     .blur(radius: 50)
-                    .opacity(landed ? 1 : 0)
+                    .opacity(landed && !closing ? 1 : 0)
+                    .animation(.quick, value: closing)
                     .allowsHitTesting(false)
 
                 Circle()
                     .fill(.clear)
-                    .frame(width: 275, height: 275)
+                    .frame(width: Self.ringSize, height: Self.ringSize)
                     .glassEffectIfAvailable(shape: Circle())
                     .opacity(closing ? 0 : 1)
                     .animation(.quick, value: closing)
 
-                Image("ProfileMockB")
+                heroImage
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 225, height: 225)
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 0)
-                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 0)
+                    .frame(width: imageRect.width, height: imageRect.height)
+                    .clipShape(imageClip)
+                    .shadow(color: .black.opacity(departed ? 0 : 0.25), radius: 2, x: 0, y: 0)
+                    .shadow(color: .black.opacity(departed ? 0 : 0.15), radius: 10, x: 0, y: 0)
                     .modifier(BackfaceCulled(angle: angle))
+                    .opacity(handedOff ? 0 : 1)
+                    .position(x: imageRect.midX, y: imageRect.midY)
             }
+            //The pin matters twice: it keeps the .position-wrapped image from inflating the
+            //cluster (VStack layout, and the spin's perspective, stay exactly pre-flight),
+            //and the frame is measured BELOW the transforms, so it is the resting layout rect
+            //whatever the entrance is doing.
+            .frame(width: Self.ringSize, height: Self.ringSize)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { clusterFrame = $0 }
             .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.1)
-            .scaleEffect(scale * (closing ? ResponseCoverExit.endScale : 1))
-            .offset(y: lift + (closing ? ResponseCoverExit.riseTravel : 0))
-            .opacity(closing ? 0 : 1)
+            .scaleEffect(scale * (exitFading ? ResponseCoverExit.endScale : 1))
+            .offset(y: lift + (exitFading ? ResponseCoverExit.riseTravel : 0))
+            .opacity(exitFading ? 0 : 1)
             .animation(ResponseCoverExit.card, value: closing)
             .task { await enter() }
+            .onChange(of: closing) { _, isClosing in
+                guard isClosing, canFly else { return }
+                fly()
+            }
 
             //First out, since it was last in
-            Text("You’re Meeting \n Arthur!")
+            Text("You’re Meeting \n \(name ?? "Arthur")!")
                 .font(.title(32, .bold))
                 .multilineTextAlignment(.center)
                 .opacity(landed && !closing ? 1 : 0)
                 .offset(y: landed ? (closing ? Spacing.xs : 0) : ResponseCoverEntrance.titleRise)
                 .animation(ResponseCoverExit.title, value: closing)
         }
+    }
+}
+
+//Flight geometry and choreography
+extension AcceptInviteCard {
+
+    private var heroImage: Image {
+        if let flight { Image(uiImage: flight.image) } else { Image("ProfileMockB") }
+    }
+
+    //The flight's two poses in cluster space: the resting circle, and the handed-over global
+    //rect brought local through the cluster's own measured origin.
+    private var imageRect: CGRect {
+        if departed, let destination {
+            return destination.offsetBy(dx: -clusterFrame.minX, dy: -clusterFrame.minY)
+        }
+        let inset = (Self.ringSize - Self.imageSize) / 2
+        return CGRect(x: inset, y: inset, width: Self.imageSize, height: Self.imageSize)
+    }
+
+    //Sanctioned .circular: at rest the radii are half the frame — a pixel-exact Circle()
+    //inside the true-Circle glass ring; in flight they morph continuously to the event
+    //card's clip (top corners CornerRadius.image, bottom edge square inside the card).
+    private var imageClip: UnevenRoundedRectangle {
+        let radii = departed
+            ? RectangleCornerRadii(topLeading: CornerRadius.image, bottomLeading: 0,
+                                   bottomTrailing: 0, topTrailing: CornerRadius.image)
+            : CornerRadius.uniform(Self.imageSize / 2)
+        return UnevenRoundedRectangle(cornerRadii: radii, style: .circular)
+    }
+
+    //ONE transaction moves every part of the morph. Completion is .removed, not
+    //.logicallyComplete: the hand-off swaps pixels, so the copy must sit EXACTLY on the
+    //landing rect — the spring's last sub-point of tail included — before it runs.
+    private func fly() {
+        withAnimation(AcceptFlightMotion.flight, completionCriteria: .removed) {
+            departed = true
+        } completion: {
+            handOff()
+        }
+    }
+
+    //The destination un-hides beneath the still-opaque copy with animations disabled — no
+    //frame exists where the image doubles or gaps — then the copy dissolves over it.
+    private func handOff() {
+        var settle = Transaction()
+        settle.disablesAnimations = true
+        withTransaction(settle) { onFlightLanded() }
+        withAnimation(AcceptFlightMotion.handOff) { handedOff = true }
     }
 }
 

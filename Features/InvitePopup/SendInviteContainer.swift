@@ -1643,6 +1643,10 @@ extension EnvironmentValues {
     //while true, hero layers own the title, type, time and place — both the source chrome
     //copy's and the landed popup's own renderings ghost (opacity only, layout preserved).
     @Entry var inviteRowsFlying: Bool = false
+    //The respond flight's bottom strip (warning banner): hidden from the popup's first frame,
+    //popped in on the open spring's own clock so it lands WITH the settle, out at close start.
+    //Defaults true — every other popup shows its warning at rest.
+    @Entry var inviteBottomChromeIn: Bool = true
 }
 
 @MainActor

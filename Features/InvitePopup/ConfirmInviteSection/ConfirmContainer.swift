@@ -65,6 +65,15 @@ struct ConfirmContainer<TimeRow: View>: View {
     var typeRowFrame: Binding<CGRect>? = nil
     var placeRowFrame: Binding<CGRect>? = nil
 
+    //The flight's SOURCE anchors, measured on the real resting card (.card style): where the
+    //title, chip and envelope actually lay out. Render-offset asymmetry: the chip's 4.5 lives
+    //INSIDE TypeButton, so its measurement excludes it (the flight re-adds it); the
+    //envelope's 4 is applied OUTSIDE its measuring modifier below, so its measurement already
+    //carries it (the flight must NOT re-add it).
+    var cardTitleFrame: Binding<CGRect>? = nil
+    var chipFrame: Binding<CGRect>? = nil
+    var envelopeFrame: Binding<CGRect>? = nil
+
     @ViewBuilder var timeRow: TimeRow
 
     let showInfo: () -> ()
@@ -72,6 +81,7 @@ struct ConfirmContainer<TimeRow: View>: View {
 
     //The quick-invite flight's exit drivers; at rest every one is identity
     @Environment(\.inviteRowsFlying) private var rowsFlying
+    @Environment(\.inviteBottomChromeIn) private var bottomChromeIn
     @Environment(\.inviteChromeFade) private var chromeFade
     @Environment(\.inviteChromeExiting) private var chromeExiting
     @Environment(\.inviteChromeCollapse) private var chromeCollapse
@@ -86,6 +96,11 @@ struct ConfirmContainer<TimeRow: View>: View {
             timeAndPlaceRows
             warning
                 .blurPop(visible: !timeOpen, scale: 1)
+                //Hidden from the flight's first frame (a visible-at-mount gate faded it OUT
+                //over the launch — device video 2026-08-20), popped in on the open spring's
+                //clock so it arrives with the settle, and back out at close start
+                .blurPop(visible: bottomChromeIn)
+                .animation(.transition, value: bottomChromeIn)
         }
         .foregroundStyle(color ?? style.foreground) //Title and type chip set their own white, so only the rows take the tint
         .overlay(alignment: .bottomTrailing) { openInviteButton }
@@ -125,8 +140,10 @@ extension ConfirmContainer {
             Text(InviteCardTitle.text(name: name))
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { cardTitleFrame?.wrappedValue = $0 }
             Spacer(minLength: 4)
             TypeButton(type: event.type, timeOpen: timeOpen, showInfo: showInfo)
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { chipFrame?.wrappedValue = $0 }
         }
     }
 
@@ -155,6 +172,7 @@ extension ConfirmContainer {
     private var openInviteButton: some View {
         if let openInvite {
             InviteButton(onTap: openInvite) //Sits on the rows' bottom edge; the card's inset lifts both
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { envelopeFrame?.wrappedValue = $0 }
                 .offset(y: 4)
                 //The quick-invite flight: while the CTA hero owns the envelope (it widens into
                 //the Accept button) this copy never renders; a hero-less flight falls back to

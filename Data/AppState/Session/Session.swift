@@ -51,6 +51,7 @@ final class TaskBag {
     var appState: AppState = .booting
     private(set) var sessionUser: UserProfile?
     var profiles: [PendingProfile] = []
+    var declinedProfiles: [DeclinedProfile] = []
     var profilesHaveLoaded: Bool = false
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
@@ -105,6 +106,13 @@ extension Session {
     func subscribeImageLoad(for user: UserProfile) {
         streams.insert("profileImages", Task { @MainActor [weak self] in
             _ = await self?.imageLoader.loadProfileImages(user)
+        })
+    }
+    
+    //Starter switch, to load the declined profiles when app opens (in the background)
+    func subscribeDeclinedLoad() {
+        streams.insert("declinedProfiles", Task { @MainActor [weak self] in
+            await self?.loadRecentlyDeclined()
         })
     }
 }

@@ -46,6 +46,7 @@ enum BlurCoverMotion {
 
     //The window the content keeps to animate itself out before the plane is torn down. Must
     //outlast the longest exit a cover runs on its own state — ResponseCoverExit.duration.
+    //A cover whose exit runs longer (the accept flight) passes its own hold to blurCover.
     static let contentHold: Duration = .milliseconds(360)
 
     //When the wash has reached opaque with margin: surfaces the cover presented over (popups,
@@ -60,6 +61,7 @@ struct BlurCover<Cover: View>: ViewModifier {
     var isPresented: Bool
     var tint: Color
     var maxOpacity: Double
+    var contentHold: Duration
     @ViewBuilder var cover: () -> Cover
 
     //Local view state — held rather than derived so each leg's animation is scoped to the one
@@ -103,8 +105,9 @@ struct BlurCover<Cover: View>: ViewModifier {
                     coverShown = true
                 } else if coverShown {
                     let generation = holdGeneration
+                    let hold = contentHold //Read at disengage — the presenting cover set it for THIS exit
                     Task {
-                        try? await Task.sleep(for: BlurCoverMotion.contentHold)
+                        try? await Task.sleep(for: hold)
                         //A newer presentation (or close) arrived mid-hold and owns the plane now
                         guard generation == holdGeneration else { return }
                         coverShown = false
@@ -119,9 +122,11 @@ extension View {
         isPresented: Bool,
         tint: Color = .appCanvas,
         maxOpacity: Double = 1,
+        contentHold: Duration = BlurCoverMotion.contentHold,
         @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        modifier(BlurCover(isPresented: isPresented, tint: tint, maxOpacity: maxOpacity, cover: content))
+        modifier(BlurCover(isPresented: isPresented, tint: tint, maxOpacity: maxOpacity,
+                           contentHold: contentHold, cover: content))
     }
 }
 

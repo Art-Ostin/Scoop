@@ -76,7 +76,7 @@ private struct TitleInfoIcon: View {
             .font(.body(14, .medium))
             .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
             .shrinkPress {ui.showInfo = true}
-            .padding(.top, 57)     //Geometry: 81 title centre − 22 half-box − 2 optical lift, from the safe-area top
+            .padding(.top, 53)     //Geometry: 81 title centre − 22 half-box − 6 optical lift, from the safe-area top
             .padding(.leading, 81) //Geometry: 95 − 14 frame inset, keeps it clear of "Meet"
             .offset(y: -ui.titleTravel)
             .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades

@@ -91,7 +91,8 @@ struct AppContainer: View {
                 ZoomPresentationLayer(host: zoomPresentations)
                     .ignoresSafeArea()
             }
-            .blurCover(isPresented: responseCover.backdropEngaged) {
+            .blurCover(isPresented: responseCover.backdropEngaged,
+                       contentHold: responseCover.exitContentHold) {
                 ResponseCoverLayer(presenter: responseCover)
             }
         }

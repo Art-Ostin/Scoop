@@ -33,6 +33,7 @@ import SwiftUI
     }
 
     var profiles: [PendingProfile] { session.profiles }
+    var declinedProfiles: [PendingProfile] {session.profiles}
     var pendingInvites: [PendingProfile] { session.profiles } // TODO: back with real pending invites
     var user: UserProfile { session.user }
     
@@ -43,7 +44,11 @@ import SwiftUI
     }
     
     func declineProfile(profile: UserProfile) async throws {
+        //Update its status to declined, in firebase -> listener removes it from the 'Meet' section
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .declined)
+        //Adds it to the 'declineProfile' list
+        session.declineProfile(id: profile.id)
+        //Delete any eventDraft that was stored on defaults (as that persists between sessions)
         defaults.deleteEventDraft(profileId: profile.id)
     }
     

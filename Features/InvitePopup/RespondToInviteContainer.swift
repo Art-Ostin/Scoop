@@ -7,13 +7,38 @@
 
 import SwiftUI
 
+//Where the resting invite card ACTUALLY draws its text set, measured by InviteSlot on the
+//real (hidden) card and passed card-relative. The flight's hero anchors prefer these over the
+//font-metrics derivation — the derived walk sat ~0.7pt per row high and the whole set snapped
+//down at the close handback (device video, 2026-08-20). Rects are LAYOUT frames: render
+//offsets (the chip's 4.5, the envelope's 4) never appear in measurements and are re-added at
+//use. A zero rect means "not measured" — that element falls back to the derivation.
+struct InviteCardSourceRects {
+    var title: CGRect = .zero
+    var chip: CGRect = .zero
+    var time: CGRect = .zero
+    var place: CGRect = .zero
+    var envelope: CGRect = .zero
+}
+
 struct RespondInviteContainer: View {
+
+    //The bottom strip (warning + Decline) arms about a third into the open spring: its pop is
+    //still near-invisible while the hero rows finish clearing the strip, and its ~0.25s clock
+    //completes just ahead of the card's settle — nothing arrives after the animation reads
+    //done. (Keyed on rowsLanded it arrived ~0.4s past the settle; at 0.5 it still read a
+    //touch late — Arthur, 2026-08-20. A gate that mounts VISIBLE fades the strip out over the
+    //launch — never do that.)
+    static let bottomChromeInShare: Double = 0.35
 
     //Injected Properties
     let images: [UIImage]
 
     @State var vm: RespondViewModel
     @State var timeAndPlaceVM: TimeAndPlaceViewModel
+
+    //The card's measured text anchors (see InviteCardSourceRects); captured at presentation
+    var sourceRects: InviteCardSourceRects = InviteCardSourceRects()
 
     //A per-card Bool (InviteSlot's guarded narrowing of the shared EventProfile? slot), never
     //the slot itself: a stale close completion writing the raw slot nil would dismiss whichever
@@ -57,6 +82,7 @@ struct RespondInviteContainer: View {
     @State private var sourceChromeFade: Double = 1
     @State private var chromeIn = false
     @State private var chevronIn = false
+    @State private var bottomChromeIn = false //The warning + Decline strip: armed mid-spring, never visible at mount
     @State private var sourceChromeExiting = false
     @State private var flightTargets: (card: CGRect, image: CGRect)?
 
@@ -72,6 +98,7 @@ struct RespondInviteContainer: View {
     @State private var timeRowDest: CGRect = .zero
     @State private var placeRowDest: CGRect = .zero
     @State private var acceptDest: CGRect = .zero //The CTA hero's landing pad: the real Accept button's frame
+    @State private var titleSlot: CGRect = .zero //The accept title's flight-invariant offsets, published by its own layout pass (the meet flight's titleNameSlot pattern)
 
     //Drag Logic — the ported profile dismissal, exactly as SendInviteContainer carries it
     @State private var dragAxis: Axis?
@@ -240,6 +267,9 @@ extension RespondInviteContainer {
         //While the heroes own the words the real rows keep layout ghosts (opacity only — a
         //structural unmount mid-flight resolves its return at destination geometry)
         .environment(\.inviteRowsFlying, rowsHeroActive)
+        //False from the popup's very first frame on a flighted mount — the strip must only
+        //ever animate IN, never out of an accidental visible mount
+        .environment(\.inviteBottomChromeIn, bottomChromeIn || !hasFlight)
         .padding(.horizontal, InviteCardBackground.horizontalInset)
         .padding(.top, InviteCardBackground.topInset)
     }
@@ -434,6 +464,7 @@ extension RespondInviteContainer {
 
     private struct SourceAnchors {
         var timeCenter: CGPoint
+        var timeMaxX: CGFloat //The row's trailing edge — the chevron's right edge, for its own anchor path
         var placeCenter: CGPoint
         var titleRect: CGRect
         var chipRect: CGRect
@@ -463,16 +494,44 @@ extension RespondInviteContainer {
                               y: titleRect.minY + SourceCardLayout.chipOffsetY,
                               width: chipW, height: SourceCardLayout.chipHeight)
 
-        return SourceAnchors(timeCenter: CGPoint(x: left, y: timeCenterY),
-                             placeCenter: CGPoint(x: left, y: placeCenterY),
-                             titleRect: titleRect,
-                             chipRect: chipRect)
+        //Fallback trailing edge: icon column + gap + the text at 20pt + the chevron's berth
+        let timeTextW = (DynamicTimeRow.text(for: vm.respondDraft) as NSString)
+            .size(withAttributes: [.font: UIFont.body(20, .medium), .kern: 0.1]).width
+        var anchors = SourceAnchors(timeCenter: CGPoint(x: left, y: timeCenterY),
+                                    timeMaxX: left + 20 + Spacing.xs + timeTextW + Spacing.xs + 10,
+                                    placeCenter: CGPoint(x: left, y: placeCenterY),
+                                    titleRect: titleRect,
+                                    chipRect: chipRect)
+
+        //MEASURED anchors win wherever the card reported them — the derivation above is only
+        //the fallback for an element that never measured
+        let m = sourceRects
+        if m.time.width > 1 {
+            anchors.timeCenter = CGPoint(x: card.minX + m.time.minX, y: card.minY + m.time.midY)
+            anchors.timeMaxX = card.minX + m.time.maxX
+        }
+        if m.place.width > 1 {
+            anchors.placeCenter = CGPoint(x: card.minX + m.place.minX, y: card.minY + m.place.midY)
+        }
+        if m.title.width > 1 {
+            anchors.titleRect = m.title.offsetBy(dx: card.minX, dy: card.minY)
+        }
+        if m.chip.width > 1 {
+            anchors.chipRect = m.chip.offsetBy(dx: card.minX, dy: card.minY + SourceCardLayout.chipOffsetY)
+        }
+        return anchors
     }
 
-    //The title's landing rect on the carousel image, derived from the frozen flight target +
-    //the accept title's own constants (inset, bottom inset, 22pt font at its answering scale)
+    //The title's landing rect on the carousel image: the title's own published slot (layout
+    //sizes — exact) anchored to the frozen flight target; the font-metrics derivation only
+    //covers the frames before the first layout pass reports
     private func destTitleRect() -> CGRect {
         let target = carouselTargetFrame
+        if titleSlot.width > 1 {
+            return CGRect(x: target.minX + titleSlot.minX,
+                          y: target.maxY - titleSlot.minY - titleSlot.height,
+                          width: titleSlot.width, height: titleSlot.height)
+        }
         let text = InviteCardTitle.text(name: vm.profile.name)
         let size = (text as NSString).size(withAttributes: [.font: UIFont.title(22)])
         let scale = InviteImageCarousel.answeringTitleScale
@@ -501,43 +560,97 @@ extension RespondInviteContainer {
         }
     }
 
-    //The chip ("🍻 Grab Drinks", white capsule) morphs into the popup's type row (drawn icon +
-    //dark 19pt text): both replicas fly one anchor path, size-matched by the text height
-    //ratio, crossfading on the flight scalar — the words themselves are identical.
+    //The chip ("🍻 Grab Drinks", white capsule) morphs into the popup's type row — with the
+    //word as ONE continuously-visible element, never two offset copies (the doubled text was
+    //the sloppy mid-flight frame; device screenshot 2026-08-20). The label is superimposed
+    //twice ONLY for the weight morph (13 bold ↔ 19 medium), trailing-anchored on the SAME
+    //lerped point (chip trailing pad and the measured row end are both exact) and size-matched
+    //by scale, so the glyphs coincide and the fade reads as one word changing weight. The
+    //emoji dissolves into the drawn icon in one shared slot; the capsule stroke rides out.
     @ViewBuilder
     private func typeHeroLayer(_ origin: CGPoint) -> some View {
         if rowsHeroActive {
-            let anchors = sourceAnchors(in: sourceFrame)
-            rowHeroLayer(origin,
-                         source: CGPoint(x: anchors.chipRect.minX, y: anchors.chipRect.midY),
-                         dest: typeRowDest,
-                         landedScale: UIFont.body(19, .medium).lineHeight / max(UIFont.body(13, .bold).lineHeight, 1),
-                         cardRow: { typeChipReplica },
-                         popupRow: { typeRowReplica })
+            let chip = sourceAnchors(in: sourceFrame).chipRect
+            let dest = typeRowDest.width > 1 ? typeRowDest : chip //First frames only, as the rows
+            let t = 1 - closeP
+            let k = UIFont.body(19, .medium).lineHeight / max(UIFont.body(13, .bold).lineHeight, 1)
+            let tint = Color.white.mix(with: .textPrimary, by: min(max(Double(t), 0), 1))
+
+            //One glyph slot: the emoji at the chip's leading pad, the drawn icon at the row's
+            let glyph = local(CGPoint(x: lerp(dest.minX, chip.minX + SourceCardLayout.chipLeadingPad, closeP),
+                                      y: lerp(dest.midY, chip.midY, closeP)), origin)
+            let textEnd = local(CGPoint(x: lerp(dest.maxX, chip.maxX - SourceCardLayout.chipTrailingPad, closeP),
+                                        y: lerp(dest.midY, chip.midY, closeP)), origin)
+            //The capsule's landed stand-in: the chip's own geometry scaled with the text, so
+            //the stroke travels with the word while it fades
+            let landedChip = CGRect(x: dest.maxX + SourceCardLayout.chipTrailingPad * k - chip.width * k,
+                                    y: dest.midY - chip.height * k / 2,
+                                    width: chip.width * k, height: chip.height * k)
+            let capsule = local(lerp(landedChip, chip, closeP), origin)
+
+            ZStack {
+                Capsule()
+                    .strokeBorder(Color.white, lineWidth: 1)
+                    .frame(width: capsule.width, height: capsule.height)
+                    .position(x: capsule.midX, y: capsule.midY)
+                    .opacity(Double(closeP))
+                ZStack(alignment: .leading) {
+                    Text(inviteSummary.type.emoji)
+                        .font(.body(13))
+                        .fixedSize()
+                        .scaleEffect(lerp(1, 20.0 / 13.0, t), anchor: .leading)
+                        .opacity(Double(closeP))
+                    Image(.drinkIconDark)
+                        .renderingMode(.original)
+                        .scaleEffect(lerp(13.0 / 20.0, 1, t), anchor: .leading)
+                        .opacity(Double(1 - closeP))
+                }
+                .frame(width: 0, height: 0, alignment: .leading)
+                .position(glyph)
+                ZStack(alignment: .trailing) {
+                    Text(inviteSummary.type.longTitle)
+                        .font(.body(13, .bold))
+                        .lineLimit(1)
+                        .fixedSize()
+                        .scaleEffect(lerp(1, k, t), anchor: .trailing)
+                        .opacity(Double(closeP))
+                    Text(inviteSummary.type.longTitle)
+                        .font(.body(19, .medium))
+                        .lineLimit(1)
+                        .fixedSize()
+                        .scaleEffect(lerp(1 / max(k, 0.01), 1, t), anchor: .trailing)
+                        .opacity(Double(1 - closeP))
+                }
+                .foregroundStyle(tint)
+                .frame(width: 0, height: 0, alignment: .trailing)
+                .position(textEnd)
+            }
+            .allowsHitTesting(false)
         }
     }
 
     @ViewBuilder
     private func timeHeroLayer(_ origin: CGPoint) -> some View {
         if rowsHeroActive {
-            rowHeroLayer(origin,
-                         source: sourceAnchors(in: sourceFrame).timeCenter,
-                         dest: timeRowDest,
-                         landedScale: rowHeroScale,
-                         cardRow: { timeRowReplica(card: true) },
-                         popupRow: { timeRowReplica(card: false) })
+            let anchors = sourceAnchors(in: sourceFrame)
+            lineRowHero(origin,
+                        sourceLeading: anchors.timeCenter, sourceMaxX: anchors.timeMaxX,
+                        dest: timeRowDest,
+                        cardIcon: .whiteClock, popupIcon: .eventClockIcon,
+                        text: DynamicTimeRow.text(for: vm.respondDraft), hasChevron: true)
         }
     }
 
     @ViewBuilder
     private func placeHeroLayer(_ origin: CGPoint) -> some View {
         if rowsHeroActive {
-            rowHeroLayer(origin,
-                         source: sourceAnchors(in: sourceFrame).placeCenter,
-                         dest: placeRowDest,
-                         landedScale: rowHeroScale,
-                         cardRow: { placeRowReplica(card: true) },
-                         popupRow: { placeRowReplica(card: false) })
+            let anchors = sourceAnchors(in: sourceFrame)
+            let place = inviteSummary.place
+            lineRowHero(origin,
+                        sourceLeading: anchors.placeCenter, sourceMaxX: 0,
+                        dest: placeRowDest,
+                        cardIcon: .whiteMap, popupIcon: .eventMapIcon,
+                        text: place.name ?? place.address ?? "View on map", hasChevron: false)
         }
     }
 
@@ -581,115 +694,78 @@ extension RespondInviteContainer {
     }
 
     private func sourceEnvelopeRect(in card: CGRect) -> CGRect {
+        if sourceRects.envelope.width > 1 {
+            //No offsetY re-add here, unlike the chip: the envelope's .offset(y: 4) sits
+            //OUTSIDE its measuring modifier (ConfirmContainer measures beneath the offset), so
+            //the measurement already carries it — adding it again took the hero over 4pt low
+            //at the tap and handed back 4pt high (device report, 2026-08-20). The chip's
+            //offset lives INSIDE the measured view, so its measurement excludes it.
+            return sourceRects.envelope.offsetBy(dx: card.minX, dy: card.minY)
+        }
         let size = SourceCardLayout.envelopeSize
         return CGRect(x: card.maxX - SourceCardLayout.contentInset - size,
                       y: card.maxY - SourceCardLayout.bottomInset - size + SourceCardLayout.envelopeOffsetY,
                       width: size, height: size)
     }
 
-    //The card rows are 20pt medium, the popup's 19pt — the replicas size-match on the ratio so
-    //the crossfade reads as one line restyling, never two sizes double-exposed
-    private var rowHeroScale: CGFloat {
-        UIFont.body(19, .medium).lineHeight / max(UIFont.body(20, .medium).lineHeight, 1)
-    }
-
-    //One flying row: both stylings always mounted, leading-anchored on a lerped anchor
-    //(leading edge at x, centred on y via the zero-size frame), each render-scaled so their
-    //text heights coincide at every point of the flight, crossfaded on closeP. Everything is
-    //linear in closeP, so the open/close springs and the gesture driver all scrub it.
-    private func rowHeroLayer<CardRow: View, PopupRow: View>(
-        _ origin: CGPoint,
-        source: CGPoint,
-        dest: CGRect,
-        landedScale: CGFloat,
-        @ViewBuilder cardRow: () -> CardRow,
-        @ViewBuilder popupRow: () -> PopupRow
-    ) -> some View {
+    //One flying LineSection with every piece the SAME element the whole way — nothing ever
+    //renders twice at offset positions (the doubled text was the sloppy mid-flight frame;
+    //device screenshot 2026-08-20):
+    //  · ONE Text, colour-mixed on the flight scalar (card tint → textPrimary) and
+    //    scale-morphed 20 → 19pt (same typeface at both ends), sliding its own anchor as the
+    //    icon gap goes 8 → 12
+    //  · ONE chevron, trailing-anchored between the two rows' measured trailing edges
+    //  · one icon slot, where the card's template glyph dissolves into the popup's drawn art
+    //    in place — a material change at a single position, never two positions
+    //Everything is linear in closeP, so the springs and the gesture driver all scrub it.
+    private func lineRowHero(_ origin: CGPoint,
+                             sourceLeading: CGPoint, sourceMaxX: CGFloat,
+                             dest: CGRect,
+                             cardIcon: ImageResource, popupIcon: ImageResource,
+                             text: String, hasChevron: Bool) -> some View {
         //First frames only: until the destination row reports, the hero holds the card
-        let destAnchor = dest.width > 1 ? CGPoint(x: dest.minX, y: dest.midY) : source
-        let anchor = local(CGPoint(x: lerp(destAnchor.x, source.x, closeP),
-                                   y: lerp(destAnchor.y, source.y, closeP)), origin)
+        let destLeading = dest.width > 1 ? CGPoint(x: dest.minX, y: dest.midY) : sourceLeading
+        let destMaxX = dest.width > 1 ? dest.maxX : sourceMaxX
         let t = 1 - closeP //0 at the card, 1 landed
-        return ZStack(alignment: .leading) {
-            cardRow()
-                .scaleEffect(lerp(1, landedScale, t), anchor: .leading)
-                .opacity(Double(closeP))
-            popupRow()
-                .scaleEffect(lerp(1 / max(landedScale, 0.01), 1, t), anchor: .leading)
-                .opacity(Double(1 - closeP))
-        }
-        .frame(width: 0, height: 0, alignment: .leading) //Zero-size anchor: content flows trailing-ward, vertically centred
-        .position(x: anchor.x, y: anchor.y)
-        .allowsHitTesting(false)
-    }
+        let iconPoint = local(CGPoint(x: lerp(destLeading.x, sourceLeading.x, closeP),
+                                      y: lerp(destLeading.y, sourceLeading.y, closeP)), origin)
+        let textInset = lerp(20 + Spacing.sm, 20 + Spacing.xs, closeP) //Icon column + the row gap, 8 on the card → 12 landed
+        let tint = cardPalette.secondaryText.mix(with: .textPrimary, by: min(max(Double(t), 0), 1))
 
-    //MARK: Replicas — pixel-faithful copies of both endpoints' rows
-
-    private var typeChipReplica: some View {
-        let type = inviteSummary.type
-        return HStack(alignment: .center, spacing: SourceCardLayout.chipInnerGap) {
-            Text(type.emoji)
-                .font(.body(13))
-            Text(type.longTitle)
-                .font(.body(13, .bold))
-        }
-        .foregroundStyle(Color.white)
-        .frame(height: SourceCardLayout.chipHeight)
-        .padding(.trailing, SourceCardLayout.chipTrailingPad)
-        .padding(.leading, SourceCardLayout.chipLeadingPad)
-        .capsuleStroke(lineWidth: 1, color: .white)
-        .lineLimit(1)
-        .fixedSize()
-    }
-
-    private var typeRowReplica: some View {
-        HStack(spacing: Spacing.sm) {
-            Image(.drinkIconDark)
-                .renderingMode(.original)
-                .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
-            Text(inviteSummary.type.longTitle)
-        }
-        .font(.body(19, .medium))
-        .foregroundStyle(Color.textPrimary)
-        .lineLimit(1)
-        .fixedSize()
-    }
-
-    private func timeRowReplica(card: Bool) -> some View {
-        HStack {
-            HStack(spacing: card ? Spacing.xs : Spacing.sm) {
-                Image(card ? .whiteClock : .eventClockIcon)
-                    .renderingMode(card ? .template : .original)
-                    .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
-                Text(DynamicTimeRow.text(for: vm.respondDraft))
+        return ZStack {
+            ZStack(alignment: .leading) {
+                Image(cardIcon)
+                    .renderingMode(.template)
+                    .foregroundStyle(cardPalette.secondaryText)
+                    .opacity(Double(closeP))
+                Image(popupIcon)
+                    .renderingMode(.original)
+                    .opacity(Double(1 - closeP))
             }
-            .padding(.top, -1)
-            Image(systemName: "chevron.right")
-                .font(.body(12, .bold))
-                .offset(y: -2)
-        }
-        .font(.body(card ? 20 : 19, .medium))
-        .kerning(0.1)
-        .foregroundStyle(card ? cardPalette.secondaryText : Color.textPrimary)
-        .animation(.transition, value: cardPalette) //Extraction lands a frame late — the tint fades in rather than snaps (leaf-side, can't swallow the flight's transaction)
-        .lineLimit(1)
-        .fixedSize()
-    }
+            .frame(width: 0, height: 0, alignment: .leading)
+            .position(iconPoint)
 
-    private func placeRowReplica(card: Bool) -> some View {
-        let place = inviteSummary.place
-        return HStack(spacing: card ? Spacing.xs : Spacing.sm) {
-            Image(card ? .whiteMap : .eventMapIcon)
-                .renderingMode(card ? .template : .original)
-                .frame(width: 20, alignment: .leading) //Geometry: icon column both rows align to
-            Text(place.name ?? place.address ?? "View on map")
+            Text(text)
+                .font(.body(20, .medium))
+                .kerning(0.1)
+                .foregroundStyle(tint)
+                .lineLimit(1)
+                .fixedSize()
+                .scaleEffect(lerp(1, 19.0 / 20.0, t), anchor: .leading)
+                .frame(width: 0, height: 0, alignment: .leading)
+                .position(x: iconPoint.x + textInset, y: iconPoint.y)
+
+            if hasChevron {
+                Image(systemName: "chevron.right")
+                    .font(.body(12, .bold))
+                    .foregroundStyle(tint)
+                    .frame(width: 0, height: 0, alignment: .trailing)
+                    .position(x: lerp(destMaxX, sourceMaxX, closeP) - origin.x,
+                              y: iconPoint.y - 2) //Geometry: the row's chevron rides 2pt high
+            }
         }
-        .font(.body(card ? 20 : 19, .medium))
-        .kerning(0.1)
-        .foregroundStyle(card ? cardPalette.secondaryText : Color.textPrimary)
-        .animation(.transition, value: cardPalette) //As the time row: the tint's late arrival fades in
-        .lineLimit(1)
-        .fixedSize()
+        .animation(.transition, value: cardPalette) //Extraction lands a frame late — the tint fades in rather than snaps (leaf-side, can't swallow the flight's transaction)
+        .allowsHitTesting(false)
     }
 
     //Guarded like every other frame here: the destination anchors are the heroes' landing
@@ -718,6 +794,7 @@ extension RespondInviteContainer {
             rowsLanded = true
             chromeIn = true
             chevronIn = true
+            bottomChromeIn = true
             pagerReveal = 1
             coversDropped = true
             closeP = 0
@@ -738,6 +815,7 @@ extension RespondInviteContainer {
                 land(generation)
             }
             scheduleChevronIn(generation)
+            scheduleBottomChromeIn(generation)
         }
     }
 
@@ -746,6 +824,16 @@ extension RespondInviteContainer {
             try? await Task.sleep(for: .seconds(SendInviteContainer.openSpring.duration * SendInviteContainer.chevronInShare))
             guard expanded, generation == flightGeneration else { return }
             chevronIn = true
+        }
+    }
+
+    //The bottom strip arms mid-spring: its pop runs on the .transition clocks scoped at the
+    //warning and Decline, completing as the card settles
+    private func scheduleBottomChromeIn(_ generation: Int) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(SendInviteContainer.openSpring.duration * Self.bottomChromeInShare))
+            guard expanded, generation == flightGeneration else { return }
+            bottomChromeIn = true
         }
     }
 
@@ -767,6 +855,7 @@ extension RespondInviteContainer {
             landed = false
             chromeIn = false //Chrome pops out at close start, ahead of the flight home
             chevronIn = false
+            bottomChromeIn = false //The strip pops out with the rest of the chrome
             pagerReveal = 0
             coversDropped = false
             rowsLanded = false //The heroes take the words back for the flight home
@@ -778,6 +867,7 @@ extension RespondInviteContainer {
         landed = true
         chromeIn = true //Normally already in on its own clock — this covers the fallback land
         chevronIn = true
+        bottomChromeIn = true //As above — the landing must never sit strip-less
         flightTargets = nil //Live measurements own the geometry again
         blurCover = 0
         Task { @MainActor in //The row swap waits out the spring's last sub-pixel settle (the name hero's rule)
@@ -843,6 +933,7 @@ extension RespondInviteContainer {
             cropScrub = 0
         }
         scheduleChevronIn(flightGeneration)
+        scheduleBottomChromeIn(flightGeneration)
     }
 
     private func prepareClose() {
@@ -1291,6 +1382,7 @@ extension RespondInviteContainer {
             pagerInteractive: coversDropped && !dragging,
             chromeOpacity: dragChromeFade,
             nameFlying: rowsHeroActive, //The hero text owns the title; the accept line keeps a layout ghost
+            titleNameSlot: $titleSlot, //The accept title's slot — the title hero's exact landing pad
             declineProfile: {respond(.decline)},
             clearInvite: { withAnimation(.dissolve) { vm.deleteEventDefault() } }
         )
@@ -1448,6 +1540,12 @@ extension RespondInviteContainer {
                 .capsuleStroke(lineWidth: 1, color: .borderStrong)
                 .geometryGroup()
                 .shrinkPress {respond(.decline)}
+                //Hidden from the flight's first frame, popped in mid-spring so it lands with
+                //the settle, back out at close start — as the warning. (The Accept button
+                //stays an instant ghost hand-off: its CTA hero already owns its pixels.)
+                .blurPop(visible: bottomChromeIn || !hasFlight)
+                .animation(.transition, value: bottomChromeIn)
+                .allowsHitTesting(bottomChromeIn || !hasFlight)
         }
     }
 

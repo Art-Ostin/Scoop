@@ -74,6 +74,7 @@ protocol ChatRepository {
 protocol ProfilesRepository {
     func profilesTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ProfileRec>, Error>
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws
+    func recentlyDeclined(userId: String, since: Date) async throws -> [ProfileRec]
 }
 
 protocol ImageLoading: Actor {

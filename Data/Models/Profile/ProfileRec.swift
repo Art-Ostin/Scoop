@@ -24,4 +24,7 @@ struct ProfileRec: Identifiable, Codable, Sendable{
     var status: Status
     @ServerTimestamp var addedDay: Timestamp?
     var updatedDay: Timestamp?
+    
+    //Don't want to use Firebase data type(TimeStamp) want to use Swift's (Date) so make the update here
+    var updatedAt: Date? { updatedDay?.dateValue() }
 }

@@ -17,6 +17,7 @@ struct EventsContainer: View {
     //Local View state
     @State private var ui = EventsUIState()
     @State private var userImage: UIImage? = nil
+    @State private var scrollPosition = ScrollPosition(edge: .top)
     @Namespace var zoomNS
 
     private var currentProfile: EventProfile? {
@@ -30,7 +31,8 @@ struct EventsContainer: View {
     var body: some View {
         ZoomNavigationStack {
             NavigationStack(path: $path) {
-                TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle) {
+                TabScrollView(type: .events, showEmptyView: vm.events.isEmpty, name: eventsTitle,
+                              position: $scrollPosition) {
                     eventsList
                 }
                 .overlay(alignment: .bottomTrailing) { messageButton }
@@ -41,6 +43,7 @@ struct EventsContainer: View {
         .hideTabBar(!path.isEmpty)
         .onChange(of: showMessageScreen) {handleDeepLink(eventId: $1)}
         .onChange(of: showEventId) {focusEvent(id: $1)}
+        .onChange(of: vm.events.count) {focusEvent(id: showEventId)} //A landing kept pending (event not listed yet) retries when the list catches up
         .onAppear {focusEvent(id: showEventId)} //A first tab switch mounts this container after the id was set — onChange never saw it
         .task {userImage = try? await vm.fetchUserImage() }
         .sheet(item: $ui.showCantMakeIt) {CantMakeIt(vm: vm, eventProfile: $0)}
@@ -98,6 +101,15 @@ extension EventsContainer {
 ///EventsContainer — the title and the message button read `selectedEventId` — while the paging
 ///animation is still running, and the re-applied `scrollPosition` then snaps the offset to the
 ///target instead of letting it settle. Only the resting page travels back up.
+///
+///A deep link is a CONTRACT, not a request: `.scrollPosition(id:)` is two-way, and a jump
+///issued before the pager can honor it (the tab still attaching in the routing transaction,
+///the target page freshly appended and not yet laid out) is silently reverted by the
+///binding's next resting write-back — which the `.idle` hand-back would then copy into
+///`selectedEventId`, erasing the deep link and landing accepted invites on the FIRST event.
+///`pendingJump` latches the target until the pager actually rests on it: reverts are
+///re-asserted, the hand-back stays quiet while pending, and a finger on the pager stands
+///the latch down — never fight the user.
 private struct EventsPager<Content: View>: View {
 
     //Injected
@@ -106,6 +118,7 @@ private struct EventsPager<Content: View>: View {
 
     //Local view state
     @State private var pagedId: String?
+    @State private var pendingJump: String? //A deep-link landing not yet achieved
 
     var body: some View {
         HorizontalScrollView(progress: .constant(0)) {
@@ -113,12 +126,29 @@ private struct EventsPager<Content: View>: View {
         }
         .scrollPosition(id: $pagedId)
         .onScrollPhaseChange { _, phase in
-            guard phase == .idle, pagedId != selectedEventId else { return }
+            if phase == .interacting || phase == .decelerating { pendingJump = nil }
+            guard phase == .idle else { return }
+            if let pending = pendingJump {
+                if pagedId == pending { pendingJump = nil } //The jump landed
+                else { pagedId = pending }                  //Rested short of it — re-assert
+                return
+            }
+            guard pagedId != selectedEventId else { return }
             selectedEventId = pagedId
         }
-        .onChange(of: selectedEventId) { _, newId in
-            guard let newId, newId != pagedId else { return } //Deep links jump the pager
-            pagedId = newId
+        //initial: true — a target already set when the pager first evaluates (an
+        //empty→non-empty flip with a pending landing) must latch too, not become the baseline
+        .onChange(of: selectedEventId, initial: true) { _, newId in
+            //Already there (or cleared) — nothing to chase; drop any stale latch
+            guard let newId, newId != pagedId else { pendingJump = nil; return }
+            pendingJump = newId
+            pagedId = newId //Deep links jump the pager
+        }
+        .onChange(of: pagedId) { _, newId in
+            //A resting write-back that reverts the unachieved target is refused; the echo
+            //of our own assignment (newId == pending) passes through untouched
+            guard let pending = pendingJump, newId != pending else { return }
+            pagedId = pending
         }
     }
 }
@@ -157,10 +187,16 @@ extension EventsContainer {
         showMessageScreen = nil
     }
 
-    //A just-accepted invite: land the pager on its event (title and message button follow selectedEventId)
+    //A just-accepted invite: land the pager on its event (title and message button follow
+    //selectedEventId). Runs behind the accept cover's still-opaque wash, so the vertical
+    //rest happens unseen — and the accept flight's landing pad sits at its resting rect.
     private func focusEvent(id: String?) {
         guard let id else { return }
-        if vm.event(id: id) != nil { ui.selectedEventId = id }
+        //Not in the list yet: keep the id PENDING rather than consuming it — consuming on
+        //absence would drop the landing forever; the events-count onChange retries it
+        guard vm.event(id: id) != nil else { return }
+        ui.selectedEventId = id
+        scrollPosition.scrollTo(edge: .top)
         showEventId = nil
     }
 

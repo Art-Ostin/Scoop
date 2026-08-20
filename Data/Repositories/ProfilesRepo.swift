@@ -32,10 +32,23 @@ class ProfileRepo: ProfilesRepository {
         let profilesPath = "users/\(userId)/profiles"
         return fs.streamCollection(profilesPath) {$0.whereField(ProfileRec.Field.status.rawValue, isEqualTo: ProfileRec.Status.pending.rawValue)}
     }
-        
+    
+    //Update profile Rec to whatever status I set, and with a timestamp
     func updateProfileRec(userId: String, profileId: String, status: ProfileRec.Status) async throws {
         let path = profilePath(userId: userId, profileId: profileId)
-        let data: [String: Any] = [ProfileRec.Field.status.rawValue: status.rawValue]
+        let data: [String: Any] = [
+            ProfileRec.Field.status.rawValue: status.rawValue,
+            ProfileRec.Field.updatedDay.rawValue : FieldValue.serverTimestamp()
+        ]
         try await fs.update(path, fields: data)
+    }
+    
+    func recentlyDeclined(userId: String, since: Date) async throws -> [ProfileRec]{
+        typealias F = ProfileRec.Field
+        return try await fs.fetchFromCollection(profilesFolder(userId: userId)) {
+            $0.whereField(F.status.rawValue, isEqualTo: ProfileRec.Status.declined.rawValue)
+              .whereField(F.updatedDay.rawValue, isGreaterThan: Timestamp(date: since))
+              .order(by: F.updatedDay.rawValue, descending: true)
+        }
     }
 }

@@ -20,3 +20,9 @@ struct PendingProfile: Identifiable, Equatable, Hashable {
         hasher.combine(id)
     }
 }
+
+struct DeclinedProfile: Identifiable, Equatable {
+    let profile: PendingProfile
+    let declinedAt: Date
+    var id: String { profile.id }
+}
