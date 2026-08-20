@@ -61,6 +61,7 @@ import SwiftUI
     var showInfo: Bool = false
     var openPastInvites = false
     var showInvite: PendingProfile?
+    var titleTravel: CGFloat = 0   //How far the large title has risen; the ⓘ beside it rides this
 
 
     //Custom Binding so can be a bool in the InviteView, but a PendingProfile? in Meet container

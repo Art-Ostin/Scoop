@@ -14,7 +14,15 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
     let style: ConfirmStyle
     var timeOpen: Bool = false
 
+    //The quick-invite flight's destination anchor for the place row (nil outside a flight)
+    var placeRowFrame: Binding<CGRect>? = nil
+
     @ViewBuilder var timeRow: TimeRow
+
+    //While the flight's hero rows own the time and place they never render here (ghosts keep
+    //the layout); at rest this is identity
+    @Environment(\.inviteRowsFlying) private var rowsFlying
+    @Environment(\.inviteChromeFade) private var chromeFade
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
@@ -22,7 +30,9 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
                 .blurPop(visible: !timeOpen, scale: 1)
             PlaceRow(place: place, style: style)
                 .blurPop(visible: !timeOpen, scale: 1)
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { placeRowFrame?.wrappedValue = $0 }
         }
+        .opacity(rowsFlying ? 0 : chromeFade) //Heroes own the rows; a hero-less flight rushes them out with the scrim
         .font(.body(style.timeAndPlaceSizing, .medium))
         .kerning(0.1)
         .fixedSize(horizontal: false, vertical: true)   //pin single-line rows to natural height
@@ -67,7 +77,10 @@ struct DynamicTimeRow: View {
         }
     }
     
-    private var timeText: String {
+    private var timeText: String { Self.text(for: draft) }
+
+    //Static so the quick-invite flight's hero row can render the exact string this row shows
+    static func text(for draft: RespondDraft) -> String {
         if draft.respondType == .originalInvite {
             if let time = draft.originalInvite.selectedDay {
                 return FormatEvent.shortDayAndTime(time)

@@ -6,7 +6,6 @@
 //
 import SwiftUI
 
-
 struct MeetContainer: View {
     
     //Inject Dependencies
@@ -24,9 +23,11 @@ struct MeetContainer: View {
                     profileList
                 }
                 .isAtTopOfScroll($isAtTopOfScroll)
+                .titleTravel($ui.titleTravel)
             }
         }
         .ignoresSafeArea()
+        .overlay(alignment: .topLeading) {TitleInfoIcon(ui: ui)}
         .overlay(alignment: .topTrailing) {pastDeclineButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
@@ -41,7 +42,6 @@ extension MeetContainer {
             ForEach(vm.profiles) { profile in
                 profileCard(profile)
             }
-            .overlay(alignment: .topLeading) {titleInfoIcon}
         }
     }
             
@@ -56,21 +56,32 @@ extension MeetContainer {
             isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
         )
     }
+}
 
-    //Lives outside the scroll: content offset above the scroll's content origin never gets touches
-    private var titleInfoIcon: some View {
+
+//The ⓘ beside the "Meet" title. Lives outside the scroll — anything drawn above the scroll's
+//content origin is painted but never gets touches — and rides the title, which scrolls 1:1 with
+//the content. Its own View so a value that changes every scroll frame doesn't re-evaluate the
+//container's body. It fades before the bar: an overlay sits above the bar, so it would cross it
+//sharp instead of blurring under it like the title does.
+private struct TitleInfoIcon: View {
+
+    let ui: MeetUIState
+
+    private let band: CGFloat = 44 //Geometry: the title's travel from rest to the nav bar
+
+    var body: some View {
         Image(systemName: "info.circle")
             .foregroundStyle(Color.textTertiary)
             .font(.body(14, .medium))
             .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
-            .shrinkPress {
-                ui.showInfo = true
-            }
-            .padding(.top, 36)     //Geometry: 50 − 14 frame inset, keeps the glyph on the title's cap line
+            .shrinkPress {ui.showInfo = true}
+            .padding(.top, 57)     //Geometry: 81 title centre − 22 half-box − 2 optical lift, from the safe-area top
             .padding(.leading, 81) //Geometry: 95 − 14 frame inset, keeps it clear of "Meet"
+            .offset(y: -ui.titleTravel)
+            .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades
     }
 }
-
 
 //Logic of actually responding to a profile
 extension MeetContainer {

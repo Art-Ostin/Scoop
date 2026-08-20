@@ -76,6 +76,27 @@ private struct IsAtTopOfScroll: ViewModifier {
 }
 
 
+///How far the large title has risen from its resting position (0 at the top of the scroll,
+///NEGATIVE while rubber-banding down). The system title scrolls 1:1 with the content — the
+///damping is already in contentOffset — so an overlay offset by -travel rides it both ways.
+private struct TitleTravel: ViewModifier {
+    @Binding var travel: CGFloat
+    @State private var expandedInset: CGFloat = 0        // fully-expanded (large-title) inset
+    
+    private struct Geo: Equatable { var offsetY, insetTop: CGFloat }
+    
+    func body(content: Content) -> some View {
+        content
+            .onScrollGeometryChange(for: Geo.self) { geo in
+                Geo(offsetY: geo.contentOffset.y, insetTop: geo.contentInsets.top)
+            } action: { _, g in
+                expandedInset = max(expandedInset, g.insetTop)   // learn the expanded inset
+                travel = g.offsetY + expandedInset
+            }
+    }
+}
+
+
 private struct TrackScrollProgess: ViewModifier {
     @Binding var scrollProgress: Double
     
@@ -121,6 +142,10 @@ extension View {
 
     func isAtTopOfScroll(_ isAtTop: Binding<Bool>) -> some View {
         modifier(IsAtTopOfScroll(isAtTop: isAtTop))
+    }
+
+    func titleTravel(_ travel: Binding<CGFloat>) -> some View {
+        modifier(TitleTravel(travel: travel))
     }
 
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {

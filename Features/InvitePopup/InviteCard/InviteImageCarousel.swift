@@ -103,6 +103,7 @@ struct InviteImageCarousel: View {
     static let titleInset: CGFloat = 20 //Geometry: as the back button — one shared inset from the artwork edge
     static let titleWordGap: CGFloat = 6 //Geometry: tighter than a word space, so the pair reads as one line of display type
     static let titleBottomInset: CGFloat = Spacing.sm
+    static let answeringTitleScale: CGFloat = 0.85 //The accept title's shrink — shared with the quick-invite flight's hero maths
 
     //Both offered by the options menu
     let declineProfile: () -> Void
@@ -183,21 +184,32 @@ extension InviteImageCarousel {
         .animation(.transition, value: screen) //Its two buttons mount and unmount as the screen changes
     }
 
+    @ViewBuilder
     private var inviteTitle: some View {
         let answering = screen == .accept
 
-        return HStack(spacing: Self.titleWordGap) {
-            Text(answering ? "\(name)'s" : "Invite")
-                .getRect($nameFrame, coordSpace: "InviteImageCarousel")
-                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { inviteWordWidth = $0; publishNameSlot() }
+        Group {
+            if answering {
+                //One Text carrying the CARD's exact copy (InviteCardTitle) — the quick-invite
+                //flight morphs the card title into this line, so the words must be identical
+                Text(InviteCardTitle.text(name: name))
+                    .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+                    .opacity(nameFlying ? 0 : 1) //Layout ghost while the flight's hero text owns the line
+            } else {
+                HStack(spacing: Self.titleWordGap) {
+                    Text("Invite")
+                        .getRect($nameFrame, coordSpace: "InviteImageCarousel")
+                        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { inviteWordWidth = $0; publishNameSlot() }
 
-            Text(answering ? "invite" : name)
-                .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
-                .opacity(nameFlying ? 0 : 1) //Layout ghost while the flight's hero text owns the word
-                .onGeometryChange(for: CGSize.self) { $0.size } action: { titleNameSize = $0; publishNameSlot() }
+                    Text(name)
+                        .getRect($inviteFrame, coordSpace: "InviteImageCarousel")
+                        .opacity(nameFlying ? 0 : 1) //Layout ghost while the flight's hero text owns the word
+                        .onGeometryChange(for: CGSize.self) { $0.size } action: { titleNameSize = $0; publishNameSlot() }
+                }
+            }
         }
         .font(.title(22))
-        .scaleEffect(answering ? 0.85 : 1, anchor: .bottomLeading) //Their name runs longer than "Invite"
+        .scaleEffect(answering ? Self.answeringTitleScale : 1, anchor: .bottomLeading) //Their name runs longer than "Invite"
         .foregroundStyle(Color.white)
         .padding(.horizontal, Self.titleInset)
         .padding(.bottom, Self.titleBottomInset)
@@ -248,12 +260,15 @@ extension InviteImageCarousel {
             let next = min(page + 1, images.count - 1)
             let fraction = clamped - Double(page)
             let visible = chrome.title && chromeVisible
+            //The accept title is ONE Text (only nameFrame is live) — a stale inviteFrame from
+            //a new-invite visit would leave a phantom halo where that layout's name word sat
+            let frames = screen == .accept ? [nameFrame] : [nameFrame, inviteFrame]
 
             ZStack {
-                BackgroundBlur(image: images[page], frames: [nameFrame, inviteFrame])
+                BackgroundBlur(image: images[page], frames: frames)
                     .opacity(1 - fraction)
                 if next != page && fraction > 0 {
-                    BackgroundBlur(image: images[next], frames: [nameFrame, inviteFrame])
+                    BackgroundBlur(image: images[next], frames: frames)
                         .opacity(fraction)
                 }
             }

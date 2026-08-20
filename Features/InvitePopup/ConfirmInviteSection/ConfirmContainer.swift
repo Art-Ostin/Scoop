@@ -39,6 +39,15 @@ enum ConfirmStyle {
     var showScrollView: Bool { !isCard }
 }
 
+//The card's title copy — one source of truth shared by the card, the respond popup's
+//carousel title and the quick-invite flight's hero text, so the three renderings can't drift.
+enum InviteCardTitle {
+    ///Name of 7 or fewer characters reads "Arthur's Invite"; a longer one is just the name
+    static func text(name: String) -> String {
+        name.count <= 7 ? "\(name)'s Invite" : name
+    }
+}
+
 struct ConfirmContainer<TimeRow: View>: View {
 
     //Injected
@@ -50,16 +59,30 @@ struct ConfirmContainer<TimeRow: View>: View {
     var color: Color? = nil //Artwork-derived tint for the card's rows; nil keeps the style's own foreground
 
     @Binding var showMessageScreen: Bool
+
+    //The quick-invite flight's destination anchors: global rects of the rows its hero text
+    //lands on, reported only when a flight asks (nil everywhere else)
+    var typeRowFrame: Binding<CGRect>? = nil
+    var placeRowFrame: Binding<CGRect>? = nil
+
     @ViewBuilder var timeRow: TimeRow
 
     let showInfo: () -> ()
     var openInvite: (() -> Void)? = nil
 
-    
+    //The quick-invite flight's exit drivers; at rest every one is identity
+    @Environment(\.inviteRowsFlying) private var rowsFlying
+    @Environment(\.inviteChromeFade) private var chromeFade
+    @Environment(\.inviteChromeExiting) private var chromeExiting
+    @Environment(\.inviteChromeCollapse) private var chromeCollapse
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
                 .blurPop(visible: !timeOpen, scale: 1)
+                //While the flight's hero text owns the title/type it never renders here; a
+                //flight with no heroes (a non-accept mount) rushes it out with the scrim instead
+                .opacity(rowsFlying ? 0 : chromeFade)
             timeAndPlaceRows
             warning
                 .blurPop(visible: !timeOpen, scale: 1)
@@ -88,28 +111,22 @@ extension ConfirmContainer {
     }
 
     private var typeRow: some View {
-        LineSection(image: .drinkIconDark, text: event.type == .drink ? "Grab a Drink" : event.type == .socialMeet ? "Social Meetup" : event.type.longTitle, style: style)
+        //The type reads the card chip's own copy ("Grab Drinks") — the quick-invite flight
+        //morphs the chip's text into this row, so the two must be the same words
+        LineSection(image: .drinkIconDark, text: event.type.longTitle, style: style)
             .fixedSize(horizontal: true, vertical: false)
             .font(.body(19, .medium))
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { typeRowFrame?.wrappedValue = $0 }
     }
 
     //Only used if it is the Confirm Screen within the Card
     private var cardTitle: some View {
         HStack(alignment: .top) {
-            Text(nameText)
+            Text(InviteCardTitle.text(name: name))
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
             Spacer(minLength: 4)
             TypeButton(type: event.type, timeOpen: timeOpen, showInfo: showInfo)
-        }
-    }
-    
-    //If Name is 7 or less characters say 'Arthur's Invite' otherwise just their name i.e. Genevieve
-    private var nameText: String {
-        if name.count <= 7 {
-            "\(name)'s Invite"
-        } else {
-            "\(name)"
         }
     }
 
@@ -121,6 +138,7 @@ extension ConfirmContainer {
             timeOpen: timeOpen,
             style: style,
             showMessageScreen: $showMessageScreen,
+            placeRowFrame: placeRowFrame,
             timeRow: { timeRow }
         )
     }
@@ -138,6 +156,12 @@ extension ConfirmContainer {
         if let openInvite {
             InviteButton(onTap: openInvite) //Sits on the rows' bottom edge; the card's inset lifts both
                 .offset(y: 4)
+                //The quick-invite flight: while the CTA hero owns the envelope (it widens into
+                //the Accept button) this copy never renders; a hero-less flight falls back to
+                //the meet card's invite-icon exits — pop away at launch, revealed by the collapse
+                .opacityPop(visible: !chromeExiting)
+                .animation(.transition, value: chromeExiting)
+                .opacity(rowsFlying ? 0 : chromeCollapse)
         }
     }
 }

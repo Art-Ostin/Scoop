@@ -18,7 +18,7 @@ struct PastDeclineButton: View {
         ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
             Image("HistoryIcon")
                 .resizable()
-                .frame(width: 20, height: 20)
+                .frame(width: 18, height: 18)
         }
         .blurPop(visible: isAtTopOfScroll)
         .padding(.top, Spacing.md) //As its small icon, sits in correct position

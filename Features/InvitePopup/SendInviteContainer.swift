@@ -817,7 +817,9 @@ extension SendInviteContainer {
 //the smaller card a natural drag is shorter and gentler, and the profile's numbers read as
 //too heavy (a release under ~102pt of raw travel with a sub-~180pt/s flick sprang back).
 //Only these three SCALE numbers differ; retune feel here, never by forking DragTuning's shapes.
-private enum InviteDragTuning {
+//Internal, not private: the respond popup's flight (RespondInviteContainer) dismisses the same
+//card scale and reads the same numbers.
+enum InviteDragTuning {
     /// Vertical drag that scrubs the collapse 0→1 (profile: 300).
     static let collapseDistance: CGFloat = 240
     /// Release past this progress dismisses (profile: 0.3) — ≈48pt of adjusted travel here vs 90.
@@ -1637,6 +1639,10 @@ extension EnvironmentValues {
     //the event-flip fade (this stays 0 there).
     @Entry var inviteChromeCloseRamp: Double = 0
     @Entry var inviteChromeNameFlying: Bool = false //The hero text layer owns the name for the whole presentation — the chrome copy's name never renders
+    //The respond flight's analog of inviteChromeNameFlying, for the invite card's TEXT SET:
+    //while true, hero layers own the title, type, time and place — both the source chrome
+    //copy's and the landed popup's own renderings ghost (opacity only, layout preserved).
+    @Entry var inviteRowsFlying: Bool = false
 }
 
 @MainActor

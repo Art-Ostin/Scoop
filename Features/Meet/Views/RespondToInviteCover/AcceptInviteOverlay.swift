@@ -69,12 +69,6 @@ struct AcceptInviteCard: View {
 //Entrance choreography
 extension AcceptInviteCard {
 
-    /*
-     One physical event: the card arrives from below with momentum, spins down, and catches
-     itself facing front. The rotation spring's first target-crossing (~0.86s) is the landing
-     beat — scale and lift peak their overshoot there, the haptic fires there (via
-     .logicallyComplete), and the title + glow reveal ride the same flip. Settled by ~1.2s.
-     */
     private enum Entrance {
         static let spinTurns: Double = 2 //The tuning knob — 1–4 all read cleanly; spin duration scales with it so the backface blinks never strobe (each ≥ ~85ms)
         static var spinDegrees: Double { spinTurns * 360 } //Multiple of 360 by construction: always lands facing front

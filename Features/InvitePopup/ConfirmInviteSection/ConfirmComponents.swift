@@ -23,6 +23,9 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     //Can add a message in confirm message if they haven't already
     @Binding var showMessageScreen: Bool
 
+    //The quick-invite flight's destination anchor for the place row (nil outside a flight)
+    var placeRowFrame: Binding<CGRect>? = nil
+
     //Pass In the time view as time Row very different between sending and responding to an Invite
     @ViewBuilder var timeRow: TimeRow
 
@@ -31,7 +34,7 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
 
     var body: some View {
         HorizontalScrollView(progress: $scrollProgress, alignment: .top) {
-            TimeAndPlaceRows(place: place, style: style, timeOpen: timeOpen) {timeRow}
+            TimeAndPlaceRows(place: place, style: style, timeOpen: timeOpen, placeRowFrame: placeRowFrame) {timeRow}
             messageScreen
         }
         .overlay(alignment: .bottomTrailing) {if style.showScrollView { pageIndicator }}
@@ -43,7 +46,11 @@ struct ConfirmTimeAndPlace<TimeRow: View>: View {
     
     @ViewBuilder
     private var messageScreen: some View {
-        if showMessageSection {
+        //Never on the card: the page is unreachable there (scroll disabled, page indicator
+        //hidden, its binding a constant), but as the pager's tallest page a long message still
+        //lifted the card's rows off their designed 28pt inset — and the quick-invite flight's
+        //derived text anchors count on that inset.
+        if showMessageSection && style.showScrollView {
             ConfirmMessageSection(
                 message: message,
                 showMessageScreen: $showMessageScreen, isConfirmSend: style == .respondPopup
