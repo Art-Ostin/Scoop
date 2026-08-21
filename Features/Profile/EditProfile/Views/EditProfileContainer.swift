@@ -137,11 +137,10 @@ extension EditProfileContainer {
         .offset(y: isEdit ? 0 : 6) //Fixes bug and lines up with title
     }
 
-    @ViewBuilder
     private var editProfileDismissButton: some View {
         let shrinkDismiss: Bool = !isEdit && isDetailsOpen
         
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .large) {
+        return ScoopButton(style: .clearGlass, shape: Circle(), size: .large) {
             dismiss()
         } label: {
             Image(systemName: "xmark")

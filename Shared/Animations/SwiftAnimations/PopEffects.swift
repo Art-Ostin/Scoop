@@ -27,6 +27,14 @@ extension View {
     }
 }
 
+//Shared so a pop that has to be split across the SwiftUI/UIKit seam — a toolbar item's label
+//and the glass platter UIKit draws behind it — can't drift out of step. See `toolbarPlatter`.
+enum PopMotion {
+    static let shrunkScale: CGFloat = 0.7
+    static let blurRadius: CGFloat = 8
+    static let spring: Animation = .spring(response: 0.35, dampingFraction: 0.7)
+}
+
 private struct BlurPop: ViewModifier {
     var visible: Bool
     var shrunkScale: CGFloat
@@ -39,13 +47,14 @@ private struct BlurPop: ViewModifier {
             .scaleEffect(visible ? 1 : shrunkScale, anchor: anchor)
             .opacity(visible ? 1 : 0)
             .allowsHitTesting(visible) //Stays mounted while hidden, so gate taps
-            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: visible)
+            .animation(PopMotion.spring, value: visible)
     }
 }
 
 extension View {
     //Same edge rule as opacityPop: pinned chrome shrinks toward its edge, or it slides as it blurs
-    func blurPop(visible: Bool, scale: CGFloat = 0.7, blur: CGFloat = 8, anchor: UnitPoint = .center) -> some View {
+    func blurPop(visible: Bool, scale: CGFloat = PopMotion.shrunkScale,
+                 blur: CGFloat = PopMotion.blurRadius, anchor: UnitPoint = .center) -> some View {
         modifier(BlurPop(visible: visible, shrunkScale: scale, blurRadius: blur, anchor: anchor))
     }
 }

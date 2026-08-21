@@ -6,7 +6,6 @@
 
 import Foundation
 import UIKit
-import FirebaseFirestore
 import SwiftUI
 
 @MainActor
@@ -33,7 +32,6 @@ import SwiftUI
     }
 
     var profiles: [PendingProfile] { session.profiles }
-    var declinedProfiles: [PendingProfile] {session.profiles}
     var pendingInvites: [PendingProfile] { session.profiles } // TODO: back with real pending invites
     var user: UserProfile { session.user }
     
@@ -44,10 +42,14 @@ import SwiftUI
     }
     
     func declineProfile(profile: UserProfile) async throws {
+        //Hold the loaded profile now, synchronously: the profiles listener prunes this rec from
+        //`session.profiles` the moment the write below lands locally — which is before it returns —
+        //so reading it afterwards finds nothing and the decline never reaches History.
+        let pending = session.profiles.first { $0.id == profile.id }
         //Update its status to declined, in firebase -> listener removes it from the 'Meet' section
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .declined)
         //Adds it to the 'declineProfile' list
-        session.declineProfile(id: profile.id)
+        if let pending { session.declineProfile(pending) }
         //Delete any eventDraft that was stored on defaults (as that persists between sessions)
         defaults.deleteEventDraft(profileId: profile.id)
     }
@@ -64,7 +66,7 @@ import SwiftUI
 @Observable final class MeetUIState {
     var showPendingInvites = false
     var showInfo: Bool = false
-    var openPastInvites = false
+    var showHistory = false
     var showInvite: PendingProfile?
     var titleTravel: CGFloat = 0   //How far the large title has risen; the ⓘ beside it rides this
 

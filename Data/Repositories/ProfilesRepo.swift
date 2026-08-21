@@ -43,12 +43,16 @@ class ProfileRepo: ProfilesRepository {
         try await fs.update(path, fields: data)
     }
     
+    //Range + order on the SAME single field rides Firestore's automatic index. Pairing the range
+    //with an equality filter on `status` would demand a hand-created composite index — an ops step
+    //that silently breaks the feature in any project that lacks it. The 5-day window already keeps
+    //the result tiny (only recs acted on this week), so the status filter is cheap to apply here.
     func recentlyDeclined(userId: String, since: Date) async throws -> [ProfileRec]{
         typealias F = ProfileRec.Field
-        return try await fs.fetchFromCollection(profilesFolder(userId: userId)) {
-            $0.whereField(F.status.rawValue, isEqualTo: ProfileRec.Status.declined.rawValue)
-              .whereField(F.updatedDay.rawValue, isGreaterThan: Timestamp(date: since))
+        let recentlyActedOn: [ProfileRec] = try await fs.fetchFromCollection(profilesFolder(userId: userId)) {
+            $0.whereField(F.updatedDay.rawValue, isGreaterThan: Timestamp(date: since))
               .order(by: F.updatedDay.rawValue, descending: true)
         }
+        return recentlyActedOn.filter { $0.status == .declined }
     }
 }

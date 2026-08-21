@@ -26,28 +26,3 @@ struct InviteButton: View {
         }
     }
 }
-
-
-/*
- 
- struct InviteButton: View {
-
-     static let diameter: CGFloat = 40 //Geometry: circular tap-target diameter
-
-     let isInviting: Bool
-     var isInviteCard: Bool = false
-
-     let action: () -> Void
-
-     var body: some View {
-         ScoopButton(style: .tinted(isInviting ? Color.accent : Color.successGreen, shadow: isInviteCard ? nil : .floating), shape: Circle(), action: action) {
-             Image("LetterIconProfile")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 24, height: 24)
-                 .frame(width: Self.diameter, height: Self.diameter)
-         }
-     }
- }
- */
-

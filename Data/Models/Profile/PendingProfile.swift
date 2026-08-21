@@ -21,7 +21,7 @@ struct PendingProfile: Identifiable, Equatable, Hashable {
     }
 }
 
-struct DeclinedProfile: Identifiable, Equatable {
+struct DeclinedProfile: Identifiable, Equatable, Hashable {
     let profile: PendingProfile
     let declinedAt: Date
     var id: String { profile.id }

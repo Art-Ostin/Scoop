@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import os
+
+private let profilesLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Scoop", category: "profiles")
 
 //Logic dealing with the recommended Profiles shown to the User
 extension Session {
@@ -59,31 +62,52 @@ extension Session {
     func loadRecentlyDeclined() async {
         //Only want profiles who were declined in the last 5 days. So this gets 'last 5 days'.
         let since = Date.now.addingTimeInterval(-Session.declinedWindow)
+        //Stamp who this load is for. Firestore's continuations don't observe cancellation, so a
+        //sign-out mid-flight would otherwise land this account's declines in the next one's session
+        //— the leak stopSession()'s clear exists to stop.
+        let loadingFor = user.id
         
-        guard
+        do {
             //Fetch all the user 'profiles' where status is 'declined' and in last 5 days
-            let declinedRecsIds = try? await profilesRepo.recentlyDeclined(userId: user.id, since: since),
+            let declinedRecs = try await profilesRepo.recentlyDeclined(userId: loadingFor, since: since)
             
             //From the ids, load the profiles up
-            let declineRecProfiles = try? await profileLoader.fromIds(declinedRecsIds.compactMap { $0.id })
-        else { return }
-        
-        
-        //Now I have batch of pending profile, create the DeclinedProfile by extracting the 'updatedAt' from it.
-        var declined: [DeclinedProfile] = []
-        for rec in declinedRecsIds {
-            guard let id = rec.id, let declinedAt = rec.updatedAt else { continue }
-            guard let profile = declineRecProfiles.first(where: { $0.id == id }) else { continue }
-            declined.append(DeclinedProfile(profile: profile, declinedAt: declinedAt))
+            let loadedProfiles = try await profileLoader.fromIds(declinedRecs.compactMap { $0.id })
+
+            //Pair each rec's decline timestamp back onto its loaded profile. A rec with no
+            //timestamp, or one whose profile failed to load, simply drops out of History.
+            let declined = declinedRecs.compactMap { rec -> DeclinedProfile? in
+                guard let id = rec.id, let declinedAt = rec.updatedAt,
+                      let profile = loadedProfiles.first(where: { $0.id == id }) else { return nil }
+                return DeclinedProfile(profile: profile, declinedAt: declinedAt)
+            }
+            guard sessionUser?.id == loadingFor else { return }
+            mergeDeclined(declined)
+        } catch {
+            //Never swallow this one: a silent failure here is indistinguishable from "nothing
+            //declined", which is exactly how the missing-composite-index bug stayed invisible for
+            //days. The query no longer needs that index, but any future read failure must still show.
+            profilesLog.error("Failed to load recently declined profiles: \(error.localizedDescription, privacy: .public)")
         }
-        declinedProfiles = declined
     }
     
-    //Locally move a profile out of the pending list into the declined store — no network, it's already loaded
-    func declineProfile(id: String) {
-        guard let i = profiles.firstIndex(where: { $0.id == id }) else { return }
-        let declined = profiles.remove(at: i)
-        declinedProfiles.insert(DeclinedProfile(profile: declined, declinedAt: .now), at: 0)
+    //The fetch runs as a launch task, so anything declined locally while it was in flight has to
+    //survive it. The server's copy wins where both have the profile — its timestamp is authoritative.
+    private func mergeDeclined(_ fetched: [DeclinedProfile]) {
+        let fetchedIds = Set(fetched.map(\.id))
+        let localOnly = declinedProfiles.filter { !fetchedIds.contains($0.id) }
+        declinedProfiles = (fetched + localOnly).sorted { $0.declinedAt > $1.declinedAt }
+    }
+    
+    //Locally move a profile out of the pending list into the declined store — no network, it's already
+    //loaded. The caller hands the profile in rather than an id because the profiles listener prunes the
+    //rec from `profiles` the moment the decline write lands locally, which is before that write returns.
+    func declineProfile(_ profile: PendingProfile) {
+        profiles.removeAll { $0.id == profile.id }
+        //Drop any older entry rather than skipping: a re-declined profile takes the fresh
+        //timestamp, so it can't fall out of the 5-day window on its first decline's clock
+        declinedProfiles.removeAll { $0.id == profile.id }
+        declinedProfiles.insert(DeclinedProfile(profile: profile, declinedAt: .now), at: 0)
     }
     
     

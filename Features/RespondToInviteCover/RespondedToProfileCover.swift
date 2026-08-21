@@ -229,7 +229,6 @@ struct ResponseCoverLayer: View {
     }
 }
 
-
 struct RespondedToProfileCover: View {
 
     //Injected

@@ -15,6 +15,8 @@ struct MeetContainer: View {
     //Local view state
     @State private var ui = MeetUIState()
     @State private var isAtTopOfScroll = true
+    
+    @Namespace private var historyZoom
 
     var body: some View {
         ZoomNavigationStack {
@@ -24,11 +26,17 @@ struct MeetContainer: View {
                 }
                 .isAtTopOfScroll($isAtTopOfScroll)
                 .titleTravel($ui.titleTravel)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        historyButton
+                    }
+                }
+                .fullScreenCover(isPresented: $ui.showHistory) {historyPage}
             }
         }
         .ignoresSafeArea()
         .overlay(alignment: .topLeading) {TitleInfoIcon(ui: ui)}
-        .overlay(alignment: .topTrailing) {pastDeclineButton}
+//        .overlay(alignment: .topTrailing) {pastDeclineButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
@@ -44,42 +52,29 @@ extension MeetContainer {
             }
         }
     }
-            
+             
     private func profileCard(_ profile: PendingProfile)-> some View {
         ProfileCard(vm: vm, ui: ui, profile: profile, inviteMode: { inviteMode(for: $0)}) //The send/decline path stays in this container
         .task { await vm.loadProfileImages(profile: profile.profile) }
     }
     
-    private var pastDeclineButton: some View  {
-        PastDeclineButton(
-            showScreen: $ui.showInfo,
-            isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
-        )
+    //The bar's own glass is 44; wear the app's medium button instead, and keep the pop the
+    //overlay button had — gone once the list scrolls, and while an invite owns the screen.
+    private var historyButton: some View  {
+        Image("HistoryIcon")
+            .resizable()
+            .frame(width: 18, height: 18)
+            //An 18pt glyph is an 18pt target — the glass around it isn't tappable on its own.
+            //Inside the platter's gate, so a hidden button still can't be hit.
+            .expandHitArea()
+            .toolbarPlatter(size: ButtonSize.medium.size, visible: isAtTopOfScroll && ui.showInvite == nil)
+            .matchedTransitionSource(id: "history", in: historyZoom)
+            .onTapGesture { ui.showHistory = true }
     }
-}
-
-
-//The ⓘ beside the "Meet" title. Lives outside the scroll — anything drawn above the scroll's
-//content origin is painted but never gets touches — and rides the title, which scrolls 1:1 with
-//the content. Its own View so a value that changes every scroll frame doesn't re-evaluate the
-//container's body. It fades before the bar: an overlay sits above the bar, so it would cross it
-//sharp instead of blurring under it like the title does.
-private struct TitleInfoIcon: View {
-
-    let ui: MeetUIState
-
-    private let band: CGFloat = 44 //Geometry: the title's travel from rest to the nav bar
-
-    var body: some View {
-        Image(systemName: "info.circle")
-            .foregroundStyle(Color.textTertiary)
-            .font(.body(14, .medium))
-            .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
-            .shrinkPress {ui.showInfo = true}
-            .padding(.top, 53)     //Geometry: 81 title centre − 22 half-box − 6 optical lift, from the safe-area top
-            .padding(.leading, 81) //Geometry: 95 − 14 frame inset, keeps it clear of "Meet"
-            .offset(y: -ui.titleTravel)
-            .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades
+    
+    private var historyPage: some View {
+        HistoryContainer(vm: HistoryViewModel(session: vm.session))
+            .navigationTransition(.zoom(sourceID: "history", in: historyZoom))
     }
 }
 
@@ -103,11 +98,15 @@ extension MeetContainer {
     }
     
     
-    private func respondToProfile(event: EventFieldsDraft? = nil, profile: UserProfile,
-                                  declineSource: CGRect? = nil, sendFlight: SendInviteFlightSource? = nil) {
-        let cover = responseCover?.show(event == nil ? .decline : .newInvite, from: declineSource,
-                                        sendFlight: sendFlight, inviteeName: profile.name)
-
+    private func respondToProfile(
+        event: EventFieldsDraft? = nil,
+        profile: UserProfile,
+        declineSource: CGRect? = nil,
+        sendFlight: SendInviteFlightSource? = nil
+    )
+    {
+        let cover = responseCover?.show(event == nil ? .decline : .newInvite,
+                                        from: declineSource, sendFlight: sendFlight, inviteeName: profile.name)
         Task {
             //Step 2: Minimum time the cover stays on screen. The decline flight rests at
             //~0.99s + mount latency; 1.4 keeps ~0.35s of landed stillness before the exit.
@@ -119,7 +118,7 @@ extension MeetContainer {
             ui.showInvite = nil
             
             //Step 4: Actually send invite or decline profile
-//            await submitResponse(event: event, profile: profile)
+            await submitResponse(event: event, profile: profile)
             
             //Step 5: Once the minimum display time is done, fade the cover back out
             try? await minDelay
@@ -127,4 +126,34 @@ extension MeetContainer {
         }
     }
 }
+
+
+
+private struct TitleInfoIcon: View {
+
+    let ui: MeetUIState
+
+    private let band: CGFloat = 44 //Geometry: the title's travel from rest to the nav bar
+
+    var body: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.textTertiary)
+            .font(.body(14, .medium))
+            .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
+            .shrinkPress {ui.showInfo = true}
+            .padding(.top, 53)     //Geometry: 81 title centre − 22 half-box − 6 optical lift, from the safe-area top
+            .padding(.leading, 81) //Geometry: 95 − 14 frame inset, keeps it clear of "Meet"
+            .offset(y: -ui.titleTravel)
+            .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades
+    }
+}
+
+/*
+ 
+ PastDeclineButton(
+ showScreen: $ui.showHistory,
+ isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
+ )
+ 
+ */
 
