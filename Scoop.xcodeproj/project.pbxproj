@@ -92,6 +92,9 @@
 		6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
+		655CCB893039BC620085303B /* HistorySelectionSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB883039BC620085303B /* HistorySelectionSection.swift */; };
+		655CCB8D3039BFC20085303B /* RecentDeclinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */; };
+		655CCB8F3039C0690085303B /* PendingInvitesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB8E3039C0690085303B /* PendingInvitesView.swift */; };
 		655EF4AE2E6B94AA00AE626D /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AD2E6B94AA00AE626D /* AppTab.swift */; };
 		655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655F51FC2E3B7CE700E67534 /* ImageLoader.swift */; };
 		655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */; };
@@ -240,7 +243,6 @@
 		65CA5E352F2263A700694981 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA5E342F2263A600694981 /* EventFormatting.swift */; };
 		65CB2A693018962E0002DFCD /* ConfirmMessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A683018962E0002DFCD /* ConfirmMessageSection.swift */; };
 		65CB2A6F3018B8920002DFCD /* EventSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CB2A6E3018B8920002DFCD /* EventSummary.swift */; };
-		65CBAF1B30388A9700AFD2B2 /* HistoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CBAF1A30388A9700AFD2B2 /* HistoryCard.swift */; };
 		65CC2CFC2FA487A3006AFBAF /* EventSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */; };
 		65D13D602FF6881800F4006F /* TimeAndPlaceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */; };
 		65D366C42FC95887000180B3 /* ScrollViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */; };
@@ -393,6 +395,9 @@
 		655441482FE9769100425CBF /* InviteCardInfoOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfoOld.swift; sourceTree = "<group>"; };
 		6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimeRow.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
+		655CCB883039BC620085303B /* HistorySelectionSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistorySelectionSection.swift; sourceTree = "<group>"; };
+		655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDeclinesView.swift; sourceTree = "<group>"; };
+		655CCB8E3039C0690085303B /* PendingInvitesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInvitesView.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		655F51FC2E3B7CE700E67534 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContainer.swift; sourceTree = "<group>"; };
@@ -542,7 +547,6 @@
 		65CA5E342F2263A600694981 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
 		65CB2A683018962E0002DFCD /* ConfirmMessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmMessageSection.swift; sourceTree = "<group>"; };
 		65CB2A6E3018B8920002DFCD /* EventSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSummary.swift; sourceTree = "<group>"; };
-		65CBAF1A30388A9700AFD2B2 /* HistoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCard.swift; sourceTree = "<group>"; };
 		65CC2CFB2FA487A3006AFBAF /* EventSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSlot.swift; sourceTree = "<group>"; };
 		65D13D5F2FF6881800F4006F /* TimeAndPlaceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeAndPlaceContainer.swift; sourceTree = "<group>"; };
 		65D366C32FC95887000180B3 /* ScrollViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewHelpers.swift; sourceTree = "<group>"; };
@@ -1337,7 +1341,9 @@
 			children = (
 				6575C5A830371B4800A99A9D /* HistoryViewModel.swift */,
 				6575C5A630371B2A00A99A9D /* HistoryContainer.swift */,
-				65CBAF1A30388A9700AFD2B2 /* HistoryCard.swift */,
+				655CCB883039BC620085303B /* HistorySelectionSection.swift */,
+				655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */,
+				655CCB8E3039C0690085303B /* PendingInvitesView.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -1754,7 +1760,6 @@
 			files = (
 				05F0471151EE465582F267BE /* ViewModifiers.swift in Sources */,
 				971B61A5A9EF458E8CC3EE27 /* Dividers.swift in Sources */,
-				65CBAF1B30388A9700AFD2B2 /* HistoryCard.swift in Sources */,
 				65E1ECC12F1A4872004C9236 /* ProfileImageEditor.swift in Sources */,
 				6598527D2FD7FDDB00D75CA5 /* EventDetails.swift in Sources */,
 				6546DCE0300F5E0C007A366A /* CustomTextField.swift in Sources */,
@@ -1946,9 +1951,11 @@
 				6509DCEB2F1D78C000455AB5 /* Languages.swift in Sources */,
 				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
 				657683242F591B480094A02D /* MessageSection.swift in Sources */,
+				655CCB8F3039C0690085303B /* PendingInvitesView.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserRepo.swift in Sources */,
 				651975912F1F91E80002F6A2 /* Facts.swift in Sources */,
 				65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */,
+				655CCB8D3039BFC20085303B /* RecentDeclinesView.swift in Sources */,
 				65DC45373035C1C5007F5FD9 /* SendInviteScreen.swift in Sources */,
 				65AF6CBD3006744A0028A4C2 /* InviteSectionContainer.swift in Sources */,
 				65C60BE72F78900D00740C0A /* ProposedTimesRow.swift in Sources */,
@@ -2012,6 +2019,7 @@
 				652D6FB02F3D022900B08F6F /* MapsRouter.swift in Sources */,
 				65F660C22F23E4B900AF791F /* BlockedView.swift in Sources */,
 				652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */,
+				655CCB893039BC620085303B /* HistorySelectionSection.swift in Sources */,
 				6594972C2E01DD4000880921 /* ScoopApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

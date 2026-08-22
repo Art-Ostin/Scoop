@@ -1,25 +1,69 @@
 //
-//  HistoryCard.swift
-//  Scoop Test
+//  RecentDeclinesView.swift
+//  Scoop
 //
-//  Created by Art Ostin on 21/08/2026.
+//  Created by Art Ostin on 22/08/2026.
 //
 
-import Foundation
 import SwiftUI
 
+struct RecentDeclines: View {
+    
+    //Injected
+    let declines: [DeclinedProfile]
+    let profileImages: [String: [UIImage]]
+    let imageLoader: ImageLoading
+    let defaults: DefaultsManaging
+    
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+    
+    var body: some View {
+        if declines.isEmpty {
+            pastDeclinePlaceholder
+        } else {
+            pastDeclineCards
+        }
+    }
+}
+
+extension RecentDeclines {
+    private var pastDeclinePlaceholder: some View {
+        Text("No Profiles")
+    }
+    
+    private var pastDeclineCards: some View {
+        LazyVGrid(columns: columns, spacing: 20) {
+            ForEach(declines) { decline in
+                HistoryCard(decline: decline,
+                            heroImages: heroImages(for: decline),
+                            imageLoader: imageLoader,
+                            defaults: defaults)
+            }
+        }
+        .padding(.horizontal, Spacing.gutter)
+        .padding(.bottom, Spacing.clearance)
+    }
+    
+    //The card's own image stands in until the profile's full set has loaded
+    private func heroImages(for decline: DeclinedProfile) -> [UIImage] {
+        profileImages[decline.id] ?? [decline.profile.image]
+    }
+}
+
+
+//MARK: The individual Profile Card
 struct HistoryCard: View {
     //Injected
     let decline: DeclinedProfile
-    let vm: HistoryViewModel
+    let heroImages: [UIImage]
+    let imageLoader: ImageLoading
+    let defaults: DefaultsManaging
 
     //Local view state
     @State private var palette: OverlayPalette = .placeholder
 
     private var image: UIImage { decline.profile.image }
     private var profile: UserProfile { decline.profile.profile }
-
-    private var heroImages: [UIImage] { vm.profileImages[profile.id] ?? [image] }
 
     var body: some View {
         Color.clear
@@ -39,12 +83,8 @@ struct HistoryCard: View {
                 profileView
             }
             .animation(.transition, value: palette) //Covers a genuine cache miss: extraction lands a frame late
-            .task { await vm.loadProfileImages(profile) }
     }
 }
-
-
-
 
 //The Profile View
 extension HistoryCard {
@@ -56,8 +96,8 @@ extension HistoryCard {
 
     private var profileVM: ProfileViewModel {
         let model = ProfileViewModel(profile: profile,
-                                     imageLoader: vm.imageLoader,
-                                     defaults: vm.defaults)
+                                     imageLoader: imageLoader,
+                                     defaults: defaults)
         model.viewProfileType = .view
         return model
     }
