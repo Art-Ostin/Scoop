@@ -19,27 +19,25 @@ struct HistoryContainer: View {
     
     @State var scrollPosition = ScrollPosition()
     
-    ///The pinned header's measured height — the pages inset their content by it.
-    @State private var headerHeight: CGFloat = 0
-    
-    ///The band the fade has to cover: the nav bar's inset plus that content inset.
-    @State private var fadeHeight: CGFloat = 0
-    
-    //Geometry: the 28pt that used to be the VStack's spacing between the icons and the pager
-    private var contentTop: CGFloat { headerHeight + 28 }
+    //Geometry: the gap between the icons and the cards. It used to be the VStack's spacing; now
+    //it lives inside the pages as a content inset, so cards scroll up into it and fade out there.
+    private let fadeBand: CGFloat = 28
 
     var body: some View {
         ZoomNavigationStack {
             NavigationStack {
-                scrollSection
-                    .overlay(alignment: .top) { headerBand }
-                    .navigationTitle("History")
-                    .colorBackground()
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            dismissButton
-                        }
+                VStack(spacing: 0) {
+                    headerBand
+                    
+                    scrollSection
+                }
+                .navigationTitle("History")
+                .colorBackground()
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        dismissButton
                     }
+                }
             }
         }
         .environment(ZoomPresentationHost?.none)
@@ -50,8 +48,7 @@ struct HistoryContainer: View {
 //Pinned header: the title, heading and section icons stay put while the pages slide beneath
 extension HistoryContainer {
     
-    ///An overlay, not a layout sibling: the pages start at the top of the screen so their content
-    ///can scroll up behind this, and this has to draw above the fade that dissolves it.
+    //Sits hard against the pager, which clips the cards at the icons' baseline
     private var headerBand: some View {
         VStack(spacing: 28) {
             headingSection
@@ -59,7 +56,6 @@ extension HistoryContainer {
             selectionSection
         }
         .padding(.top, Spacing.xs)
-        .getHeight($headerHeight)
     }
     
     private var headingSection: some View {
@@ -108,12 +104,10 @@ extension HistoryContainer {
         ScrollView {
             content()
         }
-        .contentMargins(.top, contentTop, for: .scrollContent)
+        //Inset and fade are the same value, so nothing is ever washed at rest
+        .contentMargins(.top, fadeBand, for: .scrollContent)
         .scrollIndicators(.hidden)
-        .onScrollGeometryChange(for: CGFloat.self) { $0.contentInsets.top } action: { _, top in
-            fadeHeight = top
-        }
-        .customScrollFade(height: fadeHeight, color: .white, showFade: true, edge: .top, isDetails: false, isStrong: true)
+        .customScrollFade(height: fadeBand, isStrong: true)
     }
     
     private var pastDeclineSection: some View {

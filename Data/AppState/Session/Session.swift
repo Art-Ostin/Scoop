@@ -159,21 +159,13 @@ extension Session {
         }
     }
     
-    //Logic for adding, removing and updating 'sent' Invites
+    //Logic for adding and removing 'sent' Invites
     func appendSentInvites(_ profiles: [EventProfile]) {
-        let held = Set(sentInvites.map(\.id))
-        sentInvites.append(contentsOf: profiles.filter { !held.contains($0.id) })
+        sentInvites.append(contentsOf: profiles)
     }
     
     func removeSentInvite(id: String) {
-        sentInvites.removeAll(where: {$0.id == id})
-    }
-    
-    //Needed as when create an event, set 'createdAt' to nil.
-    //Then a split second later it updates to the serverTimestamp - you need to get that update
-    func updateSentInvite(_ event: UserEvent) {
-        guard let i = sentInvites.firstIndex(where: { $0.event.id == event.id }) else { return }
-        sentInvites[i].event = event
+        sentInvites.removeAll { $0.id == id }
     }
 }
  

@@ -47,9 +47,14 @@ class EventsRepo: EventsRepository {
         }
         let id = try fs.add("events", value: event)
         
-        //2 Create the two UserEvents
-        let initiatorUserEvent = UserEvent(otherProfile: profile, role: .sent, event: event)
-        let recipientUserEvent = UserEvent(otherProfile: user, role: .received, event: event)
+        //2 Create the two UserEvents, both stamped with the same instant. Deliberately not a
+        //@ServerTimestamp: that wrapper's backing type isn't Optional, so every document written
+        //before the field existed would fail to decode and take the whole events listener with it.
+        var initiatorUserEvent = UserEvent(otherProfile: profile, role: .sent, event: event)
+        var recipientUserEvent = UserEvent(otherProfile: user, role: .received, event: event)
+        let sentAt = Date()
+        initiatorUserEvent.createdAt = sentAt
+        recipientUserEvent.createdAt = sentAt
         
         //3. Update the event Paths
         try fs.set(userEventPath(userId: user.id, userEventId: id), value: initiatorUserEvent, merge: false)

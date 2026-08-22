@@ -43,8 +43,7 @@ struct UserEvent: Identifiable, Codable {
     var chatState: ChatState?
 
     //5. MetaData
-    @ServerTimestamp var createdAt: Date?
-    var updatedAt: Date? = nil
+    var createdAt: Date?
     var earlyTerminatorID: String? = nil
     
     init(otherProfile: UserProfile, role: EdgeRole, event: Event) {
@@ -66,7 +65,15 @@ extension UserEvent {
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
              type, proposedTimes, acceptedTime, location, message,
-             status, canText, updatedAt,createdAt, earlyTerminatorID, chatState
+             status, canText, createdAt, earlyTerminatorID, chatState
+    }
+
+    //An invite whose proposed days have all passed is dead — the other side can no longer
+    //accept it, so it never needs loading.
+    var isLiveSentInvite: Bool {
+        status == .pending
+        && role == .sent
+        && proposedTimes.dates.contains { $0.date > .now }
     }
 
     var messagePopup: MessagePopup? {

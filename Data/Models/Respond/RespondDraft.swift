@@ -82,7 +82,6 @@ struct PersistableUserEvent: Codable {
     var status: Event.EventStatus
     var canText: Bool
     var chatState: PersistableChatState?
-    var updatedAt: Date?
     var earlyTerminatorID: String?
 }
 
@@ -130,7 +129,6 @@ extension PersistableUserEvent {
         self.status = e.status
         self.canText = e.canText
         self.chatState = e.chatState.map { PersistableChatState($0) }
-        self.updatedAt = e.updatedAt
         self.earlyTerminatorID = e.earlyTerminatorID
     }
 }
@@ -177,7 +175,6 @@ extension UserEvent {
         self.status = p.status
         self.canText = p.canText
         self.chatState = p.chatState.map { ChatState($0) }
-        self.updatedAt = p.updatedAt
         self.earlyTerminatorID = p.earlyTerminatorID
         self._id = p.id
     }

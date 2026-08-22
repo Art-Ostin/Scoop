@@ -18,14 +18,16 @@ extension Session {
             case .initial(let events): try await self.handleInitial(events)
             case .added(let event):    try await self.handleAdded(event)
             case .modified(let event): try await self.handleModified(event)
-            case .removed(let id): self.removeSentInvite(id: id) ; self.removeEvent(id: id)
+            case .removed(let id):
+                self.removeSentInvite(id: id)
+                self.removeEvent(id: id)
             }
         }
     }
     
-    //2. On initial launch populates all the users invites, events, and past events for session
+    //2. On initial launch populates all the users sent invites, invites, events and past events
     private func handleInitial(_ events: [UserEvent]) async throws {
-        async let sent = profileLoader.fromEvents(events.filter { $0.status == .pending && $0.role == .sent })
+        async let sent = profileLoader.fromEvents(events.filter(\.isLiveSentInvite))
         async let inv  = profileLoader.fromEvents(events.filter { $0.status == .pending && $0.role == .received })
         async let acc  = profileLoader.fromEvents(events.filter { $0.status == .accepted })
         async let past = profileLoader.fromEvents(events.filter { $0.status == .pastAccepted })
@@ -42,7 +44,6 @@ extension Session {
         }
     }
     
-    
     //4. Function called if event modified at all. When user accepts invite when session active or new message, this is triggered
     private func handleModified(_ event: UserEvent) async throws {
         try await syncSentInvite(event)
@@ -55,30 +56,26 @@ extension Session {
         updateEvent(event)
     }
     
-    //Adds and removes 'sentInvites' when updated
+    //4a. Sent invites only ever cross this bucket's edge on .modified: accepting flips the status,
+    //and either side proposing a new time flips `role` while the status stays .pending. Nothing
+    //changes one in place, so only a crossing is worth acting on.
     private func syncSentInvite(_ event: UserEvent) async throws {
-        //Is it an event the user has sent and is pending?
         let isPendingSent = event.status == .pending && event.role == .sent
-        
-        //Is it it in the
         let held = sentInvites.contains { $0.event.id == event.id }
+        guard held != isPendingSent else { return }
 
-        switch (held, isPendingSent) {
-        
-        case (true, true):  updateSentInvite(event)
-        case (true, false): removeSentInvite(id: event.id)
-        
-        //We proposed a new time, so their invite is now ours. The profile and photo are
+        //It left: they accepted, or they proposed a new time and it's their invite again.
+        if held {
+            removeSentInvite(id: event.id)
+            return
+        }
+
+        //It arrived: we proposed a new time, so their invite is now ours. The profile and photo are
         //already loaded on the invite we replied to — reuse them instead of refetching.
-        case (false, true):
-            if let known = invites.first(where: { $0.event.id == event.id }) {
-                appendSentInvites([EventProfile(event: event, profile: known.profile, image: known.image)])
-            } else {
-                appendSentInvites(try await profileLoader.fromEvents([event]))
-            }
-            
-        //Not ours, and shouldn't be. Every chat update on an accepted event lands here.
-        case (false, false): break
+        if let known = invites.first(where: { $0.event.id == event.id }) {
+            appendSentInvites([EventProfile(event: event, profile: known.profile, image: known.image)])
+        } else {
+            appendSentInvites(try await profileLoader.fromEvents([event]))
         }
     }
 }
