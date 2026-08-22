@@ -18,9 +18,7 @@ extension Session {
             case .initial(let events): try await self.handleInitial(events)
             case .added(let event):    try await self.handleAdded(event)
             case .modified(let event): try await self.handleModified(event)
-            case .removed(let id):
-                self.removeSentInvite(id: id)
-                self.removeEvent(id: id)
+            case .removed(let id): self.removeSentInvite(id: id) ; self.removeEvent(id: id)
             }
         }
     }

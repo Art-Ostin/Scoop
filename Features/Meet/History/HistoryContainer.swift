@@ -12,17 +12,18 @@ struct HistoryContainer: View {
 
     @Environment(\.dismiss) private var dismiss
     @State var vm: HistoryViewModel
+
     
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
     
-    @State var showPastInvites: Bool = false
+    @State private var selectedPage: Int? = 0
     
-    @State var scrollPosition = ScrollPosition()
+    @State private var ui = HistoryUIState()
     
-    //Geometry: the gap between the icons and the cards. It used to be the VStack's spacing; now
-    //it lives inside the pages as a content inset, so cards scroll up into it and fade out there.
     private let fadeBand: CGFloat = 28
 
+    
+    
     var body: some View {
         ZoomNavigationStack {
             NavigationStack {
@@ -56,6 +57,10 @@ extension HistoryContainer {
             selectionSection
         }
         .padding(.top, Spacing.xs)
+        //Above the pager: the underline hangs below this band into the pager's frame, and the
+        //pages' top fade strips otherwise paint semi-opaque canvas over it (a later sibling
+        //draws on top of an earlier one's overflowing overlay).
+        .zIndex(1)
     }
     
     private var headingSection: some View {
@@ -71,21 +76,32 @@ extension HistoryContainer {
         .padding(.horizontal, Spacing.gutter)
     }
     
+    ///The indicator's coordinate space: icon anchors and the underline resolve in the same frame.
+    private static let selectionSpace = "historySelection"
+    
     private var selectionSection: some View {
         HStack {
-            Image(.inviteBlack)
-            
-            Spacer()
-            
             Image(.smallDeclineBlack)
                 .scaleEffect(0.9)
+                .shrinkPress { selectedPage = 0 }
+                .getRect($ui.declineIconFrame, coordSpace: Self.selectionSpace)
+            
+            Spacer()
+            Image(.inviteBlack)
+                .shrinkPress { selectedPage = 1 }
+                .getRect($ui.inviteIconFrame, coordSpace: Self.selectionSpace)
         }
         .padding(.horizontal, 90)
+        .coordinateSpace(name: Self.selectionSpace)
+        .overlay(alignment: .bottomLeading) {
+            SelectionUnderline(ui: ui)
+                .offset(y: Spacing.sm) //Rests just below the icon row
+                .allowsHitTesting(false) //Decorative — its overhang must not steal the pager's pan
+        }
     }
     
-    ///Everything below the icons is the pager. Each page is its own full-height vertical
     private var scrollSection: some View {
-        HorizontalScrollView(progress: .constant(0), position: $scrollPosition) {
+        HistoryPager(selectedPage: $selectedPage, progress: $ui.pagerProgress) {
             pastDeclineSection
                 .containerRelativeFrame(.horizontal)
                 .id(0)
@@ -97,6 +113,57 @@ extension HistoryContainer {
     }
 }
 
+private struct HistoryPager<Content: View>: View {
+
+    //Injected
+    @Binding var selectedPage: Int?
+    var progress: Binding<Double> = .constant(0)
+    @ViewBuilder let content: Content
+
+    //Local view state
+    @State private var pagedId: Int? = 0
+    ///True while the finger or its fling owns the offset — the write-backs that must not animate.
+    @State private var scrollDriven = false
+
+    var body: some View {
+        HorizontalScrollView(progress: progress) {
+            content
+        }
+        .scrollPosition(id: $pagedId)
+        .animation(scrollDriven ? nil : .move, value: pagedId)
+        .onChange(of: selectedPage) { _, newPage in
+            guard let newPage, newPage != pagedId else { return }
+            pagedId = newPage //The icon tap
+        }
+        .onScrollPhaseChange { _, phase in
+            scrollDriven = phase == .interacting || phase == .decelerating
+            guard phase == .idle, pagedId != selectedPage else { return }
+            selectedPage = pagedId //Only the resting page travels back up
+        }
+    }
+}
+
+///The underline that tracks the pager — a pure function of the scroll offset, so it follows a
+private struct SelectionUnderline: View {
+
+    //Injected
+    let ui: HistoryUIState
+
+    private static let width: CGFloat = 38
+
+    var body: some View {
+        let progress = min(max(ui.pagerProgress, 0), 1) //Rubber-banding runs past both ends
+        let from = ui.declineIconFrame.midX
+        let to = ui.inviteIconFrame.midX
+
+        RoundedRectangle(cornerRadius: 2)
+            .frame(width: Self.width, height: 2.5)
+            .foregroundStyle(Color.accent)
+            .offset(x: from + (to - from) * progress - Self.width / 2) //Centered on the anchor
+            .opacity(ui.inviteIconFrame == .zero ? 0 : 1) //Hidden until the anchors are measured
+    }
+}
+
 //Recently declined page
 extension HistoryContainer {
     
@@ -104,10 +171,9 @@ extension HistoryContainer {
         ScrollView {
             content()
         }
-        //Inset and fade are the same value, so nothing is ever washed at rest
         .contentMargins(.top, fadeBand, for: .scrollContent)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: fadeBand, isStrong: true)
+        .customScrollFade(height: fadeBand, curve: .even)
     }
     
     private var pastDeclineSection: some View {
@@ -149,7 +215,7 @@ extension HistoryContainer {
     
     private var pastInviteSection: some View {
         page {
-            ForEach(vm.sentInvites, id: \.self) { invite in
+            ForEach(vm.sentInvites, id: \.self) {invite in
                 Text(invite.profile.name)
             }
         }

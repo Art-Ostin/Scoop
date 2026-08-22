@@ -21,6 +21,16 @@ extension LinearGradient {
         canvasFade(.appCanvas, startPoint: startPoint, endPoint: endPoint)
     }
 
+    ///A straight 0→100% ramp. Short bands read as a hard edge under the curved variants — their
+    ///opacity plateaus through the middle and then cliffs — so a gap-sized fade wants this one.
+    static func evenCanvasFade(_ color: Color, startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
+        LinearGradient(
+            colors: [color, color.opacity(0.0)],
+            startPoint: startPoint,
+            endPoint: endPoint
+        )
+    }
+
     static func strongCanvasFade(_ color: Color, startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
         LinearGradient(
             stops: [
@@ -37,8 +47,14 @@ extension LinearGradient {
     }
 }
 
+///How the fade ramps from the edge. `strong` holds more canvas through the middle for tall bands
+///over dense content; `even` is the straight ramp short bands need.
+enum ScrollFadeCurve {
+    case standard, strong, even
+}
+
 struct CustomScrollFade: ViewModifier {
-    var isStrongFade: Bool = false
+    var curve: ScrollFadeCurve = .standard
     
     let height: CGFloat
     let showFade: Bool
@@ -49,21 +65,7 @@ struct CustomScrollFade: ViewModifier {
     func body(content: Content) -> some View {
         content.overlay(alignment: edge == .top ? .top : .bottom) {
             if showFade {
-                Group {
-                    if isStrongFade {
-                        LinearGradient.strongCanvasFade(
-                            color,
-                            startPoint: edge == .top ? .top : .bottom,
-                            endPoint: edge == .top ? .bottom : .top
-                        )
-                    } else {
-                        LinearGradient.canvasFade(
-                            color,
-                            startPoint: edge == .top ? .top : .bottom,
-                            endPoint: edge == .top ? .bottom : .top
-                        )
-                    }
-                }
+                gradient
                 .frame(height: height)
                 .offset(y: isDetails ? 1 : 0) //So stroke on details is still always shown
                 .allowsHitTesting(false)
@@ -72,6 +74,17 @@ struct CustomScrollFade: ViewModifier {
                 .clipShape(.rect(cornerRadius: isDetails ? CornerRadius.concentric(in: CornerRadius.xl, inset: 1) : 0))
                 .ignoresSafeArea(edges: edge == .top ? .top : .bottom) //Important this goes at end
             }
+        }
+    }
+
+    private var gradient: LinearGradient {
+        let start: UnitPoint = edge == .top ? .top : .bottom
+        let end: UnitPoint = edge == .top ? .bottom : .top
+
+        switch curve {
+        case .standard: return .canvasFade(color, startPoint: start, endPoint: end)
+        case .strong:   return .strongCanvasFade(color, startPoint: start, endPoint: end)
+        case .even:     return .evenCanvasFade(color, startPoint: start, endPoint: end)
         }
     }
 }
@@ -99,8 +112,8 @@ struct CustomHorizontalScrollFade: ViewModifier {
 }
 
 extension View {
-    func customScrollFade(height: CGFloat, color: Color = .appCanvas, showFade: Bool = true, edge: VerticalEdge = .top, isDetails: Bool = false, isStrong: Bool = false) -> some View {
-        self.modifier(CustomScrollFade(isStrongFade: isStrong, height: height, showFade: showFade, edge: edge, isDetails: isDetails, color: color))
+    func customScrollFade(height: CGFloat, color: Color = .appCanvas, showFade: Bool = true, edge: VerticalEdge = .top, isDetails: Bool = false, curve: ScrollFadeCurve = .standard) -> some View {
+        self.modifier(CustomScrollFade(curve: curve, height: height, showFade: showFade, edge: edge, isDetails: isDetails, color: color))
     }
 
 

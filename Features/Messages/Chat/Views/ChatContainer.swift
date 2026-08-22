@@ -49,7 +49,7 @@ struct ChatContainer: View {
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appCanvas.ignoresSafeArea())
-            .customScrollFade(height: 135, edge: .top, isStrong: true)
+            .customScrollFade(height: 135, edge: .top, curve: .strong)
             .overlay(alignment: .topTrailing) {profileButton}
         
         //4. Code to execute and listen for
