@@ -18,7 +18,7 @@ struct EventProfile: Identifiable, Hashable {
     var chatState: ChatState? {
         event.chatState
     }
-    
+     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

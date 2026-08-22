@@ -8,26 +8,6 @@
 import SwiftUI
 
 
-struct PastDeclineButton: View {
-    
-    @Binding var showScreen: Bool
-    
-    var isAtTopOfScroll: Bool = true
-    
-    var body: some View {
-        ScoopButton(shape: Circle(), size: .medium, action: {showScreen = true}) {
-            Image("HistoryIcon")
-                .resizable()
-                .frame(width: 18, height: 18)
-        }
-        .blurPop(visible: isAtTopOfScroll)
-        .padding(.top, Spacing.md) //As its small icon, sits in correct position
-        .padding(.horizontal, Spacing.margin)
-    }
-}
-
-
-
 struct InfoButton: View {
     @Binding var showScreen: Bool
     var isAtTopOfScroll: Bool = true
@@ -86,6 +66,12 @@ extension ToolbarContent {
 // the fade. Both ride ONE spring: the driver is `Animatable`, so its body re-evaluates with an
 // interpolated `progress` every frame (a plain flag would reach UIKit once, at the target).
 // Dropping the item from the toolbar instead was measured too — it cuts, with no animation at all.
+//
+// The blur is label-only and always will be: `PlatterGlassView` is the label's ANCESTOR, so no
+// SwiftUI layer effect below it can reach the lens. That is why the two halves do NOT share one
+// curve — the platter's alpha runs on `PopMotion.lensCutoff` so the lens is gone in the first
+// stretch of the spring, the way `blurPop`'s glass died on its first blurred frame, while the
+// shrink carries on to the end underneath it.
 extension View {
     func toolbarPlatter(size: CGFloat, visible: Bool = true) -> some View {
         blur(radius: visible ? 0 : PopMotion.blurRadius)
@@ -115,16 +101,17 @@ private struct PlatterProbe: UIViewRepresentable {
     let size: CGFloat
     let progress: CGFloat
 
-    func makeUIView(context: Context) -> Probe { Probe(size: size) }
+    func makeUIView(context: Context) -> Probe { Probe(size: size, progress: progress) }
     func updateUIView(_ probe: Probe, context: Context) { probe.apply(progress) }
 
     final class Probe: UIView {
 
         private let size: CGFloat
-        private var progress: CGFloat = 1
+        private var progress: CGFloat //Seeded at make: `didMoveToWindow` can beat the first update
 
-        init(size: CGFloat) {
+        init(size: CGFloat, progress: CGFloat) {
             self.size = size
+            self.progress = progress
             super.init(frame: .zero)
             isUserInteractionEnabled = false
             backgroundColor = .clear
@@ -149,13 +136,16 @@ private struct PlatterProbe: UIViewRepresentable {
                     let box = current.bounds
                     guard box.height > 0 else { return }
                     let fit = size / box.height
-                    let pop = PopMotion.shrunkScale + (1 - PopMotion.shrunkScale) * progress
+                    let pop = PopMotion.platterShrunkScale + (1 - PopMotion.platterShrunkScale) * progress
+                    //Clamped because the spring undershoots below 0 on the way out and overshoots
+                    //past 1 on the way back in; the lens has no headroom either side.
+                    let fade = (progress / PopMotion.lensCutoff).clamped(to: 0...1)
                     //Scale about the centre, then push back so the TRAILING edge stays where the
                     //system put it — a bar button's inset is measured off its glass, not its box.
                     let shrink = CGAffineTransform(scaleX: fit * pop, y: fit * pop)
                         .concatenating(CGAffineTransform(translationX: box.width * (1 - fit) / 2, y: 0))
                     if current.transform != shrink { current.transform = shrink }
-                    if current.alpha != progress { current.alpha = progress }
+                    if current.alpha != fade { current.alpha = fade }
                     //Undo only the SIZE fit — the pop shrink is meant to carry the label with it.
                     let restore = CGAffineTransform(scaleX: 1 / fit, y: 1 / fit)
                     if let content, content.transform != restore { content.transform = restore }
@@ -164,5 +154,6 @@ private struct PlatterProbe: UIViewRepresentable {
                 view = current.superview
             }
         }
+
     }
 }

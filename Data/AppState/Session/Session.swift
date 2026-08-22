@@ -50,9 +50,12 @@ final class TaskBag {
     //Session state
     var appState: AppState = .booting
     private(set) var sessionUser: UserProfile?
+    var profilesHaveLoaded: Bool = false
+    
     var profiles: [PendingProfile] = []
     var declinedProfiles: [DeclinedProfile] = []
-    var profilesHaveLoaded: Bool = false
+    
+    private(set) var sentInvites: [EventProfile] = []
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
@@ -119,7 +122,8 @@ extension Session {
 
 extension Session {
 
-    func setInitialEvents(invites: [EventProfile], active: [EventProfile], past: [EventProfile]) {
+    func setInitialEvents(sent: [EventProfile], invites: [EventProfile], active: [EventProfile], past: [EventProfile]) {
+        self.sentInvites = sent
         self.invites = invites
         self.events = active
         self.pastEvents = past
@@ -144,7 +148,7 @@ extension Session {
         events.removeAll { $0.event.id == id }
         pastEvents.removeAll { $0.event.id == id }
     }
-
+    
     func updateEvent(_ event: UserEvent) {
         if let i = events.firstIndex(where: { $0.event.id == event.id }) {
             events[i].event = event
@@ -153,6 +157,23 @@ extension Session {
         } else if let i = invites.firstIndex(where: { $0.event.id == event.id }) {
             invites[i].event = event
         }
+    }
+    
+    //Logic for adding, removing and updating 'sent' Invites
+    func appendSentInvites(_ profiles: [EventProfile]) {
+        let held = Set(sentInvites.map(\.id))
+        sentInvites.append(contentsOf: profiles.filter { !held.contains($0.id) })
+    }
+    
+    func removeSentInvite(id: String) {
+        sentInvites.removeAll(where: {$0.id == id})
+    }
+    
+    //Needed as when create an event, set 'createdAt' to nil.
+    //Then a split second later it updates to the serverTimestamp - you need to get that update
+    func updateSentInvite(_ event: UserEvent) {
+        guard let i = sentInvites.firstIndex(where: { $0.event.id == event.id }) else { return }
+        sentInvites[i].event = event
     }
 }
  

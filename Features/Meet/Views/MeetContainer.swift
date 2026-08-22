@@ -26,17 +26,11 @@ struct MeetContainer: View {
                 }
                 .isAtTopOfScroll($isAtTopOfScroll)
                 .titleTravel($ui.titleTravel)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        historyButton
-                    }
-                }
-                .fullScreenCover(isPresented: $ui.showHistory) {historyPage}
             }
         }
         .ignoresSafeArea()
         .overlay(alignment: .topLeading) {TitleInfoIcon(ui: ui)}
-//        .overlay(alignment: .topTrailing) {pastDeclineButton}
+        .overlay(alignment: .topTrailing) {historyButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
     }
@@ -58,18 +52,17 @@ extension MeetContainer {
         .task { await vm.loadProfileImages(profile: profile.profile) }
     }
     
-    //The bar's own glass is 44; wear the app's medium button instead, and keep the pop the
-    //overlay button had — gone once the list scrolls, and while an invite owns the screen.
     private var historyButton: some View  {
-        Image("HistoryIcon")
-            .resizable()
-            .frame(width: 18, height: 18)
-            //An 18pt glyph is an 18pt target — the glass around it isn't tappable on its own.
-            //Inside the platter's gate, so a hidden button still can't be hit.
-            .expandHitArea()
-            .toolbarPlatter(size: ButtonSize.medium.size, visible: isAtTopOfScroll && ui.showInvite == nil)
-            .matchedTransitionSource(id: "history", in: historyZoom)
-            .onTapGesture { ui.showHistory = true }
+        ScoopButton(shape: Circle(), size: .medium, action: { ui.showHistory = true }) {
+            Image("HistoryIcon")
+                .resizable()
+                .frame(width: 18, height: 18)
+        }
+        .blurPop(visible: isAtTopOfScroll && ui.showInvite == nil)
+        .matchedTransitionSource(id: "history", in: historyZoom)
+        .fullScreenCover(isPresented: $ui.showHistory) {historyPage}
+        .padding(.top, Spacing.md) //As its small icon, sits in correct position
+        .padding(.horizontal, Spacing.margin)
     }
     
     private var historyPage: some View {
@@ -147,13 +140,3 @@ private struct TitleInfoIcon: View {
             .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades
     }
 }
-
-/*
- 
- PastDeclineButton(
- showScreen: $ui.showHistory,
- isAtTopOfScroll: isAtTopOfScroll && (ui.showInvite == nil)
- )
- 
- */
-

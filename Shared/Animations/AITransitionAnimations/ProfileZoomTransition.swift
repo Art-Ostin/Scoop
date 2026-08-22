@@ -3,23 +3,6 @@
 //
 //  A reusable, catchable zoom-morph navigation transition.
 //
-//  Public surface:
-//
-//    ZoomNavigationStack(title:) { Home() }         the navigation container
-//    someCardView.zoomTransition(images:) { ... }   the morph source; the
-//                                                   builder is the WHOLE
-//                                                   destination screen
-//    ImageCarousel(horizontalPadding:aspectRatio:)  the hero slot inside it
-//    ZoomStyle                                      shared style constants
-//
-//  Everything else is machinery. The hero carousel and the opened screen's
-//  scroll chrome are UIKit-owned so every spring, crop morph, flyback, and
-//  mid-air catch runs frame-locked on the UIKit animation clock — the
-//  SwiftUI layer supplies content, never motion. The profile is an overlay
-//  presentation above an untouched UINavigationController: the system bar
-//  is never pushed onto or reconfigured. The open morph and the cancel
-//  spring are catchable mid-air; committed dismissals play to completion.
-//
 
 import Combine
 import SwiftUI
@@ -86,19 +69,10 @@ public enum ZoomStyle {
 }
 
 // MARK: - Public navigation container
-
-/// Hosts a SwiftUI root inside a UINavigationController whose bar stays
-/// 100% system-managed: presentations are overlays above the whole nav
-/// controller, never pushes. Any view inside can wear `.zoomTransition`.
-/// `title` drives the library-owned UIKit bar — use it only for plain UIKit
-/// content. SwiftUI scroll content must pass nil and bring its OWN
-/// NavigationStack (+ .navigationTitle) as the root: SwiftUI scroll views
-/// opt out of UIKit bar tracking, so a UIKit bar over them never collapses
-/// its large title; the outer bar hides itself when title is nil.
 public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
+    
+    
     /// The app-root plane presentations render in, when one is mounted (see
-    /// ZoomPresentationHost). Absent — previews, isolated harnesses — the
-    /// presentation stays inside this stack's own view.
     @Environment(ZoomPresentationHost.self) private var presentationHost: ZoomPresentationHost?
     private let title: String?
     private let root: Root
@@ -116,26 +90,10 @@ public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
 
     public func updateUIViewController(_ controller: ZoomRootController, context: Context) {
         controller.adoptPresentationPlane(presentationHost?.controller)
-        // The hosted root is a VALUE, snapshotted at make time. Anything the caller's own
-        // body computes — a toolbar built from its @State, a ForEach over its model — is
-        // frozen at first render unless it is handed over again on every update. State read
-        // inside a child's own body, and Bindings, update through their own channels and
-        // hide the staleness; a post-mount @State read up in the caller's body does not.
         controller.updateRoot(AnyView(root))
     }
 }
 
-// MARK: - Root presentation plane (above the app's tab bar)
-
-/// The full-screen plane presentations render in, mounted ONCE at the app root
-/// as a sibling above the TabView (`ZoomPresentationLayer`). Without it a
-/// presentation renders inside its own tab, and the floating tab bar — which
-/// belongs to the root TabView, not the tab — draws over the open profile.
-///
-/// Hosting the scene here is what gives the bar its native zoom behavior: it is
-/// never hidden (its visibility flip cannot animate — it would pop, not fade),
-/// the profile simply covers it, the scrim dims it, and the collapse reveals it
-/// continuously as the card shrinks home. Inject with `.environment(host)`.
 @MainActor
 @Observable
 public final class ZoomPresentationHost {

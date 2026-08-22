@@ -79,7 +79,7 @@ enum Spacing {
     static let sm: CGFloat  = 12  //related rows/controls inside one block
     static let md: CGFloat  = 16  //default gap between blocks; standard inner padding
     static let lg: CGFloat  = 24  //component ↔ component
-    static let xl: CGFloat  = 36  //section ↔ section within a screen
+    static let xl: CGFloat  = 36  //section ↔ section within a screen //36 - 8
     static let xxl: CGFloat = 48  //major section break
     static let xxxl: CGFloat = 72 //hero break: between full-screen-scale blocks
 

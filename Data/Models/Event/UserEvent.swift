@@ -43,6 +43,7 @@ struct UserEvent: Identifiable, Codable {
     var chatState: ChatState?
 
     //5. MetaData
+    @ServerTimestamp var createdAt: Date?
     var updatedAt: Date? = nil
     var earlyTerminatorID: String? = nil
     
@@ -65,7 +66,7 @@ extension UserEvent {
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
              type, proposedTimes, acceptedTime, location, message,
-             status, canText, updatedAt, earlyTerminatorID, chatState
+             status, canText, updatedAt,createdAt, earlyTerminatorID, chatState
     }
 
     var messagePopup: MessagePopup? {

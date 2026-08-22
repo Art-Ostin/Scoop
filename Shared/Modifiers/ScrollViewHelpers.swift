@@ -14,10 +14,6 @@ struct HorizontalScrollView<Content: View>: View {
 
     var position: Binding<ScrollPosition>? = nil
 
-    ///Room kept on each side for the neighbouring page to show through. `.paging` always strides by
-    ///the pager's OWN width, so a peek can only come from narrowing the pager and letting the
-    ///neighbours render outside it — narrowing the pages instead drifts every landing by the
-    ///difference. What shows is `peek` minus whatever inset the page's own content carries.
     var peek: CGFloat = 0
 
     @ViewBuilder var content: Content

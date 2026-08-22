@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 struct HistoryCard: View {
-
     //Injected
     let decline: DeclinedProfile
     let vm: HistoryViewModel
@@ -34,19 +33,26 @@ struct HistoryCard: View {
             .task(id: image) {
                 palette = await PopupColorExtractor.shared.extractPalette(image, id: decline.id)
             }
-            .task { await vm.loadProfileImages(profile) }
             .zoomTransition(images: heroImages) {
                 chrome
             } content: {
-                ProfileContainer(vm: profileVM,
-                                 profileImages: heroImages, //Seeds the VM: the detail skips its own round-trip
-                                 mode: .viewProfile)
+                profileView
             }
             .animation(.transition, value: palette) //Covers a genuine cache miss: extraction lands a frame late
+            .task { await vm.loadProfileImages(profile) }
     }
 }
 
+
+
+
+//The Profile View
 extension HistoryCard {
+    private var profileView: some View {
+        ProfileContainer(vm: profileVM,
+                         profileImages: heroImages, //Seeds the VM: the detail skips its own round-trip
+                         mode: .viewProfile)
+    }
 
     private var profileVM: ProfileViewModel {
         let model = ProfileViewModel(profile: profile,
@@ -57,23 +63,12 @@ extension HistoryCard {
     }
 }
 
-//The chrome's layers
+//The layers appearing above the profileCard
 extension HistoryCard {
-
-    private var blurBackground: BlurAndGradientBackground {
-        BlurAndGradientBackground(
-            textRegion: BlurAndGradientBackground.profileRegion,
-            blurRadius: 5, //Geometry: half ProfileCard's 10 — the grid cell is under half the card's width
-            colour: palette.surface,
-            scrimOpacity: palette.scrimOpacity
-        )
-    }
-
     private var chrome: some View {
         ZStack {
             blurBand
-            blurBackground.scrimGradient //Unmasked: the veil starts ABOVE the blur ramp (0.72 vs 0.77),
-                                         //so masking it to the ramp would square off its soft top edge
+            blurBackground.scrimGradient
         }
         .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
         .overlay(alignment: .bottomLeading) {
@@ -84,7 +79,16 @@ extension HistoryCard {
                 .padding(.bottom, Spacing.sm)
         }
     }
-
+    
+    private var blurBackground: BlurAndGradientBackground {
+        BlurAndGradientBackground(
+            textRegion: BlurAndGradientBackground.profileRegion,
+            blurRadius: 5, //Geometry: half ProfileCard's 10 — the grid cell is under half the card's width
+            colour: palette.surface,
+            scrimOpacity: palette.scrimOpacity
+        )
+    }
+        
     private var blurBand: some View {
         let spec = blurBackground
         return Color.clear

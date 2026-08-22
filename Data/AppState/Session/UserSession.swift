@@ -70,7 +70,7 @@ extension Session {
         profiles = []
         declinedProfiles = []
         profilesHaveLoaded = false
-        setInitialEvents(invites: [], active: [], past: [])
+        setInitialEvents(sent: [], invites: [], active: [], past: [])
     }
 
     //Checks if user is blocked or frozen before going to main appState
