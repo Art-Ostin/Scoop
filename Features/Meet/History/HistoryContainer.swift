@@ -9,33 +9,32 @@ import SwiftUI
 import Glur
 
 struct HistoryContainer: View {
-
+    
     @Environment(\.dismiss) private var dismiss
     @State var vm: HistoryViewModel
-
+    
     @State private var selectedPage: Int? = 0
     
     @State private var ui = HistoryUIState()
     
-    private let fadeBand: CGFloat = 28
+    //Geometry: both the scroll view's top inset and the fade's height, so content begins
+    //exactly where the fade ends — a day heading is never born dimmed.
+    private let fadeBand: CGFloat = 32
     
     var body: some View {
         ZoomNavigationStack {
-            NavigationStack {
-                VStack(spacing: 0) {
-                    headerBand
-                    
-                    scrollSection
-                }
-                .navigationTitle("History")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.canvasSunken.ignoresSafeArea())
-                .task(id: vm.declines) { await loadProfileImages() }
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        dismissButton
-                    }
-                }
+            VStack(spacing: 0) {
+                headerBand
+                
+                scrollSection
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.canvasSunken.ignoresSafeArea())
+            .task(id: vm.declines) { await loadProfileImages() }
+            .overlay(alignment: .bottomTrailing) {
+                dismissButton
+                    .padding(.bottom, Spacing.xxl)
+                    .padding(.horizontal, Spacing.margin)
             }
         }
         .environment(ZoomPresentationHost?.none)
@@ -43,18 +42,39 @@ struct HistoryContainer: View {
     }
 }
 
+/*
+ .navigationTitle("History")
+ .toolbar {
+     ToolbarItem(placement: .topBarTrailing) {
+         dismissButton
+     }
+ }
+ */
+
 //Logic to do with the header
 extension HistoryContainer {
-    //Sits hard against the pager, which clips the cards at the icons' baseline
+    //Sits hard against the pager, which clips the cards at the underline's baseline
     private var headerBand: some View {
-        VStack(spacing: 28) {
+        VStack(alignment: .leading, spacing: 24) {
+            title
+            
             headingSection
+                .padding(.top, -12)
             
             SelectionSection(selectedPage: $selectedPage, ui: ui)
         }
-        .padding(.top, Spacing.xs)
+        .padding(.top, 36)
+        .padding(.horizontal, Spacing.gutter)
         .zIndex(1)
     }
+    
+    private var title: some View {
+        Text("History")
+            .font(.title(32, .bold))
+    }
+    
+    
+    
     
     private var headingSection: some View {
         (
@@ -66,16 +86,16 @@ extension HistoryContainer {
         )
         .foregroundStyle(Color.textSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Spacing.gutter)
     }
     
     private var dismissButton: some View {
-        Image(systemName: "xmark")
-            .foregroundStyle(.black)
-            .font(.icon(14))
-            .onTapGesture {
-                dismiss()
-            }
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .large, press: .grow) {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark") //"arrow.down.right.and.arrow.up.left"
+                .foregroundStyle(.black)
+                .font(.icon(14, .heavy))
+        }
     }
     
     private func loadProfileImages () async {
@@ -97,6 +117,7 @@ extension HistoryContainer {
                 .containerRelativeFrame(.horizontal)
                 .id(1)
         }
+        .contentMargins(.top, -1, for: .scrollContent) //Fixes subtle spacingBug
     }
     
     private func page<Content: View>(@ViewBuilder content: () -> Content) -> some View {
@@ -119,7 +140,7 @@ extension HistoryContainer {
     
     private var pendingInvitesView: some View {
         page {
-            PendingInvitesView(inviteDays: vm.invitesByDay, ui: ui)
+            PendingInvitesView(inviteDays: vm.invitesByDay, ui: ui, defaults: vm.defaults)
         }
     }
 }

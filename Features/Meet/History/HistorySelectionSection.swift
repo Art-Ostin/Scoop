@@ -11,6 +11,12 @@ import SwiftUI
 
 struct SelectionSection: View {
     private static let selectionSpace = "historySelection"
+
+    //Geometry: how far the underline hangs below the icon row. The section reserves the same
+    //amount beneath itself, so its bottom edge — and with it the scroll view's top — is the
+    //underline's bottom rather than the icons'.
+    private static let underlineDrop = Spacing.sm - Spacing.hairline
+
     @Binding var selectedPage: Int?
     @Bindable var ui: HistoryUIState
 
@@ -27,9 +33,10 @@ struct SelectionSection: View {
         .coordinateSpace(name: Self.selectionSpace)
         .overlay(alignment: .bottomLeading) {
             SelectionUnderline(ui: ui)
-                .offset(y: Spacing.sm) //Rests just below the icon row
+                .offset(y: Self.underlineDrop) //Rests just below the icon row
                 .allowsHitTesting(false) //Decorative — its overhang must not steal the pager's pan
         }
+        .padding(.bottom, Self.underlineDrop) //After the overlay, which still anchors to the icons' bottom
     }
 }
 

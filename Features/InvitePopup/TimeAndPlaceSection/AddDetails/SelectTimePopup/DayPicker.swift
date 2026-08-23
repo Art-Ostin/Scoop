@@ -76,6 +76,7 @@ extension DayPicker {
 
 struct DayCell: View {
     @State private var shake = false
+    @State private var selectionTick = 0   // bumps once per accepted tap → one selection click each
     
     let day: Date
     let isSelected: Bool
@@ -87,7 +88,7 @@ struct DayCell: View {
     }
     var body: some View {
         Button {
-            if onTap() { shake.toggle() } //Returns bool, if true, triggers shake
+            if onTap() { shake.toggle() } else { selectionTick += 1 } //Returns bool: true = max reached → shake, not a click
         } label: {
             Text(day, format: .dateTime.day())
                 .font(.system(size: 17, weight: isSelected ? .semibold : .regular))  // Apple SF Pro
@@ -95,12 +96,37 @@ struct DayCell: View {
                 .frame(width: 36, height: 36, alignment: .center)                       // bigger circle for 20pt number
                 .background {
                     Circle()
-                        .fill(isSelected ? Color.blackFill : Color.clear)
-                        .padding(isSelected ? 3 : 0)        // ← inset shrinks the circle when selected
-                        .transaction { $0.animation = nil }
+                        .fill(Color.blackFill)
+                        .padding(3)                                                     // the 30pt dot
+                        .modifier(SelectionDotAppearance(progress: isSelected ? 1 : 0)) // always mounted; grows/fades in place
                 }
+                .animation(.selectionDot, value: isSelected)
         }
+        .buttonStyle(NoPressStyle())                       // the dot is the touch response; a press dim would ride on top of it
         .frame(width: 28, alignment: .center)
         .showShakeAnimation(bool: shake)
+        .sensoryFeedback(.selection, trigger: selectionTick)   // the system day strip's light tick
+        .sensoryFeedback(.warning, trigger: shake)             // …and the refusal at the day cap
+    }
+}
+
+/// No press look at all. The system day cell gives no touch feedback — the default style's
+/// label dim (and its slow easeOut restore) multiplies straight into the dot's opacity curve.
+private struct NoPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { configuration.label }
+}
+
+/// Drives the selection dot from a single animated progress so opacity can carry the measured
+/// `p + 0.16·p(1-p)` lead over scale — the system dot holds its ink while it changes size.
+private struct SelectionDotAppearance: ViewModifier, Animatable {
+    var progress: Double                       // 0 = deselected, 1 = selected
+    var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(0.30 + 0.70 * progress)
+            .opacity(progress + 0.16 * progress * (1 - progress))
     }
 }

@@ -29,13 +29,24 @@ public enum FormatEvent {
     
     
     //withMonth: false drops to the bare day, so a list can carry one shared month — "Wed 5, Sun 9 or Mon 10 Aug"
-    static func shortDayAndTime(_ date: Date, withHour: Bool = true, withMonth: Bool = true) -> String {
-        let weekday = date.formatted(.dateTime.weekday(.abbreviated))
-        let dayPart = withMonth
-            ? date.formatted(.dateTime.month(.abbreviated).day())
-            : date.formatted(.dateTime.day())
+    //withToday: names the next two days instead of dating them, the way dayAndTime always does.
+    //Off by default — a list of dates reads as a set, and one relative name among them breaks the run.
+    static func shortDayAndTime(_ date: Date, withHour: Bool = true, withMonth: Bool = true, withToday: Bool = false) -> String {
+        let cal = Calendar.current
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        let datePart = "\(weekday) \(dayPart)"
+        
+        let datePart: String
+        if withToday, cal.isDateInToday(date) {
+            datePart = "Today"
+        } else if withToday, cal.isDateInTomorrow(date) {
+            datePart = "Tomorrow"
+        } else {
+            let weekday = date.formatted(.dateTime.weekday(.abbreviated))
+            let dayPart = withMonth
+                ? date.formatted(.dateTime.month(.abbreviated).day())
+                : date.formatted(.dateTime.day())
+            datePart = "\(weekday) \(dayPart)"
+        }
         return withHour ? "\(datePart) · \(hour)" : datePart
     }
     

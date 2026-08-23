@@ -27,6 +27,37 @@ struct PressEffect {
     static let select = PressEffect(scale: 0.9, pressDuration: 0.12, releaseHold: 0, release: (0.25, 1))
     // Grows and brightens — used for the iOS 18 glass fallback.
     static let grow = PressEffect(scale: 1.22, brightness: 0.2, pressDuration: 0.15, release: (0.35, 0.38))
+
+    // The standard press at a fifth of the travel, for a surface a full shrink overwhelms —
+    // a wide row inside a card group, whose siblings hold still while it moves.
+    static let subtleShrink: PressEffect = {
+        var effect = shrink.scaled(to: 0.2)
+        // Releases on the same frame it is cancelled. With `instantPressDelivery` the press
+        // lands on touch-down, so a touch that turns into a scroll shows it for a frame or
+        // two — and it is the hold, not the shrink, that would make that blip dwell.
+        effect.releaseHold = 0
+        // Less overshoot than the standard 0.45 — damping runs the other way, so a higher
+        // number is a smaller bounce. This rides wide, text-heavy rows, and a springier settle
+        // holds their glyphs at a fractional scale long enough to read as soft.
+        effect.release = (0.4, 0.65)
+        return effect
+    }()
+
+    // A gentler take on a press: every amount it travels — the shrink, the dim, the brighten —
+    // kept in proportion, so it reads as the same gesture rather than a slower one. Durations
+    // and the release spring are deliberately NOT scaled: the spring is character, not
+    // distance, and the overshoot already shrinks with the travel it settles through. Damping
+    // it in proportion as well double-counts, and the press lands flat.
+    func scaled(to fraction: Double) -> PressEffect {
+        PressEffect(
+            scale: 1 - (1 - scale) * CGFloat(fraction),
+            opacity: 1 - (1 - opacity) * fraction,
+            brightness: brightness * fraction,
+            pressDuration: pressDuration,
+            releaseHold: releaseHold,
+            release: release
+        )
+    }
 }
 
 // Animates the press look (scale/opacity/brightness/shadow) whenever `isPressed`
@@ -172,8 +203,20 @@ extension View {
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }
 
+    func subtleShrinkButton(shadow: Elevation? = nil, tint: Color = .accent) -> some View {
+        pressButton(.subtleShrink, shadow: shadow, tint: tint)
+    }
+
     // Apply the shrink press directly to any view (e.g. an Image) without wrapping it in a Button.
     func shrinkPress(shadow: Elevation? = nil, tint: Color = .accent, action: (() -> Void)? = nil) -> some View {
-        modifier(PressEffectModifier(effect: .shrink, elevation: shadow, tint: tint, action: action))
+        press(.shrink, shadow: shadow, tint: tint, action: action)
+    }
+
+    func subtleShrinkPress(shadow: Elevation? = nil, tint: Color = .accent, action: (() -> Void)? = nil) -> some View {
+        press(.subtleShrink, shadow: shadow, tint: tint, action: action)
+    }
+
+    func press(_ effect: PressEffect, shadow: Elevation?, tint: Color, action: (() -> Void)?) -> some View {
+        modifier(PressEffectModifier(effect: effect, elevation: shadow, tint: tint, action: action))
     }
 }

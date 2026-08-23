@@ -135,6 +135,10 @@ extension Animation {
 
     /// Micro-feedback below the `.toggle` threshold — near-instant dims and per-tick updates.
     static let quick = Animation.easeOut(duration: 0.12)
+
+    /// The system's selection dot — measured frame-by-frame from iOS 26 Calendar's week strip.
+    /// A flat 0.2s cubic (never bounces) that scales the dot 0.30↔1 about its centre as it fades 0↔1.
+    static let selectionDot = Animation.timingCurve(0.32, 0.52, 0.30, 0.97, duration: 0.2)
 }
 
 
