@@ -71,6 +71,7 @@ struct InviteDay: Identifiable {
     let day: Date
     let invites: [PendingInvite]
     var id: Date { day }
+    var isToday: Bool { Calendar.current.isDateInToday(day) }
 }
 
 //One card: one invite under one of the days it proposes, carrying that day's proposed time.

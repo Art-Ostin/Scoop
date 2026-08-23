@@ -129,22 +129,3 @@ extension SelectTypeView {
     }
 }
 
-
-private struct RevealingInfoText: View {
-    let text: String
-    let isOpen: Bool
-
-    @State private var contentHeight: CGFloat = 0
-
-    var body: some View {
-        Text(text)
-            .infoText()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true) //Bug Fix: keep every line
-            .padding(.top, Spacing.xs) //the gap below the title, revealed together with the text
-        
-            .getHeight($contentHeight)
-            .frame(height: isOpen ? contentHeight : 0, alignment: .top)
-            .clipped()
-    }
-}

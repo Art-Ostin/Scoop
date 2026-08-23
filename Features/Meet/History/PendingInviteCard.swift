@@ -18,9 +18,6 @@ struct InvitedCard: View {
     let defaults: DefaultsManaging //Whose maps app the venue opens in
     let onToggle: () -> Void
     
-    //Local view state
-    @State private var detailHeight: CGFloat = 0
-    
     private static let avatar: CGFloat = 40
     private static let textColumn = avatar + Spacing.md //Geometry: where the text column starts, for what sits under it
     
@@ -132,10 +129,7 @@ extension InvitedCard {
             messageSection
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
-        .getHeight($detailHeight)
-        .frame(height: isExpanded ? detailHeight : 0, alignment: .top)
-        .clipped()
+        .drawer(isOpen: isExpanded)
         .contentShape(Rectangle())
         .onTapGesture { onToggle() }
     }

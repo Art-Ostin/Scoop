@@ -1,5 +1,5 @@
 //
-//  InfoText.swift
+//  InfoComponents.swift
 //  Scoop
 //
 //  Created by Art Ostin on 17/06/2026.
@@ -26,5 +26,19 @@ struct SmallInfoIcon: View {
         Image(systemName: "info.circle")
             .foregroundStyle(colour)
             .font(.body(size, .medium))
+    }
+}
+
+//An explanation that rolls open under a heading, its top gap revealed with it
+struct RevealingInfoText: View {
+    let text: String
+    let isOpen: Bool
+    
+    var body: some View {
+        Text(text)
+            .infoText()
+            .padding(.top, Spacing.xs)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .drawer(isOpen: isOpen)
     }
 }

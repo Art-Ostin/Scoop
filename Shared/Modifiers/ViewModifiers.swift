@@ -73,6 +73,11 @@ extension View {
         .padding(-inset)
     }
 
+    //Clamps content to its measured height (open) or 0 (shut), never removing it; callers animate the flag
+    func drawer(isOpen: Bool) -> some View {
+        modifier(Drawer(isOpen: isOpen))
+    }
+
     //Configurable glass effect; falls back to a filled shape pre-iOS 26.
     //`tint` colours the glass itself (and becomes the fallback fill) — pass it with
     //an alpha to let more of the backdrop through.
@@ -128,5 +133,19 @@ extension View {
             .lineLimit(1)
             .minimumScaleFactor(minimum)
             .allowsTightening(true)
+    }
+}
+
+private struct Drawer: ViewModifier {
+    let isOpen: Bool
+    
+    @State private var height: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .fixedSize(horizontal: false, vertical: true) //Keep every line; the clamp must not compress it
+            .getHeight($height)
+            .frame(height: isOpen ? height : 0, alignment: .top)
+            .clipped()
     }
 }
