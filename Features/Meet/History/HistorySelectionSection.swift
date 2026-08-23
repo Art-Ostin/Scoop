@@ -1,6 +1,6 @@
 //
-//  HistoryScrollSection.swift
-//  Scoop Test
+//  HistorySelectionSection.swift
+//  Scoop
 //
 //  Created by Art Ostin on 22/08/2026.
 //
@@ -14,17 +14,14 @@ struct SelectionSection: View {
     @Binding var selectedPage: Int?
     @Bindable var ui: HistoryUIState
 
+    //Listed in page order, left to right — mirror the pager here and nothing else needs rewiring
     var body: some View {
         HStack {
-            Image(.smallDeclineBlack)
-                .scaleEffect(0.9)
-                .shrinkPress { selectedPage = 0 }
-                .getRect($ui.declineIconFrame, coordSpace: Self.selectionSpace)
-            
+            icon(.inviteBlack, page: 0)
+
             Spacer()
-            Image(.inviteBlack)
-                .shrinkPress { selectedPage = 1 }
-                .getRect($ui.inviteIconFrame, coordSpace: Self.selectionSpace)
+
+            icon(.smallDeclineBlack, page: 1, scale: 0.9)
         }
         .padding(.horizontal, 90)
         .coordinateSpace(name: Self.selectionSpace)
@@ -36,6 +33,18 @@ struct SelectionSection: View {
     }
 }
 
+extension SelectionSection {
+
+    //One `page` drives both the tap target and the underline's anchor, so the two can't
+    //drift apart from each other or from the pager.
+    private func icon(_ resource: ImageResource, page: Int, scale: CGFloat = 1) -> some View {
+        Image(resource)
+            .scaleEffect(scale)
+            .shrinkPress { selectedPage = page }
+            .getRect($ui.pageIconFrames[page], coordSpace: Self.selectionSpace)
+    }
+}
+
 struct SelectionUnderline: View {
     //Injected
     let ui: HistoryUIState
@@ -44,13 +53,13 @@ struct SelectionUnderline: View {
 
     var body: some View {
         let progress = min(max(ui.pagerProgress, 0), 1) //Rubber-banding runs past both ends
-        let from = ui.declineIconFrame.midX
-        let to = ui.inviteIconFrame.midX
+        let from = ui.pageIconFrames[0].midX
+        let to = ui.pageIconFrames[1].midX
 
         RoundedRectangle(cornerRadius: 2)
             .frame(width: Self.width, height: 2.5)
             .foregroundStyle(Color.accent)
             .offset(x: from + (to - from) * progress - Self.width / 2) //Centered on the anchor
-            .opacity(ui.inviteIconFrame == .zero ? 0 : 1) //Hidden until the anchors are measured
+            .opacity(ui.pageIconFrames.contains(.zero) ? 0 : 1) //Hidden until every anchor is measured
     }
 }

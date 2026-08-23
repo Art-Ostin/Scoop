@@ -1,6 +1,6 @@
 //
 //  HistoryViewModel.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 20/08/2026.
 //
@@ -28,6 +28,31 @@ class HistoryViewModel {
         session.sentInvites
     }
     
+    //Sent invites bucketed by the days they propose. An invite offering three days appears under
+    var invitesByDay: [InviteDay] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        var byDay: [Date: [(at: Date, invite: EventProfile)]] = [:]
+        
+        for invite in sentInvites {
+            for date in invite.event.proposedTimes.availableDates() {
+                let day = calendar.startOfDay(for: date)
+                guard day > today else { continue } //Matches removePastDays: today is already spent
+                
+                byDay[day, default: []].append((at: date, invite: invite))
+            }
+        }
+        
+        return byDay
+            .map { day, proposals in
+                //The proposed hour sorts within its day; the tuple never escapes this function,
+                //so it can carry a time the section model has no use for.
+                InviteDay(day: day, invites: proposals.sorted { $0.at < $1.at }.map(\.invite))
+            }
+            .sorted { $0.day < $1.day }
+    }
+    
     var imageLoader: ImageLoading { session.imageLoader }
     var defaults: DefaultsManaging { session.defaultsManager }
 
@@ -38,16 +63,31 @@ class HistoryViewModel {
     }
 }
 
-///Ephemeral view state for the History screen. A class so the per-frame pager-progress writes
-///invalidate only the views that READ them (the indicator leaf) — progress as @State on the
-///container would re-render the whole screen every frame of a drag, re-handing
-///ZoomNavigationStack's hosted tree mid-settle (the snap HistoryPager exists to prevent).
+//For each day Invited
+struct InviteDay: Identifiable {
+    let day: Date
+    let invites: [EventProfile]
+    var id: Date { day }
+}
+
+//One card is one invite under one day. An invite proposing three days draws three cards,
+//so the invite id alone can't tell them apart — ProposedTimes.updateDate keeps it to one
+//time per day, which is what makes the pair unique.
+struct InviteCardID: Hashable {
+    let day: Date
+    let inviteID: String
+}
+
+
 @Observable
 final class HistoryUIState {
-    ///0 at the declines page → 1 at the invites page, written every frame of a drag or settle
     var pagerProgress: Double = 0
 
-    //The icon slots, measured in the selection row's named space — the indicator's two anchors
-    var declineIconFrame: CGRect = .zero
-    var inviteIconFrame: CGRect = .zero
+    //The one card showing its message. Held here rather than per-card so the invite's other
+    //days can see it and stand their chevrons down.
+    var expandedInvite: InviteCardID?
+
+    //Indexed by page, not named by content: the underline reads position 0 → position 1, so
+    //reordering the pager means reordering the icons and nothing else.
+    var pageIconFrames: [CGRect] = [.zero, .zero]
 }

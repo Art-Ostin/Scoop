@@ -28,7 +28,8 @@ struct HistoryContainer: View {
                     scrollSection
                 }
                 .navigationTitle("History")
-                .colorBackground()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.canvasWarm.ignoresSafeArea())
                 .task(id: vm.declines) { await loadProfileImages() }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -88,11 +89,11 @@ extension HistoryContainer {
     
     private var scrollSection: some View {
         HistoryPager(selectedPage: $selectedPage, progress: $ui.pagerProgress) {
-            pastDeclineSection
+            pendingInvitesView
                 .containerRelativeFrame(.horizontal)
                 .id(0)
             
-            pendingInvitesView
+            pastDeclineSection
                 .containerRelativeFrame(.horizontal)
                 .id(1)
         }
@@ -104,7 +105,7 @@ extension HistoryContainer {
         }
         .contentMargins(.top, fadeBand, for: .scrollContent)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: fadeBand, curve: .even)
+        .customScrollFade(height: fadeBand, color: .canvasWarm, curve: .even)
     }
     
     private var pastDeclineSection: some View {
@@ -118,7 +119,7 @@ extension HistoryContainer {
     
     private var pendingInvitesView: some View {
         page {
-            PendingInvitesView(sentInvites: vm.sentInvites)
+            PendingInvitesView(inviteDays: vm.invitesByDay, ui: ui)
         }
     }
 }

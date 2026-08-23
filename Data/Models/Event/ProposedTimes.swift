@@ -36,6 +36,26 @@ struct TimeOfDay: Codable, Equatable, Hashable {
 struct ProposedTime: Codable, Equatable, Hashable {
     var date: Date
     var stillAvailable: Bool = true
+    //Stamped by ProposedTimes.normalize() — 1 is the closest day. 0 means "not stamped yet":
+    //only a document written before this field existed carries it, and decoding re-stamps it.
+    var optionNumber: Int = 0
+
+    enum CodingKeys: String, CodingKey { case date, stillAvailable, optionNumber }
+}
+
+//In an extension on purpose: an initializer written in the struct body would suppress the
+//memberwise init, and `.init(date:)` is called from four places.
+extension ProposedTime {
+
+    //Every field added after the first release decodes if-present. A document written by an
+    //older build has no key for it, and a keyNotFound here finishes the whole events stream
+    //(FirestoreService.streamCollection), not just the one invite that carries it.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        date = try container.decode(Date.self, forKey: .date)
+        stillAvailable = try container.decodeIfPresent(Bool.self, forKey: .stillAvailable) ?? true
+        optionNumber = try container.decodeIfPresent(Int.self, forKey: .optionNumber) ?? 0
+    }
 }
 
 struct ProposedTimes: Codable, Equatable  {
@@ -49,11 +69,16 @@ struct ProposedTimes: Codable, Equatable  {
         normalize()
     }
     
-    func availableDates() -> [Date] {
+    //The available times themselves, still carrying their option number — availableDates()
+    //throws it away, and a screen labelling a day's card needs it.
+    func availableTimes() -> [ProposedTime] {
         dates
             .filter(\.stillAvailable)
             .sorted { $0.date < $1.date }
-            .map(\.date)
+    }
+
+    func availableDates() -> [Date] {
+        availableTimes().map(\.date)
     }
     
     var firstAvailableDate: Date? {
@@ -66,6 +91,7 @@ struct ProposedTimes: Codable, Equatable  {
         
         if let idx = dates.firstIndex(where: { cal.isDate($0.date, inSameDayAs: day) }) {
             dates.remove(at: idx)
+            normalize() //Removing the middle day would otherwise leave the numbering at 1, 3
             return false
         }
         
@@ -81,6 +107,7 @@ struct ProposedTimes: Codable, Equatable  {
     mutating func remove(_ day: Date) {
         let cal = Calendar.current
         dates.removeAll { cal.isDate($0.date, inSameDayAs: day) }
+        normalize()
     }
 
     //A stored draft outlives the days it proposed — drop every day that is today or earlier. True if anything went.
@@ -89,7 +116,9 @@ struct ProposedTimes: Codable, Equatable  {
         let today = calendar.startOfDay(for: Date())
         let before = dates.count
         dates.removeAll { calendar.startOfDay(for: $0.date) <= today }
-        return dates.count != before
+        guard dates.count != before else { return false }
+        normalize()
+        return true
     }
     
     //Combines selected day and hour (and minute) into one date to update day
@@ -111,6 +140,14 @@ struct ProposedTimes: Codable, Equatable  {
         if dates.count > Self.maxCount {
             dates = Array(dates.prefix(Self.maxCount))
         }
+        stampOptionNumbers()
+    }
+
+    //Option numbers are positional for now — the closest day is 1. When the sender can choose
+    //their own order this becomes "keep what was chosen, fill the gaps". It is the only place
+    //that decides, so nothing downstream changes when that lands.
+    private mutating func stampOptionNumbers() {
+        for i in dates.indices { dates[i].optionNumber = i + 1 }
     }
     
     private static func parseDate(day: Date, hour: Int, minute: Int, calendar: Calendar) -> Date? {
@@ -118,6 +155,20 @@ struct ProposedTimes: Codable, Equatable  {
         return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: start)
     }
     
+}
+
+//The one place a legacy invite gets its option numbers: normalize() re-stamps whatever came
+//off the wire, so a document written before the field existed reads correctly — and a decoded
+//set is sorted and clamped like every other one, which the synthesised init never did.
+extension ProposedTimes {
+
+    enum CodingKeys: String, CodingKey { case dates }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        dates = try container.decode([ProposedTime].self, forKey: .dates)
+        normalize()
+    }
 }
 
 //To format Multiple days
