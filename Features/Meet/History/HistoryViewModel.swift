@@ -29,26 +29,29 @@ class HistoryViewModel {
     }
     
     //Sent invites bucketed by the days they propose. An invite offering three days appears under
+    //all three, as a separate card each time — availableTimes() rather than availableDates() so
+    //each card keeps the option number the recipient sees for that day.
     var invitesByDay: [InviteDay] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let now = Date()
         
-        var byDay: [Date: [(at: Date, invite: EventProfile)]] = [:]
+        var byDay: [Date: [PendingInvite]] = [:]
         
         for invite in sentInvites {
-            for date in invite.event.proposedTimes.availableDates() {
-                let day = calendar.startOfDay(for: date)
-                guard day > today else { continue } //Matches removePastDays: today is already spent
+            for time in invite.event.proposedTimes.availableTimes() {
+                //A proposal is live until its own moment passes, matching removePastTimes and
+                //UserEvent.isLiveSentInvite. Today counts — its section header reads "Today".
+                guard time.date > now else { continue }
+                let day = calendar.startOfDay(for: time.date)
                 
-                byDay[day, default: []].append((at: date, invite: invite))
+                byDay[day, default: []].append(PendingInvite(day: day, invite: invite, time: time))
             }
         }
         
         return byDay
             .map { day, proposals in
-                //The proposed hour sorts within its day; the tuple never escapes this function,
-                //so it can carry a time the section model has no use for.
-                InviteDay(day: day, invites: proposals.sorted { $0.at < $1.at }.map(\.invite))
+                //The proposed hour sorts within its day
+                InviteDay(day: day, invites: proposals.sorted { $0.time.date < $1.time.date })
             }
             .sorted { $0.day < $1.day }
     }
@@ -66,8 +69,18 @@ class HistoryViewModel {
 //For each day Invited
 struct InviteDay: Identifiable {
     let day: Date
-    let invites: [EventProfile]
+    let invites: [PendingInvite]
     var id: Date { day }
+}
+
+//One card: one invite under one of the days it proposes, carrying that day's proposed time.
+//The EventProfile alone can't say which — a three-day invite draws three cards out of one.
+struct PendingInvite: Identifiable {
+    let day: Date //Start of day — the section this card sits under
+    let invite: EventProfile
+    let time: ProposedTime
+
+    var id: InviteCardID { InviteCardID(day: day, inviteID: invite.id) }
 }
 
 //One card is one invite under one day. An invite proposing three days draws three cards,

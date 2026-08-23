@@ -36,9 +36,9 @@ struct TimeOfDay: Codable, Equatable, Hashable {
 struct ProposedTime: Codable, Equatable, Hashable {
     var date: Date
     var stillAvailable: Bool = true
-    //Stamped by ProposedTimes.normalize() — 1 is the closest day. 0 means "not stamped yet":
-    //only a document written before this field existed carries it, and decoding re-stamps it.
-    var optionNumber: Int = 0
+    //Which of the invite's days this is: 1 is the closest. Stamped by ProposedTimes, never
+    //set at a call site — the default is only what a lone ProposedTime holds until it joins a set.
+    var optionNumber: Int = 1
 
     enum CodingKeys: String, CodingKey { case date, stillAvailable, optionNumber }
 }
@@ -47,9 +47,10 @@ struct ProposedTime: Codable, Equatable, Hashable {
 //memberwise init, and `.init(date:)` is called from four places.
 extension ProposedTime {
 
-    //Every field added after the first release decodes if-present. A document written by an
-    //older build has no key for it, and a keyNotFound here finishes the whole events stream
-    //(FirestoreService.streamCollection), not just the one invite that carries it.
+    //LOAD-BEARING. A field added after the first invites were written must decode if-present:
+    //the synthesised decoder throws keyNotFound on a document that predates it, and
+    //FirestoreService.streamCollection turns that into finish(throwing:) — one old invite takes
+    //down the whole events stream, so nothing loads at all.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         date = try container.decode(Date.self, forKey: .date)
@@ -110,15 +111,15 @@ struct ProposedTimes: Codable, Equatable  {
         normalize()
     }
 
-    //A stored draft outlives the days it proposed — drop every day that is today or earlier. True if anything went.
+    //A stored draft outlives the times it proposed — drop every one that has already passed.
+    //Instant-based, not day-based: today is a day the picker offers, so a proposal for today
+    //at 21:30 stays valid until 21:30. True if anything went.
     @discardableResult
-    mutating func removePastDays(calendar: Calendar = .current) -> Bool {
-        let today = calendar.startOfDay(for: Date())
+    mutating func removePastTimes(now: Date = .now) -> Bool {
         let before = dates.count
-        dates.removeAll { calendar.startOfDay(for: $0.date) <= today }
-        guard dates.count != before else { return false }
+        dates.removeAll { $0.date <= now }
         normalize()
-        return true
+        return dates.count != before
     }
     
     //Combines selected day and hour (and minute) into one date to update day
@@ -157,9 +158,8 @@ struct ProposedTimes: Codable, Equatable  {
     
 }
 
-//The one place a legacy invite gets its option numbers: normalize() re-stamps whatever came
-//off the wire, so a document written before the field existed reads correctly — and a decoded
-//set is sorted and clamped like every other one, which the synthesised init never did.
+//Where an invite written before option numbers existed gets them: every entry decodes to the
+//same fallback, and normalize() re-stamps the set in date order so its days read 1, 2, 3.
 extension ProposedTimes {
 
     enum CodingKeys: String, CodingKey { case dates }

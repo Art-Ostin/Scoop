@@ -46,8 +46,6 @@ struct EditProfileContainer: View {
                 profileView
             }
         }
-        //All three float above the zoom-presented photo editor, so each blur-pops away on
-        //`isEditingImage` — the editor owns the screen from the moment the flight starts.
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .topLeading) { leadingAction }
         .overlay(alignment: .topTrailing) { editProfileDismissButton }

@@ -29,7 +29,7 @@ struct HistoryContainer: View {
                 }
                 .navigationTitle("History")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.canvasWarm.ignoresSafeArea())
+                .background(Color.canvasSunken.ignoresSafeArea())
                 .task(id: vm.declines) { await loadProfileImages() }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

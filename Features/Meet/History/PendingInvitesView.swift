@@ -31,19 +31,15 @@ extension PendingInvitesView {
             Text(FormatEvent.dayAndTime(inviteDay.day, withHour: false))
                 .font(.body(18, .bold))
                 .foregroundStyle(Color(white: 0.25))
-            //spacing: 0 — the gap between rows is carried by each card's own vertical
-            //padding and the divider's, so the rule sits centred in the gap it splits.
             VStack(spacing: 0) {
-                ForEach(inviteDay.invites) {invite in
-                    let card = InviteCardID(day: inviteDay.day, inviteID: invite.id)
-
-                    InvitedCard(invite: invite,
-                                showsDivider: invite.id != inviteDay.invites.last?.id,
-                                isExpanded: ui.expandedInvite == card,
-                                showsChevron: !isShadowed(card),
+                ForEach(inviteDay.invites) {pending in
+                    InvitedCard(pending: pending,
+                                showsDivider: pending.id != inviteDay.invites.last?.id,
+                                isExpanded: ui.expandedInvite == pending.id,
+                                showsChevron: !isShadowed(pending.id),
                                 onToggle: {
                                     withAnimation(.expand) {
-                                        ui.expandedInvite = ui.expandedInvite == card ? nil : card
+                                        ui.expandedInvite = ui.expandedInvite == pending.id ? nil : pending.id
                                     }
                                 })
                 }
@@ -61,7 +57,7 @@ extension PendingInvitesView {
 private struct InvitedCard: View {
     
     //Injected
-    let invite: EventProfile
+    let pending: PendingInvite
     let showsDivider: Bool //False on the last invite of a day — nothing follows it to separate
     let isExpanded: Bool
     let showsChevron: Bool //False while another day's card for this same invite is open
@@ -70,8 +66,11 @@ private struct InvitedCard: View {
     //Local view state
     @State private var detailHeight: CGFloat = 0
     
-    //Only one time is proposed now, so there's nothing to sort or choose between
-    private var proposedTime: Date? { invite.event.proposedTimes.dates.first?.date }
+    private var invite: EventProfile { pending.invite }
+    
+    //This card's own day — not proposedTimes.first, which is the invite's earliest day and
+    //would label every card of a multi-day invite with the same time.
+    private var proposedTime: Date { pending.time.date }
     
     //Same rule as ConfirmMessageSection's checkMessage: whitespace-only counts as no message
     private var message: String? {
@@ -100,10 +99,8 @@ private struct InvitedCard: View {
     }
     
     private var timeAndWhat: String {
-           let what = invite.event.type.longTitle
-           guard let proposedTime else { return what }
-           return "\(what) · \(FormatEvent.hourTime(proposedTime))"
-       }
+        "\(invite.event.type.longTitle) · \(FormatEvent.hourTime(proposedTime))"
+    }
     
     private var textRows: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -131,7 +128,7 @@ private struct InvitedCard: View {
             
             Spacer(minLength: 16)
             
-            Text("Option 1")
+            Text("Option \(pending.time.optionNumber)")
                 .font(.body(12, .regular))
                 .foregroundStyle(Color(white: 0.75))
         }
