@@ -128,9 +128,6 @@ struct PlaceRow: View {
     
     let place: EventLocation
     let style: ConfirmStyle
-//    let addNote: Bool
-    
-    
 
     var body: some View {
         let placeName = place.name ?? place.address ?? "View on map"

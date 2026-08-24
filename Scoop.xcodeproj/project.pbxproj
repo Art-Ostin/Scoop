@@ -89,6 +89,8 @@
 		654C009E2E35835900FFD504 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C009D2E35835900FFD504 /* AppDependencies.swift */; };
 		654C58952F6B5030002060C5 /* RespondButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654C58942F6B5021002060C5 /* RespondButtons.swift */; };
 		6554191C303B529200B5F68B /* PendingInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554191B303B529200B5F68B /* PendingInviteCard.swift */; };
+		6554191E303B715900B5F68B /* ExpiredEventCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554191D303B715900B5F68B /* ExpiredEventCard.swift */; };
+		65541920303B71B800B5F68B /* PendingInviteComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554191F303B71B800B5F68B /* PendingInviteComponents.swift */; };
 		655441492FE9769100425CBF /* InviteCardInfoOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655441482FE9769100425CBF /* InviteCardInfoOld.swift */; };
 		6554414B2FEA6A2B00425CBF /* RespondTimeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */; };
 		6555178E2F38F3F6000783FB /* MapCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6555178D2F38F3F6000783FB /* MapCategory.swift */; };
@@ -394,6 +396,8 @@
 		654C009D2E35835900FFD504 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		654C58942F6B5021002060C5 /* RespondButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondButtons.swift; sourceTree = "<group>"; };
 		6554191B303B529200B5F68B /* PendingInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInviteCard.swift; sourceTree = "<group>"; };
+		6554191D303B715900B5F68B /* ExpiredEventCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiredEventCard.swift; sourceTree = "<group>"; };
+		6554191F303B71B800B5F68B /* PendingInviteComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInviteComponents.swift; sourceTree = "<group>"; };
 		655441482FE9769100425CBF /* InviteCardInfoOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardInfoOld.swift; sourceTree = "<group>"; };
 		6554414A2FEA6A2B00425CBF /* RespondTimeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimeRow.swift; sourceTree = "<group>"; };
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
@@ -1273,6 +1277,10 @@
 		6554191A303B526C00B5F68B /* PendingInvites */ = {
 			isa = PBXGroup;
 			children = (
+				655CCB8E3039C0690085303B /* PendingInvitesView.swift */,
+				6554191B303B529200B5F68B /* PendingInviteCard.swift */,
+				6554191D303B715900B5F68B /* ExpiredEventCard.swift */,
+				6554191F303B71B800B5F68B /* PendingInviteComponents.swift */,
 			);
 			path = PendingInvites;
 			sourceTree = "<group>";
@@ -1353,8 +1361,6 @@
 				655CCB883039BC620085303B /* HistorySelectionSection.swift */,
 				655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */,
 				6554191A303B526C00B5F68B /* PendingInvites */,
-				655CCB8E3039C0690085303B /* PendingInvitesView.swift */,
-				6554191B303B529200B5F68B /* PendingInviteCard.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -1863,10 +1869,12 @@
 				65F7044E2F6EDA4100CE29C5 /* RespondDetails.swift in Sources */,
 				65756FDD3010BEAA00B9D2F5 /* RespondNewTime.swift in Sources */,
 				65C7D6312E54A4DF00B726B8 /* EditProfileViewModel.swift in Sources */,
+				65541920303B71B800B5F68B /* PendingInviteComponents.swift in Sources */,
 				65AF14922F64456000031513 /* InvitesViewModel.swift in Sources */,
 				65F993D52F5893B200EC810B /* ChatState.swift in Sources */,
 				659CEA073010AC3F00E0F735 /* SaveButtonOverlay.swift in Sources */,
 				65F115CA2FED11D600AC5463 /* DropdownCustomMenu.swift in Sources */,
+				6554191E303B715900B5F68B /* ExpiredEventCard.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */,
 				65756FE13010C31800B9D2F5 /* ToggleResponseMode.swift in Sources */,

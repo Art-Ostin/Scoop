@@ -10,7 +10,7 @@ import SwiftUI
 
 @Observable
 @MainActor
-class HistoryViewModel {
+final class HistoryViewModel {
     
     
     private var session: Session
@@ -28,9 +28,10 @@ class HistoryViewModel {
         session.sentInvites
     }
     
-    //Sent invites bucketed by the days they propose. An invite offering three days appears under
-    //all three, as a separate card each time — availableTimes() rather than availableDates() so
-    //each card keeps the option number the recipient sees for that day.
+    var activePendingInviteCount: Int {
+        sentInvites.count - expiredInvites.count
+    }
+    
     var invitesByDay: [InviteDay] {
         let calendar = Calendar.current
         let now = Date()
@@ -38,10 +39,7 @@ class HistoryViewModel {
         var byDay: [Date: [PendingInvite]] = [:]
         
         for invite in sentInvites {
-            for time in invite.event.proposedTimes.availableTimes() {
-                //A proposal is live until its own moment passes, matching removePastTimes and
-                //UserEvent.isLiveSentInvite. Today counts — its section header reads "Today".
-                guard time.date > now else { continue }
+            for time in invite.event.proposedTimes.acceptableTimes(asOf: now) {
                 let day = calendar.startOfDay(for: time.date)
                 
                 byDay[day, default: []].append(PendingInvite(day: day, invite: invite, time: time))
@@ -55,6 +53,14 @@ class HistoryViewModel {
             }
             .sorted { $0.day < $1.day }
     }
+    
+    var expiredInvites: [EventProfile] {
+        let now = Date()
+
+        return sentInvites.filter { $0.event.proposedTimes.isExpired(asOf: now) }
+    }
+    
+    
     
     var imageLoader: ImageLoading { session.imageLoader }
     var defaults: DefaultsManaging { session.defaultsManager }
@@ -72,10 +78,9 @@ struct InviteDay: Identifiable {
     let invites: [PendingInvite]
     var id: Date { day }
     var isToday: Bool { Calendar.current.isDateInToday(day) }
+    var hasMultipleInvites: Bool { invites.count > 1 }
 }
 
-//One card: one invite under one of the days it proposes, carrying that day's proposed time.
-//The EventProfile alone can't say which — a three-day invite draws three cards out of one.
 struct PendingInvite: Identifiable {
     let day: Date //Start of day — the section this card sits under
     let invite: EventProfile
@@ -85,11 +90,16 @@ struct PendingInvite: Identifiable {
 }
 
 //One card is one invite under one day. An invite proposing three days draws three cards,
-//so the invite id alone can't tell them apart — ProposedTimes.updateDate keeps it to one
-//time per day, which is what makes the pair unique.
 struct InviteCardID: Hashable {
     let day: Date
     let inviteID: String
+}
+
+//A pending card is one invite under one day; an expired one has no day left to sit under, so
+//the two can't share an id. Held as one value so only ever one card is open on the screen.
+enum ExpandedCard: Hashable {
+    case pending(InviteCardID)
+    case expired(String) //EventProfile.id
 }
 
 
@@ -97,9 +107,9 @@ struct InviteCardID: Hashable {
 final class HistoryUIState {
     var pagerProgress: Double = 0
 
-    //The one card showing its message. Held here rather than per-card so the invite's other
-    //days can see it and stand their chevrons down.
-    var expandedInvite: InviteCardID?
+    //The one card showing its message — held here so opening a card closes whichever other
+    //card was open, in either section.
+    var expandedInvite: ExpandedCard?
 
     //Indexed by page, not named by content: the underline reads position 0 → position 1, so
     //reordering the pager means reordering the icons and nothing else.

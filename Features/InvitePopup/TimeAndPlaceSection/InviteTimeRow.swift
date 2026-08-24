@@ -69,7 +69,7 @@ extension InviteTimeRow {
         VStack(alignment: .trailing, spacing: 0) {
             
             TimeCustomMenu(morphAnchor: morphAnchor,
-                           estimatedContentSize: CGSize(width: timeMenuWidth, height: 270),
+                           estimatedContentSize: CGSize(width: timeMenuWidth, height: 286), //SelectTimeView at rest: 16 + 34 title row + 16 + 12 header + 4 + 80 grid + 4 + 120 wheel
                            verticalPlacement: .below, //The designed spot: centered over the card's rows
                            placementOffsetX: TimeCustomMenuSpec.placementOffsetX - 24,
                            placementOffsetY: TimeCustomMenuSpec.placementOffsetY,

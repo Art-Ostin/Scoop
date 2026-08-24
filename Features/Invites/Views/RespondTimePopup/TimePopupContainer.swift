@@ -29,7 +29,7 @@ struct TimePopupContainer: View {
             pagerSection
         }
         .padding(.top, page == .invitedTimes ? 20 : Spacing.md)
-        .padding(.bottom, page == .invitedTimes ? 20 :  -Spacing.xs)
+        .padding(.bottom, page == .invitedTimes ? 20 : 0) //New-time page: the wheel runs to the platter edge and dissolves there (see TimePicker)
         .frame(maxWidth: page == .invitedTimes ? 310 : 325) //Width matches that in SelectTimeView
         .animation(.spring(duration: 0.3), value: page)
     }
@@ -39,7 +39,7 @@ extension TimePopupContainer {
     
     private var popupTitleAndButton: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(page == .newTime ? "Suggest New Time" : "Invited Times")
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPrimary)
@@ -62,8 +62,8 @@ extension TimePopupContainer {
     private var subTitle: some View {
         HStack(spacing: 6) {
             Text("Propose up to 3 days")
-                .font(.body(11, .regular))
-                .foregroundStyle(Color.textTertiary)
+                .font(.body(13, .regular))
+                .foregroundStyle(Color.textSecondary)
         }
     }
 

@@ -1,6 +1,6 @@
 //
-//  DayWarningSign.swift
-//  Scoop Test
+//  DayCountOverlay.swift
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
 //
@@ -23,6 +23,7 @@ struct DayCountAndWarning: View {
                 dayCountDisplay
             }
         }
+        .fixedSize() //A trailing accessory never truncates; the title column yields instead
         .animation(.transition, value: dayCount)
         .animation(.transition, value: warning)
         .animation(.transition, value: showSaved)
@@ -31,11 +32,12 @@ struct DayCountAndWarning: View {
 
 extension DayCountAndWarning {
     
+    //A glanceable counter, one level under the title. (No .monospacedDigit(): ModernEra renders it as a truncated glyph.)
     private var dayCountDisplay: some View {
         Text("\(dayCount)/\(ProposedTimes.maxCount)")
             .contentTransition(.numericText(value: Double(dayCount)))
-            .foregroundStyle(Color.textPrimary)
-            .font(.body(12, .bold))
+            .foregroundStyle(Color.textSecondary)
+            .font(.body(13, .medium))
             .transition(.blurReplace)
     }
 
@@ -44,11 +46,11 @@ extension DayCountAndWarning {
             .transition(.blurReplace)
     }
     
+    //Bold is reserved for the refusal, so it lands by contrast with the counter it replaces.
     private func warningText(_ warning: String) -> some View {
         Text(warning)
-            .font(.body(12, .bold))
+            .font(.body(13, .bold))
             .foregroundStyle(Color.warningYellow)
             .transition(.blurReplace)
     }
 }
-

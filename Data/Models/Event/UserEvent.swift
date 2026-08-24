@@ -68,12 +68,17 @@ extension UserEvent {
              status, canText, createdAt, earlyTerminatorID, chatState
     }
 
-    //An invite whose proposed days have all passed is dead — the other side can no longer
-    //accept it, so it never needs loading.
+    //An expired invite stays loaded for this long, so the Expired section survives a relaunch.
+    //Mirrors Session.declinedWindow, which retains declined profiles the same way.
+    static let expiredWindow: TimeInterval = 2 * 24 * 60 * 60
+
+    //An invite is worth loading while the other side could still accept it, and for a window
+    //after that — sentInvites is what the Expired section reads, so dropping a passed invite
+    //here would empty that section on every launch.
     var isLiveSentInvite: Bool {
         status == .pending
         && role == .sent
-        && proposedTimes.dates.contains { $0.date > .now }
+        && proposedTimes.dates.contains { $0.date > .now.addingTimeInterval(-Self.expiredWindow) }
     }
 
     var messagePopup: MessagePopup? {

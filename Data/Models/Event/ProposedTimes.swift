@@ -158,6 +158,25 @@ struct ProposedTimes: Codable, Equatable  {
     
 }
 
+//How close to a proposed time the other side stops being able to accept. One constant, so the
+//list that draws a day, the list that calls the invite expired, and the copy explaining the
+//rule can't drift apart.
+extension ProposedTimes {
+
+    static let acceptanceLead: TimeInterval = 4 * 60 * 60
+
+    //The days still worth offering: available, and far enough out to still be accepted.
+    func acceptableTimes(asOf now: Date = .now) -> [ProposedTime] {
+        availableTimes().filter { $0.date > now.addingTimeInterval(Self.acceptanceLead) }
+    }
+
+    //Every day it proposed has fallen inside the acceptance window. An invite carrying no days
+    //at all is expired too, which is what the empty set already gives.
+    func isExpired(asOf now: Date = .now) -> Bool {
+        acceptableTimes(asOf: now).isEmpty
+    }
+}
+
 //Where an invite written before option numbers existed gets them: every entry decodes to the
 //same fallback, and normalize() re-stamps the set in date order so its days read 1, 2, 3.
 extension ProposedTimes {
@@ -188,6 +207,24 @@ extension ProposedTimes {
             .joined()
         }()
         return value
+    }
+
+    //The same days as a record rather than an open offer: every day comma-joined, and the last
+    //day's month lifted out of the list to sit with the time — "Sat 15, Tue 18, Thu 20 · Aug 22:30".
+    //An earlier month still names itself, so a set straddling the boundary reads
+    //"Thu 30 Jul, Mon 3 · Aug 22:30". Past tense, so no day is a choice and nothing joins with "or".
+    func formatInvitedDaysList() -> String {
+        guard let last = dates.last else { return "" }
+
+        let days = dates.indices.map { index in
+            //The last day's month is the one that moves to the tail; earlier runs keep naming their own
+            let namesMonth = index != dates.count - 1 && endsMonthRun(at: index)
+            return FormatEvent.shortDayAndTime(dates[index].date, withHour: false, withMonth: namesMonth)
+        }
+        .joined(separator: ", ")
+
+        let month = last.date.formatted(.dateTime.month(.abbreviated))
+        return "\(days) · \(month) \(FormatEvent.hourTime(last.date))"
     }
 
     //A day names its month only when the next one leaves it — dates are sorted, so a month's days sit together

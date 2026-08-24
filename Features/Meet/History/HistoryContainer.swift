@@ -42,21 +42,12 @@ struct HistoryContainer: View {
     }
 }
 
-/*
- .navigationTitle("History")
- .toolbar {
-     ToolbarItem(placement: .topBarTrailing) {
-         dismissButton
-     }
- }
- */
-
 //Logic to do with the header
 extension HistoryContainer {
     //Sits hard against the pager, which clips the cards at the underline's baseline
     private var headerBand: some View {
         VStack(alignment: .leading, spacing: 24) {
-            title
+            HistoryTitle(ui: ui)
             
             headingSection
                 .padding(.top, -12)
@@ -67,14 +58,6 @@ extension HistoryContainer {
         .padding(.horizontal, Spacing.gutter)
         .zIndex(1)
     }
-    
-    private var title: some View {
-        Text("History")
-            .font(.title(32, .bold))
-    }
-    
-    
-    
     
     private var headingSection: some View {
         (
@@ -94,7 +77,7 @@ extension HistoryContainer {
         } label: {
             Image(systemName: "xmark") //"arrow.down.right.and.arrow.up.left"
                 .foregroundStyle(.black)
-                .font(.icon(14, .heavy))
+                .font(.icon(16, .heavy))
         }
     }
     
@@ -140,13 +123,34 @@ extension HistoryContainer {
     
     private var pendingInvitesView: some View {
         page {
-            PendingInvitesView(inviteDays: vm.invitesByDay, ui: ui, defaults: vm.defaults)
+            PendingInvitesView(inviteDays: vm.invitesByDay,
+                               expiredInvites: vm.expiredInvites,
+                               activePendingInviteCount: vm.activePendingInviteCount,
+                               ui: ui,
+                               defaults: vm.defaults)
         }
     }
 }
 
-struct HistoryPager<Content: View>: View {
+//Its own Title -> Fixes bug
+private struct HistoryTitle: View {
+    //Injected
+    let ui: HistoryUIState
 
+    private var showsDeclines: Bool { ui.pagerProgress > 0.5 }
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(showsDeclines ? "Declined Profiles" : "Pending Invites")
+                .font(.title(32, .bold))
+                .id(showsDeclines)
+                .transition(.blurReplace)
+        }
+        .animation(.transition, value: showsDeclines)
+    }
+}
+
+struct HistoryPager<Content: View>: View {
     //Injected
     @Binding var selectedPage: Int?
     var progress: Binding<Double> = .constant(0)
@@ -173,3 +177,16 @@ struct HistoryPager<Content: View>: View {
         }
     }
 }
+
+
+
+/*
+ /*
+  .navigationTitle("History")
+  .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+          dismissButton
+      }
+  }
+  */
+ */
