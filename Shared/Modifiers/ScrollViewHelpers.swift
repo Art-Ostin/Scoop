@@ -93,6 +93,50 @@ private struct TitleTravel: ViewModifier {
 }
 
 
+///Follows a drawer's reveal down the scroll it sits at the foot of, so what opened isn't left
+///below the fold. Travels `distance`, or stops at the end of the content if less is left.
+///Opening only — a collapse is already carried up by the content shrinking under the offset.
+private struct DrawerNudge: ViewModifier {
+    let isOpen: Bool
+    let distance: CGFloat
+
+    @State private var position = ScrollPosition()
+    @State private var geometry: ScrollGeometry?
+
+    ///Measured on iOS 26: a nudge issued in the drawer's own transaction is clamped against the
+    ///content as it stands BEFORE the drawer grows it — parked at the foot, that clamp is zero
+    ///travel and the scroll never moves. 16ms and 33ms still land nothing; 50ms and up land the
+    ///full distance. Double that floor, and still inside the `.expand` reveal, so the two read
+    ///as one motion rather than a scroll after the fact.
+    private static let settle = Duration.milliseconds(100)
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollGeometryChange(for: ScrollGeometry.self) { $0 } action: { _, geo in
+                geometry = geo //Read passively: driving the scroll from here would re-fire on every frame of the reveal
+            }
+            .scrollPosition($position)
+            .task(id: isOpen) { await follow() } //Retoggling cancels the pending nudge with it
+    }
+
+    private func follow() async {
+        guard isOpen else { return }
+        try? await Task.sleep(for: Self.settle)
+        guard !Task.isCancelled, isOpen, let geometry else { return }
+
+        //contentInsets sit outside contentSize, so the top inset both floors the offset and is
+        //the origin scrollTo(point:) measures its content-space y from
+        let maxOffset = geometry.contentSize.height - geometry.containerSize.height - geometry.contentInsets.top
+        let step = min(distance, maxOffset - geometry.contentOffset.y)
+        guard step > 0 else { return } //Nothing below the fold: a short page shouldn't lurch
+
+        withAnimation(.move) {
+            position.scrollTo(point: CGPoint(x: 0, y: geometry.contentOffset.y + step + geometry.contentInsets.top))
+        }
+    }
+}
+
+
 private struct TrackScrollProgess: ViewModifier {
     @Binding var scrollProgress: Double
     
@@ -146,6 +190,12 @@ extension View {
 
     func trackScrollProgress(scrollProgress: Binding<Double>) -> some View {
         modifier(TrackScrollProgess(scrollProgress: scrollProgress))
+    }
+
+    ///Applied where the scroll is BUILT, not where the drawer lives — modifiers reach the scroll
+    ///views beneath them, so the flag has to be readable by the scroll's own owner.
+    func drawerNudge(isOpen: Bool, by distance: CGFloat) -> some View {
+        modifier(DrawerNudge(isOpen: isOpen, distance: distance))
     }
 
     func instantPressDelivery() -> some View {

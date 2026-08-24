@@ -85,6 +85,9 @@ struct ProposedTimes: Codable, Equatable  {
     var firstAvailableDate: Date? {
         availableDates().first
     }
+    var lastProposedDate: Date {
+        dates.last?.date ?? .distantPast
+    }
     
     @discardableResult
     mutating func updateDate(day: Date, hour: Int, minute: Int) -> Bool {

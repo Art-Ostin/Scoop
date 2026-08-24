@@ -8,13 +8,14 @@ import SwiftUI
 
 //Good to have consistent button size throughout the app. So (Rounded) Buttons can be one 
 enum ButtonSize {
-    case small, medium, large
+    case small, medium, large, xLarge
 
     var fontSize: CGFloat {
         switch self {
         case .small:  15
         case .medium: 16
         case .large:  17
+        case .xLarge: 18
         }
     }
         
@@ -23,6 +24,7 @@ enum ButtonSize {
         case .small:  26
         case .medium: 35
         case .large:  44
+        case .xLarge: 48
         }
     }
 }

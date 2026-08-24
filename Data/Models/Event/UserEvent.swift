@@ -70,7 +70,8 @@ extension UserEvent {
 
     //An expired invite stays loaded for this long, so the Expired section survives a relaunch.
     //Mirrors Session.declinedWindow, which retains declined profiles the same way.
-    static let expiredWindow: TimeInterval = 2 * 24 * 60 * 60
+    static let daysToShowExpired: TimeInterval = 60 //The two months the Expired section reads back over
+    static let expiredWindow: TimeInterval = daysToShowExpired * 24 * 60 * 60
 
     //An invite is worth loading while the other side could still accept it, and for a window
     //after that — sentInvites is what the Expired section reads, so dropping a passed invite

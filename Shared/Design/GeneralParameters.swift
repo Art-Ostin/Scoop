@@ -124,6 +124,10 @@ extension Animation {
     /// Disclosure & grow-in-place — info rows, height reveals, content reflow inside a container.
     static let expand = Animation.snappy(duration: 0.3)
 
+    /// An `.expand` taken slowly, for a reveal tall enough that the standard step reads as a snap —
+    /// a section unfolding a whole list of cards, not a row showing one more line.
+    static let unfold = Animation.snappy(duration: 0.5)
+
     /// Overlays, sheets, menus and cards appearing. Gentle settle on arrival.
     static let present = Animation.spring(duration: 0.42, bounce: 0.12)
 

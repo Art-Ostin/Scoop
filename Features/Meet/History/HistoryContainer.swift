@@ -20,6 +20,10 @@ struct HistoryContainer: View {
     //Geometry: both the scroll view's top inset and the fade's height, so content begins
     //exactly where the fade ends — a day heading is never born dimmed.
     private let fadeBand: CGFloat = 32
+
+    //Geometry: how far the scroll follows the unanswered section open — its note and the first
+    //cards. Travels less when less is left: the nudge stops at the end of the content.
+    private let expiredReveal: CGFloat = 350
     
     var body: some View {
         ZoomNavigationStack {
@@ -72,12 +76,12 @@ extension HistoryContainer {
     }
     
     private var dismissButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .large, press: .grow) {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .xLarge, press: .grow) {
             dismiss()
         } label: {
             Image(systemName: "xmark") //"arrow.down.right.and.arrow.up.left"
                 .foregroundStyle(.black)
-                .font(.icon(16, .heavy))
+                .font(.icon(18, .heavy))
         }
     }
     
@@ -129,6 +133,7 @@ extension HistoryContainer {
                                ui: ui,
                                defaults: vm.defaults)
         }
+        .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal)
     }
 }
 

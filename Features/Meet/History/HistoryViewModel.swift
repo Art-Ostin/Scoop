@@ -54,10 +54,15 @@ final class HistoryViewModel {
             .sorted { $0.day < $1.day }
     }
     
+    //Most recently lapsed first: sentInvites arrives in profile-load order, which is whichever
+    //fetch finished first and reshuffles every launch — the section reads back two months, so
+    //an arbitrary order reads as a list with things missing from it.
     var expiredInvites: [EventProfile] {
         let now = Date()
 
-        return sentInvites.filter { $0.event.proposedTimes.isExpired(asOf: now) }
+        return sentInvites
+            .filter { $0.event.proposedTimes.isExpired(asOf: now) }
+            .sorted { $0.event.proposedTimes.lastProposedDate > $1.event.proposedTimes.lastProposedDate }
     }
     
     
@@ -110,6 +115,10 @@ final class HistoryUIState {
     //The one card showing its message — held here so opening a card closes whichever other
     //card was open, in either section.
     var expandedInvite: ExpandedCard?
+
+    //Shut on arrival: these invites have already been seen once. Held here rather than in the
+    //view so the container, which owns the scroll, can follow the reveal down it.
+    var showsExpired = false
 
     //Indexed by page, not named by content: the underline reads position 0 → position 1, so
     //reordering the pager means reordering the icons and nothing else.

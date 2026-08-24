@@ -138,14 +138,40 @@ extension View {
 
 private struct Drawer: ViewModifier {
     let isOpen: Bool
-    
+
     @State private var height: CGFloat = 0
-    
+
     func body(content: Content) -> some View {
         content
             .fixedSize(horizontal: false, vertical: true) //Keep every line; the clamp must not compress it
             .getHeight($height)
-            .frame(height: isOpen ? height : 0, alignment: .top)
+            .modifier(DrawerRoll(progress: isOpen ? 1 : 0, openHeight: height))
+    }
+}
+
+//The roll itself. `progress` is the animatable value, so the modifier can tell a roll in flight from a
+//settled one — and once settled open it drops the clamp and takes the content's own height instead.
+//That is what lets one drawer hold another: a measured height arrives in a single step, never eased,
+//so an outer clamp reads its shut size the instant the flag flips and would guillotine the inner
+//drawer's still-collapsing content — the section snapping up while the row inside it is mid-animation.
+private struct DrawerRoll: Animatable, ViewModifier {
+    var progress: CGFloat
+    var openHeight: CGFloat //Not animated: the clamp follows the measurement straight up
+
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    //A roll rides a spring, which overshoots both ends: past 1 the clamp is already gone, and below 0
+    //a bare multiply would hand `.frame` a negative height
+    private var rollHeight: CGFloat? {
+        progress < 1 ? max(openHeight * progress, 0) : nil
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .frame(height: rollHeight, alignment: .top)
             .clipped()
     }
 }

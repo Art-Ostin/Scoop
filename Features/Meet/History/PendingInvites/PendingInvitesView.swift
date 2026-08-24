@@ -19,52 +19,96 @@ struct PendingInvitesView: View {
     //Local view state
     @State private var openNotes: Set<DayNote> = []
     
+    //One stack, not a bare tuple: the parent scroll's implicit stack would slip its own
+    //default spacing (~8pt) into each seam, on top of the tokens below
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-            ForEach(inviteDays) { inviteDay in
-                Section {
-                    dayCard(inviteDay)
-                        .padding(.bottom, Spacing.xl) //Day → next day
-                } header: {
-                    dayHeader(inviteDay)
-                        .padding(.bottom, Spacing.sm) //Header → its card
+        VStack(spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(inviteDays) { inviteDay in
+                    Section {
+                        dayCard(inviteDay)
+                            .padding(.bottom, Spacing.xl) //Day → next day
+                    } header: {
+                        dayHeader(inviteDay)
+                            .padding(.bottom, Spacing.sm) //Header → its card
+                    }
                 }
             }
-        }
-        .padding(.horizontal, Spacing.gutter)
-        
-        Text("Active Pending Invites: \(activePendingInviteCount)")
-            .font(.body(17, .medium))
-            .foregroundStyle(Color(red: 0.34, green: 0.29, blue: 0.24))
-            .frame(maxWidth: .infinity, alignment: .center)
-        
-        expiredSection
-            .padding(.bottom, Spacing.clearance + Spacing.xxxl)
             .padding(.horizontal, Spacing.gutter)
+            
+            Text("Active Pending Invites: \(activePendingInviteCount)")
+                .font(.body(17, .medium))
+                .foregroundStyle(Color(red: 0.34, green: 0.29, blue: 0.24))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, Spacing.xl) //The last day's card carries the matching xl above
+                .padding(.top, -8)
+            
+            expiredSection
+                .padding(.bottom, Spacing.clearance * 2)
+                .padding(.horizontal, Spacing.gutter)
+                .padding(.top, 12)
+        }
     }
 }
 
-//The expired section: its heading, then one card holding every invite whose days have all
-//fallen inside the acceptance window
 extension PendingInvitesView {
     
     private var expiredSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             expiredHeader
             
+            expiredDetail
+                .drawer(isOpen: ui.showsExpired)
+        }
+    }
+    
+    //The whole heading is the control, its chevron turning down as the section opens
+    private var expiredHeader: some View {
+        Button {
+            withAnimation(.unfold) { ui.showsExpired.toggle() } //Not .expand: six invites is a tall reveal
+        } label: {
+            HStack {
+                Text("Unanswered Invites")
+                    .font(.body(18, .bold))
+                    .foregroundStyle(Color.textPrimary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.body(15, .bold))
+                    .foregroundStyle(Color.textSecondary)
+                    .rotationEffect(.degrees(ui.showsExpired ? 90 : 0)) //Right → down, as the rows' own chevrons
+                    .animation(.toggle, value: ui.showsExpired)
+                    .padding(.trailing, 6) //Geometry: optical inset — the glyph's box is wider than its stroke
+            }
+            .expandHitArea(Spacing.sm) //One text line is a thin target, and the Spacer's gap carries no shape of its own
+        }
+        .subtleShrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
+        .instantPressDelivery()
+    }
+    
+    //What the heading reveals: the note the section needs, then the card of unanswered invites
+    private var expiredDetail: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Invites where all your invited times have expired. They can still respond by proposing a new time.")
+                .infoText()
+                .padding(.top, Spacing.xs)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
             if !expiredInvites.isEmpty {
                 expiredCard
-                    .padding(.top, Spacing.sm) //Header → its card, as a day's
+                    .padding(.top, Spacing.sm) //Note → its card, as a day's header → card
             }
         }
+        .padding(.top, Spacing.hairline) //The nudge the heading kept above its note
     }
     
     private var expiredCard: some View {
         VStack(spacing: 0) {
             ForEach(expiredInvites) { event in
                 ExpiredEventCard(event: event,
-                                 isExpanded: ui.expandedInvite == .expired(event.id),
                                  showsDivider: event.id != expiredInvites.last?.id,
+                                 isExpanded: ui.expandedInvite == .expired(event.id),
                                  defaults: defaults,
                                  onToggle: { toggleExpired(event) })
             }
@@ -73,26 +117,6 @@ extension PendingInvitesView {
         .padding(.vertical, cardInset(count: expiredInvites.count))
         .frame(maxWidth: .infinity)
         .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
-    }
-    
-    private var expiredHeader: some View {
-        VStack(spacing: 2) {
-            HStack {
-                Text("Expired")
-                    .font(.body(18, .bold))
-                    .foregroundStyle(Color.textPrimary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.body(15, .bold))
-                    .foregroundStyle(Color.textSecondary)
-                    .padding(.trailing, 6)
-            }
-            
-            Text("Invites where the time has expired appears here. They can respond with a new time")
-                .infoText()
-                .padding(.top, Spacing.xs)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
     }
 }
 
