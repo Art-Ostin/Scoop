@@ -97,7 +97,7 @@
 		655AB9042F1EE7EA003A1DE7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 655AB9032F1EE7EA003A1DE7 /* Lottie */; };
 		655CCB893039BC620085303B /* HistorySelectionSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB883039BC620085303B /* HistorySelectionSection.swift */; };
 		655CCB8D3039BFC20085303B /* RecentDeclinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */; };
-		655CCB8F3039C0690085303B /* PendingInvitesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB8E3039C0690085303B /* PendingInvitesView.swift */; };
+		655CCB8F3039C0690085303B /* PendingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655CCB8E3039C0690085303B /* PendingContainer.swift */; };
 		655EF4AE2E6B94AA00AE626D /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655EF4AD2E6B94AA00AE626D /* AppTab.swift */; };
 		655F51FD2E3B7CEF00E67534 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655F51FC2E3B7CE700E67534 /* ImageLoader.swift */; };
 		655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */; };
@@ -403,7 +403,7 @@
 		6555178D2F38F3F6000783FB /* MapCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategory.swift; sourceTree = "<group>"; };
 		655CCB883039BC620085303B /* HistorySelectionSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistorySelectionSection.swift; sourceTree = "<group>"; };
 		655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDeclinesView.swift; sourceTree = "<group>"; };
-		655CCB8E3039C0690085303B /* PendingInvitesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingInvitesView.swift; sourceTree = "<group>"; };
+		655CCB8E3039C0690085303B /* PendingContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingContainer.swift; sourceTree = "<group>"; };
 		655EF4AD2E6B94AA00AE626D /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		655F51FC2E3B7CE700E67534 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		655FADC42E89F0FC00AFAD5F /* ProfileContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileContainer.swift; sourceTree = "<group>"; };
@@ -1277,12 +1277,31 @@
 		6554191A303B526C00B5F68B /* PendingInvites */ = {
 			isa = PBXGroup;
 			children = (
-				655CCB8E3039C0690085303B /* PendingInvitesView.swift */,
+				655CCB8E3039C0690085303B /* PendingContainer.swift */,
 				6554191B303B529200B5F68B /* PendingInviteCard.swift */,
 				6554191D303B715900B5F68B /* ExpiredEventCard.swift */,
 				6554191F303B71B800B5F68B /* PendingInviteComponents.swift */,
 			);
 			path = PendingInvites;
+			sourceTree = "<group>";
+		};
+		65541923303C8E8E00B5F68B /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6575C5A830371B4800A99A9D /* HistoryViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		65541924303C8E9E00B5F68B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6575C5A630371B2A00A99A9D /* HistoryContainer.swift */,
+				655CCB883039BC620085303B /* HistorySelectionSection.swift */,
+				655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */,
+				6554191A303B526C00B5F68B /* PendingInvites */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		6561C8C62E0444EC006A72DF /* Fonts */ = {
@@ -1356,11 +1375,8 @@
 		6575C5A530371AF600A99A9D /* History */ = {
 			isa = PBXGroup;
 			children = (
-				6575C5A830371B4800A99A9D /* HistoryViewModel.swift */,
-				6575C5A630371B2A00A99A9D /* HistoryContainer.swift */,
-				655CCB883039BC620085303B /* HistorySelectionSection.swift */,
-				655CCB8C3039BFC20085303B /* RecentDeclinesView.swift */,
-				6554191A303B526C00B5F68B /* PendingInvites */,
+				65541923303C8E8E00B5F68B /* ViewModels */,
+				65541924303C8E9E00B5F68B /* Views */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -1971,7 +1987,7 @@
 				6509DCEB2F1D78C000455AB5 /* Languages.swift in Sources */,
 				6585043D2E59105D0005C643 /* DefaultsManager.swift in Sources */,
 				657683242F591B480094A02D /* MessageSection.swift in Sources */,
-				655CCB8F3039C0690085303B /* PendingInvitesView.swift in Sources */,
+				655CCB8F3039C0690085303B /* PendingContainer.swift in Sources */,
 				654C009B2E35689000FFD504 /* UserRepo.swift in Sources */,
 				651975912F1F91E80002F6A2 /* Facts.swift in Sources */,
 				65A93D4A2F393809003F6410 /* MapSearchView.swift in Sources */,

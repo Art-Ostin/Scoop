@@ -19,8 +19,6 @@ struct PendingInvitesView: View {
     //Local view state
     @State private var openNotes: Set<DayNote> = []
     
-    //One stack, not a bare tuple: the parent scroll's implicit stack would slip its own
-    //default spacing (~8pt) into each seam, on top of the tokens below
     var body: some View {
         VStack(spacing: 0) {
             LazyVStack(alignment: .leading, spacing: 0) {
@@ -50,6 +48,10 @@ struct PendingInvitesView: View {
         }
     }
 }
+
+
+
+
 
 extension PendingInvitesView {
     
