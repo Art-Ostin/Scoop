@@ -47,6 +47,12 @@ extension Font {
     }
 }
 
+//How far a shrink-to-fit line may scale down before truncating instead. One constant, so
+//oneLineLimitAndShrink's default and the manual uniform shrink in ExpiredEventCard can't drift apart.
+enum TextShrink {
+    static let floor: CGFloat = 0.7
+}
+
 extension UIFont {
     //Needed to measure text height in message bubble etc
     static func body(_ size: CGFloat = 16, _ weight: Font.bodyFontWeight = .medium) -> UIFont {

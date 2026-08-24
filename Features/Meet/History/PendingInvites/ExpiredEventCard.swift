@@ -16,8 +16,37 @@ struct ExpiredEventCard: View {
     let defaults: DefaultsManaging //Whose maps app the venue opens in
     let onToggle: () -> Void
 
+    //Derived once at construction — body reads them many times per evaluation
+    private let parts: (leadingDays: String, lastDay: String, hour: String)
+    private let naturalLineWidth: CGFloat //The assembled times line at full size, for the uniform shrink
+
+    //Local view state
+    @State private var timesWidth: CGFloat = 0 //What the open times row can span, driving the uniform shrink
+    @Namespace private var dateFlight
+
     private static let avatar: CGFloat = 40
     private static let textColumn = avatar + Spacing.md //Geometry: where the text column starts, for what sits under it
+
+    private static let typeSize: CGFloat = 13 //The two sizes the flying date morphs between
+    private static let timesSize: CGFloat = 15
+    private static let dateID = "lastDay"
+
+    init(event: EventProfile, showsDivider: Bool, isExpanded: Bool, defaults: DefaultsManaging, onToggle: @escaping () -> Void) {
+        self.event = event
+        self.showsDivider = showsDivider
+        self.isExpanded = isExpanded
+        self.defaults = defaults
+        self.onToggle = onToggle
+
+        let parts = event.event.proposedTimes.splitMultipleInvitedDays()
+        self.parts = parts
+
+        //Measured at the Dynamic-Type-scaled size Font.custom actually lays out, or the shrink under-corrects
+        let font = UIFont.body(UIFontMetrics(forTextStyle: .body).scaledValue(for: Self.timesSize), .regular)
+        let line = parts.leadingDays + parts.lastDay + " · " + parts.hour
+        naturalLineWidth = (line as NSString).size(withAttributes: [.font: font]).width
+            + 2 //Geometry: NSString metrics run a hair under laid-out Text — the pad keeps a rounding pt from forcing an ellipsis
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -39,6 +68,7 @@ struct ExpiredEventCard: View {
                     .padding(.leading, Self.textColumn)
             }
         }
+        .overlay(alignment: .topLeading) { flyingDate } //Above the drawer's clip, so the flight is never guillotined mid-hop
     }
 }
 
@@ -61,27 +91,71 @@ extension ExpiredEventCard {
         .contentShape(Rectangle()) //PressButtonStyle sets none — without it the row's gaps miss
     }
 
-    //The type takes the name's second line — the days list below needs a full-width line of its own
+    //The type takes the name's second line. Its date is the flying overlay's collapsed perch:
+    //an invisible twin holds the slot, and the separator fades as the date leaves
     private var typeRow: some View {
-        Text("\(event.event.type.longTitle) · \(lastTime)")
-            .font(.body(13, .regular))
-            .foregroundStyle(Color.textTertiary)
-            .lineLimit(1)
+        HStack(spacing: 0) {
+            Text(event.event.type.longTitle)
+                .lineLimit(1)
+            Text(" · ")
+                .opacity(isExpanded ? 0 : 1) //Fades as the date departs; keeps its slot so nothing reflows
+            datePlaceholder(isSource: !isExpanded)
+        }
+        .font(.body(Self.typeSize, .regular))
+        .foregroundStyle(Color.textTertiary)
+        //The invisible twin drops out of the flattened VoiceOver label — restore what the row shows
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(isExpanded ? event.event.type.longTitle : "\(event.event.type.longTitle) · \(parts.lastDay)")
     }
 
-    //Every day the invite offered, on one line — the same string the confirm card's time row shows
+    //Every day the invite offered, on one line — ending in the flying date's landing slot
+    //and the hour it gains when open. The same string the confirm card's time row shows.
     private var timesRow: some View {
-        Text(event.event.proposedTimes.formatMultipleInvitedDays())
-            .font(.body(15, .regular))
-            .foregroundStyle(Color.textSecondary)
-            .oneLineLimitAndShrink() //Three days runs long; shrink rather than truncate, as the confirm row does
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, Spacing.xs) //Type → times: the same step the place row keeps below
+        HStack(spacing: 0) {
+            Text(parts.leadingDays)
+                .lineLimit(1) //The one flexible part: overflow below the shrink floor truncates here
+            datePlaceholder(isSource: isExpanded)
+            Text(" · \(parts.hour)")
+                .fixedSize()
+                .opacity(isExpanded ? 1 : 0) //The hour the date gains: fades in as it lands
+        }
+        .font(.body(Self.timesSize * timesScale, .regular)) //One factor on every part — the split row shrinks as one piece
+        .foregroundStyle(Color.textSecondary)
+        //The invisible twin drops out of the flattened VoiceOver label — restore what the row shows
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(parts.leadingDays + parts.lastDay + " · " + parts.hour)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .getWidth($timesWidth)
+        .padding(.top, Spacing.xs) //Type → times: the same step the place row keeps below
     }
-    
-    private var lastTime: String {
-        let date = event.event.proposedTimes.lastProposedDate
-        return FormatEvent.shortDayAndTime(date, withHour: false, withToday: true)
+
+    //Invisible in both rows: holds the date's slot at the row's own size and anchors one end of the flight
+    private func datePlaceholder(isSource: Bool) -> some View {
+        Text(parts.lastDay)
+            .fixedSize()
+            .matchedGeometryEffect(id: Self.dateID, in: dateFlight, properties: .position, anchor: .leading, isSource: isSource)
+            .opacity(0)
+    }
+
+    //The one visible copy of the date: position from whichever placeholder is live, size and
+    //colour morphing in the same transaction that rolls the drawer
+    private var flyingDate: some View {
+        Text(parts.lastDay)
+            .font(.body(Self.timesSize, .regular)) //Rendered at landing size; the collapsed perch is a scale, which animates where a font change can't
+            .foregroundStyle(isExpanded ? Color.textSecondary : Color.textTertiary)
+            .contentTransition(.interpolate) //Interpolates the colour flip; the string itself never changes
+            .fixedSize()
+            .scaleEffect(isExpanded ? timesScale : Self.typeSize / Self.timesSize, anchor: .leading)
+            .matchedGeometryEffect(id: Self.dateID, in: dateFlight, properties: .position, anchor: .leading, isSource: false)
+            .allowsHitTesting(false) //It rests over the tappable header — touches belong to the rows beneath
+            .accessibilityHidden(true) //The rows' own labels speak the date; a floating copy would read out of order
+    }
+
+    //Replaces the single Text's minimumScaleFactor: the assembled line measured against the row's
+    //width, one factor for every part so they can't shrink apart
+    private var timesScale: CGFloat {
+        guard timesWidth > 0, naturalLineWidth > timesWidth else { return 1 }
+        return max(timesWidth / naturalLineWidth, TextShrink.floor) //Below the floor the leading days truncate, as the modifier did
     }
 
     @ViewBuilder

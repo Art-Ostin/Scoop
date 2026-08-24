@@ -128,7 +128,7 @@ extension View {
 }
 
 extension View {
-    func oneLineLimitAndShrink(minimum: CGFloat = 0.7) -> some View {
+    func oneLineLimitAndShrink(minimum: CGFloat = TextShrink.floor) -> some View {
         self
             .lineLimit(1)
             .minimumScaleFactor(minimum)

@@ -23,7 +23,7 @@ struct HistoryContainer: View {
 
     //Geometry: how far the scroll follows the unanswered section open — its note and the first
     //cards. Travels less when less is left: the nudge stops at the end of the content.
-    private let expiredReveal: CGFloat = 350
+    private let expiredReveal: CGFloat = 400
     
     var body: some View {
         ZoomNavigationStack {
@@ -53,7 +53,7 @@ extension HistoryContainer {
         VStack(alignment: .leading, spacing: 24) {
             HistoryTitle(ui: ui)
             
-            headingSection
+            HistorySubHeading(ui: ui)
                 .padding(.top, -12)
             
             SelectionSection(selectedPage: $selectedPage, ui: ui)
@@ -63,17 +63,6 @@ extension HistoryContainer {
         .zIndex(1)
     }
     
-    private var headingSection: some View {
-        (
-            Text("Declines from the last 2 days")
-                .font(.body(14, .bold))
-            +
-            Text(" if you change your mind")
-                .font(.body(14, .medium))
-        )
-        .foregroundStyle(Color.textSecondary)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
     
     private var dismissButton: some View {
         ScoopButton(style: .clearGlass, shape: Circle(), size: .xLarge, press: .grow) {
@@ -184,14 +173,30 @@ struct HistoryPager<Content: View>: View {
 }
 
 
+private struct HistorySubHeading: View {
+    
+    //Injected
+    let ui: HistoryUIState
 
-/*
- /*
-  .navigationTitle("History")
-  .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
-          dismissButton
-      }
-  }
-  */
- */
+    private var showsDeclines: Bool { ui.pagerProgress > 0.5 }
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(showsDeclines ? recentDeclinesText : pendingInvitesText)
+                .font(.body(14, .medium))
+                .foregroundStyle(Color.textSecondary)
+                .id(showsDeclines)
+                .transition(.blurReplace)
+        }
+        .animation(.transition, value: showsDeclines)
+    }
+    
+    
+    private var pendingInvitesText: String {
+        "Invites awaiting a reply, and the days you proposed"
+    }
+    
+    private var recentDeclinesText: String {
+        "You can still respond to them for 3 days after declining"
+    }
+}

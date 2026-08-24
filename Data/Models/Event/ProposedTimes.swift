@@ -198,18 +198,9 @@ extension ProposedTimes {
     
     //Days sharing a month name it once, at the end of their run: "Wed 30 Jul, Sun 3 or Mon 4 Aug · 21:30"
     func formatMultipleInvitedDays() -> String {
-
-        let value: String = {
-            dates.indices.map { index in
-                let day = dates[index]
-                let isLast = index == dates.count - 1
-
-                return FormatEvent.shortDayAndTime(day.date, withHour: isLast, withMonth: endsMonthRun(at: index))
-                    + daySuffix(at: index, dayCount: dates.count)
-            }
-            .joined()
-        }()
-        return value
+        guard !dates.isEmpty else { return "" }
+        let (leading, last, hour) = splitMultipleInvitedDays(withToday: false)
+        return leading + last + " · " + hour
     }
 
     //The same days as a record rather than an open offer: every day comma-joined, and the last
@@ -228,6 +219,22 @@ extension ProposedTimes {
 
         let month = last.date.formatted(.dateTime.month(.abbreviated))
         return "\(days) · \(month) \(FormatEvent.hourTime(last.date))"
+    }
+
+    //The same line split around its last day, for the expired card that flies it between rows:
+    //the days before it (each carrying its separator), the last day spelled exactly as the
+    //collapsed row spells it (Today/Tomorrow included — the flying text must read the same in
+    //both perches), and the hour it gains when the drawer opens.
+    func splitMultipleInvitedDays(withToday: Bool = true) -> (leadingDays: String, lastDay: String, hour: String) {
+        let leading = dates.indices.dropLast().map { index in
+            FormatEvent.shortDayAndTime(dates[index].date, withHour: false, withMonth: endsMonthRun(at: index))
+                + daySuffix(at: index, dayCount: dates.count)
+        }
+        .joined()
+
+        return (leading,
+                FormatEvent.shortDayAndTime(lastProposedDate, withHour: false, withToday: withToday),
+                FormatEvent.hourTime(lastProposedDate))
     }
 
     //A day names its month only when the next one leaves it — dates are sorted, so a month's days sit together
