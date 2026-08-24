@@ -268,7 +268,7 @@ extension MapView {
         let isAppleMaps = vm.defaults.preferredMapType == .appleMaps
         
         return ScoopButton(shape: .circle, size: .large) {
-            MapsRouter.openMaps(defaults: vm.defaults)
+            MapsRouter.openMaps()
         } label: {
             VStack(spacing: isAppleMaps ? 2 : 3) {
                 Image(isAppleMaps ? "AppleMapIcon" : "GoogleMapsIcon")

@@ -201,6 +201,6 @@ extension EventsContainer {
     }
 
     private func openMaps(_ eventProfile: EventProfile) {
-        MapsRouter.openMaps(defaults: vm.defaults, item: eventProfile.event.location.mapItem, withDirections: true)
+        MapsRouter.openMaps(item: eventProfile.event.location.mapItem, withDirections: true)
     }
 }

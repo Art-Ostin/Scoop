@@ -19,7 +19,7 @@ enum ProfileViewType {
     let profile: UserProfile
     let event: UserEvent?
     let imageLoader: ImageLoading
-    let defaults: DefaultsManaging //Passed on for invites and maps (simplifies architecture for invite popups)
+    let defaults: DefaultsManaging //Passed on for the invite popup's drafts (simplifies architecture for invite popups)
 
     //State
     var viewProfileType: ProfileViewType

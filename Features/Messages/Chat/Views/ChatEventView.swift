@@ -71,7 +71,7 @@ extension ChatEventView {
                     isLocationPressed = true
                 }
                 try? await Task.sleep(nanoseconds: 50_000_000)
-                MapsRouter.openGoogleMaps(item: event.location.mapItem)
+                MapsRouter.openMaps(item: event.location.mapItem)
                 try? await Task.sleep(nanoseconds: 250_000_000)
                 isLocationPressed = false
             }

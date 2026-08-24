@@ -10,11 +10,17 @@ import UIKit
 
 @MainActor
 enum MapsRouter {
-    
+
+    //Configured once at boot (AppDependencies); the user's choice is read at open-time.
+    private static var preferredMapType: () -> PreferredMapType = { .fallback }
+
+    static func configure(defaults: DefaultsManaging) {
+        preferredMapType = { defaults.preferredMapType }
+    }
+
     @discardableResult
-    static func openMaps(defaults: DefaultsManaging, item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
-                
-        switch defaults.preferredMapType {
+    static func openMaps(item: MKMapItem? = nil, withDirections: Bool = false) -> Bool {
+        switch preferredMapType() {
         case .appleMaps: openAppleMaps(item: item, withDirections: withDirections)
         case .googleMaps: openGoogleMaps(item: item, withDirections: withDirections)
         }
@@ -117,8 +123,3 @@ enum MapsRouter {
         return query.isEmpty ? fallbackCoordinates : query
     }
 }
-
-/*
- guard let preferredMapType = defaults.preferredMapType else { return false }
-
- */

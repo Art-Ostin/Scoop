@@ -143,7 +143,7 @@ struct PlaceRow: View {
     }
 
     private func openMap() {
-        MapsRouter.openGoogleMaps(item: place.mapItem, withDirections: false)
+        MapsRouter.openMaps(item: place.mapItem)
     }
 }
 

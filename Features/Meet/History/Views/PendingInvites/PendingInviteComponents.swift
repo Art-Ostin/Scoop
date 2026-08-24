@@ -31,17 +31,16 @@ struct HistoryMessageSection: View {
 struct HistoryPlaceRow: View {
     
     let location: EventLocation
-    let defaults: DefaultsManaging
-    
+
     private var place: String? {
         let name = FormatEvent.placeName(location)
         return name.isEmpty ? nil : name
     }
-    
+
     var body: some View {
         if let place {
             Button {
-                MapsRouter.openMaps(defaults: defaults, item: location.mapItem)
+                MapsRouter.openMaps(item: location.mapItem)
             } label: {
                 Text(place)
                     .font(.body(15, .regular))

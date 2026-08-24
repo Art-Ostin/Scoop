@@ -13,7 +13,6 @@ struct ExpiredEventCard: View {
     let event: EventProfile
     let showsDivider: Bool //False on the last expired invite — nothing follows it to separate
     let isExpanded: Bool
-    let defaults: DefaultsManaging //Whose maps app the venue opens in
     let onToggle: () -> Void
 
     //Derived once at construction — body reads them many times per evaluation
@@ -31,11 +30,10 @@ struct ExpiredEventCard: View {
     private static let timesSize: CGFloat = 15
     private static let dateID = "lastDay"
 
-    init(event: EventProfile, showsDivider: Bool, isExpanded: Bool, defaults: DefaultsManaging, onToggle: @escaping () -> Void) {
+    init(event: EventProfile, showsDivider: Bool, isExpanded: Bool, onToggle: @escaping () -> Void) {
         self.event = event
         self.showsDivider = showsDivider
         self.isExpanded = isExpanded
-        self.defaults = defaults
         self.onToggle = onToggle
 
         let parts = event.event.proposedTimes.splitMultipleInvitedDays()
@@ -168,7 +166,7 @@ extension ExpiredEventCard {
     private var expandedDetail: some View {
         VStack(alignment: .leading, spacing: 0) {
             timesRow
-            HistoryPlaceRow(location: event.event.location, defaults: defaults)
+            HistoryPlaceRow(location: event.event.location)
             HistoryMessageSection(message: event.event.message)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -59,6 +59,7 @@ final class AppDependencies {
         self.defaultsManager = MainActor.assumeIsolated { DefaultsManager() }
         self.chatRepo = ChatRepo(eventsRepo: eventsRepo, fs: fs)
         self.notifications = MainActor.assumeIsolated { InAppNotificationCenter() }
+        MainActor.assumeIsolated { MapsRouter.configure(defaults: self.defaultsManager) }
     }
 }
 

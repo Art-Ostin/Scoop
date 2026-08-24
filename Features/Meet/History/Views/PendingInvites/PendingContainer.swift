@@ -14,8 +14,7 @@ struct PendingInvitesView: View {
     let expiredInvites: [EventProfile]
     let activePendingInviteCount: Int
     let ui: HistoryUIState
-    let defaults: DefaultsManaging //Only to read preferredMapType when a venue is tapped
-    
+
     //Local view state
     @State private var openNotes: Set<DayNote> = []
     
@@ -111,7 +110,6 @@ extension PendingInvitesView {
                 ExpiredEventCard(event: event,
                                  showsDivider: event.id != expiredInvites.last?.id,
                                  isExpanded: ui.expandedInvite == .expired(event.id),
-                                 defaults: defaults,
                                  onToggle: { toggleExpired(event) })
             }
         }
@@ -191,7 +189,6 @@ extension PendingInvitesView {
                 InvitedCard(pending: pending,
                             showsDivider: pending.id != inviteDay.invites.last?.id,
                             isExpanded: ui.expandedInvite == .pending(pending.id),
-                            defaults: defaults,
                             onToggle: { toggle(pending) })
             }
         }

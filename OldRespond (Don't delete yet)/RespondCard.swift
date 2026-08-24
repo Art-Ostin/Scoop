@@ -77,7 +77,7 @@
      private var placeRow: some View {
          let location = vm.respondDraft.originalInvite.event.location
          Button {
-             MapsRouter.openMaps(defaults: vm.defaults, item: location.mapItem, withDirections: true)
+             MapsRouter.openMaps(item: location.mapItem, withDirections: true)
          } label: {
              Text(location.name ?? "LocationEvent")
                  .foregroundStyle(Color.successGreen)

@@ -20,7 +20,7 @@ final class DefaultsManager: DefaultsManaging {
     private(set) var onboardingStep: Int = 0
     private(set) var signUpDraft: DraftProfile?
     private(set) var recentMapSearches: [RecentPlace] = []
-    private(set) var preferredMapType: PreferredMapType = .googleMaps
+    private(set) var preferredMapType: PreferredMapType = .fallback
     private(set) var eventDrafts: [String: EventFieldsDraft] = [:]
     private(set) var respondDrafts: [String : RespondDraft] = [:]
 
@@ -37,7 +37,7 @@ final class DefaultsManager: DefaultsManaging {
         onboardingStep = 0
         signUpDraft = nil
         recentMapSearches = []
-        preferredMapType = .googleMaps
+        preferredMapType = .fallback
         eventDrafts = [:]
         respondDrafts = [:]
     }
@@ -153,7 +153,7 @@ private extension DefaultsManager {
         onboardingStep = max(0, defaults.object(forKey: Keys.onboardingStep.rawValue) as? Int ?? 0)
         signUpDraft = decode(DraftProfile.self, for: .draftProfile)
         recentMapSearches = decode([RecentPlace].self, for: .recentMapSearches) ?? []
-        preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue).flatMap(PreferredMapType.init(rawValue:)) ?? .googleMaps
+        preferredMapType = defaults.string(forKey: Keys.preferredMapType.rawValue).flatMap(PreferredMapType.init(rawValue:)) ?? .fallback
         eventDrafts = decode([String: EventFieldsDraft].self, for: .eventDrafts) ?? [:]
         let storedRespondDrafts = decode([String: PersistableRespondDraft].self, for: .responseDrafts) ?? [:]
         respondDrafts = storedRespondDrafts.mapValues { RespondDraft($0) }
@@ -231,6 +231,8 @@ private extension DefaultsManager {
 
 enum PreferredMapType: String, Codable {
     case appleMaps, googleMaps
+
+    static let fallback: PreferredMapType = .googleMaps //The pre-choice default — DefaultsManager and MapsRouter must agree on it
 }
 
 struct RecentPlace: Codable, Equatable, Hashable {
