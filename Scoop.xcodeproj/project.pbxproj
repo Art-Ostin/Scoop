@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		05F0471151EE465582F267BE /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67217298F46C4A47A5AC62DF /* ViewModifiers.swift */; };
+		6500D0B0303D8F8C0040574A /* AllPendingInvites.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6500D0AF303D8F8B0040574A /* AllPendingInvites.swift */; };
 		650135692E4A41F400630CF3 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 650135682E4A41F400630CF3 /* AsyncAlgorithms */; };
 		650321332F9DF07F002852BA /* EventResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650321322F9DF07F002852BA /* EventResponse.swift */; };
 		65058E8E2E1C4080009AD7FD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 65058E8D2E1C4080009AD7FD /* FirebaseFirestore */; };
@@ -322,6 +323,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6500D0AF303D8F8B0040574A /* AllPendingInvites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPendingInvites.swift; sourceTree = "<group>"; };
 		650321322F9DF07F002852BA /* EventResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventResponse.swift; sourceTree = "<group>"; };
 		6506F0282FBAED6200058A84 /* ChatPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPreview.swift; sourceTree = "<group>"; };
 		6509DCEA2F1D78C000455AB5 /* Languages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Languages.swift; sourceTree = "<group>"; };
@@ -667,6 +669,16 @@
 				652528362FC57DEA005B47BE /* InAppNotifications.swift */,
 			);
 			path = Notifications;
+			sourceTree = "<group>";
+		};
+		6500D0B1303DB8B50040574A /* PendingComponents */ = {
+			isa = PBXGroup;
+			children = (
+				6554191F303B71B800B5F68B /* PendingInviteComponents.swift */,
+				6554191B303B529200B5F68B /* PendingInviteCard.swift */,
+				6554191D303B715900B5F68B /* ExpiredEventCard.swift */,
+			);
+			path = PendingComponents;
 			sourceTree = "<group>";
 		};
 		65058E8C2E1C4080009AD7FD /* Frameworks */ = {
@@ -1278,9 +1290,8 @@
 			isa = PBXGroup;
 			children = (
 				655CCB8E3039C0690085303B /* PendingContainer.swift */,
-				6554191B303B529200B5F68B /* PendingInviteCard.swift */,
-				6554191D303B715900B5F68B /* ExpiredEventCard.swift */,
-				6554191F303B71B800B5F68B /* PendingInviteComponents.swift */,
+				6500D0AF303D8F8B0040574A /* AllPendingInvites.swift */,
+				6500D0B1303DB8B50040574A /* PendingComponents */,
 			);
 			path = PendingInvites;
 			sourceTree = "<group>";
@@ -1960,6 +1971,7 @@
 				651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */,
 				655FADC92E89F0FC00AFAD5F /* ProfileContainer.swift in Sources */,
 				656B9B4230022982000BE57D /* TabScrollView.swift in Sources */,
+				6500D0B0303D8F8C0040574A /* AllPendingInvites.swift in Sources */,
 				655FADCA2E89F0FC00AFAD5F /* ProfileDetailsView.swift in Sources */,
 				65ADAE4C2FDC5CFB00095248 /* RespondCard.swift in Sources */,
 				656B31D52F252E90008641C1 /* FrozenContainer.swift in Sources */,

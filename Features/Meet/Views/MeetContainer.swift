@@ -58,7 +58,7 @@ extension MeetContainer {
                 .resizable()
                 .frame(width: 18, height: 18)
         }
-        .blurPop(visible: isAtTopOfScroll && ui.showInvite == nil)
+        .blurPop(visible: isAtTopOfScroll)
         .matchedTransitionSource(id: "history", in: historyZoom)
         .fullScreenCover(isPresented: $ui.showHistory) {historyPage}
         .padding(.top, Spacing.md) //As its small icon, sits in correct position

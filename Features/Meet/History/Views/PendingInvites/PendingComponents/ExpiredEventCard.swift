@@ -139,7 +139,7 @@ extension ExpiredEventCard {
     //colour morphing in the same transaction that rolls the drawer
     private var flyingDate: some View {
         Text(parts.lastDay)
-            .font(.body(Self.timesSize, .regular)) //Rendered at landing size; the collapsed perch is a scale, which animates where a font change can't
+            .font(.body(Self.timesSize, .regular))
             .foregroundStyle(isExpanded ? Color.textSecondary : Color.textTertiary)
             .contentTransition(.interpolate) //Interpolates the colour flip; the string itself never changes
             .fixedSize()

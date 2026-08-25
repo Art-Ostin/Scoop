@@ -166,13 +166,17 @@ public final class ZoomRootController: UIViewController {
 
     /// Which side of the tab bar the scene currently renders on.
     ///
-    /// OPEN and REST are ABOVE it: the profile rises over the bar and covers it.
-    /// A DISMISSAL is BEHIND it — the collapsing card has to be under the bar,
-    /// because the list card it lands on is under the bar. Staying above would
-    /// fly the card over the bar and then swap it for a card beneath one at
-    /// teardown: a z-order snap on the last frame. There is no plane between
-    /// the tab's content and the tab's bar other than the tab itself, so
-    /// "behind the bar" *is* this controller's own view.
+    /// OPEN, REST, and the whole INTERACTIVE dismissal are ABOVE it: the
+    /// profile covers the bar at rest, and a dismiss drag reveals the bar
+    /// BEHIND the shrinking screen, brightening with the rest of the home
+    /// content as the scrim clears. Only a COMMITTED collapse whose landing
+    /// slot reaches into the bar's band (landingNeedsBarInFront) drops
+    /// behind it — that card lands under the bar, and a flight kept above
+    /// would z-flip beneath it on the last frame. Every other landing sits
+    /// clear of the bar, so the teardown swap is z-invisible and the scene
+    /// never leaves the root plane. There is no plane between the tab's
+    /// content and the tab's bar other than the tab itself, so "behind the
+    /// bar" *is* this controller's own view.
     private var sceneIsBehindTabBar = false
     private var presentationParent: UIViewController {
         sceneIsBehindTabBar ? self : (presentationHost ?? self)
@@ -216,10 +220,27 @@ public final class ZoomRootController: UIViewController {
         host.updateRoot(root)
     }
 
-    /// Drops a live presentation behind the tab bar. Called at every seam that
-    /// STARTS a dismissal, before the flight geometry is measured, so the
-    /// landing target and the card chrome are built in the plane the card
-    /// actually lands in.
+    /// Whether a dismissal landing on `slot` (scene-container coordinates)
+    /// needs the tab bar IN FRONT of the flight: true when the slot reaches
+    /// into the bar's bottom band, where the landed card renders behind the
+    /// bar. The band is the tab content's bottom safe-area inset — which the
+    /// bar inflates, and which collapses to the home-indicator strip when
+    /// the bar is hidden (chat) or absent (a stack hosted in a cover); a
+    /// swap into a bar-less band is visually free, so over-matching there
+    /// costs nothing.
+    func landingNeedsBarInFront(of slot: CGRect) -> Bool {
+        view.convert(slot, from: overlayContainer).maxY
+            > view.bounds.height - view.safeAreaInsets.bottom
+    }
+
+    /// Drops a live presentation behind the tab bar. Called at the seam that
+    /// COMMITS a collapse (finishDismiss for a gesture release, a turn early
+    /// on the programmatic path, runCollapse's entry as the fail-safe
+    /// backstop), and only when landingNeedsBarInFront says the
+    /// slot demands it. The flight geometry already measured in the old plane
+    /// stays valid: moveScene re-anchors every scene view to its exact screen
+    /// rect, and the flight's transform math is relative to those anchors, so
+    /// the plane offset cancels out of every pose.
     func moveSceneBehindTabBar() {
         guard !sceneIsBehindTabBar, let detail = presentedDetail,
               let plane = presentationHost, let from = plane.viewIfLoaded,
@@ -232,9 +253,10 @@ public final class ZoomRootController: UIViewController {
         refreshStatusBarChain(plane)
     }
 
-    /// Lifts it back above the bar. Called when a cancelled dismissal starts
-    /// springing back to fully presented: the card grows over the bar exactly
-    /// as the open flew over it, and rest is reached already covering it.
+    /// Lifts it back above the bar. Cancels normally never leave the root
+    /// plane (the swap now waits for the commit, and committed flights refuse
+    /// the catch), so this is insurance for any path that resolves back to
+    /// presented with the scene still behind the bar.
     func moveSceneAboveTabBar() {
         guard sceneIsBehindTabBar, let detail = presentedDetail,
               let plane = presentationHost, let to = plane.viewIfLoaded,
@@ -251,21 +273,34 @@ public final class ZoomRootController: UIViewController {
     /// already occupied, so a plane swap is invisible even if the two planes
     /// were not perfectly coincident.
     ///
-    /// Only safe while nothing is animating the scene: every caller sits at a
-    /// seam where the flight has already been folded to a static pose.
+    /// The FLIGHT must be at a static pose: every caller sits at a seam
+    /// where any flight animator has already been folded (folding below
+    /// kills a live animator's CA animations but not the animator, whose
+    /// completion would then never fire). Secondary glides need no such
+    /// care — the swap folds every in-flight layer animation in the moved
+    /// subtrees into its on-screen pose first (foldAnimations), because the
+    /// re-parent strips animations wholesale: unfolded, the grab beat's
+    /// scrim fade and shadow lift, or a caught open's crop layout and
+    /// curtain fade riding the 0.15s re-establish beat, would snap to their
+    /// end values between frames.
     /// Known cost, measured rather than assumed: the RE-PARENT (not the view
     /// hand-off, which is silent) makes UIKit run an appearance transition, so
     /// the hosted SwiftUI hears onDisappear/onAppear and re-runs its `.task`
     /// once — on a screen that never left the display and is torn down a beat
     /// later. `shouldAutomaticallyForwardAppearanceMethods` does not gate it at
     /// any of the three levels involved. Harmless here (the profile's task is
-    /// `loadImagesIfNeeded`), and it costs no frames on the drag path; if it
+    /// `loadImagesIfNeeded`); the programmatic dismissal still pre-pays it a
+    /// turn early so its clock-driven spring never eats the layout pass. If it
     /// ever needs to go, the route is a container controller that owns the
     /// scene permanently, so a swap re-parents IT and never the detail.
     private func moveScene(from: UIView, to: UIView,
                            detail: ZoomDetailController, newParent: UIViewController) {
         // The home plane lives in this controller's view too — it stays put.
         let scene = from.subviews.filter { $0 !== homePlane.viewIfLoaded }
+        // Fold BEFORE reading centers: folding writes each animating layer's
+        // presentation position into the model, and the re-anchor below must
+        // carry the pose the user can see, not a stale model value.
+        foldAnimations(under: scene)
         // UIKit polices containment from BOTH ends: an insertion refuses a
         // view whose controller is parented elsewhere, and `addChild` refuses a
         // child whose view still sits in another controller's hierarchy. The
@@ -293,6 +328,39 @@ public final class ZoomRootController: UIViewController {
 
         newParent.addChild(detail)
         detail.didMove(toParent: newParent)
+    }
+
+    /// Folds every in-flight layer animation under `views` into the model:
+    /// presentation values become model values, then the animations are
+    /// removed — so the re-parent's wholesale strip has nothing left to
+    /// snap. Whatever launches next re-animates each property from where it
+    /// visibly is; a property nothing retargets simply holds its pose,
+    /// which is still strictly better than jumping to its end value. At
+    /// rest (the programmatic pre-pay) no layer is animating and the whole
+    /// walk is a read-only sweep.
+    private func foldAnimations(under views: [UIView]) {
+        // The writes below are model-value restatements of what is already
+        // on screen; implicit actions (standalone sublayers take a 0.25s
+        // default) would animate the no-op.
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        for v in views { foldLayerTree(v.layer) }
+        CATransaction.commit()
+    }
+
+    private func foldLayerTree(_ layer: CALayer) {
+        if let keys = layer.animationKeys(), !keys.isEmpty,
+           let p = layer.presentation() {
+            layer.position = p.position
+            layer.bounds = p.bounds
+            layer.transform = p.transform
+            layer.opacity = p.opacity
+            layer.cornerRadius = p.cornerRadius
+            layer.shadowOpacity = p.shadowOpacity
+            layer.removeAllAnimations()
+        }
+        if let mask = layer.mask { foldLayerTree(mask) }
+        for sub in layer.sublayers ?? [] { foldLayerTree(sub) }
     }
 
     private func refreshStatusBarChain(_ plane: ZoomPresentationHostController) {
@@ -2846,11 +2914,13 @@ final class MorphDismissController: NSObject {
 
     private func armDismissal() {
         guard let detail, let detailView, let root else { return }
-        // Behind the tab bar for the whole collapse — before the landing target
-        // is measured and before the chrome copy is installed, so both are
-        // built in the plane the card lands in. The scene is at rest here, so
-        // the swap is free.
-        root.moveSceneBehindTabBar()
+        // The scene stays in its current plane through the whole interactive
+        // phase: the drag reveals the tab bar BEHIND the shrinking screen,
+        // fading in with the receded home as the scrim clears. Everything
+        // measured and installed below stays valid if a commit later drops
+        // the scene behind the bar (dropBehindBarIfLandingNeedsIt) — the
+        // swap re-anchors each scene view to its exact screen rect, and the
+        // flight math is relative to those anchors.
         detail.prepareForCollapse()
         detail.markInFlight()
         handCardItsPage()
@@ -2916,13 +2986,30 @@ final class MorphDismissController: NSObject {
                         duration: DragTuning.buttonFlightDuration,
                         damping: DragTuning.buttonDamping)
         }
-        // Drop behind the bar a turn EARLY. The swap re-parents a hosted
-        // SwiftUI screen, which costs a layout pass, and this flight is
-        // time-driven: paid on the spring's first frames it reads as a jump.
-        // (A drag absorbs the same cost for free — beginDrag runs it before
-        // the finger has moved, and the pose is finger-driven, not clock-
-        // driven.) armDismissal then finds the scene already there.
-        root?.moveSceneBehindTabBar()
+        // A bar-band landing drops behind the bar a turn EARLY. The swap
+        // re-parents a hosted SwiftUI screen, which costs a layout pass,
+        // and on THIS path — a tap launching a clock-driven flight from
+        // rest — paying it in the spring's own turn was measured to read as
+        // a jump. A gesture release pays the same cost at finishDismiss
+        // instead and gets away with it: the spring's animations only begin
+        // at that turn's commit, after the layout pass, so the cost holds
+        // the finger's just-released pose a beat rather than skipping into
+        // the curve — and no earlier seam exists there, since a swap before
+        // the commit would show the bar mid-drag, the exact look this
+        // policy removes. runCollapse's own swap then finds the scene
+        // already there. The slot is measured with a pinned home offset
+        // through an identity home plane — the same two-part normalization
+        // armDismissal bakes into sourceRect, so the two band decisions
+        // cannot disagree.
+        if let root, let home {
+            pinHomeOffset()
+            let held = homeView?.transform ?? .identity
+            homeView?.transform = .identity
+            let slot = root.overlayContainer.convert(home.cardFrame, from: home.view)
+            homeView?.transform = held
+            dropBehindBarIfLandingNeedsIt(
+                slot: slot.width < 1 ? presentSourceRect : slot)
+        }
         // A scrolled detail must return to its top before the morph (the
         // hero is the flight's anchor) — glide there instead of teleporting.
         if detail?.isScrolledToTop == false {
@@ -3110,6 +3197,11 @@ final class MorphDismissController: NSObject {
                                              velocity: velocity.y)))
         #endif
         flightIsDismissal = true
+        // The plane decision lands HERE, on the release pose — static and
+        // finger-authored, so the swap's layout pass holds a frame the user
+        // is already looking at, and a band-bound arc's whole dive plays
+        // beneath the bar (see dropBehindBarIfLandingNeedsIt).
+        dropBehindBarIfLandingNeedsIt()
         // A `continuousCollapse` source takes the AT-AND-BELOW-THE-LINE branch
         // whatever its slot's height: no dive, no second beat — the shrink
         // rides the travel home as one motion. Nothing else changes, so an
@@ -3424,6 +3516,26 @@ final class MorphDismissController: NSObject {
         diveLink = nil
     }
 
+    /// The committed collapse's plane decision: only a landing slot that
+    /// reaches into the tab bar's band (landingNeedsBarInFront) drops the
+    /// scene behind the bar — that card lands under the bar, so the bar must
+    /// be in front of the flight it slides beneath. Every other dismissal
+    /// stays above the bar for its whole flight: the bar is revealed behind
+    /// the collapsing screen with the rest of the home content, and the
+    /// landing sits clear of it, so the teardown swap is z-invisible.
+    /// Fires at finishDismiss — the RELEASE, every gesture commit's one
+    /// static, finger-authored pose — so a band-bound arc dives already
+    /// beneath the bar instead of plunging over it and z-flipping at the
+    /// pivot, the flight's deepest and slowest frame. (moveScene folds any
+    /// live grab-beat layers itself.) Idempotent — the programmatic path
+    /// pre-pays it a turn early, and runCollapse's entry call backstops the
+    /// fail-safe entries that skip finishDismiss.
+    private func dropBehindBarIfLandingNeedsIt(slot: CGRect? = nil) {
+        guard let root, root.landingNeedsBarInFront(of: slot ?? sourceRect)
+        else { return }
+        root.moveSceneBehindTabBar()
+    }
+
     /// Collapse the visible page into the home card — the shared shrink-to-
     /// card motion, driven from a released drag (underdamped: the flick
     /// earns the bounce), a throw hand-over (physical spring), or the Back
@@ -3456,6 +3568,14 @@ final class MorphDismissController: NSObject {
             if isInteracting { teardown(completed: true) }
             return
         }
+
+        // Plane-decision BACKSTOP: gesture commits swap at finishDismiss
+        // (the release seam) and the programmatic path a turn early, so
+        // this normally finds the decision already made. It stands for the
+        // fail-safe entries that reach here without either — still ahead of
+        // any flight animator, the swap's one hard requirement.
+        dropBehindBarIfLandingNeedsIt()
+
         let c = CGPoint(x: detailView.bounds.midX, y: detailView.bounds.midY)
         let heroCenter = CGPoint(x: flightHero.midX, y: flightHero.midY)
         let target = CGAffineTransform(
@@ -3617,9 +3737,10 @@ final class MorphDismissController: NSObject {
     /// catch can seize the return flight — and still commit the pop.
     func cancelDismiss(velocity: CGPoint, completion: @escaping () -> Void) {
         flightIsDismissal = false
-        // Back above the bar before the spring starts: the card grows over the
-        // bar exactly as the open flew over it, and presented rest is reached
-        // already covering it — no chrome popping out at the landing.
+        // Insurance: the interactive phase never leaves the root plane (the
+        // swap waits for a commit, and committed flights refuse the catch),
+        // but any path that somehow cancels from behind the bar must grow
+        // back OVER it — presented rest covers the bar.
         root?.moveSceneAboveTabBar()
         guard let detailView, let homeView else {
             // FAIL-SAFE (see runCollapse): a broken scene must still resolve
@@ -3701,12 +3822,10 @@ final class MorphDismissController: NSObject {
             race.finishAnimation(at: .current)
         }
         maskRaceAnimator = nil
-        // Every catch resumes an interactive DISMISSAL drag, so the scene
-        // belongs behind the bar — including a seized cancel spring, which was
-        // lifted back above it on its way home. Every animator is folded by
-        // now, so the swap lands on a static pose. (No-op for the caught-open
-        // branch: armFromCaughtOpen already dropped it.)
-        root?.moveSceneBehindTabBar()
+        // Every catch resumes an interactive DISMISSAL drag, and the
+        // interactive phase lives above the bar — the only catchable flights
+        // (the open, the cancel spring) never left the root plane, so there
+        // is nothing to move here.
         // Blend baseline: updateDrag morphs from the caught pose onto the
         // drag rule over the first stretch of new finger travel.
         regrabTransform = detailView.transform
@@ -3751,10 +3870,10 @@ final class MorphDismissController: NSObject {
     /// fallback).
     private func armFromCaughtOpen() {
         guard let detail, let detailView, let root else { return }
-        // Same seam as armDismissal: an open seized mid-air becomes a
-        // dismissal, so it drops behind the bar before its landing target is
-        // measured. The open animator is already folded to a static pose.
-        root.moveSceneBehindTabBar()
+        // Same seam as armDismissal: the caught open becomes an interactive
+        // dismissal drag, which lives above the bar — a commit's own swap
+        // decides the plane later (dropBehindBarIfLandingNeedsIt), and the
+        // measurements below stay valid across it.
         isInteracting = true
         detail.prepareForCollapse() // idempotent; scrolls already frozen
         detail.markInFlight()

@@ -1,6 +1,6 @@
 //
 //  PendingInviteComponents.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 23/08/2026.
 //
@@ -78,5 +78,74 @@ struct HistoryName: View {
             .foregroundStyle(Color.textPrimary)
             .lineLimit(1)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+
+//The white card a list of invite rows sits in, sized by how many rows it holds
+struct InviteListCard<Content: View>: View {
+
+    //Injected
+    let rowCount: Int
+    @ViewBuilder let content: Content
+
+    //Each row carries Spacing.xs of its own, so the card adds only the remainder
+    private var inset: CGFloat {
+        Spacing.md - Spacing.xs - (rowCount == 1 ? Spacing.hairline : 0)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            content
+        }
+        .padding(.horizontal, Spacing.md) //Same as the row's avatar ↔ text gap
+        .padding(.vertical, inset)
+        .frame(maxWidth: .infinity)
+        .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
+    }
+}
+
+
+//A section's heading, with an info note that rolls open under it on the sections that need
+//explaining. The note's open state lives in the heading, so each one opens on its own.
+struct HeaderRow: View {
+
+    //Injected
+    let title: String
+    var note: String? = nil
+
+    //Local view state
+    @State private var showsNote = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: Spacing.xs) {
+                Text(title)
+                    .font(.body(18, .bold))
+                    .foregroundStyle(Color.textPrimary)
+
+                Spacer(minLength: 0)
+
+                if let note {
+                    infoButton(note)
+                        .padding(.trailing, Spacing.xs)
+                }
+            }
+
+            if let note {
+                RevealingInfoText(text: note, isOpen: showsNote)
+            }
+        }
+    }
+
+    private func infoButton(_ note: String) -> some View {
+        Button {
+            withAnimation(.expand) { showsNote.toggle() }
+        } label: {
+            SmallInfoIcon()
+                .expandHitArea()
+        }
+        .growButton()
+        .accessibilityLabel(note)
     }
 }

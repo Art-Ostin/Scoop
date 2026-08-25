@@ -89,6 +89,11 @@ struct ProposedTimes: Codable, Equatable  {
         dates.last?.date ?? .distantPast
     }
     
+    var hourText: String? {
+        guard let date = dates.first?.date else { return nil }
+        return FormatEvent.hourTime(date)
+    }
+    
     @discardableResult
     mutating func updateDate(day: Date, hour: Int, minute: Int) -> Bool {
         let cal = Calendar.current

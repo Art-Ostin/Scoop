@@ -28,30 +28,20 @@ final class HistoryViewModel {
         session.sentInvites
     }
     
-    var activePendingInviteCount: Int {
-        sentInvites.count - expiredInvites.count
-    }
-    
-    var invitesByDay: [InviteDay] {
-        let calendar = Calendar.current
+    //Every invite still awaiting a reply, one row each — an invite proposing three days is one
+    //invite, and the days it offered are spelled out in the row it opens. Soonest acceptable
+    //day first, the order the day sections used to give them. The exact complement of
+    //expiredInvites: an invite with no acceptable time left is what isExpired reports.
+    var activeInvites: [EventProfile] {
         let now = Date()
-        
-        var byDay: [Date: [PendingInvite]] = [:]
-        
-        for invite in sentInvites {
-            for time in invite.event.proposedTimes.acceptableTimes(asOf: now) {
-                let day = calendar.startOfDay(for: time.date)
-                
-                byDay[day, default: []].append(PendingInvite(day: day, invite: invite, time: time))
+
+        return sentInvites
+            .compactMap { invite -> (invite: EventProfile, soonest: Date)? in
+                guard let soonest = invite.event.proposedTimes.acceptableTimes(asOf: now).first?.date else { return nil }
+                return (invite, soonest)
             }
-        }
-        
-        return byDay
-            .map { day, proposals in
-                //The proposed hour sorts within its day
-                InviteDay(day: day, invites: proposals.sorted { $0.time.date < $1.time.date })
-            }
-            .sorted { $0.day < $1.day }
+            .sorted { $0.soonest < $1.soonest }
+            .map(\.invite)
     }
     
     //Most recently lapsed first: sentInvites arrives in profile-load order, which is whichever
@@ -77,44 +67,15 @@ final class HistoryViewModel {
     }
 }
 
-//For each day Invited
-struct InviteDay: Identifiable {
-    let day: Date
-    let invites: [PendingInvite]
-    var id: Date { day }
-    var isToday: Bool { Calendar.current.isDateInToday(day) }
-    var hasMultipleInvites: Bool { invites.count > 1 }
-}
-
-struct PendingInvite: Identifiable {
-    let day: Date //Start of day — the section this card sits under
-    let invite: EventProfile
-    let time: ProposedTime
-
-    var id: InviteCardID { InviteCardID(day: day, inviteID: invite.id) }
-}
-
-//One card is one invite under one day. An invite proposing three days draws three cards,
-struct InviteCardID: Hashable {
-    let day: Date
-    let inviteID: String
-}
-
-//A pending card is one invite under one day; an expired one has no day left to sit under, so
-//the two can't share an id. Held as one value so only ever one card is open on the screen.
-enum ExpandedCard: Hashable {
-    case pending(InviteCardID)
-    case expired(String) //EventProfile.id
-}
-
 
 @Observable
 final class HistoryUIState {
     var pagerProgress: Double = 0
 
-    //The one card showing its message — held here so opening a card closes whichever other
-    //card was open, in either section.
-    var expandedInvite: ExpandedCard?
+    //The one card showing its message, named by its invite id — held here so opening a card
+    //closes whichever other card was open, in either section. Pending and expired are
+    //complements, so one id can only ever name a card in one of the two.
+    var expandedInvite: String?
 
     //Shut on arrival: these invites have already been seen once. Held here rather than in the
     //view so the container, which owns the scroll, can follow the reveal down it.

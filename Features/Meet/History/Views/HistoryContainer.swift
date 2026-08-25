@@ -116,9 +116,8 @@ extension HistoryContainer {
     
     private var pendingInvitesView: some View {
         page {
-            PendingInvitesView(inviteDays: vm.invitesByDay,
+            PendingInvitesView(invites: vm.activeInvites,
                                expiredInvites: vm.expiredInvites,
-                               activePendingInviteCount: vm.activePendingInviteCount,
                                ui: ui)
         }
         .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal)

@@ -12,9 +12,9 @@ struct InvitedCard: View {
     
     //Injected
     let event: EventProfile
-    let showDivider: Bool //False on the last invite of a day — nothing follows it to separate
+    let showDivider: Bool //False on the last invite in the card — nothing follows it to separate
     let isExpanded: Bool
-
+    
     let onToggle: () -> Void
     
     private static let avatar: CGFloat = 40
@@ -22,7 +22,6 @@ struct InvitedCard: View {
     
 
     var body: some View {
-        
         VStack(alignment: .leading, spacing: 0) {
             Button {
                 onToggle()
@@ -47,14 +46,14 @@ struct InvitedCard: View {
     private var header: some View {
         HStack(spacing: Spacing.md) {
             
-            if let image = invite.image {
+            if let image = event.image {
                 SmallImage(image: image, size: Self.avatar, isCircle: true)
             }
             
             VStack(alignment: .leading, spacing: Spacing.xxs) {
-                HistoryName(name: invite.profile.name)
-
-                Text("\(invite.event.type.longTitle) · \(FormatEvent.hourTime(pending.time.date))")
+                HistoryName(name: event.profile.name)
+                
+                Text("\(event.event.type.longTitle)")
                     .font(.body(15, .regular))
                     .foregroundStyle(Color.textSecondary)
             }
@@ -66,16 +65,23 @@ struct InvitedCard: View {
         .padding(.top, Spacing.xs)
         .contentShape(Rectangle()) //PressButtonStyle sets none — without it the row's gaps miss
     }
-    
+        
     
     private var expandedDetail: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HistoryPlaceRow(location: invite.event.location)
-            HistoryMessageSection(message: invite.event.message)
+            HistoryPlaceRow(location: event.event.location)
+            timeRow
+            HistoryMessageSection(message: event.event.message)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .drawer(isOpen: isExpanded)
         .contentShape(Rectangle())
         .onTapGesture { onToggle() }
+    }
+    
+    private var timeRow: some View {
+        Text(event.event.proposedTimes.formatMultipleInvitedDays())
+            .font(.body(15, .regular))
+            .foregroundStyle(Color.textSecondary)
     }
 }
