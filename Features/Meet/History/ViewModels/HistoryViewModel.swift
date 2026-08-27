@@ -57,6 +57,34 @@ final class HistoryViewModel {
     
     
     
+    //The same live invites bucketed by the days they propose — one row per day, not per invite:
+    //an invite offering three days appears under all three. Built off activeInvites so the
+    //calendar and the list beneath it split on the one acceptableTimes predicate; a day can
+    //never show here whose invite the section below calls expired.
+    var invitedDays: [InviteDay] {
+        let calendar = Calendar.current
+        let now = Date()
+
+        var byDay: [Date: [(time: Date, invite: EventProfile)]] = [:]
+
+        for invite in activeInvites {
+            for time in invite.event.proposedTimes.acceptableTimes(asOf: now) {
+                //Keyed by start of day: 19:00 and 21:30 on the 7th are one row, not two
+                let day = calendar.startOfDay(for: time.date)
+                byDay[day, default: []].append((time.date, invite))
+            }
+        }
+
+        return byDay
+            .map { day, entries in
+                //The proposed hour orders within its day; a dictionary has no order of its own,
+                //so without the outer sort the list reshuffles on every read.
+                InviteDay(day: day, invites: entries.sorted { $0.time < $1.time }.map(\.invite))
+            }
+            .sorted { $0.day < $1.day }
+    }
+    
+    
     var imageLoader: ImageLoading { session.imageLoader }
     var defaults: DefaultsManaging { session.defaultsManager }
 
@@ -65,6 +93,16 @@ final class HistoryViewModel {
     func loadProfileImages(_ profile: UserProfile) async {
         profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
     }
+}
+
+
+//One row of the calendar: a day, and everyone you invited on it. Just the profiles — the
+//hour they were invited at already ordered them, and the row shows faces, not times.
+struct InviteDay: Identifiable {
+    let day: Date //Start of day — the bucket key and the row's label
+    let invites: [EventProfile]
+
+    var id: Date { day }
 }
 
 

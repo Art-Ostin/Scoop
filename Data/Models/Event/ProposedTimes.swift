@@ -203,9 +203,23 @@ extension ProposedTimes {
     
     //Days sharing a month name it once, at the end of their run: "Wed 30 Jul, Sun 3 or Mon 4 Aug · 21:30"
     func formatMultipleInvitedDays() -> String {
-        guard !dates.isEmpty else { return "" }
-        let (leading, last, hour) = splitMultipleInvitedDays(withToday: false)
-        return leading + last + " · " + hour
+        invitedDayPieces().map(\.text).joined()
+    }
+
+    //The same line split day by day, each piece knowing whether its day can still be accepted —
+    //for the row that keeps ink on the days still open and fades the ones that have lapsed.
+    //The shared hour is the tail piece, never lapsed: it belongs to whichever days remain.
+    func invitedDayPieces(asOf now: Date = .now) -> [(text: String, lapsed: Bool)] {
+        guard !dates.isEmpty else { return [] }
+        let acceptable = acceptableTimes(asOf: now)
+
+        var pieces = dates.indices.map { index in
+            (text: FormatEvent.shortDayAndTime(dates[index].date, withHour: false, withMonth: endsMonthRun(at: index))
+                + daySuffix(at: index, dayCount: dates.count),
+             lapsed: !acceptable.contains(dates[index]))
+        }
+        pieces.append((text: " · " + FormatEvent.hourTime(lastProposedDate), lapsed: false))
+        return pieces
     }
 
     //The same days as a record rather than an open offer: every day comma-joined, and the last

@@ -7,9 +7,7 @@
 
 import SwiftUI
 
-//Every invite still awaiting a reply, in one card. One row is one invite, whatever days it
-//proposed — those are spelled out on the time row inside the row it opens.
-struct AllPendingInvites: View {
+struct PendingInvites: View {
     
     //Injected
     let events: [EventProfile]
@@ -19,7 +17,7 @@ struct AllPendingInvites: View {
     var body: some View {
 
         VStack(alignment: .leading, spacing: 0) {
-            HeaderRow(title: "All Invites", note: acceptanceNote)
+            HeaderRow(title: "Invites", note: acceptanceNote)
                 .padding(.bottom, Spacing.sm)
 
             InviteListCard(rowCount: events.count) {

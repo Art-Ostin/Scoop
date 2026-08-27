@@ -85,7 +85,6 @@ struct HistoryName: View {
 //The white card a list of invite rows sits in, sized by how many rows it holds
 struct InviteListCard<Content: View>: View {
 
-    //Injected
     let rowCount: Int
     @ViewBuilder let content: Content
 
@@ -105,9 +104,6 @@ struct InviteListCard<Content: View>: View {
     }
 }
 
-
-//A section's heading, with an info note that rolls open under it on the sections that need
-//explaining. The note's open state lives in the heading, so each one opens on its own.
 struct HeaderRow: View {
 
     //Injected

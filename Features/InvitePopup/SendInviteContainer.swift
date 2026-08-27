@@ -124,6 +124,8 @@ struct SendInviteContainer: View {
     @State private var sourceChromeExiting = false //Drives the source copy's per-element exits (subtitle blur-pop, invite-icon pop) via the inviteChrome environment
     @State private var titleNameSlot: CGRect = .zero //The title name's flight-invariant offsets (leading inset / bottom inset / 22pt size) — the hero's destination derives from these + the frozen carousel target, never from a measured mid-flight position
     @State private var nameLanded = false //Hands the name from the hero text to the real title, a beat after land() so the spring's last sub-pixel settle can't jump the swap
+    @State private var ctaLanded = false //Hands the wide CTA from the hero capsule to the real button, on the same beat as nameLanded
+    @State private var ctaDest: CGRect = .zero //The real CTA's resting frame — the button hero's landing pad (un-inset, unlike actionButtonHitArea)
     @State private var heroFadesWithCollapse = false //A close from the confirm screen has no visible title to leave from — the name rides in with the chrome copy instead
     @State private var flightTargets: (card: CGRect, image: CGRect)? //Destination frames frozen per flight: a mid-flight reflow must not retarget the animation
 
@@ -151,6 +153,12 @@ struct SendInviteContainer: View {
     //degrades to the plain title: without this gate the ghost hides a name nothing replaces.
     private var nameHeroActive: Bool {
         hasFlight && (zoom?.sourceName.width ?? 0) > 1 && (!nameLanded || !expanded)
+    }
+    //As the name: the hero owns the invite button + wide CTA through both flights, the real
+    //button takes over at rest, and a flight with no derived source button degrades to the
+    //chrome copy's pop exits.
+    private var buttonHeroActive: Bool {
+        hasFlight && (zoom?.sourceButton.width ?? 0) > 1 && (!ctaLanded || !expanded)
     }
 
     //The drag scrub and the close's mask race share the chrome-collapse axis. max, not a sum:
@@ -235,6 +243,7 @@ extension SendInviteContainer {
                 carouselLayer(origin)
                 sourceChromeLayer(origin)
                 nameFlightLayer(origin)
+                buttonFlightLayer(origin)
                 flightTapCatcher(origin)
                 reopenTapTarget(origin)
             }
@@ -414,6 +423,7 @@ extension SendInviteContainer {
                 //the chrome-less harness, or a failed derivation) the copy's name keeps its
                 //old chromeFade exits instead of blanking for the whole flight (device video)
                 .environment(\.inviteChromeNameFlying, nameHeroActive)
+                .environment(\.inviteChromeButtonFlying, buttonHeroActive) //Same conditional rule: a hero that can't anchor leaves the copy's button its pop exits
                 .scaleEffect(x: rect.width / max(sourceFrame.width, 1),
                              y: rect.height / max(sourceFrame.height, 1))
                 .position(x: rect.midX, y: rect.midY)
@@ -449,6 +459,49 @@ extension SendInviteContainer {
                 .position(x: rect.midX, y: rect.midY)
                 .opacity(heroFadesWithCollapse ? Double(closeP) : 1)
                 .allowsHitTesting(false)
+        }
+    }
+
+    //The invite button's own hero: the 42pt circle widens into the wide CTA (the two share
+    //the card's 24pt trailing inset, so the morph reads as a pure leftward stretch). The
+    //FLYING body is a flat capsule — a glass lens rebuilt at a new size every frame drops
+    //the device to ~15fps (the card surface's rule) — with the real fixed-size lens riding
+    //the trailing cap and fading on closeP, so both resting endpoints are the true glass.
+    //The label pops on its own blur-pop clock, in at launch, out at close start.
+    @ViewBuilder
+    private func buttonFlightLayer(_ origin: CGPoint) -> some View {
+        let sourceButton = zoom?.sourceButton ?? .zero
+        if buttonHeroActive, sourceButton.width > 1 {
+            let dest = ctaDest.width > 1 ? ctaDest : sourceButton //First frames only, until the real CTA reports
+            let rect = local(lerp(dest, sourceButton, closeP), origin)
+            ZStack {
+                Capsule()
+                    .fill(actionIsActive ? Color.textAccent : Color.fillGray) //The real button's resting fill
+                Capsule()
+                    .fill(Color.accent) //The invite button's tint, shed over the flight
+                    .opacity(Double(closeP))
+                Text(actionText)
+                    .font(.body(18, .bold))
+                    .foregroundStyle(Color.white)
+                    .lineLimit(1)
+                    .blurPop(visible: expanded)
+                    .animation(.transition, value: expanded) //Leaf-side, under the flight transforms — can't swallow the flight's transaction
+            }
+            .frame(width: rect.width, height: rect.height)
+            .overlay(alignment: .trailing) {
+                //The resting invite button itself (fixed 42pt — glass may move, never
+                //resize), carrying its own letter icon out with it
+                InviteButton(onTap: { })
+                    .opacity(Double(closeP))
+            }
+            .position(x: rect.midX, y: rect.midY)
+            //A GESTURE close scrubs closeP only over the ascent — through the dive the hero
+            //would sit at the frozen CTA slot, orphaned from the diving card (debris; frame
+            //capture 2026-08-26). The band's geometry ramp fits exactly: materialise over the
+            //final approach (closeP 0.7→1), where the rect has all but converged on the
+            //envelope circle. The tap close keeps the full morph (this stays 1 there).
+            .opacity(gestureClosing ? Double(min(max((closeP - 0.7) / 0.3, 0), 1)) : 1)
+            .allowsHitTesting(false)
         }
     }
 
@@ -686,6 +739,7 @@ extension SendInviteContainer {
             pagerReveal = 0 //The pager unmounts in this same commit; reset for the next landing
             coversDropped = false
             nameLanded = false //The hero text takes the name back for the flight home
+            ctaLanded = false //The hero capsule takes the CTA back — it collapses into the invite button
         }
     }
 
@@ -704,6 +758,7 @@ extension SendInviteContainer {
             try? await Task.sleep(for: .seconds(0.15))
             guard expanded, generation == flightGeneration else { return }
             nameLanded = true
+            ctaLanded = true //The CTA hand-off is pixel-identical by construction — same beat, one commit
         }
         if let coverPage, images.indices.contains(coverPage) { //A reopen mid-close: give the pager its page back
             snapPager { $0.scrollTo(id: images[coverPage], anchor: .leading) }
@@ -1442,14 +1497,17 @@ extension SendInviteContainer {
         }
     }
 
+    //Shared by the real CTA and its flying hero, so fill and words can never disagree at the hand-off
+    private var actionIsConfirming: Bool { ui.showConfirmScreen == true }
+    private var actionText: String { actionIsConfirming ? "Send to \(name)" : "Preview" }
+    private var actionIsActive: Bool { vm.event.isComplete }
+
     //Smooth impercetible hiding when popup open
     private var actionButton: some View {
-        let isConfirming = ui.showConfirmScreen == true
-        let buttonText = isConfirming ? "Send to \(name)" : "Preview"
-        let popupDim = !isConfirming && ui.isPopupOpenDelayed()
+        let popupDim = !actionIsConfirming && ui.isPopupOpenDelayed()
 
-        return WideActionButton(text: buttonText, isActive: vm.event.isComplete, isDimmed: popupDim, showShadow: false) {
-            if isConfirming {
+        return WideActionButton(text: actionText, isActive: actionIsActive, isDimmed: popupDim, showShadow: false) {
+            if actionIsConfirming {
                 if images.indices.contains(currentPage) { //Kill an in-flight flick (beginDrag's move):
                     //the lifted copy must be the page that's on screen when the cover mounts
                     snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) }
@@ -1459,6 +1517,7 @@ extension SendInviteContainer {
                 ui.showConfirmScreen = true
             }
         }
+        .opacity(buttonHeroActive ? 0 : 1) //The CTA hero owns this button's pixels for the whole flight — a ghost keeps the layout
         .opacity(popupDim ? 0.4 : 1)
         .allowsHitTesting(!popupDim)
         .animation(.transition, value: popupDim)
@@ -1467,6 +1526,7 @@ extension SendInviteContainer {
         //reads it at rest, and a posed report would move the region under the next touch.
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { newFrame in
             guard !dragging, gestureFlight == nil else { return }
+            ctaDest = newFrame //The button hero's landing pad
             //Geometry: ScoopButton's expandHitArea margin — the button takes touches that far outside its capsule
             actionButtonHitArea = newFrame.insetBy(dx: -16, dy: -16)
         }
@@ -1639,6 +1699,7 @@ extension EnvironmentValues {
     //the event-flip fade (this stays 0 there).
     @Entry var inviteChromeCloseRamp: Double = 0
     @Entry var inviteChromeNameFlying: Bool = false //The hero text layer owns the name for the whole presentation — the chrome copy's name never renders
+    @Entry var inviteChromeButtonFlying: Bool = false //The CTA hero owns the invite button (widening into the wide CTA) — the chrome copy's button never renders; hero-less flights keep the pop exits
     //The respond flight's analog of inviteChromeNameFlying, for the invite card's TEXT SET:
     //while true, hero layers own the title, type, time and place — both the source chrome
     //copy's and the landed popup's own renderings ghost (opacity only, layout preserved).
@@ -1658,11 +1719,13 @@ final class InviteZoomPresenter {
         let view: () -> AnyView
         let sourceChrome: () -> AnyView //A copy of the source card's chrome for the flight to fade
         let sourceNameRect: ((CGRect) -> CGRect)? //Retained so live source updates re-derive the name anchor with the rect
+        let sourceButtonRect: ((CGRect) -> CGRect)? //As sourceNameRect, for the invite button — the CTA hero's launch circle
     }
 
     private(set) var slot: Slot?
     private(set) var source: CGRect = .zero //The flight's source anchor: seeded at present(), then riding the cell's live reports for the slot's lifetime
     private(set) var sourceName: CGRect = .zero //The resting name's frame, re-derived alongside `source` — the hero text flight's source anchor
+    private(set) var sourceButton: CGRect = .zero //The resting invite button's frame, re-derived alongside `source` — the CTA hero flight's source anchor
 
     @ObservationIgnored private var sourceRects: [String: CGRect] = [:]
 
@@ -1680,15 +1743,18 @@ final class InviteZoomPresenter {
         //DERIVED from the anchor rect, never measured — a measured anchor proved lossy on device
         let name = slot.sourceNameRect?(rect) ?? .zero
         if name != sourceName { sourceName = name }
+        let button = slot.sourceButtonRect?(rect) ?? .zero
+        if button != sourceButton { sourceButton = button }
     }
 
-    func present(id: String, sourceChrome: @escaping () -> AnyView, sourceNameRect: ((CGRect) -> CGRect)?, view: @escaping () -> AnyView) {
+    func present(id: String, sourceChrome: @escaping () -> AnyView, sourceNameRect: ((CGRect) -> CGRect)?, sourceButtonRect: ((CGRect) -> CGRect)? = nil, view: @escaping () -> AnyView) {
         if let current = slot, current.id != id { clear(id: current.id) } //Handoff: presenting over a closing card evicts it
         guard slot == nil else { return } //A same-id re-present (a remount's initial onChange) is a no-op
         source = sourceRects[id] ?? .zero //Seed from the last report; reportSource keeps it live from here
         //DERIVED from the anchor rect, never measured — a measured anchor proved lossy on device
         sourceName = source.width > 1 ? (sourceNameRect?(source) ?? .zero) : .zero
-        slot = Slot(id: id, view: view, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect)
+        sourceButton = source.width > 1 ? (sourceButtonRect?(source) ?? .zero) : .zero
+        slot = Slot(id: id, view: view, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect, sourceButtonRect: sourceButtonRect)
     }
 
     //Id-guarded so a stale clear can't drop a newer card
@@ -1697,6 +1763,7 @@ final class InviteZoomPresenter {
         slot = nil
         source = .zero
         sourceName = .zero
+        sourceButton = .zero
     }
 }
 
@@ -1723,6 +1790,7 @@ private struct InviteZoomModifier<SourceChrome: View, Popup: View>: ViewModifier
     @Binding var isPresented: Bool
     @ViewBuilder let sourceChrome: () -> SourceChrome
     let sourceNameRect: ((CGRect) -> CGRect)?
+    let sourceButtonRect: ((CGRect) -> CGRect)?
     @ViewBuilder let popup: () -> Popup
 
     //The flight IS the card while a slot is live: the source hides for the whole presented
@@ -1739,7 +1807,7 @@ private struct InviteZoomModifier<SourceChrome: View, Popup: View>: ViewModifier
             .onChange(of: isPresented, initial: true) { _, presented in
                 guard let presenter else { return }
                 if presented {
-                    presenter.present(id: id, sourceChrome: { AnyView(sourceChrome()) }, sourceNameRect: sourceNameRect) { AnyView(popup()) }
+                    presenter.present(id: id, sourceChrome: { AnyView(sourceChrome()) }, sourceNameRect: sourceNameRect, sourceButtonRect: sourceButtonRect) { AnyView(popup()) }
                 } else {
                     presenter.clear(id: id)
                 }
@@ -1758,14 +1826,17 @@ extension View {
     ///read the `inviteChrome…` environment drivers to exit over the open and ride the collapse
     ///back in (ProfileCard.cardOverlay is the reference). `sourceNameRect` derives the resting
     ///name's frame from the frozen card rect — the hero text flight's source anchor.
+    ///`sourceButtonRect` derives the resting invite button's circle the same way — the CTA
+    ///hero's launch pad; without it the chrome copy's button keeps its pop exits.
     func inviteZoom(
         id: String,
         isPresented: Binding<Bool>,
         @ViewBuilder sourceChrome: @escaping () -> some View,
         sourceNameRect: ((CGRect) -> CGRect)? = nil,
+        sourceButtonRect: ((CGRect) -> CGRect)? = nil,
         @ViewBuilder popup: @escaping () -> some View
     ) -> some View {
-        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect, popup: popup))
+        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: sourceChrome, sourceNameRect: sourceNameRect, sourceButtonRect: sourceButtonRect, popup: popup))
     }
 
     ///For a plain image source with no chrome to fade (the debug harness, a bare photo)
@@ -1774,6 +1845,6 @@ extension View {
         isPresented: Binding<Bool>,
         @ViewBuilder popup: @escaping () -> some View
     ) -> some View {
-        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: { EmptyView() }, sourceNameRect: nil, popup: popup))
+        modifier(InviteZoomModifier(id: id, isPresented: isPresented, sourceChrome: { EmptyView() }, sourceNameRect: nil, sourceButtonRect: nil, popup: popup))
     }
 }

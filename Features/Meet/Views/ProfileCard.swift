@@ -39,6 +39,7 @@ struct ProfileCard : View {
                 isPresented: ui.showInviteBinding(profile: profile),
                 sourceChrome: { cardOverlay }, //The flight drives this copy's per-element exits over the flying image
                 sourceNameRect: { ProfileCardChrome.nameRect(in: $0, name: profile.profile.name) },
+                sourceButtonRect: { ProfileCardChrome.inviteButtonRect(in: $0) },
                 popup: { invitePopup }
             )
     }
@@ -78,6 +79,7 @@ struct ProfileCardChrome: View {
     @Environment(\.inviteChromeArrived) private var chromeArrived
     @Environment(\.inviteChromeCloseRamp) private var closeRamp
     @Environment(\.inviteChromeNameFlying) private var nameFlying
+    @Environment(\.inviteChromeButtonFlying) private var buttonFlying
 
     var body: some View {
         ZStack {
@@ -110,6 +112,8 @@ struct ProfileCardChrome: View {
     static let overlayTextInset: CGFloat = Spacing.lg
     static let overlayBottomInset: CGFloat = 18 //Geometry: optically balances the side inset against the descender
     static let overlayStackGap: CGFloat = 10
+    static let inviteButtonSize: CGFloat = 42 //InviteButton's frame — ScoopButton adds no layout around its label
+    static let inviteButtonLift: CGFloat = 3 //Geometry: the button's optical raise into line with the text block
 
     ///Where the resting card draws its name, derived from the card's frame + the overlay's
     ///constants and font metrics — the invite flight's hero text launches from exactly here.
@@ -122,6 +126,15 @@ struct ProfileCardChrome: View {
         let bottom = card.maxY - overlayBottomInset - subtitleHeight - overlayStackGap
         return CGRect(x: card.minX + overlayTextInset, y: bottom - nameSize.height,
                       width: width, height: nameSize.height)
+    }
+
+    ///Where the resting card draws its invite button — the CTA hero's 42pt launch circle,
+    ///derived like nameRect. The lift is an offset (rendering, not layout), so the derivation
+    ///bakes it in to match the visual position.
+    static func inviteButtonRect(in card: CGRect) -> CGRect {
+        CGRect(x: card.maxX - overlayTextInset - inviteButtonSize,
+               y: card.maxY - overlayBottomInset - inviteButtonSize - inviteButtonLift,
+               width: inviteButtonSize, height: inviteButtonSize)
     }
 }
 
@@ -185,10 +198,12 @@ extension ProfileCardChrome {
 
     private var inviteButton: some View {
         InviteButton(onTap: onInvite)
-            .offset(y: -3) //Now in line with the content
+            .offset(y: -Self.inviteButtonLift) //Now in line with the content
             .opacityPop(visible: !chromeExiting)
             .animation(.transition, value: chromeExiting)
-            .opacity(chromeCollapse)
+            //While the CTA hero owns the button (widening into the wide CTA) this copy never
+            //renders; a hero-less flight falls back to the pop exits above
+            .opacity(buttonFlying ? 0 : chromeCollapse)
     }
 }
 

@@ -53,9 +53,10 @@ struct InvitedCard: View {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 HistoryName(name: event.profile.name)
                 
-                Text("\(event.event.type.longTitle)")
-                    .font(.body(15, .regular))
-                    .foregroundStyle(Color.textSecondary)
+                Text(event.event.type.longTitle)
+                    .font(.body(13, .regular))
+                    .foregroundStyle(Color.textTertiary)
+                    .lineLimit(1)
             }
             
             Spacer()
@@ -69,8 +70,8 @@ struct InvitedCard: View {
     
     private var expandedDetail: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HistoryPlaceRow(location: event.event.location)
             timeRow
+            HistoryPlaceRow(location: event.event.location)
             HistoryMessageSection(message: event.event.message)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,9 +80,14 @@ struct InvitedCard: View {
         .onTapGesture { onToggle() }
     }
     
+    //A day that can no longer be accepted fades a step behind the ones still open — the dark
+    //days here are exactly the rows the calendar below still draws
     private var timeRow: some View {
-        Text(event.event.proposedTimes.formatMultipleInvitedDays())
+        event.event.proposedTimes.invitedDayPieces()
+            .map { Text($0.text).foregroundStyle($0.lapsed ? Color.textTertiary : .textSecondary) }
+            .reduce(Text(""), +)
             .font(.body(15, .regular))
-            .foregroundStyle(Color.textSecondary)
+            .oneLineLimitAndShrink() //Three long days shrink as one line, as the expired row does
+            .padding(.top, Spacing.xs) //Type → times: the same step the place row keeps below
     }
 }

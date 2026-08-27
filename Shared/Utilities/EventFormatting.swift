@@ -51,6 +51,16 @@ public enum FormatEvent {
     }
     
     
+    //Just the day a row is about: "Sep 7". Today and tomorrow name themselves, as dayAndTime does —
+    //a lone heading is read on its own, not as one of a run, so a relative name breaks nothing.
+    static func monthDay(_ date: Date, withToday: Bool = true) -> String {
+        let cal = Calendar.current
+        if withToday, cal.isDateInToday(date) { return "Today" }
+        if withToday, cal.isDateInTomorrow(date) { return "Tomorrow" }
+        return date.formatted(.dateTime.month(.abbreviated).day())
+    }
+    
+    
     static func hourTime(_ date: Date) -> String {
         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
     }

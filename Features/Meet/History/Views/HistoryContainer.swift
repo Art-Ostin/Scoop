@@ -116,7 +116,8 @@ extension HistoryContainer {
     
     private var pendingInvitesView: some View {
         page {
-            PendingInvitesView(invites: vm.activeInvites,
+            PendingInvitesView(days: vm.invitedDays,
+                               invites: vm.activeInvites,
                                expiredInvites: vm.expiredInvites,
                                ui: ui)
         }
