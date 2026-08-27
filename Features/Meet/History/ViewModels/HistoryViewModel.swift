@@ -79,7 +79,10 @@ final class HistoryViewModel {
             .map { day, entries in
                 //The proposed hour orders within its day; a dictionary has no order of its own,
                 //so without the outer sort the list reshuffles on every read.
-                InviteDay(day: day, invites: entries.sorted { $0.time < $1.time }.map(\.invite))
+                let ordered = entries.sorted { $0.time < $1.time }.map(\.invite)
+                //Two acceptable times on one day are still one invite — one face, not twin ids
+                var seen = Set<String>()
+                return InviteDay(day: day, invites: ordered.filter { seen.insert($0.id).inserted })
             }
             .sorted { $0.day < $1.day }
     }
@@ -110,10 +113,13 @@ struct InviteDay: Identifiable {
 final class HistoryUIState {
     var pagerProgress: Double = 0
 
-    //The one card showing its message, named by its invite id — held here so opening a card
-    //closes whichever other card was open, in either section. Pending and expired are
-    //complements, so one id can only ever name a card in one of the two.
+    //The pending invite the top card is showing, named by its invite id — held here so the
+    //calendar's faces and the card they drive stay pointed at the same invite across paging.
     var expandedInvite: String?
+
+    //The one expired card showing its detail — its own id, separate from the selection above,
+    //so opening an archive row can never strand the top card empty.
+    var expandedExpired: String?
 
     //Shut on arrival: these invites have already been seen once. Held here rather than in the
     //view so the container, which owns the scroll, can follow the reveal down it.

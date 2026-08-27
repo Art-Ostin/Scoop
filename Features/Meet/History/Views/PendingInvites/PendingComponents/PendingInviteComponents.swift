@@ -71,10 +71,11 @@ struct HistoryChevron: View {
 
 struct HistoryName: View {
     let name: String
+    var size: CGFloat = 16
     
     var body: some View {
         Text(name)
-            .font(.body(16, .bold))
+            .font(.body(size, .bold))
             .foregroundStyle(Color.textPrimary)
             .lineLimit(1)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -86,11 +87,12 @@ struct HistoryName: View {
 struct InviteListCard<Content: View>: View {
 
     let rowCount: Int
+    var tightensSingleRow: Bool = true //A lone collapsed row reads loose; a lone expanded one doesn't
     @ViewBuilder let content: Content
 
     //Each row carries Spacing.xs of its own, so the card adds only the remainder
     private var inset: CGFloat {
-        Spacing.md - Spacing.xs - (rowCount == 1 ? Spacing.hairline : 0)
+        Spacing.md - Spacing.xs - (rowCount == 1 && tightensSingleRow ? Spacing.hairline : 0)
     }
 
     var body: some View {

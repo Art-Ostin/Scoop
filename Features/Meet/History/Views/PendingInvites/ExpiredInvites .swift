@@ -10,7 +10,7 @@ import SwiftUI
 struct ExpiredInvites: View {
     
     let expiredInvites: [EventProfile]
-    let expandedInvite: String? //Held by the container, so opening a row closes a pending one too
+    let expandedInvite: String? //Its own id, separate from the pending selection — opening a row here can't strand the card above
     
     @Binding var showsExpired: Bool
         

@@ -222,6 +222,22 @@ extension ProposedTimes {
         return pieces
     }
 
+    //Whether every proposed day strikes the same clock time — the case the single trailing
+    //hour can speak for. When it can't, each day has to carry its own.
+    var sharesOneHour: Bool {
+        Set(dates.map { FormatEvent.hourTime($0.date) }).count <= 1
+    }
+
+    //One piece per day, each wearing its own hour — for the card that shows days whose hours
+    //differ: "Wed 30 Jul · 19:00" / "Sun 3 Aug · 21:30". Each line reads alone, so every day
+    //names its month rather than sharing one at the end of a run.
+    func invitedDayHourPieces(asOf now: Date = .now) -> [(text: String, lapsed: Bool)] {
+        let acceptable = acceptableTimes(asOf: now)
+        return dates.map { time in
+            (text: FormatEvent.shortDayAndTime(time.date), lapsed: !acceptable.contains(time))
+        }
+    }
+
     //The same days as a record rather than an open offer: every day comma-joined, and the last
     //day's month lifted out of the list to sit with the time — "Sat 15, Tue 18, Thu 20 · Aug 22:30".
     //An earlier month still names itself, so a set straddling the boundary reads
