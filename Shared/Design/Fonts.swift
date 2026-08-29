@@ -14,6 +14,7 @@ extension Font {
         case medium = "ModernEra-Medium"
         case bold = "ModernEra-Bold"
         case italic = "ModernEra-MediumItalic"
+        case regularItalic = "Figtree-Italic" //Figtree, not ModernEra — a true 400 italic where .italic is Medium
     }
     
     enum titleFontWeight: String {

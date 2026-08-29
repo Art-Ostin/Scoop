@@ -14,6 +14,7 @@ struct PendingInvitesView: View {
     let invites: [EventProfile]
     let expiredInvites: [EventProfile]
     @Bindable var ui: HistoryUIState //Bindable, not let: the expired section drives showsExpired
+    let onSelect: () -> Void //The container's, since it owns the scroll the selection travels up
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,12 +25,11 @@ struct PendingInvitesView: View {
                     .padding(.horizontal, Spacing.gutter)
 
                 ZStack(alignment: .top) { //One slot: the leaving and arriving card overlap instead of stacking
-                    SelectedDay(event: selectedEvent)
+                    SelectedEvent(event: selectedEvent)
                         .transition(.blurReplace)
                         .id(selectedEvent.id)
                 }
                 .animation(.transition, value: selectedEvent.id) //Outside the .id, or the swap is instant
-                .padding(.horizontal, Spacing.gutter)
                 .padding(.bottom, Spacing.lg) //The card → the section that follows it
             }
 
@@ -62,8 +62,12 @@ extension PendingInvitesView {
         return invites.first { $0.id == id }
     }
 
+    //The deadline always, and the rule a shared day raises only while some day actually holds
+    //two invites — the case where one acceptance decides the others.
     private var acceptanceNote: String {
-        "They have until \(Int(ProposedTimes.acceptanceLead / 3600)) hours before the invite to accept"
+        let deadline = "They have until \(Int(ProposedTimes.acceptanceLead / 3600)) hours before the invite to accept"
+        guard days.contains(where: { $0.invites.count > 1 }) else { return deadline }
+        return deadline + "\n\nAs soon as one person accepts, your invite to the others for that day expires"
     }
 
     //A card is open whenever there is one to show — the section is the point of the screen, and
@@ -77,8 +81,10 @@ extension PendingInvitesView {
     }
 
     //A face only ever opens — tapping the one already showing leaves it showing, so the section
-    //above can never empty out.
+    //above can never empty out. Either way the page travels up to the card: the tap's whole
+    //answer is rendered at the top, and re-tapping the open face is how you go back to read it.
     private func select(_ inviteID: String) {
+        onSelect()
         guard ui.expandedInvite != inviteID else { return } //The press still bounces; nothing else moves
         withAnimation(.expand) { ui.expandedInvite = inviteID }
     }

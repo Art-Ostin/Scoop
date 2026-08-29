@@ -83,11 +83,14 @@ struct HistoryName: View {
 }
 
 
-//The white card a list of invite rows sits in, sized by how many rows it holds
+//The white card a list of invite rows sits in, sized by how many rows it holds — unless
+//`insetsContent` is off, when the card is bare white and its content writes its own padding.
 struct InviteListCard<Content: View>: View {
 
-    let rowCount: Int
+    //Injected
+    var rowCount: Int = 1
     var tightensSingleRow: Bool = true //A lone collapsed row reads loose; a lone expanded one doesn't
+    var insetsContent: Bool = true //Off when the content owns its padding, e.g. SelectedDay
     @ViewBuilder let content: Content
 
     //Each row carries Spacing.xs of its own, so the card adds only the remainder
@@ -99,8 +102,8 @@ struct InviteListCard<Content: View>: View {
         VStack(spacing: 0) {
             content
         }
-        .padding(.horizontal, Spacing.md) //Same as the row's avatar ↔ text gap
-        .padding(.vertical, inset)
+        .padding(.horizontal, insetsContent ? Spacing.md : 0) //Same as the row's avatar ↔ text gap
+        .padding(.vertical, insetsContent ? inset : 0)
         .frame(maxWidth: .infinity)
         .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
     }

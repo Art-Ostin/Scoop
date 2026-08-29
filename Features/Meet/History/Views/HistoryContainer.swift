@@ -16,6 +16,11 @@ struct HistoryContainer: View {
     @State private var selectedPage: Int? = 0
     
     @State private var ui = HistoryUIState()
+
+    //The pending page's scroll, driven from here: the container owns the scroll view, so both of
+    //the page's automatic moves — the unanswered drawer's nudge, and the travel back up to a
+    //newly chosen card — speak through this one position.
+    @State private var pendingScroll = ScrollPosition()
     
     //Geometry: both the scroll view's top inset and the fade's height, so content begins
     //exactly where the fade ends — a day heading is never born dimmed.
@@ -119,9 +124,19 @@ extension HistoryContainer {
             PendingInvitesView(days: vm.invitedDays,
                                invites: vm.activeInvites,
                                expiredInvites: vm.expiredInvites,
-                               ui: ui)
+                               ui: ui,
+                               onSelect: travelToSelection)
         }
-        .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal)
+        .scrollPosition($pendingScroll)
+        .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal, position: $pendingScroll)
+    }
+
+    //A face tapped down in the calendar renders its card at the very top of the page, so the
+    //scroll rides back up to meet it — otherwise the tap's only visible answer is off-screen.
+    //Every face travels, the open one included: the ring you tapped is what you want to read.
+    //`.move`, not the `.expand` the selection itself runs — this is a position settling.
+    private func travelToSelection() {
+        withAnimation(.move) { pendingScroll.scrollTo(edge: .top) }
     }
 }
 

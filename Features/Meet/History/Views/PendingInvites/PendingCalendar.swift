@@ -20,36 +20,22 @@ struct PendingCalendar: View {
     //Local view state
     @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal, like HeaderRow's note
 
-    //The glass face: the Messages profile button's own 32pt image, ringed by glass to 42 —
-    //two under the toolbar platter's 44pt floor, so it reads as the same control one size down
-    private static let glassAvatar: CGFloat = 32
-    private static let glassRing: CGFloat = 5 //Geometry: 32 + 5 + 5 = the 42pt circle
+    //The glass face: the image carried to the toolbar platter's 44pt floor, so it reads as the
+    //same control — the glass is a thin outer edge rather than a wide ring, so the face fills it
+    private static let glassAvatar: CGFloat = 40
+    private static let glassRing: CGFloat = 2 //Geometry: 40 + 2 + 2 = the 44pt circle
 
     //The open invite's face wears an accent ring on the rim of its lens, leaving the glass clean
-    private static let selectedStroke: CGFloat = 1.5 //Geometry: centred on the 42pt rim, so 0.75pt either side
+    private static let selectedStroke: CGFloat = 1.5 //Geometry: centred on the 44pt rim, so 0.75pt either side
 
-    private static let facesPerLine = 4 //Four 42pt lenses is all one line holds beside its day
+    private static let facesPerLine = 4 //Four 44pt lenses is all one line holds beside its day
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            InviteListCard(rowCount: days.count) {
-                ForEach(days) { day in
-                    dayRow(day, showsDivider: day.id != days.last?.id)
-                }
-            }
-
-            if hasSharedDay {
-                Text("As soon as one person accepts, your invite to the others for that day expires")
-                    .infoText()
-                    .padding(.top, Spacing.xs)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        InviteListCard(rowCount: days.count) {
+            ForEach(days) { day in
+                dayRow(day, showsDivider: day.id != days.last?.id)
             }
         }
-    }
-
-    //The rule a shared day raises — said only while some day actually holds two invites
-    private var hasSharedDay: Bool {
-        days.contains { $0.invites.count > 1 }
     }
 }
 
@@ -139,7 +125,7 @@ extension PendingCalendar {
                 .padding(Self.glassRing)
                 .glassEffectIfAvailable(shape: Circle()) //Not scoopGlassSurface: its interactive lens clamps the hit area
                 .circleStroke(lineWidth: Self.selectedStroke, color: isSelected ? .accent : .clear)
-                .contentShape(Circle()) //The 42pt circle is the target, not the padded square
+                .contentShape(Circle()) //The 44pt circle is the target, not the padded square
                 .animation(.toggle, value: isSelected) //Selection, not the drawer's .expand the tap also runs
         }
         .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
@@ -164,7 +150,7 @@ extension PendingCalendar {
             .frame(width: Self.glassAvatar, height: Self.glassAvatar)
             .padding(Self.glassRing)
             .glassEffectIfAvailable(shape: Circle()) //Not scoopGlassSurface: its interactive lens clamps the hit area
-            .contentShape(Circle()) //The 42pt circle is the target, not the padded square
+            .contentShape(Circle()) //The 44pt circle is the target, not the padded square
         }
         .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
         .instantPressDelivery()

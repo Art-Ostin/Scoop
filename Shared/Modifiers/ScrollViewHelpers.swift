@@ -100,7 +100,10 @@ private struct DrawerNudge: ViewModifier {
     let isOpen: Bool
     let distance: CGFloat
 
-    @State private var position = ScrollPosition()
+    ///The caller's, not its own: a scroll view answers to ONE position, so a page with a second
+    ///automatic move (History's jump back to the top on a new selection) drives the same one.
+    @Binding var position: ScrollPosition
+
     @State private var geometry: ScrollGeometry?
 
     ///Measured on iOS 26: a nudge issued in the drawer's own transaction is clamped against the
@@ -115,7 +118,6 @@ private struct DrawerNudge: ViewModifier {
             .onScrollGeometryChange(for: ScrollGeometry.self) { $0 } action: { _, geo in
                 geometry = geo //Read passively: driving the scroll from here would re-fire on every frame of the reveal
             }
-            .scrollPosition($position)
             .task(id: isOpen) { await follow() } //Retoggling cancels the pending nudge with it
     }
 
@@ -193,9 +195,11 @@ extension View {
     }
 
     ///Applied where the scroll is BUILT, not where the drawer lives — modifiers reach the scroll
-    ///views beneath them, so the flag has to be readable by the scroll's own owner.
-    func drawerNudge(isOpen: Bool, by distance: CGFloat) -> some View {
-        modifier(DrawerNudge(isOpen: isOpen, distance: distance))
+    ///views beneath them, so the flag has to be readable by the scroll's own owner. `position`
+    ///is the one the caller already attached with `.scrollPosition`, so the nudge and any other
+    ///programmatic move on that page speak through a single binding.
+    func drawerNudge(isOpen: Bool, by distance: CGFloat, position: Binding<ScrollPosition>) -> some View {
+        modifier(DrawerNudge(isOpen: isOpen, distance: distance, position: position))
     }
 
     func instantPressDelivery() -> some View {
