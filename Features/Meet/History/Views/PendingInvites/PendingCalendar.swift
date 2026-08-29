@@ -37,10 +37,18 @@ struct PendingCalendar: View {
             HeaderRow(title: "Next 10 Days", note: acceptanceNote)
 
             let faces = ledger //One pass, read ten times — not rebuilt per row
+            let rows = days
 
             VStack(spacing: 0) {
-                ForEach(days, id: \.self) { day in
-                    dayRow(day: day, faces: faces[day] ?? [], showsDivider: day != days.last)
+                ForEach(Array(rows.enumerated()), id: \.element) { index, day in
+                    let mine = faces[day] ?? []
+                    let hasNext = index + 1 < rows.count
+                    //A/B: a rule between two free days is a seam with nothing to separate —
+                    //let a quiet stretch run together. Revert to `day != days.last`.
+                    let nextIsFree = hasNext && (faces[rows[index + 1]] ?? []).isEmpty
+                    dayRow(day: day,
+                           faces: mine,
+                           showsDivider: hasNext && !(mine.isEmpty && nextIsFree))
                 }
             }
             .padding(.horizontal, Spacing.md) //Rows own all vertical rhythm — the card adds none
@@ -60,7 +68,7 @@ extension PendingCalendar {
 
             if showsDivider {
                 VeryLightDivider()
-            } //Rows carry their half of every seam; the rule carries none
+            }
         }
     }
 
