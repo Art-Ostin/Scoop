@@ -22,7 +22,18 @@ struct LightDivider: View {
     var body: some View {
         Rectangle()
             .foregroundStyle(Color.border)
-            .frame(height: 1/displayScale) //exactly 1.5 physical pixels — identical on every device
+            .frame(height: 1/displayScale) //exactly one physical pixel — identical on every device
+            .frame(maxWidth: .infinity)
+    }
+}
+
+struct VeryLightDivider: View {
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        Rectangle()
+            .foregroundStyle(Color.borderLight)
+            .frame(height: 1/displayScale) //exactly one physical pixel — identical on every device
             .frame(maxWidth: .infinity)
     }
 }

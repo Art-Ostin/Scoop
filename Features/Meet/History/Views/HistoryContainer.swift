@@ -122,21 +122,11 @@ extension HistoryContainer {
     private var pendingInvitesView: some View {
         page {
             PendingInvitesView(days: vm.invitedDays,
-                               invites: vm.activeInvites,
                                expiredInvites: vm.expiredInvites,
-                               ui: ui,
-                               onSelect: travelToSelection)
+                               ui: ui)
         }
         .scrollPosition($pendingScroll)
         .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal, position: $pendingScroll)
-    }
-
-    //A face tapped down in the calendar renders its card at the very top of the page, so the
-    //scroll rides back up to meet it — otherwise the tap's only visible answer is off-screen.
-    //Every face travels, the open one included: the ring you tapped is what you want to read.
-    //`.move`, not the `.expand` the selection itself runs — this is a position settling.
-    private func travelToSelection() {
-        withAnimation(.move) { pendingScroll.scrollTo(edge: .top) }
     }
 }
 

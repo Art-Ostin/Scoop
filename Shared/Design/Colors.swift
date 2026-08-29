@@ -23,6 +23,8 @@ extension Color {
     //so a gray never reads cool against appCanvas. A neutral gray here looks blue by contrast.
     static let border = Color(red: 0.88, green: 0.87, blue: 0.86)
 
+    static let borderLight = Color(red: 0.90, green: 0.89, blue: 0.88) //A fainter rule for hairlines inside a white card (the pending ledger) — one step lighter than .border, same warm axis.
+
     static let borderStrong = Color(red: 0.75, green: 0.74, blue: 0.73) //Outlined controls that need to hold their own against a filled sibling (the decline button).
 
     static let fillGray = Color(red: 0.94, green: 0.93, blue: 0.92)
