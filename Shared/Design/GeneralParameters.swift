@@ -66,7 +66,13 @@ enum Elevation {
     }
 }
 
-
+extension View {
+    func imageShadow(hide: Bool) -> some View {
+        self
+            .shadow(color: .black.opacity(hide ? 0 : 0.25), radius: 2, x: 0, y: 0)
+            .shadow(color: .black.opacity(hide ? 0 : 0.15), radius: 10, x: 0, y: 0)
+    }
+}
 
 
 

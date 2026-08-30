@@ -48,7 +48,7 @@ struct SelectedPendingEvent: View {
                 backButton
             }
             .offset(y: rubberBanded(dragOffset))
-            .gesture(dismissDrag)
+            .simultaneousGesture(dismissDrag) //As the invite popup attaches its own — the pager still sees horizontals
         }
         .task { await prepareImages() } //Decodes ride the flight off-main, so the land never hitches
         .onChange(of: cardRect) { _, _ in openWhenMeasured() }
@@ -158,10 +158,13 @@ extension SelectedPendingEvent {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 guard landed, !closing else { return }
+                //First movement picks the owner: verticals engage the dismiss, horizontals
+                //belong to the pager — the invite popup's axis split
+                if dragOffset == 0, abs(value.translation.height) <= abs(value.translation.width) { return }
                 dragOffset = value.translation.height
             }
             .onEnded { value in
-                guard landed, !closing else { dragOffset = 0; return }
+                guard landed, !closing, dragOffset != 0 else { dragOffset = 0; return }
 
                 let flick = value.predictedEndTranslation.height - value.translation.height
                 if rubberBanded(dragOffset) > 90 || flick > 90 {
@@ -220,6 +223,7 @@ extension SelectedPendingEvent {
                                    blursBottom: true,
                                    scrollProgress: $scrollProgress)
                         .overlay(alignment: .bottomLeading) { profileName }
+                        .scrollDisabled(dragOffset != 0) //An engaged dismiss drag freezes the pager's own axis
                 }
             }
             //The photo's landing band — measured before the flight leaves the lens

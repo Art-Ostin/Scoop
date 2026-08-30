@@ -214,16 +214,11 @@ extension PendingCalendar {
             onSelect(face.invite, faceRects.rects[lensID] ?? .zero)
         } label: {
             SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
-                //The FACE circle, not the glassed lens: the flight cover mounts on exactly
-                //these pixels, so its photo must match the face — the glass rim stays put
-                //beneath and the growing cover swallows it a frame later
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
                 .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
+                .imageShadow(hide: false)
                 .glassEffectIfAvailable(shape: Circle())
                 .clipShape(Circle()) //Clips the glass's own cast shadow — the no-shadow floor; eleven glowing circles read as noise
-                //Every lens of the closed invite rings together — "these circles are one invite",
-                //taught in a glance. 2pt, not the selection ring's 1.5: a one-beat pulse has to
-                //land where a persistent ring can whisper
                 .circleStroke(lineWidth: 2, color: isPulsed ? .accent : .clear)
                 .animation(.transition, value: isPulsed)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)

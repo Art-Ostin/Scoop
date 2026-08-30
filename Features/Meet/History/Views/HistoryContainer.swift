@@ -52,6 +52,9 @@ struct HistoryContainer: View {
             .overlay { selectedPendingEvent } //Over the page's own chrome: its backdrop covers the screen
         }
         .environment(ZoomPresentationHost?.none)
+        //The zoom navigationTransition installs its own pan-to-dismiss on the whole cover —
+        //while the detail card is up, its dismiss drag must not also drag History away
+        .interactiveDismissDisabled(ui.selectedPending != nil)
         .ignoresSafeArea()
     }
 }
