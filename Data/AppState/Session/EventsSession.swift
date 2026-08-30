@@ -50,6 +50,9 @@ extension Session {
         case .pastAccepted: archiveEvent(eventId: event.id)
         default: break
         }
+        //After the switch on purpose: accepting leaves the invites bucket through acceptInvite,
+        //and pulling it out first would leave that with nothing to move.
+        try await syncReceivedInvite(event)
         //Messages updated
         updateEvent(event)
     }
@@ -62,9 +65,15 @@ extension Session {
         let held = sentInvites.contains { $0.event.id == event.id }
         guard held != isPendingSent else { return }
 
-        //It left: they accepted, or they proposed a new time and it's their invite again.
+        //It left: they accepted, or they proposed a new time and it's their invite again. An accept
+        //moves it into events rather than dropping it — the switch's acceptInvite only reads
+        //`invites`, so on this side there would be nothing there to move.
         if held {
-            removeSentInvite(id: event.id)
+            if event.status == .accepted {
+                acceptSentInvite(eventId: event.id)
+            } else {
+                removeSentInvite(id: event.id)
+            }
             return
         }
 
@@ -74,6 +83,29 @@ extension Session {
             appendSentInvites([EventProfile(event: event, profile: known.profile, image: known.image)])
         } else {
             appendSentInvites(try await profileLoader.fromEvents([event]))
+        }
+    }
+
+    //4b. The mirror of 4a. Without it a counter is one-way: our sent invite leaves sentInvites when
+    //they propose a new time, `role` flips .sent -> .received with the status still .pending, and
+    //nothing puts it in invites — so the invite vanishes and nothing arrives until the next launch.
+    private func syncReceivedInvite(_ event: UserEvent) async throws {
+        let isPendingReceived = event.status == .pending && event.role == .received
+        let held = invites.contains { $0.event.id == event.id }
+        guard held != isPendingReceived else { return }
+
+        //It left: we proposed a new time or a new plan, so it's our invite again.
+        if held {
+            removeInvite(id: event.id)
+            return
+        }
+
+        //It arrived: they countered, so our invite is now theirs. The profile and photo are already
+        //loaded on the invite we sent — reuse them instead of refetching.
+        if let known = sentInvites.first(where: { $0.event.id == event.id }) {
+            appendInvites([EventProfile(event: event, profile: known.profile, image: known.image)])
+        } else {
+            appendInvites(try await profileLoader.fromEvents([event]))
         }
     }
 }

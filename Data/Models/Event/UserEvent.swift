@@ -33,6 +33,7 @@ struct UserEvent: Identifiable, Codable {
     //3. Event Information
     var type: Event.EventType
     var proposedTimes: ProposedTimes
+    var proposedKind: ProposalKind?
     var acceptedTime: Date?
     var location: EventLocation
     var message: String?
@@ -43,8 +44,15 @@ struct UserEvent: Identifiable, Codable {
     var chatState: ChatState?
 
     //5. MetaData
+    //Optional, not a defaulted array: the synthesised decoder calls decode, not decodeIfPresent,
+    //so a defaulted [] throws keyNotFound on every invite written before the field existed — and
+    //streamCollection turns that into finish(throwing:), taking the whole events stream with it
+    var pastProposals: [PastEventProposal]?
     var createdAt: Date?
     var earlyTerminatorID: String? = nil
+    
+    //Nil is what an invite written before the field existed decodes to — and .original is what it was
+    var kind: ProposalKind { proposedKind ?? .original }
     
     init(otherProfile: UserProfile, role: EdgeRole, event: Event) {
         otherUserId = otherProfile.id
@@ -54,9 +62,11 @@ struct UserEvent: Identifiable, Codable {
         
         type = event.type
         proposedTimes = event.proposedTimes
+        proposedKind = event.proposedKind
         acceptedTime = event.acceptedTime
         location = event.location
         message = event.message
+        pastProposals = event.pastProposals
     }
 }
 
@@ -64,8 +74,8 @@ extension UserEvent {
     //Firestore field names (used for update/query keys to avoid typos).
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
-             type, proposedTimes, acceptedTime, location, message,
-             status, canText, createdAt, earlyTerminatorID, chatState
+             type, proposedTimes, proposedKind, acceptedTime, location, message,
+             status, canText, pastProposals, createdAt, earlyTerminatorID, chatState
     }
 
     //An expired invite stays loaded for this long, so the Expired section survives a relaunch.
@@ -73,9 +83,6 @@ extension UserEvent {
     static let daysToShowExpired: TimeInterval = 60 //The two months the Expired section reads back over
     static let expiredWindow: TimeInterval = daysToShowExpired * 24 * 60 * 60
 
-    //An invite is worth loading while the other side could still accept it, and for a window
-    //after that — sentInvites is what the Expired section reads, so dropping a passed invite
-    //here would empty that section on every launch.
     var isLiveSentInvite: Bool {
         status == .pending
         && role == .sent
@@ -88,10 +95,6 @@ extension UserEvent {
     }
 }
 
-#if DEBUG
-//Harness-only: a sent invite with a stamped document id, constructible without Firestore —
-//the pending-flight sim harness' one need. Lives here because the id's backing storage is
-//file-private. The app never calls this.
 extension UserEvent {
     init(harnessID: String, otherProfile: UserProfile, type: Event.EventType, proposedTimes: ProposedTimes, location: EventLocation, message: String?) {
         __id = DocumentID(wrappedValue: harnessID)
@@ -106,4 +109,3 @@ extension UserEvent {
         self.message = message
     }
 }
-#endif

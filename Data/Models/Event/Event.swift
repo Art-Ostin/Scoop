@@ -6,6 +6,10 @@
 import Foundation
 import FirebaseFirestore
 
+enum ProposalKind: String, Codable {
+    case original, newTime, newEvent
+}
+
 struct Event: Identifiable, Codable {
     
     enum EventStatus: String, Codable, Equatable {
@@ -29,6 +33,7 @@ struct Event: Identifiable, Codable {
     //2: Event Information
     var type: EventType
     var proposedTimes: ProposedTimes
+    var proposedKind: ProposalKind? = .original
     var acceptedTime: Date?
     var location: EventLocation
     var message: String?
@@ -39,14 +44,18 @@ struct Event: Identifiable, Codable {
     var earlyTerminatorID: String?
 
     //4. Meta data
-    var changeLog: [ChangeLogEntry] = []
+    //Optional, not a defaulted array: the synthesised decoder calls decode, not decodeIfPresent,
+    //so a defaulted [] still throws keyNotFound on every event written before the field existed
+    var pastProposals: [PastEventProposal]?
     @ServerTimestamp var date_created: Date?
+    
+    var kind: ProposalKind { proposedKind ?? .original }
+
     
     init?(draft: EventFieldsDraft, initiatorId: String, recipientId: String) {
         guard let location = draft.place else {
             return nil
         }
-
         self.initiatorId = initiatorId
         self.recipientId = recipientId
         self.type = draft.type
@@ -59,7 +68,7 @@ struct Event: Identifiable, Codable {
 extension Event {
     //Firestore field names (used for update/query keys to avoid typos).
     enum Field: String {
-        case initiatorId, recipientId, type, proposedTimes, acceptedTime, location, message, status, canText, earlyTerminatorID, changeLog, date_created
+        case initiatorId, recipientId, type, proposedTimes, proposedKind, acceptedTime, location, message, status, canText, earlyTerminatorID, pastProposals, date_created
     }
 }
 

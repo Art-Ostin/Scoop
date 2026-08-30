@@ -60,7 +60,7 @@
 		652B21D63017099000646BB0 /* ProfileCardNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D53017099000646BB0 /* ProfileCardNew.swift */; };
 		652B21D930177B2D00646BB0 /* SendInviteContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21D830177B2D00646BB0 /* SendInviteContainer.swift */; };
 		652B21DB30179BCE00646BB0 /* InviteSectionLegacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B21DA30179BCE00646BB0 /* InviteSectionLegacy.swift */; };
-		652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */; };
+		652D3D202F2E39AC00AE491D /* PastEventProposal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D1F2F2E39AC00AE491D /* PastEventProposal.swift */; };
 		652D3D292F2E942000AE491D /* ProfilesRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D282F2E942000AE491D /* ProfilesRepo.swift */; };
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
 		652D6FB02F3D022900B08F6F /* MapsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D6FAF2F3D022900B08F6F /* MapsRouter.swift */; };
@@ -377,7 +377,7 @@
 		652B21D53017099000646BB0 /* ProfileCardNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardNew.swift; sourceTree = "<group>"; };
 		652B21D830177B2D00646BB0 /* SendInviteContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInviteContainer.swift; sourceTree = "<group>"; };
 		652B21DA30179BCE00646BB0 /* InviteSectionLegacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteSectionLegacy.swift; sourceTree = "<group>"; };
-		652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLog.swift; sourceTree = "<group>"; };
+		652D3D1F2F2E39AC00AE491D /* PastEventProposal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastEventProposal.swift; sourceTree = "<group>"; };
 		652D3D282F2E942000AE491D /* ProfilesRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesRepo.swift; sourceTree = "<group>"; };
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
 		652D6FAF2F3D022900B08F6F /* MapsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapsRouter.swift; sourceTree = "<group>"; };
@@ -862,7 +862,7 @@
 				65CB2A6E3018B8920002DFCD /* EventSummary.swift */,
 				652D3D2E2F2E9A0600AE491D /* EventLocation.swift */,
 				657B8D582F2D73EE00583ADA /* ProposedTimes.swift */,
-				652D3D1F2F2E39AC00AE491D /* ChangeLog.swift */,
+				652D3D1F2F2E39AC00AE491D /* PastEventProposal.swift */,
 			);
 			path = Event;
 			sourceTree = "<group>";
@@ -2056,7 +2056,7 @@
 				65A904882F412E2200BBCAB6 /* UserEvent.swift in Sources */,
 				652B21C43016FDD200646BB0 /* TwoPageScrollView.swift in Sources */,
 				65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */,
-				652D3D202F2E39AC00AE491D /* ChangeLog.swift in Sources */,
+				652D3D202F2E39AC00AE491D /* PastEventProposal.swift in Sources */,
 				659BF8A02FF6CA5500B3E3FF /* GeneralParameters.swift in Sources */,
 				650E8E4E2EB5829E009F5454 /* ImageCell.swift in Sources */,
 				654C00932E3549EA00FFD504 /* UserProfile.swift in Sources */,

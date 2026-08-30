@@ -234,25 +234,32 @@ extension EventsRepo {
         //1.Reverse who is initiator and who is recipient
         let newInitiatorId = newTime.userId
         
-        //2: With the old and new times generate an 'update Log' data
+        //2: Retire the proposal being replaced, and encode the times replacing it
         let encodedTimes = try fs.encodeFields(newTime.newTimes)
-        let encodedChangeLog = try changeLogEntryTime(oldTimes: newTime.oldTimes, newTimes: newTime.newTimes, userUpdating: newTime.userId)
+        let retired = try fs.encodeFields(PastEventProposal(retiring: newTime.oldEvent))
+        let sentAt = Date()
         
+        //3. Construct fields to update for UserFields and Event. proposedKind and createdAt are
+        //rolling facts about the LIVE proposal — re-stamped together on every counter, so the
+        //next side to answer retires an accurate snapshot.
+        let userFields: [String : Any] = [
+            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
+            UserEvent.Field.proposedKind.rawValue: ProposalKind.newTime.rawValue,
+            UserEvent.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired]),
+            UserEvent.Field.createdAt.rawValue: sentAt
+        ]
+        var newInitiatorFields = userFields
+        newInitiatorFields[UserEvent.Field.role.rawValue] = UserEvent.EdgeRole.sent.rawValue
         
-        //3. Construct fields to update for UserFields and Event
-        let newInitiatorFields: [String : Any] = [
-            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
-            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.sent.rawValue
-        ]
-        let newRecipientFields: [String : Any] = [
-            UserEvent.Field.proposedTimes.rawValue: encodedTimes,
-            UserEvent.Field.role.rawValue: UserEvent.EdgeRole.received.rawValue
-        ]
+        var newRecipientFields = userFields
+        newRecipientFields[UserEvent.Field.role.rawValue] = UserEvent.EdgeRole.received.rawValue
+        
         let eventFields: [String : Any] = [
             Event.Field.proposedTimes.rawValue: encodedTimes,
+            Event.Field.proposedKind.rawValue: ProposalKind.newTime.rawValue,
             Event.Field.initiatorId.rawValue: newInitiatorId,
             Event.Field.recipientId.rawValue: newTime.recipientId,
-            Event.Field.changeLog.rawValue: FieldValue.arrayUnion([encodedChangeLog])
+            Event.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired])
         ]
         //4. Now with the updated Fields created, now update the event
         try await updateEvent(
@@ -270,29 +277,36 @@ extension EventsRepo {
         let newInitiatorId = eventResponse.userId
         let newRecipientId = eventResponse.otherUserId
         
-        //2. Encode proposedTimes so can be uploaded to Firebase
+        //2. Encode proposedTimes so can be uploaded to Firebase, and retire the proposal being replaced
         let encodedTimes = try fs.encodeFields(eventResponse.newTimes)
         let encodedLocation = try fs.encodeFields(eventResponse.newPlace)
+        let retired = try fs.encodeFields(PastEventProposal(retiring: eventResponse.oldEvent))
+        let sentAt = Date()
         
-        //3. Get the core fields that update for both users
         let coreFields: [String: Any] = [
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.location.rawValue: encodedLocation,
             UserEvent.Field.type.rawValue: eventResponse.newType.rawValue,
+            UserEvent.Field.message.rawValue: eventResponse.newMessage ?? NSNull(),
+            UserEvent.Field.proposedKind.rawValue: eventResponse.kind.rawValue,
+            UserEvent.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired])
         ]
         
-        //4. Update the respective fields for User
+        //4. Update the respective fields for User. createdAt is a UserEvent field only — the event
+        //doc keeps date_created for when the thread began.
         var newInitiatorFields = coreFields
         newInitiatorFields[UserEvent.Field.role.rawValue] = UserEvent.EdgeRole.sent.rawValue
+        newInitiatorFields[UserEvent.Field.createdAt.rawValue] = sentAt
         
         var newRecipientFields = coreFields
         newRecipientFields[UserEvent.Field.role.rawValue] = UserEvent.EdgeRole.received.rawValue
+        newRecipientFields[UserEvent.Field.createdAt.rawValue] = sentAt
 
-        //5. Create the change log and create the event Fields
-        let encodedChangeLog = try changeLogEntryEvent(eventResponse: eventResponse)
-        
+        //5. Re-point the event at whoever owns the live proposal. The retired one is already in
+        //coreFields: UserEvent.Field and Event.Field share the raw key, so one entry logs all three.
         var eventFields = coreFields
-        eventFields[Event.Field.changeLog.rawValue] = FieldValue.arrayUnion([encodedChangeLog])
+        eventFields[Event.Field.initiatorId.rawValue] = newInitiatorId
+        eventFields[Event.Field.recipientId.rawValue] = newRecipientId
         
         //6. Now update the status of the event.
         try await updateEvent(
@@ -329,49 +343,4 @@ extension EventsRepo {
         return(event, initiatorId, recipientId)
     }
     
-    private func changeLogEntryTime(oldTimes: ProposedTimes, newTimes: ProposedTimes, userUpdating: String) throws -> [String: Any] {
-        //1. Extract the old and New Dates
-        let oldTimes: [Date] = oldTimes.dates.map{ $0.date}
-        let newTimes: [Date] = newTimes.dates.map{ $0.date}
-
-        //2. Create the 'change Values' for log entry
-        let oldTimesChangeValue = ChangeValue.proposedTimes(oldTimes)
-        let newTimesChangeValue = ChangeValue.proposedTimes(newTimes)
-
-        //3. Create the ChangeItem (field created for updating Time)
-        let changeItem = ChangeItem(changeType: ChangeType.newTime.rawValue, oldValue: oldTimesChangeValue, newValue: newTimesChangeValue)
-        
-        //4. a. Create the ChangeLogEntry, b. encode it so it can be added to firebase c. return encoded value.
-        let changeLog = ChangeLogEntry(editedByUserId: userUpdating, changes: [changeItem])
-        return try fs.encodeFields(changeLog)
-    }
-    
-    private func changeLogEntryEvent(eventResponse: EventResponse) throws -> [String: Any] {
-        //1. Extract the old and New Dates
-        let oldTimes: [Date] = eventResponse.oldTimes.dates.map{ $0.date}
-        let newTimes: [Date] = eventResponse.newTimes.dates.map{ $0.date}
-        
-        let oldType = eventResponse.oldType.rawValue
-        let newType = eventResponse.newType.rawValue
-        
-        let oldPlace = eventResponse.oldPlace.name ?? eventResponse.oldPlace.address ?? ""
-        let newPlace = eventResponse.newPlace.name ?? eventResponse.newPlace.address ?? ""
-        
-        //2. Create the 'Change Values' for log Entry
-        let oldTimesChangeValue = ChangeValue.proposedTimes(oldTimes)
-        let newTimesChangeValue = ChangeValue.proposedTimes(newTimes)
-        let changeItemTime = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldTimesChangeValue, newValue: newTimesChangeValue)
-        
-        let oldTypeValue = ChangeValue.string(oldType)
-        let newTypeValue = ChangeValue.string(newType)
-        let changeItemType = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldTypeValue, newValue: newTypeValue)
-        
-        let oldPlaceValue = ChangeValue.string(oldPlace)
-        let newPlaceValue = ChangeValue.string(newPlace)
-        let changeItemPlace = ChangeItem(changeType: ChangeType.newEvent.rawValue, oldValue: oldPlaceValue, newValue: newPlaceValue)
-        
-        //3. From the registered changeItems, generate the change Log
-        let changeLog = ChangeLogEntry(editedByUserId: eventResponse.userId, changes: [changeItemTime, changeItemType, changeItemPlace])
-        return try fs.encodeFields(changeLog)
-    }
 }

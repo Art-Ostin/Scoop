@@ -133,9 +133,20 @@ extension Session {
         invites.append(contentsOf: profiles)
     }
 
+    func removeInvite(id: String) {
+        invites.removeAll { $0.event.id == id }
+    }
+
     func acceptInvite(eventId: String) {
         guard let i = invites.firstIndex(where: { $0.event.id == eventId }) else { return }
         events.append(invites.remove(at: i))
+    }
+
+    //The sender's half of acceptInvite: an invite we sent lives in sentInvites and has never been
+    //in invites, so the bucket it crosses out of when they accept is a different one
+    func acceptSentInvite(eventId: String) {
+        guard let i = sentInvites.firstIndex(where: { $0.event.id == eventId }) else { return }
+        events.append(sentInvites.remove(at: i))
     }
 
     func archiveEvent(eventId: String) {

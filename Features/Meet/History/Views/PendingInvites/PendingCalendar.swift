@@ -23,11 +23,6 @@ struct PendingCalendar: View {
     //TODO: the composer proposes across 11 days (DayPicker.dayCount) — share one horizon constant when the data wiring lands
     private static let dayCount = 10
 
-    //The glass face: image + glass edge. The primary lens grew past the 44pt platter circle
-    //without moving its row — the row's padding gives back exactly what the lens took — and
-    //nearly all of that growth went to the edge: a 2pt image bump under a much heavier ring.
-    //An echo (the same invite's other proposed days) is untouched, so the gap only widened:
-    //size is the ONLY differentiator (dimming already means lapsed elsewhere).
     private static let faceSize: CGFloat = 42
     private static let echoFaceSize: CGFloat = 28
     //The primary wears a deliberately heavy edge and the echo a lighter one — 5pt of rim on a
@@ -217,8 +212,9 @@ extension PendingCalendar {
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
                 .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
                 .imageShadow(hide: false)
-                .glassEffectIfAvailable(shape: Circle())
-                .clipShape(Circle()) //Clips the glass's own cast shadow — the no-shadow floor; eleven glowing circles read as noise
+                //Glass on its OWN layer, clipped there: crops the material's halo (the no-shadow floor — eleven
+                //glowing circles read as noise) without cropping the image's shadow onto the lens above it
+                .containerGlassEffect(clipped: true, shape: Circle())
                 .circleStroke(lineWidth: 2, color: isPulsed ? .accent : .clear)
                 .animation(.transition, value: isPulsed)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)
