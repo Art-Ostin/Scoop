@@ -13,28 +13,49 @@ struct PendingCalendar: View {
 
     //Injected
     let inviteDays: [InviteDay]
+    let ui: HistoryUIState //Read for the lens the flight stands on, and the dismiss pulse
+    let onSelect: (EventProfile, CGRect) -> Void //Either lens of an invite opens the same card; the tap carries its face circle in global space
 
     //Local view state
     @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal
+    @State private var faceRects = FaceRectStore() //A reference type: rects report on every scroll frame and must never invalidate the ledger
 
     //TODO: the composer proposes across 11 days (DayPicker.dayCount) — share one horizon constant when the data wiring lands
     private static let dayCount = 10
 
-    //The glass face: image + thin glass edge = the 44pt circle the toolbar platter set.
-    //An echo (the same invite's other proposed days) is the same lens at 0.7 scale — size is
-    //the ONLY differentiator (dimming already means lapsed elsewhere), so the gap stays wide.
-    private static let faceSize: CGFloat = 40
+    //The glass face: image + glass edge. The primary lens grew past the 44pt platter circle
+    //without moving its row — the row's padding gives back exactly what the lens took — and
+    //nearly all of that growth went to the edge: a 2pt image bump under a much heavier ring.
+    //An echo (the same invite's other proposed days) is untouched, so the gap only widened:
+    //size is the ONLY differentiator (dimming already means lapsed elsewhere).
+    private static let faceSize: CGFloat = 42
     private static let echoFaceSize: CGFloat = 28
-    private static let glassRing: CGFloat = 2 //Geometry: 40 + 2 + 2 = the 44pt circle
-    private static let lensFrame: CGFloat = 44 //The primary's footprint, and EVERY lens' touch circle
-    private static let echoLens = echoFaceSize + 2 * glassRing //The echo's real 32pt footprint — laid out true-size so echo-only rows sit low and the rail stays straight
-    private static let echoHitInset = (lensFrame - echoLens) / 2 //Geometry: pads the echo's touch circle back to the 44pt contract
+    //The primary wears a deliberately heavy edge and the echo a lighter one — 5pt of rim on a
+    //28pt face would read as all rim, and the echo has to stay legible as a face
+    private static let glassRing: CGFloat = 5
+    private static let echoGlassRing: CGFloat = 3
+    private static let lensFrame = faceSize + 2 * glassRing //Geometry: the primary's 52pt footprint, and EVERY lens' touch circle
+    private static let echoLens = echoFaceSize + 2 * echoGlassRing //The echo's real 34pt footprint — laid out true-size so echo-only rows sit low and the rail stays straight
+    //Geometry: pads the echo's touch circle out toward lensFrame, but never past half the gap
+    //to its neighbour — at Spacing.sm apart that lands on the 44pt minimum, and two echoes
+    //would otherwise trade taps wherever their circles overlap
+    private static let echoHitInset = min((lensFrame - echoLens) / 2, Spacing.sm / 2)
 
-    private static let facesPerLine = 4 //Four 44pt lenses is all one line holds beside its day
+    //Each tier's row height is the fixed quantity and its padding is the remainder, split top
+    //and bottom — grow either lens and its row holds, until that padding runs out.
+    private static let rowHeight: CGFloat = 76 //Geometry: the primary row as it settled — a 44pt lens + 2 × Spacing.md
+    private static let echoRowHeight: CGFloat = 56 //Geometry: the echo row as it settled — a 32pt lens + 2 × Spacing.sm
+    private static let primaryPad = (rowHeight - lensFrame) / 2 //Geometry: 12 at a 52pt lens — gives back exactly what the lens took
+    private static let echoPad = (echoRowHeight - echoLens) / 2 //Geometry: 11 at a 34pt lens
+
+    //Four lenses is all one line holds beside its day — and at 52pt it is over budget: a long
+    //label ("Wed Sep 30") renders at ~77% on a 393pt phone, and hits the 0.7 shrink floor and
+    //truncates below that. Three per line is the fix if it shows.
+    private static let facesPerLine = 4
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            HeaderRow(title: "Next 10 Days", note: acceptanceNote)
+            HeaderRow(title: "Active", note: acceptanceNote)
 
             let faces = ledger //One pass, read ten times — not rebuilt per row
             let rows = days
@@ -43,8 +64,6 @@ struct PendingCalendar: View {
                 ForEach(Array(rows.enumerated()), id: \.element) { index, day in
                     let mine = faces[day] ?? []
                     let hasNext = index + 1 < rows.count
-                    //A/B: a rule between two free days is a seam with nothing to separate —
-                    //let a quiet stretch run together. Revert to `day != days.last`.
                     let nextIsFree = hasNext && (faces[rows[index + 1]] ?? []).isEmpty
                     dayRow(day: day,
                            faces: mine,
@@ -92,8 +111,9 @@ extension PendingCalendar {
             facePile(day: day, faces: faces)
         }
         //An echo-only day is the middle tier — possible, not planned — so its row sits
-        //between the full day and the slim free day
-        .padding(.vertical, hasPrimary ? Spacing.md : Spacing.sm)
+        //between the full day and the slim free day. Both paddings are derived, each giving
+        //back exactly what its own lens took so neither tier's height moved.
+        .padding(.vertical, hasPrimary ? Self.primaryPad : Self.echoPad)
     }
 
     private func dayTitle(day: Date, lineHeight: CGFloat) -> some View {
@@ -146,7 +166,7 @@ extension PendingCalendar {
                 HStack(spacing: Spacing.sm) {
                     ForEach(line) { cell in
                         switch cell {
-                        case .face(let face): lens(face)
+                        case .face(let face): lens(face, day: day)
                         case .toggle(let hidden): overflowChip(day, hidden: hidden)
                         }
                     }
@@ -186,16 +206,26 @@ extension PendingCalendar {
         return out
     }
 
-    private func lens(_ face: Face) -> some View {
-        Button {
-            //TODO: present the invite popup when the tap-to-open wiring lands
+    private func lens(_ face: Face, day: Date) -> some View {
+        let lensID = "\(face.invite.id)#\(Int(day.timeIntervalSinceReferenceDate))"
+        let isPulsed = ui.pulsedInvite == face.invite.id
+
+        return Button {
+            onSelect(face.invite, faceRects.rects[lensID] ?? .zero)
         } label: {
             SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
-                .padding(Self.glassRing)
+                //The FACE circle, not the glassed lens: the flight cover mounts on exactly
+                //these pixels, so its photo must match the face — the glass rim stays put
+                //beneath and the growing cover swallows it a frame later
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
+                .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
                 .glassEffectIfAvailable(shape: Circle())
                 .clipShape(Circle()) //Clips the glass's own cast shadow — the no-shadow floor; eleven glowing circles read as noise
-                //The echo lays out at its real 32pt but keeps the 44pt touch circle: pad out,
-                //take the shape, pad back — the reach stays without growing the row
+                //Every lens of the closed invite rings together — "these circles are one invite",
+                //taught in a glance. 2pt, not the selection ring's 1.5: a one-beat pulse has to
+                //land where a persistent ring can whisper
+                .circleStroke(lineWidth: 2, color: isPulsed ? .accent : .clear)
+                .animation(.transition, value: isPulsed)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)
                 .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
                 .padding(face.isFirst ? 0 : -Self.echoHitInset)
@@ -235,4 +265,10 @@ extension PendingCalendar {
             if openDays.contains(day) { openDays.remove(day) } else { openDays.insert(day) }
         }
     }
+}
+
+//Rects report continuously as the ledger scrolls; a plain reference type keeps those writes
+//out of SwiftUI's invalidation entirely — the tap just reads the latest
+private final class FaceRectStore {
+    var rects: [String: CGRect] = [:]
 }

@@ -115,8 +115,10 @@ struct InviteCarousel: View {
 
     //Injected Properties
     let images: [UIImage]
-    let isCompact: Bool
-    let blursBottom: Bool
+    let ratio: CGFloat
+
+    ///Softens the artwork's bottom, for a caller that lays type over it
+    var blursBottom: Bool = false
 
     //The invite flight frames this carousel itself; aspect sizing would fight the animated frame
     var fillsFrame: Bool = false
@@ -125,10 +127,6 @@ struct InviteCarousel: View {
     var position: Binding<ScrollPosition>? = nil
 
     @Binding var scrollProgress: Double
-
-    private var ratio: CGFloat {
-        (isCompact ? AspectRatio.confirmInviteImage : .invitedImage).ratio
-    }
 
     @ViewBuilder
     var body: some View {

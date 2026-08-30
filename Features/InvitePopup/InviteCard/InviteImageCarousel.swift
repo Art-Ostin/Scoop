@@ -127,10 +127,15 @@ struct InviteImageCarousel: View {
     private var progressBinding: Binding<Double> { scrollProgress ?? $internalScrollProgress }
     private var progress: Double { progressBinding.wrappedValue }
 
+    //The invite's own page shape — the carousel is shared, so this screen names its ratio
+    private var pagerRatio: CGFloat {
+        (chrome.compactImage ? AspectRatio.confirmInviteImage : .invitedImage).ratio
+    }
+
     var body: some View {
         ZStack {
             if showsPager {
-                InviteCarousel(images: images, isCompact: chrome.compactImage, blursBottom: screen.blursBottom, fillsFrame: fillsFrame, position: pagerPosition, scrollProgress: progressBinding)
+                InviteCarousel(images: images, ratio: pagerRatio, blursBottom: screen.blursBottom, fillsFrame: fillsFrame, position: pagerPosition, scrollProgress: progressBinding)
                     .opacity(pagerFade)
                     .allowsHitTesting(pagerInteractive)
                     .scrollDisabled(!pagerInteractive) //Hit-testing alone doesn't stop a pan the scroll view is already tracking — the dismiss drag must truly own the gesture

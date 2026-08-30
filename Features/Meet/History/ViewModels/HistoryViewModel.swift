@@ -28,10 +28,6 @@ final class HistoryViewModel {
         session.sentInvites
     }
     
-    //Every invite still awaiting a reply, one row each — an invite proposing three days is one
-    //invite, and the days it offered are spelled out in the row it opens. Soonest acceptable
-    //day first, the order the day sections used to give them. The exact complement of
-    //expiredInvites: an invite with no acceptable time left is what isExpired reports.
     var activeInvites: [EventProfile] {
         let now = Date()
 
@@ -44,9 +40,6 @@ final class HistoryViewModel {
             .map(\.invite)
     }
     
-    //Most recently lapsed first: sentInvites arrives in profile-load order, which is whichever
-    //fetch finished first and reshuffles every launch — the section reads back two months, so
-    //an arbitrary order reads as a list with things missing from it.
     var expiredInvites: [EventProfile] {
         let now = Date()
 
@@ -57,10 +50,6 @@ final class HistoryViewModel {
     
     
     
-    //The same live invites bucketed by the days they propose — one row per day, not per invite:
-    //an invite offering three days appears under all three. Built off activeInvites so the
-    //calendar and the list beneath it split on the one acceptableTimes predicate; a day can
-    //never show here whose invite the section below calls expired.
     var invitedDays: [InviteDay] {
         let calendar = Calendar.current
         let now = Date()
@@ -74,13 +63,9 @@ final class HistoryViewModel {
                 byDay[day, default: []].append((time.date, invite))
             }
         }
-
         return byDay
             .map { day, entries in
-                //The proposed hour orders within its day; a dictionary has no order of its own,
-                //so without the outer sort the list reshuffles on every read.
                 let ordered = entries.sorted { $0.time < $1.time }.map(\.invite)
-                //Two acceptable times on one day are still one invite — one face, not twin ids
                 var seen = Set<String>()
                 return InviteDay(day: day, invites: ordered.filter { seen.insert($0.id).inserted })
             }
@@ -96,11 +81,16 @@ final class HistoryViewModel {
     func loadProfileImages(_ profile: UserProfile) async {
         profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
     }
+
+    //The invite's own card image stands in until that profile's full set has loaded, so a
+    //detail opened the instant the page appears never shows an empty pager
+    func images(for invite: EventProfile) -> [UIImage] {
+        let loaded = profileImages[invite.profile.id] ?? []
+        return loaded.isEmpty ? invite.image.map { [$0] } ?? [] : loaded
+    }
 }
 
 
-//One row of the calendar: a day, and everyone you invited on it. Just the profiles — the
-//hour they were invited at already ordered them, and the row shows faces, not times.
 struct InviteDay: Identifiable {
     let day: Date //Start of day — the bucket key and the row's label
     let invites: [EventProfile]
@@ -113,19 +103,20 @@ struct InviteDay: Identifiable {
 final class HistoryUIState {
     var pagerProgress: Double = 0
 
-    //The pending invite the top card is showing, named by its invite id — held here so the
-    //calendar's faces and the card they drive stay pointed at the same invite across paging.
+    ///The invite whose detail card is open over the page — nil when the ledger is at rest
+    var selectedPending: EventProfile?
+
+    ///The tapped lens' face circle in global space — the flight's home, captured at the tap
+    var pendingSource: CGRect = .zero
+
+    ///The invite whose lenses ring together after its card closes — the echo's teaching beat
+    var pulsedInvite: String?
+
     var expandedInvite: String?
 
-    //The one expired card showing its detail — its own id, separate from the selection above,
-    //so opening an archive row can never strand the top card empty.
     var expandedExpired: String?
 
-    //Shut on arrival: these invites have already been seen once. Held here rather than in the
-    //view so the container, which owns the scroll, can follow the reveal down it.
     var showsExpired = false
 
-    //Indexed by page, not named by content: the underline reads position 0 → position 1, so
-    //reordering the pager means reordering the icons and nothing else.
     var pageIconFrames: [CGRect] = [.zero, .zero]
 }

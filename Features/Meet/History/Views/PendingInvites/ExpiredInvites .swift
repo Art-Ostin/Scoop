@@ -37,8 +37,8 @@ extension ExpiredInvites {
         } label: {
             HStack {
                 Text("Unanswered Invites")
-                    .font(.body(18, .bold))
-                    .foregroundStyle(Color.textPrimary)
+                    .font(.headline)              // SF Pro 17pt semibold
+                    .foregroundStyle(.secondary)
                 
                 Spacer()
                 expiredChevron

@@ -19,6 +19,18 @@ struct RootView : View {
     @State private var showSignUpSheet = false
 
     var body: some View {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-uiHarnessPendingFlight") {
+            PendingFlightHarness() //Capture rig for the ledger lens → detail card flight
+        } else {
+            appBody
+        }
+        #else
+        appBody
+        #endif
+    }
+
+    private var appBody: some View {
         Group {
             switch dep.session.appState {
             case .booting: BootingScreen()

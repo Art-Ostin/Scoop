@@ -87,3 +87,23 @@ extension UserEvent {
         return MessagePopup(eventId: id, image: otherUserPhoto, authorName: otherUserName, message: preview)
     }
 }
+
+#if DEBUG
+//Harness-only: a sent invite with a stamped document id, constructible without Firestore —
+//the pending-flight sim harness' one need. Lives here because the id's backing storage is
+//file-private. The app never calls this.
+extension UserEvent {
+    init(harnessID: String, otherProfile: UserProfile, type: Event.EventType, proposedTimes: ProposedTimes, location: EventLocation, message: String?) {
+        __id = DocumentID(wrappedValue: harnessID)
+        otherUserId = otherProfile.id
+        otherUserName = otherProfile.name
+        otherUserPhoto = ""
+        role = .sent
+        self.type = type
+        self.proposedTimes = proposedTimes
+        acceptedTime = nil
+        self.location = location
+        self.message = message
+    }
+}
+#endif

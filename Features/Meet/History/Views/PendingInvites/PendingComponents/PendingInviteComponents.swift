@@ -122,8 +122,11 @@ struct HeaderRow: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: Spacing.xs) {
                 Text(title)
-                    .font(.body(18, .bold))
-                    .foregroundStyle(Color.textPrimary)
+                    .font(.headline)              // SF Pro 17pt semibold
+                    .foregroundStyle(.secondary)
+                
+//                    .font(.body(18, .bold))
+//                    .foregroundStyle(Color.textPrimary)
 
                 Spacer(minLength: 0)
 
