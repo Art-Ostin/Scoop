@@ -32,4 +32,4 @@ def add_profile_recommendations(user_id, profile_id):
 #Manually adding all the profiles to the user's recommendation. At the moment copy and pasted user id from firebase to choose 'which profile' to add recs to
 for profile_id in ids_to_add:
     print("Starting…")
-    add_profile_recommendations("mUPbejmV2ogGuifKDKB6JTVdYtD3", profile_id)
+    add_profile_recommendations("pqM0nDjeqmSL5hjPvzlEmZiKAUJ2", profile_id)

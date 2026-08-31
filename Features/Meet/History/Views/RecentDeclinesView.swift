@@ -77,8 +77,6 @@ struct HistoryCard: View {
             .task(id: image) {
                 palette = await PopupColorExtractor.shared.extractPalette(image, id: decline.id)
             }
-            //windDismiss: a flick rides its own momentum through one continuous
-            //wind-blown arc into the grid cell — no dive-then-spring second beat
             .zoomTransition(images: heroImages, windDismiss: true) {
                 chrome
             } content: {

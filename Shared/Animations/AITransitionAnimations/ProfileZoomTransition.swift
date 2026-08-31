@@ -1461,13 +1461,21 @@ enum DragTuning {
     /// 25% on the same feedback round).
     static let windDiveTimeGentle: TimeInterval = 0.10
     static let windDiveTimeHard: TimeInterval = 0.26
-    /// The ride's compression band: the raw v·t/2 depth passes through the
-    /// asymptotic rubber band (slope 1 at zero, saturating here), so soft
-    /// flicks keep their honest ride EXACTLY while harder ones give up
-    /// progressively more — the linear map read as touchy at the top end
-    /// (device feel, 2026-08-31). The ride time re-derives from the banded
-    /// depth, so the launch stays velocity-matched.
-    static let windRideBand: CGFloat = 340
+    /// The ride's rounding: the honest v·t/2 depth passes through the
+    /// p-norm curve d/(1+(d/ceiling)^p)^(1/p). The high steepness keeps
+    /// it WITHIN ~3% of honest below 150pt — the region Arthur approved
+    /// as-is on the graph — then rounds visibly through ~200 and
+    /// flattens toward the ceiling. The ride time re-derives from the
+    /// rounded depth, so the launch stays velocity-matched.
+    static let windRideCeiling: CGFloat = 260
+    static let windRideSteepness: CGFloat = 4
+
+    static func windRideCompress(_ d: CGFloat) -> CGFloat {
+        guard d > 0 else { return 0 }
+        let p = windRideSteepness
+        return d / pow(1 + pow(d / windRideCeiling, p), 1 / p)
+    }
+
     /// The dive's stage bound: at least this much of the card's TOP stays
     /// on screen at the vertex — the throw may carry the rest off the
     /// bottom edge, exactly as a deep finger drag already does. (The v2
@@ -3932,11 +3940,10 @@ final class MorphDismissController: NSObject {
         var tv = (DragTuning.windDiveTimeGentle
             + (DragTuning.windDiveTimeHard - DragTuning.windDiveTimeGentle)
             * TimeInterval(f)) * dismissDurationScale
-        // Banded, then re-timed: hard flicks compress toward windRideBand
-        // while the parabola stays velocity-matched at the finger's pace.
-        var depth = DragTuning.rubberBand(wind.v0 * CGFloat(tv) / 2,
-                                          limit: DragTuning.windRideBand,
-                                          response: 1)
+        // Honest below, rounded above: the late-knee curve leaves the
+        // approved region untouched and re-times the ride so the launch
+        // stays velocity-matched.
+        var depth = DragTuning.windRideCompress(wind.v0 * CGFloat(tv) / 2)
         if depth > 1 { tv = TimeInterval(2 * depth / wind.v0) }
         // The regimes meet at the designed overshoot: a ride ending deeper
         // than it IS the story (dive); shallower, the carry's push-through

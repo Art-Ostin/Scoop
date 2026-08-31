@@ -32,10 +32,11 @@ struct SelectedPendingEvent: View {
     @State private var landed = false
     @State private var closing = false
     @State private var hasOpened = false
-    @State private var dragOffset: CGFloat = 0 //Raw finger travel; the card rides it rubber-banded
+    @State private var dragOffset: CGSize = .zero //Raw finger travel, BOTH axes; the card rides it rubber-banded (the profile dismiss's follow)
     @State private var chromeMix: CGFloat = 0 //The close's fold gate — snapped to 1 at close start; the fold's motion derives from the flight's p
     @State private var landingScale: CGFloat = 1 //The close's landing breath — compress into touchdown, rebound past rest, settle
     @State private var closeDive: CGFloat = 0 //How far the close's path bellies downward — fed by the release velocity
+    @State private var closeDrift: CGFloat = 0 //The belly's sideways component — signed with the flick's horizontal direction, wind-style
     @State private var cardRect: CGRect = .zero //The card's frame, global — the flight's far end
     @State private var destRect: CGRect = .zero //The pager's frame, global — the photo's landing band
 
@@ -49,7 +50,11 @@ struct SelectedPendingEvent: View {
 
                 backButton
             }
-            .offset(y: rubberBanded(dragOffset))
+            //Both axes follow the finger (the profile/wind dismiss's model): vertical scrubs
+            //the fold and commits; horizontal just tracks, banded harder — same constants as
+            //the invite popup's ghostModel, both ported from DragTuning
+            .offset(x: DragTuning.rubberBand(dragOffset.width, limit: 160, response: 0.8),
+                    y: rubberBanded(dragOffset.height))
             .simultaneousGesture(dismissDrag) //As the invite popup attaches its own — the pager still sees horizontals
         }
         .task { await prepareImages() } //Decodes ride the flight off-main, so the land never hitches
@@ -142,7 +147,7 @@ extension SelectedPendingEvent {
         }
     }
 
-    private func close(velocity: CGFloat = 0) {
+    private func close(velocity: CGFloat = 0, sideVelocity: CGFloat = 0) {
         guard !closing else { return }
         closing = true
 
@@ -165,10 +170,14 @@ extension SelectedPendingEvent {
         //downward in the release's direction before it curves for home — one continuous
         //arc, never a straight line reversed
         closeDive = velocity > 0 ? min(60 + velocity / 6, 220) : 0 //Steepened 2026-08-31: a fast swipe should visibly carry the card further down before it curves home
+        closeDrift = velocity > 0 ? max(min(sideVelocity / 6, 180), -180) : 0 //Signed: the path bends toward the flick, the wind dismiss's read
 
-        let duration = (velocity > 0 ? 0.5 : 0.36) * Self.timeScale
+        //A harder flick earns MORE time, not less: the carry deepens with velocity, and the
+        //longer carry-and-return arc must stay legible (device feel, 2026-08-31)
+        let flick01 = min(max((velocity - 300) / 1700, 0), 1)
+        let duration = (velocity > 0 ? 0.5 + 0.15 * flick01 : 0.36) * Self.timeScale
         let flight: Animation = velocity > 0
-            ? .spring(duration: 0.5 * Self.timeScale, bounce: 0.06)
+            ? .spring(duration: duration, bounce: 0.06)
             : Self.closeFlight
 
         withAnimation(flight) { flightP = 0 }
@@ -201,7 +210,7 @@ extension SelectedPendingEvent {
 extension SelectedPendingEvent {
 
     private var dragProgress: Double {
-        min(max(rubberBanded(dragOffset) / 300, 0), 1)
+        min(max(rubberBanded(dragOffset.height) / 300, 0), 1)
     }
 
     private func rubberBanded(_ dy: CGFloat) -> CGFloat {
@@ -215,21 +224,21 @@ extension SelectedPendingEvent {
             .onChanged { value in
                 guard landed, !closing else { return }
                 //First movement picks the owner: verticals engage the dismiss, horizontals
-                //belong to the pager — the invite popup's axis split
-                if dragOffset == 0, abs(value.translation.height) <= abs(value.translation.width) { return }
-                dragOffset = value.translation.height
+                //belong to the pager — the invite popup's axis split. Once owned, BOTH axes track
+                if dragOffset == .zero, abs(value.translation.height) <= abs(value.translation.width) { return }
+                dragOffset = CGSize(width: value.translation.width, height: value.translation.height)
             }
             .onEnded { value in
-                guard landed, !closing, dragOffset != 0 else { dragOffset = 0; return }
+                guard landed, !closing, dragOffset != .zero else { dragOffset = .zero; return }
 
                 let flick = value.predictedEndTranslation.height - value.translation.height
-                if rubberBanded(dragOffset) > 90 || flick > 90 {
-                    close(velocity: max(value.velocity.height, 0))
+                if rubberBanded(dragOffset.height) > 90 || flick > 90 {
+                    close(velocity: max(value.velocity.height, 0), sideVelocity: value.velocity.width)
                 } else {
                     //The invite card's snap-back: an overshooting spring fed the release speed
-                    let speed = min(max(-value.velocity.height, 0) / max(abs(rubberBanded(dragOffset)), 1), 8)
+                    let speed = min(max(-value.velocity.height, 0) / max(abs(rubberBanded(dragOffset.height)), 1), 8)
                     withAnimation(.interpolatingSpring(Spring(duration: 0.3, bounce: 0.2), initialVelocity: speed)) {
-                        dragOffset = 0
+                        dragOffset = .zero
                     }
                 }
             }
@@ -252,8 +261,9 @@ extension SelectedPendingEvent {
             p: flightP,
             chromeMix: chromeMix,
             landingScale: landingScale,
-            dragTravel: dragOffset,
+            dragTravel: dragOffset.height,
             dive: closeDive,
+            drift: closeDrift,
             source: sourceRect,
             card: cardRect,
             pager: destRect,
@@ -284,7 +294,7 @@ extension SelectedPendingEvent {
                                    blursBottom: true,
                                    scrollProgress: $scrollProgress)
                         .overlay(alignment: .bottomLeading) { profileName }
-                        .scrollDisabled(dragOffset != 0) //An engaged dismiss drag freezes the pager's own axis
+                        .scrollDisabled(dragOffset != .zero) //An engaged dismiss drag freezes the pager's own axis
                 }
             }
             //The photo's landing band — measured before the flight leaves the lens
@@ -432,6 +442,7 @@ private struct PendingFlightMorph: ViewModifier, Animatable {
     var landingScale: CGFloat //The close's landing breath, applied about the cover's centre
     var dragTravel: CGFloat //The dismiss drag's raw descent — scrubs the fold 1:1 with the finger, and animates home with the snap-back spring
     let dive: CGFloat //The close path's downward belly — the flick's direction, carried by geometry
+    let drift: CGFloat //The belly's sideways component — signed with the flick's horizontal velocity, same shape as the dive
     let source: CGRect //The lens circle, global
     let card: CGRect //The card's resting frame, global (drag included — it reports live)
     let pager: CGRect //The pager band, global
@@ -459,12 +470,14 @@ private struct PendingFlightMorph: ViewModifier, Animatable {
         let pagerLocal = pager.offsetBy(dx: -card.minX, dy: -card.minY)
 
         //The flick's continuation: zero at both ends, peaking early on the way home, its
-        //start tangent pointing down the release direction — the arc is one smooth curve
+        //start tangent pointing down the release DIRECTION — both axes, so a sideways flick
+        //bends the whole arc its way (the wind dismiss's read) — one smooth curve
         let bellyY = dive * 6.75 * p * p * (1 - p)
+        let bellyX = drift * 6.75 * p * p * (1 - p)
 
         //max(…, 0): the close's landing overshoot extrapolates p below 0 — the dip under the
         //lens' size is the point — and the radii must not follow the size into the negatives
-        let cover = lerp(sourceLocal, pagerLocal, p).offsetBy(dx: 0, dy: bellyY)
+        let cover = lerp(sourceLocal, pagerLocal, p).offsetBy(dx: bellyX, dy: bellyY)
         let coverCircle = max(min(cover.width, cover.height) / 2, 0)
 
         //The fold: the window collapses onto the photo alone — the white rows wiped up into
@@ -476,7 +489,7 @@ private struct PendingFlightMorph: ViewModifier, Animatable {
         //rows provably lead the flight home and a mid-fold release never jumps.
         let dragFold = min(max(dragTravel / InviteDragTuning.collapseDistance, 0), 1)
         let fold = max(chromeMix * smoothstep((1 - p) / 0.4), dragFold)
-        let window = lerp(lerp(sourceLocal, bounds, p).offsetBy(dx: 0, dy: bellyY), cover, fold)
+        let window = lerp(lerp(sourceLocal, bounds, p).offsetBy(dx: bellyX, dy: bellyY), cover, fold)
         let windowRadius = max(lerp(min(window.width, window.height) / 2, CornerRadius.image, p), 0)
 
         content

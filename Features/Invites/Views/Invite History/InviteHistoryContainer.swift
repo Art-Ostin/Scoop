@@ -69,11 +69,6 @@ extension InviteHistoryContainer {
     
     private func titleRow(for proposal: PastEventProposal, isActiveRow: Bool) -> some View {
         HStack(spacing: Spacing.xs) {
-            //Optional all the way down: the user's own face lands asynchronously and must never gate the row
-            if let image = profileImage(for: proposal) {
-                SmallImage(image: image, size: avatarSize, isCircle: true)
-            }
-
             Text(senderName(for: proposal))
                 .font(.title(17, .bold))
                 .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
@@ -155,6 +150,15 @@ extension InviteHistoryContainer {
             dismiss()
         } label: {
             Image(systemName: "xmark")
+        }
+    }
+    
+    private func messageSection(proposal: PastEventProposal) -> some View {
+        HStack {
+            //Optional all the way down: the user's own face lands asynchronously and must never gate the row
+            if let image = profileImage(for: proposal) {
+                SmallImage(image: image, size: avatarSize, isCircle: true)
+            }            
         }
     }
 }
