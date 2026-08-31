@@ -144,6 +144,11 @@ struct RespondInviteContainer: View {
 
     private var inviteSummary: InviteSummary { InviteSummary(event: vm.respondDraft.originalInvite.event) }
 
+    //What the resting card's time row actually says: its one named day. Identical to the popup's
+    //string until the draft moves off the preselected day (or onto .newTime) — both start at
+    //firstAvailableDate — so the time hero stays a single flying Text in the common case.
+    private var cardTimeText: String { inviteSummary.time.formatFirstInvitedDay() }
+
     var body: some View {
         ZStack {
             backdrop
@@ -494,11 +499,12 @@ extension RespondInviteContainer {
                               y: titleRect.minY + SourceCardLayout.chipOffsetY,
                               width: chipW, height: SourceCardLayout.chipHeight)
 
-        //Fallback trailing edge: icon column + gap + the text at 20pt + the chevron's berth
-        let timeTextW = (DynamicTimeRow.text(for: vm.respondDraft) as NSString)
+        //Fallback trailing edge: icon column + gap + the CARD's own line at 20pt. No chevron
+        //berth — the card's row is plain now, and the flying chevron fades up on the way in.
+        let timeTextW = (cardTimeText as NSString)
             .size(withAttributes: [.font: UIFont.body(20, .medium), .kern: 0.1]).width
         var anchors = SourceAnchors(timeCenter: CGPoint(x: left, y: timeCenterY),
-                                    timeMaxX: left + 20 + Spacing.xs + timeTextW + Spacing.xs + 10,
+                                    timeMaxX: left + 20 + Spacing.xs + timeTextW,
                                     placeCenter: CGPoint(x: left, y: placeCenterY),
                                     titleRect: titleRect,
                                     chipRect: chipRect)
@@ -637,6 +643,7 @@ extension RespondInviteContainer {
                         sourceLeading: anchors.timeCenter, sourceMaxX: anchors.timeMaxX,
                         dest: timeRowDest,
                         cardIcon: .whiteClock, popupIcon: .eventClockIcon,
+                        sourceText: cardTimeText,
                         text: DynamicTimeRow.text(for: vm.respondDraft), hasChevron: true)
         }
     }
@@ -713,8 +720,12 @@ extension RespondInviteContainer {
     //device screenshot 2026-08-20):
     //  · ONE Text, colour-mixed on the flight scalar (card tint → textPrimary) and
     //    scale-morphed 20 → 19pt (same typeface at both ends), sliding its own anchor as the
-    //    icon gap goes 8 → 12
-    //  · ONE chevron, trailing-anchored between the two rows' measured trailing edges
+    //    icon gap goes 8 → 12. When the two ends say different WORDS (a multi-day invite, or a
+    //    draft that has moved off the sender's times) a second Text cross-fades with it at the
+    //    SAME leading anchor — one position, like the icon slot below, never two
+    //  · ONE chevron, trailing-anchored between the two rows' trailing edges, fading up as the
+    //    flight lands: the card's row is a plain line, so the chevron is the popup's affordance
+    //    arriving rather than a mark that exists at both ends
     //  · one icon slot, where the card's template glyph dissolves into the popup's drawn art
     //    in place — a material change at a single position, never two positions
     //Everything is linear in closeP, so the springs and the gesture driver all scrub it.
@@ -722,6 +733,7 @@ extension RespondInviteContainer {
                              sourceLeading: CGPoint, sourceMaxX: CGFloat,
                              dest: CGRect,
                              cardIcon: ImageResource, popupIcon: ImageResource,
+                             sourceText: String? = nil,
                              text: String, hasChevron: Bool) -> some View {
         //First frames only: until the destination row reports, the hero holds the card
         let destLeading = dest.width > 1 ? CGPoint(x: dest.minX, y: dest.midY) : sourceLeading
@@ -731,6 +743,18 @@ extension RespondInviteContainer {
                                       y: lerp(destLeading.y, sourceLeading.y, closeP)), origin)
         let textInset = lerp(20 + Spacing.sm, 20 + Spacing.xs, closeP) //Icon column + the row gap, 8 on the card → 12 landed
         let tint = cardPalette.secondaryText.mix(with: .textPrimary, by: min(max(Double(t), 0), 1))
+        //Only when the two ends differ; equal strings keep the single flying Text
+        let cardText = sourceText == text ? nil : sourceText
+
+        func rowText(_ string: String) -> some View {
+            Text(string)
+                .font(.body(20, .medium))
+                .kerning(0.1)
+                .foregroundStyle(tint)
+                .lineLimit(1)
+                .fixedSize()
+                .scaleEffect(lerp(1, 19.0 / 20.0, t), anchor: .leading)
+        }
 
         return ZStack {
             ZStack(alignment: .leading) {
@@ -745,20 +769,22 @@ extension RespondInviteContainer {
             .frame(width: 0, height: 0, alignment: .leading)
             .position(iconPoint)
 
-            Text(text)
-                .font(.body(20, .medium))
-                .kerning(0.1)
-                .foregroundStyle(tint)
-                .lineLimit(1)
-                .fixedSize()
-                .scaleEffect(lerp(1, 19.0 / 20.0, t), anchor: .leading)
-                .frame(width: 0, height: 0, alignment: .leading)
-                .position(x: iconPoint.x + textInset, y: iconPoint.y)
+            ZStack(alignment: .leading) {
+                rowText(text)
+                    .opacity(cardText == nil ? 1 : Double(1 - closeP))
+                if let cardText {
+                    rowText(cardText)
+                        .opacity(Double(closeP))
+                }
+            }
+            .frame(width: 0, height: 0, alignment: .leading)
+            .position(x: iconPoint.x + textInset, y: iconPoint.y)
 
             if hasChevron {
                 Image(systemName: "chevron.right")
                     .font(.body(12, .bold))
                     .foregroundStyle(tint)
+                    .opacity(Double(1 - closeP)) //The card has none to hand over — it arrives with the popup
                     .frame(width: 0, height: 0, alignment: .trailing)
                     .position(x: lerp(destMaxX, sourceMaxX, closeP) - origin.x,
                               y: iconPoint.y - 2) //Geometry: the row's chevron rides 2pt high
@@ -1037,7 +1063,9 @@ extension RespondInviteContainer {
 
     private func beginDrag() {
         dragging = true
-        snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) } //Kill an in-flight flick; frames are frozen from here
+        if images.indices.contains(currentPage) { //An empty gallery clamps currentPage to -1
+            snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) } //Kill an in-flight flick; frames are frozen from here
+        }
     }
 
     private func dragModel(for t: CGSize) -> (progress: CGFloat, offset: CGSize) {
@@ -1576,7 +1604,7 @@ extension RespondInviteContainer {
         let responseType: ProfileResponse = switch vm.respondDraft.respondType {
         case .originalInvite: .accepted
         case .newTime: .newTime
-        case .newEvent: .accepted
+        case .newEvent: .newInvite
         }
 
         let isDimmed: Bool = timeAndPlaceUI.isPopupOpenDelayed()

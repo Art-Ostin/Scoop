@@ -50,6 +50,11 @@ final class TaskBag {
     //Session state
     var appState: AppState = .booting
     private(set) var sessionUser: UserProfile?
+    //The user the last session ran with. SwiftUI re-runs a dying subtree's builders inside the very
+    //transaction that stopSession() nils `sessionUser` — a fullScreenCover rebuilds its ViewModel
+    //there — so `user` has to still answer for that final frame. Observation-ignored on purpose:
+    //it is teardown ballast, never something a view should re-render on.
+    @ObservationIgnored private var lastSessionUser: UserProfile?
     var profilesHaveLoaded: Bool = false
     
     var profiles: [PendingProfile] = []
@@ -64,8 +69,8 @@ final class TaskBag {
     var activeChatEventId: String?
 
     var user: UserProfile {
-        guard let sessionUser else { fatalError("Session not started") }
-        return sessionUser
+        guard let user = sessionUser ?? lastSessionUser else { fatalError("Session not started") }
+        return user
     }
 
     init(
@@ -94,6 +99,7 @@ final class TaskBag {
 extension Session {
 
     func setSessionUser(_ user: UserProfile?) {
+        if let user { lastSessionUser = user }
         sessionUser = user
     }
 

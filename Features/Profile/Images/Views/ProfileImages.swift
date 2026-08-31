@@ -57,8 +57,12 @@ extension ProfileImages {
             topTrailing:    firstRow && lastColumn  ? outerCorner : inner)
     }
 
+    //The grid is always `photoCount` slots, but `vm.images` carries only the photos that
+    //resolved — ImageLoader compactMaps away every path that is missing or fails to fetch, so
+    //an account with a gap in its gallery hands us a short array. Empty slots wear the
+    //placeholder, exactly as they do before the load lands.
     private func photoCell(_ index: Int) -> some View {
-        let image = vm.images[index]
+        let image = vm.images.indices.contains(index) ? vm.images[index] : EditProfileViewModel.placeholder
         return ProfilePhoto(image: image, corners: corners(for: index))
             .zoomTransition(
                 images: [image],

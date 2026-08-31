@@ -38,15 +38,7 @@ extension SettingsContainer {
                 .font(.body(15, .bold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 40, alignment: .center)
-                .onTapGesture {
-
-                    vm.session.appState = .login
-
-                    //Fixes crash -> only sign user out when on login screen, as if not userProfile crashes app.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        vm.signOut()
-                    }
-                }
+                .onTapGesture { vm.signOut() }
             softDivider
                 .padding(.trailing)
             

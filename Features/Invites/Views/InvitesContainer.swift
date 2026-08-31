@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import os
+
+private let invitesLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Scoop", category: "invites")
 
 struct InvitesContainer: View {
     
@@ -16,6 +19,7 @@ struct InvitesContainer: View {
 
     //Local view state
     @State private var ui = InvitesUIState()
+    
 
     @State var scrollProgress: Double = 0
 
@@ -41,6 +45,9 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea()
         .background { TimePickerWarmUp() }
+        .sheet(item: $ui.showInviteHistory) { eventProfile in
+            InviteHistoryContainer(vm: vm, eventProfile: eventProfile)
+        }
     }
 }
 
@@ -54,7 +61,8 @@ extension InvitesContainer {
             cardInset: cardInset,
             onRespond: { respond(invite, $0) },
             draft: vm.draftBinding(for: invite),
-            openInvite: $ui.showQuickResponse
+            openInvite: $ui.showQuickResponse,
+            showInviteHistory: $ui.showInviteHistory
         )
         .containerRelativeFrame(.horizontal)
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
@@ -90,6 +98,7 @@ extension InvitesContainer {
             responded = true
         } catch {
             responded = false // TODO: surface the failure once InAppNotification grows an error case
+            invitesLog.error("Respond \(String(describing: respondType)) failed for event \(eventId): \(String(describing: error))")
         }
 
         if respondType == .accepted && responded {
@@ -101,3 +110,4 @@ extension InvitesContainer {
         responseCover?.close(cover)
     }
 }
+

@@ -27,10 +27,12 @@ public enum FormatEvent {
         return withHour ? "\(dayPart) · \(hour)" : dayPart
     }
     
+    static func dayMonthTime(_ date: Date) -> String {
+        let day = date.formatted(.dateTime.day().month(.wide))
+        let time = date.formatted(date: .omitted, time: .shortened)
+        return "\(day) \(time)"
+    }
     
-    //withMonth: false drops to the bare day, so a list can carry one shared month — "Wed 5, Sun 9 or Mon 10 Aug"
-    //withToday: names the next two days instead of dating them, the way dayAndTime always does.
-    //Off by default — a list of dates reads as a set, and one relative name among them breaks the run.
     static func shortDayAndTime(_ date: Date, withHour: Bool = true, withMonth: Bool = true, withToday: Bool = false) -> String {
         let cal = Calendar.current
         let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
@@ -112,3 +114,4 @@ public enum FormatEvent {
         }
     }
 }
+

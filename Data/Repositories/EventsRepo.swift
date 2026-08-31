@@ -80,8 +80,6 @@ class EventsRepo: EventsRepository {
         return fs.streamCollection(userEventsPath) {$0.whereField(Event.Field.status.rawValue, in: statuses)}
     }
     
-    //Streams MessagePopup events for incoming messages from the other user.
-    //Filters out doc updates where chatState didn't change (status/location/etc. edits don't trigger a popup).
     func eventMessageTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<MessagePopup>, Error> {
         let userEventPath = "users/\(userId)/user_events"
         let source: AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error> = fs.streamCollection(userEventPath) {

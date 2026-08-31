@@ -45,9 +45,17 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
 struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
     let style: ConfirmStyle
-    
+    ///The invite card names one day; a confirm page reviews the whole set, so it lists them all
+    var namesOneDay: Bool = false
+
+    private var text: String {
+        namesOneDay ? proposedTimes.formatFirstInvitedDay() : proposedTimes.formatMultipleInvitedDays()
+    }
+
     var body: some View {
-        LineSection(image: .eventClockIcon, text: proposedTimes.formatMultipleInvitedDays(), style: style)
+        //style.clockIcon, not a hardcoded one: the card's glyph is the white template the
+        //palette tints, the popups' is the drawn art
+        LineSection(image: style.clockIcon, text: text, style: style)
             .oneLineLimitAndShrink()
     }
 }

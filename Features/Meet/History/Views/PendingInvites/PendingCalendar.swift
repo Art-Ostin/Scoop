@@ -62,7 +62,8 @@ struct PendingCalendar: View {
                     let nextIsFree = hasNext && (faces[rows[index + 1]] ?? []).isEmpty
                     dayRow(day: day,
                            faces: mine,
-                           showsDivider: hasNext && !(mine.isEmpty && nextIsFree))
+                           showsDivider: hasNext && !(mine.isEmpty && nextIsFree),
+                           isTop: index == 0)
                 }
             }
             .padding(.horizontal, Spacing.md) //Rows own all vertical rhythm — the card adds none
@@ -75,9 +76,9 @@ struct PendingCalendar: View {
 //The rows: a bold day holding lenses, or a slim quiet line for a free day
 extension PendingCalendar {
 
-    private func dayRow(day: Date, faces: [Face], showsDivider: Bool) -> some View {
+    private func dayRow(day: Date, faces: [Face], showsDivider: Bool, isTop: Bool) -> some View {
         VStack(spacing: 0) {
-            if faces.isEmpty { noEventDay(day: day) }
+            if faces.isEmpty { noEventDay(day: day, isTop: isTop) }
             else { eventDay(day: day, faces: faces) }
 
             if showsDivider {
@@ -86,12 +87,16 @@ extension PendingCalendar {
         }
     }
 
-    private func noEventDay(day: Date) -> some View {
+    //A free day pays half the gap on each side, so two meeting rows make one Spacing.md. The
+    //card's top edge has no neighbour to halve with — a free first row pays the whole 16 itself,
+    //the clearance a lens row already buys on its ring.
+    private func noEventDay(day: Date, isTop: Bool) -> some View {
         Text(FormatEvent.shortDayAndTime(day, withHour: false, withToday: true))
             .font(.body(14, .regular))
             .foregroundStyle(Color.textTertiary)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, Spacing.xs) //The slim row's own half of the gap
+            .padding(.top, isTop ? Spacing.md : Spacing.xs)
+            .padding(.bottom, Spacing.xs)
     }
 
     private func eventDay(day: Date, faces: [Face]) -> some View {
@@ -203,20 +208,24 @@ extension PendingCalendar {
 
     private func lens(_ face: Face, day: Date) -> some View {
         let lensID = "\(face.invite.id)#\(Int(day.timeIntervalSinceReferenceDate))"
-        let isPulsed = ui.pulsedInvite == face.invite.id
+        //While this lens' card is up, the slot stands empty: the flying cover carries the
+        //photo, and the close must land on a vacant glass ring — never on a duplicate image
+        let vacated = ui.selectedLensID == lensID
 
         return Button {
+            ui.selectedLensID = lensID //Before the card mounts, so the cover's first frame sits on an already-vacated slot
             onSelect(face.invite, faceRects.rects[lensID] ?? .zero)
         } label: {
             SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
+                .opacity(vacated ? 0 : 1)
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
                 .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
+                //Shadow stays through the vacancy — the empty ring keeps its depth, and the
+                //final cover → lens swap no longer pops a shadow in (a visible end-beat on device)
                 .imageShadow(hide: false)
                 //Glass on its OWN layer, clipped there: crops the material's halo (the no-shadow floor — eleven
                 //glowing circles read as noise) without cropping the image's shadow onto the lens above it
                 .containerGlassEffect(clipped: true, shape: Circle())
-                .circleStroke(lineWidth: 2, color: isPulsed ? .accent : .clear)
-                .animation(.transition, value: isPulsed)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)
                 .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
                 .padding(face.isFirst ? 0 : -Self.echoHitInset)

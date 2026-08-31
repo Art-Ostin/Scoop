@@ -59,7 +59,7 @@ extension ProposedTime {
     }
 }
 
-struct ProposedTimes: Codable, Equatable  {
+struct ProposedTimes: Codable, Equatable, Hashable  {
     
     static let maxCount = 3
     private(set) var dates: [ProposedTime]
@@ -204,6 +204,15 @@ extension ProposedTimes {
     //Days sharing a month name it once, at the end of their run: "Wed 30 Jul, Sun 3 or Mon 4 Aug · 21:30"
     func formatMultipleInvitedDays() -> String {
         invitedDayPieces().map(\.text).joined()
+    }
+
+    //The one day a surface names when it has no room for the run: "Fri 4 Sep · 21:30". It is the
+    //same day RespondDraft preselects (firstAvailableDate), NOT the first still-acceptable one —
+    //so the invite card and the respond popup that grows out of it can never name different days.
+    //Every day lapsed still reads as the first proposed rather than going blank.
+    func formatFirstInvitedDay() -> String {
+        guard let date = firstAvailableDate ?? dates.first?.date else { return "" }
+        return FormatEvent.shortDayAndTime(date)
     }
 
     //The same line split day by day, each piece knowing whether its day can still be accepted —

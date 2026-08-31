@@ -275,9 +275,12 @@ extension InviteImageCarousel {
     //mounts with the pager at land() — at rest, never mid-flight — and arrives by riding
     //pagerFade, which is already animating in land()'s transaction (a value-scoped .animation
     //on a freshly inserted subtree has no prior state and would pop instead).
+    //A gallery can legitimately arrive empty — ImageLoader drops every photo it fails to fetch —
+    //and the clamp below inverts on one: `count - 1` is -1, so the ceiling beats the floor and
+    //`page` lands at -1. There is no halo to draw without artwork anyway.
     @ViewBuilder
     private var backgroundBlur: some View {
-        if showsPager {
+        if showsPager, !images.isEmpty {
             let clamped = min(max(progress, 0), Double(images.count - 1))
             let page = Int(clamped)
             let next = min(page + 1, images.count - 1)

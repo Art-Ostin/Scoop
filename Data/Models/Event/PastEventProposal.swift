@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PastEventProposal: Codable, Equatable, Identifiable {
+struct PastEventProposal: Codable, Equatable, Identifiable, Hashable {
     //1: Who proposed it, when, and what kind of change it was
     let senderId: String
     let dateSent: Date

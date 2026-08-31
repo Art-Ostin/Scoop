@@ -70,26 +70,38 @@ public enum ZoomStyle {
 
 // MARK: - Public navigation container
 public struct ZoomNavigationStack<Root: View>: UIViewControllerRepresentable {
-    
-    
+
+
     /// The app-root plane presentations render in, when one is mounted (see
     @Environment(ZoomPresentationHost.self) private var presentationHost: ZoomPresentationHost?
     private let title: String?
+    /// Mirrors "a detail is up" (present → landed teardown) out to SwiftUI.
+    /// A stack living inside a dismissable cover feeds this into that
+    /// cover's `.interactiveDismissDisabled` — the ONE writer SwiftUI
+    /// re-asserts on every render. The library's own UIKit-side hold
+    /// (holdHostModal) is stomped by exactly those re-renders, so the
+    /// suppression must travel through SwiftUI's writer to stick.
+    private let isDetailPresented: Binding<Bool>?
     private let root: Root
 
-    public init(title: String? = nil, @ViewBuilder root: () -> Root) {
+    public init(title: String? = nil,
+                isDetailPresented: Binding<Bool>? = nil,
+                @ViewBuilder root: () -> Root) {
         self.title = title
+        self.isDetailPresented = isDetailPresented
         self.root = root()
     }
 
     public func makeUIViewController(context: Context) -> ZoomRootController {
         let controller = ZoomRootController(root: AnyView(root), title: title)
         controller.adoptPresentationPlane(presentationHost?.controller)
+        controller.detailPresentationBinding = isDetailPresented
         return controller
     }
 
     public func updateUIViewController(_ controller: ZoomRootController, context: Context) {
         controller.adoptPresentationPlane(presentationHost?.controller)
+        controller.detailPresentationBinding = isDetailPresented
         controller.updateRoot(AnyView(root))
     }
 }
@@ -157,6 +169,11 @@ public final class ZoomRootController: UIViewController {
     var homePlane: UIViewController { nav ?? host }
     /// The profile currently presented (or mid-flight), if any.
     private(set) var presentedDetail: ZoomDetailController?
+
+    /// SwiftUI mirror of `presentedDetail != nil`, when the container asked
+    /// for one (ZoomNavigationStack(isDetailPresented:)). Spans present →
+    /// landed teardown — the same span holdHostModal covers.
+    var detailPresentationBinding: Binding<Bool>?
 
     /// The app-root plane, when one is mounted. The presentation is parented to
     /// it — controller AND views — so the scene passes ABOVE the tab bar; the
@@ -474,7 +491,9 @@ public final class ZoomRootController: UIViewController {
             cardRadii: marker.cardRadii,
             detailContent: marker.detail())
         presentedDetail = detail
+        detailPresentationBinding?.wrappedValue = true
         detail.dismissController.continuousCollapse = marker.continuousCollapse
+        detail.dismissController.windDismiss = marker.windDismiss
         detail.dismissController.dismissDurationScale = marker.dismissDurationScale
         sceneIsBehindTabBar = false // every open starts above the bar
         // Parented to whoever owns the plane the views are added to — UIKit
@@ -502,6 +521,7 @@ public final class ZoomRootController: UIViewController {
         presentedDetail?.view.removeFromSuperview()
         presentedDetail?.removeFromParent()
         presentedDetail = nil
+        detailPresentationBinding?.wrappedValue = false
         sceneIsBehindTabBar = false
         homePlane.view.isUserInteractionEnabled = true
         releaseHostModal() // The host owns its own dismissal again
@@ -577,6 +597,14 @@ public extension View {
     /// dense grid, where a dive past the destination reads as a detour rather
     /// than as weight. Default false: the arc is the tuned default and every
     /// existing card keeps it.
+    /// `windDismiss` replaces this source's flick dismissal with the
+    /// one-piece WIND trajectory (see DragTuning's wind section): the card
+    /// rides the flick's own momentum down, rounds a ballistic turnaround
+    /// under a constant pull toward the card — never hovering, never
+    /// splitting into a dive-then-spring second beat — and lands with a
+    /// small overshoot and one tight settle. Slow lets-go keep the calm
+    /// continuous morph. Wins over `continuousCollapse` when both are set.
+    /// Default false: every existing card keeps its arc.
     /// `dismissDurationScale` stretches this source's dismissal clock — 1.5
     /// plays the whole collapse half again as long. It scales the travel, the
     /// mask's condense race and the settle as one, so the flight only ever
@@ -591,6 +619,7 @@ public extension View {
         bottomCornerRadius: CGFloat? = nil,
         pressScale: CGFloat = ZoomStyle.pressScale,
         continuousCollapse: Bool = false,
+        windDismiss: Bool = false,
         dismissDurationScale: Double = 1,
         @ViewBuilder cardOverlay: @escaping () -> Overlay,
         @ViewBuilder content: @escaping () -> Content
@@ -603,6 +632,7 @@ public extension View {
             bottomCornerRadius: bottomCornerRadius ?? cornerRadius,
             pressScale: pressScale,
             continuousCollapse: continuousCollapse,
+            windDismiss: windDismiss,
             dismissDurationScale: dismissDurationScale,
             cardOverlay: { AnyView(cardOverlay()) },
             detail: { AnyView(content()) }))
@@ -617,12 +647,14 @@ public extension View {
         bottomCornerRadius: CGFloat? = nil,
         pressScale: CGFloat = ZoomStyle.pressScale,
         continuousCollapse: Bool = false,
+        windDismiss: Bool = false,
         dismissDurationScale: Double = 1,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         zoomTransition(images: images, page: page, showsCardShadow: showsCardShadow,
                        cornerRadius: cornerRadius, bottomCornerRadius: bottomCornerRadius,
                        pressScale: pressScale, continuousCollapse: continuousCollapse,
+                       windDismiss: windDismiss,
                        dismissDurationScale: dismissDurationScale,
                        cardOverlay: { EmptyView() }, content: content)
     }
@@ -638,6 +670,7 @@ public extension View {
         cornerRadius: CGFloat = ZoomStyle.cornerRadius,
         bottomCornerRadius: CGFloat? = nil,
         continuousCollapse: Bool = false,
+        windDismiss: Bool = false,
         dismissDurationScale: Double = 1,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
@@ -649,6 +682,7 @@ public extension View {
             cornerRadius: cornerRadius,
             bottomCornerRadius: bottomCornerRadius ?? cornerRadius,
             continuousCollapse: continuousCollapse,
+            windDismiss: windDismiss,
             dismissDurationScale: dismissDurationScale,
             detail: { AnyView(content()) }))
     }
@@ -773,6 +807,7 @@ private struct ZoomTransitionModifier: ViewModifier {
     let bottomCornerRadius: CGFloat
     let pressScale: CGFloat
     let continuousCollapse: Bool
+    let windDismiss: Bool
     let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
@@ -795,6 +830,7 @@ private struct ZoomTransitionModifier: ViewModifier {
                     cornerRadius: cornerRadius,
                     bottomCornerRadius: bottomCornerRadius,
                     continuousCollapse: continuousCollapse,
+                    windDismiss: windDismiss,
                     dismissDurationScale: dismissDurationScale,
                     cardOverlay: cardOverlay, detail: detail))
                 .contentShape(Rectangle())
@@ -815,6 +851,7 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
     let cornerRadius: CGFloat
     let bottomCornerRadius: CGFloat
     let continuousCollapse: Bool
+    let windDismiss: Bool
     let dismissDurationScale: Double
     let detail: () -> AnyView
 
@@ -829,6 +866,7 @@ private struct TriggeredZoomTransitionModifier: ViewModifier {
                 cornerRadius: cornerRadius,
                 bottomCornerRadius: bottomCornerRadius,
                 continuousCollapse: continuousCollapse,
+                windDismiss: windDismiss,
                 dismissDurationScale: dismissDurationScale,
                 cardOverlay: { AnyView(EmptyView()) },
                 detail: detail))
@@ -872,6 +910,7 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
     let cornerRadius: CGFloat
     let bottomCornerRadius: CGFloat
     let continuousCollapse: Bool
+    let windDismiss: Bool
     let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
@@ -900,6 +939,7 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
         v.topCornerRadius = cornerRadius
         v.bottomCornerRadius = bottomCornerRadius
         v.continuousCollapse = continuousCollapse
+        v.windDismiss = windDismiss
         v.dismissDurationScale = dismissDurationScale
         v.cardOverlay = cardOverlay
         v.detail = detail
@@ -1072,6 +1112,8 @@ final class ZoomSourceMarkerView: UIView {
     /// `zoomTransition(continuousCollapse:)` — handed to the dismiss
     /// controller at push, read only when a release picks its flight.
     var continuousCollapse = false
+    /// `zoomTransition(windDismiss:)` — likewise handed over at push.
+    var windDismiss = false
     /// `zoomTransition(dismissDurationScale:)` — likewise handed over at push.
     var dismissDurationScale: Double = 1
     var cardRadii: CardRadii {
@@ -1387,6 +1429,112 @@ enum DragTuning {
     static func travelPaceBoost(destinationTop D: CGFloat) -> CGFloat {
         let t = min(max((D - arcTravelPaceStart) / arcTravelPaceRamp, 0), 1)
         return 1 + arcTravelPace * (t * t * (3 - 2 * t))
+    }
+    /// ── THE WIND DISMISS (`zoomTransition(windDismiss:)`) ──
+    /// An opted-in source's flick release plays ONE continuous trajectory
+    /// instead of the two-beat arc, in three C¹-spliced pieces:
+    ///   DESCENT — an honest parabola: the card leaves at its release
+    ///   speed (the band's crush partially released by the throw,
+    ///   windFingerFollow) and rides it out over a bounded dive time, so
+    ///   depth is the flick's own v·t/2 — every flick visibly carries in
+    ///   its direction, harder genuinely deeper, stage-clamped only.
+    ///   CLIMB — a gust with AIR DRAG from rest at the vertex: the wind
+    ///   accelerates the card home but speed saturates at windTerminal,
+    ///   so however deep the dive, the brake always receives a bounded,
+    ///   familiar speed. (v1 solved the wind from a pinned total time,
+    ///   which inflated it enormously for hard flicks — a slingshot climb
+    ///   that had to be wall-braked. Device video, 2026-08-31.)
+    ///   BRAKE — the bisected under-damped spring takes the last
+    ///   windBrakeDistance, velocity-matched at speed, and carries the
+    ///   card through the slot by the designed overshoot with one settle.
+    /// Two clocks render it: GEOMETRY (scale, x) completes BY ARRIVAL on
+    /// the trajectory's own clock — the bounce must play at final size,
+    /// or the leftover height visually swallows it and its smoothstep
+    /// tail reads as an ooze — while ATMOSPHERE (scrim, recede, alphas)
+    /// may keep a floor clock. Slow lets-go keep the calm continuous
+    /// morph — the wind, like the arc, is flick language.
+    /// The descent's ride time, lerped by the arc's flick fraction —
+    /// depth follows as v·t/2. The hard end is long on purpose: a fast
+    /// flick must visibly take the journey the finger threw it on
+    /// (device feedback 2026-08-31: the short ride read as the card
+    /// obeying ~30% of the flick; the first cut then overshot — trimmed
+    /// 25% on the same feedback round).
+    static let windDiveTimeGentle: TimeInterval = 0.10
+    static let windDiveTimeHard: TimeInterval = 0.26
+    /// The ride's compression band: the raw v·t/2 depth passes through the
+    /// asymptotic rubber band (slope 1 at zero, saturating here), so soft
+    /// flicks keep their honest ride EXACTLY while harder ones give up
+    /// progressively more — the linear map read as touchy at the top end
+    /// (device feel, 2026-08-31). The ride time re-derives from the banded
+    /// depth, so the launch stays velocity-matched.
+    static let windRideBand: CGFloat = 340
+    /// The dive's stage bound: at least this much of the card's TOP stays
+    /// on screen at the vertex — the throw may carry the rest off the
+    /// bottom edge, exactly as a deep finger drag already does. (The v2
+    /// whole-card-on-stage bound was the other reason hard flicks barely
+    /// carried.) Also bounds the carry's below-slot swing.
+    static let windDiveVisibleBand: CGFloat = 64
+    /// Deep dives keep the homecoming tempo: when the climb's required
+    /// average speed exceeds the terminal, the terminal stretches to this
+    /// factor above it — the ride down earns drama, the return stays
+    /// snappy rather than lengthening with depth.
+    static let windTerminalStretch: CGFloat = 1.2
+    /// Brake distance per point/second of expected incoming speed: fast
+    /// homecomings earn a proportionally longer brake, so the catch's
+    /// deceleration stays a firm hold instead of scaling into a wall.
+    static let windBrakeGrip: CGFloat = 0.055
+    /// The climb's vertex→brake tempo target (harder flicks climb a
+    /// touch quicker); the gust strength is solved for it, then clamped.
+    static let windClimbTimeGentle: TimeInterval = 0.26
+    static let windClimbTimeHard: TimeInterval = 0.19
+    /// The climb's terminal velocity, pt/s — the drag's saturation point,
+    /// and therefore the most the brake ever has to absorb.
+    static let windTerminal: CGFloat = 1900
+    /// Gust strength clamps on that solve; a bent tempo beats an
+    /// unphysical wind. The cap is generous on purpose — the drag
+    /// saturation, not the gust, is the speed regulator.
+    static let windGustFloor: CGFloat = 900
+    static let windGustCap: CGFloat = 30000
+    /// How far below the slot the brake spring takes over (capped at a
+    /// share of the climb so short climbs still ride the gust). Short:
+    /// a long brake dissipates the punch and the solved bounce turns
+    /// floaty-low-ω; 90pt keeps the crossing lively and the cycle tight.
+    static let windBrakeDistance: CGFloat = 90
+    /// How much of the band's velocity crush the throw releases: 0 keeps
+    /// the card's banded on-screen speed exactly; 1 launches at the raw
+    /// finger speed. Deep drags saturate the band hard, and an honest v0
+    /// there reads as ignoring the flick.
+    static let windFingerFollow: CGFloat = 0.3
+    /// The landing's character: lower = livelier bounce-back. At 0.6 the
+    /// SECOND oscillation is ~9.5% of the first (~1.1pt of the designed
+    /// overshoot) — still reads as one bounce.
+    static let windLandDamping: CGFloat = 0.6
+    /// Designed overshoot past the slot, pt. The brake's stiffness is
+    /// bisected on the closed form until the trajectory's excursion past
+    /// the slot equals this (windBrakeSpring), so the tad is a design
+    /// constant, not a flick lottery — heavy damping defeats any analytic
+    /// shortcut here.
+    static let windOvershoot: CGFloat = 12
+    /// Stiffness clamps on that solve: a splice too gentle to earn the
+    /// full tad takes the floor — the mushiest sane brake, so its bounce
+    /// is the largest it can honestly earn; above the cap the stop turns
+    /// brutal (a violent splice just overshoots a touch more).
+    static let windOmegaFloor: CGFloat = 14
+    static let windOmegaCap: CGFloat = 120
+    /// The toward-the-slot carry (no dive — the slot sits at/below the
+    /// release): envelope base for the whole journey, ζω = 6.6/this. Its
+    /// solver holds this envelope and bisects DAMPING instead — a long
+    /// carry's overshoot barely responds to stiffness (windCarrySpring).
+    static let windCarrySettle: TimeInterval = 0.32
+    /// Post-arrival window the bounce may use before the hard commit.
+    static let windSettleTail: TimeInterval = 0.26
+    /// Minimum pacing clock for scale/chrome/scrim/shadow — a violent
+    /// trajectory may reach the slot sooner, but the dressing never snaps.
+    static let windPaceFloor: TimeInterval = 0.25
+
+    static func smoothstep(_ x: CGFloat) -> CGFloat {
+        let c = min(max(x, 0), 1)
+        return c * c * (3 - 2 * c)
     }
     /// Scrim over home while a dismiss drag is live: slightly lighter than
     /// the presented 0.25, acknowledging the grab.
@@ -2497,6 +2645,9 @@ final class MorphDismissController: NSObject {
     /// Opt-in (`zoomTransition(continuousCollapse:)`): releases fly the
     /// arc-less collapse wherever the card sits — see `finishDismiss`.
     var continuousCollapse = false
+    /// Opt-in (`zoomTransition(windDismiss:)`): flick releases fly the
+    /// one-piece wind trajectory — see `runWind`.
+    var windDismiss = false
     /// Opt-in (`zoomTransition(dismissDurationScale:)`): stretches every
     /// dismissal clock this scene runs — see `runCollapse`.
     var dismissDurationScale: Double = 1
@@ -3056,6 +3207,30 @@ final class MorphDismissController: NSObject {
                       width: rect.width * tr.a, height: rect.height * tr.d)
     }
 
+    /// Landing on a DIFFERENT page than the one flying: the flying page
+    /// fades into the card's own image mid-flight; geometry is unaffected.
+    /// A card whose page follows the destination (zoomTransition(page:))
+    /// never takes this path — it lands on the very page in the air.
+    /// Shared by the collapse flights and the wind flight; nil when the
+    /// pages already agree.
+    private func installCoverFade() -> UIImageView? {
+        guard let detail, let home else { return nil }
+        let landingPage = home.activeSource?.pageIndex ?? 0
+        guard detail.currentPageIndex() != landingPage,
+              let landing = detail.pageContent(landingPage) else { return nil }
+        let page = detail.currentPageImageView
+        let fade = UIImageView(image: landing)
+        fade.contentMode = .scaleAspectFill
+        fade.clipsToBounds = true
+        fade.layer.cornerRadius = page.layer.cornerRadius
+        fade.layer.cornerCurve = .continuous
+        fade.frame = page.bounds
+        fade.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        fade.alpha = 0
+        page.addSubview(fade)
+        return fade
+    }
+
     /// Points the landing rigs — shadow AND card-chrome copy — at a window:
     /// one transform each against their SHARED fixed sourceRect geometry,
     /// so shadowPaths never mutate mid-flight.
@@ -3187,7 +3362,8 @@ final class MorphDismissController: NSObject {
     /// arcCutoffY plays the TWO-BEAT ARC (runArc); at and below the line
     /// the overshoot is zero by formula and the release flies the
     /// continuous collapse — the same family, arc-less, with a hard flick
-    /// still feeding the direct collapse's kick.
+    /// still feeding the direct collapse's kick. A `windDismiss` source
+    /// flies the one-piece wind trajectory instead (runWind).
     func finishDismiss(translation: CGPoint, velocity: CGPoint) {
         #if DEBUG
         perfBegin()
@@ -3202,6 +3378,13 @@ final class MorphDismissController: NSObject {
         // is already looking at, and a band-bound arc's whole dive plays
         // beneath the bar (see dropBehindBarIfLandingNeedsIt).
         dropBehindBarIfLandingNeedsIt()
+        // A `windDismiss` source flies the one-piece wind trajectory for
+        // every flick, wherever its slot sits (runWind routes slow lets-go
+        // to the calm continuous morph itself).
+        if windDismiss {
+            runWind(translation: translation, velocity: velocity)
+            return
+        }
         // A `continuousCollapse` source takes the AT-AND-BELOW-THE-LINE branch
         // whatever its slot's height: no dive, no second beat — the shrink
         // rides the travel home as one motion. Nothing else changes, so an
@@ -3514,6 +3697,522 @@ final class MorphDismissController: NSObject {
     private func stopDive() {
         diveLink?.invalidate()
         diveLink = nil
+        windFlight = nil
+    }
+
+    // MARK: The wind dismiss (one-piece flick trajectory)
+
+    /// Closed-form under-damped spring from splice conditions — the wind
+    /// flight's landing brake, evaluated analytically each tick. `u` is
+    /// the image top's displacement below the slot, `du` its signed rate.
+    private struct WindSpring {
+        let zeta: CGFloat, omega: CGFloat, omegaD: CGFloat
+        let A: CGFloat, B: CGFloat
+        init(u0: CGFloat, du0: CGFloat, zeta z: CGFloat, omega w: CGFloat) {
+            zeta = z
+            omega = w
+            omegaD = w * (max(1 - z * z, 0.0001)).squareRoot()
+            A = u0
+            B = (du0 + z * w * u0) / omegaD
+        }
+        func eval(_ t: CGFloat) -> (u: CGFloat, du: CGFloat) {
+            let e = exp(-zeta * omega * t)
+            let cw = cos(omegaD * t), sw = sin(omegaD * t)
+            return (e * (A * cw + B * sw),
+                    e * ((omegaD * B - zeta * omega * A) * cw
+                         - (omegaD * A + zeta * omega * B) * sw))
+        }
+    }
+
+    /// One wind flight, fully determined at release: the honest descent
+    /// parabola to `tVertex`, the drag-saturated gust climb to `tHand`,
+    /// the landing spring after it (a carry flight sets both seams to 0
+    /// and is spring end-to-end). All clocks are flight seconds (the link
+    /// scales by the window's layer speed, so the debug slow-motion sees
+    /// the flight at rate).
+    private struct WindFlight {
+        var spring: WindSpring
+        var target = CGAffineTransform.identity
+        var flightHero = CGRect.zero
+        var s: CGFloat = 1          // landing scale
+        var yT: CGFloat = 0         // slot top — u = 0
+        var u0: CGFloat = 0, v0: CGFloat = 0
+        // Descent: the flick riding out against aDown.
+        var aDown: CGFloat = 0
+        var tVertex: TimeInterval = 0
+        var uMax: CGFloat = 0
+        // Climb: gust aUp against linear drag (rate lambda = aUp/terminal)
+        // from rest at the vertex — speed saturates, the brake's input is
+        // bounded whatever the dive.
+        var aUp: CGFloat = 0
+        var lambda: CGFloat = 0
+        var tHand: TimeInterval = 0     // climb→brake splice (0 = carry)
+        var tArrive: TimeInterval = 0   // first slot reach
+        var tGeo: TimeInterval = 0      // scale + x complete by here (≤ arrival)
+        var tPace: TimeInterval = 0     // atmosphere clock (scrim, recede, alphas)
+        var tCondense: TimeInterval = 0 // mask + crop complete by here
+        var tEnd: TimeInterval = 0      // hard landing commit
+        var k0: CGFloat = 1, kT: CGFloat = 1
+        var x0: CGFloat = 0, xT: CGFloat = 0, vx0: CGFloat = 0
+        var maskStart = CGRect.zero
+        var maskRadiiStart = CardRadii.uniform(0)
+        var heroBottomStart: CGFloat = 0
+
+        func state(at t: TimeInterval) -> (u: CGFloat, du: CGFloat) {
+            if t < tVertex {
+                let tc = CGFloat(t)
+                return (u0 + v0 * tc - aDown * tc * tc / 2, v0 - aDown * tc)
+            }
+            if t < tHand, lambda > 0 {
+                let tc = CGFloat(t - tVertex)
+                let vT = aUp / lambda
+                let e = exp(-lambda * tc)
+                return (uMax - vT * tc + vT / lambda * (1 - e), -vT * (1 - e))
+            }
+            return spring.eval(CGFloat(t - tHand))
+        }
+    }
+
+    private var windFlight: WindFlight?
+    private var windCondenseDone = false
+    #if DEBUG
+    private var windTickedOnce = false
+    #endif
+
+    /// The trajectory's largest excursion past the slot for a candidate
+    /// spring, sampled on the closed form — the solvers' shared probe.
+    private func windExcursion(u0: CGFloat, du0: CGFloat,
+                               zeta: CGFloat, omega: CGFloat) -> CGFloat {
+        let side: CGFloat = u0 >= 0 ? 1 : -1
+        let spring = WindSpring(u0: u0, du0: du0, zeta: zeta, omega: omega)
+        var worst: CGFloat = 0
+        var t: CGFloat = 0
+        while t < 1.2 {
+            worst = max(worst, -spring.eval(t).u * side)
+            t += 0.004
+        }
+        return worst
+    }
+
+    /// Sizes the landing brake for the splice state the parabola hands
+    /// it: bisects STIFFNESS until the excursion past the slot equals the
+    /// designed windOvershoot — the damping dissipates too much on the
+    /// approach for any analytic shortcut. A splice too gentle to earn
+    /// the full tad takes the floor: the largest bounce it can honestly
+    /// earn. Release-time cost: ~5k transcendental evals, well under a
+    /// millisecond.
+    private func windBrakeSpring(u0: CGFloat, du0: CGFloat, zeta: CGFloat) -> WindSpring {
+        let target = DragTuning.windOvershoot
+        var lo = DragTuning.windOmegaFloor
+        var hi = DragTuning.windOmegaCap
+        func overshoot(_ omega: CGFloat) -> CGFloat {
+            windExcursion(u0: u0, du0: du0, zeta: zeta, omega: omega)
+        }
+        if overshoot(lo) < target {
+            return WindSpring(u0: u0, du0: du0, zeta: zeta, omega: lo)
+        }
+        if overshoot(hi) > target {
+            return WindSpring(u0: u0, du0: du0, zeta: zeta, omega: hi)
+        }
+        for _ in 0..<16 {
+            let mid = (lo + hi) / 2
+            if overshoot(mid) > target { lo = mid } else { hi = mid }
+        }
+        return WindSpring(u0: u0, du0: du0, zeta: zeta, omega: (lo + hi) / 2)
+    }
+
+    /// The trajectory's largest same-side swing — how far a carry rides
+    /// its launch beyond the release before the spring wins. The carry's
+    /// stage clamp reads it to keep tight-headroom releases on screen.
+    private func windSwing(of spring: WindSpring) -> CGFloat {
+        var worst: CGFloat = 0
+        var t: CGFloat = 0
+        while t < 1.2 {
+            worst = max(worst, spring.eval(t).u)
+            t += 0.004
+        }
+        return worst
+    }
+
+    /// Sizes the toward-the-slot carry (no dive): a long carry's
+    /// overshoot barely responds to stiffness — the from-rest limit is a
+    /// fixed FRACTION of the travel — so this holds the carry's envelope
+    /// (ζω = 6.6/windCarrySettle, one felt tempo) and bisects DAMPING for
+    /// the designed overshoot instead. Too little momentum to reach it at
+    /// the liveliest damping just keeps that: smaller bounce, by physics.
+    private func windCarrySpring(u0: CGFloat, du0: CGFloat) -> WindSpring {
+        let target = DragTuning.windOvershoot
+        let envelope = 6.6 / CGFloat(DragTuning.windCarrySettle * dismissDurationScale)
+        func overshoot(_ z: CGFloat) -> CGFloat {
+            windExcursion(u0: u0, du0: du0, zeta: z, omega: envelope / z)
+        }
+        var lo = DragTuning.windLandDamping
+        var hi: CGFloat = 0.99
+        if overshoot(lo) < target {
+            return WindSpring(u0: u0, du0: du0, zeta: lo, omega: envelope / lo)
+        }
+        for _ in 0..<16 {
+            let mid = (lo + hi) / 2
+            if overshoot(mid) > target { lo = mid } else { hi = mid }
+        }
+        let z = (lo + hi) / 2
+        return WindSpring(u0: u0, du0: du0, zeta: z, omega: envelope / z)
+    }
+
+    /// The WIND flight (`zoomTransition(windDismiss:)`): one continuous
+    /// trajectory from the release to the landed card — see DragTuning's
+    /// wind section for the design. The whole flight — pose, mask
+    /// condense, crop scrub, rigs, scrim, recede — runs on one
+    /// display-link clock (windTick); the link lives in `diveLink`, so
+    /// every existing guard (catch refusal, abort, teardown) covers it.
+    private func runWind(translation t: CGPoint, velocity: CGPoint) {
+        guard let detail, let detailView, let container = root?.overlayContainer,
+              let (flightHero, s) = flightTarget() else {
+            runCollapse(velocity: velocity,
+                        duration: DragTuning.closeFlightDuration,
+                        damping: DragTuning.bounceDamping)
+            return
+        }
+        // Slow lets-go keep the calm continuous morph — the wind, like the
+        // arc's dive, is flick language.
+        if velocity.y < DragTuning.arcSlowMorphCeil {
+            runCollapse(velocity: velocity,
+                        duration: DragTuning.arcSlowMorphDuration,
+                        damping: DragTuning.bounceDamping,
+                        raceDuration: DragTuning.arcSlowMorphDuration
+                            * DragTuning.arcSlowMorphRaceShare)
+            return
+        }
+
+        let c = CGPoint(x: detailView.bounds.midX, y: detailView.bounds.midY)
+        let heroCenter = CGPoint(x: flightHero.midX, y: flightHero.midY)
+        let tr = detailView.transform
+        let zeta = DragTuning.windLandDamping
+
+        var wind = WindFlight(spring: WindSpring(u0: 0, du0: 0, zeta: zeta, omega: 1))
+        wind.flightHero = flightHero
+        wind.s = s
+        wind.yT = sourceRect.minY
+        wind.target = CGAffineTransform(
+            translationX: sourceRect.midX - c.x - s * (heroCenter.x - c.x),
+            y: sourceRect.midY - c.y - s * (heroCenter.y - c.y)
+        ).scaledBy(x: s, y: s)
+        // Release state, read from the pose actually on screen, so the
+        // flight departs from exactly what the finger left.
+        wind.k0 = tr.a
+        wind.kT = s
+        wind.u0 = c.y + tr.a * (flightHero.minY - c.y) + tr.ty - wind.yT
+        // The throw releases part of the band's crush (windFingerFollow):
+        // a deep drag's banded speed is a fraction of the finger's, and a
+        // strictly honest v0 there reads as ignoring the flick.
+        let bandSlope = DragTuning.rubberBandSlope(t.y, limit: 700, response: 1)
+        wind.v0 = velocity.y * DragTuning.lerp(bandSlope, 1, DragTuning.windFingerFollow)
+        wind.x0 = c.x + tr.a * (flightHero.midX - c.x) + tr.tx
+        wind.xT = sourceRect.midX
+        // The finger's sideways pace through its band's slope, gently
+        // capped — the x Hermite bleeds it off over the geometry clock.
+        wind.vx0 = min(max(velocity.x * DragTuning.rubberBandSlope(
+            t.x, limit: 160, response: 0.8), -900), 900)
+
+        let f = DragTuning.smoothstep(
+            (velocity.y - DragTuning.arcFlickFloor)
+            / (DragTuning.arcFlickCeil - DragTuning.arcFlickFloor))
+
+        // The stage bound: the card's TOP keeps windDiveVisibleBand on
+        // screen at the vertex — the rest may ride off the bottom edge,
+        // exactly as it already does under a deep finger drag.
+        let uCap = container.bounds.height - DragTuning.windDiveVisibleBand
+            - max(wind.yT, 0)
+        // The ride the flick asks for, before any routing: v·t/2 from
+        // wherever the card is. The DIVE plays whenever that ride would
+        // end meaningfully BELOW the slot — the natural quick flick
+        // releases with the image top near or above the slot line, and
+        // routing on the START position (v2) sent exactly those flights
+        // into the no-ride carry: the "obeys 30% of my flick" report.
+        var tv = (DragTuning.windDiveTimeGentle
+            + (DragTuning.windDiveTimeHard - DragTuning.windDiveTimeGentle)
+            * TimeInterval(f)) * dismissDurationScale
+        // Banded, then re-timed: hard flicks compress toward windRideBand
+        // while the parabola stays velocity-matched at the finger's pace.
+        var depth = DragTuning.rubberBand(wind.v0 * CGFloat(tv) / 2,
+                                          limit: DragTuning.windRideBand,
+                                          response: 1)
+        if depth > 1 { tv = TimeInterval(2 * depth / wind.v0) }
+        // The regimes meet at the designed overshoot: a ride ending deeper
+        // than it IS the story (dive); shallower, the carry's push-through
+        // cap of exactly windOvershoot takes over — near-identical motion
+        // on either side of the line, so the boundary is seamless.
+        if wind.v0 > 40, wind.u0 + depth > DragTuning.windOvershoot,
+           uCap - wind.u0 > 24 {
+            // Descent: the flick rides itself out — only the stage can
+            // shorten it.
+            let room = uCap - wind.u0
+            if depth > room {
+                depth = room
+                tv = TimeInterval(2 * depth / wind.v0)
+            }
+            wind.aDown = wind.v0 / CGFloat(tv)
+            wind.tVertex = tv
+            wind.uMax = wind.u0 + depth
+            // Climb: the gust solved for the tempo target, drag-saturated
+            // at the terminal so the brake's input stays bounded whatever
+            // the dive; the clamps bend the tempo rather than the physics.
+            // A deep dive keeps the tempo — the terminal stretches above
+            // the climb's required average speed, and the brake distance
+            // grows with the expected incoming speed so the catch's grip
+            // stays constant instead of scaling into a wall.
+            let climbTime = CGFloat((DragTuning.windClimbTimeGentle
+                + (DragTuning.windClimbTimeHard - DragTuning.windClimbTimeGentle)
+                * TimeInterval(f)) * dismissDurationScale
+                + DragTuning.aboveScreenTime(destinationTop: wind.yT))
+            let reqAvg = wind.uMax * 0.85 / climbTime
+            let uHand = min(max(DragTuning.windBrakeDistance,
+                                reqAvg * DragTuning.windBrakeGrip),
+                            wind.uMax * 0.4)
+            let cover = wind.uMax - uHand
+            let vT = max(DragTuning.windTerminal,
+                         cover / climbTime * DragTuning.windTerminalStretch)
+            // Distance the from-rest drag ballistic covers in tc under gust a.
+            func covered(_ a: CGFloat, _ tc: CGFloat) -> CGFloat {
+                let lam = a / vT
+                return vT * tc - vT / lam * (1 - exp(-lam * tc))
+            }
+            var lo = DragTuning.windGustFloor
+            var hi = DragTuning.windGustCap
+            if covered(lo, climbTime) > cover {
+                hi = lo // a short climb: the floor gust arrives early
+            } else if covered(hi, climbTime) < cover {
+                lo = hi // a huge climb: the cap gust arrives late
+            } else {
+                for _ in 0..<18 {
+                    let mid = (lo + hi) / 2
+                    if covered(mid, climbTime) < cover { lo = mid } else { hi = mid }
+                }
+            }
+            wind.aUp = (lo + hi) / 2
+            wind.lambda = wind.aUp / vT
+            // The splice, marched on the climb's closed form — exact even
+            // where a clamp bent the tempo; the brake leaves velocity-
+            // matched at a bounded speed.
+            let lam = wind.lambda
+            let uMax = wind.uMax
+            func climb(_ tc: CGFloat) -> (u: CGFloat, du: CGFloat) {
+                let e = exp(-lam * tc)
+                return (uMax - vT * tc + vT / lam * (1 - e), -vT * (1 - e))
+            }
+            var tc: CGFloat = 0
+            while tc < 1.5 {
+                if climb(tc).u <= uHand { break }
+                tc += 0.002
+            }
+            wind.tHand = wind.tVertex + TimeInterval(tc)
+            // The spring takes the MARCHED state, not the nominal uHand —
+            // the march's quantization would otherwise pop the position a
+            // few points at the splice.
+            let splice = climb(tc)
+            wind.spring = windBrakeSpring(u0: splice.u,
+                                          du0: min(splice.du, -1), zeta: zeta)
+        } else {
+            // No room to dive, or already moving toward the slot: the
+            // carry spring flies the whole journey from the release state —
+            // the deep-release physics, plus the wind's tad of bounce.
+            // The stage bound still holds here: this branch is chosen
+            // precisely when headroom is tightest, so a downward launch is
+            // trimmed until the carry's own below-slot swing fits the room
+            // the dive branch's uCap clamp would have enforced.
+            var du0 = wind.v0
+            if wind.u0 > 0, du0 > 0 {
+                for _ in 0..<3 {
+                    let swing = windSwing(of: windCarrySpring(u0: wind.u0, du0: du0))
+                    guard swing > uCap, swing > wind.u0 + 1 else { break }
+                    du0 *= max(uCap - wind.u0, 0) / (swing - wind.u0)
+                }
+            }
+            wind.spring = windCarrySpring(u0: wind.u0, du0: du0)
+        }
+
+        // Arrival: first slot reach, marched on the closed form from the
+        // approach side (a heavily damped carry may only kiss the slot —
+        // stop within 2pt of it then).
+        let side: CGFloat = wind.state(at: wind.tHand).u >= 0 ? 1 : -1
+        var probe = wind.tHand
+        while probe < wind.tHand + 1.2 {
+            if wind.state(at: probe).u * side <= 2 { break }
+            probe += 0.004
+        }
+        wind.tArrive = probe
+        // GEOMETRY finishes by the arrival: the bounce must play at final
+        // size, pixel-exact against the slot — a scale outliving the
+        // trajectory swallows the overshoot and oozes the landing (the
+        // exact read the 2026-08-31 device video showed). The floor only
+        // bites near-slot rushes, whose bounce is too small to mask.
+        wind.tGeo = max(wind.tArrive * 0.92, 0.18 * dismissDurationScale)
+        wind.tPace = max(wind.tArrive, DragTuning.windPaceFloor * dismissDurationScale)
+        // The condense completes by the vertex — the landing overshoot is
+        // never counter-clipped, and the climb flies a finished bare card.
+        let vertexTime = wind.aDown > 0 ? wind.tVertex : wind.tArrive * 0.55
+        wind.tCondense = min(max(vertexTime, 0.12), max(wind.tArrive - 0.08, 0.1))
+        wind.tEnd = max(wind.tArrive + DragTuning.windSettleTail * dismissDurationScale,
+                        wind.tPace + 0.05)
+
+        #if DEBUG
+        print(String(format: "WIND u0=%.1f v0=%.0f aDown=%.0f depth=%.1f aUp=%.0f tHand=%.3f w=%.1f tArrive=%.3f tEnd=%.3f",
+                     wind.u0, wind.v0, wind.aDown, wind.uMax - wind.u0,
+                     wind.aUp, wind.tHand, wind.spring.omega,
+                     wind.tArrive, wind.tEnd))
+        #endif
+
+        // The commit is visible from the first frame — atmosphere paces
+        // on the arrival clock; a page cover (if any) is the card's face
+        // and rides the geometry clock instead.
+        coverFade = installCoverFade()
+        dropShadow(over: wind.tPace)
+        detail.setHeroCropScrub(0)
+        // Fold the grab beat's scrim lighten into the model (it was paced
+        // against the held transition progress) — the tick scrubs it.
+        if let scrim {
+            scrim.alpha = CGFloat(scrim.layer.presentation()?.opacity ?? Float(scrim.alpha))
+            scrim.layer.removeAllAnimations()
+            diveScrimStart = scrim.alpha
+        }
+        wind.maskStart = maskView?.frame ?? detailView.bounds
+        wind.maskRadiiStart = maskView?.radii ?? .uniform(displayRadius)
+        wind.heroBottomStart = detail.heroBottomRadius
+        windFlight = wind
+        windCondenseDone = false
+        #if DEBUG
+        windTickedOnce = false
+        #endif
+
+        diveClock = Double(detailView.window?.layer.speed ?? 1)
+        diveStart = CACurrentMediaTime()
+        let link = CADisplayLink(target: self, selector: #selector(windTick))
+        link.preferredFrameRateRange = CAFrameRateRange(
+            minimum: 80, maximum: 120, preferred: 120)
+        link.add(to: .main, forMode: .common)
+        diveLink = link // the shared slot: catch refusal + every stop path
+
+        // FAIL-SAFE twin of armWatchdog: if the link ever stalls
+        // unresolved, commit the landing rather than freeze the UI.
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + (wind.tEnd + 3) / max(diveClock, 0.001)
+        ) { [weak self] in
+            guard let self, diveLink === link, isInteracting else { return }
+            finishWind()
+        }
+    }
+
+    @objc private func windTick(_ link: CADisplayLink) {
+        #if DEBUG
+        let perfT0 = CACurrentMediaTime()
+        defer { perfWorstTickCost = max(perfWorstTickCost, CACurrentMediaTime() - perfT0) }
+        if !windTickedOnce {
+            windTickedOnce = true
+            print(String(format: "WINDTICK first t=%.3f", (link.timestamp - diveStart) * diveClock))
+        }
+        #endif
+        guard let wind = windFlight, let detail, let detailView else {
+            // The scene fell apart mid-flight (weak views died) — resolve
+            // rather than leave the overlay stuck (see runCollapse).
+            stopDive()
+            if isInteracting { teardown(completed: true) }
+            return
+        }
+        let elapsed = (link.timestamp - diveStart) * diveClock
+        let (u, du) = wind.state(at: elapsed)
+        // Land on the hard clock, or once the settle is spent AND the pace
+        // clock has finished — a near-slot release settles its y in a
+        // tenth of a second, and committing then would snap scale, x,
+        // scrim and recede across their remaining pace in one frame.
+        if elapsed >= wind.tEnd
+            || (elapsed >= wind.tPace && elapsed > wind.tArrive
+                && abs(u) < 0.5 && abs(du) < 15) {
+            finishWind()
+            return
+        }
+        let c = CGPoint(x: detailView.bounds.midX, y: detailView.bounds.midY)
+        // Two clocks: GEOMETRY (scale, x) completes by the arrival so the
+        // bounce plays at final size; ATMOSPHERE keeps its floor clock.
+        let geo = CGFloat(min(max(elapsed / wind.tGeo, 0), 1))
+        let pace = CGFloat(min(max(elapsed / wind.tPace, 0), 1))
+        // Pose: the trajectory owns y; scale and x flow through the
+        // turnaround on the geometry clock.
+        let k = wind.k0 + (wind.kT - wind.k0) * DragTuning.smoothstep(geo)
+        let t2 = geo * geo, t3 = t2 * geo
+        let x = (2 * t3 - 3 * t2 + 1) * wind.x0
+            + (t3 - 2 * t2 + geo) * wind.vx0 * CGFloat(wind.tGeo)
+            + (-2 * t3 + 3 * t2) * wind.xT
+        let transform = CGAffineTransform(
+            translationX: x - c.x - k * (wind.flightHero.midX - c.x),
+            y: wind.yT + u - c.y - k * (wind.flightHero.minY - c.y)
+        ).scaledBy(x: k, y: k)
+        detailView.transform = transform
+        // The condense: mask, crop, curtain and the image's own bottom
+        // corners close together by the vertex, then hold — the climb and
+        // the landing bounce fly a finished bare card.
+        var raced = wind.flightHero
+        if !windCondenseDone {
+            let closing = DragTuning.smoothstep(CGFloat(elapsed / wind.tCondense))
+            raced = DragTuning.lerp(wind.maskStart, wind.flightHero, closing)
+            maskView?.apply(frame: raced, radii: CardRadii.lerp(
+                wind.maskRadiiStart, cardRadii.scaled(by: wind.s), closing))
+            detail.setHeroBottomRadius(DragTuning.lerp(
+                wind.heroBottomStart, cardRadii.bottom, closing))
+            detail.setHeroCurtain(closing)
+            let cf = DragTuning.smoothstep(CGFloat(elapsed / (wind.tCondense * 0.8)))
+            detail.setHeroCropScrub(cf)
+            // The chrome copy only aligns with the closing window — weight
+            // its fade so no misaligned edge shows early (see diveTick).
+            sceneOverlayHost?.view.alpha = pace * closing * closing
+            if closing >= 1 {
+                windCondenseDone = true
+                detail.setHeroCrop(flight: true) // clears the scrub; same geometry
+                detailView.layoutIfNeeded()
+                #if DEBUG
+                perfMark("wind-condensed")
+                #endif
+            }
+        } else {
+            sceneOverlayHost?.view.alpha = pace
+        }
+        // The rigs ride the flying window; plane and shadow resolve on the
+        // same arrival clock as the dressing.
+        updateLandingRigs(window: screenWindow(of: raced, under: transform, in: detailView))
+        landingShadowRig?.alpha = pace
+        coverFade?.alpha = DragTuning.smoothstep(geo) // the card's face is geometry
+        scrim?.alpha = diveScrimStart * (1 - pace)
+        homeView?.transform = recedeTransform(0.94 + 0.06 * pace)
+    }
+
+    /// Commits the wind landing: the exact target pose and every landed
+    /// value in one transaction, then the shared completed teardown — the
+    /// mirror of the collapse animator's .end completion.
+    private func finishWind() {
+        guard let wind = windFlight else { return }
+        stopDive()
+        guard let detailView, let home else {
+            teardown(completed: true)
+            return
+        }
+        detailView.transform = wind.target
+        maskView?.apply(frame: wind.flightHero, radii: cardRadii.scaled(by: wind.s))
+        detail?.setHeroBottomRadius(cardRadii.bottom)
+        detail?.setHeroCurtain(1)
+        if !windCondenseDone {
+            detail?.setHeroCrop(flight: true)
+            detailView.layoutIfNeeded()
+        }
+        scrim?.alpha = 0
+        homeView?.transform = .identity
+        coverFade?.alpha = 1
+        sceneOverlayHost?.view.alpha = 1
+        sceneOverlayHost?.view.transform = .identity
+        landingShadowRig?.transform = .identity
+        landingShadowRig?.alpha = 1
+        // Unhide first — the landed image and the card are pixel-identical,
+        // and both changes commit in the same transaction (no flash).
+        home.setCardHidden(false)
+        teardown(completed: true)
     }
 
     /// The committed collapse's plane decision: only a landing slot that
@@ -3583,26 +4282,7 @@ final class MorphDismissController: NSObject {
             y: sourceRect.midY - c.y - s * (heroCenter.y - c.y)
         ).scaledBy(x: s, y: s)
 
-        // Landing on a DIFFERENT page than the one flying: the flying page
-        // fades into the card's own image mid-flight; geometry is unaffected.
-        // A card whose page follows the destination (zoomTransition(page:))
-        // never takes this path — it lands on the very page in the air.
-        var cover: UIImageView?
-        let landingPage = home.activeSource?.pageIndex ?? 0
-        if detail.currentPageIndex() != landingPage,
-           let landing = detail.pageContent(landingPage) {
-            let page = detail.currentPageImageView
-            let fade = UIImageView(image: landing)
-            fade.contentMode = .scaleAspectFill
-            fade.clipsToBounds = true
-            fade.layer.cornerRadius = page.layer.cornerRadius
-            fade.layer.cornerCurve = .continuous
-            fade.frame = page.bounds
-            fade.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            fade.alpha = 0
-            page.addSubview(fade)
-            cover = fade
-        }
+        let cover = installCoverFade()
         coverFade = cover
 
         dropShadow(over: duration)
@@ -3736,6 +4416,9 @@ final class MorphDismissController: NSObject {
     /// is DEFERRED to the spring's landing (same as finishDismiss), so a
     /// catch can seize the return flight — and still commit the pop.
     func cancelDismiss(velocity: CGPoint, completion: @escaping () -> Void) {
+        #if DEBUG
+        print(String(format: "CANCEL vy=%.0f", velocity.y))
+        #endif
         flightIsDismissal = false
         // Insurance: the interactive phase never leaves the root plane (the
         // swap waits for a commit, and committed flights refuse the catch),
@@ -3800,10 +4483,16 @@ final class MorphDismissController: NSObject {
         if let animator = flightAnimator, animator.state == .active,
            flightIsDismissal { return false }
         if let animator = flightAnimator, animator.state == .active {
+            #if DEBUG
+            print("CATCH cancel-spring")
+            #endif
             animator.stopAnimation(false)
             animator.finishAnimation(at: .current) // on-screen pose becomes the model
             flightAnimator = nil
         } else if let open = openAnimator, open.state == .active {
+            #if DEBUG
+            print("CATCH open")
+            #endif
             // Mid-OPEN grab (the system zoom's both-ways catchability):
             // fold the open at its on-screen pose, then build the drag
             // rule's world — the open never armed a dismissal.
@@ -3969,6 +4658,7 @@ final class MorphDismissController: NSObject {
     /// scrim/recede — only the dismissal-armed extras retire).
     private func teardown(completed: Bool) {
         #if DEBUG
+        print("TEARDOWN completed=\(completed)")
         perfMark(completed ? "landed" : "cancelled")
         perfEnd()
         if completed, let root, let home {

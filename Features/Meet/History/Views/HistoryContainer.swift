@@ -20,6 +20,11 @@ struct HistoryContainer: View {
     
     @State private var ui = HistoryUIState()
 
+    //A declined profile's zoom detail is up (present → landed). Feeds the cover's
+    //interactive-dismiss guard below — the zoom library's own UIKit-side hold is
+    //stomped by SwiftUI re-renders, so the flag must ride SwiftUI's writer.
+    @State private var profileOpen = false
+
     //The pending page's scroll, driven from here: the container owns the scroll view, so both of
     //the page's automatic moves — the unanswered drawer's nudge, and the travel back up to a
     //newly chosen card — speak through this one position.
@@ -34,7 +39,7 @@ struct HistoryContainer: View {
     private let expiredReveal: CGFloat = 400
     
     var body: some View {
-        ZoomNavigationStack {
+        ZoomNavigationStack(isDetailPresented: $profileOpen) {
             VStack(spacing: 0) {
                 headerBand
                 
@@ -53,8 +58,9 @@ struct HistoryContainer: View {
         }
         .environment(ZoomPresentationHost?.none)
         //The zoom navigationTransition installs its own pan-to-dismiss on the whole cover —
-        //while the detail card is up, its dismiss drag must not also drag History away
-        .interactiveDismissDisabled(ui.selectedPending != nil)
+        //while the pending-invite card OR a declined profile's zoom detail is up, their
+        //dismiss drags must not also drag History away
+        .interactiveDismissDisabled(ui.selectedPending != nil || profileOpen)
         .ignoresSafeArea()
     }
 }
@@ -168,19 +174,12 @@ extension HistoryContainer {
         ui.selectedPending = invite
     }
 
-    //The close flight has landed on the lens: the card unmounts and the lens returns in the
-    //same commit — identical pixels — then every lens of that invite rings once
+    //The close flight has landed on the lens — its overshoot settle IS the landing beat —
+    //so the card unmounts and the lens returns in the same commit, identical pixels
     private func pendingClosed() {
-        let closedID = ui.selectedPending?.id
         ui.selectedPending = nil
         ui.pendingSource = .zero
-
-        guard let closedID else { return }
-        ui.pulsedInvite = closedID
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(0.9)) //In, hold, out — then the ring stands down
-            if ui.pulsedInvite == closedID { ui.pulsedInvite = nil }
-        }
+        ui.selectedLensID = nil //The photo is home: the lens takes its pixels back in the same commit
     }
 }
 
@@ -298,15 +297,9 @@ struct PendingFlightHarness: View {
     }
 
     private func closed() {
-        let closedID = ui.selectedPending?.id
         ui.selectedPending = nil
         ui.pendingSource = .zero
-        guard let closedID else { return }
-        ui.pulsedInvite = closedID
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(0.9))
-            if ui.pulsedInvite == closedID { ui.pulsedInvite = nil }
-        }
+        ui.selectedLensID = nil
     }
 }
 

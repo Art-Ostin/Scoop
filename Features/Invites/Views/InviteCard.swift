@@ -22,15 +22,11 @@ struct InviteSlot: View {
     @Binding var draft: RespondDraft
     
     @Binding var openInvite: EventProfile?
+    @Binding var showInviteHistory: EventProfile?
 
     //Local Parameters
     @State var palette: OverlayPalette = .placeholder
-    @State private var timePopupOpen = false
 
-    //Where this card ACTUALLY draws its text set, measured on the real resting overlay (global
-    //space; the flight copy never reports — reportsFrames gates it). The quick-invite flight's
-    //hero anchors come from these — a font-metrics derivation sat ~0.7pt/row high and snapped
-    //at the close handback (device video, 2026-08-20); measurement is exact by construction.
     @State private var cardRect: CGRect = .zero
     @State private var titleRect: CGRect = .zero
     @State private var chipRect: CGRect = .zero
@@ -59,18 +55,20 @@ extension InviteSlot {
             } content: {
                 profileView
             }
-            //The quick-respond popup grows out of this card on the root plane; the flight
-            //drives the chrome copy's per-element exits while the hero text flies separately
             .inviteZoom(
                 id: eventProfile.id,
                 isPresented: quickResponsePresented,
                 sourceChrome: { cardOverlay(image: image) },
                 popup: { respondPopup }
             )
+            .overlay(alignment: .topTrailing) {
+//                if thereArePastInvites() {
+                    inviteHistoryButton
+                        .padding()
+//                }
+            }
     }
 
-    //The measured text set as card-relative offsets — read live at popup construction, so the
-    //flight lifts off from wherever the card genuinely drew its words
     private var measuredSourceRects: InviteCardSourceRects {
         guard cardRect.width > 1 else { return InviteCardSourceRects() }
         func rel(_ r: CGRect) -> CGRect {
@@ -100,8 +98,6 @@ extension InviteSlot {
         )
     }
 
-    //The quick-respond popup: built here (not in InvitesContainer's overlay) so the flight can
-    //grow it out of this card. State inside survives re-invocations — the layer keys it by id.
     private var respondPopup: some View {
         RespondInviteContainer(
             images: profileImages,
@@ -140,9 +136,6 @@ extension InviteSlot {
     //same views at the flight layer and must never overwrite the measured source anchors
     private func cardOverlay(image: UIImage, reportsFrames: Bool = false) -> some View {
         blurAndColour(image: image)
-            //The flight's copy rushes the blur + scrim out in the launch's first beats (the
-            //sharp flying image is what lands) and rides them back in over the collapse; the
-            //resting card reads the identity default
             .modifier(InviteChromeFadeOpacity())
             .overlay(alignment: .bottomLeading) {
                 inviteOverlay(reportsFrames: reportsFrames)
@@ -171,11 +164,12 @@ extension InviteSlot {
     
     private func inviteOverlay(reportsFrames: Bool) -> some View {
         //Container has already 24 horizontal padding.
-        ConfirmContainer(
-            event: InviteSummary(event: draft.originalInvite.event),
+        let summary = InviteSummary(event: draft.originalInvite.event)
+        return ConfirmContainer(
+            event: summary,
             name: eventProfile.profile.name,
             style: .card,
-            timeOpen: timePopupOpen,
+            timeOpen: false, //Nothing on the card opens a popup over it any more
             showMessageSection: true,
             color: palette.secondaryText,
             showMessageScreen: .constant(false),
@@ -183,7 +177,11 @@ extension InviteSlot {
             cardTitleFrame: reportsFrames ? $titleRect : nil,
             chipFrame: reportsFrames ? $chipRect : nil,
             envelopeFrame: reportsFrames ? $envelopeRect : nil) {
-                DynamicTimeRow(draft: $draft, timePopupOpen: $timePopupOpen, style: .card)
+                //A plain line, never a menu: choosing a day — and proposing new ones — belongs
+                //to the respond popup, the only surface that can commit the choice. One day, not
+                //the whole run: three days at 20pt shrink to an unreadable line, and it is the
+                //day the popup preselects anyway. (Meet's pending card lists all three at 16.)
+                StaticTimeRow(proposedTimes: summary.time, style: .card, namesOneDay: true)
                     .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rect in
                         if reportsFrames { timeRect = rect }
                     }
@@ -219,12 +217,24 @@ extension InviteSlot {
                 maximumDominantLuminance: 0.15, //Prefer a dark tone the photo already has
                 minimumSurfaceChroma: 0.4 //Quieter than the standard tint — the rows carry the hue here
             )
-        //Warm the quick-respond popup's variant too — it extracts with .subtle, a DIFFERENT
-        //cache key. Cold, that extraction lands mid-flight and the popup's tint family
-        //(backdrop, seam wash) crossfades in at the end of the open — a colour snap.
         _ = await PopupColorExtractor.shared
             .extractPalette(image, id: eventProfile.profile.id, prominence: .subtle)
     }
 }
 
+extension InviteSlot {
+    
+    func thereArePastInvites() -> Bool {
+        eventProfile.event.pastProposals != nil
+    }
+    
+    private var inviteHistoryButton: some View {
+        ScoopButton(style: .clearGlass, shape: Capsule()) {
+            showInviteHistory = eventProfile
+        } label: {
+            Text("Respond")
+                .frame(width: 40, height: 24)
+        }
+    }
+}
 

@@ -20,6 +20,7 @@ import SwiftUI
     var respondVMs: [String: RespondViewModel] = [:]
     var profileVMs: [String: ProfileViewModel] = [:]
     var profileImages: [String: [UIImage]] = [:]
+    var userImage: UIImage?
     
     
     init(
@@ -71,6 +72,14 @@ extension InvitesViewModel {
             profileImages[profile.id] = await imageLoader.loadProfileImages(profile)
         }
     }
+
+    //The signed-in user's own face, for history rows they wrote. Cached on the VM rather than in
+    //profileImages so it survives a sheet dismissal and the eviction in updateInvitesLocally,
+    //which prunes that dictionary down to the profiles still backing a live invite.
+    func ensureUserImageLoaded() async {
+        guard userImage == nil else { return }
+        userImage = try? await imageLoader.fetchFirstImage(profile: session.user)
+    }
     
         
     
@@ -85,7 +94,12 @@ extension InvitesViewModel {
 
 //Functions to Respond To Invites
 extension InvitesViewModel {
-    
+
+    //A response whose draft is missing or incomplete is a failure, never a skip: the CTA
+    //gates should make these unreachable, so a bail here must throw — a silent return plays
+    //the success choreography over a write that never happened.
+    enum RespondError: Error { case missingDraft, emptyResponse }
+
     var userId: String {session.user.id}
 
     //The only entry point for responding. Every branch calls the appropriate function to respond
@@ -99,14 +113,15 @@ extension InvitesViewModel {
     }
 
     private func accept(eventId: String) async throws {
-        guard let invite = respondVMs[eventId]?.respondDraft.originalInvite, let day = invite.selectedDay else { return }
+        guard let invite = respondVMs[eventId]?.respondDraft.originalInvite else { throw RespondError.missingDraft }
+        guard let day = invite.selectedDay else { throw RespondError.emptyResponse }
         try await eventRepo.acceptEvent(eventId: invite.event.id, senderId: invite.event.otherUserId, userId: userId, acceptedTime: day)
         updateInvitesLocally(eventId: invite.event.id, isAccepted: true)
     }
 
     private func sendNewTime(eventId: String) async throws {
-        guard let newTime = respondVMs[eventId]?.respondDraft.newTime,
-              !newTime.proposedTimes.dates.isEmpty else { return }
+        guard let newTime = respondVMs[eventId]?.respondDraft.newTime else { throw RespondError.missingDraft }
+        guard !newTime.proposedTimes.dates.isEmpty else { throw RespondError.emptyResponse }
         let event = newTime.event
         let rescheduleResponse = RescheduleResponse(oldEvent: event, userId: userId, newTimes: newTime.proposedTimes)
         try await eventRepo.respondWithNewTime(newTime: rescheduleResponse)
@@ -114,14 +129,14 @@ extension InvitesViewModel {
     }
 
     private func sendNewEvent(eventId: String) async throws {
-        guard let draft = respondVMs[eventId]?.respondDraft else { return }
+        guard let draft = respondVMs[eventId]?.respondDraft else { throw RespondError.missingDraft }
         let eventResponse = EventResponse( oldEvent: draft.originalInvite.event, newEvent: draft.newEvent, userId: userId)
         try await eventRepo.respondWithNewEvent(eventResponse: eventResponse)
         updateInvitesLocally(eventId: eventResponse.eventId)
     }
 
     private func decline(eventId: String) async throws {
-        guard let event = respondVMs[eventId]?.respondDraft.originalInvite.event else { return }
+        guard let event = respondVMs[eventId]?.respondDraft.originalInvite.event else { throw RespondError.missingDraft }
         try await eventRepo.declineEvent(eventId: event.id, otherUserId: event.otherUserId, userId: userId)
         updateInvitesLocally(eventId: event.id)
     }
@@ -149,4 +164,5 @@ extension InvitesViewModel {
 
 @Observable final class InvitesUIState {
     var showQuickResponse: EventProfile?
+    var showInviteHistory: EventProfile?
 }

@@ -982,7 +982,9 @@ extension SendInviteContainer {
 
     private func beginDrag() {
         dragging = true
-        snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) } //Kill an in-flight flick; frames are frozen from here
+        if images.indices.contains(currentPage) { //An empty gallery clamps currentPage to -1
+            snapPager { $0.scrollTo(id: images[currentPage], anchor: .leading) } //Kill an in-flight flick; frames are frozen from here
+        }
     }
 
     //The drag rule as a pure pose — shared by the live drag and the throw's ghost finger,

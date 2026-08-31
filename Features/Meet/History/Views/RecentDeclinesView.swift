@@ -77,7 +77,9 @@ struct HistoryCard: View {
             .task(id: image) {
                 palette = await PopupColorExtractor.shared.extractPalette(image, id: decline.id)
             }
-            .zoomTransition(images: heroImages) {
+            //windDismiss: a flick rides its own momentum through one continuous
+            //wind-blown arc into the grid cell — no dive-then-spring second beat
+            .zoomTransition(images: heroImages, windDismiss: true) {
                 chrome
             } content: {
                 profileView
@@ -102,6 +104,79 @@ extension HistoryCard {
         return model
     }
 }
+
+#if DEBUG
+//MARK: - Sim harness (-uiHarnessWindDismiss)
+//The declined-card wind dismissal on a stubbed grid, reachable without an account: the
+//real cell geometry, a synthetic hero pair, and the library's own detail scroll — the
+//flight under test cares about nothing else. Drive it with live touches or the morph
+//auto-drive args (-morphAutoOpen -morphFastFlickDance …); delete once device-verified.
+struct WindDismissHarness: View {
+
+    private let photos = [Self.photo(.systemIndigo), Self.photo(.systemTeal)]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+
+    var body: some View {
+        ZoomNavigationStack {
+            VStack(alignment: .leading, spacing: 24) {
+                Text("Declined Profiles")
+                    .font(.title(32, .bold))
+                    .padding(.top, 36)
+
+                LazyVGrid(columns: columns, spacing: 20) {
+                    card
+                    Color.clear.aspectRatio(1 / 1.2, contentMode: .fit)
+                }
+            }
+            .padding(.horizontal, Spacing.gutter)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color.canvasSunken.ignoresSafeArea())
+        }
+        .environment(ZoomPresentationHost?.none)
+        .ignoresSafeArea()
+    }
+
+    private var card: some View {
+        Color.clear
+            .aspectRatio(1 / 1.2, contentMode: .fit)
+            .overlay {
+                Image(uiImage: photos[0])
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .zoomTransition(images: photos, windDismiss: true) {
+                detail
+            }
+    }
+
+    //The library hosts this in its own vertical scroll — no ScrollView here
+    private var detail: some View {
+        VStack(spacing: Spacing.lg) {
+            ImageCarousel()
+            ForEach(0..<8, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: CornerRadius.md)
+                    .fill(Color.fillGray)
+                    .frame(height: 88)
+                    .padding(.horizontal, Spacing.gutter)
+            }
+        }
+        .padding(.bottom, Spacing.clearance)
+    }
+
+    private static func photo(_ color: UIColor) -> UIImage {
+        let size = CGSize(width: 600, height: 750)
+        return UIGraphicsImageRenderer(size: size).image { ctx in
+            color.setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            UIColor.white.withAlphaComponent(0.35).setFill()
+            ctx.cgContext.fillEllipse(in: CGRect(x: 150, y: 120, width: 300, height: 300))
+            UIColor.black.withAlphaComponent(0.6).setFill()
+            ctx.fill(CGRect(x: 0, y: 620, width: 600, height: 130))
+        }
+    }
+}
+#endif
 
 //The layers appearing above the profileCard
 extension HistoryCard {

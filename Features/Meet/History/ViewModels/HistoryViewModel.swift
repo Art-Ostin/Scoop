@@ -109,8 +109,9 @@ final class HistoryUIState {
     ///The tapped lens' face circle in global space — the flight's home, captured at the tap
     var pendingSource: CGRect = .zero
 
-    ///The invite whose lenses ring together after its card closes — the echo's teaching beat
-    var pulsedInvite: String?
+    ///The tapped lens, emptied while its card is up: the photo lifts OFF the glass circle at
+    ///open and visibly RETURNS to the vacant ring at close — a duplicate beneath would kill both reads
+    var selectedLensID: String?
 
     var expandedInvite: String?
 
