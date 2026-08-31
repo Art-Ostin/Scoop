@@ -42,6 +42,12 @@ extension View {
 //so anything that has to sit beside the final line has to lay the text out itself.
 extension String {
 
+    //One line's advance width. The navigation title is a UIKit label, so no geometry proxy
+    //reaches it — anything placed beside it has to measure the string in the bar's own font.
+    func textWidth(font: UIFont) -> CGFloat {
+        (self as NSString).size(withAttributes: [.font: font]).width
+    }
+
     struct LineMetrics {
         let count: Int
         let lastLineWidth: CGFloat

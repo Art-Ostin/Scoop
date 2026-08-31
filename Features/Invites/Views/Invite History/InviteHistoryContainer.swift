@@ -14,7 +14,11 @@ struct InviteHistoryContainer: View {
     let eventProfile: EventProfile
 
     @Environment(\.dismiss) private var dismiss
-    
+
+    //Local view state
+    private static let title = "Invite History"
+    private static let titleWidth = title.textWidth(font: .title(32, .bold)) //Measured in the bar's own font, so it tracks what's drawn
+
     var pastInvites: [PastEventProposal] {
         (eventProfile.event.pastProposals ?? []).reversed()
     }
@@ -35,7 +39,8 @@ struct InviteHistoryContainer: View {
                 .padding(.bottom, Spacing.clearance)
             }
             .background(Color(red: 0.97, green: 0.96, blue: 0.95).ignoresSafeArea())
-            .navigationTitle("Invite History")
+            .navigationTitle(Self.title)
+            .scoopNavigationBarFonts(title: Self.title) //Guarantees the bar draws the font titleWidth is measured in
             .scrollIndicators(.hidden)
             .task { await vm.ensureUserImageLoaded() }
             .toolbar {
@@ -48,20 +53,42 @@ struct InviteHistoryContainer: View {
                     }
                 }
             }
+            .overlay(alignment: .topLeading) {
+                mainPhoto
+                    .padding(.horizontal, 16) //Screen edge
+                    .padding(.horizontal, Self.titleWidth) //Length of the title
+                    .padding(.horizontal, 22) //Spacing between edge and content
+                    .offset(y: -48)
+            }
         }
     }
 }
 
 extension InviteHistoryContainer {
     
+    @ViewBuilder
+    private var mainPhoto: some View {
+        if let image = eventProfile.image {
+            SmallImage(image: image, size: 44, isCircle: true)
+                .imageShadow(hide: false)
+        }
+    }
     
     private func inviteSection(pastEvent: PastEventProposal, isActiveRow: Bool) -> some View {
         VStack(spacing: 14) {
             titleRow(for: pastEvent, isActiveRow: isActiveRow)
+            
             VStack(spacing: 18) {
-                whatRowWithType(what: pastEvent.type, kind: pastEvent.kind)
-                whenRow(time: pastEvent.time)
-                whereRow(location: pastEvent.place)
+                VStack(spacing: 18) {
+                    whatRowWithType(what: pastEvent.type, kind: pastEvent.kind)
+                    whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
+                    whereRow(location: pastEvent.place)
+                }
+                
+                if let message = pastEvent.message {
+                    LightDivider()
+                    messageSection(proposal: pastEvent, message: message)
+                }
             }
             .modifier(InviteBackground())
         }
@@ -71,7 +98,7 @@ extension InviteHistoryContainer {
         HStack(spacing: Spacing.xs) {
             Text(senderName(for: proposal))
                 .font(.title(17, .bold))
-                .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
+                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
 
             Spacer()
             Text(isActiveRow ? "Current Invite" : FormatEvent.dayMonthTime(proposal.dateSent))
@@ -81,8 +108,6 @@ extension InviteHistoryContainer {
         }
         .padding(.horizontal, 5)//Optical illusion -> looks slightly smoother indented
     }
-    
-    
     
     private func whatRowWithType(what: Event.EventType, kind: ProposalKind) -> some View {
         HStack(alignment: .top) {
@@ -100,12 +125,12 @@ extension InviteHistoryContainer {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private func whenRow(time: ProposedTimes) -> some View {
+    private func whenRow(time: ProposedTimes, isNewTime: Bool) -> some View {
         HStack(spacing: iconGap) {
             Image(.eventClockIcon)
                 .detailIconColumn()
 
-            sectionLayer(title: "WHEN", bodyText: time.formatMultipleInvitedDays())
+            sectionLayer(title: "WHEN", bodyText: time.formatMultipleInvitedDays(), isBold: isNewTime)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -132,15 +157,14 @@ extension InviteHistoryContainer {
             .stroke(6.4, lineWidth: 1, color: Color.blackFill)
     }
     
-    private func sectionLayer(title: String, bodyText: String) -> some View {
+    private func sectionLayer(title: String, bodyText: String, isBold: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: Spacing.xs - 1) {
             Text(title)
                 .font(.body(12, .medium))
                 .foregroundColor(Color(red: 0.83, green: 0.83, blue: 0.81))
-//                .foregroundStyle(Color.textTertiary)
             
             Text(bodyText)
-                .font(.body(17, .medium))
+                .font(.body(17, isBold ? .bold : .medium))
                 .foregroundStyle(Color.textPrimary)
         }
     }
@@ -153,14 +177,24 @@ extension InviteHistoryContainer {
         }
     }
     
-    private func messageSection(proposal: PastEventProposal) -> some View {
-        HStack {
-            //Optional all the way down: the user's own face lands asynchronously and must never gate the row
+    private func messageSection(proposal: PastEventProposal, message: String) -> some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
             if let image = profileImage(for: proposal) {
                 SmallImage(image: image, size: avatarSize, isCircle: true)
-            }            
+            }
+
+            Text(message)
+                .font(.body(14, .italic))
+                .lineSpacing(6)                          //Matches ConfirmMessageSection, so one note reads alike in both places
+                .lineLimit(3)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
+                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
+
 }
 
 extension InviteHistoryContainer {
@@ -189,7 +223,7 @@ extension InviteHistoryContainer {
 
 private let iconColumn: CGFloat = 16
 private let iconGap = Spacing.lg
-private let avatarSize: CGFloat = 22
+private let avatarSize: CGFloat = 30
 
 private extension View {
     func detailIconColumn() -> some View {

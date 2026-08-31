@@ -45,7 +45,6 @@ struct TimeAndPlaceRows<TimeRow: View> : View {
 struct StaticTimeRow: View {
     let proposedTimes: ProposedTimes
     let style: ConfirmStyle
-    ///The invite card names one day; a confirm page reviews the whole set, so it lists them all
     var namesOneDay: Bool = false
 
     private var text: String {

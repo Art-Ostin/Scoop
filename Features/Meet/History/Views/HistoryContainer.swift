@@ -29,6 +29,10 @@ struct HistoryContainer: View {
     //the page's automatic moves — the unanswered drawer's nudge, and the travel back up to a
     //newly chosen card — speak through this one position.
     @State private var pendingScroll = ScrollPosition()
+
+    //The screen's own chrome is back while the card is still flying home — the close hands this
+    //over a beat in, well ahead of pendingClosed. See chromeVisible.
+    @State private var pendingChromeBack = false
     
     //Geometry: both the scroll view's top inset and the fade's height, so content begins
     //exactly where the fade ends — a day heading is never born dimmed.
@@ -49,17 +53,10 @@ struct HistoryContainer: View {
             .background(Color.canvasSunken.ignoresSafeArea())
             .task(id: vm.declines) { await loadDeclineImages() }
             .task(id: vm.sentInvites) { await loadInviteImages() }
-            .overlay(alignment: .bottomTrailing) {
-                dismissButton
-                    .padding(.bottom, Spacing.xxl)
-                    .padding(.horizontal, Spacing.margin)
-            }
+            .overlay { dismissButtonLayer }
             .overlay { selectedPendingEvent } //Over the page's own chrome: its backdrop covers the screen
         }
         .environment(ZoomPresentationHost?.none)
-        //The zoom navigationTransition installs its own pan-to-dismiss on the whole cover —
-        //while the pending-invite card OR a declined profile's zoom detail is up, their
-        //dismiss drags must not also drag History away
         .interactiveDismissDisabled(ui.selectedPending != nil || profileOpen)
         .ignoresSafeArea()
     }
@@ -83,14 +80,38 @@ extension HistoryContainer {
     }
     
     
+    private var dismissButtonLayer: some View {
+        GeometryReader { proxy in
+            dismissButton
+                .padding(.bottom, Spacing.xxl
+                    + max(0, proxy.size.height + proxy.safeAreaInsets.top
+                        + proxy.safeAreaInsets.bottom - UIScreen.main.bounds.height)) //Geometry: the library's canvas overgrowth, read from inside the safe-area frame
+                .padding(.horizontal, Spacing.margin)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+        }
+    }
+
+    //Gone the moment a card is picked, and back a BEAT into that card's close — never at the
+    //close's completion. pendingClosed rides the flight spring's `.removed`, which fires at the
+    //settling tail: device capture 2026-08-31 measured the close starting at 0.28s, all motion
+    //stopping at 0.90s, and the xmark only beginning to pop at 1.40s — half a second of a frozen
+    //screen. The card's own clock hands the chrome back at 0.30s instead, so the xmark is home
+    //just before the card lands.
+    private var chromeVisible: Bool { ui.selectedPending == nil || pendingChromeBack }
+
     private var dismissButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .xLarge, press: .grow) {
+        ScoopButton(style: .glass, shape: Circle(), size: .xLarge, press: .grow) {
             dismiss()
         } label: {
             Image(systemName: "xmark") //"arrow.down.right.and.arrow.up.left"
                 .foregroundStyle(.black)
                 .font(.icon(18, .heavy))
         }
+        .opacityPop(visible: chromeVisible)
+        .allowsHitTesting(chromeVisible)
+        //Its OWN value-keyed scope: selectPending writes bare on purpose (an animated mount
+        //would flash the flight cover), so the pop cannot ride the call site's transaction
+        .animation(.transition, value: chromeVisible)
     }
     
     private func loadDeclineImages() async {
@@ -99,9 +120,6 @@ extension HistoryContainer {
         }
     }
 
-    //As Meet loads a card's profile up front, so its invite and profile open on a full pager:
-    //a ledger lens shows one face, but the detail it opens wants the whole set. Keyed on the
-    //profile, not the event — one person can hold several invites
     private func loadInviteImages() async {
         for invite in vm.sentInvites where vm.profileImages[invite.profile.id] == nil {
             await vm.loadProfileImages(invite.profile)
@@ -163,6 +181,9 @@ extension HistoryContainer {
             SelectedPendingEvent(eventProfile: invite,
                                  images: vm.images(for: invite),
                                  sourceRect: ui.pendingSource,
+                                 glassRing: ui.pendingGlassRing,
+                                 onClosing: pendingClosing,
+                                 onChromeReturn: pendingChromeReturn,
                                  onClosed: pendingClosed)
         }
     }
@@ -172,6 +193,19 @@ extension HistoryContainer {
     private func selectPending(_ invite: EventProfile, sourceRect: CGRect) {
         ui.pendingSource = sourceRect
         ui.selectedPending = invite
+        pendingChromeBack = false //A fresh card takes the corner back from the last close
+    }
+
+    //A committed close is flying home: the ledger's static ring hides (a bare write, behind
+    //the still-full backdrop) so the flight's expanding glass owns the slot
+    private func pendingClosing() {
+        ui.lensReturning = true
+    }
+
+    //A beat further into that close: the chevron has popped away and the backdrop's frost has
+    //lifted, so the corner is clear and History's own xmark comes back over the still-flying card
+    private func pendingChromeReturn() {
+        pendingChromeBack = true
     }
 
     //The close flight has landed on the lens — its overshoot settle IS the landing beat —
@@ -180,6 +214,8 @@ extension HistoryContainer {
         ui.selectedPending = nil
         ui.pendingSource = .zero
         ui.selectedLensID = nil //The photo is home: the lens takes its pixels back in the same commit
+        ui.lensReturning = false
+        pendingChromeBack = false //The xmark is already in; selectedPending going nil holds it there
     }
 }
 
@@ -286,6 +322,9 @@ struct PendingFlightHarness: View {
             SelectedPendingEvent(eventProfile: invite,
                                  images: stubs.images(for: invite),
                                  sourceRect: ui.pendingSource,
+                                 glassRing: ui.pendingGlassRing,
+                                 onClosing: { ui.lensReturning = true },
+                                 onChromeReturn: { }, //The harness has no screen chrome to bring back
                                  onClosed: closed)
         }
     }
@@ -300,6 +339,7 @@ struct PendingFlightHarness: View {
         ui.selectedPending = nil
         ui.pendingSource = .zero
         ui.selectedLensID = nil
+        ui.lensReturning = false
     }
 }
 

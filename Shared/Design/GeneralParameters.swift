@@ -72,6 +72,14 @@ extension View {
             .shadow(color: .black.opacity(hide ? 0 : 0.25), radius: 2, x: 0, y: 0)
             .shadow(color: .black.opacity(hide ? 0 : 0.15), radius: 10, x: 0, y: 0)
     }
+    
+    //`strength` fades the whole spec in and out (0 = none, 1 = full) — the pending flight's
+    //landing shadow rides it home so the lens' shadow never steps in at the commit
+    func lightShadow(strength: CGFloat = 1) -> some View {
+        self
+            .shadow(color: .black.opacity(0.15 * strength), radius: 2, x: 0, y: 1)
+            .shadow(color: .black.opacity(0.1 * strength), radius: 10, x: 0, y: 0)
+    }
 }
 
 

@@ -214,18 +214,19 @@ extension PendingCalendar {
 
         return Button {
             ui.selectedLensID = lensID //Before the card mounts, so the cover's first frame sits on an already-vacated slot
+            ui.pendingGlassRing = face.isFirst ? Self.glassRing : Self.echoGlassRing //The close regrows the ring at this tier
             onSelect(face.invite, faceRects.rects[lensID] ?? .zero)
         } label: {
             SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
                 .opacity(vacated ? 0 : 1)
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
                 .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
-                //Shadow stays through the vacancy — the empty ring keeps its depth, and the
-                //final cover → lens swap no longer pops a shadow in (a visible end-beat on device)
-                .imageShadow(hide: false)
-                //Glass on its OWN layer, clipped there: crops the material's halo (the no-shadow floor — eleven
-                //glowing circles read as noise) without cropping the image's shadow onto the lens above it
+                .lightShadow()
                 .containerGlassEffect(clipped: true, shape: Circle())
+                //A committed close hides the static ring too (it vanishes behind the still-full
+                //backdrop): the flight's own glass expands in from under the landing photo, and
+                //the landed commit returns this one over pixel-identical frames
+                .opacity(vacated && ui.lensReturning ? 0 : 1)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)
                 .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
                 .padding(face.isFirst ? 0 : -Self.echoHitInset)

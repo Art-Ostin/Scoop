@@ -44,6 +44,7 @@
 		651D2B013043375B009CFA5A /* PendingCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651D2B003043375B009CFA5A /* PendingCalendar.swift */; };
 		651D2B0530435EBE009CFA5A /* SelectedPendingEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651D2B0430435EBE009CFA5A /* SelectedPendingEvent.swift */; };
 		651D2B083044D47F009CFA5A /* InviteHistoryContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651D2B073044D47F009CFA5A /* InviteHistoryContainer.swift */; };
+		651D2B0A30462B6A009CFA5A /* PendingFlightChoreo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651D2B0930462B6A009CFA5A /* PendingFlightChoreo.swift */; };
 		651ECEB23019F14A0017F206 /* ConfirmTimeAndPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651ECEB13019F14A0017F206 /* ConfirmTimeAndPlace.swift */; };
 		651ECEB4301B1D3D0017F206 /* InviteCardOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651ECEB3301B1D3D0017F206 /* InviteCardOverlay.swift */; };
 		651ECEB6301B30C40017F206 /* ConfirmComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651ECEB5301B30C40017F206 /* ConfirmComponents.swift */; };
@@ -362,6 +363,7 @@
 		651D2B003043375B009CFA5A /* PendingCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCalendar.swift; sourceTree = "<group>"; };
 		651D2B0430435EBE009CFA5A /* SelectedPendingEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPendingEvent.swift; sourceTree = "<group>"; };
 		651D2B073044D47F009CFA5A /* InviteHistoryContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteHistoryContainer.swift; sourceTree = "<group>"; };
+		651D2B0930462B6A009CFA5A /* PendingFlightChoreo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingFlightChoreo.swift; sourceTree = "<group>"; };
 		651ECEB13019F14A0017F206 /* ConfirmTimeAndPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmTimeAndPlace.swift; sourceTree = "<group>"; };
 		651ECEB3301B1D3D0017F206 /* InviteCardOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardOverlay.swift; sourceTree = "<group>"; };
 		651ECEB5301B30C40017F206 /* ConfirmComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmComponents.swift; sourceTree = "<group>"; };
@@ -716,6 +718,7 @@
 			isa = PBXGroup;
 			children = (
 				651D2B073044D47F009CFA5A /* InviteHistoryContainer.swift */,
+				651D2B0930462B6A009CFA5A /* PendingFlightChoreo.swift */,
 			);
 			path = "Invite History";
 			sourceTree = "<group>";
@@ -1839,6 +1842,7 @@
 				6546DCE0300F5E0C007A366A /* CustomTextField.swift in Sources */,
 				65E508F63018F03600035408 /* OptionsMenu.swift in Sources */,
 				657E61522F353B9300262821 /* LocationSearchService.swift in Sources */,
+				651D2B0A30462B6A009CFA5A /* PendingFlightChoreo.swift in Sources */,
 				65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */,
 				6528F4BD3020E91200C75507 /* MapSheetFlight.swift in Sources */,
 				652528372FC57DEA005B47BE /* InAppNotifications.swift in Sources */,

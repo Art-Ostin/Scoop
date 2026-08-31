@@ -125,9 +125,6 @@ struct HeaderRow: View {
                     .font(.headline)              // SF Pro 17pt semibold
                     .foregroundStyle(.secondary)
                 
-//                    .font(.body(18, .bold))
-//                    .foregroundStyle(Color.textPrimary)
-
                 Spacer(minLength: 0)
 
                 if let note {

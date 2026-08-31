@@ -113,6 +113,15 @@ final class HistoryUIState {
     ///open and visibly RETURNS to the vacant ring at close — a duplicate beneath would kill both reads
     var selectedLensID: String?
 
+    ///The tapped lens' glass tier (PendingCalendar's ring width), captured beside the source
+    ///rect — the close flight regrows the ring at exactly this size under the landing photo
+    var pendingGlassRing: CGFloat = 0
+
+    ///True only while a committed close is flying home: the ledger's static ring hides for
+    ///that stretch, the flight's own expanding glass owns the slot, and the landed commit
+    ///returns the full lens (photo, ring, shadow) over pixel-identical frames
+    var lensReturning = false
+
     var expandedInvite: String?
 
     var expandedExpired: String?

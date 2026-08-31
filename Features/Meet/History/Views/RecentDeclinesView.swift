@@ -104,11 +104,7 @@ extension HistoryCard {
 }
 
 #if DEBUG
-//MARK: - Sim harness (-uiHarnessWindDismiss)
-//The declined-card wind dismissal on a stubbed grid, reachable without an account: the
-//real cell geometry, a synthetic hero pair, and the library's own detail scroll — the
-//flight under test cares about nothing else. Drive it with live touches or the morph
-//auto-drive args (-morphAutoOpen -morphFastFlickDance …); delete once device-verified.
+
 struct WindDismissHarness: View {
 
     private let photos = [Self.photo(.systemIndigo), Self.photo(.systemTeal)]
@@ -124,14 +120,36 @@ struct WindDismissHarness: View {
                 LazyVGrid(columns: columns, spacing: 20) {
                     card
                     Color.clear.aspectRatio(1 / 1.2, contentMode: .fit)
+                    Color.clear.aspectRatio(1 / 1.2, contentMode: .fit)
+                    lowCard //Second row, right — the low-slot carry regime under test
                 }
             }
             .padding(.horizontal, Spacing.gutter)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Color.canvasSunken.ignoresSafeArea())
+            .overlay { harnessDismissLayer }
         }
         .environment(ZoomPresentationHost?.none)
         .ignoresSafeArea()
+    }
+
+    //Mirrors HistoryContainer.dismissButtonLayer — the motion probe for the canvas-restore
+    //snap: the padding cancels the library's presentation overgrowth in the same layout pass.
+    private var harnessDismissLayer: some View {
+        GeometryReader { proxy in
+            ScoopButton(style: .clearGlass, shape: Circle(), size: .xLarge, press: .grow) {
+                //Harness motion probe only — the real button dismisses the cover
+            } label: {
+                Image(systemName: "xmark")
+                    .foregroundStyle(.black)
+                    .font(.icon(18, .heavy))
+            }
+            .padding(.bottom, Spacing.xxl
+                + max(0, proxy.size.height + proxy.safeAreaInsets.top
+                    + proxy.safeAreaInsets.bottom - UIScreen.main.bounds.height)) //Geometry: the library's canvas overgrowth, read from inside the safe-area frame
+            .padding(.horizontal, Spacing.margin)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+        }
     }
 
     private var card: some View {
@@ -144,6 +162,20 @@ struct WindDismissHarness: View {
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .zoomTransition(images: photos, windDismiss: true) {
+                detail
+            }
+    }
+
+    private var lowCard: some View {
+        Color.clear
+            .aspectRatio(1 / 1.2, contentMode: .fit)
+            .overlay {
+                Image(uiImage: photos[1])
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .zoomTransition(images: [photos[1], photos[0]], windDismiss: true) {
                 detail
             }
     }
@@ -185,12 +217,44 @@ extension HistoryCard {
         }
         .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
         .overlay(alignment: .bottomLeading) {
-            Text(profile.name)
-                .font(.title(20, .bold))
-                .foregroundStyle(Color.white)
-                .padding(.horizontal, Spacing.sm)
-                .padding(.bottom, Spacing.sm)
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text(profile.name)
+                    .font(.title(20, .bold))
+                    .foregroundStyle(Color.white)
+            }
+            .padding(.horizontal, Spacing.sm)
+            .padding(.bottom, Spacing.sm)
         }
+        .overlay(alignment: .topTrailing) {
+            expiryLabel
+        }
+    }
+
+    @ViewBuilder
+    private var expiryLabel: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { context in
+            if let left = decline.timeLeft(asOf: context.date) {
+                ZStack {
+                    expiryPill(left)
+                        .id(left)
+                        .transition(.blurReplace)
+                }
+                .animation(.transition, value: left)
+
+            }
+        }
+    }
+
+    //One styling path, so the placeholder above stays an honest preview of the real label
+    private func expiryPill(_ text: String) -> some View {
+        Text(text)
+            .font(.body(10, .medium))
+            .foregroundStyle(Color.white)
+            .padding(.horizontal, 4) //Geometry: optical inset — the stroke hugs the glyphs
+            .padding(.vertical, 2)
+            .stroke(12, lineWidth: 0.5, color: Color.white)
+            .padding(8)
+            .padding(.horizontal, 2)
     }
     
     private var blurBackground: BlurAndGradientBackground {
