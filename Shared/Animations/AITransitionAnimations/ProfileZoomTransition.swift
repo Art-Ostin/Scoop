@@ -1680,7 +1680,7 @@ struct WindSpring {
 /// The wind dismissal's complete 1D solve — the honest ride, the gust home,
 /// the landing brake with its emergent bounce, and every clock. Internal,
 /// not private, on the DragTuning precedent: the profile zoom's flick
-/// dismissal (runWind) and the pending-invite card's (SelectedPendingEvent)
+/// dismissal (runWind) and the pending-invite card's (`.eventZoom`)
 /// consume this SAME plan, so the two flights cannot drift. `u` is the
 /// flying anchor's displacement below its slot, pt (positive = below);
 /// clocks are flight seconds. See DragTuning's wind section for the design.
@@ -4235,7 +4235,7 @@ final class MorphDismissController: NSObject {
 
     /// The zoom flight's rendering companion to the shared WindFlightPlan:
     /// the plan owns the trajectory and every clock (and is consumed
-    /// verbatim by SelectedPendingEvent's dismissal too); this struct
+    /// verbatim by the pending card's `.eventZoom` dismissal too); this struct
     /// carries only the scene-specific endpoints the ticks render with.
     private struct WindFlight {
         var plan: WindFlightPlan

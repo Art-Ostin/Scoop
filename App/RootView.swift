@@ -20,9 +20,7 @@ struct RootView : View {
 
     var body: some View {
         #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-uiHarnessPendingFlight") {
-            PendingFlightHarness() //Capture rig for the ledger lens → detail card flight
-        } else if ProcessInfo.processInfo.arguments.contains("-uiHarnessWindDismiss") {
+        if ProcessInfo.processInfo.arguments.contains("-uiHarnessWindDismiss") {
             WindDismissHarness() //Capture rig for the declined-card wind dismissal
         } else {
             appBody

@@ -122,6 +122,10 @@ final class HistoryUIState {
     ///returns the full lens (photo, ring, shadow) over pixel-identical frames
     var lensReturning = false
 
+    ///The screen's own chrome, back a BEAT into a committed close while the card is still
+    ///flying home — the flight writes it, and a fresh selection takes the corner back
+    var pendingChromeBack = false
+
     var expandedInvite: String?
 
     var expandedExpired: String?

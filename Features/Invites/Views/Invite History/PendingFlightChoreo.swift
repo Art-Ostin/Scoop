@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-//The pending card's entire flight — the choreography SelectedPendingEvent renders but never
+//The pending card's entire flight — the choreography `.eventZoom` renders but never
 //drives. The tapped lens hides and the card, laid out at rest, is revealed through an
 //expanding window that grows out of the lens' circle, while the photo morphs from the lens
 //into the pager's band above it: the invite popup's arrival. Close is the reverse (backdrop
@@ -56,7 +56,7 @@ import SwiftUI
     }
 }
 
-//The card's read surface — everything SelectedPendingEvent needs, and nothing that moves it
+//The card's read surface — everything the presented card needs, and nothing that moves it
 extension PendingFlightChoreo {
 
     //Landed and at rest: the live pager mounts here and the Hide chevron arrives
@@ -631,5 +631,153 @@ struct PendingFlightMorph: ViewModifier, Animatable {
                y: lerp(a.minY, b.minY, t),
                width: lerp(a.width, b.width, t),
                height: lerp(a.height, b.height, t))
+    }
+}
+
+//MARK: EventZoom — the whole flight, attached in one line
+
+extension View {
+
+    ///Grows the pending event card out of the ledger lens the tap recorded in `ui`, and flies
+    ///it home again on dismissal. Everything the flight owns lives behind this modifier — the
+    ///choreography, the frosted backdrop, the Hide chevron and its stationary slot, the dismiss
+    ///drag, the morph, and the cover's baked blur band — so the screen it is attached to keeps
+    ///no flight state and spells out no close callbacks: the choreo writes the ledger's own
+    ///state itself (the vacated lens, the returning ring, the chrome's beat, the selection).
+    ///`card` supplies only the surface that flies — the pager and the rows — built from the
+    ///invite and its display-prepared images. The choreo reaches that content through the
+    ///environment, so `EventImagePager` gates its live carousel, freezes its axis under the
+    ///dismiss drag and reports its landing band without any of it crossing the call site.
+    func eventZoom<Card: View>(
+        ui: HistoryUIState,
+        images: @escaping (EventProfile) -> [UIImage],
+        @ViewBuilder card: @escaping (EventProfile, [UIImage]) -> Card
+    ) -> some View {
+        modifier(EventZoomModifier(ui: ui, images: images, card: card))
+    }
+}
+
+private struct EventZoomModifier<Card: View>: ViewModifier {
+
+    //Injected
+    let ui: HistoryUIState
+    let images: (EventProfile) -> [UIImage]
+    @ViewBuilder let card: (EventProfile, [UIImage]) -> Card
+
+    func body(content: Content) -> some View {
+        content
+            .overlay { //Over the page's own chrome: the card's backdrop covers the screen
+                if let invite = ui.selectedPending {
+                    EventZoomCard(eventProfile: invite,
+                                  images: images(invite),
+                                  ui: ui,
+                                  card: card)
+                }
+            }
+    }
+}
+
+//The presented card — the flight's host. Mounted the moment the ledger records a selection,
+//and unmounted in the same commit the flight lands back on the lens. The source anchor is read
+//ONCE here, at mount: the tap writes it before the selection, and the flight must not follow a
+//later edit of it.
+private struct EventZoomCard<Card: View>: View {
+
+    //Injected
+    let eventProfile: EventProfile
+    let images: [UIImage]
+    let ui: HistoryUIState
+    @ViewBuilder let card: (EventProfile, [UIImage]) -> Card
+
+    //Local view state
+    @State private var flight: PendingFlightChoreo
+    @State private var prepared: [UIImage] = []
+    @State private var containerTop: CGFloat = 0 //This view's global origin — the stationary chevron's slot arrives in global space
+
+    init(eventProfile: EventProfile, images: [UIImage], ui: HistoryUIState,
+         @ViewBuilder card: @escaping (EventProfile, [UIImage]) -> Card) {
+        self.eventProfile = eventProfile
+        self.images = images
+        self.ui = ui
+        self.card = card
+        _flight = State(initialValue: PendingFlightChoreo(
+            source: ui.pendingSource,
+            glassRing: ui.pendingGlassRing,
+            //A committed close is flying home: the ledger's static ring hides (a bare write,
+            //behind the still-full backdrop) so the flight's expanding glass owns the slot
+            onClosing: { ui.lensReturning = true },
+            //A beat further into that close: the chevron has popped away and the backdrop's
+            //frost has lifted, so the corner is clear and the screen's own chrome comes back
+            //over the still-flying card
+            onChromeReturn: { ui.pendingChromeBack = true },
+            //The close flight has landed on the lens — its overshoot settle IS the landing
+            //beat — so the card unmounts and the lens returns in the same commit, identical pixels
+            onClosed: {
+                ui.selectedPending = nil
+                ui.pendingSource = .zero
+                ui.selectedLensID = nil //The photo is home: the lens takes its pixels back in the same commit
+                ui.lensReturning = false
+                ui.pendingChromeBack = false //The chrome is already in; selectedPending going nil holds it there
+            }))
+    }
+
+    var body: some View {
+        ZStack {
+            inviteBackdrop
+                .opacity(flight.backdropOpacity)
+
+            VStack(spacing: Spacing.xl) {
+                selectedEvent
+                BottomBackButton(visible: false) { }
+            }
+            .offset(flight.cardOffset)
+            .simultaneousGesture(flight.dismissDrag)
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { containerTop = $0 }
+        .overlay(alignment: .top) { stationaryBackButton }
+        .task { await prepareImages() }
+        .task { await flight.bakeCoverBand(photo: coverPhoto) }
+        .onDisappear { flight.unmounted() }
+    }
+}
+
+extension EventZoomCard {
+
+    //The card the modifier's caller supplied, wearing the flight: the morph's window owns its
+    //rounding, and the shadow is worn AFTER the mask so it wears the window's shape
+    private var selectedEvent: some View {
+        card(eventProfile, prepared.isEmpty ? images : prepared)
+            .background(Color.white)
+            .modifier(flight.morph(photo: coverPhoto, title: eventProfile.inviteTitle))
+            .shadow(.card, strength: flight.shadowStrength)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
+            .padding(.horizontal, Spacing.gutter) //The card is a full-bleed surface, not a text column
+            .environment(flight) //How the card's pager gates its live mount and reports its band
+    }
+
+    private func prepareImages() async {
+        var ready: [UIImage] = []
+        for image in images {
+            ready.append(await image.byPreparingForDisplay() ?? image)
+        }
+        prepared = ready
+    }
+
+    private var coverPhoto: UIImage { eventProfile.image ?? images.first ?? UIImage() }
+
+    private var inviteBackdrop: some View {
+        Rectangle()
+            .fill(.ultraThinMaterial)
+            .background(Color.white.opacity(0.1))
+            .ignoresSafeArea()
+            .onTapGesture { flight.close() }
+    }
+
+    @ViewBuilder
+    private var stationaryBackButton: some View {
+        if flight.hasChevronSlot {
+            BottomBackButton(visible: flight.chevronVisible) { flight.close() }
+                .offset(y: flight.chevronSlotY - containerTop)
+        }
     }
 }

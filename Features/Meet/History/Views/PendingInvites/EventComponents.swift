@@ -1,6 +1,6 @@
 //
 //  EventComponents.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
@@ -18,25 +18,28 @@ private let textColumn = iconWidth + iconGap
 
 
 struct EventImagePager: View {
-    
-    let isSettled: Bool
-    let dragEngaged: Bool
-    
+    //Injected
     let title: String
     let images: [UIImage]
-    
+
+    @Environment(PendingFlightChoreo.self) private var flight: PendingFlightChoreo?
+
+    private var isSettled: Bool { flight?.settled ?? true }
+
     var body: some View {
         Color.clear
             .aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit)
             .overlay {
                 if isSettled {
                     inviteCarousel
-                    .overlay(alignment: .bottomLeading) { profileName }
-                    .scrollDisabled(dragEngaged) //An engaged dismiss drag freezes the pager's own axis
+                        .overlay(alignment: .bottomLeading) { profileName }
+                        .scrollDisabled(flight?.dragEngaged ?? false) //An engaged dismiss drag freezes the pager's own axis
                 }
             }
+            //The cover's landing band: the flight morphs the tapped lens' photo into this rect
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
     }
-    
+
     private var inviteCarousel: some View {
         InviteCarousel(
             images: images,
@@ -182,4 +185,10 @@ struct EventPlaceRow: View {
         .frame(height: rowHeight)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
+
+extension EventProfile {
+    ///"Invited <name>" — the card's title, and the flight cover's clone of it. ONE source: the
+    ///landing crossfades between the two, so they have to render the same glyphs
+    var inviteTitle: String { "Invited \(profile.name)" }
 }

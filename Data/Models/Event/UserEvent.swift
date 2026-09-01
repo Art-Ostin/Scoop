@@ -94,18 +94,3 @@ extension UserEvent {
         return MessagePopup(eventId: id, image: otherUserPhoto, authorName: otherUserName, message: preview)
     }
 }
-
-extension UserEvent {
-    init(harnessID: String, otherProfile: UserProfile, type: Event.EventType, proposedTimes: ProposedTimes, location: EventLocation, message: String?) {
-        __id = DocumentID(wrappedValue: harnessID)
-        otherUserId = otherProfile.id
-        otherUserName = otherProfile.name
-        otherUserPhoto = ""
-        role = .sent
-        self.type = type
-        self.proposedTimes = proposedTimes
-        acceptedTime = nil
-        self.location = location
-        self.message = message
-    }
-}
