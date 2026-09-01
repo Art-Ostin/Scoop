@@ -129,8 +129,15 @@ extension View {
 
 extension View {
     func oneLineLimitAndShrink(minimum: CGFloat = TextShrink.floor) -> some View {
+        lineLimitAndShrink(1, minimum: minimum)
+    }
+
+    //Shrink-to-fit across n lines — scales down rather than truncating, to the shrink floor.
+    //The line limit alone bounds the space, so no height constraint is needed (and a fixed
+    //frame would keep n full-size line heights after the text shrank — sim-verified iOS 26).
+    func lineLimitAndShrink(_ limit: Int, minimum: CGFloat = TextShrink.floor) -> some View {
         self
-            .lineLimit(1)
+            .lineLimit(limit)
             .minimumScaleFactor(minimum)
             .allowsTightening(true)
     }

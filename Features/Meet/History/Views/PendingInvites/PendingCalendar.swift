@@ -93,7 +93,7 @@ extension PendingCalendar {
     private func noEventDay(day: Date, isTop: Bool) -> some View {
         Text(FormatEvent.shortDayAndTime(day, withHour: false, withToday: true))
             .font(.body(14, .regular))
-            .foregroundStyle(Color.textTertiary)
+            .foregroundStyle(Color.textTertiary.opacity(0.7)) //Tad Lighter
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, isTop ? Spacing.md : Spacing.xs)
             .padding(.bottom, Spacing.xs)
@@ -110,9 +110,6 @@ extension PendingCalendar {
 
             facePile(day: day, faces: faces)
         }
-        //An echo-only day is the middle tier — possible, not planned — so its row sits
-        //between the full day and the slim free day. Both paddings are derived, each giving
-        //back exactly what its own lens took so neither tier's height moved.
         .padding(.vertical, hasPrimary ? Self.primaryPad : Self.echoPad)
     }
 
@@ -223,9 +220,6 @@ extension PendingCalendar {
                 .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
                 .lightShadow()
                 .containerGlassEffect(clipped: true, shape: Circle())
-                //A committed close hides the static ring too (it vanishes behind the still-full
-                //backdrop): the flight's own glass expands in from under the landing photo, and
-                //the landed commit returns this one over pixel-identical frames
                 .opacity(vacated && ui.lensReturning ? 0 : 1)
                 .padding(face.isFirst ? 0 : Self.echoHitInset)
                 .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses

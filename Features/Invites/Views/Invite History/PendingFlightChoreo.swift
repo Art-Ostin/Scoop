@@ -150,7 +150,11 @@ extension PendingFlightChoreo {
     private static let openChrome = Animation.spring(
         duration: SendInviteContainer.openSpring.duration * timeScale,
         bounce: SendInviteContainer.openSpring.bounce + 0.05)
-    private static let closeFlight = Animation.spring(duration: 0.36 * timeScale, bounce: 0.03) //0.32 read a tad too snappy on device (2026-08-31)
+    //0.32 FLAT read a tad too snappy on device (2026-08-31) and was taken back out to 0.36; it
+    //returns quicker with the landing's bounce restored instead. 0.15 (damping .85) overshoots
+    //~0.6% of the flight, and p is the whole lens→pager range, so that is ~2pt of inward pulse
+    //on the 52pt lens: the cover settles onto the slot rather than stopping dead on it.
+    private static let closeFlight = Animation.spring(duration: 0.32 * timeScale, bounce: 0.15)
 
     private static let closeChrome = Animation.smooth(duration: 0.25 * timeScale)
 

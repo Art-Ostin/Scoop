@@ -28,8 +28,27 @@ struct RecentDeclines: View {
 
 extension RecentDeclines {
     private var pastDeclinePlaceholder: some View {
-        Text("No Profiles")
-    }
+            VStack {
+                VStack(spacing: 32) {
+                    Image("CoolGuys")
+                        .resizable()
+                        .scaledToFit()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(width: 275, height: 275)
+                    
+                    Text("Declined a profile and regret it? You can still send them an invite for 3 days")
+                        .font(.body(18, .medium))
+                        .lineSpacing(6)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.horizontal, 48)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 60)
+                .padding(.bottom, 36)
+            }
+        }
+    
     
     private var pastDeclineCards: some View {
         LazyVGrid(columns: columns, spacing: 20) {

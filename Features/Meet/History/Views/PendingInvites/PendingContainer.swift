@@ -13,20 +13,48 @@ struct PendingInvitesView: View {
     let days: [InviteDay]
     let expiredInvites: [EventProfile]
     @Bindable var ui: HistoryUIState //Bindable, not let: the expired section drives showsExpired
+    
     let onSelect: (EventProfile, CGRect) -> Void //Opening a ledger lens — the container owns the card it presents; the tap carries the lens' face circle
 
     var body: some View {
         VStack(spacing: 0) {
             if !days.isEmpty {
                 pendingCalendar
+            } else {
+                pendingPlaceholder
             }
 
-            expiredInvitesView
+            if !days.isEmpty || !expiredInvites.isEmpty {
+                expiredInvitesView
+            }
         }
     }
 }
 
 extension PendingInvitesView {
+    
+    private var pendingPlaceholder: some View {
+        VStack {
+            VStack(spacing: 32) {
+                Image("CoolGuys")
+                    .resizable()
+                    .scaledToFit()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .frame(width: 275, height: 275)
+                
+                
+                Text("All the invites you sent and are awaiting a response appear here")
+                    .font(.body(18, .medium))
+                    .lineSpacing(6)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.horizontal, 48)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 60)
+            .padding(.bottom, 36)
+        }
+    }
     
     private var pendingCalendar: some View {
         PendingCalendar(inviteDays: days, ui: ui, onSelect: onSelect)

@@ -14,6 +14,8 @@ struct SelectedPendingEvent: View {
     let images: [UIImage]
 
     let rowHeight: CGFloat = 33
+    
+    @Binding var openEventInfo: EventProfile?
 
     //Local view state
     @State private var flight: PendingFlightChoreo
@@ -22,11 +24,14 @@ struct SelectedPendingEvent: View {
     @State private var containerTop: CGFloat = 0 //This view's global origin — the stationary chevron's slot arrives in global space
 
     init(eventProfile: EventProfile, images: [UIImage], sourceRect: CGRect, glassRing: CGFloat,
+         openEventInfo: Binding<EventProfile?>,
          onClosing: @escaping () -> Void,
          onChromeReturn: @escaping () -> Void,
-         onClosed: @escaping () -> Void) {
+         onClosed: @escaping () -> Void
+    ) {
         self.eventProfile = eventProfile
         self.images = images
+        self._openEventInfo = openEventInfo
         _flight = State(initialValue: PendingFlightChoreo(source: sourceRect, glassRing: glassRing,
                                                           onClosing: onClosing,
                                                           onChromeReturn: onChromeReturn,
@@ -129,15 +134,47 @@ extension SelectedPendingEvent {
 
     private var typeRow: some View {
         HStack(spacing: iconGap) {
+            
             Text(eventProfile.event.type.emoji)
                 .font(.body(16, .bold))
                 .detailIconColumn()
 
-            Text(eventProfile.event.type.longTitle)
-                .font(.body(16, .bold))
+            VStack(alignment: .leading, spacing: 6) {
+                eventAndInfo                    
+                
+                if let message = eventProfile.event.message {
+                    text(message: message)
+                }
+            }
         }
-        .frame(height: rowHeight)
+        .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var eventAndInfo: some View {
+        Button {
+            openEventInfo = eventProfile
+        } label: {
+            HStack(alignment: .top, spacing: 4) {
+                Text(eventProfile.event.type.longTitle)
+                    .font(.body(16, .bold))
+                
+                Image(systemName: "info.circle")
+                    .foregroundStyle(Color.textTertiary)
+                    .font(.body(11, .medium))
+                    .offset(y: -2)
+            }
+        }
+        .growButton()
+    }
+    
+    private func text(message: String) -> some View {
+        Text(message)
+            .font(.body(14, .regularItalic))
+            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+            .lineLimitAndShrink(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var timeRow: some View {
@@ -151,7 +188,6 @@ extension SelectedPendingEvent {
         }
         .frame(height: rowHeight)
         .frame(maxWidth: .infinity, alignment: .leading)
-
     }
 
     private var placeRow: some View {

@@ -90,15 +90,10 @@ struct ConfirmContainer<TimeRow: View>: View {
         VStack(alignment: .leading, spacing: 0) {
             header
                 .blurPop(visible: !timeOpen, scale: 1)
-                //While the flight's hero text owns the title/type it never renders here; a
-                //flight with no heroes (a non-accept mount) rushes it out with the scrim instead
                 .opacity(rowsFlying ? 0 : chromeFade)
             timeAndPlaceRows
             warning
                 .blurPop(visible: !timeOpen, scale: 1)
-                //Hidden from the flight's first frame (a visible-at-mount gate faded it OUT
-                //over the launch — device video 2026-08-20), popped in on the open spring's
-                //clock so it arrives with the settle, and back out at close start
                 .blurPop(visible: bottomChromeIn)
                 .animation(.transition, value: bottomChromeIn)
         }

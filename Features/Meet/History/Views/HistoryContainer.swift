@@ -20,26 +20,16 @@ struct HistoryContainer: View {
     
     @State private var ui = HistoryUIState()
 
-    //A declined profile's zoom detail is up (present → landed). Feeds the cover's
-    //interactive-dismiss guard below — the zoom library's own UIKit-side hold is
-    //stomped by SwiftUI re-renders, so the flag must ride SwiftUI's writer.
     @State private var profileOpen = false
 
-    //The pending page's scroll, driven from here: the container owns the scroll view, so both of
-    //the page's automatic moves — the unanswered drawer's nudge, and the travel back up to a
-    //newly chosen card — speak through this one position.
     @State private var pendingScroll = ScrollPosition()
 
-    //The screen's own chrome is back while the card is still flying home — the close hands this
-    //over a beat in, well ahead of pendingClosed. See chromeVisible.
     @State private var pendingChromeBack = false
     
-    //Geometry: both the scroll view's top inset and the fade's height, so content begins
-    //exactly where the fade ends — a day heading is never born dimmed.
+    @State private var showEventInfo: EventProfile?
+    
     private let fadeBand: CGFloat = 32
 
-    //Geometry: how far the scroll follows the unanswered section open — its note and the first
-    //cards. Travels less when less is left: the nudge stops at the end of the content.
     private let expiredReveal: CGFloat = 400
     
     var body: some View {
@@ -55,6 +45,9 @@ struct HistoryContainer: View {
             .task(id: vm.sentInvites) { await loadInviteImages() }
             .overlay { dismissButtonLayer }
             .overlay { selectedPendingEvent } //Over the page's own chrome: its backdrop covers the screen
+            .sheet(item: $showEventInfo) { eventProfile in
+                Text(eventProfile.profile.name)
+            }
         }
         .environment(ZoomPresentationHost?.none)
         .interactiveDismissDisabled(ui.selectedPending != nil || profileOpen)
@@ -91,12 +84,6 @@ extension HistoryContainer {
         }
     }
 
-    //Gone the moment a card is picked, and back a BEAT into that card's close — never at the
-    //close's completion. pendingClosed rides the flight spring's `.removed`, which fires at the
-    //settling tail: device capture 2026-08-31 measured the close starting at 0.28s, all motion
-    //stopping at 0.90s, and the xmark only beginning to pop at 1.40s — half a second of a frozen
-    //screen. The card's own clock hands the chrome back at 0.30s instead, so the xmark is home
-    //just before the card lands.
     private var chromeVisible: Bool { ui.selectedPending == nil || pendingChromeBack }
 
     private var dismissButton: some View {
@@ -182,6 +169,7 @@ extension HistoryContainer {
                                  images: vm.images(for: invite),
                                  sourceRect: ui.pendingSource,
                                  glassRing: ui.pendingGlassRing,
+                                 openEventInfo: $showEventInfo,
                                  onClosing: pendingClosing,
                                  onChromeReturn: pendingChromeReturn,
                                  onClosed: pendingClosed)
@@ -322,7 +310,7 @@ struct PendingFlightHarness: View {
             SelectedPendingEvent(eventProfile: invite,
                                  images: stubs.images(for: invite),
                                  sourceRect: ui.pendingSource,
-                                 glassRing: ui.pendingGlassRing,
+                                 glassRing: ui.pendingGlassRing, openEventInfo: .constant(nil),
                                  onClosing: { ui.lensReturning = true },
                                  onChromeReturn: { }, //The harness has no screen chrome to bring back
                                  onClosed: closed)
