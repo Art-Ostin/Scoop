@@ -20,7 +20,6 @@ struct SelectedPendingEvent: View {
     //Local view state
     @State private var flight: PendingFlightChoreo
     @State private var prepared: [UIImage] = []
-    @State private var scrollProgress: Double = 0
     @State private var containerTop: CGFloat = 0 //This view's global origin — the stationary chevron's slot arrives in global space
 
     init(eventProfile: EventProfile, images: [UIImage], sourceRect: CGRect, glassRing: CGFloat,
@@ -72,23 +71,17 @@ extension SelectedPendingEvent {
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
         .padding(.horizontal, Spacing.gutter) //The card is a full-bleed surface, not a text column
     }
-
+    
     private var imagePager: some View {
-        Color.clear
-            .aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit)
-            .overlay {
-                if flight.settled {
-                    InviteCarousel(images: prepared.isEmpty ? images : prepared,
-                                   ratio: AspectRatio.pendingEvent.ratio,
-                                   blursBottom: true,
-                                   scrollProgress: $scrollProgress)
-                        .overlay(alignment: .bottomLeading) { profileName }
-                        .scrollDisabled(flight.dragEngaged) //An engaged dismiss drag freezes the pager's own axis
-                }
-            }
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportPagerBand($0) }
+        EventImagePager(
+            isSettled: flight.settled,
+            dragEngaged: flight.dragEngaged,
+            title: "Invited \(eventProfile.profile.name)",
+            images: prepared.isEmpty ? images : prepared,
+        )
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportPagerBand($0) }
     }
-
+    
     private func prepareImages() async {
         var ready: [UIImage] = []
         for image in images {
@@ -113,15 +106,6 @@ extension SelectedPendingEvent {
         )
     }
     
-    private var profileName: some View {
-        Text(inviteTitle)
-            .font(.title(22)) //The invite card's title type — "Invite <name>" reads the same here
-            .foregroundStyle(Color.white)
-            .lineLimit(1)
-            .padding(.horizontal, 20) //Geometry: the invite card's own title inset from the artwork edge
-            .padding(.bottom, Spacing.sm)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
 
     private var inviteBackdrop: some View {
         Rectangle()
@@ -139,104 +123,3 @@ extension SelectedPendingEvent {
         }
     }
 }
-
-
-/*
- 
- private var rowRule: some View {
-     VeryLightDivider()
-         .padding(.leading, 40)
- }
- 
- private var detailRows: some View {
-     let e = eventProfile.event
-     
-     return VStack(alignment: .leading, spacing: 19) {
-         EventTypeRow(type: e.type, message: e.message, openEventInfo: { openEventInfo = eventProfile})
-         rowRule
-         EventTimeRow(time: eventProfile.event.proposedTimes)
-         rowRule
-         EventPlaceRow(location: eventProfile.event.location)
-     }
-     .padding(.horizontal, Spacing.lg)
-     .padding(.top, 20)
-     .padding(.bottom, Spacing.lg)
- }
-
- 
- private let iconColumn: CGFloat = 20
-
- private let iconGap = Spacing.lg - 4
-
- private let textColumn = iconColumn + iconGap
-
- private extension View {
-     func detailIconColumn() -> some View {
-         frame(width: iconColumn)
-     }
- }
-
-
-
-
-
- private var placeRow: some View {
-     let location = eventProfile.event.location
-     return HStack(spacing: iconGap) {
-         Image(.eventMapIcon)
-             .scaleEffect(1.2)
-             .detailIconColumn()
-
-         Text(location.name ?? "View Venue")
-             .font(.body(16, .bold))
-     }
-     .frame(height: rowHeight)
-     .frame(maxWidth: .infinity, alignment: .leading)
- }
- private var typeRow: some View {
-     HStack(spacing: iconGap) {
-         
-         Text(eventProfile.event.type.emoji)
-             .font(.body(16, .bold))
-             .detailIconColumn()
-
-         VStack(alignment: .leading, spacing: 6) {
-             eventAndInfo
-             
-             if let message = eventProfile.event.message {
-                 text(message: message)
-             }
-         }
-     }
-     .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
-     .frame(maxWidth: .infinity, alignment: .leading)
- }
-
- 
- private var eventAndInfo: some View {
-     Button {
-         openEventInfo = eventProfile
-     } label: {
-         HStack(alignment: .top, spacing: 4) {
-             Text(eventProfile.event.type.longTitle)
-                 .font(.body(16, .bold))
-             
-             Image(systemName: "info.circle")
-                 .foregroundStyle(Color.textTertiary)
-                 .font(.body(11, .medium))
-                 .offset(y: -2)
-         }
-     }
-     .growButton()
- }
- 
- private func text(message: String) -> some View {
-     Text(message)
-         .font(.body(14, .regularItalic))
-         .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
-         .lineLimitAndShrink(3)
-         .frame(maxWidth: .infinity, alignment: .leading)
-         .fixedSize(horizontal: false, vertical: true)
- }
-
- */

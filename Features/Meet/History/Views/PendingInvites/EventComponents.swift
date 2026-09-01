@@ -17,6 +17,45 @@ private let iconGap: CGFloat = 20
 private let textColumn = iconWidth + iconGap
 
 
+struct EventImagePager: View {
+    
+    let isSettled: Bool
+    let dragEngaged: Bool
+    
+    let title: String
+    let images: [UIImage]
+    
+    var body: some View {
+        Color.clear
+            .aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit)
+            .overlay {
+                if isSettled {
+                    inviteCarousel
+                    .overlay(alignment: .bottomLeading) { profileName }
+                    .scrollDisabled(dragEngaged) //An engaged dismiss drag freezes the pager's own axis
+                }
+            }
+    }
+    
+    private var inviteCarousel: some View {
+        InviteCarousel(
+            images: images,
+            ratio: AspectRatio.pendingEvent.ratio,
+            blursBottom: true,
+            scrollProgress: .constant(0))
+    }
+    
+    private var profileName: some View {
+        Text(title)
+            .font(.title(22)) //The invite card's title type — "Invite <name>" reads the same here
+            .foregroundStyle(Color.white)
+            .lineLimit(1)
+            .padding(.horizontal, 20) //Geometry: the invite card's own title inset from the artwork edge
+            .padding(.bottom, Spacing.sm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 struct EventTypeTimeAndPlace: View {
     
     let type: Event.EventType
