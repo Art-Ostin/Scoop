@@ -63,8 +63,8 @@ extension SelectedPendingEvent {
     private var selectedEvent: some View {
         VStack(spacing: 0) {
             imagePager
-
-            detailRows
+            
+            detailsRow
         }
         .background(Color.white)
         .modifier(flight.morph(photo: coverPhoto, title: inviteTitle))
@@ -100,20 +100,19 @@ extension SelectedPendingEvent {
     private var coverPhoto: UIImage { eventProfile.image ?? images.first ?? UIImage() }
 
     private var inviteTitle: String { "Invited \(eventProfile.profile.name)" }
-
-    private var detailRows: some View {
-        VStack(alignment: .leading, spacing: 19) {
-            typeRow
-            rowRule
-            timeRow
-            rowRule
-            placeRow
-        }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.top, 20)
-        .padding(.bottom, Spacing.lg)
+    
+    private var detailsRow: some View {
+        let e = eventProfile.event
+        
+        return EventTypeTimeAndPlace(
+            type: e.type,
+            message: e.message,
+            time: e.proposedTimes,
+            place: e.location,
+            openInfo: {openEventInfo = eventProfile}
+        )
     }
-
+    
     private var profileName: some View {
         Text(inviteTitle)
             .font(.title(22)) //The invite card's title type — "Invite <name>" reads the same here
@@ -131,84 +130,7 @@ extension SelectedPendingEvent {
             .ignoresSafeArea()
             .onTapGesture { flight.close() }
     }
-
-    private var typeRow: some View {
-        HStack(spacing: iconGap) {
-            
-            Text(eventProfile.event.type.emoji)
-                .font(.body(16, .bold))
-                .detailIconColumn()
-
-            VStack(alignment: .leading, spacing: 6) {
-                eventAndInfo                    
-                
-                if let message = eventProfile.event.message {
-                    text(message: message)
-                }
-            }
-        }
-        .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
     
-    private var eventAndInfo: some View {
-        Button {
-            openEventInfo = eventProfile
-        } label: {
-            HStack(alignment: .top, spacing: 4) {
-                Text(eventProfile.event.type.longTitle)
-                    .font(.body(16, .bold))
-                
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.textTertiary)
-                    .font(.body(11, .medium))
-                    .offset(y: -2)
-            }
-        }
-        .growButton()
-    }
-    
-    private func text(message: String) -> some View {
-        Text(message)
-            .font(.body(14, .regularItalic))
-            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
-            .lineLimitAndShrink(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var timeRow: some View {
-        HStack(spacing: iconGap) {
-            Image(.eventClockIcon)
-                .scaleEffect(1.2)
-                .detailIconColumn()
-
-            Text(eventProfile.event.proposedTimes.formatMultipleInvitedDays())
-                .font(.body(16, .bold))
-        }
-        .frame(height: rowHeight)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var placeRow: some View {
-        let location = eventProfile.event.location
-        return HStack(spacing: iconGap) {
-            Image(.eventMapIcon)
-                .scaleEffect(1.2)
-                .detailIconColumn()
-
-            Text(location.name ?? "View Venue")
-                .font(.body(16, .bold))
-        }
-        .frame(height: rowHeight)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var rowRule: some View {
-        VeryLightDivider()
-            .padding(.leading, textColumn)
-    }
-
     @ViewBuilder
     private var stationaryBackButton: some View {
         if flight.hasChevronSlot {
@@ -218,14 +140,103 @@ extension SelectedPendingEvent {
     }
 }
 
-private let iconColumn: CGFloat = 20
 
-private let iconGap = Spacing.lg - 4
+/*
+ 
+ private var rowRule: some View {
+     VeryLightDivider()
+         .padding(.leading, 40)
+ }
+ 
+ private var detailRows: some View {
+     let e = eventProfile.event
+     
+     return VStack(alignment: .leading, spacing: 19) {
+         EventTypeRow(type: e.type, message: e.message, openEventInfo: { openEventInfo = eventProfile})
+         rowRule
+         EventTimeRow(time: eventProfile.event.proposedTimes)
+         rowRule
+         EventPlaceRow(location: eventProfile.event.location)
+     }
+     .padding(.horizontal, Spacing.lg)
+     .padding(.top, 20)
+     .padding(.bottom, Spacing.lg)
+ }
 
-private let textColumn = iconColumn + iconGap
+ 
+ private let iconColumn: CGFloat = 20
 
-private extension View {
-    func detailIconColumn() -> some View {
-        frame(width: iconColumn)
-    }
-}
+ private let iconGap = Spacing.lg - 4
+
+ private let textColumn = iconColumn + iconGap
+
+ private extension View {
+     func detailIconColumn() -> some View {
+         frame(width: iconColumn)
+     }
+ }
+
+
+
+
+
+ private var placeRow: some View {
+     let location = eventProfile.event.location
+     return HStack(spacing: iconGap) {
+         Image(.eventMapIcon)
+             .scaleEffect(1.2)
+             .detailIconColumn()
+
+         Text(location.name ?? "View Venue")
+             .font(.body(16, .bold))
+     }
+     .frame(height: rowHeight)
+     .frame(maxWidth: .infinity, alignment: .leading)
+ }
+ private var typeRow: some View {
+     HStack(spacing: iconGap) {
+         
+         Text(eventProfile.event.type.emoji)
+             .font(.body(16, .bold))
+             .detailIconColumn()
+
+         VStack(alignment: .leading, spacing: 6) {
+             eventAndInfo
+             
+             if let message = eventProfile.event.message {
+                 text(message: message)
+             }
+         }
+     }
+     .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
+     .frame(maxWidth: .infinity, alignment: .leading)
+ }
+
+ 
+ private var eventAndInfo: some View {
+     Button {
+         openEventInfo = eventProfile
+     } label: {
+         HStack(alignment: .top, spacing: 4) {
+             Text(eventProfile.event.type.longTitle)
+                 .font(.body(16, .bold))
+             
+             Image(systemName: "info.circle")
+                 .foregroundStyle(Color.textTertiary)
+                 .font(.body(11, .medium))
+                 .offset(y: -2)
+         }
+     }
+     .growButton()
+ }
+ 
+ private func text(message: String) -> some View {
+     Text(message)
+         .font(.body(14, .regularItalic))
+         .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+         .lineLimitAndShrink(3)
+         .frame(maxWidth: .infinity, alignment: .leading)
+         .fixedSize(horizontal: false, vertical: true)
+ }
+
+ */

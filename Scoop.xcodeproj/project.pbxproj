@@ -67,6 +67,7 @@
 		652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D3D2E2F2E9A0600AE491D /* EventLocation.swift */; };
 		652D6FB02F3D022900B08F6F /* MapsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D6FAF2F3D022900B08F6F /* MapsRouter.swift */; };
 		652FC9732E1AD73A0034A387 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652FC9722E1AD7360034A387 /* AuthService.swift */; };
+		65304A14304705A1007D3DA3 /* EventComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A13304705A1007D3DA3 /* EventComponents.swift */; };
 		6536063F2F239E02006334D6 /* CantMakeIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536063E2F239E02006334D6 /* CantMakeIt.swift */; };
 		653606412F23CBD2006334D6 /* FrozenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653606402F23CBD2006334D6 /* FrozenView.swift */; };
 		65376D7A2E05A7B50058D225 /* CustomNavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65376D792E05A7AF0058D225 /* CustomNavigationTitle.swift */; };
@@ -386,6 +387,7 @@
 		652D3D2E2F2E9A0600AE491D /* EventLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLocation.swift; sourceTree = "<group>"; };
 		652D6FAF2F3D022900B08F6F /* MapsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapsRouter.swift; sourceTree = "<group>"; };
 		652FC9722E1AD7360034A387 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		65304A13304705A1007D3DA3 /* EventComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventComponents.swift; sourceTree = "<group>"; };
 		6536063E2F239E02006334D6 /* CantMakeIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantMakeIt.swift; sourceTree = "<group>"; };
 		653606402F23CBD2006334D6 /* FrozenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenView.swift; sourceTree = "<group>"; };
 		65376D792E05A7AF0058D225 /* CustomNavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationTitle.swift; sourceTree = "<group>"; };
@@ -1319,6 +1321,7 @@
 				651D2B003043375B009CFA5A /* PendingCalendar.swift */,
 				6500D0B2303DB9990040574A /* ExpiredInvites .swift */,
 				651D2B0430435EBE009CFA5A /* SelectedPendingEvent.swift */,
+				65304A13304705A1007D3DA3 /* EventComponents.swift */,
 				6500D0B1303DB8B50040574A /* PendingComponents */,
 			);
 			path = PendingInvites;
@@ -1939,6 +1942,7 @@
 				6554191E303B715900B5F68B /* ExpiredEventCard.swift in Sources */,
 				65A8BEF02E02D6150054BD63 /* SignUpTitle.swift in Sources */,
 				656B9B4A300237EF000BE57D /* ToolbarButtons.swift in Sources */,
+				65304A14304705A1007D3DA3 /* EventComponents.swift in Sources */,
 				65756FE13010C31800B9D2F5 /* ToggleResponseMode.swift in Sources */,
 				65E508F43018E53D00035408 /* RespondToInviteContainer.swift in Sources */,
 				65F704542F6EE15400CE29C5 /* RespondAcceptContainer.swift in Sources */,

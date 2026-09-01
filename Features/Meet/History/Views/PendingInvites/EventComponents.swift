@@ -1,0 +1,146 @@
+//
+//  EventComponents.swift
+//  Scoop Test
+//
+//  Created by Art Ostin on 01/09/2026.
+//
+
+import SwiftUI
+
+//So all icons take up as much space as each other
+private let iconWidth: CGFloat = 20
+
+//Space between the Icon and the Text
+private let iconGap: CGFloat = 20
+
+//Total width until text so divider starts with text
+private let textColumn = iconWidth + iconGap
+
+
+struct EventTypeTimeAndPlace: View {
+    
+    let type: Event.EventType
+    let message: String?
+    let time: ProposedTimes
+    let place: EventLocation
+    
+    var rowHeight: CGFloat = 33
+    var lineSpacing: CGFloat = 19 //Fine tuned default
+    var topPadding: CGFloat = 20
+    var bottomPadding: CGFloat = Spacing.lg
+    
+    let openInfo: () -> ()
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: lineSpacing) {
+            EventTypeRow(type: type, message: message, openEventInfo: { openInfo()})
+            eventDivider
+            EventTimeRow(time: time)
+            eventDivider
+            EventPlaceRow(location: place)
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, topPadding)
+        .padding(.bottom, bottomPadding)
+    }
+    
+    //Divider between each row
+    private var eventDivider: some View {
+        VeryLightDivider()
+            .padding(.leading, textColumn)
+    }
+}
+
+struct EventTypeRow: View {
+    
+    let type: Event.EventType
+    let message: String?
+    
+    var rowHeight: CGFloat = 33
+    
+    let openEventInfo: () -> ()
+    
+    var body: some View {
+        HStack(spacing: iconGap) {
+            Text(type.emoji)
+                .font(.body(16, .bold))
+                .frame(width: iconWidth)
+
+            VStack(alignment: .leading, spacing: 6) {
+                eventTypeAndInfoIcon
+                
+                if let message {
+                    text(eventMessage: message)
+                }
+            }
+        }
+        .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var eventTypeAndInfoIcon: some View {
+        Button {
+            openEventInfo()
+        } label: {
+            HStack(alignment: .top, spacing: 4) {
+                Text(type.longTitle)
+                    .font(.body(16, .bold))
+                
+                Image(systemName: "info.circle")
+                    .foregroundStyle(Color.textTertiary)
+                    .font(.body(11, .medium))
+                    .offset(y: -2)
+            }
+        }
+        .growButton()
+    }
+    
+    private func text(eventMessage: String) -> some View {
+        Text(eventMessage)
+            .font(.body(14, .regularItalic))
+            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+            .lineLimitAndShrink(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+struct EventTimeRow: View {
+    
+    var rowHeight: CGFloat = 33
+    
+    let time: ProposedTimes
+    
+    var body: some View {
+        HStack(spacing: iconGap) {
+            Image(.eventClockIcon)
+                .scaleEffect(1.2)
+                .frame(width: iconWidth)
+
+            Text(time.formatMultipleInvitedDays())
+                .font(.body(16, .bold))
+        }
+        .frame(height: rowHeight)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct EventPlaceRow: View {
+    
+    let location: EventLocation
+    
+    var rowHeight: CGFloat = 33
+    
+    var body: some View {
+        HStack(spacing: iconGap) {
+            Image(.eventMapIcon)
+                .scaleEffect(1.2)
+                .frame(width: iconWidth)
+
+            Text(location.name ?? "View Venue")
+                .font(.body(16, .bold))
+        }
+        .frame(height: rowHeight)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
