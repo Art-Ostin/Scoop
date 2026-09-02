@@ -27,19 +27,6 @@ struct TimeAndPlacePage: View {
     }
 }
 
-struct RowCaption: View {
-    enum Label: String { case what, when, `where` }
-
-    let label: Label
-
-    var body: some View {
-        Text(label.rawValue.capitalized)
-            .font(.body(13, .medium))
-            .foregroundStyle(Color.textTertiary)
-    }
-}
-
-
 
 
 enum InviteRowMetrics {

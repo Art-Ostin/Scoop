@@ -14,8 +14,7 @@ private let openLift: CGFloat = -4
 //openLift on y, so the two must move together or they drift apart mid-open.
 private let openShiftX: CGFloat = -20
 
-struct InviteTypeRow: View {
-
+struct InviteTypeRow2: View {
     //Injected
     var ui: TimeAndPlaceUIState
     @Binding var type: Event.EventType
@@ -89,16 +88,15 @@ extension InviteTypeRow {
     private var typeMenu: some View {
         DropdownCustomMenu(
             cornerRadii: menuCorners,
-            footerCornerRadii: footerCorners,
             morphAnchor: morphAnchor,
-            retractOnEmptyDismiss: true, //no change retracts the platter back into the label
             placementOffsetX: -12,
             placementOffsetY: 28,
             onOpen: { ui.activePopup = .type },
             onClose: { ui.activePopup = nil; openInfoTypes.removeAll() },
             onLabelTap: handleLabelTap,
             openRequest: $openTypeMenu,
-            footer: { AnyView(addMessageFooter) },
+            message: message,
+            showMessageScreen: $showMessageScreen,
             content: { selectTypeView },
             label: { menuLabel }
         )
@@ -144,11 +142,6 @@ extension InviteTypeRow {
         )
     }
 
-    private var addMessageFooter: some View {
-        AddMessageFooter(message: message, corners: footerCorners) {
-            showMessageScreen = true
-        }
-    }
 
     @ViewBuilder
     private var pageIndicator: some View {
@@ -359,30 +352,3 @@ private struct TypeRowMenuLabel: View {
 }
 
 //Own struct: renders in the menu's overlay window, where the dismiss env would otherwise no-op.
-struct AddMessageFooter: View {
-
-    @Environment(\.dropdownCustomMenuDismiss) private var menuDismiss
-
-    let message: String
-    let corners: RectangleCornerRadii
-    let onSelect: () -> Void
-
-    var body: some View {
-        Text(message.isEmpty ? "Add a Message" : "Edit Message")
-            .foregroundStyle(Color.textAccent)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .font(.body(16, .bold))
-            .kerning(0.5)
-            .frame(height: 40)
-            .frame(width: SelectTypeView.cardWidth, alignment: .leading)
-            .dropdownCustomMenuFooterPlatter(corners: corners)
-            .contentShape(.rect)
-            .shrinkPress {
-                onSelect()
-                Task {
-                    try? await Task.sleep(for: .seconds(0.04))
-                    menuDismiss(.instant)
-                }
-            }
-    }
-}

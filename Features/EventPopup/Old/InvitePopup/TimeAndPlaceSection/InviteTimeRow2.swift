@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InviteTimeRow: View {
+struct InviteTimeRow2: View {
 
     //Injected
     var ui: TimeAndPlaceUIState

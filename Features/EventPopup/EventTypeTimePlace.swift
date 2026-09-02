@@ -1,12 +1,14 @@
 //
-//  EventComponents.swift
-//  Scoop
+//  TypeAndPlaceRow.swift
+//  Scoop Test
 //
 //  Created by Art Ostin on 01/09/2026.
 //
 
 import SwiftUI
 
+
+//MARK: Variable frequently used
 //So all icons take up as much space as each other
 private let iconWidth: CGFloat = 20
 
@@ -16,68 +18,30 @@ private let iconGap: CGFloat = 20
 //Total width until text so divider starts with text
 private let textColumn = iconWidth + iconGap
 
+//Row Height
+private let rowHeight: CGFloat = 33
 
-struct EventImagePager: View {
-    //Injected
-    let title: String
-    let images: [UIImage]
-
-    @Environment(PendingFlightChoreo.self) private var flight: PendingFlightChoreo?
-
-    private var isSettled: Bool { flight?.settled ?? true }
-
-    var body: some View {
-        Color.clear
-            .aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit)
-            .overlay {
-                if isSettled {
-                    inviteCarousel
-                        .overlay(alignment: .bottomLeading) { profileName }
-                        .scrollDisabled(flight?.dragEngaged ?? false) //An engaged dismiss drag freezes the pager's own axis
-                }
-            }
-            //The cover's landing band: the flight morphs the tapped lens' photo into this rect
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
-    }
-
-    private var inviteCarousel: some View {
-        InviteCarousel(
-            images: images,
-            ratio: AspectRatio.pendingEvent.ratio,
-            blursBottom: true,
-            scrollProgress: .constant(0))
-    }
-    
-    private var profileName: some View {
-        Text(title)
-            .font(.title(22)) //The invite card's title type — "Invite <name>" reads the same here
-            .foregroundStyle(Color.white)
-            .lineLimit(1)
-            .padding(.horizontal, 20) //Geometry: the invite card's own title inset from the artwork edge
-            .padding(.bottom, Spacing.sm)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct EventTypeTimeAndPlace: View {
-    
+struct EventTypeTimeAndPlace<TimeRow: View>: View {
+    //Injected Values
     let type: Event.EventType
     let message: String?
-    let time: ProposedTimes
     let place: EventLocation
+    let isViewOnly: Bool
     
-    var rowHeight: CGFloat = 33
-    var lineSpacing: CGFloat = 19 //Fine tuned default
-    var topPadding: CGFloat = 20
-    var bottomPadding: CGFloat = Spacing.lg
-    
+    //Inject time as sometimes the row needs a binding
+    let timeRow: TimeRow
     let openInfo: () -> ()
+    
+    //Padding depends on the version
+    var lineSpacing: CGFloat { isViewOnly ? 19 : 14}
+    var bottomPadding: CGFloat { isViewOnly ? Spacing.lg : 0}
+    var topPadding: CGFloat { isViewOnly ? 20 : 16}
     
     var body: some View {
         VStack(alignment: .leading, spacing: lineSpacing) {
-            EventTypeRow(type: type, message: message, openEventInfo: { openInfo()})
+            EventTypeRow(type: type, message: message, isPending: true, openEventInfo: { openInfo()})
             eventDivider
-            EventTimeRow(time: time)
+            timeRow
             eventDivider
             EventPlaceRow(location: place)
         }
@@ -93,13 +57,11 @@ struct EventTypeTimeAndPlace: View {
     }
 }
 
-struct EventTypeRow: View {
-    
+private struct EventTypeRow: View {
     let type: Event.EventType
     let message: String?
-    
-    var rowHeight: CGFloat = 33
-    
+    let isPending: Bool
+        
     let openEventInfo: () -> ()
     
     var body: some View {
@@ -112,7 +74,7 @@ struct EventTypeRow: View {
                 eventTypeAndInfoIcon
                 
                 if let message {
-                    text(eventMessage: message)
+                    eventMessage(text: message)
                 }
             }
         }
@@ -124,21 +86,25 @@ struct EventTypeRow: View {
         Button {
             openEventInfo()
         } label: {
-            HStack(alignment: .top, spacing: 4) {
+            HStack(alignment: .top, spacing: 12) {
                 Text(type.longTitle)
                     .font(.body(16, .bold))
                 
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.textTertiary)
-                    .font(.body(11, .medium))
-                    .offset(y: -2)
+                infoIcon
             }
         }
         .growButton()
     }
     
-    private func text(eventMessage: String) -> some View {
-        Text(eventMessage)
+    private var infoIcon: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.textTertiary)
+            .font(.body(11, .medium))
+            .offset(x: isPending ? -8 : 0, y: isPending ? -2 : 0) //Closer if it is
+    }
+    
+    private func eventMessage(text: String) -> some View {
+        Text(text)
             .font(.body(14, .regularItalic))
             .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
             .lineLimitAndShrink(3)
@@ -147,9 +113,8 @@ struct EventTypeRow: View {
     }
 }
 
-struct EventTimeRow: View {
-    
-    var rowHeight: CGFloat = 33
+//When it is just showing the time
+private struct EventTimeRow: View {
     
     let time: ProposedTimes
     
@@ -167,12 +132,20 @@ struct EventTimeRow: View {
     }
 }
 
-struct EventPlaceRow: View {
+//A selectable version of EventTimeRow
+private struct RespondEventTimeRow: View {
+    @Binding var proposedTimes: ProposedTimes
     
+    var body: some View {
+        
+    
+    }
+}
+
+
+private struct EventPlaceRow: View {
     let location: EventLocation
-    
-    var rowHeight: CGFloat = 33
-    
+        
     var body: some View {
         HStack(spacing: iconGap) {
             Image(.eventMapIcon)
@@ -185,10 +158,4 @@ struct EventPlaceRow: View {
         .frame(height: rowHeight)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-}
-
-extension EventProfile {
-    ///"Invited <name>" — the card's title, and the flight cover's clone of it. ONE source: the
-    ///landing crossfades between the two, so they have to render the same glyphs
-    var inviteTitle: String { "Invited \(profile.name)" }
 }

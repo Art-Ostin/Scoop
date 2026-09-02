@@ -1,0 +1,130 @@
+//
+//  ComposeInviteViewModel.swift
+//  Scoop Test
+//
+//  Created by Art Ostin on 02/09/2026.
+//
+
+import SwiftUI
+
+@MainActor
+@Observable
+class ComposeInviteViewModel {
+    
+    //Injected
+    let profileId: String
+    let defaults: DefaultsManaging
+
+    //Draft state (persisted to defaults on every edit)
+    var event: EventFieldsDraft {
+        didSet { updateEventDraft()}
+    }
+    
+    init(profileId: String, defaults: DefaultsManaging) {
+        self.profileId = profileId
+        self.defaults = defaults
+        self.event = Self.loadEvent(d: defaults, id: profileId)
+    }
+    
+    private static func loadEvent(d: DefaultsManaging, id: String) -> EventFieldsDraft {
+        guard var storedEvent = d.fetchEventDraft(profileId: id) else { return EventFieldsDraft() }
+
+        //Times that have passed since the draft was saved never load back in — they leave the stored draft too
+        if storedEvent.time.removePastTimes() {
+            d.updateEventDraft(profileId: id, eventDraft: storedEvent)
+        }
+        return storedEvent
+    }
+    
+    func deleteEventDefault() {
+        defaults.deleteEventDraft(profileId: profileId)
+        event = EventFieldsDraft()
+    }
+    
+    func updateEventDraft() {
+        defaults.updateEventDraft(profileId: profileId, eventDraft: event)
+    }
+}
+
+@Observable
+
+class ComposeInviteUIState {
+    
+    var showMapView: Bool = false
+    var showInfoScreen: Bool = false
+    var showMessageScreen: Bool = false
+    var showConfirmScreen: Bool? = false
+    
+    
+    var timePopupOpen: Bool = false
+    var typePopupOpen: Bool = false
+    
+    
+
+    var delayedTimePopupOpen: Bool {
+        
+    }
+    
+    var delayedTypePopupOpen: Bool {
+        
+    }
+}
+
+
+
+/*
+ enum Popup: Equatable { case type, time }
+
+ ///Track if the time or type popup is open on the screen
+ var activePopup: Popup?
+ private(set) var delayedPopup: Popup?
+ private(set) var delayedTimePopupOpen = false
+ 
+ //Different views open
+ var showMapView: Bool = false
+ var showInfoScreen: Bool = false
+ var showMessageScreen: Bool = false
+ var showConfirmScreen: Bool? = false
+ 
+ ///Check a specific popup, or whether any popup is open when called with no argument.
+ func isPopupOpen(_ popup: Popup? = nil) -> Bool {
+     popup == nil ? activePopup != nil : popup == activePopup
+ }
+ 
+ func isPopupOpenDelayed(_ popup: Popup? = nil) -> Bool {
+     popup == nil ? delayedPopup != nil : popup == delayedPopup
+ }
+
+ ///Any menu is on screen — what the rows that aren't the open one hide on. Each popup keeps
+ ///its own lead: the time platter blooms later, so it clears the section at 120ms, type at 50.
+ var anyPopupOpenDelayed: Bool { delayedTimePopupOpen || delayedPopup == .type }
+
+ ///Two-way view of one slot of `activePopup`, for menus that take an isOpen binding.
+ func popupBinding(_ popup: Popup) -> Binding<Bool> {
+     Binding(
+         get: { self.activePopup == popup },
+         set: { self.activePopup = $0 ? popup : nil }
+     )
+ }
+ 
+ func syncDelayedPopups() async {
+     async let popup: Void = syncDelayedPopup()
+     async let timePopup: Void = syncDelayedTimePopup()
+
+     _ = await (popup, timePopup)
+ }
+ 
+ private func syncDelayedPopup() async {
+     let target = activePopup
+     try? await Task.sleep(for: .milliseconds(target == nil ? 40 : 50))
+     guard !Task.isCancelled else { return }   // sleep's error was swallowed; don't commit a stale value
+     delayedPopup = target
+ }
+
+ private func syncDelayedTimePopup() async {
+     let target = activePopup == .time
+     try? await Task.sleep(for: .milliseconds(target ? 120 : 40))
+     guard !Task.isCancelled else { return }
+     delayedTimePopupOpen = target
+ }
+ */

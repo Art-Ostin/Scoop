@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InvitePlaceRow: View {
+struct InvitePlaceRow2: View {
     
     //Injected
     @Bindable var ui: TimeAndPlaceUIState

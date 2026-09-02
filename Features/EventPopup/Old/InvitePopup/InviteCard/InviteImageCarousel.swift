@@ -3,41 +3,8 @@
 //  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
-//
-enum InviteScreen {
-    //The Five Different Image Screens Possible
-    case send, sendConfirm
-    case accept, newInvite, newInviteConfirm
 
-    //A struct storing all overlay booleans for the view
-    struct Overlays {
-        var backButton = false
-        var options = false
-        var toggle = false
-        var title = false
-        var pageIndicator = false
-        var compactImage = false
-    }
 
-    //For Each view, now declare which overlay visible or not
-    var chrome: Overlays {
-        switch self {
-        case .send:             Overlays(options: true, title: true, pageIndicator: true)
-        case .newInvite:        Overlays(options: true, toggle: true, title: true, pageIndicator: true)
-        case .accept:           Overlays(toggle: true, title: true, compactImage: true)
-        case .sendConfirm:      Overlays(backButton: true, compactImage: true)
-        case .newInviteConfirm: Overlays(backButton: true, compactImage: true)
-        }
-    }
-
-    //Only the two composing screens soften the artwork's bottom — the title and dots sit on it there
-    var blursBottom: Bool {
-        switch self {
-        case .send, .newInvite:                        true
-        case .accept, .sendConfirm, .newInviteConfirm: false
-        }
-    }
-}
 
 
 import SwiftUI
