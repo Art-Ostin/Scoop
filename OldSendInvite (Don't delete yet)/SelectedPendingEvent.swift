@@ -24,7 +24,6 @@ struct SelectedEvent: View {
     }
 }
 
-
 extension SelectedEvent {
 
     private var detailsRow: some View {

@@ -24,7 +24,7 @@ struct RespondToInviteContainer: View {
     var body: some View {
         ZStack {
             EventBackdropV2()
-            VStack(spacing: 0) {
+            VStack(spacing: 60) {
                 VStack(spacing: 0) {
                     imagePager
                     eventInfoSection

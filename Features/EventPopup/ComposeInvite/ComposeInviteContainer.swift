@@ -11,6 +11,8 @@ struct ComposeInviteContainer: View {
     
     @State var vm: ComposeInviteViewModel
     @State var ui = ComposeInviteUIState()
+    
+    @Binding var showInviteScreen: Bool
 
     let images: [UIImage]
     let name: String
@@ -18,12 +20,15 @@ struct ComposeInviteContainer: View {
     var body: some View {
         ZStack {
             EventBackdropV2()
-            VStack {
-                imagePager
-                inviteDetailsPager
-                actionButtonAndWarning
+            VStack(spacing: 60) {
+                VStack {
+                    imagePager
+                    inviteDetailsPager
+                    actionButtonAndWarning
+                }
+                .modifier(EventCardSurfaceV2())
+                EventDismissButton(visible: ui.showConfirmScreen != true) { showInviteScreen = false }
             }
-            .modifier(EventCardSurfaceV2())
         }
     }
 }
