@@ -50,7 +50,7 @@ struct EventImagePagerIndicator: View {
 
 struct EventBackButton: View {
     
-    @Binding var showConfirmScreen: Bool
+    @Binding var showConfirmScreen: Bool?
     
     var body: some View {
         
@@ -95,14 +95,11 @@ struct NewEventToggleButton: View {
 
 struct OptionsMenu: View {
     let hasChanges: Bool
-    let onInfo: () -> Void
     let onClear: () -> Void
     let onDecline: () -> Void
 
     var body: some View {
         Menu {
-            Button("How Invites Work", systemImage: "info.circle", action: onInfo)
-
             if hasChanges {
                 Button(action: onClear) { Label("Clear Invite Draft", image: "BinIcon") }
             }

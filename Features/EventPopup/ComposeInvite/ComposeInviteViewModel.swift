@@ -59,8 +59,6 @@ class ComposeInviteUIState {
     var timePopupOpen: Bool = false
     var typePopupOpen: Bool = false
     
-    
-
     var delayedTimePopupOpen: Bool {
         
     }

@@ -1588,6 +1588,7 @@
 		65A36F7D3048BF5A00CF54BE /* RespondToInvite */ = {
 			isa = PBXGroup;
 			children = (
+				657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */,
 				65A36F7E3048C3C700CF54BE /* RespondToInviteContainer.swift */,
 			);
 			path = RespondToInvite;
@@ -1639,7 +1640,6 @@
 		65DE8F0F301B41C800E74D26 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				657BD3262F71FC9A00D7C29A /* RespondViewModel.swift */,
 				65E963D12F3F41C60022595F /* TimeAndPlaceViewModel.swift */,
 			);
 			path = ViewModels;
