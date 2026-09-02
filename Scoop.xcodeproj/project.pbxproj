@@ -225,6 +225,7 @@
 		659CEA073010AC3F00E0F735 /* SaveButtonOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659CEA063010AC3F00E0F735 /* SaveButtonOverlay.swift */; };
 		65A070522EE0705A009F798B /* LimitedAccessPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070512EE0705A009F798B /* LimitedAccessPage.swift */; };
 		65A070542EE08F4A009F798B /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A070532EE08F4A009F798B /* ProfileComponents.swift */; };
+		65A36F7F3048C3C700CF54BE /* RespondToInviteContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A36F7E3048C3C700CF54BE /* RespondToInviteContainer.swift */; };
 		65A39BB62E5FBFFD0049D114 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */; };
 		65A4ADDB300BF4CA0074B2C8 /* DominantColorExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A4ADDA300BF4CA0074B2C8 /* DominantColorExtractor.swift */; };
 		65A4ADF2300D850D0074B2C8 /* WideActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */; };
@@ -548,6 +549,7 @@
 		659CEA063010AC3F00E0F735 /* SaveButtonOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonOverlay.swift; sourceTree = "<group>"; };
 		65A070512EE0705A009F798B /* LimitedAccessPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitedAccessPage.swift; sourceTree = "<group>"; };
 		65A070532EE08F4A009F798B /* ProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
+		65A36F7E3048C3C700CF54BE /* RespondToInviteContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondToInviteContainer.swift; sourceTree = "<group>"; };
 		65A39BB52E5FBFFD0049D114 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		65A4ADDA300BF4CA0074B2C8 /* DominantColorExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DominantColorExtractor.swift; sourceTree = SOURCE_ROOT; };
 		65A4ADF1300D850D0074B2C8 /* WideActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideActionButton.swift; sourceTree = "<group>"; };
@@ -855,6 +857,7 @@
 				65304A283047526F007D3DA3 /* EventImageOverlays.swift */,
 				65304A2F30477523007D3DA3 /* EventTypeTimePlace.swift */,
 				65304A3330477CB5007D3DA3 /* ComposeInvite */,
+				65A36F7D3048BF5A00CF54BE /* RespondToInvite */,
 				65304A1D30474538007D3DA3 /* Old */,
 			);
 			path = EventPopup;
@@ -1582,6 +1585,14 @@
 			path = SwiftAnimations;
 			sourceTree = "<group>";
 		};
+		65A36F7D3048BF5A00CF54BE /* RespondToInvite */ = {
+			isa = PBXGroup;
+			children = (
+				65A36F7E3048C3C700CF54BE /* RespondToInviteContainer.swift */,
+			);
+			path = RespondToInvite;
+			sourceTree = "<group>";
+		};
 		65B4E3972FA606870044EE9A /* Session */ = {
 			isa = PBXGroup;
 			children = (
@@ -2053,6 +2064,7 @@
 				653A78592E1340BA0098747F /* MessagesContainer.swift in Sources */,
 				65BA061C2FCC99FE00295AC6 /* ScoopButton.swift in Sources */,
 				657210C12FFFAC38001CF670 /* ImageElements.swift in Sources */,
+				65A36F7F3048C3C700CF54BE /* RespondToInviteContainer.swift in Sources */,
 				651ECEB6301B30C40017F206 /* ConfirmComponents.swift in Sources */,
 				65B4E3992FA606A40044EE9A /* UserSession.swift in Sources */,
 				65304A1C30474201007D3DA3 /* EventBackdrop.swift in Sources */,
