@@ -16,6 +16,7 @@ struct WideActionButton: View {
     var isDimmed: Bool = false
     var showShadow: Bool = true
     var font: Font = .body(18, .bold)
+    var height: CGFloat = 48
     var lineLimit: Int = 1
 
     let onTap: () -> ()
@@ -26,9 +27,7 @@ struct WideActionButton: View {
 
     var body: some View {
         ScoopButton(
-            style: .tinted(fill,
-                           shadow: (showShadow && isActive) ? .button : nil,
-                           glass: isActive),
+            style: .tinted(fill, shadow: (showShadow && isActive) ? .button : nil,  glass: isActive),
             shape: .capsule,
             action: onTap
         ) {

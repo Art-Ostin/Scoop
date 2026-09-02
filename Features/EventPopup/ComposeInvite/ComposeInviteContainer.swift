@@ -7,27 +7,30 @@
 
 import SwiftUI
 
-struct ConfirmInviteContainer: View {
+struct ComposeInviteContainer: View {
     
     @State var vm: ComposeInviteViewModel
     @State var ui = ComposeInviteUIState()
+
+    let images: [UIImage]
+    let name: String
+
     
-    let invite: InviteSummary
-    
-    let openInfo: () -> ()
+        
     
     var body: some View {
         
-        EventTypeTimePlace(invite: invite, actionsBelow: true, openInfo: openInfo)
-        
+        VStack {
+            imagePager
+            inviteDetailsPager
+            actionButton
+        }
         
         
     }
 }
 
-extension ConfirmInviteContainer {
-    
-    
+extension ComposeInviteContainer {
     @ViewBuilder
     private var inviteDetailsPager: some View {
         VStack(spacing: 0) {
@@ -35,10 +38,9 @@ extension ConfirmInviteContainer {
                 showSecondScreen: $ui.showConfirmScreen,
                 scrollProgress: .constant(0),
                 reflowAnimation: vm.event.hasChanges ? .transition : .dissolve, //An emptied draft is a clear
-                screen1: { ComposeInviteContainer(ui: $ui, draft: $vm.event) },
+                screen1: { EditTypeTimePlace(ui: $ui, draft: $vm.event) },
                 screen2: { confirmEventView }
             )
-            .modifier(InviteSeamWash(tint: palette.secondaryText))
             actionButton
         }
     }
@@ -51,20 +53,35 @@ extension ConfirmInviteContainer {
             }
         }
     }
-}
-
-
-
-//Set up the image section for the scrollView
-struct SendInviteImagePager: View {
+    
+    private var actionButton: some View {
+        WideActionButton(
+            text: ui.showConfirmScreen == true ? "Send to \(name)" : "Preview",
+            isActive: vm.event.isComplete,
+            isDimmed: ui.typePopupOpen || ui.timePopupOpen,
+            showShadow: false,
+            height: 46
+        ) {
+            if ui.showConfirmScreen == true {  } else { ui.showConfirmScreen = true }
+        }
+        .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
+    }
     
     
-    var body: some View {
-        
+    private var imagePager: some View {
+        let isConfirm = ui.showConfirmScreen == true
+        return EventImagePager(
+            images: images,
+            title: isConfirm ? "Confirm Invite" : "Invite \(name)" ,
+            showInfo: isConfirm ? nil : { ui.showInfoScreen = true })
     }
 }
 
-struct ComposeInviteContainer: View {
+
+
+
+
+struct EditTypeTimePlace: View {
     
     @Binding var ui: ComposeInviteUIState
     
@@ -100,6 +117,7 @@ struct ComposeInviteContainer: View {
         .padding(.top, -4)//Only 20 padding on the top
     }
 }
+
 
 
 

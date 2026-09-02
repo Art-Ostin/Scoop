@@ -63,9 +63,6 @@ struct EventBackButton: View {
         }
         .padding(.horizontal, 20) //Geometry: as the title — one shared inset from the artwork edge
         .padding(.top, Spacing.sm)
-
-        
-        
     }
 }
 
@@ -97,7 +94,6 @@ struct NewEventToggleButton: View {
 }
 
 struct OptionsMenu: View {
-
     let hasChanges: Bool
     let onInfo: () -> Void
     let onClear: () -> Void

@@ -15,7 +15,7 @@ private let rowHeight: CGFloat = 33
 
 struct EventTypeTimePlace: View {
     let invite: InviteSummary
-    var times: Binding<ProposedTimes>? //Only responding to an event needs a binding
+    var respondDraft: Binding<RespondDraft>? //Only responding to an event needs a binding
     let actionsBelow: Bool //Adjust spacing if there are actions taken below
     let openInfo: () -> ()
 
@@ -34,6 +34,7 @@ struct EventTypeTimePlace: View {
 }
 
 extension EventTypeTimePlace {
+    
     private var typeRow: some View {
         HStack(spacing: iconGap) {
             Text(invite.type.emoji)
@@ -66,8 +67,8 @@ extension EventTypeTimePlace {
     
     @ViewBuilder
     var timeRow: some View {
-        if let times {
-            RespondEventTimeRow(proposedTimes: times)
+        if let respondDraft {
+            RespondEventTimeRow(draft: respondDraft)
         } else {
             iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
@@ -88,8 +89,65 @@ extension EventTypeTimePlace {
     }
 }
 
+
 //A selectable version of the time row
 private struct RespondEventTimeRow: View {
-    @Binding var proposedTimes: ProposedTimes
-    var body: some View { }
+    
+    //Updates (1) what event type (2) The original invite selected day (3) A new invites proposed Times
+    //Easier to pass in whole draft here
+    @Binding var draft: RespondDraft
+
+    @State var isOpen = false
+    
+    //Which screen when it opens -> i.e. is It newTime or original invite
+    @State private var page: TimePopupPage? = .newTime
+    
+    var body: some View {
+        TimeCustomMenu(tracksContentSizeChanges: true, //Both pages reflow: 310↔325 wide, two heights
+                       placementOffsetX: 0,
+                       placementOffsetY: 24,
+                       isOpen: $isOpen,
+                       onOpen: { page = .invitedTimes }) {
+            popup
+        } label: {
+            label
+        }
+    }
+    
+    private var popup: some View {
+        TimePopupContainer(
+            respondType: $draft.respondType,
+            selectedDay: $draft.originalInvite.selectedDay,
+            newProposedTimes: $draft.newTime.proposedTimes,
+            page: $page,
+            times: draft.originalInvite.event.proposedTimes
+        )
+    }
+    
+    private var label: some View {
+         HStack(spacing: iconGap) {
+             Image(.eventClockIcon)
+                 .scaleEffect(1.2)
+                 .frame(width: iconWidth)
+             HStack(spacing: 12) {
+                 timeText
+                 DropDownButton(isOpen: isOpen)
+             }
+         }
+         .frame(height: rowHeight)
+         .oneLineLimitAndShrink() //Three named days at 16 bold outrun the row
+     }
+        
+    @ViewBuilder
+    private var timeText: some View {
+        if draft.respondType == .originalInvite {
+            if let selectedTime = draft.originalInvite.selectedDay {
+                Text(FormatEvent.shortDayAndTime(selectedTime))
+            } else {
+                Text("Select Time")
+            }
+        } else if draft.respondType == .newTime {
+            Text(draft.newTime.proposedTimes.formatMultipleInvitedDays())
+        }
+    }
 }
