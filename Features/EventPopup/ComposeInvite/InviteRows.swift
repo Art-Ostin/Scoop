@@ -10,10 +10,7 @@ import SwiftUI
 private let chevronSpacing: CGFloat = 9
 private let rowHeight: CGFloat = 33
 
-
-
 struct InviteTypeRow: View {
-    
     //Injected Data to updated
     @Binding var eventType: Event.EventType
     @Binding var message: String?
@@ -30,28 +27,11 @@ struct InviteTypeRow: View {
     
     
     var body: some View {
-        
         HStack {
             RowCaption(label: .what)
             Spacer(minLength: 12)
-            
-            HStack(alignment: .top, spacing: chevronSpacing) {
-                VStack(spacing: 6) {
-                    EventRowText(text: eventType.longTitle)
-                    if let message { eventMessage(text: message)  }
-                }
-                DropDownButton(isOpen: showTypeDropDown)
-            }
+            typeMenu
         }
-    }
-    
-    private func eventMessage(text: String) -> some View {
-        Text(text)
-            .font(.body(14, .regularItalic))
-            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
-            .lineLimitAndShrink(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
     }
     
     private var typeMenu: some View {
@@ -63,6 +43,25 @@ struct InviteTypeRow: View {
             content: { selectTypeView },
             label:   { rowLabel }
         )
+    }
+    
+    private var rowLabel: some View {
+        HStack(alignment: .top, spacing: chevronSpacing) {
+            VStack(spacing: 6) {
+                EventRowText(text: eventType.longTitle)
+                if let message { eventMessage(text: message)  }
+            }
+            DropDownButton(isOpen: showTypeDropDown)
+        }
+    }
+    
+    private func eventMessage(text: String) -> some View {
+        Text(text)
+            .font(.body(14, .regularItalic))
+            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+            .lineLimitAndShrink(3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
     }
     
     //The type view I open up
@@ -79,7 +78,6 @@ struct InviteTypeRow: View {
 
 
 struct InviteTimeRow: View {
-    
     //Injected data updating
     @Binding var proposedTimes: ProposedTimes
     
@@ -119,30 +117,35 @@ struct InviteTimeRow: View {
 
 
 struct InvitePlaceRow: View {
-    
     let popupOpen: Bool
     @Binding var location: EventLocation?
     @Binding var showMapView: Bool
     
     var body: some View {
-        
         HStack {
             RowCaption(label: .where)
             Spacer()
             HStack(spacing: chevronSpacing) {
-                VStack(alignment: .trailing, spacing: 6) {
-                    EventRowText(text: location.name ?? "The Venue")
-                    Text(FormatEvent.addressBeforeFirstComma(location.address))
-                        .font(.body(12, .regular))
-                        .foregroundStyle(Color.textPlaceholder)
-                        .lineLimit(1)
+                if let location {
+                    eventText(location)
+                } else {
+                   EventRowPlaceholder(text: "Choose Place")
                 }
-                
                 DropDownButton(isOpen: false)
             }
             .shrinkPress { showMapView = true }
         }
         .blurPop(visible: !popupOpen, scale: 1)
+    }
+    
+    private func eventText(_ location: EventLocation) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            EventRowText(text: location.name ?? "The Venue")
+            Text(FormatEvent.addressBeforeFirstComma(location.address))
+                .font(.body(12, .regular))
+                .foregroundStyle(Color.textPlaceholder)
+                .lineLimit(1)
+        }
     }
 }
 

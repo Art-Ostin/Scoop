@@ -55,7 +55,6 @@ class ComposeInviteUIState {
     var showMessageScreen: Bool = false
     var showConfirmScreen: Bool? = false
     
-    
     var timePopupOpen: Bool = false
     var typePopupOpen: Bool = false
     

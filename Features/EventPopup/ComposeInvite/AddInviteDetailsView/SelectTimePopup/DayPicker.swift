@@ -22,7 +22,6 @@ struct DayPicker: View {
     
     var body: some View {
         VStack(spacing: Spacing.xxs) {
-            
             LazyVGrid(columns: columns, spacing: 0) {
                 dayOfWeekText
             }
@@ -120,14 +119,10 @@ struct DayCell: View {
     }
 }
 
-/// No press look at all. The system day cell gives no touch feedback — the default style's
-/// label dim (and its slow easeOut restore) multiplies straight into the dot's opacity curve.
 private struct NoPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View { configuration.label }
 }
 
-/// Drives the selection dot from a single animated progress so opacity can carry the measured
-/// `p + 0.16·p(1-p)` lead over scale — the system dot holds its ink while it changes size.
 private struct SelectionDotAppearance: ViewModifier, Animatable {
     var progress: Double                       // 0 = deselected, 1 = selected
     var animatableData: Double {

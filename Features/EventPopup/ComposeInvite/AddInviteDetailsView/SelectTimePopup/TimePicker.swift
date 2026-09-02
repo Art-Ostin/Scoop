@@ -12,12 +12,7 @@ struct TimePicker: View {
     @Binding var selectedHour: Int
     @Binding var selectedMinute: Int
 
-    //The wheel's window: the selected row and a whole neighbour each side — a compact drum.
     static let height: CGFloat = 120 //Geometry: selection ± 60; the neighbouring rows end 42pt out
-    //The drum folds its outer rows away at its rim (~48pt from the selection at this height) and the
-    //system fade never reaches zero there, so they'd show as glyphs sliced mid-height — at the top by
-    //the rim, at the bottom by the platter edge. Dissolve them ourselves: full ink through the
-    //neighbouring rows, gone before the rim.
     private static let dissolveFrom: CGFloat = 40 //Geometry: selected-row centre → the neighbouring row's far edge (one ~30pt pitch + half a numeral)
     private static let dissolveTo: CGFloat = 48   //Geometry: the rim, where the next row folds away
     private static let inkEnd: CGFloat = (height / 2 - dissolveFrom) / height
