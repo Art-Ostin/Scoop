@@ -5,6 +5,13 @@
 //
 //  Created by Art Ostin on 11/06/2026.
 //
+//  Native-style menu in its own window. iOS 26: the glass platter blooms out of the label; .morph pinches
+//  into a circle and re-expands onto the new value, .retract plays the bloom backwards. Pre-26: scale/fade.
+//
+//  DropdownCustomMenu(isOpen:showMessageScreen:message:onClose:) { content } label: { trigger }
+//  Content must be its own View struct (it renders in the menu window). Inside it, call
+//  dropdownCustomMenuFreezeLabel() before mutating the selection, then dropdownCustomMenuDismiss(.morph | .retract | .instant).
+//
 
 import SwiftUI
 import UIKit
@@ -19,10 +26,10 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     let cornerRadii: RectangleCornerRadii //the footer carries its own (AddMessageFooter)
     let placementOffset: CGSize //nudge on the final placement, positive = right / down
     let retractOnEmptyDismiss: Bool //tap-away retracts instead of morphing; false keeps every dismiss on the morph
-    let onOpen: (() -> Void)? //fires the instant an open is requested, before the bloom
+    let isOpen: Binding<Bool>? //mirrors the presentation (true at open, false at dismiss request); written by the menu, never a way to open it
+    let showMessageScreen: Binding<Bool>? //supplying it shows the Add-Message footer; nil = no footer
+    let message: String //titles the footer ("Add a Message" when empty)
     let onClose: (() -> Void)? //fires the instant a dismiss is requested, any style, before the close
-    let message: String //titles the Add-Message footer ("Add a Message" when empty)
-    let showMessageScreen: Binding<Bool>? //supplying it shows the footer; nil = no footer
     let content: () -> Content
     let label: () -> Label
 
@@ -37,19 +44,19 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     init(cornerRadii: RectangleCornerRadii = DropdownCustomMenuSpec.platterCornerRadii,
          placementOffset: CGSize = DropdownCustomMenuSpec.placementOffset,
          retractOnEmptyDismiss: Bool = true,
-         onOpen: (() -> Void)? = nil,
-         onClose: (() -> Void)? = nil,
-         message: String = "",
+         isOpen: Binding<Bool>? = nil,
          showMessageScreen: Binding<Bool>? = nil,
+         message: String = "",
+         onClose: (() -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.cornerRadii = cornerRadii
         self.placementOffset = placementOffset
         self.retractOnEmptyDismiss = retractOnEmptyDismiss
-        self.onOpen = onOpen
-        self.onClose = onClose
-        self.message = message
+        self.isOpen = isOpen
         self.showMessageScreen = showMessageScreen
+        self.message = message
+        self.onClose = onClose
         self.content = content
         self.label = label
     }
@@ -120,17 +127,17 @@ extension DropdownCustomMenu {
 
     private func openMenu() {
         guard !controller.isPresented else { return }
-        onOpen?()
-        controller.present(
+        let presented = controller.present(
             anchor: labelFrame,
             cornerRadii: cornerRadii,
             placementOffset: placementOffset,
             retractOnEmptyDismiss: retractOnEmptyDismiss,
-            onClose: onClose,
+            onClose: { isOpen?.wrappedValue = false; onClose?() },
             footer: addMessageFooter,
             label: { AnyView(label()) },
             content: { AnyView(content()) }
         )
+        if presented { isOpen?.wrappedValue = true }
     }
 
     //Re-pushes the label closure each body pass (closures aren't Equatable), so the dismiss copy shows the current value
@@ -311,12 +318,12 @@ private final class DropdownCustomMenuController {
                  onClose: (() -> Void)?,
                  footer: (() -> AnyView)?,
                  label: @escaping () -> AnyView,
-                 content: @escaping () -> AnyView) {
+                 content: @escaping () -> AnyView) -> Bool {
         guard window == nil,
               let scene = UIApplication.shared.connectedScenes
                   .compactMap({ $0 as? UIWindowScene })
                   .first(where: { $0.activationState == .foregroundActive })
-        else { return }
+        else { return false }
         self.anchor = anchor
         labelFrame = anchor
         self.cornerRadii = cornerRadii
@@ -337,6 +344,7 @@ private final class DropdownCustomMenuController {
         window.backgroundColor = .clear
         window.isHidden = false
         self.window = window
+        return true
     }
 
     func markShown() {

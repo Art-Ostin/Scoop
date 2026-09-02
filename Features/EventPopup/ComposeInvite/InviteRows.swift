@@ -44,7 +44,7 @@ struct InviteTypeRow: View {
             }
         }
     }
-        
+    
     private func eventMessage(text: String) -> some View {
         Text(text)
             .font(.body(14, .regularItalic))
@@ -56,10 +56,10 @@ struct InviteTypeRow: View {
     
     private var typeMenu: some View {
         DropdownCustomMenu(
-            onOpen:  { showTypeDropDown = true },
-            onClose: { showTypeDropDown = false; openInfoTypes.removeAll() },
-            message: message ?? "",
+            isOpen: $showTypeDropDown,
             showMessageScreen: $showMessageScreen,
+            message: message ?? "",
+            onClose: { openInfoTypes.removeAll() },
             content: { selectTypeView },
             label:   { rowLabel }
         )
@@ -74,7 +74,6 @@ struct InviteTypeRow: View {
             message: message ?? ""
         )
     }
-    
 }
 
 

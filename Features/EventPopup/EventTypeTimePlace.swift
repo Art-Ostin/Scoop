@@ -1,161 +1,95 @@
 //
-//  TypeAndPlaceRow.swift
-//  Scoop Test
+//  EventTypeTimePlace.swift
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
 
 import SwiftUI
 
-
-//MARK: Variable frequently used
-//So all icons take up as much space as each other
-private let iconWidth: CGFloat = 20
-
-//Space between the Icon and the Text
-private let iconGap: CGFloat = 20
-
-//Total width until text so divider starts with text
-private let textColumn = iconWidth + iconGap
-
-//Row Height
+private let iconWidth: CGFloat = 20 //Every icon sits in the same column
+private let iconGap: CGFloat = 20 //Icon column ↔ text
+private let textColumn = iconWidth + iconGap //Dividers start where the text does
 private let rowHeight: CGFloat = 33
 
-struct EventTypeTimeAndPlace<TimeRow: View>: View {
-    //Injected Values
-    let type: Event.EventType
-    let message: String?
-    let place: EventLocation
-    let isViewOnly: Bool
-    
-    //Inject time as sometimes the row needs a binding
-    let timeRow: TimeRow
+
+struct EventTypeTimePlace: View {
+    let invite: InviteSummary
+    var times: Binding<ProposedTimes>? //Only responding to an event needs a binding
+    let actionsBelow: Bool //Adjust spacing if there are actions taken below
     let openInfo: () -> ()
-    
-    //Padding depends on the version
-    var lineSpacing: CGFloat { isViewOnly ? 19 : 14}
-    var bottomPadding: CGFloat { isViewOnly ? Spacing.lg : 0}
-    var topPadding: CGFloat { isViewOnly ? 20 : 16}
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: lineSpacing) {
-            EventTypeRow(type: type, message: message, isPending: true, openEventInfo: { openInfo()})
-            eventDivider
+        VStack(alignment: .leading, spacing: actionsBelow ? 14 : 19) {
+            typeRow
+            lightDivider
             timeRow
-            eventDivider
-            EventPlaceRow(location: place)
+            lightDivider
+            iconRow(.eventMapIcon, invite.place.name ?? "View Venue")
         }
         .padding(.horizontal, Spacing.lg)
-        .padding(.top, topPadding)
-        .padding(.bottom, bottomPadding)
-    }
-    
-    //Divider between each row
-    private var eventDivider: some View {
-        VeryLightDivider()
-            .padding(.leading, textColumn)
+        .padding(.top, actionsBelow ? Spacing.md : Spacing.lg - Spacing.xxs) //Alone, a nudge less than the sides
+        .padding(.bottom, actionsBelow ? 0 : Spacing.lg)
     }
 }
 
-private struct EventTypeRow: View {
-    let type: Event.EventType
-    let message: String?
-    let isPending: Bool
-        
-    let openEventInfo: () -> ()
-    
-    var body: some View {
+extension EventTypeTimePlace {
+    private var typeRow: some View {
         HStack(spacing: iconGap) {
-            Text(type.emoji)
+            Text(invite.type.emoji)
                 .font(.body(16, .bold))
                 .frame(width: iconWidth)
 
             VStack(alignment: .leading, spacing: 6) {
-                eventTypeAndInfoIcon
-                
-                if let message {
-                    eventMessage(text: message)
+                Button(action: openInfo) {
+                    HStack(alignment: .top, spacing: Spacing.sm) {
+                        Text(invite.type.longTitle).font(.body(16, .bold))
+                        Image(systemName: "info.circle")
+                            .foregroundStyle(Color.textTertiary)
+                            .font(.body(11, .medium))
+                            .offset(x: -8, y: -2) //Geometry: nudged in toward the title
+                    }
+                }
+                .growButton()
+
+                if let message = invite.message {
+                    Text(message)
+                        .font(.body(14, .regularItalic))
+                        .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+                        .lineLimitAndShrink(3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
         .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private var eventTypeAndInfoIcon: some View {
-        Button {
-            openEventInfo()
-        } label: {
-            HStack(alignment: .top, spacing: 12) {
-                Text(type.longTitle)
-                    .font(.body(16, .bold))
-                
-                infoIcon
-            }
+    @ViewBuilder
+    var timeRow: some View {
+        if let times {
+            RespondEventTimeRow(proposedTimes: times)
+        } else {
+            iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
-        .growButton()
     }
-    
-    private var infoIcon: some View {
-        Image(systemName: "info.circle")
-            .foregroundStyle(Color.textTertiary)
-            .font(.body(11, .medium))
-            .offset(x: isPending ? -8 : 0, y: isPending ? -2 : 0) //Closer if it is
-    }
-    
-    private func eventMessage(text: String) -> some View {
-        Text(text)
-            .font(.body(14, .regularItalic))
-            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
-            .lineLimitAndShrink(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-}
 
-//When it is just showing the time
-private struct EventTimeRow: View {
-    
-    let time: ProposedTimes
-    
-    var body: some View {
+    private func iconRow(_ icon: ImageResource, _ text: String) -> some View {
         HStack(spacing: iconGap) {
-            Image(.eventClockIcon)
+            Image(icon)
                 .scaleEffect(1.2)
                 .frame(width: iconWidth)
-
-            Text(time.formatMultipleInvitedDays())
-                .font(.body(16, .bold))
+            Text(text).font(.body(16, .bold))
         }
         .frame(height: rowHeight)
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+        
+    private var lightDivider: some View {
+        VeryLightDivider().padding(.leading, textColumn)
     }
 }
 
-//A selectable version of EventTimeRow
+//A selectable version of the time row
 private struct RespondEventTimeRow: View {
     @Binding var proposedTimes: ProposedTimes
-    
-    var body: some View {
-        
-    
-    }
-}
-
-
-private struct EventPlaceRow: View {
-    let location: EventLocation
-        
-    var body: some View {
-        HStack(spacing: iconGap) {
-            Image(.eventMapIcon)
-                .scaleEffect(1.2)
-                .frame(width: iconWidth)
-
-            Text(location.name ?? "View Venue")
-                .font(.body(16, .bold))
-        }
-        .frame(height: rowHeight)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+    var body: some View { }
 }
