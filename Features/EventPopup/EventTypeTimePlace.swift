@@ -33,6 +33,7 @@ struct EventTypeTimePlace: View {
     }
 }
 
+//Type row
 extension EventTypeTimePlace {
     
     private var typeRow: some View {
@@ -42,28 +43,39 @@ extension EventTypeTimePlace {
                 .frame(width: iconWidth)
 
             VStack(alignment: .leading, spacing: 6) {
-                Button(action: openInfo) {
-                    HStack(alignment: .top, spacing: Spacing.sm) {
-                        Text(invite.type.longTitle).font(.body(16, .bold))
-                        Image(systemName: "info.circle")
-                            .foregroundStyle(Color.textTertiary)
-                            .font(.body(11, .medium))
-                            .offset(x: -8, y: -2) //Geometry: nudged in toward the title
-                    }
-                }
-                .growButton()
-
+                eventTitleAndInfo
+                
                 if let message = invite.message {
-                    Text(message)
-                        .font(.body(14, .regularItalic))
-                        .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
-                        .lineLimitAndShrink(3)
-                        .fixedSize(horizontal: false, vertical: true)
+                    eventMessage(message: message)
                 }
             }
         }
         .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
     }
+    private func eventMessage(message: String) -> some View {
+        Text(message)
+            .font(.body(14, .regularItalic))
+            .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
+            .lineLimitAndShrink(3)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+    
+    private var eventTitleAndInfo: some View {
+        Button(action: openInfo) {
+            HStack(alignment: .top, spacing: Spacing.sm) {
+                Text(invite.type.longTitle).font(.body(16, .bold))
+                Image(systemName: "info.circle")
+                    .foregroundStyle(Color.textTertiary)
+                    .font(.body(11, .medium))
+                    .offset(x: -8, y: -2) //Geometry: nudged in toward the title
+            }
+        }
+        .growButton()
+    }
+}
+
+//Time And Place Row
+extension EventTypeTimePlace {
     
     @ViewBuilder
     var timeRow: some View {
@@ -89,7 +101,6 @@ extension EventTypeTimePlace {
     }
 }
 
-
 //A selectable version of the time row
 private struct RespondEventTimeRow: View {
     
@@ -113,7 +124,6 @@ private struct RespondEventTimeRow: View {
             label
         }
     }
-    
     private var popup: some View {
         TimePopupContainer(
             respondType: $draft.respondType,

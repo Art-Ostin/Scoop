@@ -15,22 +15,21 @@ struct ComposeInviteContainer: View {
     let images: [UIImage]
     let name: String
 
-    
-        
-    
     var body: some View {
-        
-        VStack {
-            imagePager
-            inviteDetailsPager
-            actionButton
+        ZStack {
+            EventBackdropV2()
+            VStack {
+                imagePager
+                inviteDetailsPager
+                actionButtonAndWarning
+            }
+            .modifier(EventCardSurfaceV2())
         }
-        
-        
     }
 }
 
 extension ComposeInviteContainer {
+    
     @ViewBuilder
     private var inviteDetailsPager: some View {
         VStack(spacing: 0) {
@@ -41,7 +40,6 @@ extension ComposeInviteContainer {
                 screen1: { EditTypeTimePlace(ui: $ui, draft: $vm.event) },
                 screen2: { confirmEventView }
             )
-            actionButton
         }
     }
     
@@ -54,19 +52,29 @@ extension ComposeInviteContainer {
         }
     }
     
-    private var actionButton: some View {
-        WideActionButton(
-            text: ui.showConfirmScreen == true ? "Send to \(name)" : "Preview",
-            isActive: vm.event.isComplete,
-            isDimmed: ui.typePopupOpen || ui.timePopupOpen,
-            showShadow: false,
-            height: 46
-        ) {
-            if ui.showConfirmScreen == true {  } else { ui.showConfirmScreen = true }
+    private var actionButtonAndWarning: some View {
+        let isConfirm = ui.showConfirmScreen == true
+        
+        return VStack {
+            WideActionButton(
+                text: isConfirm ? "Send to \(name)" : "Preview",
+                isActive: vm.event.isComplete,
+                isDimmed: ui.typePopupOpen || ui.timePopupOpen,
+                showShadow: false,
+                height: 46
+            ) {
+                if isConfirm { } else { ui.showMessageScreen = true}
+            }
+            
+            if isConfirm {
+                Text("* If they accept, not turning up will get you blocked")
+                    .font(.body(12.5, .regularItalic))
+                    .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
+                    .padding(.horizontal, 12)//Makes it look more aligned
+            }
         }
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
-    
     
     private var imagePager: some View {
         let isConfirm = ui.showConfirmScreen == true
@@ -76,10 +84,6 @@ extension ComposeInviteContainer {
             showInfo: isConfirm ? nil : { ui.showInfoScreen = true })
     }
 }
-
-
-
-
 
 struct EditTypeTimePlace: View {
     
@@ -117,14 +121,3 @@ struct EditTypeTimePlace: View {
         .padding(.top, -4)//Only 20 padding on the top
     }
 }
-
-
-
-
-
-
-
-
-
-
-

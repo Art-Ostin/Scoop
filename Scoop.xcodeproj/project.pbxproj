@@ -70,7 +70,6 @@
 		65304A14304705A1007D3DA3 /* EventComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A13304705A1007D3DA3 /* EventComponents.swift */; };
 		65304A1C30474201007D3DA3 /* EventBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A1B30474201007D3DA3 /* EventBackdrop.swift */; };
 		65304A1F30474615007D3DA3 /* EventCardSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A1E30474615007D3DA3 /* EventCardSurface.swift */; };
-		65304A2530475062007D3DA3 /* EventDismissButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A2430475062007D3DA3 /* EventDismissButton.swift */; };
 		65304A273047512B007D3DA3 /* EventImagePager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A263047512B007D3DA3 /* EventImagePager.swift */; };
 		65304A293047526F007D3DA3 /* EventImageOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A283047526F007D3DA3 /* EventImageOverlays.swift */; };
 		65304A3030477523007D3DA3 /* EventTypeTimePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65304A2F30477523007D3DA3 /* EventTypeTimePlace.swift */; };
@@ -396,7 +395,6 @@
 		65304A13304705A1007D3DA3 /* EventComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventComponents.swift; sourceTree = "<group>"; };
 		65304A1B30474201007D3DA3 /* EventBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBackdrop.swift; sourceTree = "<group>"; };
 		65304A1E30474615007D3DA3 /* EventCardSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardSurface.swift; sourceTree = "<group>"; };
-		65304A2430475062007D3DA3 /* EventDismissButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDismissButton.swift; sourceTree = "<group>"; };
 		65304A263047512B007D3DA3 /* EventImagePager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventImagePager.swift; sourceTree = "<group>"; };
 		65304A283047526F007D3DA3 /* EventImageOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventImageOverlays.swift; sourceTree = "<group>"; };
 		65304A2F30477523007D3DA3 /* EventTypeTimePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTypeTimePlace.swift; sourceTree = "<group>"; };
@@ -853,14 +851,10 @@
 			children = (
 				65304A1B30474201007D3DA3 /* EventBackdrop.swift */,
 				65304A1E30474615007D3DA3 /* EventCardSurface.swift */,
-				65304A2430475062007D3DA3 /* EventDismissButton.swift */,
 				65304A263047512B007D3DA3 /* EventImagePager.swift */,
 				65304A283047526F007D3DA3 /* EventImageOverlays.swift */,
 				65304A2F30477523007D3DA3 /* EventTypeTimePlace.swift */,
 				65304A3330477CB5007D3DA3 /* ComposeInvite */,
-				65304A2B30475F62007D3DA3 /* EventImages */,
-				65304A2E30476211007D3DA3 /* PendingInvite */,
-				65304A233047478A007D3DA3 /* InviteCardMorph */,
 				65304A1D30474538007D3DA3 /* Old */,
 			);
 			path = EventPopup;
@@ -883,32 +877,11 @@
 			path = OldInviteCode;
 			sourceTree = "<group>";
 		};
-		65304A233047478A007D3DA3 /* InviteCardMorph */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = InviteCardMorph;
-			sourceTree = "<group>";
-		};
-		65304A2B30475F62007D3DA3 /* EventImages */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = EventImages;
-			sourceTree = "<group>";
-		};
-		65304A2E30476211007D3DA3 /* PendingInvite */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = PendingInvite;
-			sourceTree = "<group>";
-		};
 		65304A3330477CB5007D3DA3 /* ComposeInvite */ = {
 			isa = PBXGroup;
 			children = (
-				65304A3C3048879E007D3DA3 /* ComposeInviteViewModel.swift */,
 				65304A3A304780BD007D3DA3 /* ComposeInviteContainer.swift */,
+				65304A3C3048879E007D3DA3 /* ComposeInviteViewModel.swift */,
 				65304A3430477D3C007D3DA3 /* InviteRows.swift */,
 				6549DA762F9E87D700C89DF2 /* AddInviteDetailsView */,
 			);
@@ -2146,7 +2119,6 @@
 				656126652E23212C00088B6D /* EditInterests.swift in Sources */,
 				650DA3692F6C25750013EB30 /* ProfileInviteView.swift in Sources */,
 				656373B72F502457003A922D /* ChatRowView.swift in Sources */,
-				65304A2530475062007D3DA3 /* EventDismissButton.swift in Sources */,
 				653BAFB62E0D6BAD00C1AB9E /* Event.swift in Sources */,
 				65761E3A2FD9C5B9007CA835 /* EventDetailsHowItWorks.swift in Sources */,
 				6509DDC72E37A1CC0042917B /* EditTextfield.swift in Sources */,

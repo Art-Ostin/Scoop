@@ -41,3 +41,26 @@ struct EventCardSurfaceV2: ViewModifier {
         .padding(.horizontal, Spacing.gutter)
     }
 }
+
+
+
+
+//Hovers outside the view
+struct EventDismissButton: View {
+    var visible: Bool = true
+    let onTap: () -> ()
+    var body: some View {
+        ScoopButton(shape: Circle(), action: { onTap() }) {
+            Image(systemName: "chevron.down")
+                .font(.body(17))
+                .fontWeight(.heavy)
+                .frame(width: 45, height: 45)
+        }
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible)
+        .animation(.transition, value: visible)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.horizontal, 10)
+        .padding(.horizontal, Spacing.sm) // 12
+    }
+}

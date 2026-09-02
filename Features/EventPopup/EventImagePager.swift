@@ -20,7 +20,6 @@ struct EventImagePager: View {
     @State private var scrollProgress: Double = 0
     var isComposeInvite: Bool { showInfo != nil } //Only show indicators when its compose Invite Mode
     
-    
     var body: some View {
         Color.clear
             .aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit)
@@ -43,32 +42,3 @@ struct EventImagePager: View {
             scrollProgress: $scrollProgress)
     }
 }
-
-
-/*
- enum InviteScreen {
-     //The Five Different Image Screens Possible
-     case send, sendConfirm
-     case accept, newInvite, newInviteConfirm
-     
-     //A struct storing all overlay booleans for the view
-     struct Overlays {
-         var backButton = false
-         var options = false
-         var toggle = false
-         var pageIndicator = false
-     }
-     
-     //For Each view, now declare which overlay visible or not
-     var showIcon: Overlays {
-         switch self {
-         case .send:             Overlays(options: true, pageIndicator: true)
-         case .newInvite:        Overlays(options: true, toggle: true, pageIndicator: true)
-         case .accept:           Overlays(toggle: true)
-         case .sendConfirm:      Overlays(backButton: true)
-         case .newInviteConfirm: Overlays(backButton: true)
-         }
-     }
- }
-
- */

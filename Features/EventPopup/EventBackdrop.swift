@@ -9,7 +9,6 @@ import SwiftUI
 
 //Coloured Backdrop
 struct EventBackdrop: View {
-    
     var tint: Color?
     var body: some View {
         Rectangle()
