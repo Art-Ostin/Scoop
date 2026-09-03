@@ -103,21 +103,20 @@ struct EditTypeTimePlace: View {
                 message: $draft.message,
                 showMessageScreen: $ui.showMessageScreen,
                 showTypeDropDown: $ui.typePopupOpen,
-                timeDropDownOpen: ui.timePopupOpen
+                timePopupOpen: ui.delayedTimePopupOpen
             )
-            
             VeryLightDivider()
             
             InviteTimeRow(
                 proposedTimes: $draft.time,
                 timeisOpen: $ui.timePopupOpen,
-                typePopUpOpen: ui.typePopupOpen
+                typePopUpOpen: ui.delayedTypePopupOpen
             )
             
             VeryLightDivider()
             
             InvitePlaceRow(
-                popupOpen: ui.typePopupOpen || ui.timePopupOpen,
+                popupOpen: ui.delayedTypePopupOpen || ui.delayedTimePopupOpen,
                 location: $draft.place,
                 showMapView: $ui.showMapView
             )

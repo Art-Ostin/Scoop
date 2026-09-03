@@ -881,8 +881,8 @@
 		65304A3330477CB5007D3DA3 /* ComposeInvite */ = {
 			isa = PBXGroup;
 			children = (
-				65304A3A304780BD007D3DA3 /* ComposeInviteContainer.swift */,
 				65304A3C3048879E007D3DA3 /* ComposeInviteViewModel.swift */,
+				65304A3A304780BD007D3DA3 /* ComposeInviteContainer.swift */,
 				65304A3430477D3C007D3DA3 /* InviteRows.swift */,
 				6549DA762F9E87D700C89DF2 /* AddInviteDetailsView */,
 			);

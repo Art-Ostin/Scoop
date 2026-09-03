@@ -11,6 +11,7 @@ private let chevronSpacing: CGFloat = 9
 private let rowHeight: CGFloat = 33
 
 struct InviteTypeRow: View {
+    
     //Injected Data to updated
     @Binding var eventType: Event.EventType
     @Binding var message: String?
@@ -20,29 +21,24 @@ struct InviteTypeRow: View {
     @Binding var showTypeDropDown: Bool
     
     //Hide the row when timeDropDown is open
-    let timeDropDownOpen: Bool
+    let timePopupOpen: Bool
     
     //Store which 'info' icons for the selectTypeDowndown open
     @State private var openInfoTypes: Set<Event.EventType> = []
-    
     
     var body: some View {
         HStack {
             RowCaption(label: .what)
             Spacer(minLength: 12)
-            typeMenu
+            DropdownCustomMenu(
+                isOpen: $showTypeDropDown,
+                showMessageScreen: $showMessageScreen,
+                message: message ?? "",
+                onClose: { openInfoTypes.removeAll() },
+                content: { selectTypeView },
+                label:   { rowLabel }
+            )
         }
-    }
-    
-    private var typeMenu: some View {
-        DropdownCustomMenu(
-            isOpen: $showTypeDropDown,
-            showMessageScreen: $showMessageScreen,
-            message: message ?? "",
-            onClose: { openInfoTypes.removeAll() },
-            content: { selectTypeView },
-            label:   { rowLabel }
-        )
     }
     
     private var rowLabel: some View {
@@ -88,15 +84,16 @@ struct InviteTimeRow: View {
     let menuWidth: CGFloat = 325
     
     var body: some View {
-        
         HStack {
             RowCaption(label: .what)
             Spacer(minLength: 12)
-            TimeCustomMenu(estimatedContentSize: CGSize(width: menuWidth, height: 286), verticalPlacement: .below, isOpen: $timeisOpen){
-                SelectTimeView(proposedTimes: $proposedTimes)
-            } label: {
-                rowLabel
-            }
+            TimeCustomMenu(
+                estimatedContentSize: CGSize(width: menuWidth, height: 286),
+                verticalPlacement: .below,
+                isOpen: $timeisOpen,
+                content: {SelectTimeView(proposedTimes: $proposedTimes)},
+                label: {rowLabel}
+            )
         }
         .blurPop(visible: !typePopUpOpen)
     }
@@ -112,9 +109,6 @@ struct InviteTimeRow: View {
         }
     }
 }
-
-
-
 
 struct InvitePlaceRow: View {
     let popupOpen: Bool

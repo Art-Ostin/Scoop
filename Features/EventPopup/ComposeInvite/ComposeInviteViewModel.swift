@@ -47,26 +47,33 @@ class ComposeInviteViewModel {
 }
 
 @Observable
-
 class ComposeInviteUIState {
-    
     var showMapView: Bool = false
     var showInfoScreen: Bool = false
     var showMessageScreen: Bool = false
     var showConfirmScreen: Bool? = false
     
-    var timePopupOpen: Bool = false
-    var typePopupOpen: Bool = false
     
-    var delayedTimePopupOpen: Bool {
-        
+    var timePopupOpen: Bool = false {
+        didSet {
+            Task { @MainActor [self] in
+                try? await Task.sleep(for: .milliseconds(timePopupOpen ? 120 : 40))
+                if delayedTimePopupOpen != timePopupOpen { delayedTimePopupOpen = timePopupOpen }
+            }
+        }
     }
-    
-    var delayedTypePopupOpen: Bool {
-        
+    var typePopupOpen: Bool = false {
+        didSet {
+            Task { @MainActor [self] in
+                try? await Task.sleep(for: .milliseconds(typePopupOpen ? 50 : 40))
+                if delayedTypePopupOpen != typePopupOpen { delayedTypePopupOpen = typePopupOpen }
+            }
+        }
     }
-}
 
+    private(set) var delayedTimePopupOpen: Bool = false
+    private(set) var delayedTypePopupOpen: Bool = false
+}
 
 
 /*
