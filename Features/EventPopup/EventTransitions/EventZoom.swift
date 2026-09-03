@@ -1146,12 +1146,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
                 y: bounds.height > 0 ? cover.midY / bounds.height : 0.5))
     }
 
-    //The pager's own title view, laid out at the band's FINAL width from the first frame: a
-    //long name ellipsizes exactly where the landed line will, so the land crossfade meets
-    //identical pixels even at the tail, and the mid-flight window never re-truncates — the
-    //cover's clip owns what the smaller window can't show yet
     private func coverTitle(_ title: EventZoomTitle, width: CGFloat) -> some View {
-        EventTitle(title: title.text, showInfo: title.showsInfo ? {} : nil)
+        EventTitle(title: title.text)
             .frame(width: max(width, 1), alignment: .leading)
     }
 

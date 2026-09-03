@@ -28,6 +28,15 @@ struct RespondToInviteContainer: View {
         .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen) //An open menu owns the finger
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
+        .animation(.transition, value: composeUI.showConfirmScreen)
+        .sheet(isPresented: $composeUI.showMessageScreen) {
+            AddMessageView(message: $vm.respondDraft.newEvent.message,
+                           isRespondMessage: false,
+                           eventType: $vm.respondDraft.newEvent.type)
+        }
+        .fullScreenCover(isPresented: $composeUI.showMapView) {
+            MapView(defaults: vm.defaults, eventLocation: $vm.respondDraft.newEvent.place)
+        }
     }
 }
 
@@ -40,7 +49,7 @@ extension RespondToInviteContainer {
             showInfo: isComposeInviteScreen ? nil : { composeUI.showInfoScreen = true }
         )
         //Under the flying cover until the hand-off: popped in then, never cut in
-        .overlay(alignment: .topLeading) { isConfirmNewEvent ? backButton.eventZoomBandChrome() : nil }
+        .overlay(alignment: .topLeading) { backButton(visible: isConfirmNewEvent).eventZoomBandChrome() }
         .overlay(alignment: .topTrailing) { topRow.eventZoomBandChrome() }
     }
     
@@ -52,8 +61,8 @@ extension RespondToInviteContainer {
         }
     }
     
-    var backButton: some View {
-        EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen)
+    func backButton(visible: Bool) -> some View {
+        EventBackButton(visible: visible, showConfirmScreen: $composeUI.showConfirmScreen)
     }
     
     var topRow: some View {
@@ -62,7 +71,7 @@ extension RespondToInviteContainer {
                 responseType: $vm.respondDraft.respondType,
                 showConfirmScreen: $composeUI.showConfirmScreen
             )
-            
+
             if isComposeInviteScreen {
                 OptionsMenu(
                     hasChanges: vm.respondDraft.newEvent.hasChanges,
@@ -71,6 +80,7 @@ extension RespondToInviteContainer {
                 )
             }
         }
+        .animation(.transition, value: isComposeInviteScreen)
     }
     
     var isComposeInviteScreen: Bool { type == .newEvent && composeUI.showConfirmScreen != true }

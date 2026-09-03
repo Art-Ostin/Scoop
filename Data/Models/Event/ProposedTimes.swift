@@ -202,23 +202,17 @@ extension ProposedTimes {
 extension ProposedTimes {
     
     //Days sharing a month name it once, at the end of their run: "Wed 30 Jul, Sun 3 or Mon 4 Aug · 21:30"
-    func formatMultipleInvitedDays() -> String {
-        invitedDayPieces().map(\.text).joined()
+    //withHour false stops at the days: "Wed 30 Jul, Sun 3 or Mon 4 Aug"
+    func formatMultipleInvitedDays(withHour: Bool = true) -> String {
+        invitedDayPieces(withHour: withHour).map(\.text).joined()
     }
 
-    //The one day a surface names when it has no room for the run: "Fri 4 Sep · 21:30". It is the
-    //same day RespondDraft preselects (firstAvailableDate), NOT the first still-acceptable one —
-    //so the invite card and the respond popup that grows out of it can never name different days.
-    //Every day lapsed still reads as the first proposed rather than going blank.
     func formatFirstInvitedDay() -> String {
         guard let date = firstAvailableDate ?? dates.first?.date else { return "" }
         return FormatEvent.shortDayAndTime(date)
     }
 
-    //The same line split day by day, each piece knowing whether its day can still be accepted —
-    //for the row that keeps ink on the days still open and fades the ones that have lapsed.
-    //The shared hour is the tail piece, never lapsed: it belongs to whichever days remain.
-    func invitedDayPieces(asOf now: Date = .now) -> [(text: String, lapsed: Bool)] {
+    func invitedDayPieces(asOf now: Date = .now, withHour: Bool = true) -> [(text: String, lapsed: Bool)] {
         guard !dates.isEmpty else { return [] }
         let acceptable = acceptableTimes(asOf: now)
 
@@ -227,19 +221,16 @@ extension ProposedTimes {
                 + daySuffix(at: index, dayCount: dates.count),
              lapsed: !acceptable.contains(dates[index]))
         }
-        pieces.append((text: " · " + FormatEvent.hourTime(lastProposedDate), lapsed: false))
+        if withHour {
+            pieces.append((text: " · " + FormatEvent.hourTime(lastProposedDate), lapsed: false))
+        }
         return pieces
     }
 
-    //Whether every proposed day strikes the same clock time — the case the single trailing
-    //hour can speak for. When it can't, each day has to carry its own.
     var sharesOneHour: Bool {
         Set(dates.map { FormatEvent.hourTime($0.date) }).count <= 1
     }
 
-    //One piece per day, each wearing its own hour — for the card that shows days whose hours
-    //differ: "Wed 30 Jul · 19:00" / "Sun 3 Aug · 21:30". Each line reads alone, so every day
-    //names its month rather than sharing one at the end of a run.
     func invitedDayHourPieces(asOf now: Date = .now) -> [(text: String, lapsed: Bool)] {
         let acceptable = acceptableTimes(asOf: now)
         return dates.map { time in
@@ -247,10 +238,6 @@ extension ProposedTimes {
         }
     }
 
-    //The same days as a record rather than an open offer: every day comma-joined, and the last
-    //day's month lifted out of the list to sit with the time — "Sat 15, Tue 18, Thu 20 · Aug 22:30".
-    //An earlier month still names itself, so a set straddling the boundary reads
-    //"Thu 30 Jul, Mon 3 · Aug 22:30". Past tense, so no day is a choice and nothing joins with "or".
     func formatInvitedDaysList() -> String {
         guard let last = dates.last else { return "" }
 
@@ -265,10 +252,6 @@ extension ProposedTimes {
         return "\(days) · \(month) \(FormatEvent.hourTime(last.date))"
     }
 
-    //The same line split around its last day, for the expired card that flies it between rows:
-    //the days before it (each carrying its separator), the last day spelled exactly as the
-    //collapsed row spells it (Today/Tomorrow included — the flying text must read the same in
-    //both perches), and the hour it gains when the drawer opens.
     func splitMultipleInvitedDays(withToday: Bool = true) -> (leadingDays: String, lastDay: String, hour: String) {
         let leading = dates.indices.dropLast().map { index in
             FormatEvent.shortDayAndTime(dates[index].date, withHour: false, withMonth: endsMonthRun(at: index))

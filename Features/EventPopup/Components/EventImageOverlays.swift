@@ -1,38 +1,32 @@
 //
 //  EventImageOverlays.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
 
 import SwiftUI
 
+let imageHorizontalPadding = Spacing.lg
+let imageBottomPadding = Spacing.xs
+let imageTopPadding = Spacing.xs
+
 //Overlays
 struct EventTitle: View {
+    
+    
     let title: String
-    
-    var showInfo: (() -> ())?
-    
-    var isComposeInvite: Bool { showInfo != nil }
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(title)
-                .font(.title(isComposeInvite ? 22 : 18, .bold))
-                .foregroundStyle(Color.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20) //Geometry: the invite card's own title inset from the artwork edge
-                .padding(.bottom, Spacing.sm)
+    var isComposeInvite: Bool { title.starts(with: "Invite")}
             
-            if isComposeInvite {
-                Image(systemName: "info.circle")
-                    .font(.body(14, .medium))
-                    .foregroundStyle(Color.white)
-                    .padding(Spacing.xs) //the 8pt gap doubles as the hit ring
-                    .contentShape(Rectangle()) //PressButtonStyle sets none — without it the ring misses
-            }
-        }
-        .shrinkPress { showInfo?() }
+    var body: some View {
+        Text(title)
+            .font(.title(isComposeInvite ? 22 : 18, .bold))
+            .foregroundStyle(Color.white)
+            .id(title)
+            .transition(.blurReplace)
+            .animation(.transition, value: title)
+            .padding(.horizontal, imageHorizontalPadding)
+            .padding(.bottom, imageBottomPadding)
     }
 }
 
@@ -43,17 +37,19 @@ struct EventImagePagerIndicator: View {
     var body: some View {
         ImagePageIndicator(count: 6, progress: progress, activeColor: .white)
             .scaleEffect(0.7, anchor: .trailing)
-            .padding(.horizontal, Spacing.lg)
-            .padding(.bottom, Spacing.xs)
+            .padding(.horizontal, imageHorizontalPadding)
+            .padding(.bottom, imageBottomPadding)
     }
 }
 
 struct EventBackButton: View {
     
+    //Always mounted so the swap can fade; the container owns the page condition. The scope below
+    //is keyed on this value, so the bare `showConfirmScreen = false` in the action still animates.
+    var visible: Bool = true
     @Binding var showConfirmScreen: Bool?
     
     var body: some View {
-        
         ScoopButton(style: .clearGlass, shape: Circle(), action: { showConfirmScreen = false }) {
             Image(systemName: "chevron.left")
                 .font(.body(17))
@@ -61,8 +57,11 @@ struct EventBackButton: View {
                 .foregroundStyle(Color.black)
                 .frame(width: 38, height: 38)
         }
-        .padding(.horizontal, 20) //Geometry: as the title — one shared inset from the artwork edge
-        .padding(.top, Spacing.sm)
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible)
+        .animation(.transition, value: visible)
+        .padding(.horizontal, imageHorizontalPadding - 4) //Geometry: as the title — one shared inset from the artwork edge
+        .padding(.top, imageTopPadding)
     }
 }
 
@@ -94,6 +93,7 @@ struct NewEventToggleButton: View {
 }
 
 struct OptionsMenu: View {
+    var visible: Bool = true
     let hasChanges: Bool
     let onClear: () -> Void
     let onDecline: () -> Void
@@ -117,6 +117,25 @@ struct OptionsMenu: View {
             .buttonSize(.small)
             .scoopGlassSurface(clear: true, shape: .circle)
             .expandHitArea()
+            .padding(.horizontal, imageHorizontalPadding - 4)
+            .padding(.top, imageTopPadding)
         }
+        .opacityPop(visible: visible)
+        .allowsHitTesting(visible)
+        .animation(.transition, value: visible)
     }
 }
+
+/*
+ if isComposeInvite {
+     Image(systemName: "info.circle")
+         .font(.body(12, .medium))
+         .foregroundStyle(Color.white.opacity(0.8))
+         .contentShape(Rectangle()) //PressButtonStyle sets none — without it the ring misses
+         .offset(y: 6)
+ }
+ var isComposeInvite: Bool { showInfo != nil }
+ var showInfo: (() -> ())?
+
+
+ */

@@ -37,7 +37,7 @@ struct EventImagePager: View {
                         .scrollDisabled(flight?.dragEngaged ?? false)
                 }
             }
-            .overlay(alignment: .bottomLeading)  { EventTitle(title: title, showInfo: showInfo) }
+            .overlay(alignment: .bottomLeading)  { EventTitle(title: title) }
             .overlay(alignment: .bottomTrailing) { if isComposeInvite { EventImagePagerIndicator(progress: scrollProgress).eventZoomBandChrome() } }
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
             .onChange(of: EventZoomTitle(text: title, showsInfo: isComposeInvite), initial: true) { flight?.reportTitle($1) }

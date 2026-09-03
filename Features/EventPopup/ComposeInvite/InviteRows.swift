@@ -27,7 +27,8 @@ struct InviteTypeRow: View {
     @State private var openInfoTypes: Set<Event.EventType> = []
     
     var body: some View {
-        HStack {
+        //Baseline, not top edge: the 13pt caption sits on the 17pt title's line, and a message grows beneath it
+        HStack(alignment: .firstTextBaseline) {
             RowCaption(label: .what)
             Spacer(minLength: 12)
             DropdownCustomMenu(
@@ -39,16 +40,25 @@ struct InviteTypeRow: View {
                 label:   { rowLabel }
             )
         }
+        .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
     }
     
     private var rowLabel: some View {
-        HStack(alignment: .top, spacing: chevronSpacing) {
-            VStack(spacing: 6) {
+        VStack(alignment: .trailing, spacing: 1) {
+            //The chevron rides the title's own line, so a message can't pull it down off it
+            HStack(spacing: chevronSpacing) {
                 EventRowText(text: eventType.longTitle)
-                if let message { eventMessage(text: message)  }
+                DropDownButton(isOpen: showTypeDropDown)
             }
-            DropDownButton(isOpen: showTypeDropDown)
+            if let visibleMessage { eventMessage(text: visibleMessage) }
         }
+    }
+    
+    //The message sheet's field writes "" rather than nil, and an empty Text still holds a full line —
+    //which would push the What row off the middle of its section with nothing to show for it
+    private var visibleMessage: String? {
+        guard let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return message
     }
     
     private func eventMessage(text: String) -> some View {
@@ -56,8 +66,10 @@ struct InviteTypeRow: View {
             .font(.body(14, .regularItalic))
             .foregroundStyle(Color.textSecondary.opacity(0.7)) //Tad lighter than normal secondary
             .lineLimitAndShrink(3)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.trailing, chevronSpacing + 6)//Chevron is 6 points wide. Don't Change!!
             .fixedSize(horizontal: false, vertical: true)
+            .multilineTextAlignment(.trailing)
     }
     
     //The type view I open up
@@ -85,7 +97,7 @@ struct InviteTimeRow: View {
     
     var body: some View {
         HStack {
-            RowCaption(label: .what)
+            RowCaption(label: .when)
             Spacer(minLength: 12)
             TimeCustomMenu(
                 estimatedContentSize: CGSize(width: menuWidth, height: 286),
@@ -95,7 +107,8 @@ struct InviteTimeRow: View {
                 label: {rowLabel}
             )
         }
-        .blurPop(visible: !typePopUpOpen)
+        .frame(minHeight: rowHeight)
+        .blurPop(visible: !typePopUpOpen, scale: 1)
     }
     
     private var rowLabel: some View {
@@ -103,9 +116,23 @@ struct InviteTimeRow: View {
             if proposedTimes.dates.isEmpty {
                 EventRowPlaceholder(text: "Choose Time")
             } else {
-                EventRowText(text: proposedTimes.formatMultipleInvitedDays())
+                eventRowText
             }
             DropDownButton(isOpen: timeisOpen == true)
+        }
+    }
+    
+    private var eventRowText: some View {
+        let isThreeDays = proposedTimes.dates.count > 2
+        return VStack(alignment: .trailing, spacing: 5) {
+            EventRowText(text: proposedTimes.formatMultipleInvitedDays(withHour: !isThreeDays))
+            if isThreeDays {
+                if let day = proposedTimes.dates.first {
+                    Text(FormatEvent.hourTime(day.date))
+                        .font(.body(11, .bold))
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
         }
     }
 }
@@ -129,11 +156,12 @@ struct InvitePlaceRow: View {
             }
             .shrinkPress { showMapView = true }
         }
+        .frame(minHeight: rowHeight)
         .blurPop(visible: !popupOpen, scale: 1)
     }
     
     private func eventText(_ location: EventLocation) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .trailing, spacing: 5) {
             EventRowText(text: location.name ?? "The Venue")
             Text(FormatEvent.addressBeforeFirstComma(location.address))
                 .font(.body(12, .regular))
@@ -142,8 +170,6 @@ struct InvitePlaceRow: View {
         }
     }
 }
-
-
 
 //Generic Components
 struct EventRowPlaceholder: View {
@@ -157,14 +183,12 @@ struct EventRowPlaceholder: View {
     }
 }
 
-
 struct EventRowText: View {
     let text: String
     var body: some View {
         Text(text)
             .font(.body(17, .medium))
             .foregroundStyle(Color.textPrimary)
-            .lineLimitAndShrink(1)//Useful for times
     }
 }
 
@@ -187,5 +211,6 @@ struct DropDownButton: View {
         Image("DropdownGray")
             .rotationEffect(.degrees(isOpen ? 90 : 0))
             .animation(.toggle, value: isOpen)
+            .frame(width: 6)//So always predictable
     }
 }

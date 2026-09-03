@@ -18,16 +18,54 @@ struct ComposeInviteContainer: View {
 
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             imagePager
             inviteDetailsPager
-            actionButtonAndWarning
+            ctaButton
         }
         .eventZoomChevronHidden(ui.showConfirmScreen == true) //The confirm screen owns the corner
         .eventZoomDragLocked(ui.typePopupOpen || ui.timePopupOpen) //An open menu owns the finger
+        .sheet(isPresented: $ui.showInfoScreen) { Text("Event Info Here")}
+        .sheet(isPresented: $ui.showMessageScreen) {
+            AddMessageView(message: $vm.event.message, isRespondMessage: false, eventType: $vm.event.type)
+        }
+        .fullScreenCover(isPresented: $ui.showMapView) {
+            MapView(defaults: vm.defaults, eventLocation: $vm.event.place)
+        }
+        .animation(.transition, value: ui.showConfirmScreen)
     }
 }
 
+//Logic with the ImagePager
+extension ComposeInviteContainer {
+    
+    private var imagePager: some View {
+        let isConfirm = ui.showConfirmScreen == true
+        return EventImagePager(
+            images: images,
+            title: isConfirm ? "Confirm Invite" : "Invite \(name)" ,
+            showInfo: isConfirm ? nil : { ui.showInfoScreen = true }
+        )
+        .overlay(alignment: .topLeading) { backButton(visible: isConfirm).eventZoomBandChrome() }
+        .overlay(alignment: .topTrailing) { optionsMenu(visible: !isConfirm).eventZoomBandChrome() }
+    }
+    
+    private func optionsMenu(visible: Bool) -> some View {
+        OptionsMenu(
+            visible: visible,
+            hasChanges: vm.event.hasChanges,
+            onClear: {vm.event = .init()},
+            onDecline: { }
+        )
+    }
+    
+    private func backButton(visible: Bool) -> some View {
+        EventBackButton(visible: visible, showConfirmScreen: $ui.showConfirmScreen)
+    }
+}
+
+
+//Logic with the detailsPager
 extension ComposeInviteContainer {
     
     @ViewBuilder
@@ -45,14 +83,18 @@ extension ComposeInviteContainer {
     
     @ViewBuilder
     private var confirmEventView: some View {
-        Group {
-            if let invite = InviteSummary(draft: vm.event) {
-                EventTypeTimePlace(invite: invite, actionsBelow: true, openInfo: { ui.showInfoScreen = true })
-            }
+        if let invite = InviteSummary(draft: vm.event) {
+            EventTypeTimePlace(invite: invite, actionsBelow: true, openInfo: { ui.showInfoScreen = true })
         }
     }
+}
+
+
+
+//Logic with the action Button
+extension ComposeInviteContainer {
     
-    private var actionButtonAndWarning: some View {
+    private var ctaButton: some View {
         let isConfirm = ui.showConfirmScreen == true
         
         return VStack {
@@ -61,30 +103,30 @@ extension ComposeInviteContainer {
                 isActive: vm.event.isComplete,
                 isDimmed: ui.typePopupOpen || ui.timePopupOpen,
                 showShadow: false,
-                height: 46
-            ) {
-                if isConfirm { onSend(vm.event) } else { ui.showConfirmScreen = true }
-            }
-            .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
+                height: 46,
+                onTap: { ctaAction(isConfirm)() }
+            )
+            .eventZoomDragExclusion()
             
-            if isConfirm {
-                Text("* If they accept, not turning up will get you blocked")
-                    .font(.body(12.5, .regularItalic))
-                    .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
-                    .padding(.horizontal, 12)//Makes it look more aligned
-            }
+            if isConfirm { warningMessage }
         }
+        .padding(.bottom, 16)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
-    private var imagePager: some View {
-        let isConfirm = ui.showConfirmScreen == true
-        return EventImagePager(
-            images: images,
-            title: isConfirm ? "Confirm Invite" : "Invite \(name)" ,
-            showInfo: isConfirm ? nil : { ui.showInfoScreen = true })
+    private var warningMessage: some View {
+        Text("* If they accept, not turning up will get you blocked")
+            .font(.body(12.5, .regularItalic))
+            .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
+    }
+    
+    private func ctaAction(_ isConfirm: Bool) -> () -> Void {
+        isConfirm
+            ? { onSend(vm.event) }
+            : { ui.showConfirmScreen = true }
     }
 }
+
 
 struct EditTypeTimePlace: View {
     
@@ -93,7 +135,7 @@ struct EditTypeTimePlace: View {
     @Binding var draft: EventFieldsDraft
     
     var body: some View {
-        VStack {
+        VStack(spacing: 18) {
             InviteTypeRow(
                 eventType: $draft.type,
                 message: $draft.message,

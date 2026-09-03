@@ -29,7 +29,7 @@ struct EventTypeTimePlace: View {
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.top, actionsBelow ? Spacing.md : Spacing.lg - Spacing.xxs) //Alone, a nudge less than the sides
-        .padding(.bottom, actionsBelow ? 0 : Spacing.lg)
+        .padding(.bottom, actionsBelow ? Spacing.md : Spacing.lg)
     }
 }
 
@@ -52,6 +52,7 @@ extension EventTypeTimePlace {
         }
         .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
     }
+    
     private func eventMessage(message: String) -> some View {
         Text(message)
             .font(.body(14, .regularItalic))

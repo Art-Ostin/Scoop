@@ -26,7 +26,7 @@ struct EventCardSurface: ViewModifier {
                     startPoint: .top, endPoint: .bottom
                 )
                 .frame(height: 150)
-            } //The tinted Background ontop of the glass
+            }
     }
 }
 
