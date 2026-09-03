@@ -14,10 +14,9 @@ let imageTopPadding = Spacing.xs
 //Overlays
 struct EventTitle: View {
     
-    
     let title: String
     var isComposeInvite: Bool { title.starts(with: "Invite")}
-            
+    
     var body: some View {
         Text(title)
             .font(.title(isComposeInvite ? 22 : 18, .bold))
@@ -36,7 +35,7 @@ struct EventImagePagerIndicator: View {
     
     var body: some View {
         ImagePageIndicator(count: 6, progress: progress, activeColor: .white)
-            .scaleEffect(0.7, anchor: .trailing)
+            .scaleEffect(0.7, anchor: .bottomTrailing)
             .padding(.horizontal, imageHorizontalPadding)
             .padding(.bottom, imageBottomPadding)
     }
@@ -45,12 +44,13 @@ struct EventImagePagerIndicator: View {
 struct EventBackButton: View {
     
     //Always mounted so the swap can fade; the container owns the page condition. The scope below
-    //is keyed on this value, so the bare `showConfirmScreen = false` in the action still animates.
+    //is keyed on this value, so this button's OWN fade rides it — but the write carries its own
+    //transaction: the card's frame is laid out above that scope, and a scope never reaches up.
     var visible: Bool = true
     @Binding var showConfirmScreen: Bool?
     
     var body: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), action: { showConfirmScreen = false }) {
+        ScoopButton(style: .clearGlass, shape: Circle(), action: { withAnimation(.transition) { showConfirmScreen = false } }) {
             Image(systemName: "chevron.left")
                 .font(.body(17))
                 .fontWeight(.heavy)
@@ -125,17 +125,3 @@ struct OptionsMenu: View {
         .animation(.transition, value: visible)
     }
 }
-
-/*
- if isComposeInvite {
-     Image(systemName: "info.circle")
-         .font(.body(12, .medium))
-         .foregroundStyle(Color.white.opacity(0.8))
-         .contentShape(Rectangle()) //PressButtonStyle sets none — without it the ring misses
-         .offset(y: 6)
- }
- var isComposeInvite: Bool { showInfo != nil }
- var showInfo: (() -> ())?
-
-
- */

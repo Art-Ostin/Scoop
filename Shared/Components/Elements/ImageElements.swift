@@ -40,22 +40,17 @@ struct AppImage: View {
 
 struct InvitePagePhoto: View {
 
-    private static let blurOff: CGFloat = 0.01
     private static let blurOn: CGFloat = 14
-    private static let blurStart: CGFloat = 0.85 //Fraction of the height where the ramp begins — shared with the baked copy below
-    private static let blurInterpolation: CGFloat = 0.3 //Glur ramps σ = radius·(y/h − start)/interpolation, capped — so the EDGE only reaches radius·(1−start)/interpolation (7pt here), linearly
+    private static let blurStart: CGFloat = 0.9 //Fraction of the height where the ramp begins — shared with the baked copy below
+    private static let blurInterpolation: CGFloat = 0.3 //Glur ramps σ = radius·(y/h − start)/interpolation, capped — so the EDGE only reaches radius·(1−start)/interpolation (4.67pt here), linearly
+    private static let blurFeather: CGFloat = 0.03 //The head of the ramp that is still under a pixel of σ — masked off rather than shown
 
     let image: UIImage
     let blursBottom: Bool
 
     var body: some View {
-        Color.clear
-            .overlay {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            }
-            .glur(radius: blursBottom ? Self.blurOn : Self.blurOff, offset: Self.blurStart, interpolation: Self.blurInterpolation, direction: .down, noise: 0)
+        photo
+            .overlay { if blursBottom { blurBand } }
             .mask {
                 VStack(spacing: 0) {
                     Rectangle() // Left, right and top stay razor sharp.
@@ -63,7 +58,34 @@ struct InvitePagePhoto: View {
                         .frame(height: 2)
                 }
             }
+    }
+
+    private var photo: some View {
+        Color.clear
+            .overlay {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            }
             .clipped() //scaledToFill overflows the cell
+    }
+
+    //A blurred twin revealed only where the ramp already carries blur you can see. σ rises
+    //linearly from blurStart, so its head is sub-pixel — and below σ 0.17 every off-centre
+    //kernel weight underflows to zero, making the output the source bit for bit. Showing
+    //that head spends band height on nothing and lands the rest of the ramp abruptly;
+    //masking it off makes the composite onset quadratic. ProfileCardChrome.blurBand feathers
+    //the same way, and for the same reason.
+    private var blurBand: some View {
+        photo
+            .glur(radius: Self.blurOn, offset: Self.blurStart, interpolation: Self.blurInterpolation, direction: .down, noise: 0)
+            .mask {
+                LinearGradient(stops: [
+                    .init(color: .clear, location: Self.blurStart),
+                    .init(color: .black, location: Self.blurStart + Self.blurFeather),
+                    .init(color: .black, location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+            }
     }
 }
 

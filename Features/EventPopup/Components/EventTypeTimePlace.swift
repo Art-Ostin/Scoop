@@ -29,7 +29,7 @@ struct EventTypeTimePlace: View {
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.top, actionsBelow ? Spacing.md : Spacing.lg - Spacing.xxs) //Alone, a nudge less than the sides
-        .padding(.bottom, actionsBelow ? Spacing.md : Spacing.lg)
+        .padding(.bottom, actionsBelow ? 14 : Spacing.lg)
     }
 }
 
@@ -42,10 +42,9 @@ extension EventTypeTimePlace {
                 .font(.body(16, .bold))
                 .frame(width: iconWidth)
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 eventTitleAndInfo
-                
-                if let message = invite.message {
+                if let message = invite.message, !message.isEmpty {
                     eventMessage(message: message)
                 }
             }

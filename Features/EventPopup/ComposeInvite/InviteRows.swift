@@ -18,6 +18,7 @@ struct InviteTypeRow: View {
     
     //Injected UI updating
     @Binding var showMessageScreen: Bool
+    @Binding var showInfoScreen: Bool
     @Binding var showTypeDropDown: Bool
     
     //Hide the row when timeDropDown is open
@@ -30,6 +31,7 @@ struct InviteTypeRow: View {
         //Baseline, not top edge: the 13pt caption sits on the 17pt title's line, and a message grows beneath it
         HStack(alignment: .firstTextBaseline) {
             RowCaption(label: .what)
+                .overlay(alignment: .topTrailing) {infoIcon}
             Spacer(minLength: 12)
             DropdownCustomMenu(
                 isOpen: $showTypeDropDown,
@@ -45,7 +47,6 @@ struct InviteTypeRow: View {
     
     private var rowLabel: some View {
         VStack(alignment: .trailing, spacing: 1) {
-            //The chevron rides the title's own line, so a message can't pull it down off it
             HStack(spacing: chevronSpacing) {
                 EventRowText(text: eventType.longTitle)
                 DropDownButton(isOpen: showTypeDropDown)
@@ -54,8 +55,6 @@ struct InviteTypeRow: View {
         }
     }
     
-    //The message sheet's field writes "" rather than nil, and an empty Text still holds a full line —
-    //which would push the What row off the middle of its section with nothing to show for it
     private var visibleMessage: String? {
         guard let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         return message
@@ -81,9 +80,17 @@ struct InviteTypeRow: View {
             message: message ?? ""
         )
     }
+    
+    private var infoIcon: some View {
+        Button {
+            showInfoScreen = true
+        } label: {
+            SmallInfoIcon()
+                .scaleEffect(0.8)
+                .offset(x: 14, y: -3)
+        }
+    }
 }
-
-
 
 struct InviteTimeRow: View {
     //Injected data updating
@@ -93,7 +100,7 @@ struct InviteTimeRow: View {
     @Binding var timeisOpen: Bool
     let typePopUpOpen: Bool
     
-    let menuWidth: CGFloat = 325
+    let menuWidth: CGFloat = 325 //The platter width: the day grid's 274pt fits the 277pt column it leaves
     
     var body: some View {
         HStack {
@@ -103,7 +110,7 @@ struct InviteTimeRow: View {
                 estimatedContentSize: CGSize(width: menuWidth, height: 286),
                 verticalPlacement: .below,
                 isOpen: $timeisOpen,
-                content: {SelectTimeView(proposedTimes: $proposedTimes)},
+                content: {SelectTimeView(proposedTimes: $proposedTimes).frame(width: menuWidth)},
                 label: {rowLabel}
             )
         }

@@ -18,7 +18,7 @@ struct ViewInvite: View {
     @State var showInfo = false
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             EventImagePager(images: images, title: title)
             EventTypeTimePlace(invite: inviteSummary, actionsBelow: false) { showInfo = true}
         }

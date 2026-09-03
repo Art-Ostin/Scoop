@@ -60,9 +60,13 @@ extension View {
     ///Presents `card` grown out of the `.eventZoomSource` inside this view when `isPresented`
     ///flips true, and flies it home when it flips false (a Send or an Accept), on the chevron, on
     ///a backdrop tap, or on the card's swipe-down. The binding is written back false only when the
-    ///close flight has landed, so a call site never sees the card unmount mid-air.
-    func eventZoom<Card: View>(isPresented: Binding<Bool>, @ViewBuilder card: @escaping () -> Card) -> some View {
-        modifier(EventZoomModifier(isPresented: isPresented, card: { AnyView(card()) }))
+    ///close flight has landed, so a call site never sees the card unmount mid-air. `inset` is the
+    ///card's gap to the screen edge, `Spacing.gutter` unless a caller says otherwise — passed in
+    ///rather than reached back for, because the card lays out and the cover bakes at mount, a
+    ///frame before any reach-back lands.
+    func eventZoom<Card: View>(isPresented: Binding<Bool>, inset: CGFloat = Spacing.gutter,
+                               @ViewBuilder card: @escaping () -> Card) -> some View {
+        modifier(EventZoomModifier(isPresented: isPresented, inset: inset, card: { AnyView(card()) }))
     }
 
     ///A card body's confirm screen hides the shell's chevron (its own back button takes over)
@@ -115,12 +119,6 @@ struct EventZoomDismissAction {
     func callAsFunction() { action() }
 }
 
-///What the pager reports so the cover can render the very same title — parity at the hand-off cut
-struct EventZoomTitle: Equatable {
-    let text: String
-    let showsInfo: Bool
-}
-
 extension EnvironmentValues {
     @Entry var eventZoomDismiss = EventZoomDismissAction()
 }
@@ -134,6 +132,7 @@ extension EnvironmentValues {
     struct Slot {
         let id: UUID //The anchor's — a card is identified by the modifier that presented it
         let anchor: EventZoomAnchor
+        let inset: CGFloat //The card's gap to the screen edge — its padding AND the cover bake's width
         let card: () -> AnyView
         let dismiss: () -> Void //Writes the call site's binding false once the flight has landed
     }
@@ -146,12 +145,12 @@ extension EnvironmentValues {
 
     var isPresenting: Bool { slot != nil }
 
-    func present(anchor: EventZoomAnchor, card: @escaping () -> AnyView, dismiss: @escaping () -> Void) {
+    func present(anchor: EventZoomAnchor, inset: CGFloat, card: @escaping () -> AnyView, dismiss: @escaping () -> Void) {
         if let live = slot, live.id != anchor.id { clear(live) } //Handoff: presenting over a closing card evicts it
         guard slot == nil else { return } //A same-anchor re-present (a retained view re-appearing: its initial onChange) is a no-op — a view that LOSES identity brings a new anchor and is evicted above, the same cut its onDisappear delivers
         anchor.setVacated(true) //Before the card mounts, so the cover's first frame sits on an already-vacated slot
         if !chromeHidden { chromeHidden = true }
-        slot = Slot(id: anchor.id, anchor: anchor, card: card, dismiss: dismiss)
+        slot = Slot(id: anchor.id, anchor: anchor, inset: inset, card: card, dismiss: dismiss)
     }
 
     ///The call site's binding went false: the card flies home (or, if it never mounted, just goes)
@@ -289,6 +288,7 @@ private struct EventZoomModifier: ViewModifier {
     //Injected
     @Environment(EventZoomHost.self) private var host: EventZoomHost?
     @Binding var isPresented: Bool
+    let inset: CGFloat
     let card: () -> AnyView
 
     //Local view state
@@ -300,7 +300,7 @@ private struct EventZoomModifier: ViewModifier {
             .onChange(of: isPresented, initial: true) { _, presented in
                 guard let host else { return }
                 if presented {
-                    host.present(anchor: anchor, card: card) { isPresented = false }
+                    host.present(anchor: anchor, inset: inset, card: card) { isPresented = false }
                 } else {
                     host.close(anchor: anchor)
                 }
@@ -383,6 +383,7 @@ private struct EventZoomCard: View {
         self.host = host
         let choreo = EventZoomChoreo(
             anchor: slot.anchor,
+            inset: slot.inset, //The bake needs the card's real width, and the frame it measures is a layout pass late
             //A committed close is flying home: a lens' static ring hides (a bare write, behind the
             //still-full backdrop) so the flight's expanding glass owns the slot
             onClosing: { host.returning(for: slot) },
@@ -436,7 +437,7 @@ extension EventZoomCard {
             .modifier(flight.morph())
             .shadow(.card, strength: flight.shadowStrength)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
-            .padding(.horizontal, Spacing.gutter) //The card is a full-bleed surface, not a text column
+            .padding(.horizontal, slot.inset) //The card is a full-bleed surface, not a text column
     }
 
     //The chevron never rides the drag or the flight: it renders ABOVE the moving column, at the
@@ -480,6 +481,7 @@ private struct EventZoomCardContent: View, Equatable {
     private let shape: EventZoomSourceShape //A circle's ring is the glass tier the close regrows; a card has none
     let coverPhoto: UIImage //The source's pixels: the flying cover, and the pager's page when a caller hands it nothing
     private let chrome: AnyView? //The source's chrome, copied once at source size — rides the cover out and back
+    private let inset: CGFloat //The card's gap to the screen edge — the cover bakes at that width
     private let onClosing: () -> Void //A committed close is leaving: the owner hides a lens' static ring
     private let onChromeReturn: () -> Void //A beat into the close: the screen's own chrome comes back, while the card is still flying
     private let onClosed: () -> Void //The close flight has landed; the owner clears state
@@ -500,7 +502,7 @@ private struct EventZoomCardContent: View, Equatable {
     private var restingCard: CGRect = .zero //The card's frame at REST — the stationary chevron's slot, held clear of the drag and of the flight home
     private var chevronIn = false //The chevron's late arrival: armed a quarter into the open, so it pops only once the flight reads committed
     private var fingerDown = false //The finger owns the card. Ownership, not motion: the chevron leaves as the drag begins and returns the instant a cancelled release lets go, riding back on screen with the snap-back
-    private var title: EventZoomTitle? //What the pager draws over its band — the cover draws the same, so the hand-off cut meets identical pixels
+    private var title: String? //What the pager draws over its band — the cover draws the same, so the hand-off cut meets identical pixels
     private var bandChromeIn = false //Chrome over the band: in on its own animated write just after the hand-off cut, out with the close
     private var chevronHiddenByCard = false //A body's confirm screen owns the corner with its own back button
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
@@ -509,6 +511,7 @@ private struct EventZoomCardContent: View, Equatable {
     private let windDriver = WindCloseDriver() //The wind close's clock — the trajectory is time-domain, not a spring target
 
     init(anchor: EventZoomAnchor,
+         inset: CGFloat,
          onClosing: @escaping () -> Void,
          onChromeReturn: @escaping () -> Void,
          onClosed: @escaping () -> Void) {
@@ -517,6 +520,7 @@ private struct EventZoomCardContent: View, Equatable {
         self.shape = anchor.shape
         self.coverPhoto = anchor.image ?? UIImage()
         self.chrome = anchor.chrome?() //Built ONCE: the same value every frame, so the copy's body never re-runs in flight
+        self.inset = inset
         self.onClosing = onClosing
         self.onChromeReturn = onChromeReturn
         self.onClosed = onClosed
@@ -567,10 +571,17 @@ extension EventZoomChoreo {
 
     //The measured rects report live, drag folded in; the first pair past layout opens
     func reportCard(_ rect: CGRect) {
-        cardRect = rect
-        //The chevron's slot takes the RESTING pose only: the live frame folds the drag in, and
-        //a committed close keeps that frozen drag for the whole flight home
-        if !dragEngaged, !closing { restingCard = rect }
+        //A measured rect lands in ONE step, never eased, so a LANDED card that RESIZES (a body
+        //swapping to its confirm screen) needs the write itself to carry the curve — the mask
+        //this feeds IS the card's visible edge, and it would otherwise clip the card to its new
+        //height a whole curve before the surface eased there. In flight and under the drag the
+        //write stays raw: those read the rect live, per frame.
+        withAnimation(landed && !closing && !dragEngaged ? .transition : nil) {
+            cardRect = rect
+            //The chevron's slot takes the RESTING pose only: the live frame folds the drag in, and
+            //a committed close keeps that frozen drag for the whole flight home
+            if !dragEngaged, !closing { restingCard = rect }
+        }
         openWhenMeasured()
     }
 
@@ -579,7 +590,7 @@ extension EventZoomChoreo {
         openWhenMeasured()
     }
 
-    func reportTitle(_ title: EventZoomTitle) {
+    func reportTitle(_ title: String) {
         if self.title != title { self.title = title }
     }
 
@@ -922,7 +933,7 @@ extension EventZoomChoreo {
         let photo = coverPhoto
         guard photo.size.width > 0, photo.size.height > 0 else { return }
         let aspect = AspectRatio.pendingEvent.ratio
-        let width = UIScreen.main.bounds.width - Spacing.gutter * 2
+        let width = UIScreen.main.bounds.width - inset * 2
         let scale = UIScreen.main.scale
         let baked = await Task.detached(priority: .userInitiated) { () -> UIImage? in
             //Bake at the band's display resolution, not the photo's: the aspect is preserved,
@@ -1003,7 +1014,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let photo: UIImage
     let blurredPhoto: UIImage? //The photo with its glur foot baked in — crossfaded over the raw pixels as the flight runs
     let chrome: AnyView? //The source's chrome copy — laid out at source size, transform-ridden, gone over the open's first beat
-    let title: EventZoomTitle? //The pager's own title — rides the cover so it arrives with the content, not after it
+    let title: String? //The pager's own title — rides the cover so it arrives with the content, not after it
     let coverShown: Bool
 
     //The dismiss drag scrubs the fold 1:1 with raw descent over this distance — the invite
@@ -1146,8 +1157,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
                 y: bounds.height > 0 ? cover.midY / bounds.height : 0.5))
     }
 
-    private func coverTitle(_ title: EventZoomTitle, width: CGFloat) -> some View {
-        EventTitle(title: title.text)
+    private func coverTitle(_ title: String, width: CGFloat) -> some View {
+        EventTitle(title: title)
             .frame(width: max(width, 1), alignment: .leading)
     }
 

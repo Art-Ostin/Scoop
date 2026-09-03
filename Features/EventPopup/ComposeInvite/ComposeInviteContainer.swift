@@ -41,11 +41,7 @@ extension ComposeInviteContainer {
     
     private var imagePager: some View {
         let isConfirm = ui.showConfirmScreen == true
-        return EventImagePager(
-            images: images,
-            title: isConfirm ? "Confirm Invite" : "Invite \(name)" ,
-            showInfo: isConfirm ? nil : { ui.showInfoScreen = true }
-        )
+        return EventImagePager(images: images, title: isConfirm ? "Confirm Invite" : "Invite \(name)")
         .overlay(alignment: .topLeading) { backButton(visible: isConfirm).eventZoomBandChrome() }
         .overlay(alignment: .topTrailing) { optionsMenu(visible: !isConfirm).eventZoomBandChrome() }
     }
@@ -98,6 +94,8 @@ extension ComposeInviteContainer {
         let isConfirm = ui.showConfirmScreen == true
         
         return VStack {
+            if isConfirm { warningMessage }
+        
             WideActionButton(
                 text: isConfirm ? "Send to \(name)" : "Preview",
                 isActive: vm.event.isComplete,
@@ -108,7 +106,6 @@ extension ComposeInviteContainer {
             )
             .eventZoomDragExclusion()
             
-            if isConfirm { warningMessage }
         }
         .padding(.bottom, 16)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
@@ -123,7 +120,10 @@ extension ComposeInviteContainer {
     private func ctaAction(_ isConfirm: Bool) -> () -> Void {
         isConfirm
             ? { onSend(vm.event) }
-            : { ui.showConfirmScreen = true }
+            //A TRANSACTION, not just the scope on the body: the card's own frame — the white
+            //surface, the flight's mask, the column that holds it — is laid out ABOVE this view
+            //by `.eventZoom`, and an animation scope only ever reaches downward
+            : { withAnimation(.transition) { ui.showConfirmScreen = true } }
     }
 }
 
@@ -140,9 +140,11 @@ struct EditTypeTimePlace: View {
                 eventType: $draft.type,
                 message: $draft.message,
                 showMessageScreen: $ui.showMessageScreen,
+                showInfoScreen: $ui.showInfoScreen,
                 showTypeDropDown: $ui.typePopupOpen,
                 timePopupOpen: ui.delayedTimePopupOpen
             )
+            
             VeryLightDivider()
             
             InviteTimeRow(

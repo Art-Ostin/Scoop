@@ -28,8 +28,8 @@ struct ProfileCard : View {
             } content: {
                 profileView(profile.profile)
             }
-            .eventZoomSource(profile.image) { cardOverlay } //The photo lifts off into the card; this copy of the chrome rides it out
-            .eventZoom(isPresented: ui.showInviteBinding(profile: profile)) { invitePopup }
+            .eventZoomSource(profile.image) { cardOverlay }
+            .eventZoom(isPresented: ui.showInviteBinding(profile: profile), inset: 10) { invitePopup }
     }
 }
 
