@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct RespondToInviteContainer: View {
-    
     //Injected Properties
     @State var vm: RespondViewModel
     @State var ui = RespondUIState()

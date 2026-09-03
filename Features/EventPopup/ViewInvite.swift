@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ViewInvite: View {
-
     let inviteSummary: InviteSummary
     let images: [UIImage]
     let name: String //Needed for Info Section
