@@ -1,6 +1,6 @@
 //
 //  EventCardSurface.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
@@ -30,22 +30,7 @@ struct EventCardSurface: ViewModifier {
     }
 }
 
-//The White Background used in the HistoryContainer
-struct EventCardSurfaceV2: ViewModifier {
-    
-    func body(content: Content) -> some View {
-        content
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.image))
-        .shadow(.card)
-        .padding(.horizontal, Spacing.gutter)
-    }
-}
-
-
-
-
-//Hovers outside the view
+//The dismiss chevron `.eventZoom` draws below its card — stationary, never riding the drag or the flight
 struct EventDismissButton: View {
     var visible: Bool = true
     let onTap: () -> ()

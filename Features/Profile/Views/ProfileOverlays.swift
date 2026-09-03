@@ -108,29 +108,6 @@ extension ProfileContainer {
     @ViewBuilder
     private func inviteView(pending: PendingProfile) -> some View {
         if let onSend = onSendInvite, let onDecline = onDeclineProfile {
-            SendInviteContainer(
-                images: invitedImages,
-                name: pending.profile.name,
-                showInvite: $ui.showInvite,
-                vm: TimeAndPlaceViewModel(profileId: pending.profile.id, defaults: vm.defaults),
-                onSendInvite: { draft, sendFlight in
-                    onSend(draft, sendFlight)
-                    Task { //Popup and profile stay put and blur, as on decline: the hero copy lifts
-                           //off the still-mounted card, and both leave under the opaque wash
-                        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
-                        ui.showInvite = false
-                        zoomDismiss()
-                    }
-                },
-                declineProfile: {
-                    onDecline(nil) //No measured launch pad — the popup's decline sits far from the button
-                    Task { //Popup and profile stay put and blur; both leave under the opaque wash
-                        try? await Task.sleep(for: BlurCoverMotion.coveredAt)
-                        ui.showInvite = false
-                        zoomDismiss()
-                    }
-                }
-            )
         }
     }
 }
@@ -146,11 +123,3 @@ extension ProfileContainer {
         }
     }
 }
-
-/*
- //The card's collapsed caption line — same shape as MeetContainer's ProfileCard info line.
- private func profileDetails(_ p: UserProfile) -> String {
- "\(p.year) | \(p.degree) | \(p.hometown)"
- }
-
- */

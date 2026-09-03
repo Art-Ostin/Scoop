@@ -108,9 +108,11 @@ Features/<Name>/
   carry a `//Geometry:` comment. Measured system replications (`CustomAlert`, the custom
   menus) keep their measured literals. A negative padding that negates a token is written as
   the token's negation (`-Spacing.gutter`) so the pair can't drift apart.
-- Shadows: only `Elevation` levels from `Shared/Design/Shadows.swift`, worn via the
-  `.shadow(.card)` overload — the ramp is `card → image → button → softFloating →
-  floating` (plus the `glass` role alias of `card` for pre-26 glass stand-ins).
+- Shadows: only `Elevation` levels from `Shared/Design/GeneralParameters.swift`, worn via the
+  `.shadow(.card)` overload — the ramp is `card → tile → image → button → softFloating →
+  floating` (plus the `glass` role alias of `card` for pre-26 glass stand-ins, and the measured
+  stand-in `zoomCard` — `ZoomStyle.cardShadows` collapsed to two layers — worn only by the event
+  zoom's flying cover).
   Light always falls from straight above (x is 0); each level is a
   tight contact layer plus a wide faint ambient layer. `tint:` colors only the ambient
   glow (tinted CTAs glow their own color — `.shadow(.button, tint: .accent)`).
@@ -119,7 +121,7 @@ Features/<Name>/
   (`Elevation.pressedStrength`). A fractional literal at a call site means a level is
   missing — add one, deriving it with `Layer.halved` where it descends from another
   (`softFloating`). Raw `.shadow(color:radius:x:y:)` is allowed **only inside
-  Shadows.swift**, plus the measured system-replication specs that interpolate geometry
+  GeneralParameters.swift**, plus the measured system-replication specs that interpolate geometry
   (menu platter bloom in `DropdownCustomMenu.swift`, profile flights in
   `ProfileZoomTransition.swift`).
 - Motion: only named roles from the `extension Animation` in

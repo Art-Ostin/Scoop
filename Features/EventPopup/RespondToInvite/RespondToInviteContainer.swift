@@ -1,6 +1,6 @@
 //
 //  RespondToInviteContainer.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 02/09/2026.
 //
@@ -13,26 +13,20 @@ struct RespondToInviteContainer: View {
     @State var ui = RespondUIState()
     @State var composeUI = ComposeInviteUIState()
     
-    @Binding var showInvite: Bool
-    
     let images: [UIImage]
     let respond: (ProfileResponse) -> ()
     
     var type: ResponseType { vm.respondDraft.respondType }
     
+    //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
-        ZStack {
-            EventBackdropV2()
-            VStack(spacing: 60) {
-                VStack(spacing: 0) {
-                    imagePager
-                    eventInfoSection
-                    actionSection
-                }
-                .modifier(EventCardSurfaceV2())
-                EventDismissButton(visible: !isConfirmNewEvent) { showInvite = false }
-            }
+        VStack(spacing: 0) {
+            imagePager
+            eventInfoSection
+            actionSection
         }
+        .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
+        .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen) //An open menu owns the finger
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
     }
 }
@@ -45,8 +39,9 @@ extension RespondToInviteContainer {
             title: titleText ,
             showInfo: isComposeInviteScreen ? nil : { composeUI.showInfoScreen = true }
         )
-        .overlay(alignment: .topLeading) { isConfirmNewEvent ? backButton : nil }
-        .overlay(alignment: .topTrailing) { topRow }
+        //Under the flying cover until the hand-off: popped in then, never cut in
+        .overlay(alignment: .topLeading) { isConfirmNewEvent ? backButton.eventZoomBandChrome() : nil }
+        .overlay(alignment: .topTrailing) { topRow.eventZoomBandChrome() }
     }
     
     var titleText: String {
@@ -151,6 +146,7 @@ extension RespondToInviteContainer {
             height: type == .newEvent ? 46 : 48,
             onTap: ctaAction
         )
+        .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
     }
     
     var ctaText: String {
@@ -177,6 +173,7 @@ extension RespondToInviteContainer {
             .capsuleStroke(lineWidth: 1, color: .borderStrong)
             .geometryGroup()
             .shrinkPress {respond(.decline)}
+            .eventZoomDragExclusion()
     }
     
     var warningText: some View {

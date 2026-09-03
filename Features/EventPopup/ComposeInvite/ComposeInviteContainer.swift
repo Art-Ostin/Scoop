@@ -1,6 +1,6 @@
 //
 //  ComposeInviteContainer.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
@@ -11,25 +11,20 @@ struct ComposeInviteContainer: View {
     
     @State var vm: ComposeInviteViewModel
     @State var ui = ComposeInviteUIState()
-    
-    @Binding var showInviteScreen: Bool
 
     let images: [UIImage]
     let name: String
+    let onSend: (EventFieldsDraft) -> Void //The confirm screen's Send: the parent sends and closes the card
 
+    //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
-        ZStack {
-            EventBackdropV2()
-            VStack(spacing: 60) {
-                VStack {
-                    imagePager
-                    inviteDetailsPager
-                    actionButtonAndWarning
-                }
-                .modifier(EventCardSurfaceV2())
-                EventDismissButton(visible: ui.showConfirmScreen != true) { showInviteScreen = false }
-            }
+        VStack {
+            imagePager
+            inviteDetailsPager
+            actionButtonAndWarning
         }
+        .eventZoomChevronHidden(ui.showConfirmScreen == true) //The confirm screen owns the corner
+        .eventZoomDragLocked(ui.typePopupOpen || ui.timePopupOpen) //An open menu owns the finger
     }
 }
 
@@ -68,8 +63,9 @@ extension ComposeInviteContainer {
                 showShadow: false,
                 height: 46
             ) {
-                if isConfirm { } else { ui.showMessageScreen = true}
+                if isConfirm { onSend(vm.event) } else { ui.showConfirmScreen = true }
             }
+            .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
             
             if isConfirm {
                 Text("* If they accept, not turning up will get you blocked")

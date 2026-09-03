@@ -21,7 +21,7 @@ struct HistoryContainer: View {
 
     @State private var pendingScroll = ScrollPosition()
 
-    @State private var showEventInfo: EventProfile?
+    @State private var eventZoomHost = EventZoomHost() //The cover's own plane: the app root's host leaks in here but renders behind the cover
     
     private let fadeBand: CGFloat = 32
 
@@ -39,15 +39,10 @@ struct HistoryContainer: View {
             .task(id: vm.declines) { await loadDeclineImages() }
             .task(id: vm.sentInvites) { await loadInviteImages() }
             .overlay { dismissButtonLayer }
-            .eventZoom(ui: ui, images: { vm.images(for: $0) }) { invite, images in
-                SelectedEvent(eventProfile: invite, images: images, openEventInfo: $showEventInfo)
-            }
-            .sheet(item: $showEventInfo) { eventProfile in
-                Text(eventProfile.profile.name)
-            }
+            .eventZoomHost(eventZoomHost) //Above the xmark: a lens' card and its backdrop cover the screen's chrome
         }
         .environment(ZoomPresentationHost?.none)
-        .interactiveDismissDisabled(ui.selectedPending != nil || profileOpen)
+        .interactiveDismissDisabled(eventZoomHost.isPresenting || profileOpen)
         .ignoresSafeArea()
     }
 }
@@ -81,7 +76,7 @@ extension HistoryContainer {
         }
     }
 
-    private var chromeVisible: Bool { ui.selectedPending == nil || ui.pendingChromeBack }
+    private var chromeVisible: Bool { !eventZoomHost.chromeHidden } //Back a beat into a card's close, while it is still flying home
 
     private var dismissButton: some View {
         ScoopButton(style: .glass, shape: Circle(), size: .xLarge, press: .grow) {
@@ -93,7 +88,7 @@ extension HistoryContainer {
         }
         .opacityPop(visible: chromeVisible)
         .allowsHitTesting(chromeVisible)
-        //Its OWN value-keyed scope: selectPending writes bare on purpose (an animated mount
+        //Its OWN value-keyed scope: the host writes bare on purpose (an animated mount
         //would flash the flight cover), so the pop cannot ride the call site's transaction
         .animation(.transition, value: chromeVisible)
     }
@@ -149,19 +144,10 @@ extension HistoryContainer {
             PendingInvitesView(days: vm.invitedDays,
                                expiredInvites: vm.expiredInvites,
                                ui: ui,
-                               onSelect: selectPending)
+                               images: { vm.images(for: $0) })
         }
         .scrollPosition($pendingScroll)
         .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal, position: $pendingScroll)
-    }
-}
-
-extension HistoryContainer {
-
-    private func selectPending(_ invite: EventProfile, sourceRect: CGRect) {
-        ui.pendingSource = sourceRect
-        ui.selectedPending = invite
-        ui.pendingChromeBack = false //A fresh card takes the corner back from the last close
     }
 }
 

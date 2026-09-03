@@ -1,32 +1,26 @@
 //
 //  ViewInvite.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 02/09/2026.
 //
 
 import SwiftUI
 
+//A sent invite, read-only — card content for `.eventZoom`, which draws the backdrop, the white
+//surface and the chevron around it
 struct ViewInvite: View {
     let inviteSummary: InviteSummary
     let images: [UIImage]
     let name: String //Needed for Info Section
     let title: String
     
-    @Binding var showEventScreen: Bool
     @State var showInfo = false
     
     var body: some View {
-        ZStack {
-            EventBackdropV2()
-            VStack(spacing: 60) {
-                VStack {
-                    EventImagePager(images: images, title: title)
-                    EventTypeTimePlace(invite: inviteSummary, actionsBelow: false) { showInfo = true}
-                }
-                .modifier(EventCardSurfaceV2())
-                EventDismissButton { showEventScreen = false }
-            }
+        VStack {
+            EventImagePager(images: images, title: title)
+            EventTypeTimePlace(invite: inviteSummary, actionsBelow: false) { showInfo = true}
         }
         .sheet(isPresented: $showInfo) { Text("Test")}
     }

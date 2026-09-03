@@ -14,7 +14,7 @@ struct PendingInvitesView: View {
     let expiredInvites: [EventProfile]
     @Bindable var ui: HistoryUIState //Bindable, not let: the expired section drives showsExpired
     
-    let onSelect: (EventProfile, CGRect) -> Void //Opening a ledger lens — the container owns the card it presents; the tap carries the lens' face circle
+    let images: (EventProfile) -> [UIImage] //The card's pages for an invite — each lens presents its own card
 
     var body: some View {
         VStack(spacing: 0) {
@@ -57,7 +57,7 @@ extension PendingInvitesView {
     }
     
     private var pendingCalendar: some View {
-        PendingCalendar(inviteDays: days, ui: ui, onSelect: onSelect)
+        PendingCalendar(inviteDays: days, ui: ui, images: images)
             .padding(.horizontal, Spacing.gutter)
             .padding(.bottom, Spacing.xl) //The card → the section that follows it
     }

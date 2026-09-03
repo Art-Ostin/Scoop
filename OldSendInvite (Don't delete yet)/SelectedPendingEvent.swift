@@ -5,36 +5,40 @@
 //  Created by Art Ostin on 29/08/2026.
 //
 
-import SwiftUI
+/*
+ 
+ import SwiftUI
 
-struct SelectedEvent: View {
+ struct SelectedEvent: View {
 
-    //Injected
-    let eventProfile: EventProfile
-    let images: [UIImage]
+     //Injected
+     let eventProfile: EventProfile
+     let images: [UIImage]
 
-    @Binding var openEventInfo: EventProfile?
+     @Binding var openEventInfo: EventProfile?
 
-    var body: some View {
-        VStack(spacing: 0) {
-            EventImagePager(title: eventProfile.inviteTitle, images: images)
+     var body: some View {
+         VStack(spacing: 0) {
+             EventImagePager(title: eventProfile.inviteTitle, images: images)
 
-            detailsRow
-        }
-    }
-}
+             detailsRow
+         }
+     }
+ }
 
-extension SelectedEvent {
+ extension SelectedEvent {
 
-    private var detailsRow: some View {
-        let e = eventProfile.event
+     private var detailsRow: some View {
+         let e = eventProfile.event
 
-        return EventTypeTimeAndPlace(
-            type: e.type,
-            message: e.message,
-            time: e.proposedTimes,
-            place: e.location,
-            openInfo: { openEventInfo = eventProfile }
-        )
-    }
-}
+         return EventTypeTimeAndPlace(
+             type: e.type,
+             message: e.message,
+             time: e.proposedTimes,
+             place: e.location,
+             openInfo: { openEventInfo = eventProfile }
+         )
+     }
+ }
+
+ */

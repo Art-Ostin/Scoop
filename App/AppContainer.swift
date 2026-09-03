@@ -17,7 +17,7 @@ struct AppContainer: View {
     @State private var messagesVM: MessagesViewModel
 
     @State private var zoomPresentations = ZoomPresentationHost()
-    @State private var inviteZoomPresenter = InviteZoomPresenter()
+    @State private var eventZoomHost = EventZoomHost()
     @State private var responseCover = ResponseCoverPresenter()
 
     init(dependencies dep: AppDependencies) {
@@ -86,7 +86,7 @@ struct AppContainer: View {
                     .accessibilityLabel("Messages")
                 }
 
-                InviteZoomLayer(presenter: inviteZoomPresenter)
+                EventZoomLayer(host: eventZoomHost) //Above the TabView: a card's backdrop covers the never-hidden bar
 
                 ZoomPresentationLayer(host: zoomPresentations)
                     .ignoresSafeArea()
@@ -98,7 +98,7 @@ struct AppContainer: View {
         }
         .overlay(alignment: .top) { InAppNotificationOverlay() }
         .environment(zoomPresentations)
-        .environment(inviteZoomPresenter)
+        .environment(eventZoomHost)
         .environment(responseCover)
     }
 }

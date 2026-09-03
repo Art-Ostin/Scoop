@@ -103,28 +103,9 @@ struct InviteDay: Identifiable {
 final class HistoryUIState {
     var pagerProgress: Double = 0
 
-    ///The invite whose detail card is open over the page — nil when the ledger is at rest
-    var selectedPending: EventProfile?
-
-    ///The tapped lens' face circle in global space — the flight's home, captured at the tap
-    var pendingSource: CGRect = .zero
-
-    ///The tapped lens, emptied while its card is up: the photo lifts OFF the glass circle at
-    ///open and visibly RETURNS to the vacant ring at close — a duplicate beneath would kill both reads
+    ///The ledger lens whose card is up — cleared by the lens' own `.eventZoom` once the close
+    ///flight has landed. Either lens of an invite opens the same card, grown out of the one tapped.
     var selectedLensID: String?
-
-    ///The tapped lens' glass tier (PendingCalendar's ring width), captured beside the source
-    ///rect — the close flight regrows the ring at exactly this size under the landing photo
-    var pendingGlassRing: CGFloat = 0
-
-    ///True only while a committed close is flying home: the ledger's static ring hides for
-    ///that stretch, the flight's own expanding glass owns the slot, and the landed commit
-    ///returns the full lens (photo, ring, shadow) over pixel-identical frames
-    var lensReturning = false
-
-    ///The screen's own chrome, back a BEAT into a committed close while the card is still
-    ///flying home — the flight writes it, and a fresh selection takes the corner back
-    var pendingChromeBack = false
 
     var expandedInvite: String?
 

@@ -1,5 +1,5 @@
 //
-//  NewInviteCard.swift
+//  InviteCard.swift
 //  Scoop
 //
 //  Created by Art Ostin on 06/06/2026.
@@ -27,13 +27,6 @@ struct InviteSlot: View {
     //Local Parameters
     @State var palette: OverlayPalette = .placeholder
 
-    @State private var cardRect: CGRect = .zero
-    @State private var titleRect: CGRect = .zero
-    @State private var chipRect: CGRect = .zero
-    @State private var timeRect: CGRect = .zero
-    @State private var placeRect: CGRect = .zero
-    @State private var envelopeRect: CGRect = .zero
-
     var body: some View {
         VStack(spacing: 72) {
             if let image = eventProfile.image {
@@ -51,40 +44,20 @@ extension InviteSlot {
         AppImage(image: image, type: .invite, insetOverride: cardInset)
             .task(id: eventProfile.id) {await fetchColour(image: image)}
             .zoomTransition(images: profileImages) {
-                cardOverlay(image: image, reportsFrames: true) //The REAL overlay — the flight's source anchors measure here
+                cardOverlay(image: image)
             } content: {
                 profileView
             }
-            .inviteZoom(
-                id: eventProfile.id,
-                isPresented: quickResponsePresented,
-                sourceChrome: { cardOverlay(image: image) },
-                popup: { respondPopup }
-            )
+            .eventZoomSource(image) { cardOverlay(image: image) } //The photo lifts off into the card; this copy of the chrome rides it out
+            .eventZoom(isPresented: quickResponsePresented) { respondPopup }
             .overlay(alignment: .topTrailing) {
-//                if thereArePastInvites() {
+                if thereArePastInvites() {
                     inviteHistoryButton
                         .padding()
-//                }
+                }
             }
     }
 
-    private var measuredSourceRects: InviteCardSourceRects {
-        guard cardRect.width > 1 else { return InviteCardSourceRects() }
-        func rel(_ r: CGRect) -> CGRect {
-            r.width > 1 ? r.offsetBy(dx: -cardRect.minX, dy: -cardRect.minY) : .zero
-        }
-        return InviteCardSourceRects(
-            title: rel(titleRect),
-            chip: rel(chipRect),
-            time: rel(timeRect),
-            place: rel(placeRect),
-            envelope: rel(envelopeRect)
-        )
-    }
-
-    //The envelope button writes the SHARED EventProfile? slot (openInvite); this narrows it to
-    //this card's own Bool for the zoom modifier
     private var quickResponsePresented: Binding<Bool> {
         Binding(
             get: { openInvite?.id == eventProfile.id },
@@ -98,13 +71,12 @@ extension InviteSlot {
         )
     }
 
+    //The respond card growing out of this image; the response itself stays the container's
     private var respondPopup: some View {
-        RespondInviteContainer(
-            images: profileImages,
+        RespondToInviteContainer(
             vm: vm.respondVM(for: eventProfile),
-            timeAndPlaceVM: TimeAndPlaceViewModel(profileId: eventProfile.profile.id, defaults: vm.defaults),
-            sourceRects: measuredSourceRects,
             showInvite: quickResponsePresented,
+            images: profileImages,
             respond: onRespond
         )
     }
@@ -132,18 +104,11 @@ extension InviteSlot {
 //Overlay on the Card
 extension InviteSlot {
     
-    //reportsFrames: true only on the REAL overlay — the flight's chrome copy renders these
-    //same views at the flight layer and must never overwrite the measured source anchors
-    private func cardOverlay(image: UIImage, reportsFrames: Bool = false) -> some View {
+    //Drawn over the card at rest, and copied onto the event zoom's flying cover
+    private func cardOverlay(image: UIImage) -> some View {
         blurAndColour(image: image)
-            .modifier(InviteChromeFadeOpacity())
-            .overlay(alignment: .bottomLeading) {
-                inviteOverlay(reportsFrames: reportsFrames)
-            }
+            .overlay(alignment: .bottomLeading) { inviteOverlay }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rect in
-                if reportsFrames { cardRect = rect } //The frame all measured offsets are relative to
-            }
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }
     
@@ -162,8 +127,22 @@ extension InviteSlot {
             ))
     }
     
-    private func inviteOverlay(reportsFrames: Bool) -> some View {
-        //Container has already 24 horizontal padding.
+    
+    private var inviteOverlay: some View {
+        VStack {
+            Text(InviteCardTitle.text(name: name))
+                .font(.title(26, .bold))
+                .foregroundStyle(Color.white)
+            
+            
+            
+            
+            
+        }
+    }
+    
+    
+    private var inviteOverlay: some View {
         let summary = InviteSummary(event: draft.originalInvite.event)
         return ConfirmContainer(
             event: summary,
@@ -172,19 +151,8 @@ extension InviteSlot {
             timeOpen: false, //Nothing on the card opens a popup over it any more
             showMessageSection: true,
             color: palette.secondaryText,
-            showMessageScreen: .constant(false),
-            placeRowFrame: reportsFrames ? $placeRect : nil,
-            cardTitleFrame: reportsFrames ? $titleRect : nil,
-            chipFrame: reportsFrames ? $chipRect : nil,
-            envelopeFrame: reportsFrames ? $envelopeRect : nil) {
-                //A plain line, never a menu: choosing a day — and proposing new ones — belongs
-                //to the respond popup, the only surface that can commit the choice. One day, not
-                //the whole run: three days at 20pt shrink to an unreadable line, and it is the
-                //day the popup preselects anyway. (Meet's pending card lists all three at 16.)
+            showMessageScreen: .constant(false)) {
                 StaticTimeRow(proposedTimes: summary.time, style: .card, namesOneDay: true)
-                    .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rect in
-                        if reportsFrames { timeRect = rect }
-                    }
             } showInfo: {
                 //Add scrollTo  code here to scroll to section below.
             } openInvite: {
@@ -193,18 +161,9 @@ extension InviteSlot {
             .padding(.bottom, 28) //The card owns its bottom inset; ConfirmContainer adds none on .card
     }
     
-    //The scrim's flight exit, as its own modifier DELIBERATELY: the environment must be read
-    //by a view INSTALLED in the flight layer's subtree. Read as an InviteSlot property inside
-    //the sourceChrome closure, the resting default (1) bakes into the copy at construction and
-    //the flight's writes never reach it — the CustomMenu env-scoping rule.
-    private struct InviteChromeFadeOpacity: ViewModifier {
-        @Environment(\.inviteChromeFade) private var chromeFade
-
-        func body(content: Content) -> some View {
-            content.opacity(chromeFade)
-        }
-    }
-
+    
+    
+    
     //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint
     private func fetchColour(image: UIImage) async {
         palette = await PopupColorExtractor.shared
@@ -237,4 +196,3 @@ extension InviteSlot {
         }
     }
 }
-

@@ -13,12 +13,11 @@ struct PendingCalendar: View {
 
     //Injected
     let inviteDays: [InviteDay]
-    let ui: HistoryUIState //Read for the lens the flight stands on, and the dismiss pulse
-    let onSelect: (EventProfile, CGRect) -> Void //Either lens of an invite opens the same card; the tap carries its face circle in global space
+    let ui: HistoryUIState //Which lens is up — either lens of an invite opens the same card, grown out of the one tapped
+    let images: (EventProfile) -> [UIImage] //The card's pages for an invite: its own image until the profile's set has loaded
 
     //Local view state
     @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal
-    @State private var faceRects = FaceRectStore() //A reference type: rects report on every scroll frame and must never invalidate the ledger
 
     //TODO: the composer proposes across 11 days (DayPicker.dayCount) — share one horizon constant when the data wiring lands
     private static let dayCount = 10
@@ -204,30 +203,10 @@ extension PendingCalendar {
     }
 
     private func lens(_ face: Face, day: Date) -> some View {
-        let lensID = "\(face.invite.id)#\(Int(day.timeIntervalSinceReferenceDate))"
-        //While this lens' card is up, the slot stands empty: the flying cover carries the
-        //photo, and the close must land on a vacant glass ring — never on a duplicate image
-        let vacated = ui.selectedLensID == lensID
-
-        return Button {
-            ui.selectedLensID = lensID //Before the card mounts, so the cover's first frame sits on an already-vacated slot
-            ui.pendingGlassRing = face.isFirst ? Self.glassRing : Self.echoGlassRing //The close regrows the ring at this tier
-            onSelect(face.invite, faceRects.rects[lensID] ?? .zero)
-        } label: {
-            SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
-                .opacity(vacated ? 0 : 1)
-                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { faceRects.rects[lensID] = $0 }
-                .padding(face.isFirst ? Self.glassRing : Self.echoGlassRing)
-                .lightShadow()
-                .containerGlassEffect(clipped: true, shape: Circle())
-                .opacity(vacated && ui.lensReturning ? 0 : 1)
-                .padding(face.isFirst ? 0 : Self.echoHitInset)
-                .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
-                .padding(face.isFirst ? 0 : -Self.echoHitInset)
-        }
-        .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
-        .instantPressDelivery()
-        .accessibilityLabel(face.isFirst ? face.invite.profile.name : "\(face.invite.profile.name) — alternative day")
+        Lens(face: face,
+             lensID: "\(face.invite.id)#\(Int(day.timeIntervalSinceReferenceDate))",
+             ui: ui,
+             images: images)
     }
 
     private func overflowChip(_ day: Date, hidden: Int) -> some View {
@@ -262,8 +241,68 @@ extension PendingCalendar {
     }
 }
 
-//Rects report continuously as the ledger scrolls; a plain reference type keeps those writes
-//out of SwiftUI's invalidation entirely — the tap just reads the latest
-private final class FaceRectStore {
-    var rects: [String: CGRect] = [:]
+//One lens: the face that lifts off, its glass ring, and the card that grows out of it. The
+//presentation is the lens' own `.eventZoom` — the ledger keeps only which lens is up.
+extension PendingCalendar {
+
+    private struct Lens: View {
+
+        //Injected
+        let face: Face
+        let lensID: String
+        let ui: HistoryUIState
+        let images: (EventProfile) -> [UIImage]
+
+        //Id-guarded, like the tab cards' bindings: an evicted card's landed dismissal must never
+        //drop a newer lens' selection
+        private var isPresented: Binding<Bool> {
+            Binding {
+                ui.selectedLensID == lensID
+            } set: { presented in
+                if presented { ui.selectedLensID = lensID }
+                else if ui.selectedLensID == lensID { ui.selectedLensID = nil }
+            }
+        }
+
+        var body: some View {
+            let name = face.invite.profile.name
+
+            Button { ui.selectedLensID = lensID } label: {
+                LensFace(face: face)
+            }
+            .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
+            .instantPressDelivery()
+            .accessibilityLabel(face.isFirst ? name : "\(name) — alternative day")
+            .eventZoom(isPresented: isPresented) {
+                ViewInvite(inviteSummary: InviteSummary(event: face.invite.event),
+                           images: images(face.invite), //Read inside the card, so a set that loads while it is up reaches the pager
+                           name: name,
+                           title: "Invited \(name)")
+            }
+        }
+    }
+
+    //The lens' label — its own view, so it can read the anchor `.eventZoom` installs above it
+    private struct LensFace: View {
+
+        //Injected
+        let face: Face
+        @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
+
+        var body: some View {
+            let ring = face.isFirst ? PendingCalendar.glassRing : PendingCalendar.echoGlassRing
+
+            //The face vacates at the tap (the source hides itself): the flying cover carries the
+            //photo, and the close must land on a vacant glass ring — never on a duplicate image
+            SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? PendingCalendar.faceSize : PendingCalendar.echoFaceSize, isCircle: true)
+                .eventZoomSource(face.invite.image ?? UIImage(), shape: .circle(ring: ring)) //The close regrows the ring at this tier
+                .padding(ring)
+                .lightShadow()
+                .containerGlassEffect(clipped: true, shape: Circle())
+                .opacity(anchor?.returning == true ? 0 : 1) //A committed close: the flight's own glass regrows the ring under the landing photo
+                .padding(face.isFirst ? 0 : PendingCalendar.echoHitInset)
+                .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
+                .padding(face.isFirst ? 0 : -PendingCalendar.echoHitInset)
+        }
+    }
 }

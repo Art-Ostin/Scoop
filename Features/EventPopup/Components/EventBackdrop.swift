@@ -1,6 +1,6 @@
 //
-//  EventPopupShell.swift
-//  Scoop Test
+//  EventBackdrop.swift
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
@@ -19,7 +19,7 @@ struct EventBackdrop: View {
     }
 }
 
-//Backdrop currently used in the HistoryContainer
+//The frosted backdrop `.eventZoom` draws under its card — its opacity rides the flight
 struct EventBackdropV2: View {
     var body: some View {
         Rectangle()
