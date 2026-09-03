@@ -75,7 +75,6 @@ extension InviteSlot {
     private var respondPopup: some View {
         RespondToInviteContainer(
             vm: vm.respondVM(for: eventProfile),
-            showInvite: quickResponsePresented,
             images: profileImages,
             respond: onRespond
         )
@@ -128,41 +127,45 @@ extension InviteSlot {
     }
     
     
-    private var inviteOverlay: some View {
-        VStack {
-            Text(InviteCardTitle.text(name: name))
-                .font(.title(26, .bold))
-                .foregroundStyle(Color.white)
-            
-            
-            
-            
-            
+    private func fetchDay() -> String {
+        if let date = eventProfile.event.proposedTimes.firstAvailableDate {
+            return FormatEvent.shortDayAndTime(date)
+        } else {
+            return "Choose Time"
         }
     }
     
-    
+    @ViewBuilder
     private var inviteOverlay: some View {
-        let summary = InviteSummary(event: draft.originalInvite.event)
-        return ConfirmContainer(
-            event: summary,
-            name: eventProfile.profile.name,
-            style: .card,
-            timeOpen: false, //Nothing on the card opens a popup over it any more
-            showMessageSection: true,
-            color: palette.secondaryText,
-            showMessageScreen: .constant(false)) {
-                StaticTimeRow(proposedTimes: summary.time, style: .card, namesOneDay: true)
-            } showInfo: {
-                //Add scrollTo  code here to scroll to section below.
-            } openInvite: {
-                openInvite = eventProfile
+
+        VStack {
+            Text(eventProfile.profile.name)
+                .font(.title(26, .bold))
+                .foregroundStyle(Color.white)
+            
+            VStack {
+                HStack(spacing: 20) {
+                    Image(.whiteClock)
+                        .scaleEffect(1.2)
+                        .frame(width: 20)
+                    
+                    Text(fetchDay())
+                        .font(.body(17, .bold))
+                        .foregroundStyle(Color.white)
+                }
+                
+                HStack(spacing: 20) {
+                    Image(.whiteMap)
+                        .scaleEffect(1.2)
+                        .frame(width: 20)
+                    
+                    Text(eventProfile.event.location.name ?? "Unknown")
+                        .font(.body(17, .bold))
+                        .foregroundStyle(Color.white)
+                }
             }
-            .padding(.bottom, 28) //The card owns its bottom inset; ConfirmContainer adds none on .card
+        }
     }
-    
-    
-    
     
     //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint
     private func fetchColour(image: UIImage) async {
@@ -196,3 +199,24 @@ extension InviteSlot {
         }
     }
 }
+
+/*
+ private var inviteOverlay: some View {
+     let summary = InviteSummary(event: draft.originalInvite.event)
+     return ConfirmContainer(
+         event: summary,
+         name: eventProfile.profile.name,
+         style: .card,
+         timeOpen: false, //Nothing on the card opens a popup over it any more
+         showMessageSection: true,
+         color: palette.secondaryText,
+         showMessageScreen: .constant(false)) {
+             StaticTimeRow(proposedTimes: summary.time, style: .card, namesOneDay: true)
+         } showInfo: {
+             //Add scrollTo  code here to scroll to section below.
+         } openInvite: {
+             openInvite = eventProfile
+         }
+         .padding(.bottom, 28) //The card owns its bottom inset; ConfirmContainer adds none on .card
+ }
+ */

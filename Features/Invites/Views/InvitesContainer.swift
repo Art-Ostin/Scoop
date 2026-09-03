@@ -26,8 +26,9 @@ struct InvitesContainer: View {
     private var isSingleInvite: Bool { vm.invites.count == 1 }
     private var peek: CGFloat { isSingleInvite ? 0 : Spacing.gutter }
     private var cardInset: CGFloat? { isSingleInvite ? Spacing.gutter : nil }
-    private var topPull: CGFloat { isSingleInvite ? -20 : -6 } //Geometry: pulls the column up under titlePadding, the lone card higher still
-
+    private var topPull: CGFloat { isSingleInvite ? -20 : -6 }
+    
+    
     var body: some View {
         ZoomNavigationStack {
             NavigationStack {
