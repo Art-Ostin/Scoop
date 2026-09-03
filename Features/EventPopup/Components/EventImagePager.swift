@@ -12,8 +12,12 @@ struct EventImagePager: View {
     //Injected
     let images: [UIImage]
     let title: String
+    var showsPageDots: Bool = true //Only a page you can swipe carries them — the card owns that call, not the title
 
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    
+    @State private var titleRect: CGRect = .zero
+    private static let bandSpace = "eventPagerBand"
     
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -31,30 +35,30 @@ struct EventImagePager: View {
                         .scrollDisabled(flight?.dragEngaged ?? false)
                 }
             }
-            .overlay(alignment: .bottomLeading)  { EventTitle(title: title) }
-            .overlay(alignment: .bottomTrailing) { pageIndicator }
+            .overlay(alignment: .bottomLeading)  { EventTitle(title: title, textRect: $titleRect, coordSpace: Self.bandSpace) }
+//            .overlay(alignment: .bottomTrailing) { pageIndicator(bandVisible: flight?.bandChromeVisible ?? true) }
+        
+            //To do with the morph
             .onChange(of: title, initial: true) { flight?.reportTitle($1) }
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
             .task(id: images) { await prepare() }
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }
             .onChange(of: images) { if carouselVisible { latch() } }
+            .coordinateSpace(.named(Self.bandSpace))
     }
     
     private var inviteCarousel: some View {
         InviteCarousel(
             images: mounted.isEmpty ? images : mounted,
             ratio: AspectRatio.pendingEvent.ratio,
-            blursBottom: true,
+            blurRect: titleRect,
             scrollProgress: $scrollProgress)
     }
     
-    //Only the compose screens page through the photos
-    @ViewBuilder
-    private var pageIndicator: some View {
-        if title.starts(with: "Invite") {
-            EventImagePagerIndicator(progress: scrollProgress).eventZoomBandChrome()
-                .offset(y: title.starts(with: "Invite") ? -4 : 0) //Aligns better
-        }
+    private func pageIndicator(bandVisible: Bool) -> some View {
+        EventImagePagerIndicator(progress: scrollProgress)
+            .eventZoomBandChrome(visible: showsPageDots && bandVisible)
+            .offset(y: -4)
     }
 }
 

@@ -25,7 +25,7 @@ struct EventCardSurface: ViewModifier {
                     colors: [tint.opacity(0.5), .clear],
                     startPoint: .top, endPoint: .bottom
                 )
-                .frame(height: 150)
+                .frame(height: 20)
             }
     }
 }

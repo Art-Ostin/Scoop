@@ -33,30 +33,35 @@ struct ComposeInviteContainer: View {
             MapView(defaults: vm.defaults, eventLocation: $vm.event.place)
         }
         .animation(.transition, value: ui.showConfirmScreen)
+        .onAppear { ui.showConfirmScreen = false} //Fixes bug with back button not showing
     }
 }
 
 //Logic with the ImagePager
 extension ComposeInviteContainer {
     
+    //One flag drives all three: the dots and the menu belong to compose, the chevron to confirm
     private var imagePager: some View {
         let isConfirm = ui.showConfirmScreen == true
-        return EventImagePager(images: images, title: isConfirm ? "Confirm Invite" : "Invite \(name)")
-        .overlay(alignment: .topLeading) { backButton(visible: isConfirm).eventZoomBandChrome() }
-        .overlay(alignment: .topTrailing) { optionsMenu(visible: !isConfirm).eventZoomBandChrome() }
+        return EventImagePager(images: images,
+                               title: isConfirm ? "Confirm Invite" : "Invite \(name)",
+                               showsPageDots: !isConfirm)
+        .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirm) }
+        .overlay(alignment: .topTrailing) {
+            optionsMenu.eventZoomBandChrome(visible: !isConfirm)
+        }
     }
     
-    private func optionsMenu(visible: Bool) -> some View {
+    private var optionsMenu: some View {
         OptionsMenu(
-            visible: visible,
             hasChanges: vm.event.hasChanges,
             onClear: {vm.event = .init()},
             onDecline: { }
         )
     }
     
-    private func backButton(visible: Bool) -> some View {
-        EventBackButton(visible: visible, showConfirmScreen: $ui.showConfirmScreen)
+    private var backButton: some View {
+        EventBackButton(showConfirmScreen: $ui.showConfirmScreen)
     }
 }
 
@@ -105,14 +110,13 @@ extension ComposeInviteContainer {
                 onTap: { ctaAction(isConfirm)() }
             )
             .eventZoomDragExclusion()
-            
         }
-        .padding(.bottom, 16)
+        .padding(.bottom, 12)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
     private var warningMessage: some View {
-        Text("* If they accept, not turning up will get you blocked")
+        Text("* If they accept & you don't turn up, you'll be blocked")
             .font(.body(12.5, .regularItalic))
             .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
     }
@@ -120,9 +124,6 @@ extension ComposeInviteContainer {
     private func ctaAction(_ isConfirm: Bool) -> () -> Void {
         isConfirm
             ? { onSend(vm.event) }
-            //A TRANSACTION, not just the scope on the body: the card's own frame — the white
-            //surface, the flight's mask, the column that holds it — is laid out ABOVE this view
-            //by `.eventZoom`, and an animation scope only ever reaches downward
             : { withAnimation(.transition) { ui.showConfirmScreen = true } }
     }
 }

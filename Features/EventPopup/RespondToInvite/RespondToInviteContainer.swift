@@ -43,9 +43,9 @@ struct RespondToInviteContainer: View {
 //ImagePager logic
 extension RespondToInviteContainer {
     var imagePager: some View {
-        EventImagePager(images: images, title: titleText)
+        EventImagePager(images: images, title: titleText, showsPageDots: !isConfirmNewEvent)
         //Under the flying cover until the hand-off: popped in then, never cut in
-        .overlay(alignment: .topLeading) { backButton(visible: isConfirmNewEvent).eventZoomBandChrome() }
+        .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirmNewEvent) }
         .overlay(alignment: .topTrailing) { topRow.eventZoomBandChrome() }
     }
     
@@ -57,8 +57,8 @@ extension RespondToInviteContainer {
         }
     }
     
-    func backButton(visible: Bool) -> some View {
-        EventBackButton(visible: visible, showConfirmScreen: $composeUI.showConfirmScreen)
+    var backButton: some View {
+        EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen)
     }
     
     var topRow: some View {

@@ -13,10 +13,14 @@ let imageTopPadding = Spacing.xs
 
 //Overlays
 struct EventTitle: View {
-    
+
+    //Injected
     let title: String
+    var textRect: Binding<CGRect> = .constant(.zero)
+    var coordSpace: String? = nil
+
     var isComposeInvite: Bool { title.starts(with: "Invite")}
-    
+
     var body: some View {
         Text(title)
             .font(.title(isComposeInvite ? 22 : 18, .bold))
@@ -24,6 +28,7 @@ struct EventTitle: View {
             .id(title)
             .transition(.blurReplace)
             .animation(.transition, value: title)
+            .getRect(textRect, coordSpace: coordSpace) //Inside the padding: the glyphs, not the slot
             .padding(.horizontal, imageHorizontalPadding)
             .padding(.bottom, imageBottomPadding)
     }
@@ -43,10 +48,8 @@ struct EventImagePagerIndicator: View {
 
 struct EventBackButton: View {
     
-    //Always mounted so the swap can fade; the container owns the page condition. The scope below
-    //is keyed on this value, so this button's OWN fade rides it — but the write carries its own
-    //transaction: the card's frame is laid out above that scope, and a scope never reaches up.
-    var visible: Bool = true
+    //Always mounted, never self-gated: `.eventZoomBandChrome(visible:)` at the call site is the
+    //one gate — the page's condition ANDed with the flight's hand-off.
     @Binding var showConfirmScreen: Bool?
     
     var body: some View {
@@ -57,9 +60,6 @@ struct EventBackButton: View {
                 .foregroundStyle(Color.black)
                 .frame(width: 38, height: 38)
         }
-        .opacityPop(visible: visible)
-        .allowsHitTesting(visible)
-        .animation(.transition, value: visible)
         .padding(.horizontal, imageHorizontalPadding - 4) //Geometry: as the title — one shared inset from the artwork edge
         .padding(.top, imageTopPadding)
     }
@@ -93,7 +93,7 @@ struct NewEventToggleButton: View {
 }
 
 struct OptionsMenu: View {
-    var visible: Bool = true
+    //Always mounted, never self-gated: `.eventZoomBandChrome(visible:)` at the call site gates it
     let hasChanges: Bool
     let onClear: () -> Void
     let onDecline: () -> Void
@@ -120,8 +120,5 @@ struct OptionsMenu: View {
             .padding(.horizontal, imageHorizontalPadding - 4)
             .padding(.top, imageTopPadding)
         }
-        .opacityPop(visible: visible)
-        .allowsHitTesting(visible)
-        .animation(.transition, value: visible)
     }
 }

@@ -251,6 +251,7 @@
 		65B83EED2E61ECCE0039E239 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 65B83EEC2E61ECCE0039E239 /* FirebaseFunctions */; };
 		65B86D372FFCBBE80076683A /* OldSendInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B86D362FFCBBE80076683A /* OldSendInviteCard.swift */; };
 		65BA061C2FCC99FE00295AC6 /* ScoopButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */; };
+		65BB2404304A2003004182FF /* BlurBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BB2403304A2003004182FF /* BlurBackground.swift */; };
 		65BF98C42FA532C600FB37A6 /* BootingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BF98C32FA532C600FB37A6 /* BootingScreen.swift */; };
 		65BFE7D12E3EA9B200B31A58 /* SelectTimeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D02E3EA9B200B31A58 /* SelectTimeContainer.swift */; };
 		65BFE7D52E3FB14B00B31A58 /* EnterOTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */; };
@@ -575,6 +576,7 @@
 		65B672662FC48BE100479EA7 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		65B86D362FFCBBE80076683A /* OldSendInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldSendInviteCard.swift; sourceTree = "<group>"; };
 		65BA061B2FCC99FE00295AC6 /* ScoopButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoopButton.swift; sourceTree = "<group>"; };
+		65BB2403304A2003004182FF /* BlurBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurBackground.swift; sourceTree = "<group>"; };
 		65BF98C32FA532C600FB37A6 /* BootingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BootingScreen.swift; sourceTree = "<group>"; };
 		65BFE7D02E3EA9B200B31A58 /* SelectTimeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTimeContainer.swift; sourceTree = "<group>"; };
 		65BFE7D42E3FB14B00B31A58 /* EnterOTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterOTP.swift; sourceTree = "<group>"; };
@@ -796,6 +798,7 @@
 				6546DCDF300F5E0C007A366A /* CustomTextField.swift */,
 				652B21C33016FDD200646BB0 /* TwoPageScrollView.swift */,
 				65ECA9793024D96F0006CD0C /* BlurAndGradientBackground.swift */,
+				65BB2403304A2003004182FF /* BlurBackground.swift */,
 			);
 			path = Elements;
 			sourceTree = "<group>";
@@ -2029,6 +2032,7 @@
 				659852842FD7FE0E00D75CA5 /* EventInfo.swift in Sources */,
 				652D3D2F2F2E9A0600AE491D /* EventLocation.swift in Sources */,
 				65FE22422FC833D200DCB65A /* PageIndicators.swift in Sources */,
+				65BB2404304A2003004182FF /* BlurBackground.swift in Sources */,
 				651D2B013043375B009CFA5A /* PendingCalendar.swift in Sources */,
 				65A4ADF4300D856F0074B2C8 /* InstantKeyboard.swift in Sources */,
 				6575C5A930371B4800A99A9D /* HistoryViewModel.swift in Sources */,

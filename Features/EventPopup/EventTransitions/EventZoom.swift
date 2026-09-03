@@ -88,9 +88,11 @@ extension View {
 
     ///Chrome laid over the pager band (a top row, a back button, the page dots) sits under the
     ///flying cover for the whole open; this pops it in the moment the cover hands off to the live
-    ///pager instead of letting the hand-off cut reveal it
-    func eventZoomBandChrome() -> some View {
-        modifier(EventZoomBandChromeModifier())
+    ///pager instead of letting the hand-off cut reveal it. `visible` is the piece's OWN page
+    ///condition, ANDed in here so each piece wears ONE pop on ONE clock: the flight can only ever
+    ///subtract, and a page flip made while the cover is still up replays as a single pop.
+    func eventZoomBandChrome(visible: Bool = true) -> some View {
+        modifier(EventZoomBandChromeModifier(onPage: visible))
     }
 }
 
@@ -352,9 +354,10 @@ private struct EventZoomBandChromeModifier: ViewModifier {
 
     //Injected
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    let onPage: Bool //The piece's own page condition; the flight only ever subtracts
 
     func body(content: Content) -> some View {
-        let visible = flight?.bandChromeVisible ?? true
+        let visible = onPage && (flight?.bandChromeVisible ?? true)
         return content
             .opacityPop(visible: visible)
             .allowsHitTesting(visible) //Opacity 0 still takes taps under the cover
@@ -429,7 +432,7 @@ extension EventZoomCard {
     //view, so the wrapper's per-frame reads (drag, wind ticks) never re-run the body the caller
     //supplied — that body re-evaluates only when data IT observes changes (images loading in).
     private var card: some View {
-        EventZoomCardContent(id: slot.id, card: slot.card)
+        EventZoomCardContent(id: slot.id, bandChromeVisible: flight.bandChromeVisible, card: slot.card)
             .equatable()
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
             .environment(\.eventZoomDismiss, dismiss)
@@ -455,9 +458,17 @@ private struct EventZoomCardContent: View, Equatable {
 
     //Injected
     let id: UUID
+    //Part of the card's identity, and the ONLY per-open flight state that is: the band's chrome
+    //arms a beat after the landing, and an equality that ignored it would swallow that
+    //invalidation — the body would keep a stale `false` and the dots, the menu and the back
+    //button would each appear only if something else happened to re-render the card. It flips
+    //once per open, never per frame, so the 120Hz protection below is untouched.
+    let bandChromeVisible: Bool
     let card: () -> AnyView
 
-    static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id && lhs.bandChromeVisible == rhs.bandChromeVisible
+    }
 
     var body: some View { card() }
 }

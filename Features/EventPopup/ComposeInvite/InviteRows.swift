@@ -87,6 +87,7 @@ struct InviteTypeRow: View {
         } label: {
             SmallInfoIcon()
                 .scaleEffect(0.8)
+                .expandHitArea()
                 .offset(x: 14, y: -3)
         }
     }
@@ -114,7 +115,7 @@ struct InviteTimeRow: View {
                 label: {rowLabel}
             )
         }
-        .frame(minHeight: rowHeight)
+        .frame(minHeight: rowHeight + (proposedTimes.dates.count > 2 ? 6 : 0))//Make it tad taller if time beaneath it
         .blurPop(visible: !typePopUpOpen, scale: 1)
     }
     
