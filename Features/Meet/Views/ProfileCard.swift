@@ -151,6 +151,7 @@ extension ProfileCardChrome {
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
                 .lineLimit(1) //A wrapping card name would hand this line a two-line frame
+                .eventZoomTitleSource(name) //Flies into the compose card's "Invite <name>"
 
             Text(subtitle)
                  .font(.body(17, .medium))
@@ -163,6 +164,8 @@ extension ProfileCardChrome {
     private var inviteButton: some View {
         InviteButton(onTap: onInvite)
             .offset(y: -3) //Geometry: the button's optical raise into line with the text block
+            //Outside the offset, so the flight measures where the circle LOOKS, not where it lays out
+            .eventZoomButtonSource() //Widens into the compose card's CTA
     }
 }
 

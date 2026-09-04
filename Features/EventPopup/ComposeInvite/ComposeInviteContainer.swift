@@ -47,9 +47,6 @@ extension ComposeInviteContainer {
                                title: isConfirm ? "Confirm Invite" : "Invite \(name)",
                                showsPageDots: !isConfirm)
         .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirm) }
-//        .overlay(alignment: .topTrailing) {
-//            optionsMenu.eventZoomBandChrome(visible: !isConfirm)
-//        }
     }
     
     private var optionsMenu: some View {
@@ -97,19 +94,23 @@ extension ComposeInviteContainer {
     
     private var ctaButton: some View {
         let isConfirm = ui.showConfirmScreen == true
-        
+        let dimmed = ui.typePopupOpen || ui.timePopupOpen
+        let text = isConfirm ? "Send to \(name)" : "Preview"
+        let fill = WideActionButton.restingFill(isActive: vm.event.isComplete, isDimmed: dimmed)
+
         return VStack {
             if isConfirm { warningMessage }
         
             WideActionButton(
-                text: isConfirm ? "Send to \(name)" : "Preview",
+                text: text,
                 isActive: vm.event.isComplete,
-                isDimmed: ui.typePopupOpen || ui.timePopupOpen,
+                isDimmed: dimmed,
                 showShadow: false,
                 height: 46,
                 onTap: { ctaAction(isConfirm)() }
             )
             .eventZoomDragExclusion()
+            .eventZoomButtonTarget(text: text, fill: fill) //The card's envelope widens into this
         }
         .padding(.bottom, 12)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
@@ -134,8 +135,6 @@ struct EditTypeTimePlace: View {
     @Binding var ui: ComposeInviteUIState
 
     @Binding var draft: EventFieldsDraft
-
-    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
 
     var body: some View {
         VStack(spacing: 18) {
@@ -166,6 +165,5 @@ struct EditTypeTimePlace: View {
         }
         .padding(24)
         .padding(.top, -4)//Only 20 padding on the top
-//        .cardTopTint(flight?.tint ?? .clear)
     }
 }

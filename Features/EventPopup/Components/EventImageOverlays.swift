@@ -19,11 +19,13 @@ struct EventTitle: View {
     var textRect: Binding<CGRect> = .constant(.zero)
     var coordSpace: String? = nil
 
-    var isComposeInvite: Bool { title.starts(with: "Invite")}
+    ///The size this title lands at. A static because the event zoom's name morph lays its flying
+    ///word out at the size it will land in — the two can never drift into a step at the hand-off.
+    static func size(for title: String) -> CGFloat { title.starts(with: "Invite") ? 22 : 18 }
 
     var body: some View {
         Text(title)
-            .font(.title(isComposeInvite ? 22 : 18, .bold))
+            .font(.title(Self.size(for: title), .bold))
             .foregroundStyle(Color.white)
             .id(title)
             .transition(.blurReplace)

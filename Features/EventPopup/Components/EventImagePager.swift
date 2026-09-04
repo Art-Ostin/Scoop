@@ -40,6 +40,7 @@ struct EventImagePager: View {
         
             //To do with the morph
             .onChange(of: title, initial: true) { flight?.reportTitle($1) }
+            .onChange(of: titleRect, initial: true) { flight?.reportPagerTitle($1) } //The frost's capsule: the cover poses it as insets from its own foot
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
             .task(id: images) { await prepare() }
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }

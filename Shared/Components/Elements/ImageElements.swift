@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-import Glur
-import CoreImage
-import CoreImage.CIFilterBuiltins
 
 
 enum AppImageType {case meet, invite}
@@ -40,27 +37,13 @@ struct AppImage: View {
 
 struct InvitePagePhoto: View {
 
-    private static let blurOn: CGFloat = 14
-    private static let blurStart: CGFloat = 0.9 //Fraction of the height where the ramp begins — shared with the baked copy below
-    private static let blurInterpolation: CGFloat = 0.3 //Glur ramps σ = radius·(y/h − start)/interpolation, capped — so the EDGE only reaches radius·(1−start)/interpolation (4.67pt here), linearly
-
-    private static let footHeight: CGFloat = 10
-    private static let footBlur: CGFloat = 10
-
     let image: UIImage
     var blurRect: CGRect? = nil
 
     var body: some View {
         photo
-            .blurBackground(rect: blurRect, image: image)
-            .overlay { foot }
-            .mask {
-                VStack(spacing: 0) {
-                    Rectangle() // Left, right and top stay razor sharp.
-                    LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
-                        .frame(height: 2)
-                }
-            }
+            .overlay { InvitePhotoBand(image: image, titleRect: blurRect) }
+            .invitePhotoEdgeFade()
     }
 
     private var photo: some View {
@@ -71,6 +54,26 @@ struct InvitePagePhoto: View {
                     .scaledToFill()
             }
             .clipped() //scaledToFill overflows the cell
+    }
+}
+
+//The band treatment a page wears over its photo: the capsule frost behind the title and the foot
+//at the bottom edge. ONE view for the live page and the event zoom's flying cover — the cover
+//rides it in over the flight, and sharing the view is what keeps the two from drifting, so the
+//landing hand-off has nothing to reveal.
+struct InvitePhotoBand: View {
+
+    private static let footHeight: CGFloat = 10
+    private static let footBlur: CGFloat = 10
+
+    let image: UIImage
+    let titleRect: CGRect? //The title's glyph rect in this view's space; nil or empty = no frost
+
+    var body: some View {
+        Color.clear
+            .blurBackground(rect: titleRect, image: image)
+            .overlay { foot }
+            .allowsHitTesting(false)
     }
 
     private var foot: some View {
@@ -92,47 +95,20 @@ struct InvitePagePhoto: View {
     }
 }
 
-//MARK: Baked bottom blur — the invite flight's flyable copy of this page's glur
-extension InvitePagePhoto {
+extension View {
 
-    private static let bakeContext = CIContext(options: [
-        .workingColorSpace: CGColorSpace(name: CGColorSpace.sRGB) as Any
-    ])
-
-    static func bakedBottomBlur(for image: UIImage, aspect: CGFloat, displayWidth: CGFloat, scale: CGFloat) -> UIImage? {
-        let pxSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
-        guard pxSize.width > 0, pxSize.height > 0, displayWidth > 0 else { return nil }
-
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        format.preferredRange = .standard
-        let flat = UIGraphicsImageRenderer(size: pxSize, format: format).image { _ in
-            image.draw(in: CGRect(origin: .zero, size: pxSize)) //Normalises orientation at full resolution
+    ///The page's bottom edge easing into the card's white; left, right and top stay razor sharp.
+    ///`strength` lets the flying cover ride the fade in with the rest of the band (0 = a hard edge,
+    ///the raw photo a source shows).
+    func invitePhotoEdgeFade(strength: CGFloat = 1) -> some View {
+        mask {
+            VStack(spacing: 0) {
+                Rectangle()
+                LinearGradient(colors: [.black, .black.opacity(Double(1 - strength))],
+                               startPoint: .top, endPoint: .bottom)
+                    .frame(height: 2) //Geometry: a hairline of softening, not a fade band
+            }
         }
-        guard let source = flat.cgImage else { return nil }
-
-        let cropSize = pxSize.width / pxSize.height > aspect
-            ? CGSize(width: pxSize.height * aspect, height: pxSize.height)
-            : CGSize(width: pxSize.width, height: pxSize.width / aspect)
-        let cropMaxY = (pxSize.height + cropSize.height) / 2 //Centred crop, top-down coords
-        let bandTop = cropMaxY - cropSize.height * (1 - Self.blurStart)
-
-        let gradient = CIFilter.linearGradient()
-        gradient.point0 = CGPoint(x: 0, y: pxSize.height - bandTop)
-        gradient.point1 = CGPoint(x: 0, y: pxSize.height - cropMaxY)
-        gradient.color0 = CIColor.black
-        gradient.color1 = CIColor.white
-
-        let blur = CIFilter.maskedVariableBlur()
-        blur.inputImage = CIImage(cgImage: source).clampedToExtent() //Clamped so the edge doesn't darken
-        blur.mask = gradient.outputImage
-        //The capped 7pt on-screen σ converted to this image's pixels (crop width ↔ display width)
-        blur.radius = Float(Self.blurOn * (1 - Self.blurStart) / Self.blurInterpolation * cropSize.width / displayWidth)
-
-        let extent = CGRect(origin: .zero, size: pxSize)
-        guard let output = blur.outputImage?.cropped(to: extent),
-              let baked = Self.bakeContext.createCGImage(output, from: extent) else { return nil }
-        return UIImage(cgImage: baked, scale: image.scale, orientation: .up)
     }
 }
 

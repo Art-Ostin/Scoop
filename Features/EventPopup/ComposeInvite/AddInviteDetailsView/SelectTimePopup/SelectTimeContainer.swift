@@ -49,7 +49,7 @@ struct SelectTimeView: View {
             dayPicker
                 .padding(.top, isRespondMode ? Spacing.xxs : Spacing.md) //Respond mode: the parent supplies the title row, this is the page's top inset
             TimePicker(selectedHour: $selectedHour, selectedMinute: $selectedMinute)
-                .padding(.top, Spacing.xxs) //The wheel's own top fade does the separating
+                .padding (.top, Spacing.xxs) //The wheel's own top fade does the separating
         }
         .modifier(SelectTimeBackground(isRespondMode: isRespondMode))
         .overlay(alignment: .bottomTrailing) { TimeDoneButton(isRespondMode: isRespondMode) }

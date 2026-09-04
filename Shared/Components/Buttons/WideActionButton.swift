@@ -23,7 +23,13 @@ struct WideActionButton: View {
 
     //A dim only reaches the fill: glass, shadow and interactivity stay tied to isActive, so
     //nothing structural flips and the caller can animate the colour on its own.
-    private var fill: Color { isActive && !isDimmed ? .textAccent : .fillGray }
+    ///The resting fill, exposed so a flight landing on this button can wear exactly it from its
+    ///first frame — the rule stays here, and the two can never disagree about what it lands on
+    static func restingFill(isActive: Bool, isDimmed: Bool) -> Color {
+        isActive && !isDimmed ? .textAccent : .fillGray
+    }
+
+    private var fill: Color { Self.restingFill(isActive: isActive, isDimmed: isDimmed) }
 
     var body: some View {
         ScoopButton(

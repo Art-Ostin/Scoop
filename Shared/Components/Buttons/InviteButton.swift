@@ -13,9 +13,12 @@ struct InviteButton: View {
     let onTap: () -> ()
     
     var shadow: Elevation? = nil
-    
+
+    ///The circle's own tint, exposed so a flight morphing this button away sheds exactly this colour
+    static let tint: Color = .accent
+
     var body: some View {
-        ScoopButton(style: .tinted(.accent, shadow: shadow), shape: Circle()) { //.accent.black.mix(with: .accent, by: 0.2)
+        ScoopButton(style: .tinted(Self.tint, shadow: shadow), shape: Circle()) { //.accent.black.mix(with: .accent, by: 0.2)
             onTap()
         } label: {
             Image("LetterIconProfile")

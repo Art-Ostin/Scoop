@@ -44,7 +44,7 @@ extension SelectTypeView {
         }
         .padding(.top, 20)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
-        .padding(.bottom, (openTypes.contains(type) && type != .custom) ? 0 : 20) //All padding for view done within each row, so it is incorporated into the tap region. Key
+        .padding(.bottom, (openTypes.contains(type) && type != .custom) ? 0 : 20)
         .padding(.horizontal, Spacing.lg)
         .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
@@ -100,8 +100,8 @@ extension SelectTypeView {
 
     //2. Logic handling when I select a type
     private func selectType(eventType: Event.EventType) {
-        if eventType == .custom && message.isEmpty {
-            selectedType = .custom
+        if message.isEmpty {
+            selectedType = eventType
             showMessageScreen = true
             Task {
                 try? await Task.sleep(for: .seconds(0.04))
@@ -129,3 +129,27 @@ extension SelectTypeView {
     }
 }
 
+
+/*
+ //2. Logic handling when I select a type
+ private func selectType(eventType: Event.EventType) {
+     if eventType == .custom && message.isEmpty {
+         selectedType = .custom
+         showMessageScreen = true
+         Task {
+             try? await Task.sleep(for: .seconds(0.04))
+             dismissMenu(.instant)
+             dismissTimeMenu()
+         }
+     } else {
+         let changed = eventType != selectedType
+         if changed {
+             freezeMenuLabel()
+             selectedType = eventType
+         }
+         dismissMenu(changed ? .morph : .retract)
+         dismissTimeMenu()
+     }
+ }
+
+ */

@@ -142,6 +142,7 @@ extension InviteSlot {
             Text(eventProfile.profile.name)
                 .font(.title(26, .bold))
                 .foregroundStyle(Color.white)
+                .eventZoomTitleSource(eventProfile.profile.name) //Flies into the respond card's "<name>'s Invite"
             
             VStack {
                 HStack(spacing: 20) {
