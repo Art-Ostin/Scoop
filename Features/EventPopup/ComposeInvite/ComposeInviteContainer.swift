@@ -107,6 +107,7 @@ extension ComposeInviteContainer {
                 isDimmed: dimmed,
                 showShadow: false,
                 height: 46,
+                glass: false, //The event zoom's capsule lands on this: flat, so it lands on identical pixels
                 onTap: { ctaAction(isConfirm)() }
             )
             .eventZoomDragExclusion()

@@ -8,6 +8,15 @@ import FirebaseFirestore
 
 enum ProposalKind: String, Codable {
     case original, newTime, newEvent
+    
+    func text(cardMode: Bool = false) -> String {
+        switch self {
+        case .original: return "Original"
+        case .newTime: return "New Time"
+        case .newEvent: return cardMode ? "Response" : "New Event"
+        }
+    }
+    
 }
 
 struct Event: Identifiable, Codable {

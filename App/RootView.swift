@@ -22,6 +22,10 @@ struct RootView : View {
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-uiHarnessWindDismiss") {
             WindDismissHarness() //Capture rig for the declined-card wind dismissal
+        } else if ProcessInfo.processInfo.arguments.contains("-uiHarnessEventZoom") {
+            EventZoomHarness() //TEMPORARY capture rig for the event zoom — delete after verify
+        } else if ProcessInfo.processInfo.arguments.contains("-uiHarnessGlassProbe") {
+            GlassProbeHarness() //TEMPORARY A/B grid for the invite button's lens — delete after verify
         } else {
             appBody
         }

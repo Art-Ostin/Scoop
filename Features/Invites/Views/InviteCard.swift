@@ -14,7 +14,6 @@ struct InviteSlot: View {
     //Injected Parameters
     let vm: InvitesViewModel
     let eventProfile: EventProfile
-    ///Set by the container: the lone-invite layout runs its card out to the nav title's edge
     var cardInset: CGFloat? = nil
 
     let onRespond: (ProfileResponse) -> Void
@@ -50,12 +49,6 @@ extension InviteSlot {
             }
             .eventZoomSource(image) { cardOverlay(image: image) } //The photo lifts off into the card; this copy of the chrome rides it out
             .eventZoom(isPresented: quickResponsePresented) { respondPopup }
-            .overlay(alignment: .topTrailing) {
-                if thereArePastInvites() {
-                    inviteHistoryButton
-                        .padding()
-                }
-            }
     }
 
     private var quickResponsePresented: Binding<Bool> {
@@ -106,7 +99,7 @@ extension InviteSlot {
     //Drawn over the card at rest, and copied onto the event zoom's flying cover
     private func cardOverlay(image: UIImage) -> some View {
         blurAndColour(image: image)
-            .overlay(alignment: .bottomLeading) { inviteOverlay }
+            .overlay(alignment: .bottomLeading) { cardOverlay }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
     }
@@ -126,48 +119,10 @@ extension InviteSlot {
             ))
     }
     
-    
-    private func fetchDay() -> String {
-        if let date = eventProfile.event.proposedTimes.firstAvailableDate {
-            return FormatEvent.shortDayAndTime(date)
-        } else {
-            return "Choose Time"
-        }
+    private var cardOverlay: some View {
+        InviteCardOverlay(e: eventProfile.event, name: eventProfile.profile.name) { openInvite = eventProfile }
     }
-    
-    @ViewBuilder
-    private var inviteOverlay: some View {
-
-        VStack {
-            Text(eventProfile.profile.name)
-                .font(.title(26, .bold))
-                .foregroundStyle(Color.white)
-                .eventZoomTitleSource(eventProfile.profile.name) //Flies into the respond card's "<name>'s Invite"
-            
-            VStack {
-                HStack(spacing: 20) {
-                    Image(.whiteClock)
-                        .scaleEffect(1.2)
-                        .frame(width: 20)
-                    
-                    Text(fetchDay())
-                        .font(.body(17, .bold))
-                        .foregroundStyle(Color.white)
-                }
-                
-                HStack(spacing: 20) {
-                    Image(.whiteMap)
-                        .scaleEffect(1.2)
-                        .frame(width: 20)
-                    
-                    Text(eventProfile.event.location.name ?? "Unknown")
-                        .font(.body(17, .bold))
-                        .foregroundStyle(Color.white)
-                }
-            }
-        }
-    }
-    
+        
     //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint
     private func fetchColour(image: UIImage) async {
         palette = await PopupColorExtractor.shared
@@ -185,39 +140,18 @@ extension InviteSlot {
     }
 }
 
-extension InviteSlot {
-    
-    func thereArePastInvites() -> Bool {
-        eventProfile.event.pastProposals != nil
-    }
-    
-    private var inviteHistoryButton: some View {
-        ScoopButton(style: .clearGlass, shape: Capsule()) {
-            showInviteHistory = eventProfile
-        } label: {
-            Text("Respond")
-                .frame(width: 40, height: 24)
-        }
-    }
-}
 
 /*
- private var inviteOverlay: some View {
-     let summary = InviteSummary(event: draft.originalInvite.event)
-     return ConfirmContainer(
-         event: summary,
-         name: eventProfile.profile.name,
-         style: .card,
-         timeOpen: false, //Nothing on the card opens a popup over it any more
-         showMessageSection: true,
-         color: palette.secondaryText,
-         showMessageScreen: .constant(false)) {
-             StaticTimeRow(proposedTimes: summary.time, style: .card, namesOneDay: true)
-         } showInfo: {
-             //Add scrollTo  code here to scroll to section below.
-         } openInvite: {
-             openInvite = eventProfile
-         }
-         .padding(.bottom, 28) //The card owns its bottom inset; ConfirmContainer adds none on .card
+ func thereArePastInvites() -> Bool {
+     eventProfile.event.pastProposals != nil
+ }
+ 
+ private var oldInviteHistoryButton: some View {
+     ScoopButton(style: .clearGlass, shape: Capsule()) {
+         showInviteHistory = eventProfile
+     } label: {
+         Text("Respond")
+             .frame(width: 40, height: 24)
+     }
  }
  */

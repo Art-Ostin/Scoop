@@ -52,6 +52,7 @@
 		6523E5342F3B8F0100271C8F /* MapCategoryIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */; };
 		652528372FC57DEA005B47BE /* InAppNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652528362FC57DEA005B47BE /* InAppNotifications.swift */; };
 		652528432FC7F90D005B47BE /* MeetInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652528422FC7F90D005B47BE /* MeetInfo.swift */; };
+		65263023304B1F5800635468 /* InviteCardOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65263022304B1F5800635468 /* InviteCardOverlays.swift */; };
 		6527357E2F9DE54D0048F2B0 /* RescheduleResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6527357D2F9DE5480048F2B0 /* RescheduleResponse.swift */; };
 		652882D42F707331000B724D /* RespondTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652882D32F707331000B724D /* RespondTimes.swift */; };
 		652882E22F70881C000B724D /* SFProRounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 652882E12F70881C000B724D /* SFProRounded-Semibold.otf */; };
@@ -380,6 +381,7 @@
 		6523E5332F3B8F0100271C8F /* MapCategoryIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategoryIcon.swift; sourceTree = "<group>"; };
 		652528362FC57DEA005B47BE /* InAppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppNotifications.swift; sourceTree = "<group>"; };
 		652528422FC7F90D005B47BE /* MeetInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetInfo.swift; sourceTree = "<group>"; };
+		65263022304B1F5800635468 /* InviteCardOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteCardOverlays.swift; sourceTree = "<group>"; };
 		6527357D2F9DE5480048F2B0 /* RescheduleResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RescheduleResponse.swift; sourceTree = "<group>"; };
 		652882D32F707331000B724D /* RespondTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondTimes.swift; sourceTree = "<group>"; };
 		652882E12F70881C000B724D /* SFProRounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SFProRounded-Semibold.otf"; sourceTree = "<group>"; };
@@ -1031,6 +1033,7 @@
 			children = (
 				65AF14932F6445EB00031513 /* InvitesContainer.swift */,
 				65D978B02FD4340F00C22646 /* InviteCard.swift */,
+				65263022304B1F5800635468 /* InviteCardOverlays.swift */,
 				659CE9F73010749300E0F735 /* InviteInfo.swift */,
 				651D2B063044D09C009CFA5A /* Invite History */,
 			);
@@ -1915,6 +1918,7 @@
 				65E1ECC12F1A4872004C9236 /* ProfileImageEditor.swift in Sources */,
 				6598527D2FD7FDDB00D75CA5 /* EventDetails.swift in Sources */,
 				6546DCE0300F5E0C007A366A /* CustomTextField.swift in Sources */,
+				65263023304B1F5800635468 /* InviteCardOverlays.swift in Sources */,
 				657E61522F353B9300262821 /* LocationSearchService.swift in Sources */,
 				651D2B0A30462B6A009CFA5A /* EventZoom.swift in Sources */,
 				65F28E062F1E4AD3008BF4DA /* CustomAlert.swift in Sources */,

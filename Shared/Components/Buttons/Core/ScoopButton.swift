@@ -11,7 +11,10 @@ enum ScoopButtonStyle: Equatable {
     case glass, clearGlass
     // Shadow is a tinted-only concern: glass draws its own (native on iOS 26,
     // replicated via Elevation.glass on the fallback), so it isn't configurable there.
-    case tinted(Color, shadow: Elevation? = .button, glass: Bool = true)
+    // `solid`: the tint stays an opaque fill UNDER the lens instead of the lens standing alone —
+    // the glass then sheens a solid disc rather than refracting what is behind the button, and a
+    // flight can fly a flat capsule of the same colour out of it on identical pixels.
+    case tinted(Color, shadow: Elevation? = .button, glass: Bool = true, solid: Bool = false)
 }
 
 struct ScoopButton<Content: View, S: Shape>: View {
@@ -34,8 +37,8 @@ struct ScoopButton<Content: View, S: Shape>: View {
     private let hitInset: CGFloat = 16
 
     var body: some View {
-        if case .tinted(let color, let shadow, let glass) = style {
-            coloredButton(color: color, shadow: shadow, glass: glass)
+        if case .tinted(let color, let shadow, let glass, let solid) = style {
+            coloredButton(color: color, shadow: shadow, glass: glass, solid: solid)
         } else {
             glassButton()
         }
@@ -62,12 +65,12 @@ extension ScoopButton {
         .foregroundStyle(Color.textPrimary)
     }
 
-    private func coloredButton(color: Color, shadow: Elevation?, glass: Bool) -> some View {
+    private func coloredButton(color: Color, shadow: Elevation?, glass: Bool, solid: Bool) -> some View {
         // No glass, no lens to press: a flat tinted button keeps PressEffect either way.
         let native = nativeGlassPress && glass
         return Button(action: action) {
             sizedLabel()
-                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass, interactive: native))
+                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass, solid: solid, interactive: native))
                 .expandHitArea(hitInset)
         }
         .modifier(TintPress(native: native, effect: press, shadow: shadow, tint: color))
@@ -105,6 +108,7 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
     let color: Color
     let shape: S
     var glass: Bool = true
+    var solid: Bool = false //An opaque fill under the lens (see ScoopButtonStyle.tinted)
     // Draws the glass ON the content so the system's press-and-drag lens carries the label
     // with it. Only opt in for a label with no glass of its own — content-applied glass
     // pulls descendant glass into its group.
@@ -115,7 +119,9 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
         // installed at all, so its lens can't deform however it's configured. No contentShape
         // either — same rule as the glass path: expandHitArea above it owns the tap region.
         if #available(iOS 26.0, *), interactive {
-            content.glassEffect(.regular.tint(color).interactive(), in: shape)
+            content
+                .background { if solid { shape.fill(color) } }
+                .glassEffect(.regular.tint(color).interactive(), in: shape)
         } else {
             layeredSurface(content)
         }
@@ -126,7 +132,7 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
         content
             .background {
                 ZStack {
-                    shape.fill(color).opacity(glass ? 0 : 1)
+                    shape.fill(color).opacity(glass && !solid ? 0 : 1)
                     glassFill.opacity(glass ? 1 : 0)
                 }
             }

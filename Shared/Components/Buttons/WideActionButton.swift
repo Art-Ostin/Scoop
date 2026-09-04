@@ -18,6 +18,10 @@ struct WideActionButton: View {
     var font: Font = .body(18, .bold)
     var height: CGFloat = 48
     var lineLimit: Int = 1
+    ///Flat instead of the tinted lens — for a CTA a flight lands a flat capsule on, which must be the
+    ///same pixels (the compose card). Glass draws a rim and its own shadow, both of which arrived as a
+    ///dark step at the landing (device 2026-09-04).
+    var glass: Bool = true
 
     let onTap: () -> ()
 
@@ -33,7 +37,7 @@ struct WideActionButton: View {
 
     var body: some View {
         ScoopButton(
-            style: .tinted(fill, shadow: (showShadow && isActive) ? .button : nil,  glass: isActive),
+            style: .tinted(fill, shadow: (showShadow && isActive) ? .button : nil, glass: isActive && glass),
             shape: .capsule,
             action: onTap
         ) {

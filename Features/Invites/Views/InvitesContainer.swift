@@ -67,6 +67,9 @@ extension InvitesContainer {
         )
         .containerRelativeFrame(.horizontal)
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
+        .overlay(alignment: .topTrailing) {
+            InviteHistoryButton(showInviteHistory: $ui.showInviteHistory, eventProfile: invite)
+        }
     }
 }
 

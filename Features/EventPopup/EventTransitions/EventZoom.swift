@@ -552,8 +552,7 @@ extension EventZoomCard {
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
             .environment(\.eventZoomDismiss, dismiss)
             .background { cardFill }
-            .modifier(flight.morph())
-            .shadow(.card, strength: flight.shadowStrength)
+            .modifier(flight.morph()) //Draws the card's shadow itself, as a shape BEHIND the window — see the morph
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
             .padding(.horizontal, slot.inset) //The card is a full-bleed surface, not a text column
     }
@@ -618,8 +617,8 @@ private struct EventZoomCardContent: View, Equatable {
     private var ctaRect: CGRect = .zero //The card's own CTA, global — the capsule's landing, reported by the body
     private var ctaText: String = "" //What the CTA rests at, so the capsule wears the landing's own look
     private var ctaFill: Color = .clear
-    private var ctaHeroOpacity: Double = 1 //The capsule's OWN hand-off — a fade over the real button, never a cut
-    private var ctaHeroShown = true
+    private var ctaHeroShown = true //The capsule stands in for the CTA until its fade is done (see `handOffCTA`)
+    private var ctaHeroFade: Double = 1 //The capsule's fill fading off the real button — its label holds until the end
     private let onClosing: () -> Void //A committed close is leaving: the owner hides a lens' static ring
     private let onChromeReturn: () -> Void //A beat into the close: the screen's own chrome comes back, while the card is still flying
     private let onClosed: () -> Void //The close flight has landed; the owner clears state
@@ -627,7 +626,9 @@ private struct EventZoomCardContent: View, Equatable {
     //Flight state
     private var flightP: CGFloat = 0 //0 = at the source, 1 = the full card
     private var chromeP: Double = 0 //Backdrop and chevron — the pieces outside the card
-    private var coverShown = true //The morphing photo: eased away once landed, back instantly at close
+    private var coverShown = true //The morphing photo: cut away once landed, back instantly at close
+    private var titleHeroFade: Double = 1 //The name morph's OWN hand-off — a fade over the page's line, never a cut (see `handOffCover`)
+    private var titleHeroShown = true
     private var landed = false
     private var closing = false
     private var hasOpened = false
@@ -678,23 +679,25 @@ extension EventZoomChoreo {
     //over the hand-off rather than being revealed by it, so the foot and title land once
     var bandChromeVisible: Bool { settled && bandChromeIn }
 
-    //Both ends measured and a flight to fly: the capsule owns the button from the tap to the
-    //hand-off cut, and again from the close's first frame. It shares `coverShown` with the flying
-    //photo, so the two hand back in one commit — and it is part of the card content's identity
-    //below, because an `.equatable()` card swallows an observation the body alone would miss.
+    //A source button and a flight to fly: the capsule owns the button from the tap to the hand-off
+    //cut, and again from the close's first frame. From the TAP — the card's own CTA is measured a
+    //frame later, and until then the capsule simply sits on the source (`EventZoomButtonMorph`);
+    //waiting for it left the cover's chrome copy showing its own button for a frame between the
+    //source and the hero. It is part of the card content's identity below, because an
+    //`.equatable()` card swallows an observation the body alone would miss.
     var buttonHeroActive: Bool {
-        hasFlight && ctaHeroShown && buttonSource.width > 1 && ctaRect.width > 1
+        hasFlight && ctaHeroShown && buttonSource.width > 1
     }
 
-    //The capsule's opacity: 1 for the flight, then faded off over the landing (see `handOffCTA`)
-    var ctaHeroFade: Double { ctaHeroOpacity }
+    //The capsule's fill opacity: 1 for the flight, then faded off over the landing (see `handOffCTA`)
+    var ctaHeroFill: Double { ctaHeroFade }
 
-    //The real CTA ghosts for the flight — but it comes back at the LANDING, a beat BEFORE the
-    //capsule goes, and takes its first paint hidden behind the capsule that by then covers it
-    //exactly. Revealed cold at the cut instead, it warms its glass on screen: a button held at
-    //opacity 0 never samples a backdrop, and the same beat is where a re-render arriving one frame
-    //late would show the card through the gap. Either way it reads as a flash, and this is the
-    //100ms of cover that removes it.
+    //The real CTA ghosts for the flight — but it comes back at the LANDING, well before the capsule
+    //goes, and takes its first paint hidden behind a capsule that covers it (the capsule sits on
+    //the button from `settleShare`, and is wider through its settle). The rule that put it there:
+    //reveal a surface behind whatever is covering it, never as the cover leaves — a glass one held
+    //at opacity 0 never samples a backdrop and warms up on screen (+35 levels, sim 2026-09-04); the
+    //CTA is flat now, and the beat still buys it a first paint before the fade.
     var ctaGhosted: Bool { buttonHeroActive && !settled }
 
     //An engaged dismiss drag freezes the pager's own axis
@@ -723,10 +726,10 @@ extension EventZoomChoreo {
                height: rubberBanded(dragOffset.height))
     }
 
-    //Worn after the morph's mask, so the shadow wears the window's shape — and strength rides
-    //the flight: the resting source casts nothing of its own here, so the committed source
-    //frames must not bloom a shadow. Clamped: the springs' overshoot carries flightP past both
-    //ends of [0, 1]
+    //Cast by a shape of the window BEHIND the card (the morph draws it), so it wears the window's
+    //shape — and strength rides the flight: the resting source casts nothing of its own here, so
+    //the committed source frames must not bloom a shadow. Clamped: the springs' overshoot carries
+    //flightP past both ends of [0, 1]
     var shadowStrength: Double { min(max(Double(flightP), 0), 1) }
 
     //The measured rects report live, drag folded in; the first pair past layout opens
@@ -783,7 +786,7 @@ extension EventZoomChoreo {
     //The morph, fed this frame's pose
     func morph() -> EventZoomMorph {
         EventZoomMorph(
-            p: flightP,
+            flightP: flightP,
             chromeMix: chromeMix,
             dragTravel: dragOffset.height,
             flightOffset: windRender.offset,
@@ -801,14 +804,16 @@ extension EventZoomChoreo {
             titleName: titleName,
             titleSource: titleRect,
             buttonHero: buttonHeroActive,
-            buttonSettled: settled,
-            buttonFade: ctaHeroFade,
+            buttonFade: ctaHeroFill,
             buttonSource: buttonSource,
             cta: ctaRect,
             ctaText: ctaText,
             ctaFill: ctaFill,
             coverShown: coverShown,
-            rimMounted: landed)
+            titleShown: titleHeroShown,
+            titleFade: titleHeroFade,
+            rimMounted: landed,
+            shadow: shadowStrength)
     }
 
     //An unmount mid-flight must not leave the link ticking
@@ -822,9 +827,17 @@ extension EventZoomChoreo {
 
     #if DEBUG
     //Geometry-capture runs: -eventZoomSlow stretches every clock 4× for the camera
-    static let timeScale: Double = ProcessInfo.processInfo.arguments.contains("-eventZoomSlow") ? 4 : 1
+    static let timeScale: Double = ProcessInfo.processInfo.arguments.contains("-eventZoomFreeze") ? 400
+        : ProcessInfo.processInfo.arguments.contains("-eventZoomSlow") ? 4 : 1
+    //TEMPORARY bisect knob: `-heroVariant N` strips one wrapper from the flying button (see the morph)
+    static let heroVariant: Int = {
+        let args = ProcessInfo.processInfo.arguments
+        guard let i = args.firstIndex(of: "-heroVariant"), i + 1 < args.count else { return 0 }
+        return Int(args[i + 1]) ?? 0
+    }()
     #else
     static let timeScale: Double = 1
+    static let heroVariant: Int = 0
     #endif
 
     //The quick invite popup's open clock — ProfileZoom's open clock stretched ~12% (was 0.4s,
@@ -899,12 +912,21 @@ extension EventZoomChoreo {
             landed = true
             chevronIn = true //Nothing flew, so there is no committed beat to wait out
             withAnimation(.transition) { chromeP = 1 }
-            handOffCover()
+            handOffCover(after: Self.handOffBeat) //The cover parks on the band while the pager takes its first paint
+            armBandChrome()
             return
         }
         Task { @MainActor [self] in
             try? await Task.sleep(for: .milliseconds(30)) //One committed frame at the source before the flight leaves it
-            withAnimation(Self.openFlight) { flightP = 1 } completion: { self.land() }
+            //Two completions on ONE spring: the landing at its perceptual end, and the cover's
+            //hand-off only once it is REMOVED — p is exactly 1 then, so the cover and the live
+            //page are the same pixels. At `.logicallyComplete` ~1.4% of the travel is still to
+            //come (this spring: 0.332s vs 0.517s to removal), and a swap a beat after it stepped
+            //the whole band about a point (sim capture 2026-09-04, `-eventZoomSlow`).
+            var flight = Transaction(animation: Self.openFlight)
+            flight.addAnimationCompletion(criteria: .logicallyComplete) { self.land() }
+            flight.addAnimationCompletion(criteria: .removed) { self.handOffCover(); self.handOffCTA() }
+            withTransaction(flight) { flightP = 1 }
             withAnimation(Self.openChrome) { chromeP = 1 }
             scheduleChevronIn()
         }
@@ -939,43 +961,64 @@ extension EventZoomChoreo {
     }
 
     //The rows were already revealed by the window mid-flight, and the title, its frost and the
-    //foot faded in riding the flight (the morph's arrive ramp); the landing beat only swaps the
-    //cover for the live pager, over identical pixels
+    //foot faded in riding the flight (the morph's arrive ramp); the landing mounts the live pager
+    //under the still-opaque cover and arms the band's chrome — the cover itself hands off later,
+    //on the spring's removal, over identical pixels
     private func land() {
         guard !landed, !closing else { return }
         landed = true //The pager mounts here, under the still-opaque cover
         chevronIn = true //Normally already in on its own clock — a landing must never sit chevron-less
-        handOffCover()
-        handOffCTA()
+        armBandChrome()
     }
 
-    //The capsule's hand-off, and deliberately NOT the cover's cut. The button underneath has been
-    //painted since the landing, so nothing has to warm up — but the capsule is a FLAT stand-in for a
-    //GLASS button, and every residue of that (the lens' edge, the shadow glass draws and no API
-    //disables, a sub-pixel of text) steps in one frame if it is cut. Faded off an already-correct
-    //button it cannot: the two wear the same tint — measured identical at the centre on the sim —
-    //so the blend has nothing left to show.
+    //The capsule's hand-off, on the spring's removal like the cover's: at p = 1 the capsule sits on
+    //the CTA to the pixel, and the CTA is FLAT in the capsule's own colour, painted since the
+    //landing — so the capsule's fill fades off an identical fill and nothing arrives. (A glass CTA
+    //arrived as a darker sheen plus the lens' own shadow halo — device 2026-09-04.) The capsule's
+    //label does NOT fade with it: fading the whole capsule dipped the word a quarter of the way to
+    //the fill mid-way — SwiftUI fades layers one by one, so a fading label over a fading fill over
+    //the real word composites the fill through. Held opaque over the real word until the fill is
+    //gone, it hands off on identical glyphs.
     private func handOffCTA() {
         guard !closing else { return }
-        withAnimation(.transition) { ctaHeroOpacity = 0 } completion: { self.ctaHeroShown = false }
+        withAnimation(.transition) { ctaHeroFade = 0 } completion: { self.ctaHeroShown = false }
     }
 
-    //A short beat after the mount (clear of the spring's last sub-pixel settle), then the cover
-    //eases away over the live pager. The beat still buys the pager its first real paint; the
-    //fade is what the cut used to be. The pager's band is a 10pt foot plus a capsule frost behind
-    //the title (`InvitePhotoBand`), and the flying cover wears the same view, ridden in on the
-    //title's ramp (`arrive` in the morph) — so at touchdown the two are identical and the fade
-    //is insurance against a sub-pixel of layout, never the band's arrival. Before the cover flew
-    //it, the fade WAS the arrival: both blurs popped in over its steep front, ~180ms after the
-    //card had visibly stopped (device recording 2026-09-04).
+    //The band's chrome arrives a beat after the landing, and a flightless open parks its cover
+    //on the band for the same beat: both buy the freshly mounted pager its first real paint.
     private static let handOffBeat = Duration.milliseconds(100 * timeScale)
 
-    private func handOffCover() {
+    //The cover CUTS to the live pager, on identical pixels. The pager's band is a 10pt foot plus
+    //a capsule frost behind the title (`InvitePhotoBand`), and the flying cover wears the same
+    //view, ridden in on the title's ramp (`arrive` in the morph), posed on the band to the pixel
+    //by the time this runs — a flight calls it on its spring's REMOVAL (p exactly 1, the pager
+    //painted since the landing), a flightless open after `handOffBeat`. Measured on the sim
+    //(2026-09-04): the swap changes 12 pixels by one level. A fade here is WORSE than a cut:
+    //SwiftUI fades the cover's layers one by one, so mid-fade the photo, its band and its white
+    //foot double-composite over the page and the whole band dips ~20 levels for a few frames.
+    //Before the cover flew the band, the fade WAS the arrival: both blurs popped in over its
+    //steep front, ~180ms after the card had visibly stopped (device recording 2026-09-04).
+    private func handOffCover(after beat: Duration = .zero) {
+        Task { @MainActor [self] in
+            if beat > .zero { try? await Task.sleep(for: beat) }
+            guard !closing else { return } //A close begun meanwhile owns the cover now
+            var instant = Transaction()
+            instant.disablesAnimations = true
+            withTransaction(instant) { coverShown = false }
+            //The name morph's affix and hero are two Texts standing in for the page's ONE — the
+            //same glyphs to the eye, a hair apart at the edges (kerning across a Text boundary).
+            //Cut, that hair flickers; faded over the page's line it dissolves. Plain text over
+            //identical text, so the layer-by-layer fade has nothing to double-composite.
+            withAnimation(.transition) { titleHeroFade = 0 } completion: { self.titleHeroShown = false }
+        }
+    }
+
+    //Chrome over the band (a back button, the options row) pops in on its own animated write a
+    //beat after the landing — over the cover, which by then carries the band it lands on
+    private func armBandChrome() {
         Task { @MainActor [self] in
             try? await Task.sleep(for: Self.handOffBeat)
-            guard !closing else { return } //A close begun during the beat owns the cover now
-            withAnimation(.transition) { coverShown = false }
-            //A SEPARATE write: ridden on the same transaction the pop would inherit its curve
+            guard !closing else { return }
             withAnimation(.transition) { bandChromeIn = true }
         }
     }
@@ -1010,9 +1053,13 @@ extension EventZoomChoreo {
         if !coverShown { //Back over the pager on its own pixels before anything moves
             withTransaction(instant) { coverShown = true }
         }
+        withTransaction(instant) { //The name morph's pieces come back with it, over the line they left
+            titleHeroFade = 1
+            titleHeroShown = true
+        }
         //The capsule takes the button back in the same commit the button ghosts, so no frame has neither
         withTransaction(instant) {
-            ctaHeroOpacity = 1
+            ctaHeroFade = 1
             ctaHeroShown = true
         }
 
@@ -1260,7 +1307,7 @@ private final class WindCloseDriver {
 //photo are the only things moving, so nothing expensive rides the animation.
 struct EventZoomMorph: ViewModifier, Animatable {
 
-    var p: CGFloat
+    var flightP: CGFloat //The flight's raw progress — the open reads it through `p` in the body
     let chromeMix: CGFloat //The close's fold GATE (snaps 0 → 1, never animates): the fold's progress derives from p
     var dragTravel: CGFloat //The dismiss drag's raw descent — scrubs the fold 1:1 with the finger, and animates home with the snap-back spring
     let flightOffset: CGSize //The wind close's deviation from the straight lerp path — written raw per tick, zero for the open and the calm close
@@ -1278,29 +1325,41 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let titleName: String? //The word inside that title the source also draws — the name hero's subject
     let titleSource: CGRect //Where the source draws it, global — the hero's home
     let buttonHero: Bool //The capsule is mounted this frame
-    let buttonSettled: Bool //Landed: the capsule sits EXACTLY on the button, so the fade is pixel-aligned
-    let buttonFade: Double //Its hand-off, faded rather than cut
+    let buttonFade: Double //Its fill's hand-off, faded off the identical real fill; the label holds
     let buttonSource: CGRect //The source's round button, global — the capsule's home
     let cta: CGRect //The card's own CTA, global — the capsule's landing
     let ctaText: String
     let ctaFill: Color
     let coverShown: Bool
+    let titleShown: Bool //The name morph's pieces outlive the cover's cut by their own fade
+    let titleFade: Double
     let rimMounted: Bool //The landing rim's view exists from the landing on — mounted by a bare write, never inserted into a close in flight
+    let shadow: Double //The card's resting shadow's strength (EventZoomChoreo.shadowStrength)
 
     //The dismiss drag scrubs the fold 1:1 with raw descent over this distance — the invite
     //popup's own constant, reused so the cards cannot drift
     private static let collapseDistance: CGFloat = 240
 
     var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, CGFloat> {
-        get { AnimatablePair(AnimatablePair(p, dragTravel), landingScale) }
+        get { AnimatablePair(AnimatablePair(flightP, dragTravel), landingScale) }
         set {
-            p = newValue.first.first
+            flightP = newValue.first.first
             dragTravel = newValue.first.second
             landingScale = newValue.second
         }
     }
 
+    //SwiftUI removes a settled bounce-0 spring with a hair of travel still to come and snaps to
+    //the target: ~0.35% of the flight on the sim (a 3px step of the whole band on the lens' 825px
+    //descent, 60Hz) — the one visible tick left in an otherwise seamless landing, and one the cover
+    //wears whether or not it has handed off. The open therefore poses everything off `p`, which
+    //reaches 1 at this share of the raw spring: landed 1% early, at creep speed (~1px/frame), so
+    //the removal's snap moves nothing on screen. The close and the drag read the raw value — their
+    //landings are per-frame and end exactly on target.
+    private static let settleShare: CGFloat = 0.99
+
     func body(content: Content) -> some View {
+        let p = chromeMix == 0 && flightP > 0 ? min(flightP / Self.settleShare, 1) : flightP
         //Everything in the card's own space: the same math serves rest, flight, and a
         //mid-drag hand-off, because the card's live origin folds the drag in
         let sourceLocal = card.width > 1
@@ -1376,7 +1435,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //onto the photo with the rows.
         let ctaMorph = EventZoomButtonMorph(source: buttonSource, cta: cta, text: ctaText, fill: ctaFill,
                                             card: card, sourceLocal: sourceLocal, bounds: bounds,
-                                            window: window, p: pLanded, settled: buttonSettled)
+                                            window: window, p: pLanded)
 
         //The landing rim, a lens' alone: only a committed close shows it (chromeMix gates — the
         //open and the drag scrub never do). It is the COVER's own outline pushed out by a rim
@@ -1423,6 +1482,19 @@ struct EventZoomMorph: ViewModifier, Animatable {
                     .frame(width: max(window.width, 1), height: max(window.height, 1))
                     .position(x: window.midX, y: window.midY)
             }
+            //The card's shadow, cast by an opaque copy of the window's shape BEHIND the masked card
+            //rather than by a `.shadow` on the card itself: a shadow is a layer effect, and a layer
+            //effect above Liquid Glass rasterizes every lens beneath it — the flying button's copy
+            //lost its rim against the resting button's (a snap at the tap), and the card's own glass
+            //buttons were being flattened the same way. A sibling shape casts the identical shadow
+            //and leaves the lenses live ([[project_ios26_glass_shadow_animation_gray]]'s rule).
+            .background {
+                RoundedRectangle(cornerRadius: windowRadius)
+                    .fill(Color.white)
+                    .frame(width: max(window.width, 1), height: max(window.height, 1))
+                    .position(x: window.midX, y: window.midY)
+                    .shadow(.card, strength: shadow)
+            }
             .overlay {
                 //From the landing on (a bare write, no morph in flight), so a close never inserts
                 //it mid-spring; dark until the rim has width, or its edge would fringe the cover's
@@ -1448,7 +1520,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                         .scaledToFill()
                         .frame(width: max(cover.width, 1), height: max(cover.height, 1))
                         .overlay {
-                            if let chrome, chromeCopy > 0 {
+                            if let chrome, chromeCopy > 0, EventZoomChoreo.heroVariant != 8 {
                                 //Laid out ONCE at the source's size and transform-ridden, never
                                 //re-laid-out in flight — a glur or a scrim re-rendered at an
                                 //animating size is the jitter the flight was tuned out of
@@ -1467,6 +1539,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
                             //size so the blur is of the pixels under it. Nothing at the source end
                             //(a raw photo, as the source shows), full before touchdown, and back out
                             //on the same ramp as the close shrinks the cover home.
+                            //Mounted from takeoff: inserting it once its ramp began put its first layout
+                            //into a mid-flight commit and dropped a frame there (sim capture 2026-09-04)
                             InvitePhotoBand(image: photo, titleRect: bandTitle).opacity(arrive)
                         }
                         .overlay(alignment: .bottomLeading) {
@@ -1477,38 +1551,44 @@ struct EventZoomMorph: ViewModifier, Animatable {
                             }
                         }
                         .invitePhotoEdgeFade(strength: arrive) //The page's softened foot, ridden in with the band
+                        //What the fade shows through: the card's white, as on the page. Left open it
+                        //showed the live page's OWN faded foot beneath, and two fades stacked read
+                        //~40 levels darker than one — a hairline the hand-off then dissolved
+                        .background(Color.white)
                         .clipShape(UnevenRoundedRectangle(
                             topLeadingRadius: coverTopRadius,
                             bottomLeadingRadius: coverBottomRadius,
                             bottomTrailingRadius: coverBottomRadius,
                             topTrailingRadius: coverTopRadius))
-                        .modifier(CoverShadow(isLens: glassRing > 0, lens: lensShadow, card: cardShadow))
+                        .modifier(CoverShadow(isLens: glassRing > 0, lens: lensShadow,
+                                              card: EventZoomChoreo.heroVariant == 1 ? 0 : cardShadow))
                         .position(x: cover.midX, y: cover.midY)
                         .allowsHitTesting(false)
                 }
             }
             //The name morph rides ABOVE the cover rather than inside it: the word is posed in the
             //card's space, and the cover's own rounded clip would crop it as the window changes
-            //shape. It leaves with the cover, so the hand-off fade takes it away over the live
-            //pager's identical line.
+            //shape. It outlives the cover's cut by its own fade, taken away over the live pager's
+            //identical line (`handOffCover`).
             .overlay {
-                if coverShown, let nameMorph {
+                if titleShown, let nameMorph {
                     ZStack {
                         titleAffix(nameMorph).opacity(arrive)
                         titleHero(nameMorph)
                     }
+                    .opacity(titleFade)
                 }
             }
             //The button morph, above the card's foot for the same reason the name is above the
             //cover: it is posed in the card's own space and no clip of the card's should crop it
             .overlay {
-                if buttonHero, let ctaMorph { ctaHero(ctaMorph).opacity(buttonFade) }
+                if buttonHero, let ctaMorph { ctaHero(ctaMorph) }
             }
             //Window, cover and rim breathe together about the cover's centre — the wind's
             //settle-pop, the lens' landing breath and the card's sink alike; scaling the cover
             //alone would let the masked card's white peek out around the compressed circle.
             //Render-only, so the measured cardRect never feeds back into the flight's frames
-            .scaleEffect(pop * landingScale * sink, anchor: UnitPoint(
+            .scaleEffect(EventZoomChoreo.heroVariant == 5 ? 1 : pop * landingScale * sink, anchor: UnitPoint(
                 x: bounds.width > 0 ? cover.midX / bounds.width : 0.5,
                 y: bounds.height > 0 ? cover.midY / bounds.height : 0.5))
     }
@@ -1543,34 +1623,46 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //A scale, never a font size: a font change snaps.
     //The circle widening into the wide CTA. The BODY is a flat capsule — a glass lens rebuilt at a
     //new size every frame costs about seven eighths of the frame rate (device evidence), so the one
-    //lens in this flight is the real 42pt circle riding the trailing cap, carrying its own icon out.
-    //Underneath, the CTA's resting fill is there from frame one and the circle's tint sheds off it,
-    //so the button never has to guess what it is becoming.
+    //lens in this flight is the real 42pt InviteButton riding the trailing cap, carrying its own
+    //icon out. Underneath, the CTA's resting fill is there from frame one and the circle's tint
+    //sheds off it, so the button never has to guess what it is becoming. The InviteButton is glass
+    //over an opaque disc of this very colour, and the compose CTA is flat in it, so this stack IS
+    //the resting circle at t = 0 and IS the resting CTA at t = 1 — nothing to reveal at either end.
+    //The lens stays LIVE only because nothing above it is a layer effect: the card's shadow is a
+    //shape behind the window, not a `.shadow` on the card (see the morph's body).
     private func ctaHero(_ morph: EventZoomButtonMorph) -> some View {
         let rect = morph.rect
         return ZStack {
-            Capsule().fill(morph.fill)
-            Capsule().fill(InviteButton.tint).opacity(morph.shed)
+            if EventZoomChoreo.heroVariant != 3 {
+                Capsule().fill(morph.fill).opacity(buttonFade)
+                Capsule().fill(InviteButton.tint).opacity(morph.shed * buttonFade)
+            }
+        }
+        .frame(width: max(rect.width, 1), height: max(rect.height, 1))
+        .overlay {
+            //The word sits where it LANDS from its first frame, so the capsule's settle plays out
+            //around a still label rather than carrying it — a word riding an overshoot wobbles.
+            //Arriving late enough that the capsule already reaches past it (see `label`).
             Text(morph.text)
                 .font(.body(18, .bold)) //WideActionButton's own default, which this CTA takes
                 .foregroundStyle(Color.white)
                 .lineLimit(1)
-                //The house blur-pop's own look (PopMotion's 8pt blur and 0.7 shrink), driven by the
-                //flight instead of by a spring of its own. `blurPop` carries an internal
-                //`PopMotion.spring` (response 0.35): armed part-way up the flight it was still
-                //settling at the hand-off, so the cut caught the word blurred and shrunken and
-                //snapped it to the real one — the flash. Derived from p it cannot outlive the cut.
-                .blur(radius: PopMotion.blurRadius * (1 - morph.label))
-                .scaleEffect(PopMotion.shrunkScale + (1 - PopMotion.shrunkScale) * morph.label)
+                .fixedSize()
+                .scaleEffect(Self.labelShrunkScale + (1 - Self.labelShrunkScale) * morph.label)
                 .opacity(morph.label)
+                .position(x: morph.labelX - rect.minX, y: rect.height / 2)
         }
-        .frame(width: max(rect.width, 1), height: max(rect.height, 1))
         .overlay(alignment: .trailing) {
-            InviteButton(onTap: { }).opacity(morph.shed) //Glass may move, never resize: fixed 42pt
+            //Glass may move, never resize: fixed 42pt. The button brings its own opaque disc behind its
+            //lens, so the capsule beneath adds nothing the resting button's lens doesn't already sample
+            InviteButton(onTap: { }).opacity(EventZoomChoreo.heroVariant == 2 ? 1 : morph.shed)
         }
         .position(x: rect.midX, y: rect.midY)
-        .allowsHitTesting(false)
+        .allowsHitTesting(EventZoomChoreo.heroVariant == 4)
     }
+
+    //The word's arrival scale: a breath, not the house pop's 0.7 — it lands inside a moving shape
+    private static let labelShrunkScale: CGFloat = 0.92
 
     private func titleHero(_ morph: EventZoomTitleMorph) -> some View {
         let hero = morph.hero
@@ -1678,42 +1770,68 @@ struct EventZoomButtonMorph {
     let text: String
     let fill: Color //What the CTA rests at: the capsule wears it from frame one and sheds the tint off it
     let rect: CGRect //Where the capsule is this frame, in the card's space
+    let labelX: CGFloat //The word's centre, in the card's space — the CTA's own, from the word's first frame
     let shed: CGFloat //The circle's tint AND its lens leaving together — the button's identity departing
     let label: CGFloat //The CTA's word arriving, 0→1 — on the flight's geometry, never a clock of its own
 
-    ///nil until both ends have been measured: a flight that cannot anchor leaves both buttons their
-    ///own fades rather than ghosting a CTA it has nothing to replace with
+    //The width's own curve, on the flight's geometry. The flight's spring is critically damped —
+    //bounce 0, chosen so the title does not wobble — and a width that follows it linearly spends its
+    //last tenth as a visibly creeping edge (~150ms on device). So the width eases in and out and is
+    //fully open at `arriveShare` of the flight, then overshoots by `overshoot` of its travel on a
+    //bump that peaks at `overshootPeak` and is spent by `overshootEnd`: a settle, with no clock of
+    //its own and nothing left to snap at the hand-off. The label is posed at its landing centre, so
+    //the settle plays out around a still word.
+    private static let arriveShare: CGFloat = 0.9
+    private static let overshoot: CGFloat = 0.02
+    private static let overshootStart: CGFloat = 0.85
+    private static let overshootPeak: CGFloat = 0.92
+    private static let overshootEnd: CGFloat = 0.98 //Spent before the spring's own tail, so the return is a settle, not a creep
+
+    ///nil until the source has been measured: a flight that cannot anchor leaves both buttons their
+    ///own fades rather than ghosting a CTA it has nothing to replace with. The card's CTA reports a
+    ///frame after the mount; until then the capsule sits on the source (p is 0 that early).
     init?(source: CGRect, cta: CGRect, text: String, fill: Color,
-          card: CGRect, sourceLocal: CGRect, bounds: CGRect, window: CGRect, p: CGFloat,
-          settled: Bool) {
-        guard source.width > 1, cta.width > 1, card.width > 1 else { return nil }
+          card: CGRect, sourceLocal: CGRect, bounds: CGRect, window: CGRect, p: CGFloat) {
+        guard source.width > 1, card.width > 1 else { return nil }
         self.text = text
         self.fill = fill
 
         let from = source.offsetBy(dx: -card.minX, dy: -card.minY)
-        let to = cta.offsetBy(dx: -card.minX, dy: -card.minY)
-        //Clamped: the landing must not overshoot its own width. LANDED it is pinned to exactly 1 —
-        //`land()` fires on the spring's logical completion, a hair short of the target, and the
-        //capsule has to sit on the button to the pixel for the fade below to have nothing to reveal.
-        let t = settled ? 1 : min(max(p, 0), 1)
+        let to = cta.width > 1 ? cta.offsetBy(dx: -card.minX, dy: -card.minY) : from
+        let t = cta.width > 1 ? min(max(p, 0), 1) : 0
 
         //Posed as insets from the revealed window, never as a lerp between two screen rects — the
         //same rule the name morph pays. Both trailing insets are the cards' own 24pt, which is what
-        //makes the open read as a pure leftward stretch rather than a slide.
-        let width = Self.lerp(from.width, to.width, t)
-        let height = Self.lerp(from.height, to.height, t)
+        //makes the open read as a pure leftward stretch rather than a slide. At p = 1 the window is
+        //the card's bounds and this resolves to the CTA's rect exactly — no pin needed.
+        let open = Self.smoothstep(t / Self.arriveShare)
+        let settle = Self.overshoot * Self.bump(t)
+        let width = Self.lerp(from.width, to.width, open + settle)
+        let height = Self.lerp(from.height, to.height, open)
         let trailing = Self.lerp(sourceLocal.maxX - from.maxX, bounds.maxX - to.maxX, t)
         let bottom = Self.lerp(sourceLocal.maxY - from.maxY, bounds.maxY - to.maxY, t)
-        rect = settled ? to : CGRect(x: window.maxX - trailing - width,
-                                     y: window.maxY - bottom - height,
-                                     width: width, height: height)
+        rect = CGRect(x: window.maxX - trailing - width,
+                      y: window.maxY - bottom - height,
+                      width: width, height: height)
+        labelX = to.midX
 
-        //Tint and lens leave together over the first half: past that the capsule is too far from a
+        //Tint and lens leave together over the first third: past that the capsule is too far from a
         //circle for the 42pt lens to sit on it honestly
-        shed = 1 - Self.smoothstep(t / 0.45)
-        //Finished by t = 0.92, so the word is provably crisp and full size before the landing —
-        //see the note on the leaf: a pop with a spring of its own outlives the hand-off
-        label = Self.smoothstep((t - 0.55) / 0.37)
+        shed = 1 - Self.smoothstep(t / 0.35)
+        //The word arrives once the capsule reaches past its landing centre, and is full by t = 0.95,
+        //provably crisp before the landing — see the note on the leaf: a pop with a spring of its
+        //own outlives the hand-off
+        label = Self.smoothstep((t - 0.7) / 0.25)
+    }
+
+    //A hump from 0 at `overshootStart` to 1 at `overshootPeak` and back to 0 at `overshootEnd`, flat
+    //at all three, so the width has no velocity step where the settle begins or ends
+    private static func bump(_ t: CGFloat) -> CGFloat {
+        guard t > overshootStart, t < overshootEnd else { return 0 }
+        let x = t < overshootPeak
+            ? (t - overshootStart) / (overshootPeak - overshootStart)
+            : (overshootEnd - t) / (overshootEnd - overshootPeak)
+        return smoothstep(x)
     }
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
@@ -1743,3 +1861,222 @@ private struct CoverShadow: ViewModifier {
         }
     }
 }
+
+#if DEBUG
+//MARK: - Capture harness (TEMPORARY — delete after verify): `-uiHarnessEventZoom`
+struct EventZoomHarness: View {
+
+    @Environment(AppDependencies.self) private var dep
+    @State private var host = EventZoomHost()
+    @State private var lensOpen = false
+    @State private var meetOpen = false
+    @State private var meetVM: ComposeInviteViewModel?
+
+    private let photos: [UIImage] = (1...3).compactMap { UIImage(named: "Demo\($0)") }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
+                Text("Event Zoom").font(.title(32, .bold)).padding(.top, Spacing.xl)
+                lensRow
+                meetCard
+                Color.clear.frame(height: Spacing.clearance)
+            }
+            .padding(.horizontal, Spacing.gutter)
+        }
+        .background(Color.appCanvas.ignoresSafeArea())
+        .eventZoomHost(host)
+    }
+}
+
+extension EventZoomHarness {
+
+    private var photo: UIImage { photos.first ?? UIImage() }
+
+    private var lensRow: some View {
+        HStack {
+            Text("Today").font(.body(16, .medium)).foregroundStyle(Color.textPrimary)
+            Spacer()
+            Button { lensOpen = true } label: { HarnessLens(image: photo) }
+                .buttonStyle(.plain)
+                .eventZoom(isPresented: $lensOpen) {
+                    VStack(spacing: 0) {
+                        EventImagePager(images: photos, title: "Invited Genevieve")
+                        harnessRows
+                    }
+                }
+        }
+        .padding(Spacing.md)
+        .background(Color.white, in: .rect(cornerRadius: CornerRadius.image))
+    }
+
+    private var meetCard: some View {
+        AppImage(image: photo, type: .meet)
+            .overlay { meetChrome }
+            .eventZoomSource(photo) { meetChrome }
+            .eventZoom(isPresented: $meetOpen, inset: 10) {
+                ComposeInviteContainer(
+                    vm: meetVM ?? ComposeInviteViewModel(profileId: "harness-meet", defaults: dep.defaultsManager),
+                    images: photos, name: "Sarah", onSend: { _ in meetOpen = false })
+            }
+            .disabled(meetVM == nil)
+            .onAppear {
+                seedDraft()
+                if ProcessInfo.processInfo.arguments.contains("-autoOpenMeet") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { meetOpen = true }
+                }
+            }
+    }
+
+    private func seedDraft() {
+        guard meetVM == nil else { return }
+        let vm = ComposeInviteViewModel(profileId: "harness-meet", defaults: dep.defaultsManager)
+        vm.event = EventFieldsDraft(
+            type: .socialMeet,
+            time: ProposedTimes(items: [ProposedTime(date: Date().addingTimeInterval(4 * 86400))]),
+            place: EventLocation(mapItem: .mcGill))
+        meetVM = vm
+    }
+
+    private var meetChrome: some View {
+        ProfileCardChrome(image: photo, name: "Sarah", subtitle: "U2 · Physics · Toronto",
+                          palette: .placeholder, onInvite: { meetOpen = true })
+    }
+
+    private var harnessRows: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            ForEach(["Social Meet", "Fri 4 or Thu 10 Sep · 21:30", "Starbucks"], id: \.self) { line in
+                Text(line)
+                    .font(.body(15, .medium))
+                    .foregroundStyle(Color.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(Spacing.lg)
+    }
+}
+
+private struct HarnessLens: View {
+    let image: UIImage
+    @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
+
+    var body: some View {
+        SmallImage(image: image, size: 42, isCircle: true)
+            .eventZoomSource(image, shape: .circle(ring: 5))
+            .padding(5)
+            .lightShadow()
+            .containerGlassEffect(clipped: true, shape: Circle())
+            .opacity(anchor?.returning == true ? 0 : 1)
+    }
+}
+
+//MARK: - Glass probe (TEMPORARY — delete after verify): `-uiHarnessGlassProbe`
+//The invite button over the profile chrome's layers, split apart, so a screenshot says which
+//layer beneath changes the lens' look.
+struct GlassProbeHarness: View {
+
+    private let photo = UIImage(named: "Demo1") ?? UIImage()
+    private static let tile: CGFloat = 110
+    private static let pitch: CGFloat = 130
+    private static let x0: CGFloat = 12
+    private static let y0: CGFloat = 60
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Color.appCanvas.ignoresSafeArea()
+            ForEach(0..<12, id: \.self) { i in
+                cell(i)
+                    .frame(width: Self.tile, height: Self.tile)
+                    .clipped()
+                    .offset(x: Self.x0 + CGFloat(i % 3) * Self.pitch, y: Self.y0 + CGFloat(i / 3) * Self.pitch)
+            }
+        }
+    }
+
+    private var spec: BlurAndGradientBackground {
+        BlurAndGradientBackground(textRegion: BlurAndGradientBackground.profileRegion, blurRadius: 10,
+                                  colour: OverlayPalette.placeholder.surface,
+                                  scrimOpacity: OverlayPalette.placeholder.scrimOpacity)
+    }
+
+    private var tile: some View {
+        Image(uiImage: photo).resizable().scaledToFill()
+            .frame(width: Self.tile, height: Self.tile)
+            .clipped()
+    }
+
+    private var button: some View { InviteButton(onTap: { }) }
+
+    private func band(drawingGroup: Bool = true) -> some View {
+        let spec = spec
+        return Color.clear
+            .overlay { Image(uiImage: photo).resizable().scaledToFill() }
+            .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .glur(radius: spec.blurRadius, offset: spec.blurStart, interpolation: spec.blurRamp,
+                  direction: .down, noise: 0, drawingGroup: drawingGroup)
+            .mask {
+                LinearGradient(stops: [
+                    .init(color: .clear, location: spec.blurStart),
+                    .init(color: .black, location: spec.blurStart + 0.08),
+                    .init(color: .black, location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+            }
+    }
+
+    private func spot<V: View>(_ v: V) -> some View {
+        v.offset(y: -3).padding(.horizontal, Spacing.lg).padding(.bottom, 18)
+    }
+
+    private func replica<B: View, S: View>(@ViewBuilder band: () -> B, @ViewBuilder scrim: () -> S, text: Bool = false) -> some View {
+        tile.overlay {
+            ZStack { band(); scrim() }
+                .clipShape(.rect(cornerRadii: .init(top: 0, bottom: CornerRadius.image)))
+                .overlay(alignment: .bottomLeading) {
+                    if text {
+                        Text("Sa").font(.title(26, .bold)).foregroundStyle(Color.white)
+                            .padding(.horizontal, Spacing.lg).padding(.bottom, 18)
+                    }
+                }
+        }
+    }
+
+    private var heroStack: some View {
+        ZStack {
+            Capsule().fill(Color.textAccent)
+            Capsule().fill(InviteButton.tint).opacity(1)
+        }
+        .frame(width: 42, height: 42)
+        .overlay(alignment: .trailing) { button.opacity(1) }
+        .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private func cell(_ i: Int) -> some View {
+        switch i {
+        case 0: tile.overlay(alignment: .bottomTrailing) { spot(button) }
+        case 1: tile.overlay { ProfileCardChrome(image: photo, name: "Sa", subtitle: "U2", palette: .placeholder, onInvite: { }) }
+        case 2: replica(band: { band() }, scrim: { spec.scrimGradient }, text: true)
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+                .animation(.transition, value: 0)
+        case 3: replica(band: { band() }, scrim: { EmptyView() })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        case 4: replica(band: { EmptyView() }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        case 5: replica(band: { band() }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        case 6: replica(band: { band() }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(button.compositingGroup()) }
+        case 7: replica(band: { band() }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(button.background { Circle().fill(InviteButton.tint).padding(-3) }) }
+        case 8: replica(band: { band() }, scrim: { Color.black.opacity(0.55) })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        case 9: replica(band: { band(drawingGroup: false) }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        case 10: replica(band: { band() }, scrim: { spec.scrimGradient })
+                .overlay(alignment: .bottomTrailing) { spot(heroStack) }
+        default: replica(band: { EmptyView() }, scrim: { Color.black.opacity(0.55) })
+                .overlay(alignment: .bottomTrailing) { spot(button) }
+        }
+    }
+}
+#endif

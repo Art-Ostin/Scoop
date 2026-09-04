@@ -26,7 +26,7 @@ struct BlurAndGradientBackground: ViewModifier {
     let scrimOpacity: CGFloat
     
     //Outlines the bottom area, to meausure it is bright enough and adjust luminosity accordingly
-    static let inviteRegion: CGFloat = 0.4   //1:1.5 art under a whole confirm block
+    static let inviteRegion: CGFloat = 0.44   //1:1.5 art under a whole confirm block
     static let profileRegion: CGFloat = 0.28 //1:1.2 art under two lines — starts lower, at 0.72
     
     func body(content: Content) -> some View {
