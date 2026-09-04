@@ -17,19 +17,18 @@ struct InviteButton: View {
     ///The circle's own tint, exposed so a flight morphing this button away sheds exactly this colour
     static let tint: Color = .textAccent
 
-    //Glass over an opaque disc, with the disc BEHIND the button as its own layer. A Liquid Glass lens
-    //samples what lies behind its layer, not a fill drawn inside the same button: at rest that was
-    //the photo (a vivid, lit tint), on the event zoom's flying capsule it was the opaque capsule
-    //underneath (a deeper tint, a thin rim) — two looks, a style switch at the tap (device
-    //2026-09-04). Arthur chose the deep look, so the resting button carries the same opaque disc
-    //behind it that the capsule provides in flight, and the two are the same stack everywhere.
+    //Glass over an opaque disc, its look pinned by a white well (ScoopButton.lensWell — the why is on
+    //LensWell): the adaptive lens used to go vivid once the profile card's dark scrim landed under it
+    //and deep again as the event zoom's flight faded that scrim out beneath its flying copy — a style
+    //switch at the tap (device 2026-09-04). Arthur chose the deep look everywhere. `.grow` press: a
+    //shrink revealed the well as a white ring; the well rides inside the press, so the disc grows whole.
     var body: some View {
-        ScoopButton(style: .tinted(Self.tint, shadow: shadow, solid: true), shape: Circle()) {
+        ScoopButton(style: .tinted(Self.tint, shadow: shadow, solid: true), shape: Circle(),
+                    press: .grow, lensWell: .white) {
             onTap()
         } label: {
             Self.glyph
         }
-        .background { Circle().fill(Self.tint) } //The lens' backdrop — see above
     }
 
     ///The envelope alone — the button's own label

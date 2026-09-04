@@ -75,8 +75,10 @@ struct NewEventToggleButton: View {
     
     var body: some View {
         ScoopButton(style: .clearGlass, shape: .capsule) {
-            responseType = isNewEvent ? .originalInvite : .newEvent
-            showConfirmScreen = false
+            withAnimation(.dissolve) {
+                responseType = isNewEvent ? .originalInvite : .newEvent
+                showConfirmScreen = false
+            }
         } label: {
             HStack(spacing: Spacing.xxs) {
                 if !isNewEvent {
@@ -89,8 +91,9 @@ struct NewEventToggleButton: View {
             }
             .padding(.horizontal, Spacing.xs)
             .padding(.vertical, 7)
-            .foregroundStyle(Color.white)
+            .foregroundStyle(Color.textPrimary)
         }
+        .padding()
     }
 }
 

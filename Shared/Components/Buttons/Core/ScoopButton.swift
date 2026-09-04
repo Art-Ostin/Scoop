@@ -29,6 +29,9 @@ struct ScoopButton<Content: View, S: Shape>: View {
     // Tinted glass only, iOS 26 only: hand the press to Apple's interactive lens
     // (press-and-drag deformation) instead of PressEffect. See coloredButton.
     var nativeGlassPress: Bool = false
+    // Tinted glass, layered path only: pin the lens' adaptive look by giving it a hidden backdrop
+    // of this colour (see LensWell). Lives INSIDE the press, so the pinned disc scales as one.
+    var lensWell: Color? = nil
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -70,7 +73,8 @@ extension ScoopButton {
         let native = nativeGlassPress && glass
         return Button(action: action) {
             sizedLabel()
-                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass, solid: solid, interactive: native))
+                .modifier(ScoopTintSurface(color: color, shape: shape, glass: glass, solid: solid,
+                                           interactive: native, well: lensWell))
                 .expandHitArea(hitInset)
         }
         .modifier(TintPress(native: native, effect: press, shadow: shadow, tint: color))
@@ -113,6 +117,7 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
     // with it. Only opt in for a label with no glass of its own — content-applied glass
     // pulls descendant glass into its group.
     var interactive: Bool = false
+    var well: Color? = nil //Layered path only: a compositing group above interactive glass would kill its deformation
 
     func body(content: Content) -> some View {
         // Glass on a Color.clear background layer never gets the system's touch interaction
@@ -136,6 +141,7 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
                     glassFill.opacity(glass ? 1 : 0)
                 }
             }
+            .modifier(LensWell(shape: shape, well: well))
             .contentShape(shape) //Fixes interactive-glass hit-shape bug — keep!
     }
 
@@ -145,6 +151,33 @@ private struct ScoopTintSurface<S: Shape>: ViewModifier {
             Color.clear.glassEffect(.regular.tint(color), in: shape)
         } else {
             shape.fill(color)
+        }
+    }
+}
+
+// Tinted Liquid Glass is ADAPTIVE: over a dark backdrop the tint renders lit and vivid with a soft
+// highlight ring, over a light one deeper with a thin crisp rim — and it averages the backdrop some
+// points BEYOND the shape's edge, ignoring fills drawn inside its own layer. A lens over changing
+// content (a photo's scrim landing under it, a flying copy leaving that scrim) therefore switches
+// look. This pins it: a well of one colour twice the shape's size, rendered WITH the lens as one
+// compositing group (the lens then samples the group's own content — the well), masked back to the
+// shape so the well never shows. Sim-bisected 2026-09-04: a same-size backing, a masked well without
+// the group, and a forced colour scheme all leave the lens adaptive; only group + mask pins it.
+// Sits inside the button's press so PressEffect scales the pinned disc whole — outside it, a shrink
+// press bared the well as a white ring (device 2026-09-04). Clips any Elevation shadow drawn inside.
+private struct LensWell<S: Shape>: ViewModifier {
+    let shape: S
+    let well: Color?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let well {
+            content
+                .background { shape.fill(well).scaleEffect(2) } //Backgrounds may overflow the frame
+                .compositingGroup()
+                .mask { shape }
+        } else {
+            content
         }
     }
 }

@@ -48,7 +48,7 @@ extension InviteSlot {
                 profileView
             }
             .eventZoomSource(image) { cardOverlay(image: image) } //The photo lifts off into the card; this copy of the chrome rides it out
-            .eventZoom(isPresented: quickResponsePresented) { respondPopup }
+            .eventZoom(isPresented: quickResponsePresented, inset: 10) { respondPopup }
     }
 
     private var quickResponsePresented: Binding<Bool> {

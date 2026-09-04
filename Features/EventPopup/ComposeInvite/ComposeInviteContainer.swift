@@ -100,7 +100,6 @@ extension ComposeInviteContainer {
 
         return VStack {
             if isConfirm { warningMessage }
-        
             WideActionButton(
                 text: text,
                 isActive: vm.event.isComplete,

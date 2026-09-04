@@ -111,6 +111,7 @@ struct InviteHistoryButton: View {
                         .font(.body(12, .bold))
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)
+                        .foregroundStyle(Color.textPrimary)
                 }
                 .padding()
                 .padding(.horizontal, 12)

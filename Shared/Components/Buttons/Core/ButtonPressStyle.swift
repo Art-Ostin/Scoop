@@ -60,6 +60,41 @@ struct PressEffect {
     }
 }
 
+// A button's press AS RENDERED — the interpolated scale and brightness this frame, not the
+// targets the model holds. Published up the tree by every PressAnimation so a flight lifting the
+// button off the screen can take off from the pose the finger left it in (the event zoom's
+// capsule hero): without it a deliberate press grew the invite disc 21% and the flying copy
+// snapped back to 1.0 on the release frame (sim 2026-09-04).
+struct PressPose: Equatable {
+    var scale: CGFloat
+    var brightness: Double
+    static let rest = PressPose(scale: 1, brightness: 0)
+}
+
+struct PressPoseKey: PreferenceKey {
+    static let defaultValue = PressPose.rest
+    static func reduce(value: inout PressPose, nextValue: () -> PressPose) {
+        let next = nextValue()
+        if next != .rest { value = next } //One pressed button under a listener at a time
+    }
+}
+
+// Rides beside the real effects with the same animatable values, so its body re-runs each frame
+// of a press and the preference carries what the effects are drawing. Renders nothing itself.
+private struct PressPoseReporter: ViewModifier, Animatable {
+    var scale: CGFloat
+    var brightness: Double
+
+    var animatableData: AnimatablePair<CGFloat, Double> {
+        get { AnimatablePair(scale, brightness) }
+        set { scale = newValue.first; brightness = newValue.second }
+    }
+
+    func body(content: Content) -> some View {
+        content.preference(key: PressPoseKey.self, value: PressPose(scale: scale, brightness: brightness))
+    }
+}
+
 // Animates the press look (scale/opacity/brightness/shadow) whenever `isPressed`
 // flips. Both entry points feed it: PressButtonStyle from the system's
 // configuration.isPressed, PressEffectModifier from its own drag gesture.
@@ -80,6 +115,7 @@ private struct PressAnimation: ViewModifier {
             .opacity(opacity)
             .brightness(brightness)
             .shadow(elevation, tint: tint, strength: shadowStrength)
+            .modifier(PressPoseReporter(scale: scale, brightness: brightness))
             .onChange(of: isPressed) { _, isPressed in onPressed(isPressed) }
     }
 

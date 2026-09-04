@@ -67,14 +67,6 @@ extension RespondToInviteContainer {
                 responseType: $vm.respondDraft.respondType,
                 showConfirmScreen: $composeUI.showConfirmScreen
             )
-
-            if isComposeInviteScreen {
-                OptionsMenu(
-                    hasChanges: vm.respondDraft.newEvent.hasChanges,
-                    onClear: {vm.respondDraft.newEvent = .init()},
-                    onDecline: {respond(.decline)}
-                )
-            }
         }
         .animation(.transition, value: isComposeInviteScreen)
     }
@@ -103,6 +95,8 @@ extension RespondToInviteContainer {
             invite: InviteSummary(event: vm.respondDraft.originalInvite.event),
             respondDraft: $vm.respondDraft,
             actionsBelow: true, //adjusts padding in this view if actions below
+            shortSpacing: false,
+            largeText: true,
             openInfo: {composeUI.showInfoScreen = true}
         )
     }
@@ -133,14 +127,15 @@ extension RespondToInviteContainer {
 extension RespondToInviteContainer {
     
     var actionSection: some View {
-        VStack(spacing: 10) {
+        VStack {
+            if !isComposeInviteScreen { warningText }
             HStack(spacing: 18) {
                 if type != .newEvent {declineButton}
                 ctaButton
             }
-            
-            if !isComposeInviteScreen { warningText }
         }
+        .padding(.bottom, 12)
+        .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
     var ctaButton: some View {
@@ -183,10 +178,21 @@ extension RespondToInviteContainer {
     }
     
     var warningText: some View {
-        Text("* If they accept, not turning up will get you blocked")
+        Text("* If you accept & don't turn up you may be blocked")
             .font(.body(12.5, .regularItalic))
             .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
-            .padding(.horizontal, 12)//Makes it look more aligned
     }
     
 }
+
+
+/*
+ //            if isComposeInviteScreen {
+ //                OptionsMenu(
+ //                    hasChanges: vm.respondDraft.newEvent.hasChanges,
+ //                    onClear: {vm.respondDraft.newEvent = .init()},
+ //                    onDecline: {respond(.decline)}
+ //                )
+ //            }
+
+ */

@@ -42,6 +42,18 @@ struct InvitesContainer: View {
                     .padding(.top, topPull)
                     .animation(.move, value: isSingleInvite) //Answering the second-to-last invite settles the card wider rather than snapping
                 }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        ScoopButton(style: .glass, shape: .capsule, size: .medium) {
+                            
+                        } label: {
+                            Text("Hello")
+                                .frame(width: 300)
+                                .frame(height: 40)
+                        }
+                    }
+                    .hideToolbarBackground()
+                }
             }
         }
         .ignoresSafeArea()

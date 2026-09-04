@@ -17,10 +17,13 @@ struct EventTypeTimePlace: View {
     let invite: InviteSummary
     var respondDraft: Binding<RespondDraft>? //Only responding to an event needs a binding
     let actionsBelow: Bool //Adjust spacing if there are actions taken below
+    
+    var shortSpacing: Bool = false
+    var largeText: Bool = false
     let openInfo: () -> ()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: actionsBelow ? 14 : 19) {
+        VStack(alignment: .leading, spacing: actionsBelow ? shortSpacing ? 12 : 14 : 19) {
             typeRow
             lightDivider
             timeRow
@@ -63,7 +66,7 @@ extension EventTypeTimePlace {
     private var eventTitleAndInfo: some View {
         Button(action: openInfo) {
             HStack(alignment: .top, spacing: Spacing.sm) {
-                Text(invite.type.longTitle).font(.body(16, .bold))
+                Text(invite.type.longTitle).font(.body(largeText ? 17 : 16, .bold))
                 Image(systemName: "info.circle")
                     .foregroundStyle(Color.textTertiary)
                     .font(.body(11, .medium))
@@ -91,7 +94,7 @@ extension EventTypeTimePlace {
             Image(icon)
                 .scaleEffect(1.2)
                 .frame(width: iconWidth)
-            Text(text).font(.body(16, .bold))
+            Text(text).font(.body(largeText ? 17 : 16, .bold))
         }
         .frame(height: rowHeight)
     }
@@ -148,16 +151,18 @@ private struct RespondEventTimeRow: View {
          .oneLineLimitAndShrink() //Three named days at 16 bold outrun the row
      }
         
-    @ViewBuilder
     private var timeText: some View {
-        if draft.respondType == .originalInvite {
-            if let selectedTime = draft.originalInvite.selectedDay {
-                Text(FormatEvent.shortDayAndTime(selectedTime))
-            } else {
-                Text("Select Time")
+        Group {
+            if draft.respondType == .originalInvite {
+                if let selectedTime = draft.originalInvite.selectedDay {
+                    Text(FormatEvent.shortDayAndTime(selectedTime))
+                } else {
+                    Text("Select Time")
+                }
+            } else if draft.respondType == .newTime {
+                Text(draft.newTime.proposedTimes.formatMultipleInvitedDays())
             }
-        } else if draft.respondType == .newTime {
-            Text(draft.newTime.proposedTimes.formatMultipleInvitedDays())
         }
+        .font(.body(17, .bold))
     }
 }
