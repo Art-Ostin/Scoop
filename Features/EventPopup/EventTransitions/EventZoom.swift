@@ -403,7 +403,7 @@ private struct EventZoomCard: View {
 
     var body: some View {
         ZStack {
-            EventBackdropV2()
+            backdrop
                 .opacity(flight.backdropOpacity)
                 .onTapGesture { flight.close() }
 
@@ -417,6 +417,7 @@ private struct EventZoomCard: View {
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { containerTop = $0 }
         .overlay(alignment: .top) { stationaryChevron }
         .task { await flight.bakeCoverBand() }
+        .task { await flight.extractTint(id: slot.id.uuidString) }
         .onAppear {
             let flight = flight
             slot.anchor.requestClose = { [weak flight] flightless in flight?.close(flightless: flightless) ?? false } //How the host closes this card when the binding drops, or its source vanishes
@@ -427,16 +428,50 @@ private struct EventZoomCard: View {
 
 extension EventZoomCard {
 
+    //A/B knobs — flip by hand, rebuild. `glassSurface` false is the flat fill the card ships with.
+    private static let glassSurface = false
+    private static let glassTint: Color = .white //Try `.appCanvas` for the app's warm off-white
+
+    //true = `EventBackdrop`, thinMaterial carrying the artwork's hue at 0.2; false = the shipping
+    //`EventBackdropV2`, ultraThinMaterial and untinted. Whichever loses is dead code to delete.
+    private static let tintedBackdrop = false
+
+    @ViewBuilder
+    var backdrop: some View {
+        if Self.tintedBackdrop {
+            EventBackdrop(tint: flight.tint)
+        } else {
+            EventBackdropV2()
+        }
+    }
+
+    //Glass, not `glassEffectIfAvailable`: this card CONTAINS glass (the back button, the options
+    //disc), and a `.glassEffect` on the content pulls them into its group and kills their lens.
+    //`clipped` is required, not cosmetic — unclipped .regular glass carries a shadow no API
+    //disables, and the card must wear only the `.shadow(.card)` below so the landing can hand
+    //shadows off continuously. Fixed radius: the glass draws its OWN rect, so mid-flight it will
+    //not fill the morph's smaller window — judge this A/B at rest.
+    @ViewBuilder
+    private var cardFill: some View {
+        if Self.glassSurface {
+            Color.clear.containerGlassEffect(tint: Self.glassTint,
+                                             clipped: true,
+                                             shape: .rect(cornerRadius: CornerRadius.image))
+        } else {
+            Color.white
+        }
+    }
+
     //The caller's card wearing the flight: the morph's window owns its rounding, and the shadow
     //is worn AFTER the mask so it wears the window's shape. The content is its own equatable
     //view, so the wrapper's per-frame reads (drag, wind ticks) never re-run the body the caller
     //supplied — that body re-evaluates only when data IT observes changes (images loading in).
     private var card: some View {
-        EventZoomCardContent(id: slot.id, bandChromeVisible: flight.bandChromeVisible, card: slot.card)
+        EventZoomCardContent(id: slot.id, bandChromeVisible: flight.bandChromeVisible, tint: flight.tint, card: slot.card)
             .equatable()
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
             .environment(\.eventZoomDismiss, dismiss)
-            .background(Color.white)
+            .background { cardFill }
             .modifier(flight.morph())
             .shadow(.card, strength: flight.shadowStrength)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
@@ -458,16 +493,19 @@ private struct EventZoomCardContent: View, Equatable {
 
     //Injected
     let id: UUID
-    //Part of the card's identity, and the ONLY per-open flight state that is: the band's chrome
-    //arms a beat after the landing, and an equality that ignored it would swallow that
-    //invalidation — the body would keep a stale `false` and the dots, the menu and the back
-    //button would each appear only if something else happened to re-render the card. It flips
-    //once per open, never per frame, so the 120Hz protection below is untouched.
+    //Part of the card's identity, with the tint below: the band's chrome arms a beat after the
+    //landing, and an equality that ignored it would swallow that invalidation — the body would
+    //keep a stale `false` and the dots, the menu and the back button would each appear only if
+    //something else happened to re-render the card. It flips once per open, never per frame, so
+    //the 120Hz protection below is untouched.
     let bandChromeVisible: Bool
+    //The artwork's hue, extracted off-main: it lands AFTER the card mounts, so an equality
+    //without it leaves the rows' gradient on its stale `.clear`. Also once per open, not per frame.
+    let tint: Color
     let card: () -> AnyView
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.bandChromeVisible == rhs.bandChromeVisible
+        lhs.id == rhs.id && lhs.bandChromeVisible == rhs.bandChromeVisible && lhs.tint == rhs.tint
     }
 
     var body: some View { card() }
@@ -508,6 +546,7 @@ private struct EventZoomCardContent: View, Equatable {
     private var chromeMix: CGFloat = 0 //The close's fold gate — snapped to 1 at close start; the fold's motion derives from the flight's p
     private var windRender = WindRender() //The wind close's per-frame pose: trajectory offset + settle-pop, written raw each tick
     private var blurredCover: UIImage? = nil //The cover with the pager's glur baked in — the foot rides the flight as pixels, no shader
+    private(set) var tint: Color = .clear
     private var cardRect: CGRect = .zero //The card's frame, global — the flight's far end
     private var destRect: CGRect = .zero //The pager's frame, global — the photo's landing band
     private var restingCard: CGRect = .zero //The card's frame at REST — the stationary chevron's slot, held clear of the drag and of the flight home
@@ -937,6 +976,14 @@ extension EventZoomChoreo {
 
 //The cover bake — the pager's glur baked into the cover's pixels off-main
 extension EventZoomChoreo {
+
+    func extractTint(id: String) async {
+        tint = await PopupColorExtractor.shared
+            .extractPalette(coverPhoto,
+                            id: id,
+                            prominence: .custom(saturation: 0.5, brightness: 0.9, contrast: 1))
+            .secondaryText
+    }
 
     //InviteBandBake's pattern: a live glur on the flying cover would compile its shader at
     //tap and snap the spring, the very hitch the deferred pager mount exists to avoid.

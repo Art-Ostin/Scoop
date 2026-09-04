@@ -88,7 +88,7 @@ struct InviteTypeRow: View {
             SmallInfoIcon()
                 .scaleEffect(0.8)
                 .expandHitArea()
-                .offset(x: 14, y: -3)
+                .offset(x: 16, y: -2)
         }
     }
 }

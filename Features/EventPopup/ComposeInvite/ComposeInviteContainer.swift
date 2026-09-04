@@ -47,9 +47,9 @@ extension ComposeInviteContainer {
                                title: isConfirm ? "Confirm Invite" : "Invite \(name)",
                                showsPageDots: !isConfirm)
         .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirm) }
-        .overlay(alignment: .topTrailing) {
-            optionsMenu.eventZoomBandChrome(visible: !isConfirm)
-        }
+//        .overlay(alignment: .topTrailing) {
+//            optionsMenu.eventZoomBandChrome(visible: !isConfirm)
+//        }
     }
     
     private var optionsMenu: some View {
@@ -132,9 +132,11 @@ extension ComposeInviteContainer {
 struct EditTypeTimePlace: View {
     
     @Binding var ui: ComposeInviteUIState
-    
+
     @Binding var draft: EventFieldsDraft
-    
+
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+
     var body: some View {
         VStack(spacing: 18) {
             InviteTypeRow(
@@ -164,5 +166,6 @@ struct EditTypeTimePlace: View {
         }
         .padding(24)
         .padding(.top, -4)//Only 20 padding on the top
+//        .cardTopTint(flight?.tint ?? .clear)
     }
 }

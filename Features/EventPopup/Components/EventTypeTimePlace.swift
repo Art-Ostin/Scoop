@@ -12,12 +12,31 @@ private let iconGap: CGFloat = 20 //Icon column ↔ text
 private let textColumn = iconWidth + iconGap //Dividers start where the text does
 private let rowHeight: CGFloat = 33
 
+private let tintHeight: CGFloat = 15
+private let tintOpacity: CGFloat = 0.1
+
+//The artwork's hue bleeding into the white below it. Both pages of the card's lower half wear it
+//from here, so the tint can't drift between compose and confirm as you swipe.
+extension View {
+    func cardTopTint(_ tint: Color) -> some View {
+        background(alignment: .top) {
+            LinearGradient(
+                colors: [tint.opacity(tintOpacity), .clear],
+                startPoint: .top, endPoint: .bottom
+            )
+            .frame(height: tintHeight)
+        }
+    }
+}
+
 
 struct EventTypeTimePlace: View {
     let invite: InviteSummary
     var respondDraft: Binding<RespondDraft>? //Only responding to an event needs a binding
     let actionsBelow: Bool //Adjust spacing if there are actions taken below
     let openInfo: () -> ()
+
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
 
     var body: some View {
         VStack(alignment: .leading, spacing: actionsBelow ? 14 : 19) {
@@ -30,6 +49,7 @@ struct EventTypeTimePlace: View {
         .padding(.horizontal, Spacing.lg)
         .padding(.top, actionsBelow ? Spacing.md : Spacing.lg - Spacing.xxs) //Alone, a nudge less than the sides
         .padding(.bottom, actionsBelow ? 14 : Spacing.lg)
+//        .cardTopTint(flight?.tint ?? .clear)
     }
 }
 

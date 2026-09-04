@@ -13,7 +13,7 @@ struct EventBackdrop: View {
     var body: some View {
         Rectangle()
             .fill(.thinMaterial)
-            .fill(tint?.opacity(0.2) ?? .clear)
+            .fill(tint?.opacity(0.1) ?? .clear)
             .background(Color.white.opacity(0.1))
             .ignoresSafeArea()
     }
@@ -23,8 +23,8 @@ struct EventBackdrop: View {
 struct EventBackdropV2: View {
     var body: some View {
         Rectangle()
-            .fill(.ultraThinMaterial)
-            .background(Color.white.opacity(0.1))
+            .fill(.thinMaterial)
+            .background(Color.white.opacity(0.2))
             .ignoresSafeArea()
     }
 }
