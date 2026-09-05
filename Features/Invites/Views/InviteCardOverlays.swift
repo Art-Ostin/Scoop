@@ -107,7 +107,7 @@ struct InviteHistoryButton: View {
                 ScoopButton(style: .glass, shape: .capsule) {
                     showInviteHistory = eventProfile
                 } label: {
-                    Text(kind.text(cardMode: true))
+                    Text("Response")
                         .font(.body(12, .bold))
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)

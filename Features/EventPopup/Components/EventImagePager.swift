@@ -41,7 +41,7 @@ struct EventImagePager: View {
             //To do with the morph
             .onChange(of: title, initial: true) { flight?.reportTitle($1) }
             .onChange(of: titleRect, initial: true) { flight?.reportPagerTitle($1) } //The frost's capsule: the cover poses it as insets from its own foot
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportPagerBand($0) }
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.cardSpace)) } action: { flight?.reportPagerBand($0) } //Card space: never through the morph's transforms
             .task(id: images) { await prepare() }
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }
             .onChange(of: images) { if carouselVisible { latch() } }

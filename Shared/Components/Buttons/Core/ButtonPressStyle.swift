@@ -25,7 +25,8 @@ struct PressEffect {
     // would wash out the new color, and a bouncy settle keeps the label rasterized at a
     // fractional scale (soft glyphs) long after the fill has landed. Releases at once, flat.
     static let select = PressEffect(scale: 0.9, pressDuration: 0.12, releaseHold: 0, release: (0.25, 1))
-    // Grows and brightens — used for the iOS 18 glass fallback.
+    // Grows and brightens — the iOS 18 glass fallback's press, and the invite button's (its lens
+    // well rides inside the press, so the disc grows whole).
     static let grow = PressEffect(scale: 1.22, brightness: 0.2, pressDuration: 0.15, release: (0.35, 0.38))
 
     // The standard press at a fifth of the travel, for a surface a full shrink overwhelms —
@@ -63,7 +64,7 @@ struct PressEffect {
 // A button's press AS RENDERED — the interpolated scale and brightness this frame, not the
 // targets the model holds. Published up the tree by every PressAnimation so a flight lifting the
 // button off the screen can take off from the pose the finger left it in (the event zoom's
-// capsule hero): without it a deliberate press grew the invite disc 21% and the flying copy
+// capsule hero): without it a deliberate press grew the invite disc 22% and the flying copy
 // snapped back to 1.0 on the release frame (sim 2026-09-04).
 struct PressPose: Equatable {
     var scale: CGFloat

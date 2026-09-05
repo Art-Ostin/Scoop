@@ -163,9 +163,6 @@ extension ProfileCardChrome {
 
     private var inviteButton: some View {
         InviteButton(onTap: onInvite)
-            //INSIDE the offset: a measuring modifier reads the offset's translation only from an
-            //ancestor, so this order measures where the circle LOOKS. Measured outside it, the flight
-            //took off 3pt below the drawn circle (device recording 2026-09-04).
             .eventZoomButtonSource() //Widens into the compose card's CTA
             .offset(y: -3) //Geometry: the button's optical raise into line with the text block
     }

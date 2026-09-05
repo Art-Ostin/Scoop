@@ -378,7 +378,7 @@ private struct EventZoomButtonTargetModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(flight?.ctaGhosted == true ? 0 : 1)
-            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight?.reportCTA($0) }
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.cardSpace)) } action: { flight?.reportCTA($0) }
             .onChange(of: text, initial: true) { flight?.reportCTALook(text: $1, fill: fill) }
             .onChange(of: fill, initial: true) { flight?.reportCTALook(text: text, fill: $1) }
     }
@@ -557,6 +557,10 @@ extension EventZoomCard {
             .equatable()
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
             .environment(\.eventZoomDismiss, dismiss)
+            //The space the body's band and CTA report their frames in: INSIDE the morph's render
+            //transforms, so a breathing, sinking or popping card never feeds its transform back into
+            //the poses derived from those frames (see EventZoomChoreo.ctaLocal)
+            .coordinateSpace(.named(EventZoomChoreo.cardSpace))
             .background { cardFill }
             .modifier(flight.morph()) //Draws the card's shadow itself, as a shape BEHIND the window — see the morph
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
@@ -621,7 +625,13 @@ private struct EventZoomCardContent: View, Equatable {
     private var titleRect: CGRect //Where the source draws it, global — re-read with `source` at a landed close
     private var buttonSource: CGRect //The source's round button, global — re-read with `source` too
     private var pressPose: PressPose //Its press at takeoff — the hero relaxes out of it over the shed; rest from the landing on
-    private var ctaRect: CGRect = .zero //The card's own CTA, global — the capsule's landing, reported by the body
+    //The card's own CTA, in CARD space — measured inside the card's named coordinate space, never
+    //through the morph's render transforms (the open's breath, the close's sink, the wind's pop): a
+    //global frame read from inside the breathed subtree carried the breath, and the capsule posed
+    //from it was then breathed again (sim trace 2026-09-04: the band slid ~4pt against the rows
+    //instead of ~1). `ctaRect` derives the global rect from the card's own frame, measured OUTSIDE.
+    private var ctaLocal: CGRect = .zero
+    private var ctaRect: CGRect { ctaLocal.isEmpty ? .zero : ctaLocal.offsetBy(dx: cardRect.minX, dy: cardRect.minY) }
     private var ctaText: String = "" //What the CTA rests at, so the capsule wears the landing's own look
     private var ctaFill: Color = .clear
     private var ctaHeroShown = true //The capsule stands in for the CTA until its fade is done (see `handOffCTA`)
@@ -643,9 +653,11 @@ private struct EventZoomCardContent: View, Equatable {
     private var chromeMix: CGFloat = 0 //The close's fold gate — snapped to 1 at close start; the fold's motion derives from the flight's p
     private var windRender = WindRender() //The wind close's per-frame pose: trajectory offset + settle-pop, written raw each tick
     private var landingScale: CGFloat = 1 //The tap close's landing breath — compress into touchdown, rebound past rest, settle; the open, the drag and the wind never write it
+    private var breath: CGFloat = 0 //The open's over-expansion, 0 → 1 → 0 on its own clock (breathRise/breathSettle)
     private var cardLanding = false //A card's tap close is flying its own landing: the morph folds 1:1 with p and reads p < 0 as the sink
     private var cardRect: CGRect = .zero //The card's frame, global — the flight's far end
-    private var destRect: CGRect = .zero //The pager's frame, global — the photo's landing band
+    private var destLocal: CGRect = .zero //The pager's frame in card space — see ctaLocal
+    private var destRect: CGRect { destLocal.isEmpty ? .zero : destLocal.offsetBy(dx: cardRect.minX, dy: cardRect.minY) } //Global: the photo's landing band
     private var restingCard: CGRect = .zero //The card's frame at REST — the stationary chevron's slot, held clear of the drag and of the flight home
     private var chevronIn = false //The chevron's late arrival: armed a quarter into the open, so it pops only once the flight reads committed
     private var fingerDown = false //The finger owns the card. Ownership, not motion: the chevron leaves as the drag begins and returns the instant a cancelled release lets go, riding back on screen with the snap-back
@@ -702,7 +714,7 @@ extension EventZoomChoreo {
 
     //The real CTA ghosts for the flight — but it comes back at the LANDING, well before the capsule
     //goes, and takes its first paint hidden behind a capsule that covers it (the capsule sits on
-    //the button from `settleShare`, and is wider through its settle). The rule that put it there:
+    //the button to the pixel from p = 1, its fill opaque until the hand-off). The rule that put it there:
     //reveal a surface behind whatever is covering it, never as the cover leaves — a glass one held
     //at opacity 0 never samples a backdrop and warms up on screen (+35 levels, sim 2026-09-04); the
     //CTA is flat now, and the beat still buys it a first paint before the fade.
@@ -736,8 +748,8 @@ extension EventZoomChoreo {
 
     //Cast by a shape of the window BEHIND the card (the morph draws it), so it wears the window's
     //shape — and strength rides the flight: the resting source casts nothing of its own here, so
-    //the committed source frames must not bloom a shadow. Clamped: the springs' overshoot carries
-    //flightP past both ends of [0, 1]
+    //the committed source frames must not bloom a shadow. Clamped: the close spring's rebound and a
+    //card landing's excursion carry flightP below 0 (the open, critically damped, never passes 1)
     var shadowStrength: Double { min(max(Double(flightP), 0), 1) }
 
     //The measured rects report live, drag folded in; the first pair past layout opens
@@ -756,8 +768,9 @@ extension EventZoomChoreo {
         openWhenMeasured()
     }
 
+    ///In card space (`EventZoomChoreo.cardSpace`)
     func reportPagerBand(_ rect: CGRect) {
-        destRect = rect
+        if destLocal != rect { destLocal = rect }
         openWhenMeasured()
     }
 
@@ -770,8 +783,9 @@ extension EventZoomChoreo {
     }
 
     //Same-value guards throughout: a redundant write to an @Observable stalls compositing
+    ///In card space (`EventZoomChoreo.cardSpace`)
     func reportCTA(_ rect: CGRect) {
-        if ctaRect != rect { ctaRect = rect }
+        if ctaLocal != rect { ctaLocal = rect }
     }
 
     func reportCTALook(text: String, fill: Color) {
@@ -800,6 +814,7 @@ extension EventZoomChoreo {
             flightOffset: windRender.offset,
             pop: windRender.pop,
             landingScale: landingScale,
+            breath: breath,
             cardLanding: cardLanding,
             source: source,
             shape: shape,
@@ -834,6 +849,9 @@ extension EventZoomChoreo {
 //radii genuinely ride the current size instead of sliding between endpoints.
 extension EventZoomChoreo {
 
+    ///The card body's named coordinate space — what the band and the CTA measure themselves in
+    static let cardSpace = "eventZoomCard"
+
     #if DEBUG
     //Geometry-capture runs: -eventZoomSlow stretches every clock 4× for the camera
     static let timeScale: Double = ProcessInfo.processInfo.arguments.contains("-eventZoomSlow") ? 4 : 1
@@ -846,14 +864,54 @@ extension EventZoomChoreo {
     //and springier for this smaller flight; chrome trails it a breath.
     private static let openSpring = Spring(duration: 0.34, bounce: 0.2)
     private static let openDuration = (openSpring.duration - 0.02) * timeScale
-    //Under-damped — the card arrives with speed left, coasts past its size ONCE and springs back
-    //(Arthur, 2026-09-04: "expand a bit more and bounce to its final position"). Bounce 0.3 is a
-    //damping ratio of 0.7: the first overshoot is e^(−πζ/√(1−ζ²)) ≈ 4.6% of the travel, the swing
-    //back ≈ 0.2%, under a pixel. Only the card's BODY follows p past 1 (the morph's `over`): every
-    //landing geometry — window, cover, radii, title word, capsule, frost — reads p clamped at 1, so
-    //the wobble an earlier bouncy flight put on the arriving words (text settling past its slot)
-    //cannot return; the excess drives one whole-card breath instead. See the morph's breath.
-    private static let openFlight = Animation.spring(duration: openDuration, bounce: 0.3)
+    //Lightly under-damped (bounce 0.1, damping ratio 0.9): the flight reaches its size ~30ms sooner
+    //than critically damped and still carrying speed, which takes the ease-out's slow-looking tail
+    //off the end of the expansion (Arthur, 2026-09-04: "a touch quicker towards the end"). Its own
+    //overshoot is e^(−πζ/√(1−ζ²)) ≈ 0.15% of the travel — a third of a point — and the morph clamps p
+    //at 1 anyway, so the landing geometry (window, cover, title word, capsule) never passes its slot:
+    //the wobble an earlier, bouncier flight put on the arriving words cannot return. What the clamp
+    //costs is the interior stopping with ~75pt/s left (1pt/frame — modelled, imperceptible); bounce
+    //0.15 leaves 125pt/s and reads as text hitting its slot, 0.2 kicks. The card's over-expansion is
+    //the breath below, on its own clock, and never touches the landing geometry.
+    private static let openFlight = Animation.spring(duration: openDuration, bounce: 0.1)
+    //The open's over-expansion (Arthur, 2026-09-04: "expand a bit more and bounce to its final
+    //position … slower and larger … it expands up to the size, then the bounce absorbs all its
+    //velocity"): the whole landed stack swells past its size and settles, worn by the morph as ONE
+    //uniform scale about the card's centre, `breathGain` at the peak (3.3% ≈ 9pt at the top and the
+    //bottom of the compose card, ~5pt a side). On its OWN clock, overlapping the flight's tail — a
+    //single spring cannot give a quick arrival AND a long absorption, its approach, overshoot and
+    //return sharing one period (bounce 0.3 peaked 55ms after the crossing and read as a blip).
+    //The rise (timingCurve 0.25, 0, 0.9, 1) starts EARLY at `breathStartTime`, while the flight still
+    //has ~40% of its travel and most of its speed, and is long and gentle: the breath's speed ramps up
+    //only as fast as the flight's ramps down, so the summed edge speed never rises — modelled against
+    //the REAL Meet card (top travels 87pt, bottom 44; device recording 2026-09-04): the edge crosses
+    //its size at ~0.20s doing ~190pt/s, brakes ~125ms to the 13pt peak, and sits within a point of
+    //the peak for ~48ms before the settle takes it back (return ~300ms, rest ~0.62s). Two device tells drove this: a late, steep
+    //rise (start 0.56, rise 0.60) re-accelerated the edge ~30% exactly at the size on the real card
+    //(the harness card travels twice as far, which hid it), and a flat-ended rise (c2x 0.15) plus a
+    //0.30s settle held the edge at its peak for ~85ms — a hang. More end-curvature on the rise and a
+    //0.22s settle make the turnaround read as a turnaround. With 9pt to stop in, arrival speed and
+    //brake time are tied: v ≈ 2·A / t_brake. The settle is critically damped from the peak's zero
+    //velocity: no undershoot. Both writes go in the flight's commit, the settle
+    //delayed to the rise's end — additive retargeting blends them into one motion, the close
+    //landing's pattern. Under a close or a drag the morph fades it with the fold. Reduce motion
+    //never schedules it.
+    static let breathGain: CGFloat = 0.033 //A LENS source's uniform swell; read by the morph. 0.044 (≈12pt) read a touch much on device — Arthur took a quarter off
+    static let breathPeak: CGFloat = 13 //A CARD source's farthest-travelling edge at the peak, pt; the other edges follow in proportion to their own travel (9 → 13 by eye, Arthur 2026-09-04)
+    //On the FLIGHT's clock, so the bounce reflects the opening (Arthur, 2026-09-04): a critically damped
+    //spring's shape depends only on t/openDuration, so its speed at any share of its travel scales
+    //with 1/openDuration — trim the open and the card arrives faster. With the overshoot held fixed,
+    //the brake that absorbs that speed (t ≈ 2·A / v) and the return that mirrors it must shrink in
+    //the same proportion, so all three times are shares of openDuration: trim the open by 0.02s and
+    //the whole bounce trims ~6%, arrival ~7% faster, peak height unchanged. (Timed literals here
+    //would have left the breath's speed peak drifting off the crossing the moment the open changed.)
+    private static let breathStartShare: Double = 0.30 //Early — while the flight still has ~40% of its travel and most of its speed (0.10s of 0.32)
+    private static let breathRiseShare: Double = 0.70 //A long, gentle rise (0.22s of 0.32): its speed never exceeds what the flight is shedding
+    private static let breathSettleShare: Double = 2 //The return (0.37s of 0.32), critically damped from rest (0.70 → 1.15 by eye, Arthur; the turnaround's crispness comes from the rise's end-curvature, not this)
+    private static let breathStartTime: TimeInterval = openDuration * breathStartShare
+    private static let breathRiseTime: TimeInterval = openDuration * breathRiseShare
+    private static let breathRise = Animation.timingCurve(0.25, 0, 0.9, 1, duration: breathRiseTime).delay(breathStartTime)
+    private static let breathSettle = Animation.smooth(duration: openDuration * breathSettleShare).delay(breathStartTime + breathRiseTime)
     private static let openChrome = Animation.spring(
         duration: openSpring.duration * timeScale,
         bounce: openSpring.bounce + 0.05)
@@ -930,8 +988,21 @@ extension EventZoomChoreo {
             //the whole band about a point (sim capture 2026-09-04, `-eventZoomSlow`).
             var flight = Transaction(animation: Self.openFlight)
             flight.addAnimationCompletion(criteria: .logicallyComplete) { self.land() }
-            flight.addAnimationCompletion(criteria: .removed) { self.handOffCover(); self.handOffCTA() }
+            //A lens cuts its cover on the spring's removal as before (its whole stack breathes together,
+            //so the cut is on identical pixels whenever it falls). A CARD breathes only its shell while
+            //the live page beneath stays put, so its cut waits for the breath's own removal — breath is
+            //exactly 0 there, the shell is home, and the cover and the page are the same pixels again.
+            flight.addAnimationCompletion(criteria: .removed) {
+                self.handOffCTA()
+                if self.shape.isLens { self.handOffCover() }
+            }
             withTransaction(flight) { flightP = 1 }
+            withAnimation(Self.breathRise) { breath = 1 }
+            withAnimation(Self.breathSettle, completionCriteria: .removed) { //Same commit, delayed to the rise's end: one blended motion
+                breath = 0
+            } completion: {
+                if !self.shape.isLens { self.handOffCover() }
+            }
             withAnimation(Self.openChrome) { chromeP = 1 }
             scheduleChevronIn()
         }
@@ -1035,6 +1106,7 @@ extension EventZoomChoreo {
     func close(velocity: CGFloat = 0, sideVelocity: CGFloat = 0, flightless: Bool = false) -> Bool {
         guard !closing else { return false }
         closing = true
+        pressPose = .rest //A close before the landing must not re-inflate the flying disc to the takeoff press as its shed returns
         bandChromeIn = false //Under the returning cover from here
         scheduleChromeReturn()
 
@@ -1319,6 +1391,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let flightOffset: CGSize //The wind close's deviation from the straight lerp path — written raw per tick, zero for the open and the calm close
     let pop: CGFloat //The wind landing's settle-pop (WindFlightPlan.settlePop), about the cover's centre
     var landingScale: CGFloat //The tap close's landing breath, applied about the cover's centre — 1 for the open, the drag and the wind
+    var breath: CGFloat //The open's over-expansion, 0 → 1 → 0 (EventZoomChoreo.breathRise/Settle), worn as a uniform scale about the card's centre
     let cardLanding: Bool //A card's tap-close landing (EventZoomChoreo.landCard): the fold rides p 1:1 and p < 0 is the sink
     let source: CGRect //The source's frame, global
     let shape: EventZoomSourceShape //Its rounding — a circle keeps deriving from the current size; its ring is the glass rim the close grows around the photo
@@ -1347,12 +1420,13 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //popup's own constant, reused so the cards cannot drift
     private static let collapseDistance: CGFloat = 240
 
-    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, CGFloat> {
-        get { AnimatablePair(AnimatablePair(flightP, dragTravel), landingScale) }
+    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>> {
+        get { AnimatablePair(AnimatablePair(flightP, dragTravel), AnimatablePair(landingScale, breath)) }
         set {
             flightP = newValue.first.first
             dragTravel = newValue.first.second
-            landingScale = newValue.second
+            landingScale = newValue.second.first
+            breath = newValue.second.second
         }
     }
 
@@ -1364,17 +1438,14 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //the removal's snap moves nothing on screen. The close and the drag read the raw value — their
     //landings are per-frame and end exactly on target.
     private static let settleShare: CGFloat = 0.99
-    //The breath's dead band on the flight's excess past 1, in p: SwiftUI removes a spring while up to
-    //~0.35% of its travel is still to come and snaps the rest (settleShare's lesson) — a breath that
-    //ignores excess below this is already exactly at rest when the snap comes. The onset costs ~2ms.
-    private static let breathDeadband: CGFloat = 0.004
+    //The flying name is home by this share of the open's p, on a smoothstep — the capsule's own rule.
+    //Following p linearly it was still ~7pt left of its slot through p's slow last tenth, jammed
+    //against the affix word: "InviteJamie" for four frames before the space appeared (device
+    //recording 2026-09-04). A close keeps the linear ride (device-verified).
+    private static let heroArrival: CGFloat = 0.85
 
     func body(content: Content) -> some View {
         let p = chromeMix == 0 && flightP > 0 ? min(flightP / Self.settleShare, 1) : flightP
-        //The open spring's overshoot, in p: the card's body coasts past its size on it (the breath at
-        //the foot of this body) while everything below reads p clamped at 1 and holds. Zero for a
-        //close (chromeMix gates) and inside the dead band.
-        let over = chromeMix == 0 ? max(flightP - 1 - Self.breathDeadband, 0) : 0
         //Everything in the card's own space: the same math serves rest, flight, and a
         //mid-drag hand-off, because the card's live origin folds the drag in
         let sourceLocal = card.width > 1
@@ -1418,7 +1489,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //growing band instead of aiming at a frozen endpoint. Nil — no marked name, or a title
         //that never spells it — leaves the plain title crossfade below exactly as it was.
         let nameMorph = EventZoomTitleMorph(title: title, name: titleName, sourceRect: titleSource,
-                                            card: card, source: sourceLocal, cover: cover, p: pLanded)
+                                            card: card, source: sourceLocal, cover: cover, p: pLanded,
+                                            arrival: chromeMix == 0 ? Self.heroArrival : 1)
 
         //The fold: the window collapses onto the photo alone — the white rows wiped up into
         //the image. Two drivers, composed by max so the hand-off between them is seamless:
@@ -1433,6 +1505,37 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //the card collapsing first and the photo leaving after (device video 2026-09-03)
         let closeFold = cardLanding ? min(max(1 - p, 0), 1) : smoothstep((1 - p) / 0.4)
         let fold = max(chromeMix * closeFold, dragFold)
+        //The open's breath (see the foot of this body), let out with the fold under a close or a drag. A
+        //CARD source continues its own flight: each edge overshoots in proportion to how far IT travelled
+        //— the Meet card grows mostly upward, so it keeps going mostly upward — with the farthest-moving
+        //edge sized to `breathPeak`; the transform is the body's source→bounds lerp extrapolated past 1
+        //(a scale about the centre plus the centre carrying on along its path). A uniform swell read as a
+        //puff added at the end (device video 2026-09-04: the sides bulged 6pt having travelled 6pt). A
+        //LENS grows out in every direction about equally, so its breath stays the uniform `breathGain`
+        //swell — Arthur: the calendar's open is right, don't touch it.
+        let (breathScale, breathShift) = Self.breathTransform(
+            live: breath * (1 - fold), isLens: shape.isLens, source: sourceLocal, bounds: bounds)
+        //A CARD breathes its SHELL only — the white body and its shadow, and the photo band as a header
+        //(below) — while the laid-out content (rows, CTA, the title) stays put: the surface relaxes
+        //around fixed type, so no word ever changes shape (a whole-stack breath stretched text ~3% at
+        //the peak; Arthur, 2026-09-04). A LENS keeps breathing whole, untouched.
+        let identity = CGSize(width: 1, height: 1)
+        let shellScale = shape.isLens ? identity : breathScale
+        let shellShift = shape.isLens ? CGSize.zero : breathShift
+        let wholeScale = shape.isLens ? breathScale : identity
+        let wholeShift = shape.isLens ? breathShift : CGSize.zero
+        //The photo band under a card's shell breath is a HEADER, not a stretched picture: its top edge
+        //rises with the card's top (the shell transform applied to the band's top and sides), its
+        //FOOT stays fixed on the rows, and the extra height shows more photo — the picture is laid
+        //out again in the taller frame and offset by half the growth so the pixels at the foot never
+        //move (a portrait photo reveals more of its top; one with no spare height zooms uniformly
+        //about the foot). Nothing is scaled non-uniformly, and the title at the foot stays put.
+        let coverTopB = bounds.midY + (cover.minY - bounds.midY) * shellScale.height + shellShift.height
+        let coverB = CGRect(x: bounds.midX + (cover.minX - bounds.midX) * shellScale.width + shellShift.width,
+                            y: coverTopB,
+                            width: cover.width * shellScale.width,
+                            height: cover.maxY - coverTopB)
+        let coverExtra = coverB.height - cover.height //Revealed at the top
         //The unfolded body: normally shrinking from the card's bounds onto the source as p runs
         //out, but a card's tap-close landing carries the WHOLE body down with the photo instead —
         //the drag's own geometry (the column rides the finger while the fold eats the rows) —
@@ -1488,7 +1591,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //measured, which the flight waits out (`openWhenMeasured`).
         let bandTitle: CGRect? = pagerTitle.isEmpty ? nil : CGRect(
             x: pagerTitle.minX,
-            y: cover.height - (pagerLocal.height - pagerTitle.maxY) - pagerTitle.height,
+            y: coverB.height - (pagerLocal.height - pagerTitle.maxY) - pagerTitle.height,
             width: pagerTitle.width, height: pagerTitle.height)
 
         content
@@ -1509,6 +1612,10 @@ struct EventZoomMorph: ViewModifier, Animatable {
                     .frame(width: max(window.width, 1), height: max(window.height, 1))
                     .position(x: window.midX, y: window.midY)
                     .shadow(.card, strength: shadow)
+                    //The shell's breath: about the card's centre — `.position` gave this view the card's
+                    //whole frame, so `.center` is the card's, not the shape's
+                    .scaleEffect(x: shellScale.width, y: shellScale.height, anchor: .center)
+                    .offset(shellShift)
             }
             .overlay {
                 //From the landing on (a bare write, no morph in flight), so a close never inserts
@@ -1533,7 +1640,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
                     Image(uiImage: photo)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: max(cover.width, 1), height: max(cover.height, 1))
+                        .offset(y: coverExtra / 2) //The foot's pixels hold; the growth is revealed at the top
+                        .frame(width: max(coverB.width, 1), height: max(coverB.height, 1))
                         .overlay {
                             if let chrome, chromeCopy > 0 {
                                 //Laid out ONCE at the source's size and transform-ridden, never
@@ -1576,7 +1684,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                             bottomTrailingRadius: coverBottomRadius,
                             topTrailingRadius: coverTopRadius))
                         .modifier(CoverShadow(isLens: glassRing > 0, lens: lensShadow, card: cardShadow))
-                        .position(x: cover.midX, y: cover.midY)
+                        .position(x: coverB.midX, y: coverB.midY) //The header's frame under the shell breath (coverB == cover outside it)
                         .allowsHitTesting(false)
                 }
             }
@@ -1590,7 +1698,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                         titleAffix(nameMorph).opacity(arrive)
                         titleHero(nameMorph)
                     }
-                    .opacity(titleFade)
+                    .opacity(titleFade) //Posed from the band's fixed foot: stays put through the shell breath
                 }
             }
             //The button morph, above the card's foot for the same reason the name is above the
@@ -1605,18 +1713,32 @@ struct EventZoomMorph: ViewModifier, Animatable {
             .scaleEffect(pop * landingScale * sink, anchor: UnitPoint(
                 x: bounds.width > 0 ? cover.midX / bounds.width : 0.5,
                 y: bounds.height > 0 ? cover.midY / bounds.height : 0.5))
-            //The open's breath: the flight's own overshoot, continued as the geometry WOULD have
-            //continued — the body's lerp from the source to the card's bounds extrapolated past 1 —
-            //but as a render transform of the whole landed stack, since a window cannot show more
-            //card than there is. Per axis, so a mostly-vertical expansion overshoots mostly
-            //vertically (the sides barely moved and barely bulge), and the centre carries on along
-            //the path it flew. At the crossing the edge keeps exactly the speed the spring gave it:
-            //no join to tune. Everything inside — cover, heroes, the live card — rides it together,
-            //so the hand-offs stay on identical pixels whenever they fall.
-            .scaleEffect(x: 1 + over * (bounds.width - sourceLocal.width) / max(bounds.width, 1),
-                         y: 1 + over * (bounds.height - sourceLocal.height) / max(bounds.height, 1),
-                         anchor: .center)
-            .offset(x: over * (bounds.midX - sourceLocal.midX), y: over * (bounds.midY - sourceLocal.midY))
+            //The open's breath (breathScale/breathShift above, on EventZoomChoreo's breath clock). A
+            //lens carries its whole landed stack past its size and back, a render transform since a
+            //window cannot show more card than there is; a card breathes only its shell (see above),
+            //so its cover→page cut waits for the breath to end (EventZoomChoreo.openWhenMeasured). The
+            //fold fades it: a close or a drag begun mid-breath lets it out with the collapse, never cut.
+            .scaleEffect(x: wholeScale.width, y: wholeScale.height, anchor: .center)
+            .offset(wholeShift)
+    }
+
+    ///The breath's transform for this frame: a lens' uniform swell, or a card's continuation of its own
+    ///flight (see the note where it is read in `body`)
+    private static func breathTransform(live: CGFloat, isLens: Bool, source: CGRect, bounds: CGRect) -> (CGSize, CGSize) {
+        if isLens {
+            let k = 1 + EventZoomChoreo.breathGain * live
+            return (CGSize(width: k, height: k), .zero)
+        }
+        let up = source.minY - bounds.minY //Each edge's travel, outward positive
+        let down = bounds.maxY - source.maxY
+        let leading = source.minX - bounds.minX
+        let trailing = bounds.maxX - source.maxX
+        let farthest = max(abs(up), abs(down), abs(leading), abs(trailing))
+        let e = (farthest > 1 ? EventZoomChoreo.breathPeak / farthest : 0) * live
+        let scale = CGSize(width: (bounds.width + e * (leading + trailing)) / max(bounds.width, 1),
+                           height: (bounds.height + e * (up + down)) / max(bounds.height, 1))
+        let shift = CGSize(width: e * (trailing - leading) / 2, height: e * (down - up) / 2)
+        return (scale, shift)
     }
 
     private func coverTitle(_ title: String, width: CGFloat) -> some View {
@@ -1680,7 +1802,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
             //Glass may move, never resize: fixed 42pt. The button pins its own lens look (its white
             //well), so what the capsule and the fading chrome copy beneath do never reaches the lens.
             //It takes off wearing the press the finger released it in — a deliberate press grows the
-            //disc 21% and brightens it — and relaxes to rest on the shed's ramp, so no frame steps
+            //disc 22% and brightens it — and relaxes to rest on the shed's ramp, so no frame steps
             //between the pressed source and the flying copy (a one-frame 8pt snap, sim 2026-09-04)
             InviteButton(onTap: { })
                 .scaleEffect(1 + (pressPose.scale - 1) * morph.shed)
@@ -1745,7 +1867,7 @@ struct EventZoomTitleMorph {
     ///no name to fly, and a flight that cannot anchor keeps the plain crossfade rather than
     ///blanking a word it has nothing to replace with
     init?(title: String?, name: String?, sourceRect: CGRect, card: CGRect,
-          source: CGRect, cover: CGRect, p: CGFloat) {
+          source: CGRect, cover: CGRect, p: CGFloat, arrival: CGFloat = 1) {
         guard let title, let name, !name.isEmpty, sourceRect.width > 1,
               let range = title.range(of: name) else { return nil }
         self.name = name
@@ -1771,9 +1893,12 @@ struct EventZoomTitleMorph {
         //Held against the cover's own edges it can never leave the artwork.
         let label = card.width > 1 ? sourceRect.offsetBy(dx: -card.minX, dy: -card.minY)
                                    : CGRect(origin: .zero, size: sourceRect.size)
-        //Clamped: the open flight carries p past 1, and a word that overshoots its own size reads
-        //as a wobble — it still rides the cover's overshoot, because the insets hang off `cover`
-        let t = min(max(p, 0), 1)
+        //Clamped: a lens close keeps raw p, and its spring's rebound carries it below 0 — a word that
+        //undershot its own size would read as a wobble. Its position still rides the cover, because
+        //the insets hang off `cover`. An open hands `arrival` < 1: the word eases home by that share
+        //of p and parks, instead of trailing p's slow last tenth into the affix word.
+        let clamped = min(max(p, 0), 1)
+        let t = arrival < 1 ? Self.smoothstep(clamped / arrival) : clamped
         let height = Self.lerp(label.height, word.height, t)
         hero = CGRect(
             x: cover.minX + Self.lerp(label.minX - source.minX, imageHorizontalPadding + nameOffset, t),
@@ -1784,6 +1909,11 @@ struct EventZoomTitleMorph {
 
     private static func measure(_ string: String, _ font: UIFont) -> CGSize {
         string.isEmpty ? .zero : (string as NSString).size(withAttributes: [.font: font])
+    }
+
+    private static func smoothstep(_ t: CGFloat) -> CGFloat {
+        let x = min(max(t, 0), 1)
+        return x * x * (3 - 2 * x)
     }
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
@@ -1805,9 +1935,10 @@ struct EventZoomButtonMorph {
     let label: CGFloat //The CTA's word arriving, 0→1 — on the flight's geometry, never a clock of its own
 
     //The width's own curve, on the flight's geometry. The flight's spring is critically damped —
-    //bounce 0, chosen so the title does not wobble — and a width that follows it linearly spends its
-    //last tenth as a visibly creeping edge (~150ms on device). So the width eases in and out over
-    //the WHOLE flight — one smoothstep of p, full exactly at touchdown — and decelerates into place
+    //bounce 0, chosen so the title does not wobble; the card's over-expansion is a separate breath
+    //the whole card wears, this capsule included, never a width of its own — and a width that
+    //follows p linearly spends its last tenth as a visibly creeping edge (~150ms on device). So
+    //the width eases in and out over the WHOLE flight — one smoothstep of p, full exactly at touchdown — and decelerates into place
     //with nothing left to settle: an earlier cut (full at 0.9 of the flight, then a 2% overshoot
     //settle) read as a bounce (Arthur, 2026-09-04) and was taken out. With p already easing, the
     //last tenth of the flight moves under 3% of the travel, so the edge slows rather than creeps.

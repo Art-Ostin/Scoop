@@ -30,6 +30,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
     let showMessageScreen: Binding<Bool>? //supplying it shows the Add-Message footer; nil = no footer
     let message: String //titles the footer ("Add a Message" when empty)
     let onClose: (() -> Void)? //fires the instant a dismiss is requested, any style, before the close
+    let pressEffect: PressEffect //a wide label can ask for .subtleShrink; the full shrink overwhelms it
     let content: () -> Content
     let label: () -> Label
 
@@ -48,6 +49,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
          showMessageScreen: Binding<Bool>? = nil,
          message: String = "",
          onClose: (() -> Void)? = nil,
+         pressEffect: PressEffect = .shrink,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.cornerRadii = cornerRadii
@@ -57,6 +59,7 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
         self.showMessageScreen = showMessageScreen
         self.message = message
         self.onClose = onClose
+        self.pressEffect = pressEffect
         self.content = content
         self.label = label
     }
@@ -71,8 +74,8 @@ struct DropdownCustomMenu<Content: View, Label: View>: View {
                 controller.updateLabelFrame(frame)
             }
             //Geometry read stays ABOVE the press scale, so the shrink never feeds the morph rect
-            .scaleEffect(shrunk ? PressEffect.shrink.scale : 1)
-            .opacity(controller.hidesLabel ? 0 : (shrunk ? PressEffect.shrink.opacity : 1))
+            .scaleEffect(shrunk ? pressEffect.scale : 1)
+            .opacity(controller.hidesLabel ? 0 : (shrunk ? pressEffect.opacity : 1))
             .animation(pressAnimation(shrunk: shrunk), value: shrunk)
             .simultaneousGesture(pressGesture)
             .onChange(of: scenePhase) { _, phase in //a cancelled touch never delivers onEnded
@@ -110,7 +113,7 @@ extension DropdownCustomMenu {
                 panCancelled = false
                 guard !controller.isPresented else { pressed = false; return }
                 //Hold the shrink so a fast tap still reads; the open fires while the label is still pressed
-                let hold = PressEffect.shrink.releaseHold
+                let hold = pressEffect.releaseHold
                 let shown = pressStart.map { Date.now.timeIntervalSince($0) } ?? hold
                 DispatchQueue.main.asyncAfter(deadline: .now() + max(0, hold - shown)) { pressed = false }
                 let moved = hypot(value.translation.width, value.translation.height)
@@ -120,9 +123,9 @@ extension DropdownCustomMenu {
     }
 
     private func pressAnimation(shrunk: Bool) -> Animation {
-        shrunk ? .snappy(duration: PressEffect.shrink.pressDuration)
-               : .spring(response: PressEffect.shrink.release.response,
-                         dampingFraction: PressEffect.shrink.release.damping)
+        shrunk ? .snappy(duration: pressEffect.pressDuration)
+               : .spring(response: pressEffect.release.response,
+                         dampingFraction: pressEffect.release.damping)
     }
 
     private func openMenu() {
@@ -363,8 +366,10 @@ private final class DropdownCustomMenuController {
 
     //No-op if already frozen, so a selection's early freeze wins over the dismiss's own
     func freezeLabel() {
-        guard frozenLabel == nil, let label else { return }
-        let renderer = ImageRenderer(content: label())
+        guard frozenLabel == nil, let label, labelFrame.width > 0 else { return }
+        //The label hosts a pager whose pages resolve width with containerRelativeFrame; rendered
+        //unproposed they resolve to inf --> NaN bounds, so the renderer must pin the live width.
+        let renderer = ImageRenderer(content: label().frame(width: labelFrame.width))
         renderer.scale = window?.traitCollection.displayScale ?? 3
         renderer.isOpaque = false
         frozenLabel = renderer.uiImage

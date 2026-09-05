@@ -34,6 +34,7 @@ struct ComposeInviteContainer: View {
         }
         .animation(.transition, value: ui.showConfirmScreen)
         .onAppear { ui.showConfirmScreen = false} //Fixes bug with back button not showing
+        .animation(.transition, value: [ui.delayedTimePopupOpen, ui.delayedTypePopupOpen])
     }
 }
 
@@ -94,7 +95,7 @@ extension ComposeInviteContainer {
     
     private var ctaButton: some View {
         let isConfirm = ui.showConfirmScreen == true
-        let dimmed = ui.typePopupOpen || ui.timePopupOpen
+        let dimmed = ui.delayedTypePopupOpen || ui.delayedTimePopupOpen
         let text = isConfirm ? "Send to \(name)" : "Preview"
         let fill = WideActionButton.restingFill(isActive: vm.event.isComplete, isDimmed: dimmed)
 
@@ -138,14 +139,7 @@ struct EditTypeTimePlace: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            InviteTypeRow(
-                eventType: $draft.type,
-                message: $draft.message,
-                showMessageScreen: $ui.showMessageScreen,
-                showInfoScreen: $ui.showInfoScreen,
-                showTypeDropDown: $ui.typePopupOpen,
-                timePopupOpen: ui.delayedTimePopupOpen
-            )
+            InviteTypeRow(eventType: $draft.type, message: $draft.message, ui: ui, timePopupOpen: ui.delayedTimePopupOpen)
             
             VeryLightDivider()
             
