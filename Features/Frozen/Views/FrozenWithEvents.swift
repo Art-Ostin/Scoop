@@ -24,8 +24,12 @@ struct FrozenWithEvents: View {
                 .tabItem {
                     Label("", image: tabSelection == .events ? "EventBlack" : "EventIcon")
                 }
-                .customAlert(isPresented: $showFrozenInfo, title: "Frozen account", message: "Although your account is frozen, you can still view your upcoming events.", showTwoButtons: false) {showFrozenInfo = false}
-
+                .customAlertCard(
+                    isPresented: $showFrozenInfo,
+                    title: "Frozen account",
+                    message: "Although your account is frozen, you can still view your upcoming events.",
+                    onOK: {showFrozenInfo = false}
+                )
             frozenView
                 .tag(AppTab.messages)
                 .tabItem {

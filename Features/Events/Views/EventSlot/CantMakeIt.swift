@@ -70,21 +70,32 @@ struct CantMakeIt: View {
             .padding(.bottom, Spacing.xxs)
         }
         .background(Color.appCanvas)
-        .customAlert(isPresented: $showCancelAlert, title: "Cancel Date",message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.", emoji: "🚨", cancelTitle: "Back", okTitle: "Confirm", showTwoButtons: true) {
-            Task {
-                do {
-                    try await vm.cancelEvent(event: eventProfile.event)
-                    vm.session.appState = .frozen
-                } catch {
-                    // TODO: route cancel failure to InAppNotificationCenter
-                }
-            }
-        }
+        .customAlertCard(
+            isPresented: $showCancelAlert,
+            title: "Cancel Date",
+            emoji: "🚨",
+            message: "By clicking confirm you understand your account will be frozen for 2 weeks & all pending invites removed.",
+            cancelTitle: "Back",
+            okTitle: "Confirm",
+            onOK: cancelEvent,
+            onCancel: { showCancelAlert = false }
+        )
         .interactiveDismissDisabled(showCancelAlert)
     }
 }
 
 extension CantMakeIt {
+    
+    private func cancelEvent () {
+        Task {
+            do {
+                try await vm.cancelEvent(event: eventProfile.event)
+                vm.session.appState = .frozen
+            } catch {
+                // TODO: route cancel failure to InAppNotificationCenter
+            }
+        }
+    }
     
     private var cancelButton: some View {
         Button {

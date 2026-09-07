@@ -51,7 +51,12 @@ struct EditInterests: View {
                 guard selected != vm.draft.interests else { return}
                 vm.set(.interests, \.interests, to: selected)
             }
-            .customAlert(isPresented: $showEmptyAlert, message: "Please select at least 6 interests", showTwoButtons: false, onOK: {showEmptyAlert.toggle()})
+            .customAlertCard(
+                isPresented: $showEmptyAlert,
+                title: "Error",
+                message: "Please select at least 6 interests",
+                onOK: {showEmptyAlert.toggle()}
+            )
     }
 }
 

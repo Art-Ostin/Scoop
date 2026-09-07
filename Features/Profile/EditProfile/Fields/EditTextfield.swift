@@ -49,7 +49,14 @@ struct EditTextfield : View {
     var body: some View {
         TextFieldGeneric(text: selection, field: field.title)
             .checkBeforePop(invalid: selection.wrappedValue.isEmpty, triggerAlert: $showEmptyAlert)
-            .customAlert(isPresented: $showEmptyAlert, message: "You can't leave '\(field.title.lowercased())' empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
+            .customAlertCard(
+                isPresented: $showEmptyAlert,
+                title: "Error",
+                message: "You can't leave '\(field.title.lowercased())' empty",
+                okTitle: "OK",
+                offset: -84,
+                onOK: {showEmptyAlert.toggle()}
+            )
     }
 }
 

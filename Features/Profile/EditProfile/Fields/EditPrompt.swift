@@ -71,12 +71,16 @@ struct EditPrompt: View {
     }
     
     var body: some View {
-        
         let check = (promptIndex == 0 || promptIndex == 1) && prompt.wrappedValue.response.isEmpty
         
         PromptGeneric(prompt: prompt, promptIndex: promptIndex)
             .checkBeforePop(invalid: check, triggerAlert: $showEmptyAlert)
-            .customAlert(isPresented: $showEmptyAlert, message: "Can't leave this prompt empty", showTwoButtons: false, onOK: { showEmptyAlert.toggle()})
+            .customAlertCard(
+                isPresented: $showEmptyAlert,
+                title: "Error",
+                message: "You Can't leave this prompt empty",
+                onOK: {showEmptyAlert.toggle()}
+            )
     }
 }
 
