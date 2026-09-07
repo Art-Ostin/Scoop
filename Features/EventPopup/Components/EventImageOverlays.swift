@@ -23,16 +23,108 @@ struct EventTitle: View {
     ///word out at the size it will land in — the two can never drift into a step at the hand-off.
     static func size(for title: String) -> CGFloat { title.starts(with: "Invite") ? 22 : 18 }
 
+    ///How far behind the line's slide the arriving word pops in. The gap it lands in has already
+    ///opened by then, so the move reads as the cause and the word as the consequence.
+    private static let popDelay: TimeInterval = 0.1
+
     var body: some View {
-        Text(title)
-            .font(.title(Self.size(for: title), .bold))
+        titleLine
             .foregroundStyle(Color.white)
-            .id(title)
-            .transition(.blurReplace)
             .animation(.transition, value: title)
             .getRect(textRect, coordSpace: coordSpace) //Inside the padding: the glyphs, not the slot
             .padding(.horizontal, imageHorizontalPadding)
             .padding(.bottom, imageBottomPadding)
+    }
+}
+
+//The line, and the one word that survives a change of title
+extension EventTitle {
+
+    //Every invite title spells "Invite"; anything else (an event's own name) has no word to keep and
+    //swaps whole
+    @ViewBuilder
+    private var titleLine: some View {
+        if let words = TitleWords(title) {
+            morphingLine(words)
+        } else {
+            Text(title)
+                .font(.title(Self.size(for: title), .bold))
+                .id(title)
+                .transition(.blurReplace)
+        }
+    }
+
+    ///"Invite" is mounted once and never replaced — inserting "Confirm" ahead of it is what slides it
+    ///along, and the invitee's name takes the line's width with it as it goes. Both are one animation:
+    ///the words that leave and arrive carry the move, they don't cover a swap.
+    private func morphingLine(_ words: TitleWords) -> some View {
+        let size = Self.size(for: title)
+        return HStack(alignment: .firstTextBaseline, spacing: Self.gap(at: size)) {
+            if let leading = words.leading { Text(leading).transition(pop) }
+
+            Text(words.shared)
+
+            if let trailing = words.trailing { Text(trailing).transition(pop) }
+        }
+        .animatableTitle(size)
+        .contentTransition(.opacity) //Crossfades an "Invite"/"invite" case flip instead of popping it
+    }
+
+    //Out on the beat, in a beat late: the gap is open before the word that fills it shows up. Shrunk
+    //toward the baseline it sits on, so a popping word never floats off its own line
+    private var pop: AnyTransition {
+        .asymmetric(
+            insertion: .blurPop(anchor: .bottomLeading).animation(.transition.delay(Self.popDelay)),
+            removal: .blurPop(anchor: .bottomLeading).animation(.transition))
+    }
+
+    ///The font's own space advance, so three runs measure exactly as the one string would: the event
+    ///zoom derives its flying word's landing from `Text(title)`'s metrics and must not find a wider
+    ///line here. It steps ~1pt as the size changes — under the word that is blurring out of that gap.
+    private static func gap(at size: CGFloat) -> CGFloat {
+        (" " as NSString).size(withAttributes: [.font: UIFont.title(size, .bold)]).width
+    }
+}
+
+///An invite title split around the word every invite title shares. `nil` for a line that hasn't got
+///one — it has nothing to keep, so it swaps whole.
+private struct TitleWords {
+
+    let leading: String? //What pushes "Invite" along the line: "Confirm" on the confirm screen, "Sarah's" on a received one
+    let shared: String   //Spelt as the title spells it, so the case is the title's call, not this type's
+    let trailing: String? //The invitee, while the send is still being composed
+
+    init?(_ title: String) {
+        guard let word = title.range(of: "Invite", options: .caseInsensitive) else { return nil }
+        let before = title[..<word.lowerBound].trimmingCharacters(in: .whitespaces)
+        let after = title[word.upperBound...].trimmingCharacters(in: .whitespaces)
+        leading = before.isEmpty ? nil : before
+        shared = String(title[word])
+        trailing = after.isEmpty ? nil : after
+    }
+}
+
+///Point sizes tween, `.font` values don't: a plain font swap snaps to the new size on frame one and
+///the line jumps out from under the word that is meant to be sliding.
+private struct AnimatableTitleFont: ViewModifier, Animatable {
+
+    var size: CGFloat
+    var weight: Font.titleFontWeight = .bold
+
+    var animatableData: CGFloat {
+        get { size }
+        set { size = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.title(size, weight))
+    }
+}
+
+private extension View {
+
+    func animatableTitle(_ size: CGFloat, _ weight: Font.titleFontWeight = .bold) -> some View {
+        modifier(AnimatableTitleFont(size: size, weight: weight))
     }
 }
 

@@ -14,7 +14,7 @@ struct ComposeInviteContainer: View {
 
     let images: [UIImage]
     let name: String
-    let onSend: (EventFieldsDraft) -> Void //The confirm screen's Send: the parent sends and closes the card
+    let onSend: (EventFieldsDraft, SendInviteFlightSource?) -> Void //The confirm screen's Send: the parent sends and closes the card, flying the page it was handed
 
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
@@ -46,7 +46,10 @@ extension ComposeInviteContainer {
         let isConfirm = ui.showConfirmScreen == true
         return EventImagePager(images: images,
                                title: isConfirm ? "Confirm Invite" : "Invite \(name)",
-                               showsPageDots: !isConfirm)
+                               showsPageDots: !isConfirm,
+                               visiblePhoto: $ui.visiblePhoto)
+        //The pager's frame IS the photo's — its root is the aspect box the carousel overlays
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { ui.photoFrame = $0 }
         .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirm) }
     }
     
@@ -84,7 +87,23 @@ extension ComposeInviteContainer {
     private var confirmEventView: some View {
         if let invite = InviteSummary(draft: vm.event) {
             EventTypeTimePlace(invite: invite, actionsBelow: true, openInfo: { ui.showInfoScreen = true })
+                .overlay(alignment: .topTrailing) {
+                    if invite.message?.isEmpty != false {
+                        addMessageButton
+                    }
+                }
         }
+    }
+    
+    private var addMessageButton: some View {
+        ScoopButton(style: .glass, shape: .circle, size: .small) {
+            ui.showMessageScreen = true
+        } label: {
+            Image(.addMessageIcon)
+        }
+        .scaleEffect(1.1)
+        .padding(.horizontal, 32)
+        .padding(.top, 16)
     }
 }
 
@@ -118,15 +137,20 @@ extension ComposeInviteContainer {
     }
     
     private var warningMessage: some View {
-        Text("* If they accept & you don't turn up, you'll be blocked")
+        Text("* If they accept & you don't show, you may be blocked")
             .font(.body(12.5, .regularItalic))
             .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
     }
     
     private func ctaAction(_ isConfirm: Bool) -> () -> Void {
         isConfirm
-            ? { onSend(vm.event) }
+            ? { onSend(vm.event, sendFlightSource) }
             : { withAnimation(.transition) { ui.showConfirmScreen = true } }
+    }
+
+    private var sendFlightSource: SendInviteFlightSource? {
+        guard let image = ui.visiblePhoto, ui.photoFrame.width > 1 else { return nil }
+        return SendInviteFlightSource(image: image, frame: ui.photoFrame, cornerRadius: CornerRadius.image)
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  ScoopFonts.swift
+//  Fonts.swift
 //  Scoop
 //
 //  Created by Art Ostin on 14/06/2026.
@@ -45,6 +45,12 @@ extension Font {
     // token (ModernEra/SFProRounded) would mis-render them, so symbol sizing keeps
     // its system font here — the one sanctioned home for it, never called in features.
     static func icon(_ size: CGFloat, _ weight: Font.Weight = .heavy) -> Font {
+        .system(size: size, weight: weight)
+    }
+
+    // SF numerals that must match a UIKit system control (the .wheel picker draws its own rows in SF);
+    // ModernEra beside them would read as two instruments. The day grid and the wheel share this.
+    static func numeral(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight)
     }
 }

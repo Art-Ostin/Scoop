@@ -10,6 +10,18 @@ import SwiftUI
 struct SelectTypeView: View {
 
     static let cardWidth: CGFloat = 300
+
+    //One card, two hosts: the measured 300pt card inside DropdownCustomMenu (InviteTypeRow), and a roomier twin
+    //inside TimeCustomMenu (AddMessageView) — a little more air and a point of type, nothing else.
+    enum Size {
+        case card, menu
+        var width: CGFloat { self == .card ? SelectTypeView.cardWidth : 310 }
+        var rowInset: CGFloat { self == .card ? 20 : Spacing.lg } //Geometry: the info icon rides the same inset, so it sits on the title line
+        var titleSize: CGFloat { self == .card ? 17 : 18 }
+        var emojiSize: CGFloat { self == .card ? 16 : 17 }
+        var emojiColumn: CGFloat { self == .card ? 25 : 27 } //Geometry: the column every title aligns to
+        var infoIconSize: CGFloat { self == .card ? 11 : 12 }
+    }
     
     //1. Needed to dismiss menu
     @Environment(\.dropdownCustomMenuDismiss) private var dismissMenu
@@ -24,6 +36,7 @@ struct SelectTypeView: View {
     @Binding var showMessageScreen: Bool
 
     let message: String
+    var size: Size = .card
 
     var body: some View {
         VStack(spacing: 0) {
@@ -31,7 +44,7 @@ struct SelectTypeView: View {
                     typeRow(eventType)
             }
         }
-        .frame(width: Self.cardWidth, alignment: .leading)
+        .frame(width: size.width, alignment: .leading)
     }
 }
 
@@ -42,9 +55,9 @@ extension SelectTypeView {
             typeText(type)
             typeInfo(type)
         }
-        .padding(.top, 20)
+        .padding(.top, size.rowInset)
         .overlay(alignment: .topTrailing) { infoButton(type) } // out of flow: its tap region is free (Test)
-        .padding(.bottom, (openTypes.contains(type) && type != .custom) ? 0 : 20)
+        .padding(.bottom, (openTypes.contains(type) && type != .custom) ? 0 : size.rowInset)
         .padding(.horizontal, Spacing.lg)
         .padding(.top, type == Event.EventType.allCases.first ? Spacing.hairline : 0) //extra padding for the first one
         .shrinkPress {selectType(eventType: type) }
@@ -53,12 +66,12 @@ extension SelectTypeView {
     private func typeText(_ type: Event.EventType) -> some View {
         HStack(spacing: Spacing.sm) {
             Text(type.emoji)
-                .font(.body(16))
-                .frame(width: 25, alignment: .leading) //So all same width
+                .font(.body(size.emojiSize))
+                .frame(width: size.emojiColumn, alignment: .leading) //So all same width
             
             
             Text(type == .socialMeet ? "Social Meet" : type.longTitle)
-                .font(.body(17, type == selectedType ? .bold : .medium))
+                .font(.body(size.titleSize, type == selectedType ? .bold : .medium))
                 .kerning(kerningAmount(type)) //Fine tuned kerning so all same width
                 .kerning(type == selectedType && type != .custom ? -0.55 : 0)
                 .foregroundStyle(type == selectedType ? Color.accent : Color.black)
@@ -73,8 +86,8 @@ extension SelectTypeView {
                 toggleTypeInfo(type)
             }
         } label: {
-            SmallInfoIcon(size: 11, colour: Color.black.opacity(0.3))
-                .padding(.top, 20)
+            SmallInfoIcon(size: size.infoIconSize, colour: Color.black.opacity(0.3))
+                .padding(.top, size.rowInset)
                 .contentShape(Rectangle())
         }
         .shrinkButton()
@@ -88,7 +101,7 @@ extension SelectTypeView {
 //Key Functions
 extension SelectTypeView {
     
-    //1. Each text different kerning so they're all in line
+    //1. Each text different kerning so they're all in line (fitted at 17pt; the twin's extra point shifts it under 0.1pt)
     private func kerningAmount(_ type: Event.EventType) -> CGFloat {
         switch type {
         case .socialMeet: 1.25
@@ -129,27 +142,3 @@ extension SelectTypeView {
     }
 }
 
-
-/*
- //2. Logic handling when I select a type
- private func selectType(eventType: Event.EventType) {
-     if eventType == .custom && message.isEmpty {
-         selectedType = .custom
-         showMessageScreen = true
-         Task {
-             try? await Task.sleep(for: .seconds(0.04))
-             dismissMenu(.instant)
-             dismissTimeMenu()
-         }
-     } else {
-         let changed = eventType != selectedType
-         if changed {
-             freezeMenuLabel()
-             selectedType = eventType
-         }
-         dismissMenu(changed ? .morph : .retract)
-         dismissTimeMenu()
-     }
- }
-
- */

@@ -60,7 +60,7 @@ extension ProfileCard {
                 vm: ComposeInviteViewModel(profileId: profile.profile.id, defaults: vm.defaults),
                 images: images(),
                 name: profile.profile.name,
-                onSend: { onSend($0, nil) } //No hero flight off the card yet — the cover fades in flightless
+                onSend: onSend //The card hands over the page it is showing — the cover's hero lifts off it
             )
         }
     }

@@ -144,7 +144,9 @@ extension RespondToInviteContainer {
             isActive: type != .newEvent || vm.respondDraft.newEvent.isComplete,
             isDimmed: composeUI.typePopupOpen || composeUI.timePopupOpen,
             showShadow: false,
+            font: type == .newTime ? .body(15, .bold) : .body(18, .bold),
             height: type == .newEvent ? 46 : 48,
+            lineLimit: type == .newTime ? 2 : 1, //The only two-line label
             onTap: ctaAction
         )
         .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
@@ -153,7 +155,7 @@ extension RespondToInviteContainer {
     var ctaText: String {
         switch type {
         case .originalInvite: "Accept"
-        case .newTime: "Propose \n New Times"
+        case .newTime: "Propose\nNew Times"
         case .newEvent: isComposeInviteScreen ? "Review" : "Invite \(vm.profile.name)"
         }
     }

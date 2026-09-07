@@ -49,7 +49,7 @@ extension DayPicker {
             Text(availableDays[idx].formatted(.dateTime.weekday(.abbreviated)))
                 .font(.body(12, .medium))
                 .foregroundStyle(Color.textTertiary)
-                .fixedSize() //Natural width, centred on its column → overflows the 28pt track symmetrically
+                .fixedSize() //Natural width, centred on its 28pt track (24.5pt at most); only guards against truncation
         }
     }
 }
@@ -81,15 +81,17 @@ struct DayCell: View {
     
     let onTap: () -> Bool
 
-    //Geometry: 7 × 28 tracks + 6 × 13 gaps = 274 fits the 277pt content column (325 platter − 2 × 24 margin),
-    //so the outer 30pt dots' edges land on the margin — one vertical edge with the title and the tick button.
+    //Geometry: 7 × 28 tracks + 6 × 13 gaps = 274 — the width the day grid needs. SelectTimeView.columnInset centres it
+    //in the platter, so the outer 30pt dots overhang the column line by 1pt each side and the title and tick sit on the line.
     static let track: CGFloat = 28
     static let columnGap: CGFloat = 13
+    static let gridWidth: CGFloat = 7 * track + 6 * columnGap
     private static let dotFrame: CGFloat = 36 //Geometry: the 30pt dot plus a 3pt ring the grow-in scales within
     private static let dotInset: CGFloat = 3  //Geometry: the measured 30pt system selection dot
-    //The cell is the full pitch (41 × 40) so a tap anywhere between two days still lands — cells tile
+    //The cell is the full pitch (41 × 46) so a tap anywhere between two days still lands — cells tile
     //exactly, no dead gaps, no overlap. The grid's own row spacing is 0: the cell carries the row pitch.
-    private static let cellSize = CGSize(width: track + columnGap, height: dotFrame + Spacing.xxs)
+    //Geometry: the row pitch — the 36pt dot frame plus 10pt of air, so the two rows of days breathe.
+    private static let cellSize = CGSize(width: track + columnGap, height: dotFrame + 10)
     
     var isToday: Bool {
         Calendar.current.isDateInToday(day)
@@ -99,7 +101,7 @@ struct DayCell: View {
             if onTap() { shake.toggle() } else { selectionTick += 1 } //Returns bool: true = max reached → shake, not a click
         } label: {
             Text(day, format: .dateTime.day())
-                .font(.system(size: 17, weight: isSelected ? .semibold : .regular))  // Apple SF: the numerals match the SF wheel below
+                .font(.numeral(18, isSelected ? .semibold : .regular)) //the numerals match the wheel below
                 .foregroundStyle(isSelected ? .white : isToday ? Color.textAccent : Color.textPrimary)
                 .frame(width: Self.dotFrame, height: Self.dotFrame, alignment: .center)
                 .background {

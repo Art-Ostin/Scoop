@@ -86,8 +86,9 @@ Features/<Name>/
   Raw `Color(red:green:blue:)` is allowed **only inside Colors.swift**, plus the map-category
   identity gradients in `MapCategory.swift`/`MapSearchView.swift` (data, not chrome). Need a
   new color? Add a token.
-- Fonts: only `Shared/Design/ScoopFonts.swift` — `.font(.body(16, .medium))`,
-  `.font(.title(26))`, and the `UIFont` variants. No `.font(.system(...))` in features.
+- Fonts: only `Shared/Design/Fonts.swift` — `.font(.body(16, .medium))`, `.font(.title(26))`,
+  `.font(.numeral(20))` (SF figures that must match a UIKit system control, e.g. the wheel picker),
+  and the `UIFont` variants. No `.font(.system(...))` in features.
 - Corners: only `CornerRadius` tokens from `Shared/Design/GeneralParameters.swift` — the 4pt
   scale (`xs/sm/md/lg/xl`), role aliases (`image`, `smallImage`), and measured system stand-ins
   (`alert`, `menuPlatter`, …). Curvature is always continuous — it's the iOS 26 SDK default, so

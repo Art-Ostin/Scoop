@@ -1,6 +1,6 @@
 //
-//  InviteTypeRow.swift
-//  Scoop Test
+//  InviteTimeAndPlaceRow.swift
+//  Scoop
 //
 //  Created by Art Ostin on 01/09/2026.
 //
@@ -18,17 +18,15 @@ struct InviteTimeRow: View {
     @Binding var timeisOpen: Bool
     let typePopUpOpen: Bool
     
-    let menuWidth: CGFloat = 325 //The platter width: the day grid's 274pt fits the 277pt column it leaves
-    
     var body: some View {
         HStack {
             RowCaption(label: .when)
             Spacer(minLength: 12)
             TimeCustomMenu(
-                estimatedContentSize: CGSize(width: menuWidth, height: 286),
+                estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: 307),
                 verticalPlacement: .below,
                 isOpen: $timeisOpen,
-                content: {SelectTimeView(proposedTimes: $proposedTimes).frame(width: menuWidth)},
+                content: {SelectTimeView(proposedTimes: $proposedTimes).frame(width: SelectTimeView.platterWidth)},
                 label: {rowLabel}
             )
         }
@@ -109,33 +107,42 @@ struct EventRowPlaceholder: View {
 }
 
 struct EventRowText: View {
+    static let size: CGFloat = 17 //shared with the type row, whose open caption grows to meet it
+
     let text: String
     var body: some View {
         Text(text)
-            .font(.body(17, .medium))
+            .font(.body(Self.size, .medium))
             .foregroundStyle(Color.textPrimary)
     }
 }
 
 struct RowCaption: View {
-    enum Label: String { case what, when, `where` }
+    enum Label: String {
+        case what, when, `where`
+        var text: String { rawValue.capitalized }
+    }
+
+    static let size: CGFloat = 13 //shared with the type row's grown twin, so its scale is exact
 
     let label: Label
     
     var body: some View {
-        Text(label.rawValue.capitalized)
-            .font(.body(13, .medium))
+        Text(label.text)
+            .font(.body(Self.size, .medium))
             .foregroundStyle(Color.textTertiary)
     }
 }
 
 struct DropDownButton: View {
+    static let width: CGFloat = 6 //pinned so rows can lay out against it; shared with the type row's morph box
+
     let isOpen: Bool
     
     var body: some View {
         Image("DropdownGray")
             .rotationEffect(.degrees(isOpen ? 90 : 0))
             .animation(.toggle, value: isOpen)
-            .frame(width: 6)//So always predictable
+            .frame(width: Self.width)//So always predictable
     }
 }

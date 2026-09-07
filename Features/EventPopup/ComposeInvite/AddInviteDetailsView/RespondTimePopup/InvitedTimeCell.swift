@@ -40,14 +40,14 @@ extension InvitedTimeCell {
             optionTypeText
             eventTimeText
         }
-        .invitedTimeCellBackground(isSelected, isAvailable: status == .available)
+        .invitedTimeCellBackground(isSelected)
         .overlay(alignment: .topTrailing) {timeStatusText}
         .showShakeAnimation(bool: shake)
     }
         
     private var optionTypeText: some View {
         Text("Option \(idx + 1)")
-            .font(.body(14, .medium))
+            .font(.body(15, .medium))
             .foregroundStyle(isSelected ? Color.textAccent : Color.textTertiary)
     }
     
@@ -55,10 +55,10 @@ extension InvitedTimeCell {
         let (weekday, month, hour) = formattedDateParts
         return Group {
             Text("\(weekday) \(month) ·")
-                .font(.body(16, status != .available ? .regular : .medium))
+                .font(.body(17, status != .available ? .regular : .medium))
                 .foregroundStyle(Color.textPrimary)
             +
-            Text(" \(hour)").font(.body(14)).foregroundStyle(Color.textTertiary)
+            Text(" \(hour)").font(.body(15)).foregroundStyle(Color.textTertiary)
         }
         .opacity(status != .available ? 0.6 : 1)
     }
@@ -74,7 +74,7 @@ extension InvitedTimeCell {
     private var timeStatusText: some View {
         if status != .available {
             Text(status.rawValue)
-                .font(.body(12, .italic))
+                .font(.body(13, .italic))
                 .foregroundStyle(isShaking ? Color.warningYellow : Color.textTertiary)
                 .animation(.transition, value: isShaking)
                 .padding(.horizontal)
@@ -115,13 +115,12 @@ extension InvitedTimeCell {
 
 //Background for popup
 extension View {
-    func invitedTimeCellBackground(_ isSelected: Bool, isAvailable: Bool) -> some View {
+    func invitedTimeCellBackground(_ isSelected: Bool) -> some View {
         self
             .padding(.horizontal, Spacing.md)
             .padding(.vertical, Spacing.sm)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
-//            .opacity(isAvailable ? 0.4 : 1)
             .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.accent.opacity(0.35) : Color.border)
     }
 }

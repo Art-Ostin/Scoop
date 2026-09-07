@@ -38,7 +38,7 @@ extension InvitedTimes {
     //new-time page's height, so the popup reads as broken rather than empty.
     private var emptyState: some View {
         Text("This invite has no times on it — suggest one instead.")
-            .font(.body(14, .regular))
+            .font(.body(15, .regular))
             .foregroundStyle(Color.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)

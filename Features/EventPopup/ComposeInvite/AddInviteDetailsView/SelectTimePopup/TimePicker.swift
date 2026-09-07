@@ -13,6 +13,7 @@ struct TimePicker: View {
     @Binding var selectedMinute: Int
 
     static let height: CGFloat = 120 //Geometry: selection ± 60; the neighbouring rows end 42pt out
+    // TODO: re-measure dissolveFrom/To on device with the 22pt numerals; the neighbouring row's far edge sits ~1pt further out
     private static let dissolveFrom: CGFloat = 40 //Geometry: selected-row centre → the neighbouring row's far edge (one ~30pt pitch + half a numeral)
     private static let dissolveTo: CGFloat = 48   //Geometry: the rim, where the next row folds away
     private static let inkEnd: CGFloat = (height / 2 - dissolveFrom) / height
@@ -22,14 +23,18 @@ struct TimePicker: View {
         HStack {
             Picker("Hour", selection: $selectedHour) {
                 ForEach(0..<24, id: \.self) { h in
-                    Text(String(format: "%02d", h)).tag(h)
+                    Text(String(format: "%02d", h))
+                        .font(.numeral(22)) //a .font on the row Text is the one glyph-size lever (the default is ~21); the ~30pt pitch stays UIKit's
+                        .tag(h)
                         .foregroundStyle(Color.textPrimary)
                 }
             }
 
             Picker("Minute", selection: $selectedMinute) {
                 ForEach([00, 15, 30, 45], id: \.self) { m in
-                    Text(String(format: "%02d", m)).tag(m)
+                    Text(String(format: "%02d", m))
+                        .font(.numeral(22))
+                        .tag(m)
                         .foregroundStyle(Color.textPrimary)
                 }
             }

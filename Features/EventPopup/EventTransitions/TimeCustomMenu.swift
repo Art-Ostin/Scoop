@@ -8,7 +8,7 @@
 //  Native-style menu in its own window. iOS 26: on touch-down the label implodes into a glass droplet that flies
 //  to the platter and flowers open; the close runs the device-fitted droplet keyframes. Pre-26: scale/fade.
 //
-//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetX:placementOffsetY:isOpen:onOpen:onClose:) { content } label: { trigger }
+//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetY:isOpen:onOpen:onClose:) { content } label: { trigger }
 //  Content must be its own View struct (it renders in the menu window); inside it call @Environment(\.timeCustomMenuDismiss).
 //  Every iOS 26 beat below is fitted to DEVICE recordings of the native menu; the sim animates differently. -timeMenuSlowMotion for review.
 //
@@ -31,7 +31,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     let estimatedContentSize: CGSize? //lets the very first open bloom before any measure exists
     let tracksContentSizeChanges: Bool //keeps measuring while open so the platter follows reflowing content
     let verticalPlacement: TimeCustomMenuVerticalPlacement
-    let placementOffset: CGSize //nudge on the final placement, positive = right / down
+    let placementOffsetY: CGFloat //nudge on the final vertical placement, positive = down; the platter is always centred across
     let isOpen: Binding<Bool>? //mirrors the presentation; written by the menu, never a way to open it
     let onOpen: (() -> Void)? //fires the instant the menu presents, before the bloom
     let onClose: (() -> Void)? //fires the instant a dismiss is requested, before the close
@@ -48,7 +48,6 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     init(estimatedContentSize: CGSize? = nil,
          tracksContentSizeChanges: Bool = false,
          verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic,
-         placementOffsetX: CGFloat = TimeCustomMenuSpec.placementOffsetX,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
          isOpen: Binding<Bool>? = nil,
          onOpen: (() -> Void)? = nil,
@@ -58,7 +57,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
         self.verticalPlacement = verticalPlacement
-        self.placementOffset = CGSize(width: placementOffsetX, height: placementOffsetY)
+        self.placementOffsetY = placementOffsetY
         self.isOpen = isOpen
         self.onOpen = onOpen
         self.onClose = onClose
@@ -129,7 +128,7 @@ extension TimeCustomMenu {
         controller.present(
             anchor: labelFrame,
             verticalPlacement: verticalPlacement,
-            placementOffset: placementOffset,
+            placementOffsetY: placementOffsetY,
             estimatedContentSize: estimatedContentSize,
             tracksContentSizeChanges: tracksContentSizeChanges,
             onPresent: { isOpen?.wrappedValue = true; onOpen?() },
@@ -188,7 +187,6 @@ enum TimeCustomMenuSpec {
 
     //Platter and placement
     static let platterCornerRadius = CornerRadius.customMenu
-    static let placementOffsetX: CGFloat = 19 //default nudge right of the anchor-aligned placement (Arthur: surgical so central)
     static let placementOffsetY: CGFloat = -84 //default nudge up; callers override per row
     static let screenMargin: CGFloat = 9 //kept from the safe-area edges
     static let anchorGap: CGFloat = 6 //pre-26 only: the classic menu floats off the label; iOS 26 sits flush
@@ -276,7 +274,7 @@ private final class TimeCustomMenuController {
     private(set) var anchor: CGRect = .zero //the label frame at open; placement never moves underfoot
     private(set) var labelFrame: CGRect = .zero //the label's LIVE frame: the lens is born on it and lands on it
     private(set) var verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic
-    private(set) var placementOffset: CGSize = .zero
+    private(set) var placementOffsetY: CGFloat = 0
     private(set) var content: (() -> AnyView)?
     private(set) var label: (() -> AnyView)? //refreshed while open, so the lens copy shows the current value
 
@@ -298,7 +296,7 @@ private final class TimeCustomMenuController {
 
     func present(anchor: CGRect,
                  verticalPlacement: TimeCustomMenuVerticalPlacement,
-                 placementOffset: CGSize,
+                 placementOffsetY: CGFloat,
                  estimatedContentSize: CGSize?,
                  tracksContentSizeChanges: Bool,
                  onPresent: @escaping () -> Void,
@@ -314,7 +312,7 @@ private final class TimeCustomMenuController {
         self.anchor = anchor
         labelFrame = anchor
         self.verticalPlacement = verticalPlacement
-        self.placementOffset = placementOffset
+        self.placementOffsetY = placementOffsetY
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
         self.onClose = onClose
@@ -386,7 +384,7 @@ private final class TimeCustomMenuController {
         content = nil
         label = nil
         verticalPlacement = .automatic
-        placementOffset = .zero
+        placementOffsetY = 0
         tracksContentSizeChanges = false
         labelFrame = .zero
         hidesLabel = false
@@ -419,7 +417,7 @@ private struct TimeCustomMenuOverlay: View {
     var body: some View {
         GeometryReader { geo in
             let metrics = Metrics(geo: geo, anchor: controller.anchor, overlapsAnchor: isGlass,
-                                  verticalPlacement: controller.verticalPlacement, placementOffset: controller.placementOffset)
+                                  verticalPlacement: controller.verticalPlacement, placementOffsetY: controller.placementOffsetY)
             ZStack(alignment: .topLeading) {
                 Color.clear //tap-away catcher: swallows every outside touch, like the native menu
                     .contentShape(Rectangle())
@@ -557,7 +555,7 @@ extension TimeCustomMenuOverlay {
     }
 }
 
-//Placement: safe-area aware; the roomier side when both fit (native), pinned by verticalPlacement
+//Placement: safe-area aware; centred across, and vertically the roomier side when both fit (native), pinned by verticalPlacement
 extension TimeCustomMenuOverlay {
 
     struct Metrics {
@@ -565,7 +563,7 @@ extension TimeCustomMenuOverlay {
         let available: CGRect
         let anchor: CGRect
         let verticalPlacement: TimeCustomMenuVerticalPlacement
-        let placementOffset: CGSize
+        let placementOffsetY: CGFloat
         let belowTop: CGFloat //where the platter's top lands when placed below
         let aboveBottom: CGFloat //where its bottom lands when placed above
 
@@ -575,7 +573,7 @@ extension TimeCustomMenuOverlay {
 
         //iOS 26 covers the label's edge; the classic menu floats 6pt off
         init(geo: GeometryProxy, anchor: CGRect, overlapsAnchor: Bool,
-             verticalPlacement: TimeCustomMenuVerticalPlacement, placementOffset: CGSize) {
+             verticalPlacement: TimeCustomMenuVerticalPlacement, placementOffsetY: CGFloat) {
             let safe = geo.safeAreaInsets
             let margin = Spec.screenMargin
             bounds = geo.size
@@ -585,7 +583,7 @@ extension TimeCustomMenuOverlay {
                                height: max(0, bounds.height - safe.top - safe.bottom - 2 * margin))
             self.anchor = anchor
             self.verticalPlacement = verticalPlacement
-            self.placementOffset = placementOffset
+            self.placementOffsetY = placementOffsetY
             belowTop = overlapsAnchor ? anchor.minY : anchor.maxY + Spec.anchorGap
             aboveBottom = overlapsAnchor ? anchor.maxY : anchor.minY - Spec.anchorGap
         }
@@ -594,7 +592,7 @@ extension TimeCustomMenuOverlay {
             CGRect(origin: placement(for: size).origin, size: size)
         }
 
-        //Edge-aligns to the label on its screen half; the unit anchor is the platter point nearest it (pre-26 scale origin)
+        //Centred across the screen; the label picks the vertical side only. The unit anchor is the platter point nearest it (pre-26 scale origin)
         func placement(for size: CGSize) -> (origin: CGPoint, anchor: UnitPoint) {
             let below: Bool
             switch verticalPlacement {
@@ -612,11 +610,13 @@ extension TimeCustomMenuOverlay {
                 }
             }
             var y = below ? belowTop : aboveBottom - size.height
-            y += placementOffset.height
+            y += placementOffsetY
             y = y.clamped(to: available.minY...max(available.minY, available.maxY - size.height))
 
-            var x = anchor.midX <= bounds.width / 2 ? anchor.minX : anchor.maxX - size.width
-            x += placementOffset.width
+            //Always centred across the safe band: these platters fill most of it (330 of 384 on a 402pt phone), so there is no
+            //side worth hugging and the label places the platter vertically only. A genuinely NARROW menu here would want the native
+            //edge-align rule back (anchor.midX picks the side, plus a nudge); it is in git history — don't reinvent it by eye.
+            var x = available.minX + (available.width - size.width) / 2
             x = x.clamped(to: available.minX...max(available.minX, available.maxX - size.width))
 
             let unitX = ((anchor.midX - x) / max(size.width, 1)).clamped(to: 0...1)

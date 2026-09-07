@@ -1,6 +1,6 @@
 //
-//  ToggleButton.swift
-//  Scoop Test
+//  ToggleResponseMode.swift
+//  Scoop
 //
 //  Created by Art Ostin on 22/07/2026.
 //
@@ -41,17 +41,17 @@ extension ToggleResponseMode {
     private var optionsLabel: some View {
         HStack(spacing: Spacing.hairline) {
             Image(systemName: "chevron.left")
-                .font(.body(10, .medium))
+                .font(.body(11, .medium))
             
             Text("Options")
         }
         .foregroundStyle(Color.textSecondary)
-        .font(.body(12, .medium))
+        .font(.body(13, .medium))
     }
     
     private var cantMakeItLabel: some View {
         Text("Can't make it?")
-            .font(.body(12, .bold))
+            .font(.body(13, .bold))
             .foregroundStyle((Color.textSecondary))
             .kerning(0.5)
     }

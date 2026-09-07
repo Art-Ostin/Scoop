@@ -47,6 +47,22 @@ private struct BlurPop: ViewModifier {
     }
 }
 
+//The same pose as `blurPop`, but as one phase of a transition — no curve and no hit-test gate of its
+//own, because a transitioning view is unmounted rather than hidden. The caller's transaction times it.
+private struct BlurPopPhase: ViewModifier {
+    var visible: Bool
+    var shrunkScale: CGFloat
+    var blurRadius: CGFloat
+    var anchor: UnitPoint
+
+    func body(content: Content) -> some View {
+        content
+            .blur(radius: visible ? 0 : blurRadius)
+            .scaleEffect(visible ? 1 : shrunkScale, anchor: anchor)
+            .opacity(visible ? 1 : 0)
+    }
+}
+
 extension View {
     
     func opacityPop(visible: Bool, scale: CGFloat = 0.4, anchor: UnitPoint = .center) -> some View {
@@ -57,5 +73,18 @@ extension View {
     func blurPop(visible: Bool, scale: CGFloat = PopMotion.shrunkScale,
                  blur: CGFloat = PopMotion.blurRadius, anchor: UnitPoint = .center) -> some View {
         modifier(BlurPop(visible: visible, shrunkScale: scale, blurRadius: blur, anchor: anchor))
+    }
+}
+
+extension AnyTransition {
+
+    ///`blurPop` for content that must leave the LAYOUT as it goes, so its neighbours close the gap
+    ///behind it — a word dropping out of a line and the words after it sliding along.
+    static func blurPop(scale: CGFloat = PopMotion.shrunkScale,
+                        blur: CGFloat = PopMotion.blurRadius,
+                        anchor: UnitPoint = .center) -> AnyTransition {
+        .modifier(
+            active: BlurPopPhase(visible: false, shrunkScale: scale, blurRadius: blur, anchor: anchor),
+            identity: BlurPopPhase(visible: true, shrunkScale: scale, blurRadius: blur, anchor: anchor))
     }
 }

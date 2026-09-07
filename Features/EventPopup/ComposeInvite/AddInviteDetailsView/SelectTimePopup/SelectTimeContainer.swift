@@ -11,6 +11,13 @@ enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unava
 
 struct SelectTimeView: View {
 
+    //Geometry: the platter width — the day grid plus a roomier margin than the content needs. Both time menus pin to it;
+    //it clears TimeCustomMenu's 9pt screen margins on every phone down to 375pt.
+    static let platterWidth: CGFloat = 330
+    //Geometry: the content column inset — whatever centres the day grid in the platter (330 − 274 = 56, so 28 each side).
+    //Derived, so the width above is the only number to change; the title, the grid and the tick all sit on this column.
+    static let columnInset: CGFloat = (platterWidth - DayCell.gridWidth) / 2
+
     //Injected
     @Binding var proposedTimes: ProposedTimes
 
@@ -69,7 +76,7 @@ private extension SelectTimeView {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text("When")
-                        .font(.body(17, .medium))
+                        .font(.body(18, .medium))
                         .foregroundStyle(Color.textPrimary)
                     Text("Propose 1–3 days to meet")
                         .font(.body(13, .regular))
@@ -110,8 +117,8 @@ struct SelectTimeBackground: ViewModifier {
             content
         } else {
             content
-                .padding(.horizontal, Spacing.margin)
-                .padding(.top, Spacing.md)
+                .padding(.horizontal, SelectTimeView.columnInset)
+                .padding(.top, Spacing.lg) //the platter's top air, a step over the content's own rhythm
         }
     }
 }
@@ -121,7 +128,7 @@ struct TimeDoneButton: View {
     
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
 
-    static let size: CGFloat = 30
+    static let size: CGFloat = 30 //Geometry: pairs with the 30pt day dot
     
     var isRespondMode: Bool = false
     var body: some View {
@@ -129,12 +136,14 @@ struct TimeDoneButton: View {
                 dismissMenu()
             } label: {
                 Image("WhiteTick")
-                    .scaleEffect(1.1)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 13) //Geometry: the 11.76pt glyph at the button's 1.1× tick; drawn at size, not transformed
                     .frame(width: Self.size, height: Self.size)
                     .background(Color.accent, in: Circle())
             }
             .shrinkButton()
             .padding(.bottom, TimePicker.height / 2 - Self.size / 2) //Geometry: centred on the wheel's selected row — the value the tick confirms
-            .padding(.horizontal, isRespondMode ? 0 : Spacing.margin)
+            .padding(.horizontal, isRespondMode ? 0 : SelectTimeView.columnInset)
     }
 }

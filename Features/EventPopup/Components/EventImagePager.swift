@@ -13,6 +13,7 @@ struct EventImagePager: View {
     let images: [UIImage]
     let title: String
     var showsPageDots: Bool = true //Only a page you can swipe carries them — the card owns that call, not the title
+    var visiblePhoto: Binding<UIImage?> = .constant(nil) //The page on screen, as drawn — what a hero lifting off this pager flies
 
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
     
@@ -45,12 +46,23 @@ struct EventImagePager: View {
             .task(id: images) { await prepare() }
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }
             .onChange(of: images) { if carouselVisible { latch() } }
+            .onChange(of: drawnPage, initial: true) { visiblePhoto.wrappedValue = $1 }
             .coordinateSpace(.named(Self.bandSpace))
     }
     
+    //What the carousel draws: the decoded copies once latched, the raw images until then
+    private var drawn: [UIImage] { mounted.isEmpty ? images : mounted }
+
+    //The page on screen, from the array the carousel actually draws, so a hero lifting off it never
+    //pays a first-frame decode. Progress is in pages — `.paging` rests it on an integer
+    private var drawnPage: UIImage? {
+        guard !drawn.isEmpty else { return nil }
+        return drawn[min(max(Int(scrollProgress.rounded()), 0), drawn.count - 1)]
+    }
+
     private var inviteCarousel: some View {
         InviteCarousel(
-            images: mounted.isEmpty ? images : mounted,
+            images: drawn,
             ratio: AspectRatio.pendingEvent.ratio,
             blurRect: titleRect,
             scrollProgress: $scrollProgress)

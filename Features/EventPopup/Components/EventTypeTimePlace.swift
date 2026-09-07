@@ -117,8 +117,7 @@ private struct RespondEventTimeRow: View {
     @State private var page: TimePopupPage? = .newTime
     
     var body: some View {
-        TimeCustomMenu(tracksContentSizeChanges: true, //Both pages reflow: 310↔325 wide, two heights
-                       placementOffsetX: 0,
+        TimeCustomMenu(tracksContentSizeChanges: true, //Both pages reflow between two heights at one width (SelectTimeView.platterWidth)
                        placementOffsetY: 24,
                        isOpen: $isOpen,
                        onOpen: { page = .invitedTimes }) {

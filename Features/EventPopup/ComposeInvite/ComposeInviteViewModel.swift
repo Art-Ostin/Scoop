@@ -52,6 +52,11 @@ class ComposeInviteUIState {
     var showInfoScreen: Bool = false
     var showMessageScreen: Bool = false
     var showConfirmScreen: Bool? = false
+
+    //What the send cover's hero lifts off with: the page the pager is drawing and its resting
+    //global rect. Written as they change, read only at the Send tap — with the card at rest
+    var visiblePhoto: UIImage?
+    var photoFrame: CGRect = .zero
     
     
     var timePopupOpen: Bool = false {

@@ -1,5 +1,5 @@
 //
-//  InviteAddMessageView.swift
+//  AddMessageView.swift
 //  Scoop
 //
 //  Created by Art Ostin on 24/06/2025.
@@ -70,7 +70,8 @@ extension AddMessageView {
             SelectTypeView(
                 openTypes: $openTypes,
                 selectedType: $eventType, 
-                showMessageScreen: .constant(false), message: ""
+                showMessageScreen: .constant(false), message: "",
+                size: .menu
             )
         } label: {
             HStack(spacing: Spacing.xs) {
