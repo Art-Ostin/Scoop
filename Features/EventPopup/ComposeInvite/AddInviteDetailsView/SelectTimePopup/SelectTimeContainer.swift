@@ -11,11 +11,8 @@ enum DayWarning: String { case maxReached = "Max 3", dayUnavailable = "Day Unava
 
 struct SelectTimeView: View {
 
-    //Geometry: the platter width — the day grid plus a roomier margin than the content needs. Both time menus pin to it;
-    //it clears TimeCustomMenu's 9pt screen margins on every phone down to 375pt.
-    static let platterWidth: CGFloat = 330
-    //Geometry: the content column inset — whatever centres the day grid in the platter (330 − 274 = 56, so 28 each side).
-    //Derived, so the width above is the only number to change; the title, the grid and the tick all sit on this column.
+    static let platterWidth: CGFloat = 346
+
     static let columnInset: CGFloat = (platterWidth - DayCell.gridWidth) / 2
 
     //Injected
@@ -54,7 +51,7 @@ struct SelectTimeView: View {
         VStack(spacing: 0) {
             titleSection
             dayPicker
-                .padding(.top, isRespondMode ? Spacing.xxs : Spacing.md) //Respond mode: the parent supplies the title row, this is the page's top inset
+                .padding(.top, isRespondMode ? Spacing.xxs : Spacing.lg) //Respond mode: the parent supplies the title row, this is the page's top inset
             TimePicker(selectedHour: $selectedHour, selectedMinute: $selectedMinute)
                 .padding (.top, Spacing.xxs) //The wheel's own top fade does the separating
         }
@@ -127,23 +124,22 @@ struct SelectTimeBackground: ViewModifier {
 struct TimeDoneButton: View {
     
     @Environment(\.timeCustomMenuDismiss) private var dismissMenu
-
-    static let size: CGFloat = 30 //Geometry: pairs with the 30pt day dot
+    
+    static let size: CGFloat = 35 //Geometry: pairs with the 32pt day dot
     
     var isRespondMode: Bool = false
     var body: some View {
-            Button {
-                dismissMenu()
-            } label: {
-                Image("WhiteTick")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 13) //Geometry: the 11.76pt glyph at the button's 1.1× tick; drawn at size, not transformed
-                    .frame(width: Self.size, height: Self.size)
-                    .background(Color.accent, in: Circle())
-            }
-            .shrinkButton()
-            .padding(.bottom, TimePicker.height / 2 - Self.size / 2) //Geometry: centred on the wheel's selected row — the value the tick confirms
-            .padding(.horizontal, isRespondMode ? 0 : SelectTimeView.columnInset)
+        ScoopButton(style: .tinted(.textAccent, shadow: nil, glass: true), shape: Circle(), size: .medium) {
+            dismissMenu()
+        } label: {
+            Image("WhiteTick")
+                .resizable()
+                .scaledToFit()
+                .scaleEffect(0.5)
+        }
+        .shrinkButton()
+        .padding(.bottom, TimePicker.height / 2 - Self.size / 2)
+        .padding(.horizontal, isRespondMode ? 0 : SelectTimeView.columnInset)
+        .offset(y: -32)
     }
 }

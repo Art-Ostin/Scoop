@@ -16,6 +16,7 @@ private let rowHeight: CGFloat = 33
 struct EventTypeTimePlace: View {
     let invite: InviteSummary
     var respondDraft: Binding<RespondDraft>? //Only responding to an event needs a binding
+    var timePopupOpen: Binding<Bool> = .constant(false) //Goes with `respondDraft`: the container owns the flag — it dims the CTA, locks the card's drag and hides the title
     let actionsBelow: Bool //Adjust spacing if there are actions taken below
     
     var shortSpacing: Bool = false
@@ -83,7 +84,7 @@ extension EventTypeTimePlace {
     @ViewBuilder
     var timeRow: some View {
         if let respondDraft {
-            RespondEventTimeRow(draft: respondDraft)
+            RespondEventTimeRow(draft: respondDraft, isOpen: timePopupOpen)
         } else {
             iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
@@ -106,19 +107,35 @@ extension EventTypeTimePlace {
 
 //A selectable version of the time row
 private struct RespondEventTimeRow: View {
+
+    //Geometry: the popup's height, now that both pages share the taller one (TimePopupContainer.activePageHeight):
+    //24 top + 36 title + 12 + 232 pager on the new-time page, 2pt more on the invited one. It seeds the first
+    //bloom and the centring below; the menu measures the real platter on open.
+    private static let platterHeight: CGFloat = 305
     
     //Updates (1) what event type (2) The original invite selected day (3) A new invites proposed Times
     //Easier to pass in whole draft here
     @Binding var draft: RespondDraft
 
-    @State var isOpen = false
+    //The container's, not the row's: an open platter dims the CTA, locks the card's drag and hides the title
+    @Binding var isOpen: Bool
     
     //Which screen when it opens -> i.e. is It newTime or original invite
     @State private var page: TimePopupPage? = .newTime
     
+    //Puts the row's centre line through the platter's middle: half the platter down, less half the row.
+    //Pre-26 the classic platter floats above the label instead of covering it, so it starts a row-and-gap higher.
+    private var centringOffset: CGFloat {
+        let centred = (Self.platterHeight - rowHeight) / 2
+        if #available(iOS 26.0, *) { return centred }
+        return centred + rowHeight + TimeCustomMenuSpec.anchorGap
+    }
+
     var body: some View {
-        TimeCustomMenu(tracksContentSizeChanges: true, //Both pages reflow between two heights at one width (SelectTimeView.platterWidth)
-                       placementOffsetY: 24,
+        TimeCustomMenu(estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: Self.platterHeight),
+                       tracksContentSizeChanges: false, //One height for both pages now, so there is nothing to track
+                       verticalPlacement: .above, //Pinned: .automatic picks a side by free space, and each side needs its own offset
+                       placementOffsetY: centringOffset,
                        isOpen: $isOpen,
                        onOpen: { page = .invitedTimes }) {
             popup

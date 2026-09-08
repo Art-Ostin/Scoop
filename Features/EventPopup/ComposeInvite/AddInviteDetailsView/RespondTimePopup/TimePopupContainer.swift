@@ -51,7 +51,6 @@ extension TimePopupContainer {
                     .foregroundStyle(Color.textPrimary)
                     .id(page == .newTime)
                     .transition(.blurReplace)
-                
                 if page == .newTime {subTitle}
             }
             Spacer()
@@ -77,8 +76,6 @@ extension TimePopupContainer {
     }
 
     private var pagerSection: some View {
-        //Top aligned: the two pages differ in height, and the frame below clips to
-        //the active one — centred, the shorter page sits below the visible window
         HorizontalScrollView(progress: .constant(0), alignment: .top) {
             InvitedTimes(proposedTimes: times, selectedDay: $selectedDay, respondType: $respondType)
                 .padding(.horizontal, Self.invitedInset)
@@ -100,8 +97,11 @@ extension TimePopupContainer {
         .scrollDisabled(true)
     }
 
+    //One height for both pages -- the new-time page is the taller, so the invited page keeps its air below
+    //the cells. A platter that never reflows can be centred on the row by a single constant, and the two
+    //clocks that used to size it (this view's .expand and the menu's reflowResize) can no longer disagree.
     private var activePageHeight: CGFloat? {
-        let height = page == .newTime ? selectTimeHeight : invitedTimesHeight
+        let height = max(invitedTimesHeight, selectTimeHeight)
         return height > 0 ? height : nil
     }
 }

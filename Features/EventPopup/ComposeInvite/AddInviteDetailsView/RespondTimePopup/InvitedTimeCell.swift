@@ -52,22 +52,16 @@ extension InvitedTimeCell {
     }
     
     private var eventTimeText: some View {
-        let (weekday, month, hour) = formattedDateParts
+        let time = FormatEvent.shortDayAndTime(date)
+        let hour = FormatEvent.hourTime(date)
         return Group {
-            Text("\(weekday) \(month) ·")
+            Text(time)
                 .font(.body(17, status != .available ? .regular : .medium))
                 .foregroundStyle(Color.textPrimary)
             +
-            Text(" \(hour)").font(.body(15)).foregroundStyle(Color.textTertiary)
+            Text(" · \(hour)").font(.body(15)).foregroundStyle(Color.textTertiary)
         }
         .opacity(status != .available ? 0.6 : 1)
-    }
-    
-    private var formattedDateParts: (weekday: String, month: String, hour: String) {
-        let weekday = date.formatted(.dateTime.weekday(.wide))
-        let month = date.formatted(.dateTime.month(.wide).day())
-        let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-        return (weekday, month, hour)
     }
     
     @ViewBuilder
@@ -124,3 +118,17 @@ extension View {
             .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.accent.opacity(0.35) : Color.border)
     }
 }
+
+/*
+ 
+ private var formattedDateParts: (weekday: String, month: String, hour: String) {
+     
+     
+     
+     let weekday = date.formatted(.dateTime.weekday(.wide))
+     let month = date.formatted(.dateTime.month(.wide).day())
+     let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+     return (weekday, month, hour)
+ }
+
+ */

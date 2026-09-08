@@ -86,6 +86,7 @@ extension InviteCardOverlay {
     
     private var inviteButton: some View {
         InviteButton(onTap: openInvite)
+        .eventZoomButtonSource() //Widens into the respond card's CTA — inside the paddings, so it measures the circle itself
         .padding(.horizontal, hPadding)
         .padding(.bottom, 26) //28 + 4
     }

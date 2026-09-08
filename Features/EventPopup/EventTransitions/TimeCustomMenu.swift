@@ -746,7 +746,7 @@ private struct MenuLensMorph: ViewModifier, Animatable {
             if pose.frostMix > 0 { //absent, not faded: a stacked glassEffect at opacity 0 still washes the composite milky
                 Color.clear
                     .frame(width: size.width, height: size.height)
-                    .glassEffect(.regular, in: shape)
+                    .glassEffect(.regular.tint(Color.appCanvas.opacity(0.4)), in: shape) //the platter's white cast; the alpha is what lets the card and photo behind still bleed through
                     .opacity(pose.frostOpacity)
             }
             content //always mounted, full-size on its resting rect: the lens mask IS the reveal; opacity only keeps the flying ball empty

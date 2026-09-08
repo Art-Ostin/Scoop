@@ -54,6 +54,7 @@ class RespondViewModel {
 @Observable final class RespondUIState {
 
     var showMeetInfo: Bool = false
+    var showAcceptAlert: Bool = false
 
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
         respondDraft.originalInvite.event.message?.isEmpty == false

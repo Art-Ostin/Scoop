@@ -24,9 +24,10 @@ struct RespondToInviteContainer: View {
             imagePager
             eventInfoSection
             actionSection
+                .padding(.top, 4)
         }
         .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
-        .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen) //An open menu owns the finger
+        .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert) //An open menu or alert owns the finger
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
         .animation(.transition, value: composeUI.showConfirmScreen)
         .sheet(isPresented: $composeUI.showMessageScreen) {
@@ -37,13 +38,28 @@ struct RespondToInviteContainer: View {
         .fullScreenCover(isPresented: $composeUI.showMapView) {
             MapView(defaults: vm.defaults, eventLocation: $vm.respondDraft.newEvent.place)
         }
+        //On the card's own plane, not inside it: the body is masked, so an in-place scrim stops at the card
+        .eventZoomAlert(
+            isPresented: $ui.showAcceptAlert,
+            title: "\(selectedDayString)",
+            emoji: "🧟",
+            message: "Meeting \(vm.profile.name). Cancel up to 10 hours before — no-shows may be blocked.",
+            cancelTitle: "Back",
+            okTitle: "Confirm",
+            offset: 36,
+            onOK: { ctaAction() }, //Never cleared here: the plate leaves under the response cover, with the card (`BlurCoverMotion.coveredAt`)
+            onCancel: {ui.showAcceptAlert = false}
+        )
     }
 }
 
 //ImagePager logic
 extension RespondToInviteContainer {
     var imagePager: some View {
-        EventImagePager(images: images, title: titleText, showsPageDots: !isConfirmNewEvent)
+        EventImagePager(images: images,
+                        title: titleText,
+                        showsPageDots: !isConfirmNewEvent,
+                        titleVisible: !composeUI.delayedTimePopupOpen) //The time platter takes the band
         //Under the flying cover until the hand-off: popped in then, never cut in
         .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirmNewEvent) }
         .overlay(alignment: .topTrailing) { topRow.eventZoomBandChrome() }
@@ -94,6 +110,7 @@ extension RespondToInviteContainer {
         EventTypeTimePlace(
             invite: InviteSummary(event: vm.respondDraft.originalInvite.event),
             respondDraft: $vm.respondDraft,
+            timePopupOpen: $composeUI.timePopupOpen, //One owner for both screens' time platter
             actionsBelow: true, //adjusts padding in this view if actions below
             shortSpacing: false,
             largeText: true,
@@ -128,7 +145,7 @@ extension RespondToInviteContainer {
     
     var actionSection: some View {
         VStack {
-            if !isComposeInviteScreen { warningText }
+//            if !isComposeInviteScreen { warningText }
             HStack(spacing: 18) {
                 if type != .newEvent {declineButton}
                 ctaButton
@@ -139,17 +156,26 @@ extension RespondToInviteContainer {
     }
     
     var ctaButton: some View {
-        WideActionButton(
+        //Hoisted, so the button and the flight that lands on it can never disagree about its look
+        let isActive = type != .newEvent || vm.respondDraft.newEvent.isComplete
+        let dimmed = composeUI.typePopupOpen || composeUI.timePopupOpen
+        let font: Font = type == .newTime ? .body(15, .bold) : .body(18, .bold)
+        let lineLimit = type == .newTime ? 2 : 1 //The only two-line label
+        let fill = WideActionButton.restingFill(isActive: isActive, isDimmed: dimmed)
+
+        return WideActionButton(
             text: ctaText,
-            isActive: type != .newEvent || vm.respondDraft.newEvent.isComplete,
-            isDimmed: composeUI.typePopupOpen || composeUI.timePopupOpen,
+            isActive: isActive,
+            isDimmed: dimmed,
             showShadow: false,
-            font: type == .newTime ? .body(15, .bold) : .body(18, .bold),
+            font: font,
             height: type == .newEvent ? 46 : 48,
-            lineLimit: type == .newTime ? 2 : 1, //The only two-line label
-            onTap: ctaAction
+            lineLimit: lineLimit,
+            glass: false, //The event zoom's capsule lands on this: flat, so it lands on identical pixels
+            onTap: type == .originalInvite ? { ui.showAcceptAlert = true} : ctaAction
         )
         .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
+        .eventZoomButtonTarget(text: ctaText, fill: fill, font: font, lineLimit: lineLimit) //The invite card's envelope widens into this
     }
     
     var ctaText: String {
@@ -183,6 +209,16 @@ extension RespondToInviteContainer {
         Text("* If you accept & don't turn up you may be blocked")
             .font(.body(12.5, .regularItalic))
             .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
+    }
+    
+    var selectedDayString: String {
+        if let day = vm.respondDraft.originalInvite.selectedDay {
+            return FormatEvent.shortDayAndTime(day, withHour: true, withMonth: true, withToday: false)
+//            let hour = FormatEvent.hourTime(day)
+//            return "\(dayWithMonth) at \(hour)"
+        } else {
+            return "a time"
+        }
     }
     
 }

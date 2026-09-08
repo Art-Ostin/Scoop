@@ -23,8 +23,9 @@ struct InviteTimeRow: View {
             RowCaption(label: .when)
             Spacer(minLength: 12)
             TimeCustomMenu(
-                estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: 307),
+                estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: 311),
                 verticalPlacement: .below,
+                placementOffsetY: -120, //36 above the -84 default; the row sits mid-card, clear of both clamp rails
                 isOpen: $timeisOpen,
                 content: {SelectTimeView(proposedTimes: $proposedTimes).frame(width: SelectTimeView.platterWidth)},
                 label: {rowLabel}
@@ -61,6 +62,7 @@ struct InviteTimeRow: View {
 }
 
 struct InvitePlaceRow: View {
+    
     let popupOpen: Bool
     @Binding var location: EventLocation?
     @Binding var showMapView: Bool

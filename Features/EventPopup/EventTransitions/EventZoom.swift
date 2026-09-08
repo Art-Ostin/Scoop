@@ -26,7 +26,9 @@ import SwiftUI
 //  chevron and the dismiss drag are this file's. A body reaches back with
 //  `.eventZoomChevronHidden(_:)`, `.eventZoomDragLocked(_:)`, `.eventZoomDragExclusion()`,
 //  `.eventZoomBandChrome()` and `@Environment(\.eventZoomDismiss)`; all of them are no-ops when
-//  the body renders without a flight.
+//  the body renders without a flight. `.eventZoomAlert(_:)` is the one exception — the body is
+//  masked, so its alert is drawn on the card's plane instead, and without a flight it falls back
+//  to the in-place `.customAlertCard`.
 
 extension View {
 
@@ -82,8 +84,13 @@ extension View {
     ///The CTA the `.eventZoomButtonSource` circle widens into. `fill` and `text` are what it rests
     ///at, so the flying capsule wears the landing's own look from its first frame rather than a
     ///guess at it; the real button ghosts for the flight and takes back identical pixels at the cut.
-    func eventZoomButtonTarget(text: String, fill: Color) -> some View {
-        modifier(EventZoomButtonTargetModifier(text: text, fill: fill))
+    ///`font` and `lineLimit` default to `WideActionButton`'s own, which is what the compose card's
+    ///CTA takes — a CTA that wears a different label (the respond card's two-line "Propose New
+    ///Times", 15pt) passes its own, or the capsule's word arrives in the wrong type and the
+    ///hand-off steps.
+    func eventZoomButtonTarget(text: String, fill: Color,
+                               font: Font = .body(18, .bold), lineLimit: Int = 1) -> some View {
+        modifier(EventZoomButtonTargetModifier(text: text, fill: fill, font: font, lineLimit: lineLimit))
     }
 
     ///Presents `card` grown out of the `.eventZoomSource` inside this view when `isPresented`
@@ -122,6 +129,46 @@ extension View {
     ///subtract, and a page flip made while the cover is still up replays as a single pop.
     func eventZoomBandChrome(visible: Bool = true) -> some View {
         modifier(EventZoomBandChromeModifier(onPage: visible))
+    }
+
+    ///An alert the card body raises about the card itself (the accept commitment). Identical in every
+    ///argument to `.customAlertCard`, and identical in pixels — but drawn on the card's OWN plane
+    ///rather than inside it, because the body renders inside the morph's mask: a scrim laid in there
+    ///stops at the card's rounded window and, being greedy, stretches the card to fill the plane. Here
+    ///it covers the screen, sits above the backdrop, the card and the chevron, and takes the touches
+    ///the dismiss drag would otherwise read. Falls back to the in-place alert when the body renders
+    ///without a flight. Only for alerts the CARD body raises: anything it presents as its own sheet or
+    ///cover keeps `.customAlertCard`, or the alert lands behind that presentation.
+    func eventZoomAlert(
+        isPresented: Binding<Bool>,
+
+        title: String,
+        emoji: String = "🦥",
+        message: String,
+
+        cancelTitle: String = "Cancel",
+        okTitle: String = "OK",
+
+        offset: CGFloat = 0,
+
+        onOK: @escaping () -> Void,
+        onCancel: (() -> ())? = nil
+    ) -> some View {
+        modifier(
+            EventZoomAlertModifier(
+                isPresented: isPresented,
+                alert: AlertRequest(
+                    title: title,
+                    emoji: emoji,
+                    message: message,
+                    cancelTitle: cancelTitle,
+                    okTitle: okTitle,
+                    offset: offset,
+                    onOK: onOK,
+                    onCancel: onCancel
+                )
+            )
+        )
     }
 }
 
@@ -374,13 +421,26 @@ private struct EventZoomButtonTargetModifier: ViewModifier {
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
     let text: String
     let fill: Color
+    let font: Font
+    let lineLimit: Int
 
     func body(content: Content) -> some View {
         content
             .opacity(flight?.ctaGhosted == true ? 0 : 1)
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.cardSpace)) } action: { flight?.reportCTA($0) }
-            .onChange(of: text, initial: true) { flight?.reportCTALook(text: $1, fill: fill) }
-            .onChange(of: fill, initial: true) { flight?.reportCTALook(text: text, fill: $1) }
+            //One report per look, not one per property: a CTA whose text and font change together
+            //(the respond card's type switch) must never leave the capsule wearing half of each
+            .onChange(of: Look(text: text, fill: fill, font: font, lineLimit: lineLimit), initial: true) {
+                flight?.reportCTALook(text: $1.text, fill: $1.fill, font: $1.font, lineLimit: $1.lineLimit)
+            }
+    }
+
+    ///The four together, so one `onChange` carries a look that changes as a unit
+    private struct Look: Equatable {
+        let text: String
+        let fill: Color
+        let font: Font
+        let lineLimit: Int
     }
 }
 
@@ -464,6 +524,45 @@ private struct EventZoomBandChromeModifier: ViewModifier {
     }
 }
 
+private struct EventZoomAlertModifier: ViewModifier {
+
+    //Injected
+    @Environment(AlertHost.self) private var host: AlertHost? //The card's plane; absent when the body renders without a flight
+    @Binding var isPresented: Bool
+    let alert: AlertRequest
+
+    //Local view state
+    @State private var id = UUID() //This modifier's claim on the plane, so a stale close never clears a live alert
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let host {
+            content
+                //`initial`: a body that mounts with its alert already up still takes the plane
+                .onChange(of: isPresented, initial: true) { _, presented in
+                    if presented {
+                        host.present(id: id, alert: alert, dismiss: { isPresented = false })
+                    } else {
+                        host.close(id: id)
+                    }
+                }
+                //The plane outlives this body (the card flies home around it): a card closed with its
+                //alert up must not leave the plate behind
+                .onDisappear { host.close(id: id) }
+        } else {
+            content.customAlertCard(isPresented: $isPresented,
+                                    title: alert.title,
+                                    emoji: alert.emoji,
+                                    message: alert.message,
+                                    cancelTitle: alert.cancelTitle,
+                                    okTitle: alert.okTitle,
+                                    offset: alert.offset,
+                                    onOK: alert.onOK,
+                                    onCancel: alert.onCancel)
+        }
+    }
+}
+
 //MARK: - The presented card: the flight's host
 
 //Mounted the moment the host's slot fills, and unmounted in the same commit the flight lands
@@ -478,6 +577,7 @@ private struct EventZoomCard: View {
     //Local view state
     @State private var flight: EventZoomChoreo
     @State private var containerTop: CGFloat = 0 //This view's global origin — the stationary chevron's slot arrives in global space
+    @State private var alerts = AlertHost() //The card body's own plane: an alert it raises is masked out inside it
     private let dismiss: EventZoomDismissAction //Built once with the choreo: a fresh closure per frame would re-run every body reading it
 
     init(slot: EventZoomHost.Slot, host: EventZoomHost) {
@@ -514,6 +614,9 @@ private struct EventZoomCard: View {
         }
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { containerTop = $0 }
         .overlay(alignment: .top) { stationaryChevron }
+        //Last, so the card body's alert covers the backdrop, the card and the chevron alike — and sits
+        //outside the dismiss drag, which would otherwise scrub the card away under it
+        .overlay { AlertLayer(host: alerts) }
         .onAppear {
             let flight = flight
             slot.anchor.requestClose = { [weak flight] flightless in flight?.close(flightless: flightless) ?? false } //How the host closes this card when the binding drops, or its source vanishes
@@ -557,6 +660,7 @@ extension EventZoomCard {
             .equatable()
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
             .environment(\.eventZoomDismiss, dismiss)
+            .environment(alerts) //Where `.eventZoomAlert` puts its plate — outside the mask below, which is the whole point
             //The space the body's band and CTA report their frames in: INSIDE the morph's render
             //transforms, so a breathing, sinking or popping card never feeds its transform back into
             //the poses derived from those frames (see EventZoomChoreo.ctaLocal)
@@ -634,6 +738,8 @@ private struct EventZoomCardContent: View, Equatable {
     private var ctaRect: CGRect { ctaLocal.isEmpty ? .zero : ctaLocal.offsetBy(dx: cardRect.minX, dy: cardRect.minY) }
     private var ctaText: String = "" //What the CTA rests at, so the capsule wears the landing's own look
     private var ctaFill: Color = .clear
+    private var ctaFont: Font = .body(18, .bold) //Its type, so the flying word is the landing's own
+    private var ctaLineLimit: Int = 1
     private var ctaHeroShown = true //The capsule stands in for the CTA until its fade is done (see `handOffCTA`)
     private var ctaHeroFade: Double = 1 //The capsule's fill fading off the real button — its label holds until the end
     private let onClosing: () -> Void //A committed close is leaving: the owner hides a lens' static ring
@@ -788,9 +894,11 @@ extension EventZoomChoreo {
         if ctaLocal != rect { ctaLocal = rect }
     }
 
-    func reportCTALook(text: String, fill: Color) {
+    func reportCTALook(text: String, fill: Color, font: Font, lineLimit: Int) {
         if ctaText != text { ctaText = text }
         if ctaFill != fill { ctaFill = fill }
+        if ctaFont != font { ctaFont = font }
+        if ctaLineLimit != lineLimit { ctaLineLimit = lineLimit }
     }
 
     func setChevronHiddenByCard(_ hidden: Bool) {
@@ -833,6 +941,8 @@ extension EventZoomChoreo {
             cta: ctaRect,
             ctaText: ctaText,
             ctaFill: ctaFill,
+            ctaFont: ctaFont,
+            ctaLineLimit: ctaLineLimit,
             coverShown: coverShown,
             titleShown: titleHeroShown,
             titleFade: titleHeroFade,
@@ -1414,6 +1524,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let cta: CGRect //The card's own CTA, global — the capsule's landing
     let ctaText: String
     let ctaFill: Color
+    let ctaFont: Font //The landing's own type, so the flying word never arrives in a different one
+    let ctaLineLimit: Int
     let coverShown: Bool
     let titleShown: Bool //The name morph's pieces outlive the cover's cut by their own fade
     let titleFade: Double
@@ -1783,13 +1895,18 @@ struct EventZoomMorph: ViewModifier, Animatable {
         .overlay {
             //The word sits where it LANDS from its first frame, so the capsule's settle plays out
             //around a still label rather than carrying it — a word riding an overshoot wobbles.
-            //Arriving late enough that the capsule already reaches past it (see `label`).
+            //Arriving late enough that the capsule already reaches past it, and out of focus (see
+            //`label` and `labelArrivalBlur`): posed still, its whole arrival IS the pull into focus.
+            //The blur goes AFTER the scale, so its radius is in screen points, and BEFORE the
+            //`.position`, which would otherwise hand it the capsule's whole frame to filter.
             Text(morph.text)
-                .font(.body(18, .bold)) //WideActionButton's own default, which this CTA takes
+                .font(ctaFont) //The landing's own, reported by `.eventZoomButtonTarget`
                 .foregroundStyle(Color.white)
-                .lineLimit(1)
+                .lineLimit(ctaLineLimit)
+                .multilineTextAlignment(.center) //A two-line CTA centres its lines; the hero must too
                 .fixedSize()
                 .scaleEffect(Self.labelShrunkScale + (1 - Self.labelShrunkScale) * morph.label)
+                .blur(radius: Self.labelArrivalBlur * (1 - morph.label))
                 .opacity(morph.label)
                 .position(x: morph.labelX - rect.minX, y: rect.height / 2)
         }
@@ -1810,6 +1927,13 @@ struct EventZoomMorph: ViewModifier, Animatable {
 
     //The word's arrival scale: a breath, not the house pop's 0.7 — it lands inside a moving shape
     private static let labelShrunkScale: CGFloat = 0.92
+    //And its arrival focus, which is what the arrival actually READS as — the scale alone let the
+    //word simply appear. Four points, a third of ModernEra Bold 18's 12.6pt cap: the house pop's 8
+    //is authored for a whole element popping on a spring of its own, and at this size it welds the
+    //two lines of the respond card's CTA (1.5pt of ink between them — ModernEra carries no leading)
+    //into one bar for most of the ramp. A radius, never a `blurPop`: driven by `label`, so it is
+    //exactly 0 well before the hand-off, and can never go negative on a close's rebounding p.
+    private static let labelArrivalBlur: CGFloat = 4
 
     private func titleHero(_ morph: EventZoomTitleMorph) -> some View {
         let hero = morph.hero
@@ -1969,10 +2093,15 @@ struct EventZoomButtonMorph {
         //Tint and lens leave together over the first third: past that the capsule is too far from a
         //circle for the 42pt lens to sit on it honestly
         shed = 1 - Self.smoothstep(t / 0.35)
-        //The word arrives once the capsule reaches past its landing centre, and is full by t = 0.95,
-        //provably crisp before the landing — see the note on the leaf: a pop with a spring of its
-        //own outlives the hand-off
-        label = Self.smoothstep((t - 0.7) / 0.25)
+        //The word arrives once the capsule reaches past its landing centre — by t = 0.62 even the
+        //narrowest CTA (the respond card's half-width two-line one) covers its own box with points
+        //to spare, blur halo included, which matters because nothing clips that halo: this overlay
+        //is applied outside the window's mask. Full at t = 0.98, which buys the arrival ~126ms
+        //against the old (0.7, 0.25) window's ~84 — the flight's spring is easing hard through
+        //here, so the milliseconds live at the END of the range, and a window widened at the front
+        //would still have read as a flash. Crisp a tenth of a second before the landing — see the
+        //note on the leaf: a pop with a spring of its own outlives the hand-off
+        label = Self.smoothstep((t - 0.62) / 0.36)
     }
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {

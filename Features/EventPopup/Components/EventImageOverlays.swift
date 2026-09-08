@@ -94,8 +94,10 @@ private struct TitleWords {
     let shared: String   //Spelt as the title spells it, so the case is the title's call, not this type's
     let trailing: String? //The invitee, while the send is still being composed
 
+    ///Matched as a whole word: a bare substring match splits "Invited Sarah" into "Invite" and
+    ///"d Sarah", and the space advance the runs are laid out with prints it as "Invite d Sarah".
     init?(_ title: String) {
-        guard let word = title.range(of: "Invite", options: .caseInsensitive) else { return nil }
+        guard let word = title.range(of: #"\bInvite\b"#, options: [.regularExpression, .caseInsensitive]) else { return nil }
         let before = title[..<word.lowerBound].trimmingCharacters(in: .whitespaces)
         let after = title[word.upperBound...].trimmingCharacters(in: .whitespaces)
         leading = before.isEmpty ? nil : before
