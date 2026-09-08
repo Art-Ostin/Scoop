@@ -50,7 +50,9 @@ extension ComposeInviteContainer {
                                titleVisible: !ui.delayedTimePopupOpen, //The time platter takes the band
                                //…and lands on a white ground. It arrives on the DELAYED flag (behind the risen platter)
                                //and leaves on the LIVE one (while the platter still covers it), so it is never seen on bare photo.
+                               //Its size is the platter's own measured overlap, so no part of it stands proud of the glass.
                                bandFilled: ui.timePopupOpen && ui.delayedTimePopupOpen,
+                               bandGround: ui.timeBand,
                                visiblePhoto: $ui.visiblePhoto)
         //The pager's frame IS the photo's — its root is the aspect box the carousel overlays
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { ui.photoFrame = $0 }
@@ -180,7 +182,8 @@ struct EditTypeTimePlace: View {
                 proposedTimes: $draft.time,
                 timeisOpen: $ui.timePopupOpen,
                 typePopUpOpen: ui.delayedTypePopupOpen,
-                captionHidden: ui.delayedTimePopupOpen
+                captionHidden: ui.delayedTimePopupOpen,
+                bandGround: ui.timeBand
             )
             
             VeryLightDivider()

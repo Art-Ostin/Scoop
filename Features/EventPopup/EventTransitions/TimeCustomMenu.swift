@@ -8,7 +8,7 @@
 //  Native-style menu in its own window. iOS 26: on touch-down the label implodes into a glass droplet that flies
 //  to the platter and flowers open; the close runs the device-fitted droplet keyframes. Pre-26: scale/fade.
 //
-//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetY:labelAnchorInsetY:isOpen:onOpen:onClose:) { content } label: { trigger }
+//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetY:labelAnchorInsetY:isOpen:onOpen:onClose:onPlatterFrame:) { content } label: { trigger }
 //  Content must be its own View struct (it renders in the menu window); inside it call @Environment(\.timeCustomMenuDismiss).
 //  Every iOS 26 beat below is fitted to DEVICE recordings of the native menu; the sim animates differently. -timeMenuSlowMotion for review.
 //
@@ -43,6 +43,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     let isOpen: Binding<Bool>? //mirrors the presentation; written by the menu, never a way to open it
     let onOpen: (() -> Void)? //fires the instant the menu presents, before the bloom
     let onClose: (() -> Void)? //fires the instant a dismiss is requested, before the close
+    let onPlatterFrame: ((CGRect) -> Void)? //the platter's placed frame, in window coords, on every placement
     let content: () -> Content
     let label: () -> Label
 
@@ -61,6 +62,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          isOpen: Binding<Bool>? = nil,
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
+         onPlatterFrame: ((CGRect) -> Void)? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder label: @escaping () -> Label) {
         self.estimatedContentSize = estimatedContentSize
@@ -71,6 +73,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.isOpen = isOpen
         self.onOpen = onOpen
         self.onClose = onClose
+        self.onPlatterFrame = onPlatterFrame
         self.content = content
         self.label = label
     }
@@ -147,6 +150,7 @@ extension TimeCustomMenu {
             tracksContentSizeChanges: tracksContentSizeChanges,
             onPresent: { isOpen?.wrappedValue = true; onOpen?() },
             onClose: { isOpen?.wrappedValue = false; onClose?() },
+            onPlatterFrame: onPlatterFrame,
             label: { AnyView(label()) },
             content: { AnyView(content()) }
         )
@@ -305,6 +309,8 @@ private final class TimeCustomMenuController {
     @ObservationIgnored private(set) var cachedMenuSize: CGSize? //survives teardown: later opens bloom from the exact size
     @ObservationIgnored private var window: UIWindow?
     @ObservationIgnored private var onClose: (() -> Void)?
+    @ObservationIgnored private var onPlatterFrame: ((CGRect) -> Void)?
+    @ObservationIgnored private var reportedPlatterFrame: CGRect = .zero //the guard below; the sizer re-measures every frame of a reflow
     @ObservationIgnored private var generation = 0 //voids wall-clock teardowns from a previous open
 
     // MARK: Lifecycle
@@ -317,6 +323,7 @@ private final class TimeCustomMenuController {
                  tracksContentSizeChanges: Bool,
                  onPresent: @escaping () -> Void,
                  onClose: @escaping () -> Void,
+                 onPlatterFrame: ((CGRect) -> Void)?,
                  label: @escaping () -> AnyView,
                  content: @escaping () -> AnyView) {
         guard window == nil,
@@ -333,6 +340,7 @@ private final class TimeCustomMenuController {
         self.estimatedContentSize = estimatedContentSize
         self.tracksContentSizeChanges = tracksContentSizeChanges
         self.onClose = onClose
+        self.onPlatterFrame = onPlatterFrame
         self.label = label
         self.content = content
         phase = .measuring
@@ -360,6 +368,14 @@ private final class TimeCustomMenuController {
     func updateLabelFrame(_ frame: CGRect) {
         guard window != nil, frame != .zero else { return }
         labelFrame = frame
+    }
+
+    //The placed platter, for chrome outside this window that must meet its edge. Guarded twice: never
+    //after teardown, and never at an unchanged rect — a re-layout at the same frame costs the app nothing.
+    func reportPlatterFrame(_ rect: CGRect) {
+        guard window != nil, rect != reportedPlatterFrame else { return }
+        reportedPlatterFrame = rect
+        onPlatterFrame?(rect)
     }
 
     func cacheMenuSize(_ size: CGSize) {
@@ -398,6 +414,8 @@ private final class TimeCustomMenuController {
         window?.isHidden = true
         window = nil
         onClose = nil
+        onPlatterFrame = nil
+        reportedPlatterFrame = .zero
         content = nil
         label = nil
         verticalPlacement = .automatic
@@ -487,8 +505,11 @@ extension TimeCustomMenuOverlay {
                                         dropletClose: closeUsesDroplet))
                 .opacity(lensOpacity)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .onAppear { //the sizer may be skipped, so mark shown and bloom here
+                .onAppear { //the sizer may be skipped, so mark shown, report the placement and bloom here
                     controller.markShown()
+                    //Only when no measure has landed: a sizer pass is the truth, and this one would otherwise
+                    //hand back the estimate AFTER it, on whichever order the two fire in
+                    if menuSize == nil { controller.reportPlatterFrame(metrics.platterRect(for: size)) }
                     startBloom()
                 }
         }
@@ -496,10 +517,18 @@ extension TimeCustomMenuOverlay {
 
     private func sized(_ size: CGSize, metrics: Metrics) {
         guard size.height <= metrics.maxHeight + 1 else { return } //trust only the scroll-capped pass
+        let placed = metrics.platterRect(for: size)
+        //The report goes out INSIDE the transaction that carries the size it describes: `expanded` is not
+        //animatable, so the platter's move is an implicit frame animation on this spring. A listener keyed
+        //off the value alone would be handed the destination a whole reflow before the platter reaches it.
         if bloomStarted && controller.tracksContentSizeChanges { //the first measure lands instantly; later reflows animate
-            withAnimation(Spec.reflowResize) { menuSize = size }
+            withAnimation(Spec.reflowResize) {
+                menuSize = size
+                controller.reportPlatterFrame(placed)
+            }
         } else {
             menuSize = size
+            controller.reportPlatterFrame(placed)
         }
         controller.cacheMenuSize(size)
     }
@@ -538,6 +567,7 @@ extension TimeCustomMenuOverlay {
             .clipShape(shape)
             .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
                 menuSize = size
+                controller.reportPlatterFrame(metrics.platterRect(for: size)) //`.centred` ignores the anchor gap, so this platter sits on the photo exactly as the lens does
                 if !appeared, size.height <= metrics.maxHeight + 1 { //wait for the scroll-capped pass
                     appeared = true
                     controller.markShown()
@@ -769,7 +799,7 @@ private struct MenuLensMorph: ViewModifier, Animatable {
             if pose.frostMix > 0 { //absent, not faded: a stacked glassEffect at opacity 0 still washes the composite milky
                 Color.clear
                     .frame(width: size.width, height: size.height)
-                    .glassEffect(.regular.tint(Color.appCanvas.opacity(0.4)), in: shape) //the platter's white cast; the alpha is what lets the card and photo behind still bleed through
+                    .glassEffect(.regular, in: shape) //plain glass: the platter takes its colour from whatever it is over, rather than casting a warm one of its own
                     .opacity(pose.frostOpacity)
             }
             content //always mounted, full-size on its resting rect: the lens mask IS the reveal; opacity only keeps the flying ball empty

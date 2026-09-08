@@ -63,8 +63,10 @@ extension RespondToInviteContainer {
                         titleVisible: !composeUI.delayedTimePopupOpen, //The time platter takes the band
                         //…and lands on a white ground. It arrives on the DELAYED flag (behind the risen
                         //platter) and leaves on the LIVE one (while the platter still covers it), so it
-                        //is never seen on bare photo.
-                        bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen)
+                        //is never seen on bare photo. Its size is the platter's own measured overlap, so
+                        //no part of it stands proud of the glass.
+                        bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen,
+                        bandGround: composeUI.timeBand)
         .overlay(alignment: .topLeading) {
             backButton.eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
         }
@@ -160,6 +162,7 @@ extension RespondToInviteContainer {
             shortSpacing: false,
             largeText: true,
             heroLanding: true, //The invite card's own time and place lines fly onto these rows
+            bandGround: composeUI.timeBand, //The time platter's band reports through this row
             openInfo: {composeUI.showInfoScreen = true}
         )
     }

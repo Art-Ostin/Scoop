@@ -20,6 +20,8 @@ struct InviteTimeRow: View {
     //Its own platter is up. The row stays — the lens is born on its label and lands back on it — but the
     //caption has no menu to hide it, so it would read through the glass
     var captionHidden: Bool = false
+    //Where this row's platter reports the frame its band must meet
+    var bandGround: TimeBandGround? = nil
     
     var body: some View {
         HStack {
@@ -31,6 +33,7 @@ struct InviteTimeRow: View {
                 verticalPlacement: .below,
                 placementOffsetY: -120, //36 above the -84 default; the row sits mid-card, clear of both clamp rails
                 isOpen: $timeisOpen,
+                onPlatterFrame: { bandGround?.reportPlatter($0) },
                 content: {SelectTimeView(proposedTimes: $proposedTimes).frame(width: SelectTimeView.platterWidth)},
                 label: {rowLabel}
             )

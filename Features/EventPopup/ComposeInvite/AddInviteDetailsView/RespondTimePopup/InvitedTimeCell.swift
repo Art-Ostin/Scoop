@@ -56,7 +56,8 @@ extension InvitedTimeCell {
         }
         .invitedTimeCellBackground(isSelected: isSelected, isActive: status == .available)
         .animation(.selectionDot, value: isSelected) //ring, dot, card stroke and label all land together
-        .showShakeAnimation(bool: shake, amplitude: 1.4)
+        //Geometry: the card sits 16pt inside the pager page that clips it, so 9 × 1.7 is the widest swing that keeps both corners
+        .showShakeAnimation(bool: shake, amplitude: 1.7)
     }
     
     private static let ringSize: CGFloat = 20

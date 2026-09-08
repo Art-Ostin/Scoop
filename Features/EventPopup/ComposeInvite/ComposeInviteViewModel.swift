@@ -57,10 +57,16 @@ class ComposeInviteUIState {
     //global rect. Written as they change, read only at the Send tap — with the card at rest
     var visiblePhoto: UIImage?
     var photoFrame: CGRect = .zero
+
+    //The white ground under the time platter: the pager reports the photo, the menu its placed frame
+    let timeBand = TimeBandGround()
     
     
     var timePopupOpen: Bool = false {
         didSet {
+            //Synchronously, on the live flag: the ground has to be gone with the band it feeds, not 40ms
+            //behind it, and a reopen inside that window would otherwise inherit the last platter's rect
+            if !timePopupOpen { timeBand.clear() }
             Task { @MainActor [self] in
                 try? await Task.sleep(for: .milliseconds(timePopupOpen ? 120 : 40))
                 if delayedTimePopupOpen != timePopupOpen { delayedTimePopupOpen = timePopupOpen }

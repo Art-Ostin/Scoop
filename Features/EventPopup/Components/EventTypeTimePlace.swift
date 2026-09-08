@@ -23,6 +23,7 @@ struct EventTypeTimePlace: View {
     var shortSpacing: Bool = false
     var largeText: Bool = false
     var heroLanding: Bool = false
+    var bandGround: TimeBandGround? = nil //Where this row's platter reports the frame its band must meet
     let openInfo: () -> ()
 
     var body: some View {
@@ -90,7 +91,7 @@ extension EventTypeTimePlace {
     @ViewBuilder
     var timeRow: some View {
         if let respondDraft {
-            RespondEventTimeRow(draft: respondDraft, isOpen: timePopupOpen)
+            RespondEventTimeRow(draft: respondDraft, isOpen: timePopupOpen, bandGround: bandGround)
         } else {
             iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
@@ -137,6 +138,8 @@ private struct RespondEventTimeRow: View {
     //The container's, not the row's: an open platter dims the CTA, locks the card's drag and hides the title
     @Binding var isOpen: Bool
     
+    let bandGround: TimeBandGround?
+
     //Which screen when it opens -> i.e. is It newTime or original invite
     @State private var page: TimePopupPage? = .newTime
 
@@ -147,7 +150,8 @@ private struct RespondEventTimeRow: View {
                        placementOffsetY: 0,
                        labelAnchorInsetY: Self.labelAnchorInset,
                        isOpen: $isOpen,
-                       onOpen: { page = draft.respondType == .newTime ? .newTime : .invitedTimes  }) {
+                       onOpen: { page = draft.respondType == .newTime ? .newTime : .invitedTimes  },
+                       onPlatterFrame: { bandGround?.reportPlatter($0) }) {
             popup
         } label: {
             label

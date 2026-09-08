@@ -15,6 +15,7 @@ struct EventImagePager: View {
     var showsPageDots: Bool = true //Only a page you can swipe carries them — the card owns that call, not the title
     var titleVisible: Bool = true //An open popup takes the band: the card owns that call
     var bandFilled: Bool = false //…and lands on this: fill the band so the lens meets a flat ground, not the photo
+    var bandGround: TimeBandGround? = nil //…sized by this: the platter's own measured overlap of the photo
     var visiblePhoto: Binding<UIImage?> = .constant(nil) //The page on screen, as drawn — what a hero lifting off this pager flies
 
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
@@ -22,18 +23,6 @@ struct EventImagePager: View {
     @State private var titleRect: CGRect = .zero
     private static let bandSpace = "eventPagerBand"
 
-    //Geometry: the ground the time platter lands on — the photo's foot, filled while the platter is up.
-    //The platter overlaps the photo by ~22pt, and the lens samples a margin past its own edge, so the
-    //surplus shows as a white band above the platter. TUNE THE HEIGHT HERE.
-    static let bandFillHeight: CGFloat = 18
-
-    static let bandFillInset: CGFloat = 36
-
-    //Geometry: how long the band waits behind the risen platter before it fades in — ON TOP of the 120ms
-    //shared delay in ComposeInviteViewModel. The exit ignores this and always cuts. TUNE THE DELAY HERE.
-    //Ceiling is the platter's bloom (widthBloom, a 0.46s spring): past that it fades in on a settled platter.
-    static let bandFillDelay: TimeInterval = 0.04
-    
     //Local view state
     @State private var scrollProgress: Double = 0
     @State private var prepared: PreparedImages?
@@ -51,16 +40,9 @@ struct EventImagePager: View {
                 }
             }
             //The white ground the time platter lands on: the photo would otherwise show through the lens
-            //and tint its top edge. Same band, same delayed flag as the title that vacates it.
-            .overlay(alignment: .bottom) {
-                Color.appCanvas
-                    .frame(height: Self.bandFillHeight)
-                    .padding(.horizontal, Self.bandFillInset)
-                    .opacity(bandFilled ? 1 : 0)
-                    //Fades IN behind the platter, but CUTS out: the band must be gone before the platter
-                    //uncovers it, so its exit can never be a curve with a tail.
-                    .animation(bandFilled ? .transition.delay(Self.bandFillDelay) : nil, value: bandFilled)
-            }
+            //and tint its top edge. Same delayed flag as the title that vacates it; the HEIGHT and WIDTH
+            //are the platter's own measured overlap, so no part of the band ever stands proud of it.
+            .overlay(alignment: .bottom) { TimeBandFill(ground: bandGround, visible: bandFilled) }
             //Hidden, never unmounted: the rect it reports is the name morph's anchor and the frost band's
             .overlay(alignment: .bottomLeading)  {
                 EventTitle(title: title, textRect: $titleRect, coordSpace: Self.bandSpace)
@@ -72,6 +54,8 @@ struct EventImagePager: View {
             .onChange(of: title, initial: true) { flight?.reportTitle($1) }
             .onChange(of: titleRect, initial: true) { flight?.reportPagerTitle($1) }
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.cardSpace)) } action: { flight?.reportPagerBand($0) }
+            //Global, to meet the platter's own window coords: the pager's frame IS the photo's
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { bandGround?.reportPhoto($0) }
             .task(id: images) { await prepare() }
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }
             .onChange(of: images) { if carouselVisible { latch() } }
