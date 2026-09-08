@@ -29,6 +29,7 @@ struct InvitedTimeCell: View {
             timeCellLabel
         }
         .buttonStyle(.plain)
+        .sensoryFeedback(.warning, trigger: shake)   // the refusal at an unavailable slot, as the day cap gives
         .task(id: isShaking) {await resetShakeFlag()}
     }
 }
@@ -42,7 +43,7 @@ extension InvitedTimeCell {
         }
         .invitedTimeCellBackground(isSelected)
         .overlay(alignment: .topTrailing) {timeStatusText}
-        .showShakeAnimation(bool: shake)
+        .showShakeAnimation(bool: shake, amplitude: 1.4) //A full-width card needs a wider swing than the day dot to read as a refusal
     }
         
     private var optionTypeText: some View {
@@ -52,7 +53,7 @@ extension InvitedTimeCell {
     }
     
     private var eventTimeText: some View {
-        let time = FormatEvent.shortDayAndTime(date, withHour: false) //The hour follows below in its own tone; `shortDayAndTime` appends one by default
+        let time = date.formatted(.dateTime.weekday(.wide).day().month(.wide))
         let hour = FormatEvent.hourTime(date)
         return Group {
             Text(time)
@@ -67,12 +68,13 @@ extension InvitedTimeCell {
     @ViewBuilder
     private var timeStatusText: some View {
         if status != .available {
-            Text(status.rawValue)
+            Text(status.rawValue.capitalized)
                 .font(.body(13, .italic))
                 .foregroundStyle(isShaking ? Color.warningYellow : Color.textTertiary)
                 .animation(.transition, value: isShaking)
                 .padding(.horizontal)
                 .padding(.top, Spacing.sm)
+                .transition(.blurReplace)
         }
     }
 }
@@ -115,20 +117,6 @@ extension View {
             .padding(.vertical, Spacing.sm)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
-            .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.accent.opacity(0.35) : Color.border)
+            .stroke(CornerRadius.md, lineWidth: 1, color: isSelected ? Color.accent : Color.border)
     }
 }
-
-/*
- 
- private var formattedDateParts: (weekday: String, month: String, hour: String) {
-     
-     
-     
-     let weekday = date.formatted(.dateTime.weekday(.wide))
-     let month = date.formatted(.dateTime.month(.wide).day())
-     let hour = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-     return (weekday, month, hour)
- }
-
- */

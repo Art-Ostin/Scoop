@@ -197,7 +197,7 @@ struct NewEventToggleButton: View {
     }
 
     //One style for both forms, so the twin can never drift from the button it stands in for
-    private static let style: ScoopButtonStyle = .glass
+    private static let style: ScoopButtonStyle = .clearGlass
 
     @ViewBuilder
     private var surface: some View {
@@ -207,9 +207,6 @@ struct NewEventToggleButton: View {
                 .glassFallbackRestingShadow() //See EventBackButton.surface
         } else {
             ScoopButton(style: Self.style, shape: .capsule) {
-                //The card's own mask and shadow re-animate a landed resize on `.transition`
-                //(`EventZoomFlight.reportCard`), so the body that pushes them has to run the same clock.
-                //Each half of the swap carries its own beat — see `RespondToInviteContainer.bodySwap`.
                 withAnimation(.transition) {
                     responseType = isNewEvent ? .originalInvite : .newEvent
                     showConfirmScreen = false

@@ -156,6 +156,7 @@ extension RespondToInviteContainer {
             actionsBelow: true, //adjusts padding in this view if actions below
             shortSpacing: false,
             largeText: true,
+            heroLanding: true, //The invite card's own time and place lines fly onto these rows
             openInfo: {composeUI.showInfoScreen = true}
         )
     }
@@ -248,10 +249,10 @@ extension RespondToInviteContainer {
     var declineButton: some View {
         Text("Decline")
             .font(.body(18, .bold))
+            .opacity(actionsDimmed ? 0.2 : 1)
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .capsuleStroke(lineWidth: 1, color: .borderStrong)
-            .opacity(actionsDimmed ? 0.5 : 1) //Text and stroke together — the CTA beside it greys its fill on the same flag
+            .capsuleStroke(lineWidth: 1, color: .borderStrong.opacity(actionsDimmed ? 0.4 : 1))
             .geometryGroup()
             .shrinkPress {respond(.decline)}
             .eventZoomDragExclusion()

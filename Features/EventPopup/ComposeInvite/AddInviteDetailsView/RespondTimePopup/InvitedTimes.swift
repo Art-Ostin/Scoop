@@ -33,9 +33,6 @@ struct InvitedTimes: View {
 
 extension InvitedTimes {
 
-    //An invite can arrive with no days on it (its times were replaced with an empty set).
-    //Without a body here the page measures 0pt and the pager falls back to the taller
-    //new-time page's height, so the popup reads as broken rather than empty.
     private var emptyState: some View {
         Text("This invite has no times on it — suggest one instead.")
             .font(.body(15, .regular))

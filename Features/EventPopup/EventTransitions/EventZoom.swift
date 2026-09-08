@@ -70,6 +70,33 @@ extension View {
         modifier(EventZoomTitleSourceModifier(name: name))
     }
 
+    ///Marks a line the source card and the card it opens both draw — the invite card's white
+    ///"Fri 21 Mar, 7pm" against the respond card's own time row. Put it on the source's whole
+    ///`lineSection` (icon and words together, which is what flies): the flight measures where the
+    ///row rests, blanks the copy riding the cover, and carries ONE row from the card's artwork into
+    ///the opened card's list, restyling en route. Pair it with `.eventZoomRowTarget` on the landing
+    ///row. Without the pair, both rows keep today's fades — the source's with the chrome copy, the
+    ///landing's revealed by the growing window.
+    func eventZoomTimeSource(_ text: String) -> some View {
+        modifier(EventZoomRowSourceModifier(kind: .time, text: text))
+    }
+
+    ///As above, for the place line
+    func eventZoomPlaceSource(_ text: String) -> some View {
+        modifier(EventZoomRowSourceModifier(kind: .place, text: text))
+    }
+
+    ///The row a `.eventZoomTimeSource`/`.eventZoomPlaceSource` line lands on. `text` is what the row
+    ///rests at, so the flying words arrive spelling the landing's own sentence rather than the
+    ///card's. The real row ghosts for the flight and takes back identical pixels at the hand-off.
+    ///Put it on the row's OUTERMOST box — icon, words and any trailing affordance as one unit — and
+    ///never inside a `CustomMenu` label: that closure is copied into the menu's own window, where
+    ///the flight is not in the environment and the report would silently no-op. `active` is for a
+    ///row that exists at more than one mount — an off-page pager copy must not claim the landing.
+    func eventZoomRowTarget(_ kind: EventZoomRowKind, text: String, active: Bool = true) -> some View {
+        modifier(EventZoomRowTargetModifier(kind: kind, text: text, active: active))
+    }
+
     ///Marks the small round button on the source card that the card's wide CTA takes over from —
     ///the meet card's envelope against the compose card's "Preview". Pair it with
     ///`.eventZoomButtonTarget` on that CTA and the flight widens one into the other: a flat capsule
@@ -280,6 +307,44 @@ extension EnvironmentValues {
     @Entry var eventZoomTitleFlying = false
     ///As above, for the source's round button while the capsule hero owns it
     @Entry var eventZoomButtonFlying = false
+    ///As above, for the source's time and place lines while the row heroes own them
+    @Entry var eventZoomRowsFlying = false
+}
+
+//MARK: - The rows a flight carries
+
+///Which line a row hero is. The set is open by design — the type chip is the next one — but each
+///kind must be marked at BOTH ends before it flies: a kind with only one end measured keeps the
+///plain fades, so a source that draws no rows (the meet card) pays nothing for this.
+enum EventZoomRowKind: Hashable, CaseIterable {
+    case time
+    case place
+
+    //The two ends' artwork. The card's is a white template glyph on the photo, the body's is drawn
+    //art on paper — a material change, dissolved in one shared slot rather than moved between two.
+    var sourceIcon: ImageResource {
+        switch self {
+        case .time: .whiteClock
+        case .place: .whiteMap
+        }
+    }
+
+    var landingIcon: ImageResource {
+        switch self {
+        case .time: .eventClockIcon
+        case .place: .eventMapIcon
+        }
+    }
+}
+
+///One row's two ends, resolved for this frame: where each draws it and what each says. Built by the
+///choreography from the measured stores; the geometry itself is the morph's, per frame.
+struct EventZoomRowFlight: Equatable {
+    let kind: EventZoomRowKind
+    let source: CGRect //Global — where the source card draws the row
+    let sourceText: String
+    let dest: CGRect //Global, derived from the card's own frame — where the opened card draws it
+    let text: String
 }
 
 //MARK: - The host: one per plane, owned by the plane root
@@ -413,6 +478,11 @@ private struct EventZoomHostModifier: ViewModifier {
     @ObservationIgnored var titleName: String? //The word the card's title repeats — nil unless a source marks one
     @ObservationIgnored var titleRect: CGRect = .zero //Where the source draws it, global — the name hero's home
     @ObservationIgnored var buttonRect: CGRect = .zero //The source's round button, global — the capsule hero's home
+    //The lines the card draws that the opened card draws again, global — each row hero's home, and
+    //what the source end says. Keyed rather than one field per line: the set grows (the type chip
+    //is next), and a kind absent here simply never flies.
+    @ObservationIgnored var rowRects: [EventZoomRowKind: CGRect] = [:]
+    @ObservationIgnored var rowTexts: [EventZoomRowKind: String] = [:]
     @ObservationIgnored var pressPose: PressPose = .rest //That button's press as rendered — the hero takes off from it
     @ObservationIgnored var requestClose: ((_ flightless: Bool) -> Bool)? //Set by the mounted card; the host closes through it — false back means a close is already flying
 
@@ -461,6 +531,53 @@ private struct EventZoomTitleSourceModifier: ViewModifier {
         return content
             .opacity(flying ? 0 : 1) //A layout ghost: the hero owns the glyphs, the copy keeps the slot
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { anchor?.titleRect = $0 }
+    }
+}
+
+private struct EventZoomRowSourceModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
+    @Environment(\.eventZoomRowsFlying) private var flying: Bool
+    let kind: EventZoomRowKind
+    let text: String
+
+    func body(content: Content) -> some View {
+        //Written every pass, like the title's name and for the same reason: the chrome COPY renders
+        //on the flight's plane, where there is no anchor to write to — it reports nothing and reads
+        //only the flag below.
+        anchor?.rowTexts[kind] = text
+        return content
+            .opacity(flying ? 0 : 1) //A layout ghost: the hero owns the icon and the words
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { anchor?.rowRects[kind] = $0 }
+    }
+}
+
+//On the card body's own row, so it reports to the flight rather than the anchor: the landing pad is
+//inside the card, not on the source. It ghosts while the row flies and takes the pixels back at the
+//landing — behind a hero still at full, never as one leaves.
+private struct EventZoomRowTargetModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    let kind: EventZoomRowKind
+    let text: String
+    let active: Bool
+
+    //Inert rather than absent when a mount is not the landing: the flag is fixed for the life of a
+    //mount, but branching the modifier chain on it would still make two different view identities
+    //out of one row for no gain.
+    func body(content: Content) -> some View {
+        content
+            .opacity(active && flight?.rowGhosted(kind) == true ? 0 : 1)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.cardSpace)) } action: { rect in
+                guard active else { return }
+                flight?.reportRow(kind, rect: rect)
+            }
+            .onChange(of: text, initial: true) {
+                guard active else { return }
+                flight?.reportRowText(kind, text: $1)
+            }
     }
 }
 
@@ -748,6 +865,7 @@ extension EventZoomCard {
                              bandChrome: flight.bandChrome(twinnedId: nil),
                              bandChromeTwinned: flight.bandChromeTwinnedPhase,
                              ctaGhosted: flight.ctaGhosted,
+                             rowsGhosted: flight.rowsGhosted,
                              card: slot.card)
             .equatable()
             .environment(flight) //How the pager gates its live mount, reports its band and title, and how the body reaches back
@@ -796,11 +914,17 @@ private struct EventZoomCardContent: View, Equatable {
     //its pixels back at the landing, and an equality blind to that would leave it invisible until
     //something else happened to re-render the card
     let ctaGhosted: Bool
+    //And again for the time and place rows, which ghost for the flight and take their pixels back at
+    //the landing. ONE value for the whole set, not one per row: the rows read their own kind through
+    //the modifier, and this is only what stops `.equatable()` swallowing the invalidation — the same
+    //rule `bandChromeTwinnedPhase` is written to ([[project_band_chrome_one_gate]]).
+    let rowsGhosted: Bool
     let card: () -> AnyView
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id && lhs.bandChrome == rhs.bandChrome
             && lhs.bandChromeTwinned == rhs.bandChromeTwinned && lhs.ctaGhosted == rhs.ctaGhosted
+            && lhs.rowsGhosted == rhs.rowsGhosted
     }
 
     var body: some View { card() }
@@ -842,6 +966,16 @@ private struct EventZoomCardContent: View, Equatable {
     private var ctaLineLimit: Int = 1
     private var ctaHeroShown = true //The capsule stands in for the CTA until its fade is done (see `handOffCTA`)
     private var ctaHeroFade: Double = 1 //The capsule's fill fading off the real button — its label holds until the end
+    //The rows the source draws and the card draws again — the flight carries each from one to the
+    //other. Sources are global (re-read with `source` at a landed close, like the title's); the
+    //landings are in CARD space for the reason `ctaLocal` records, and `rowFlights` re-derives the
+    //global pair every frame from the card's own measured frame.
+    private var rowSources: [EventZoomRowKind: CGRect] = [:]
+    private var rowSourceTexts: [EventZoomRowKind: String] = [:]
+    private var rowLocals: [EventZoomRowKind: CGRect] = [:]
+    private var rowTexts: [EventZoomRowKind: String] = [:]
+    private var rowHeroShown = true //The heroes stand in for the rows until their fade is done (see `handOffRows`)
+    private var rowHeroFade: Double = 1
     private let onClosing: () -> Void //A committed close is leaving: the owner hides a lens' static ring
     private let onChromeReturn: () -> Void //A beat into the close: the screen's own chrome comes back, while the card is still flying
     private let onClosed: () -> Void //The close flight has landed; the owner clears state
@@ -900,6 +1034,8 @@ private struct EventZoomCardContent: View, Equatable {
         self.titleName = anchor.titleName
         self.titleRect = anchor.titleRect
         self.buttonSource = anchor.buttonRect
+        self.rowSources = anchor.rowRects
+        self.rowSourceTexts = anchor.rowTexts
         self.pressPose = anchor.pressPose
         self.onClosing = onClosing
         self.onChromeReturn = onChromeReturn
@@ -961,6 +1097,50 @@ extension EventZoomChoreo {
     //at opacity 0 never samples a backdrop and warms up on screen (+35 levels, sim 2026-09-04); the
     //CTA is flat now, and the beat still buys it a first paint before the fade.
     var ctaGhosted: Bool { buttonHeroActive && !settled }
+
+    //Which rows actually fly this open. A kind needs BOTH ends measured — the landing is what makes
+    //a hero landable, and the source is what gives it somewhere to come from — so a card whose body
+    //has no matching row (the respond card opened straight onto a persisted new-event draft, whose
+    //`EditTypeTimePlace` draws none) flies nothing and, crucially, ghosts nothing: the source's own
+    //rows then leave with the chrome copy exactly as they did before this existed. The old flight
+    //carried the same guard as `heroesEngaged`. A LENS source is excluded outright: its rows would be
+    //posed against a 44pt circle and hang off it into bare backdrop (`captureBandChrome`'s rule).
+    var activeRowKinds: [EventZoomRowKind] {
+        guard hasFlight, !shape.isLens, rowHeroShown, cardRect.width > 1 else { return [] }
+        return EventZoomRowKind.allCases.filter { kind in
+            (rowSources[kind]?.width ?? 0) > 1 && (rowLocals[kind]?.width ?? 0) > 1
+        }
+    }
+
+    var rowHeroActive: Bool { !activeRowKinds.isEmpty }
+
+    //The heroes' fill hand-off, the capsule's rule: 1 for the flight, faded off over the landing
+    var rowHeroFill: Double { rowHeroFade }
+
+    ///Whether the card's own row of this kind is standing down for its hero. Like the CTA's, it comes
+    ///back at the LANDING — well before the hero goes — and takes its first paint under a hero still
+    ///at full opacity, on identical pixels: reveal a surface behind whatever is covering it, never as
+    ///the cover leaves.
+    func rowGhosted(_ kind: EventZoomRowKind) -> Bool {
+        !settled && activeRowKinds.contains(kind)
+    }
+
+    ///The card's identity value for the set (see `EventZoomCardContent.rowsGhosted`)
+    var rowsGhosted: Bool { !settled && rowHeroActive }
+
+    ///Both ends of every flying row, global, for this frame. The landing is derived from the card's
+    ///own frame the same way `ctaRect` is: measured OUTSIDE the morph's render transforms, so a
+    ///breathing card never feeds its own breath back into the pose derived from it.
+    var rowFlights: [EventZoomRowFlight] {
+        activeRowKinds.compactMap { kind in
+            guard let source = rowSources[kind], let local = rowLocals[kind] else { return nil }
+            return EventZoomRowFlight(kind: kind,
+                                      source: source,
+                                      sourceText: rowSourceTexts[kind] ?? "",
+                                      dest: local.offsetBy(dx: cardRect.minX, dy: cardRect.minY),
+                                      text: rowTexts[kind] ?? "")
+        }
+    }
 
     //An engaged dismiss drag freezes the pager's own axis
     var dragEngaged: Bool { dragOffset != .zero }
@@ -1041,6 +1221,15 @@ extension EventZoomChoreo {
         if ctaLocal != rect { ctaLocal = rect }
     }
 
+    ///In card space (`EventZoomChoreo.cardSpace`)
+    func reportRow(_ kind: EventZoomRowKind, rect: CGRect) {
+        if rowLocals[kind] != rect { rowLocals[kind] = rect }
+    }
+
+    func reportRowText(_ kind: EventZoomRowKind, text: String) {
+        if rowTexts[kind] != text { rowTexts[kind] = text }
+    }
+
     func reportCTALook(text: String, fill: Color, font: Font, lineLimit: Int) {
         if ctaText != text { ctaText = text }
         if ctaFill != fill { ctaFill = fill }
@@ -1091,6 +1280,8 @@ extension EventZoomChoreo {
             ctaFill: ctaFill,
             ctaFont: ctaFont,
             ctaLineLimit: ctaLineLimit,
+            rows: rowFlights,
+            rowFade: rowHeroFill,
             coverShown: coverShown,
             titleShown: titleHeroShown,
             titleFade: titleHeroFade,
@@ -1257,7 +1448,7 @@ extension EventZoomChoreo {
             flight.addAnimationCompletion(criteria: .logicallyComplete) { self.land() }
             //The cover and the CTA hand off on the spring's removal: the whole stack breathes together,
             //so the cut is on identical pixels whenever it falls.
-            flight.addAnimationCompletion(criteria: .removed) { self.handOffCover(); self.handOffCTA() }
+            flight.addAnimationCompletion(criteria: .removed) { self.handOffCover(); self.handOffCTA(); self.handOffRows() }
             withTransaction(flight) { flightP = 1 }
             withAnimation(Self.breathRise) { breath = 1 }
             withAnimation(Self.breathSettle) { breath = 0 } //Same commit, delayed to the rise's end: one blended motion
@@ -1317,6 +1508,17 @@ extension EventZoomChoreo {
     private func handOffCTA() {
         guard !closing else { return }
         withAnimation(.transition) { ctaHeroFade = 0 } completion: { self.ctaHeroShown = false }
+    }
+
+    //The rows' hand-off, the capsule's exactly: at p = 1 each hero sits on its row to the pixel and
+    //the real row has been painted under it since the landing, so the fade comes off identical
+    //glyphs and nothing arrives. Fading the hero rather than cutting it, because unlike the cover
+    //the two are not the same pixels to the level — the flying word is the landing's own type
+    //scaled by 1, but rasterized through a transform, and a cut showed that difference as a
+    //one-frame sharpen on the sim.
+    private func handOffRows() {
+        guard !closing else { return }
+        withAnimation(.transition) { rowHeroFade = 0 } completion: { self.rowHeroShown = false }
     }
 
     //The band's chrome arrives a beat after the landing, and a flightless open parks its cover
@@ -1428,6 +1630,14 @@ extension EventZoomChoreo {
         withTransaction(instant) {
             ctaHeroFade = 0
             ctaHeroShown = false
+            //And no flying rows on the way out, for the capsule's reason and one of their own: the
+            //close FOLDS, wiping the white rows up into the photo over its first stretch, and words
+            //posed against that folding window would be carried across the picture with it while the
+            //real rows are being eaten underneath them. The fold takes the rows, and the card's own
+            //lines come back with the chrome copy over the collapse's last stretch (`chromeCopy`) —
+            //the same hand-off the envelope already uses.
+            rowHeroFade = 0
+            rowHeroShown = false
         }
 
         //One clock, the invite popup's lesson: chromeMix is only the GATE — the fold's
@@ -1702,6 +1912,8 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let ctaFill: Color
     let ctaFont: Font //The landing's own type, so the flying word never arrives in a different one
     let ctaLineLimit: Int
+    let rows: [EventZoomRowFlight] //The lines the source and the card both draw — empty unless both ends marked and measured
+    let rowFade: Double //Their hand-off, faded off the identical real rows painted under them since the landing
     let coverShown: Bool
     let titleShown: Bool //The name morph's pieces outlive the cover's cut by their own fade
     let titleFade: Double
@@ -1931,6 +2143,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                                 chrome
                                     .environment(\.eventZoomTitleFlying, nameMorph != nil)
                                     .environment(\.eventZoomButtonFlying, buttonHero)
+                                    .environment(\.eventZoomRowsFlying, !rows.isEmpty)
                                     .frame(width: max(source.width, 1), height: max(source.height, 1))
                                     .scaleEffect(x: cover.width / max(source.width, 1),
                                                  y: cover.height / max(source.height, 1))
@@ -2011,6 +2224,23 @@ struct EventZoomMorph: ViewModifier, Animatable {
             //cover: it is posed in the card's own space and no clip of the card's should crop it
             .overlay {
                 if buttonHero, let ctaMorph { ctaHero(ctaMorph).offset(y: -lift) } //With the CTA it lands on
+            }
+            //The rows, above the card's body for the reason the name and the capsule are: each is
+            //posed in the card's own space, and the window's mask — which is what the body wears —
+            //would crop a word that is still out over the artwork. Their landing pads are inside the
+            //card, so they ride the same inner lift as the rows they hand off to.
+            .overlay {
+                if !rows.isEmpty {
+                    ZStack {
+                        ForEach(rows, id: \.kind) { row in
+                            rowHero(EventZoomRowMorph(row: row, card: card, sourceLocal: sourceLocal,
+                                                      bounds: bounds, window: window, cover: cover,
+                                                      p: pLanded))
+                        }
+                    }
+                    .opacity(rowFade)
+                    .offset(y: -lift) //With the rows they land on
+                }
             }
             //Window, cover and rim breathe together about the cover's centre — the wind's
             //settle-pop, the lens' landing breath and the card's sink alike; scaling the cover
@@ -2170,6 +2400,62 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //into one bar for most of the ramp. A radius, never a `blurPop`: driven by `label`, so it is
     //exactly 0 well before the hand-off, and can never go negative on a close's rebounding p.
     private static let labelArrivalBlur: CGFloat = 4
+
+    //One flying row, with every piece the SAME element the whole way — nothing is ever drawn twice at
+    //two positions (the doubled text was the old flight's sloppy mid-air frame, device screenshot
+    //2026-08-20). One icon slot, where the card's white template glyph dissolves into the card body's
+    //drawn art in place; one text column, where the card's 20 medium and the row's 17 bold sit on the
+    //SAME leading anchor, size-matched by scale so the glyphs coincide, and cross-fade — a weight
+    //cannot be scaled into another weight, and the pair is what makes the change read as one word
+    //restyling rather than two words swapping. Both pieces hang out of a zero-size leading-aligned
+    //box, so a row's position is one point and its own layout never has to be measured.
+    private func rowHero(_ morph: EventZoomRowMorph) -> some View {
+        ZStack {
+            ZStack {
+                Image(morph.kind.sourceIcon)
+                    .renderingMode(.template)
+                    .foregroundStyle(morph.tint)
+                    .opacity(1 - morph.art)
+                Image(morph.kind.landingIcon)
+                    .renderingMode(.original)
+                    .opacity(morph.art)
+            }
+            .scaleEffect(1.2) //Both ends wear it — the icon is the one piece that is already the same size at each
+            .frame(width: EventZoomRowMorph.iconWidth)
+            .offset(y: morph.iconNudge)
+            .frame(width: 0, height: 0)
+            .position(morph.icon)
+
+            ZStack(alignment: .leading) {
+                //The card's own line, at the card's own type
+                Text(morph.sourceText)
+                    .font(.body(20, .medium))
+                    .frame(width: max(morph.sourceTextWidth, 1), alignment: .leading)
+                    .scaleEffect(morph.sourceScale, anchor: .leading)
+                    .opacity(1 - morph.weight)
+
+                //The landing's own line, at the landing's own type — and its trailing affordance,
+                //which the card has none of to hand over, arriving with the row it belongs to
+                HStack(spacing: 12) {
+                    Text(morph.text)
+                    if morph.kind == .time { DropDownButton(isOpen: false).opacity(morph.arrive) }
+                }
+                .font(.body(17, .bold))
+                //The row's own shrink, so a string that lands scaled down is flown scaled down too:
+                //the reported frame is the row box, not the glyph run, and a hero laid out free
+                //would hand off to a visibly narrower word
+                .frame(width: max(morph.landingTextWidth, 1), alignment: .leading)
+                .oneLineLimitAndShrink()
+                .scaleEffect(morph.landingScale, anchor: .leading)
+                .opacity(morph.weight)
+            }
+            .foregroundStyle(morph.tint) //One colour for both twins: the word changes weight once and hue once, on separate clocks
+            .lineLimit(1)
+            .frame(width: 0, height: 0, alignment: .leading)
+            .position(morph.textOrigin)
+        }
+        .allowsHitTesting(false)
+    }
 
     private func titleHero(_ morph: EventZoomTitleMorph) -> some View {
         let hero = morph.hero
@@ -2339,6 +2625,100 @@ struct EventZoomButtonMorph {
         //note on the leaf: a pop with a spring of its own outlives the hand-off
         label = Self.smoothstep((t - 0.62) / 0.36)
     }
+
+    private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
+        a + (b - a) * t
+    }
+
+    private static func smoothstep(_ t: CGFloat) -> CGFloat {
+        let x = min(max(t, 0), 1)
+        return x * x * (3 - 2 * x)
+    }
+}
+
+///Where each piece of one flying row sits this frame, and how far it is through each of its three
+///changes. Posed as INSETS from the revealed window, never as a lerp between two screen rects — the
+///rule the name and the capsule both pay: the window is exactly what the card is showing this frame,
+///so a row posed against it can never sit outside the card. Leading and vertical-centre insets,
+///because a row is laid out from the card's leading edge down its head; both resolve to the measured
+///ends exactly at p = 0 and p = 1, so no pin is needed at either end.
+struct EventZoomRowMorph {
+
+    //Both ends already share these — the card's `lineSection` and the body's `iconRow` are each an
+    //HStack of a 20pt icon column and a 20pt gap — so the row's inner geometry is the one thing this
+    //morph never has to interpolate. If either end ever moves off them, the words and the icon stop
+    //landing together and this is the constant to look at.
+    static let iconWidth: CGFloat = 20
+    static let iconGap: CGFloat = 20
+
+    let kind: EventZoomRowKind
+    let sourceText: String
+    let text: String
+    let icon: CGPoint //The icon slot's centre, in the card's space
+    let textOrigin: CGPoint //The words' leading-centre, one icon column and gap to its right
+    let sourceTextWidth: CGFloat
+    let landingTextWidth: CGFloat
+    let sourceScale: CGFloat //The card's 20pt shrinking toward the row's 17
+    let landingScale: CGFloat //The row's 17pt blown up to meet it, so the two runs coincide
+    let weight: CGFloat //0 = the card's look, 1 = the landing's: the twins' cross-fade
+    let art: CGFloat //The icon's dissolve, on the same clock as the weight — one material change, not two
+    let tint: Color //White on the artwork, the body's own ink on the card: mixed across the WHOLE flight
+    let arrive: CGFloat //The chevron the card has none of, arriving with the row
+    let iconNudge: CGFloat //The card nudges its glyph 2pt up to centre it; the body's art needs none
+
+    init(row: EventZoomRowFlight, card: CGRect, sourceLocal: CGRect, bounds: CGRect,
+         window: CGRect, cover: CGRect, p: CGFloat) {
+        kind = row.kind
+        sourceText = row.sourceText
+        text = row.text
+
+        let from = row.source.offsetBy(dx: -card.minX, dy: -card.minY)
+        let to = row.dest.offsetBy(dx: -card.minX, dy: -card.minY)
+        let t = min(max(p, 0), 1)
+        let open = Self.smoothstep(t)
+
+        let leading = Self.lerp(from.minX - sourceLocal.minX, to.minX - bounds.minX, t)
+        let centre = Self.lerp(from.midY - sourceLocal.minY, to.midY - bounds.minY, t)
+        let x = window.minX + leading
+        let y = window.minY + centre
+        icon = CGPoint(x: x + Self.iconWidth / 2, y: y)
+        textOrigin = CGPoint(x: x + Self.iconWidth + Self.iconGap, y: y)
+
+        sourceTextWidth = from.width - Self.iconWidth - Self.iconGap
+        landingTextWidth = to.width - Self.iconWidth - Self.iconGap
+
+        //One ratio, worn from opposite ends: whichever twin is visible is at scale 1 where it is the
+        //truth, so both resting endpoints are the real type rather than a transformed copy of it
+        let ratio = Self.landingSize / Self.sourceSize
+        sourceScale = Self.lerp(1, ratio, open)
+        landingScale = Self.lerp(1 / ratio, 1, open)
+
+        //The weight swap is EARLY and quick when the two ends say the same words: it is invisible
+        //then — same string, same anchor, a hair of weight — and getting it over with while the row
+        //is still small and moving fastest keeps the two runs from drifting apart at their tails,
+        //which is where a leading-anchored pair of different weights diverges (bold is wider). When
+        //the ends say DIFFERENT things the same cross-fade is the only thing carrying the word
+        //change, so it takes the long way instead and reads as a dissolve rather than a flicker.
+        weight = row.sourceText == row.text
+            ? Self.smoothstep((t - 0.08) / 0.22)
+            : Self.smoothstep((t - 0.15) / 0.6)
+        art = Self.smoothstep((t - 0.08) / 0.22)
+
+        //Geometry, not a clock: the row leaves the artwork as white and arrives on paper as ink, so
+        //it turns over exactly where it clears the cover's foot — wherever in the flight that falls.
+        //Keyed on p instead, the word spends the middle of every flight a mid-grey, which is muddy
+        //on the photo and washed out on the paper; and because the cover's foot is a live rect, this
+        //also holds for a drag that stalls the row half over the picture. The 20pt band is the fade's
+        //whole width, started a touch before the crossing so no frame lands on a hard switch.
+        let clearance = y - cover.maxY
+        tint = Color.white.mix(with: .textPrimary, by: Double(Self.smoothstep((clearance + 6) / 20)))
+
+        arrive = Self.smoothstep((t - 0.6) / 0.38)
+        iconNudge = Self.lerp(-2, 0, t) //Geometry: the card's own optical centring, released as it lands
+    }
+
+    private static let sourceSize: CGFloat = 20 //`InviteCardOverlay.lineSection`
+    private static let landingSize: CGFloat = 17 //`EventTypeTimePlace`'s rows at `largeText`
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
         a + (b - a) * t

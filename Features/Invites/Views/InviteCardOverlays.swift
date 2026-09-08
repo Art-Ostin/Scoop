@@ -24,12 +24,17 @@ struct InviteCardOverlay: View {
                 .foregroundStyle(Color.white)
                 .eventZoomTitleSource(name) //Flies into the respond card's "<name>'s Invite"
             
+            //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
             lineSection(.whiteClock, fetchDay())
-            lineSection(.whiteMap, e.location.name ?? "Unknown")
+                .eventZoomTimeSource(fetchDay())
+            lineSection(.whiteMap, placeName)
+                .lineLimit(1)
+                .eventZoomPlaceSource(placeName)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, hPadding)
         .padding(.bottom, 28)
+        .padding(.trailing, 48)
         .overlay(alignment: .topTrailing) { typeAndInfoButton}
         .overlay(alignment: .bottomTrailing) {inviteButton}
     }
@@ -76,6 +81,9 @@ extension InviteCardOverlay {
         .shrinkButton()
     }
     
+    //Hoisted, so the drawn line and the one the flight is told about can never disagree
+    private var placeName: String { e.location.name ?? "Unknown" }
+
     private func fetchDay() -> String {
         if let date = e.proposedTimes.firstAvailableDate {
             return FormatEvent.shortDayAndTime(date)

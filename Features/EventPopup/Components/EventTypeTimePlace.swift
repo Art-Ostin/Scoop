@@ -21,6 +21,11 @@ struct EventTypeTimePlace: View {
     
     var shortSpacing: Bool = false
     var largeText: Bool = false
+    //Whether these rows are the ones an `.eventZoom` flies the source card's lines onto. Opt-in, and
+    //true at ONE mount: `TwoPageScrollView` lays both of its pages out at all times, so an
+    //unconditional marker would have the off-page confirm copy reporting landing pads a screen width
+    //to the side and the heroes would fly to them.
+    var heroLanding: Bool = false
     let openInfo: () -> ()
 
     var body: some View {
@@ -28,9 +33,14 @@ struct EventTypeTimePlace: View {
             typeRow
                 .opacity(coveredOpacity)
             lightDivider
+            //Marked on the row's OUTERMOST box, never inside the time row's `TimeCustomMenu` label:
+            //that closure is copied into the menu's own window, where the flight is not in the
+            //environment and both the report and the ghost would silently no-op
             timeRow
+                .eventZoomRowTarget(.time, text: timeRowText, active: heroLanding)
             lightDivider
-            iconRow(.eventMapIcon, invite.place.name ?? "View Venue")
+            iconRow(.eventMapIcon, placeName)
+                .eventZoomRowTarget(.place, text: placeName, active: heroLanding)
                 .opacity(coveredOpacity)
         }
         .animation(.transition, value: timePopupOpen.wrappedValue)
@@ -91,6 +101,15 @@ extension EventTypeTimePlace {
         } else {
             iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
+    }
+
+    //Hoisted so the drawn rows and the strings the event zoom flies onto them can never disagree —
+    //a hero that lands spelling something else hands off with a visible word change
+    var placeName: String { invite.place.name ?? "View Venue" }
+
+    var timeRowText: String {
+        guard let respondDraft else { return invite.time.formatMultipleInvitedDays() }
+        return RespondEventTimeRow.text(for: respondDraft.wrappedValue)
     }
 
     private func iconRow(_ icon: ImageResource, _ text: String) -> some View {
@@ -175,17 +194,21 @@ private struct RespondEventTimeRow: View {
      }
         
     private var timeText: some View {
-        Group {
-            if draft.respondType == .originalInvite {
-                if let selectedTime = draft.originalInvite.selectedDay {
-                    Text(FormatEvent.shortDayAndTime(selectedTime))
-                } else {
-                    Text("Select Time")
-                }
-            } else if draft.respondType == .newTime {
-                Text(draft.newTime.proposedTimes.formatMultipleInvitedDays())
-            }
+        Text(Self.text(for: draft))
+            .font(.body(17, .bold))
+    }
+
+    ///What this row says, as a string — the row draws it, and the event zoom's time hero lands
+    ///spelling it. One source, so the flying word and the row it hands off to cannot differ.
+    static func text(for draft: RespondDraft) -> String {
+        switch draft.respondType {
+        case .originalInvite:
+            guard let selectedTime = draft.originalInvite.selectedDay else { return "Select Time" }
+            return FormatEvent.shortDayAndTime(selectedTime)
+        case .newTime:
+            return draft.newTime.proposedTimes.formatMultipleInvitedDays()
+        case .newEvent:
+            return "" //This row is never the one a new-event draft draws
         }
-        .font(.body(17, .bold))
     }
 }
