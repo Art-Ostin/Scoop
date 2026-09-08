@@ -50,6 +50,7 @@ struct RespondToInviteContainer: View {
             onOK: { ctaAction() }, //Never cleared here: the plate leaves under the response cover, with the card (`BlurCoverMotion.coveredAt`)
             onCancel: {ui.showAcceptAlert = false}
         )
+        .animation(.transition, value: [composeUI.delayedTimePopupOpen, composeUI.delayedTypePopupOpen])
     }
 }
 
@@ -59,10 +60,11 @@ extension RespondToInviteContainer {
         EventImagePager(images: images,
                         title: titleText,
                         showsPageDots: !isConfirmNewEvent,
-                        titleVisible: !composeUI.delayedTimePopupOpen) //The time platter takes the band
-        //Inert twins of both ride the flying cover and pop in on the flight's own ramp, with the band's
-        //title and its frost; the real pieces take their pixels back at the landing, behind them, and
-        //the cover's cut swaps the two
+                        titleVisible: !composeUI.delayedTimePopupOpen, //The time platter takes the band
+                        //…and lands on a white ground. It arrives on the DELAYED flag (behind the risen
+                        //platter) and leaves on the LIVE one (while the platter still covers it), so it
+                        //is never seen on bare photo.
+                        bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen)
         .overlay(alignment: .topLeading) {
             backButton.eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
         }
@@ -153,6 +155,7 @@ extension RespondToInviteContainer {
             invite: InviteSummary(event: vm.respondDraft.originalInvite.event),
             respondDraft: $vm.respondDraft,
             timePopupOpen: $composeUI.timePopupOpen, //One owner for both screens' time platter
+            timePopupOpenDelayed: composeUI.delayedTimePopupOpen, //…and the chrome's own 120/40ms clock
             actionsBelow: true, //adjusts padding in this view if actions below
             shortSpacing: false,
             largeText: true,
@@ -188,7 +191,7 @@ extension RespondToInviteContainer {
     
     var actionSection: some View {
         VStack {
-//            if !isComposeInviteScreen { warningText }
+            //            if !isComposeInviteScreen { warningText }
             HStack(spacing: 18) {
                 if type != .newEvent {
                     //Leaves the LAYOUT as it goes, so the CTA closes the gap behind it instead of
@@ -202,11 +205,8 @@ extension RespondToInviteContainer {
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
-    //One flag for the whole action row: an open platter owns the finger, so the actions under it read as
-    //unavailable. The CTA answers by swapping its fill to `.fillGray`; the outlined decline has no fill to
-    //swap, so it dims instead. Shared so the two can never disagree about when they are stood down.
-    var actionsDimmed: Bool { composeUI.typePopupOpen || composeUI.timePopupOpen }
-
+    var actionsDimmed: Bool { composeUI.delayedTypePopupOpen || composeUI.delayedTimePopupOpen }
+    
     var ctaButton: some View {
         //Hoisted, so the button and the flight that lands on it can never disagree about its look
         let isActive = type != .newEvent || vm.respondDraft.newEvent.isComplete
@@ -214,7 +214,7 @@ extension RespondToInviteContainer {
         let font: Font = type == .newTime ? .body(15, .bold) : .body(18, .bold)
         let lineLimit = type == .newTime ? 2 : 1 //The only two-line label
         let fill = WideActionButton.restingFill(isActive: isActive, isDimmed: dimmed)
-
+        
         return WideActionButton(
             text: ctaText,
             isActive: isActive,
@@ -267,23 +267,8 @@ extension RespondToInviteContainer {
     var selectedDayString: String {
         if let day = vm.respondDraft.originalInvite.selectedDay {
             return FormatEvent.shortDayAndTime(day, withHour: true, withMonth: true, withToday: false)
-//            let hour = FormatEvent.hourTime(day)
-//            return "\(dayWithMonth) at \(hour)"
         } else {
             return "a time"
         }
     }
-    
 }
-
-
-/*
- //            if isComposeInviteScreen {
- //                OptionsMenu(
- //                    hasChanges: vm.respondDraft.newEvent.hasChanges,
- //                    onClear: {vm.respondDraft.newEvent = .init()},
- //                    onDecline: {respond(.decline)}
- //                )
- //            }
-
- */

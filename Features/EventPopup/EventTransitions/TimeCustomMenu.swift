@@ -8,7 +8,7 @@
 //  Native-style menu in its own window. iOS 26: on touch-down the label implodes into a glass droplet that flies
 //  to the platter and flowers open; the close runs the device-fitted droplet keyframes. Pre-26: scale/fade.
 //
-//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetY:isOpen:onOpen:onClose:) { content } label: { trigger }
+//  TimeCustomMenu(estimatedContentSize:tracksContentSizeChanges:verticalPlacement:placementOffsetY:labelAnchorInsetY:isOpen:onOpen:onClose:) { content } label: { trigger }
 //  Content must be its own View struct (it renders in the menu window); inside it call @Environment(\.timeCustomMenuDismiss).
 //  Every iOS 26 beat below is fitted to DEVICE recordings of the native menu; the sim animates differently. -timeMenuSlowMotion for review.
 //
@@ -35,6 +35,11 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
     let tracksContentSizeChanges: Bool //keeps measuring while open so the platter follows reflowing content
     let verticalPlacement: TimeCustomMenuVerticalPlacement
     let placementOffsetY: CGFloat //nudge on the final vertical placement, positive = down; the platter is always centred across
+    //Trims the label's ANCHOR box, never its hit area. The label frame is what the whole flight is built on —
+    //the lens is born on it, and the closing droplet lands as a capsule of `height + closeLandHeightPad`. A row
+    //that pins its label to a ladder height hands over a box with slack in it, and the droplet then lands
+    //standing proud of the text. Inset symmetrically, so `midY` — and with it a `.centred` platter — never moves.
+    let labelAnchorInsetY: CGFloat
     let isOpen: Binding<Bool>? //mirrors the presentation; written by the menu, never a way to open it
     let onOpen: (() -> Void)? //fires the instant the menu presents, before the bloom
     let onClose: (() -> Void)? //fires the instant a dismiss is requested, before the close
@@ -52,6 +57,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
          tracksContentSizeChanges: Bool = false,
          verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic,
          placementOffsetY: CGFloat = TimeCustomMenuSpec.placementOffsetY,
+         labelAnchorInsetY: CGFloat = 0,
          isOpen: Binding<Bool>? = nil,
          onOpen: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
@@ -61,6 +67,7 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
         self.tracksContentSizeChanges = tracksContentSizeChanges
         self.verticalPlacement = verticalPlacement
         self.placementOffsetY = placementOffsetY
+        self.labelAnchorInsetY = labelAnchorInsetY
         self.isOpen = isOpen
         self.onOpen = onOpen
         self.onClose = onClose
@@ -75,8 +82,11 @@ struct TimeCustomMenu<Content: View, Label: View>: View {
             label()
                 .contentShape(Rectangle())
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
-                    labelFrame = frame
-                    controller.updateLabelFrame(frame)
+                    let anchor = frame.height - 2 * labelAnchorInsetY > 0
+                        ? frame.insetBy(dx: 0, dy: labelAnchorInsetY)
+                        : frame //an inset that would collapse the box is no inset at all
+                    labelFrame = anchor
+                    controller.updateLabelFrame(anchor)
                 }
                 //Below the geometry read so the dim never feeds the anchor; hidesLabel: the lens carries a copy of the label
                 .opacity(controller.hidesLabel ? 0 : (pressed ? Spec.pressedLabelOpacity : 1))
@@ -130,6 +140,7 @@ extension TimeCustomMenu {
     private func presentMenu() {
         controller.present(
             anchor: labelFrame,
+            labelInsetY: labelAnchorInsetY,
             verticalPlacement: verticalPlacement,
             placementOffsetY: placementOffsetY,
             estimatedContentSize: estimatedContentSize,
@@ -275,7 +286,8 @@ private final class TimeCustomMenuController {
     //Presentation: set by present(); tearDown clears all of it but the anchor
     private(set) var phase: Phase = .measuring
     private(set) var anchor: CGRect = .zero //the label frame at open; placement never moves underfoot
-    private(set) var labelFrame: CGRect = .zero //the label's LIVE frame: the lens is born on it and lands on it
+    private(set) var labelFrame: CGRect = .zero //the label's LIVE frame, already trimmed by labelInsetY
+    private(set) var labelInsetY: CGFloat = 0 //what was trimmed off it; the label COPY is drawn against the untrimmed box
     private(set) var verticalPlacement: TimeCustomMenuVerticalPlacement = .automatic
     private(set) var placementOffsetY: CGFloat = 0
     private(set) var content: (() -> AnyView)?
@@ -298,6 +310,7 @@ private final class TimeCustomMenuController {
     // MARK: Lifecycle
 
     func present(anchor: CGRect,
+                 labelInsetY: CGFloat,
                  verticalPlacement: TimeCustomMenuVerticalPlacement,
                  placementOffsetY: CGFloat,
                  estimatedContentSize: CGSize?,
@@ -314,6 +327,7 @@ private final class TimeCustomMenuController {
         onPresent() //only for a real window: isOpen and onOpen never fire for a refused present
         self.anchor = anchor
         labelFrame = anchor
+        self.labelInsetY = labelInsetY
         self.verticalPlacement = verticalPlacement
         self.placementOffsetY = placementOffsetY
         self.estimatedContentSize = estimatedContentSize
@@ -466,6 +480,7 @@ extension TimeCustomMenuOverlay {
                 .modifier(MenuLensMorph(rise: rise,
                                         platterize: platterize,
                                         collapsed: controller.labelFrame,
+                                        labelInsetY: controller.labelInsetY,
                                         expanded: metrics.platterRect(for: size),
                                         label: controller.label?(),
                                         isClosing: controller.phase == .dismissing,
@@ -732,7 +747,8 @@ private struct LensPose {
 private struct MenuLensMorph: ViewModifier, Animatable {
     var rise: CGFloat
     var platterize: CGFloat
-    let collapsed: CGRect //the label's live capsule
+    let collapsed: CGRect //the label's live capsule, trimmed by labelInsetY
+    let labelInsetY: CGFloat //undoes that trim for the label COPY, which is the full-height label view
     let expanded: CGRect //the platter
     let label: AnyView?
     let isClosing: Bool
@@ -799,6 +815,11 @@ extension MenuLensMorph {
     private var riseClamped: CGFloat { rise.clamped(to: 0...1) }
     private var platterizeClamped: CGFloat { platterize.clamped(to: 0...1) }
 
+    //The label COPY is the real label view, so it still stands the full height the row pinned it to, while
+    //`collapsed` is the trimmed anchor every lens rect is built on. Place and centre the copy against this
+    //untrimmed box or its glyphs sit `labelInsetY` low inside a correctly-placed mask, and jump on hand-off.
+    private var labelBox: CGRect { collapsed.insetBy(dx: 0, dy: -labelInsetY) }
+
     //Where the label implodes to: pulled toward the platter's centre in X, lifted one label-height above the text
     private var collapsePoint: CGPoint {
         let pull = (expanded.midX - collapsed.midX).clamped(to: -collapsed.width * Spec.collapsePullX ... collapsed.width * Spec.collapsePullX)
@@ -819,8 +840,8 @@ extension MenuLensMorph {
         let point = collapsePoint
         let swallow = LabelPose(
             scale: lerp(1, Spec.labelRideScale, ride),
-            offset: CGSize(width: lerp(collapsed.minX - lens.rect.minX, point.x - lens.rect.minX - collapsed.width / 2, ride),
-                           height: lerp(collapsed.minY - lens.rect.minY, point.y - lens.rect.minY - collapsed.height / 2, ride)),
+            offset: CGSize(width: lerp(labelBox.minX - lens.rect.minX, point.x - lens.rect.minX - labelBox.width / 2, ride),
+                           height: lerp(labelBox.minY - lens.rect.minY, point.y - lens.rect.minY - labelBox.height / 2, ride)),
             blur: ride * Spec.lensBlur * 0.5,
             opacity: Double(1 - fade * fade))
         return LensPose(lens: lens,
@@ -896,7 +917,7 @@ extension MenuLensMorph {
         let drop = Spec.closeTextDrop * (1 - smoothstep(settle)) //emerges pushed down, level before the label swap
         let reveal = LabelPose(
             scale: lerp(Spec.closeTextGrowFrom, 1, grow),
-            offset: CGSize(width: collapsed.minX - lens.rect.minX, height: collapsed.minY - lens.rect.minY + drop),
+            offset: CGSize(width: labelBox.minX - lens.rect.minX, height: labelBox.minY - lens.rect.minY + drop),
             blur: 0,
             opacity: Double(grow.clamped(to: 0...1)))
         return LensPose(lens: lens,

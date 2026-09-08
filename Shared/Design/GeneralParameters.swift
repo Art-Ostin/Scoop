@@ -104,6 +104,8 @@ enum Spacing {
 
     //Specific uses
     static let hairline: CGFloat = 2   //optical nudge between touching glyphs
+    static let labelGap: CGFloat = 6   //a label and the value it names. ModernEra carries no leading, so
+                                       //the number here is the white you see: xs already reads as a line of air
     static let titlePadding = xl        //Bettween navigation title and start of content
     static let gutter = md             //full-bleed surface (card, notification) ↔ screen edge
     static let margin = lg             //text/content column ↔ screen edge

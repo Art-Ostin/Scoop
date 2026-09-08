@@ -99,7 +99,7 @@ Features/<Name>/
   (`.stroke(CornerRadius.md)`, `.capsuleStroke()`, …) so stroke and fill can't drift apart.
 - Spacing: only `Spacing` tokens from `Shared/Design/GeneralParameters.swift` — a 4pt grid up
   to 16 with a 12pt rhythm above: `xxs 4 / xs 8 / sm 12 / md 16 / lg 24 / xl 36 / xxl 48 /
-  xxxl 72`, plus roles: `hairline` (2, optical nudge), `gutter` (= md, full-bleed surface ↔
+  xxxl 72`, plus roles: `hairline` (2, optical nudge), `labelGap` (6, a label ↔ the value it names), `gutter` (= md, full-bleed surface ↔
   screen edge), `margin` (= lg, content column ↔ screen edge), `titleGap` (= xxxl, screen
   title → its first content), `clearance` (96, content ↔ the screen edge or floating chrome
   it must clear). Author top-down: pick the role token when one fits, else the scale step.
