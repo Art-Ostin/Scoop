@@ -128,7 +128,30 @@ extension View {
     ///condition, ANDed in here so each piece wears ONE pop on ONE clock: the flight can only ever
     ///subtract, and a page flip made while the cover is still up replays as a single pop.
     func eventZoomBandChrome(visible: Bool = true) -> some View {
-        modifier(EventZoomBandChromeModifier(onPage: visible))
+        modifier(EventZoomBandChromeModifier(onPage: visible, corner: nil, copy: nil))
+    }
+
+    ///The same, for a piece that must ARRIVE during the open rather than after it. `copy` is an inert
+    ///twin, built once before takeoff and flown on the cover, popped in on the flight's own progress —
+    ///the band's title, its frost capsule and its softened foot already arrive that way (`arrive` in
+    ///the morph), and a piece left to the plain overload above appeared a third of a second after the
+    ///card had visibly stopped: its pop starts at land + `handOffBeat` but nothing in the masked body
+    ///is visible until the cover cuts, so two thirds of it ran under the cover and the corner stepped
+    ///in at 0.63 opacity (Arthur, 2026-09-08).
+    ///`corner` is the alignment the piece's own `.overlay` takes: at p = 1 the cover IS the band, so a
+    ///twin laid out at the band's size and held against that corner of the cover rests exactly where
+    ///the real piece does — the frost capsule's rule, and no second measurement to drift.
+    ///The twin must be INERT — a label wearing `.scoopGlassSurface`, never the live control. Interactive
+    ///glass installs a platform view that claims hitTest whatever the SwiftUI around it yields
+    ///([[project_ios26_glass_hittest_stall]]), so a live copy would fire the real card's action from a
+    ///tap on the flying capsule. It renders on the FLIGHT's plane: it must not carry this modifier
+    ///itself, and any environment it reads resolves there, not on the card.
+    ///Open only, like the CTA's capsule: a close would carry a twin built before the card was ever
+    ///touched — the toggle's own word can have changed since — and the corner has always gone away
+    ///empty under the returning cover.
+    func eventZoomBandChrome<Copy: View>(visible: Bool = true, corner: EventZoomBandCorner,
+                                         @ViewBuilder copy: @escaping () -> Copy) -> some View {
+        modifier(EventZoomBandChromeModifier(onPage: visible, corner: corner, copy: { AnyView(copy()) }))
     }
 
     ///An alert the card body raises about the card itself (the accept commitment). Identical in every
@@ -195,6 +218,53 @@ enum EventZoomSourceShape: Equatable {
         }
     }
 }
+
+///Which corner of the pager band a chrome piece hangs from — the alignment its `.overlay` takes, and
+///so the corner of the flying cover its twin is held against. Pinned, never scaled: the cover does not
+///merely travel, it SHRINKS (an invite card's 1/1.5 into the band's 1/0.8), and a rect lerp would leave
+///the piece hanging off the artwork for most of the flight before snapping home (`EventZoomTitleMorph`'s
+///rule, and `bandTitle`'s).
+enum EventZoomBandCorner {
+    case topLeading, topTrailing, bottomLeading, bottomTrailing
+
+    var alignment: Alignment {
+        switch self {
+        case .topLeading: .topLeading
+        case .topTrailing: .topTrailing
+        case .bottomLeading: .bottomLeading
+        case .bottomTrailing: .bottomTrailing
+        }
+    }
+
+    ///The corner as unit factors of a rect — 0 leading/top, 1 trailing/bottom. LTR: `Alignment` is
+    ///layout-direction-aware and this is not, so under RTL a twin would be pinned to the opposite edge
+    ///of its box mid-flight. Harmless at the seam either way — at p = 1 the box IS the band, where both
+    ///resolve to the live overlay — and the app ships no RTL layout; flip x here if it ever does.
+    var unit: CGPoint {
+        switch self {
+        case .topLeading: CGPoint(x: 0, y: 0)
+        case .topTrailing: CGPoint(x: 1, y: 0)
+        case .bottomLeading: CGPoint(x: 0, y: 1)
+        case .bottomTrailing: CGPoint(x: 1, y: 1)
+        }
+    }
+}
+
+///One piece of band chrome, twinned to ride the flying cover. Built ONCE, at takeoff — the source
+///chrome copy's rule: the same value every frame, so the twin's body never re-runs in flight.
+struct EventZoomBandChromeCopy: Identifiable {
+    let id: UUID
+    let corner: EventZoomBandCorner
+    let view: AnyView
+}
+
+///What a band-chrome piece is doing this frame.
+///`.arriving` is the state only a twinned piece has: painted at full, behind a twin that still owns the
+///corner, so its glass takes its first paint under the cover. A lens held at opacity 0 never samples a
+///backdrop and warms up on screen when revealed (+35 levels, sim 2026-09-04) — the very reason the card's
+///own CTA is un-ghosted at the landing behind an opaque capsule. It is NOT hit-testable there: the finger
+///can only see the twin.
+enum EventZoomBandChromePhase: Equatable { case hidden, arriving, live }
 
 ///`@Environment(\.eventZoomDismiss)` inside a card body: flies the card home. A no-op when the
 ///body renders without a flight.
@@ -514,13 +584,34 @@ private struct EventZoomBandChromeModifier: ViewModifier {
     //Injected
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
     let onPage: Bool //The piece's own page condition; the flight only ever subtracts
+    let corner: EventZoomBandCorner? //Where it hangs — nil unless a twin of it flies
+    let copy: (() -> AnyView)?
+
+    //Local view state
+    @State private var id = UUID() //Its claim on the flight's twin list (the drag exclusions' pattern)
 
     func body(content: Content) -> some View {
-        let visible = onPage && (flight?.bandChromeVisible ?? true)
+        //Pushed every pass and stored unobserved, exactly as the source pushes its own chrome closure
+        //(`EventZoomSourceModifier`): the flight takes what the card's LATEST body built and calls it
+        //ONCE, before takeoff. A closure captured at appearance would fly a stale page. Free only
+        //because the store is @ObservationIgnored — an observed write from inside a body would loop.
+        if let copy, let corner {
+            flight?.reportBandChrome(id: id, corner: corner, onPage: onPage, copy: copy)
+        }
+        let phase = flight?.bandChrome(twinnedId: copy == nil ? nil : id) ?? .live //No flight: the piece simply rests
+        let visible = onPage && phase != .hidden
         return content
             .opacityPop(visible: visible)
-            .allowsHitTesting(visible) //Opacity 0 still takes taps under the cover
-            .animation(.transition, value: visible) //Its OWN scope: the hand-off and close start are bare or instant writes on purpose
+            //Opacity 0 still takes taps under the cover — and so does a piece `.arriving` behind its
+            //own twin, which is the one the finger can actually see
+            .allowsHitTesting(phase == .live && onPage)
+            //Its OWN scope: the hand-off and close start are bare or instant writes on purpose. The
+            //reveal behind a twin takes no curve at all — the pop the user saw was the twin's, on the
+            //flight's ramp, and a curve here would run the real lens up from 0.4 behind a twin already
+            //at full, so the cut would step. Everything else keeps the pop it always had, the close's
+            //pop-out and a landed page flip included (`.arriving` is unreachable without a flight).
+            .animation(phase == .arriving ? nil : .transition, value: visible)
+            .onDisappear { flight?.dropBandChrome(id: id) }
     }
 }
 
@@ -654,7 +745,8 @@ extension EventZoomCard {
     //supplied — that body re-evaluates only when data IT observes changes (images loading in).
     private var card: some View {
         EventZoomCardContent(id: slot.id,
-                             bandChromeVisible: flight.bandChromeVisible,
+                             bandChrome: flight.bandChrome(twinnedId: nil),
+                             bandChromeTwinned: flight.bandChromeTwinnedPhase,
                              ctaGhosted: flight.ctaGhosted,
                              card: slot.card)
             .equatable()
@@ -691,7 +783,15 @@ private struct EventZoomCardContent: View, Equatable {
     //invalidation — the body would keep a stale `false` and the dots, the menu and the back
     //button would each appear only if something else happened to re-render the card. It flips
     //once per open, never per frame, so the 120Hz protection below is untouched.
-    let bandChromeVisible: Bool
+    let bandChrome: EventZoomBandChromePhase
+    //The same, for the pieces a twin flies in for (`eventZoomBandChrome(visible:corner:copy:)`): they
+    //take their pixels back at the LANDING, behind the twin, and the corner's taps a beat later — two
+    //flips per open instead of one, and DELIBERATELY neither of them at the cover's cut. Threading a
+    //value that flipped there would put a full rebuild of the caller's card body into the one commit
+    //of the whole open that must change nothing (`handOffCover`: 12 pixels by one level), which is the
+    //regression `.equatable()` exists to prevent. Pinned identical to the value above whenever no twin
+    //flew, so a card that flies none pays nothing for it.
+    let bandChromeTwinned: EventZoomBandChromePhase
     //Part of the identity for the same reason: the card's own CTA ghosts for the flight and takes
     //its pixels back at the landing, and an equality blind to that would leave it invisible until
     //something else happened to re-render the card
@@ -699,8 +799,8 @@ private struct EventZoomCardContent: View, Equatable {
     let card: () -> AnyView
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.bandChromeVisible == rhs.bandChromeVisible
-            && lhs.ctaGhosted == rhs.ctaGhosted
+        lhs.id == rhs.id && lhs.bandChrome == rhs.bandChrome
+            && lhs.bandChromeTwinned == rhs.bandChromeTwinned && lhs.ctaGhosted == rhs.ctaGhosted
     }
 
     var body: some View { card() }
@@ -770,6 +870,18 @@ private struct EventZoomCardContent: View, Equatable {
     private var title: String? //What the pager draws over its band — the cover draws the same, so the hand-off meets identical words
     private var pagerTitle: CGRect = .zero //The title's glyph rect in the band's own space — the frost's capsule, which the cover poses as insets from its foot
     private var bandChromeIn = false //Chrome over the band: in on its own animated write as the hand-off fade begins, out with the close
+    //The pieces a twin flies in for. The card body pushes its builders every pass, unobserved (the
+    //source chrome's rule — a closure is not Equatable, so no same-value guard is possible and an
+    //observed write from inside a body would loop); `captureBandChrome` calls them ONCE, in the
+    //measured pass before the flight leaves, and the list then stands for the whole flight: mounted
+    //from takeoff, never inserted mid-air (InvitePhotoBand's dropped frame, sim capture 2026-09-04).
+    @ObservationIgnored private var bandChromeSources: [UUID: (corner: EventZoomBandCorner, onPage: Bool, copy: () -> AnyView)] = [:]
+    private(set) var bandCopies: [EventZoomBandChromeCopy] = [] //What the morph flies; emptied at the hand-off
+    //Which pieces a twin was actually TAKEN of, which is not the same as which offered one: a piece off
+    //its page at takeoff has nothing to fly, and must keep the plain hand-off rather than take the
+    //instant reveal meant for a piece with a twin standing in front of it. Outlives `bandCopies`, which
+    //the cut empties — after that the answer is the same either way, and this keeps it from flapping.
+    private var bandChromeTwinned: Set<UUID> = []
     private var chevronHiddenByCard = false //A body's confirm screen owns the corner with its own back button
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
     @ObservationIgnored private var dragExclusions: [UUID: CGRect] = [:] //Global frames of controls that own their touch-down
@@ -804,6 +916,30 @@ extension EventZoomChoreo {
     //Chrome over the pager band arrives on its own animated write as the cover fades — it rides in
     //over the hand-off rather than being revealed by it, so the foot and title land once
     var bandChromeVisible: Bool { settled && bandChromeIn }
+
+    ///What a band-chrome piece does this frame. Pass its id if it OFFERED a twin; the answer still turns
+    ///on whether one was actually taken of it, because a piece off its page at takeoff has none.
+    ///Without one the piece keeps the hand-off it always had: hidden under the cover, popped in a beat
+    ///after the landing (`armBandChrome`). With one it takes its pixels back at the LANDING instead,
+    ///painted behind a twin already at full — reveal a surface behind whatever is covering it, never as
+    ///the cover leaves, the rule the CTA's ghost is built on. It takes the corner's TAPS only when the
+    ///band's chrome arms, a beat later: the twin is `.allowsHitTesting(false)` and the cover under it
+    ///cannot be tapped either, so the touch would otherwise reach a button nobody can see. Both flips
+    ///land on commits that already re-render the card (`land()`, and `armBandChrome`'s write) — never
+    ///on the cover's cut, which must stay a pure swap.
+    func bandChrome(twinnedId id: UUID?) -> EventZoomBandChromePhase {
+        guard let id, bandChromeTwinned.contains(id) else { return bandChromeVisible ? .live : .hidden }
+        guard settled else { return .hidden } //A close takes the corner away under the returning cover
+        return bandChromeIn ? .live : .arriving
+    }
+
+    ///The card's own identity value: whether ANY piece is mid-twinned-arrival. The card content needs
+    ///one value that changes on both of a twinned piece's flips, not a value per piece — the pieces read
+    ///their own phase through the modifier, and this is only what stops `.equatable()` swallowing the
+    ///invalidation ([[project_band_chrome_one_gate]]).
+    var bandChromeTwinnedPhase: EventZoomBandChromePhase {
+        bandChromeTwinned.isEmpty ? bandChrome(twinnedId: nil) : bandChrome(twinnedId: bandChromeTwinned.first)
+    }
 
     //A source button and a flight to fly: the capsule owns the button from the tap to the hand-off
     //cut, and again from the close's first frame. From the TAP — the card's own CTA is measured a
@@ -888,6 +1024,17 @@ extension EventZoomChoreo {
         if pagerTitle != rect { pagerTitle = rect }
     }
 
+    ///Pushed from the card body every pass and stored unobserved: the flight needs only the newest
+    ///builder and calls it once, at takeoff (`captureBandChrome`). No same-value guard is possible
+    ///here — a closure is not Equatable — which is exactly why the store is @ObservationIgnored.
+    func reportBandChrome(id: UUID, corner: EventZoomBandCorner, onPage: Bool, copy: @escaping () -> AnyView) {
+        bandChromeSources[id] = (corner, onPage, copy)
+    }
+
+    func dropBandChrome(id: UUID) {
+        bandChromeSources[id] = nil
+    }
+
     //Same-value guards throughout: a redundant write to an @Observable stalls compositing
     ///In card space (`EventZoomChoreo.cardSpace`)
     func reportCTA(_ rect: CGRect) {
@@ -930,6 +1077,7 @@ extension EventZoomChoreo {
             pager: destRect,
             photo: coverPhoto,
             chrome: chrome,
+            bandCopies: bandCopies,
             title: title,
             pagerTitle: pagerTitle,
             titleName: titleName,
@@ -1097,6 +1245,7 @@ extension EventZoomChoreo {
             armBandChrome()
             return
         }
+        captureBandChrome() //Built and laid out in THIS pass, at the source — before the committed frame below
         Task { @MainActor [self] in
             try? await Task.sleep(for: .milliseconds(30)) //One committed frame at the source before the flight leaves it
             //Two completions on ONE spring: the landing at its perceptual end, and the cover's
@@ -1190,7 +1339,13 @@ extension EventZoomChoreo {
             guard !closing else { return } //A close begun meanwhile owns the cover now
             var instant = Transaction()
             instant.disablesAnimations = true
-            withTransaction(instant) { coverShown = false }
+            //The band's twins go in the SAME instant commit as the cover that carried them: the real
+            //pieces have been painted underneath since the landing, so this is the swap, not a removal.
+            //Emptying the list here is also what makes a landed close fly none — see the morph's overlay.
+            withTransaction(instant) {
+                coverShown = false
+                bandCopies = []
+            }
             //The name morph's affix and hero are two Texts standing in for the page's ONE — the
             //same glyphs to the eye, a hair apart at the edges (kerning across a Text boundary).
             //Cut, that hair flickers; faded over the page's line it dissolves. Plain text over
@@ -1207,6 +1362,26 @@ extension EventZoomChoreo {
             guard !closing else { return }
             withAnimation(.transition) { bandChromeIn = true }
         }
+    }
+
+    //The band's chrome, twinned to ride the cover. Built ONCE, in the measured pass before the flight
+    //leaves, for the source chrome copy's two reasons: its body must never re-run in flight, and a
+    //glass lens rebuilt at a new size every frame costs about seven eighths of the frame rate. Here it
+    //takes its first layout in the committed frame the flight waits out above, never in a mid-flight
+    //commit. The page as it stands at TAKEOFF: a twin cannot follow a flip it never re-renders for, and
+    //a piece off its page has nothing to fly.
+    //A LENS flies none: its cover starts at the ledger's 44pt face, and a piece laid out at the band's
+    //size and held against that corner would hang off the photo into bare backdrop for most of the
+    //flight — the slot-anchored rim's failure ([[project_wind_close_p_before_arrival]]). No lens card
+    //carries band chrome anyway, and the calendar's open is signed off (Arthur, 2026-09-05).
+    private func captureBandChrome() {
+        guard hasFlight, !shape.isLens else { return }
+        let twins = bandChromeSources
+            .filter { $0.value.onPage }
+            .map { EventZoomBandChromeCopy(id: $0.key, corner: $0.value.corner, view: $0.value.copy()) }
+        guard !twins.isEmpty else { return }
+        bandCopies = twins
+        bandChromeTwinned = Set(twins.map(\.id))
     }
 
     //`flightless`: the source is gone (its row was pruned under the card), so there is nothing
@@ -1513,6 +1688,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let pager: CGRect //The pager band, global
     let photo: UIImage
     let chrome: AnyView? //The source's chrome copy — laid out at source size, transform-ridden, gone over the open's first beat
+    let bandCopies: [EventZoomBandChromeCopy] //The band's OWN chrome, twinned at takeoff — pops in riding the flight, cut with the cover
     let title: String? //The pager's own title — rides the cover so it arrives with the content, not after it
     let pagerTitle: CGRect //Its glyph rect in the band's own space — the frost capsule's landing, posed on the cover as insets from its foot
     let titleName: String? //The word inside that title the source also draws — the name hero's subject
@@ -1794,6 +1970,29 @@ struct EventZoomMorph: ViewModifier, Animatable {
                         .allowsHitTesting(false)
                 }
             }
+            //The band's own chrome — the top row, a back button — riding the flight instead of waiting
+            //out the landing. ABOVE the cover for the reason the name morph is, and one more: the
+            //cover's chain ends in a `.shadow` (`CoverShadow`), and a layer effect above Liquid Glass
+            //rasterizes every lens beneath it — and these pieces ARE lenses. Held against the cover's
+            //corners and never scaled with it, so at p = 1 the cover is the band and each twin sits on
+            //the real piece to the pixel: the hand-off is the cover's own cut, on identical pixels, and
+            //the real one has been painted behind it since the landing. Mounted with the cover, from
+            //takeoff. On the title's ramp, so everything the band wears lands together.
+            //Gated on the LIST, not on `chromeMix`: the hand-off empties it, so a landed close flies no
+            //twin — it would carry one built before the card was ever touched, and the toggle's own word
+            //can have changed since. A close begun BEFORE the hand-off still has them, and they ride
+            //`arrive` back down with the title, the frost and the foot they arrived with. Cutting those
+            //at the close's first frame instead left the corner bare on a photo still fully on screen,
+            //with no real piece under it to take over (`settled` is false from `close()`'s first line) —
+            //the CTA capsule can be dropped instantly there only because its real button IS underneath.
+            .overlay {
+                if coverShown, !bandCopies.isEmpty, pagerLocal.width > 1 {
+                    ZStack {
+                        ForEach(bandCopies) { bandChromeTwin($0, cover: cover, band: pagerLocal, pop: arrive) }
+                    }
+                    .offset(y: -lift) //With the picture it sits on
+                }
+            }
             //The name morph rides ABOVE the cover rather than inside it: the word is posed in the
             //card's space, and the cover's own rounded clip would crop it as the window changes
             //shape. It outlives the cover's cut by its own fade, taken away over the live pager's
@@ -1852,6 +2051,43 @@ struct EventZoomMorph: ViewModifier, Animatable {
         EventTitle(title: title)
             .frame(width: max(width, 1), alignment: .leading)
     }
+
+    //One twinned band-chrome piece, posed for this frame. Laid out in a box the BAND's size and aligned
+    //to its own corner, so the piece's paddings resolve exactly as the live `.overlay(alignment:)`
+    //resolves them, and that box held against the matching corner of the cover — insets, never a lerp
+    //and never a scale of the box (`bandTitle`'s rule; the source chrome's `scaleEffect` is for chrome
+    //that is LEAVING at source size, and would land this one wrong).
+    private func bandChromeTwin(_ piece: EventZoomBandChromeCopy, cover: CGRect, band: CGRect, pop: CGFloat) -> some View {
+        let size = CGSize(width: max(band.width, 1), height: max(band.height, 1))
+        let unit = piece.corner.unit
+        return piece.view
+            //The house `opacityPop`'s own pose — scale and opacity — driven by the flight's geometry
+            //instead of by a curve, so the arrival reads as the pop every other piece of chrome in the
+            //app makes. It is not what makes the CUT match: the real piece is revealed at scale 1 and
+            //this is at scale 1 from p = 0.95, so the two meet whatever the ramp did before that.
+            //The scale re-renders the piece's lens at a new size for the ramp's ~150ms; it is the one
+            //thing here that costs, and `Self.twinPopScale` is the knob.
+            .scaleEffect(Self.twinPopScale + (1 - Self.twinPopScale) * pop)
+            .opacity(pop)
+            .frame(width: size.width, height: size.height, alignment: piece.corner.alignment)
+            .position(x: cover.minX + unit.x * cover.width + (0.5 - unit.x) * size.width,
+                      y: cover.minY + unit.y * cover.height + (0.5 - unit.y) * size.height)
+            //A twin is inert by contract (see the modifier's doc), so this only keeps the flight's plane
+            //from claiming the tap in SwiftUI's own hit-testing — interactive glass still installs a
+            //platform view that claims hitTest regardless ([[project_ios26_glass_hittest_stall]]), which
+            //is why the twin must never be a live control
+            .allowsHitTesting(false)
+    }
+
+    //The twin's arrival scale — the house `opacityPop`'s, so it matches the real piece it hands off to.
+    //It is also the one expensive thing in this flight: these pieces are `.clearGlass`, and a lens
+    //re-rendered at a new size every frame costs about seven eighths of the frame rate (the reason the
+    //CTA flies a FLAT capsule and hands its one real lens off unscaled). This capsule is ~100 × 31 against
+    //that CTA's full-width one, and it only scales over `arrive`'s 150ms — but if the open ever drops
+    //frames on device, set this to 1 and the twins arrive on opacity alone, exactly as the band's title,
+    //its frost capsule and its foot already do. Nothing else has to change: the pop ends at scale 1 well
+    //before the cut either way.
+    private static let twinPopScale: CGFloat = PopMotion.opacityShrunkScale
 
     //The words either side of the name, held at the title's own slot on the cover. They arrive on
     //the ramp the whole title used to, so nothing about the line's appearance changes — only the

@@ -22,7 +22,10 @@ private typealias Spec = TimeCustomMenuSpec
 
 //Which side of the label the menu opens toward; .automatic follows the native roomier-side rule
 enum TimeCustomMenuVerticalPlacement {
-    case automatic, above, below
+    ///`centred` wears the label through the platter's own middle at ANY height. Prefer it to `above`/`below`
+    ///plus a `placementOffsetY` constant whenever the content reflows: an offset is fixed, so it can only
+    ///centre one height, and a platter that hugs its page is never that height twice.
+    case automatic, above, below, centred
 }
 
 struct TimeCustomMenu<Content: View, Label: View>: View {
@@ -597,7 +600,7 @@ extension TimeCustomMenuOverlay {
             let below: Bool
             switch verticalPlacement {
             case .below: below = true
-            case .above: below = false
+            case .above, .centred: below = false //`centred` sets its own y below; `below` only picks its unit anchor
             case .automatic: //the roomier side when both fit, else the side that fits, else the larger
                 if size.height <= spaceBelow && size.height <= spaceAbove {
                     below = spaceBelow >= spaceAbove
@@ -609,7 +612,11 @@ extension TimeCustomMenuOverlay {
                     below = spaceBelow >= spaceAbove
                 }
             }
-            var y = below ? belowTop : aboveBottom - size.height
+            //The centred case reads `size.height` here, which is the whole point: the caller cannot, so an
+            //offset constant standing in for this is only ever right at one height
+            let centred = verticalPlacement == .centred
+            var y = centred ? anchor.midY - size.height / 2
+                            : (below ? belowTop : aboveBottom - size.height)
             y += placementOffsetY
             y = y.clamped(to: available.minY...max(available.minY, available.maxY - size.height))
 
@@ -620,7 +627,7 @@ extension TimeCustomMenuOverlay {
             x = x.clamped(to: available.minX...max(available.minX, available.maxX - size.width))
 
             let unitX = ((anchor.midX - x) / max(size.width, 1)).clamped(to: 0...1)
-            return (CGPoint(x: x, y: y), UnitPoint(x: unitX, y: below ? 0 : 1))
+            return (CGPoint(x: x, y: y), UnitPoint(x: unitX, y: centred ? 0.5 : (below ? 0 : 1)))
         }
     }
 }

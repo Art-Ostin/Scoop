@@ -143,51 +143,96 @@ struct EventImagePagerIndicator: View {
 }
 
 struct EventBackButton: View {
-    
+
     //Always mounted, never self-gated: `.eventZoomBandChrome(visible:)` at the call site is the
     //one gate — the page's condition ANDed with the flight's hand-off.
     @Binding var showConfirmScreen: Bool?
-    
+    ///The copy the event zoom flies in on its cover: the same label wearing the same surface, with no
+    ///Button under it. Interactive glass claims hitTest whatever the SwiftUI around it yields, so a live
+    ///twin would fire this action from a tap on the flying corner ([[project_ios26_glass_hittest_stall]]).
+    var inert: Bool = false
+
     var body: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), action: { withAnimation(.transition) { showConfirmScreen = false } }) {
-            Image(systemName: "chevron.left")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .foregroundStyle(Color.black)
-                .frame(width: 38, height: 38)
+        surface
+            .padding(.horizontal, imageHorizontalPadding - 4) //Geometry: as the title — one shared inset from the artwork edge
+            .padding(.top, imageTopPadding)
+    }
+
+    //One style for both forms, so the twin can never drift from the button it stands in for
+    private static let style: ScoopButtonStyle = .clearGlass
+
+    @ViewBuilder
+    private var surface: some View {
+        if inert {
+            label
+                .scoopGlassSurface(clear: Self.style == .clearGlass, shape: Circle())
+                .glassFallbackRestingShadow()
+        } else {
+            ScoopButton(style: Self.style, shape: Circle(), action: { withAnimation(.transition) { showConfirmScreen = false } }) {
+                label
+            }
         }
-        .padding(.horizontal, imageHorizontalPadding - 4) //Geometry: as the title — one shared inset from the artwork edge
-        .padding(.top, imageTopPadding)
+    }
+
+    private var label: some View {
+        Image(systemName: "chevron.left")
+            .font(.body(17))
+            .fontWeight(.heavy)
+            .foregroundStyle(Color.black)
+            .frame(width: 38, height: 38)
     }
 }
 
 struct NewEventToggleButton: View {
     @Binding var responseType: ResponseType
     @Binding var showConfirmScreen: Bool?
-    
+    ///The copy the event zoom flies in on its cover — see `EventBackButton.inert`
+    var inert: Bool = false
+
     private var isNewEvent: Bool { responseType == .newEvent }
-    
+
     var body: some View {
-        ScoopButton(style: .clearGlass, shape: .capsule) {
-            withAnimation(.dissolve) {
-                responseType = isNewEvent ? .originalInvite : .newEvent
-                showConfirmScreen = false
-            }
-        } label: {
-            HStack(spacing: Spacing.xxs) {
-                if !isNewEvent {
-                    Image(systemName: "plus")
-                        .font(.body(12, .bold))
+        surface
+            .padding()
+    }
+
+    //One style for both forms, so the twin can never drift from the button it stands in for
+    private static let style: ScoopButtonStyle = .glass
+
+    @ViewBuilder
+    private var surface: some View {
+        if inert {
+            label
+                .scoopGlassSurface(clear: Self.style == .clearGlass, shape: .capsule)
+                .glassFallbackRestingShadow() //See EventBackButton.surface
+        } else {
+            ScoopButton(style: Self.style, shape: .capsule) {
+                //The card's own mask and shadow re-animate a landed resize on `.transition`
+                //(`EventZoomFlight.reportCard`), so the body that pushes them has to run the same clock.
+                //Each half of the swap carries its own beat — see `RespondToInviteContainer.bodySwap`.
+                withAnimation(.transition) {
+                    responseType = isNewEvent ? .originalInvite : .newEvent
+                    showConfirmScreen = false
                 }
-                
-                Text(isNewEvent ? "Original Invite" : "New Invite")
-                    .font(.body(11, .bold))
+            } label: {
+                label
             }
-            .padding(.horizontal, Spacing.xs)
-            .padding(.vertical, 7)
-            .foregroundStyle(Color.textPrimary)
         }
-        .padding()
+    }
+
+    private var label: some View {
+        HStack(spacing: Spacing.xxs) {
+            if !isNewEvent {
+                Image(systemName: "plus")
+                    .font(.body(12, .bold))
+            }
+
+            Text(isNewEvent ? "Original Invite" : "New Invite")
+                .font(.body(11, .bold))
+        }
+        .padding(.horizontal, Spacing.xs)
+        .padding(.vertical, 7)
+        .foregroundStyle(Color.textPrimary)
     }
 }
 

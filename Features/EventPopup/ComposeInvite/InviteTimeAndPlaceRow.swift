@@ -17,10 +17,14 @@ struct InviteTimeRow: View {
     //If time is open
     @Binding var timeisOpen: Bool
     let typePopUpOpen: Bool
+    //Its own platter is up. The row stays — the lens is born on its label and lands back on it — but the
+    //caption has no menu to hide it, so it would read through the glass
+    var captionHidden: Bool = false
     
     var body: some View {
         HStack {
             RowCaption(label: .when)
+                .blurPop(visible: !captionHidden, scale: 1)
             Spacer(minLength: 12)
             TimeCustomMenu(
                 estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: 311),

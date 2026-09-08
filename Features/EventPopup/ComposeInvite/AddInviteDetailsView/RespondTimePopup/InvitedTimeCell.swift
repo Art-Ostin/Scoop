@@ -52,7 +52,7 @@ extension InvitedTimeCell {
     }
     
     private var eventTimeText: some View {
-        let time = FormatEvent.shortDayAndTime(date)
+        let time = FormatEvent.shortDayAndTime(date, withHour: false) //The hour follows below in its own tone; `shortDayAndTime` appends one by default
         let hour = FormatEvent.hourTime(date)
         return Group {
             Text(time)

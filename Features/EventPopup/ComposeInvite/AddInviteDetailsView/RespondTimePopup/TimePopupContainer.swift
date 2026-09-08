@@ -16,6 +16,13 @@ struct TimePopupContainer: View {
     //to the platter edge instead of inheriting a number that was never about them.
     private static let invitedInset = Spacing.md
 
+    //Geometry: the invited-times platter, and the size the menu seeds its first bloom with — every open
+    //lands on this page. Only the propose page has an incompressible width (SelectTimeView.platterWidth
+    //centres a 298pt day grid), so it is the one page that earns 346. This page answers to its own header:
+    //"Invited Times" + "Can't make it?" + 2 × invitedInset needs 246, so this sits 70pt clear of its floor
+    //and still leaves a 30pt step out to the propose page.
+    static let invitedWidth: CGFloat = 316
+
     //Injected -- three values can change (1) The response Type (2) The selected Day (3) Modified Invite proposed Times (4) Which pop
     @Binding var respondType: ResponseType
     @Binding var selectedDay: Date?
@@ -36,8 +43,12 @@ struct TimePopupContainer: View {
         }
         .padding(.top, Spacing.lg) //the platter's top air, as in propose mode
         .padding(.bottom, page == .invitedTimes ? Spacing.md : 0) //New-time page: the wheel runs to the platter edge and dissolves there (see TimePicker)
-        .frame(maxWidth: SelectTimeView.platterWidth) //One width for both pages: the platter is pinned to the screen margin, so a narrower page would slide sideways on the swap
-        .animation(.expand, value: page) //the pager's height reflow and the title crossfade
+        //A definite pin, and the OUTERMOST width modifier: both pager pages size off it through their
+        //containerRelativeFrame, and the menu's hidden sizer measures this view's own width to place the
+        //platter. Wrapping it in a flexible frame decouples the two — the sizer stops tracking the page
+        //flip and the platter keeps the other page's width while the content overflows its mask.
+        .frame(width: pageWidth)
+        .animation(.expand, value: page) //the platter's width, the pager's height reflow and the title crossfade
     }
 }
 
@@ -69,6 +80,14 @@ extension TimePopupContainer {
         page == .newTime ? SelectTimeView.columnInset : Self.invitedInset
     }
 
+    //Tested against `.invitedTimes`, not `.newTime`, because `page` IS the pager's `.scrollPosition(id:)`
+    //binding and is reported nil mid-swap: nil must widen, never narrow, or the platter dips inward for a
+    //frame in the middle of expanding. Every open lands on `.invitedTimes` (see the menu's `onOpen`), so
+    //the narrow width is still what the platter blooms into.
+    private var pageWidth: CGFloat {
+        page == .invitedTimes ? Self.invitedWidth : SelectTimeView.platterWidth
+    }
+
     private var subTitle: some View {
         Text("Propose up to 3 days")
             .font(.body(14, .regular))
@@ -88,6 +107,12 @@ extension TimePopupContainer {
                 .padding(.horizontal, SelectTimeView.columnInset)
                 .containerRelativeFrame(.horizontal)
                 .fixedSize(horizontal: false, vertical: true)
+                //Both pages take the pager's width, so while the invited page is active this one is 280 and
+                //its 346pt day grid outgrows it by 33pt a side. The LEFT half of that spill lands inside the
+                //visible page — the grid's first column starts 9pt before this page's origin — and showed as a
+                //sliced weekday letter and day number against the platter's trailing edge. Nothing to cut when
+                //the page is active: at 346 the grid fits its column inset exactly.
+                .clipped()
                 .getHeight($selectTimeHeight)
                 .id(TimePopupPage.newTime)
         }
@@ -97,11 +122,15 @@ extension TimePopupContainer {
         .scrollDisabled(true)
     }
 
-    //One height for both pages -- the new-time page is the taller, so the invited page keeps its air below
-    //the cells. A platter that never reflows can be centred on the row by a single constant, and the two
-    //clocks that used to size it (this view's .expand and the menu's reflowResize) can no longer disagree.
+    //Each page hugs its own content. Sharing the taller one sized every invited list for the propose
+    //page's grid-and-wheel, so a one- or two-option invite carried ~100pt of dead air under its last cell.
+    //The menu places this platter `.above` as `aboveBottom - height + placementOffsetY`, so its BOTTOM is
+    //pinned to the row and a shorter page shrinks upward rather than jumping.
+    //Tested against `.invitedTimes` for the same reason as `pageWidth`: `page` is the pager's
+    //`.scrollPosition(id:)` binding and is reported nil mid-swap, so nil must take the TALLER page or the
+    //platter dips for a frame in the middle of growing.
     private var activePageHeight: CGFloat? {
-        let height = max(invitedTimesHeight, selectTimeHeight)
+        let height = page == .invitedTimes ? invitedTimesHeight : selectTimeHeight
         return height > 0 ? height : nil
     }
 }

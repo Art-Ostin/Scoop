@@ -105,6 +105,16 @@ extension View {
     func scoopGlassSurface<S: Shape>(clear: Bool = false, shape: S) -> some View {
         modifier(ScoopGlassSurface(clear: clear, shape: shape))
     }
+
+    // The resting shadow a ScoopButton's glass path wears on pre-26 and `scoopGlassSurface` does not:
+    // the fallback press is `growButton`, whose shadow defaults to Elevation.glass, and it is the
+    // ButtonStyle that carries it — so a Button-less copy of a glass button loses it. Only for a copy
+    // that has to match one pixel for pixel (the event zoom's flying band chrome). On 26 the lens draws
+    // its own shadow and this is nothing.
+    @ViewBuilder
+    func glassFallbackRestingShadow() -> some View {
+        if #available(iOS 26.0, *) { self } else { shadow(.glass, tint: .black) }
+    }
 }
 
 // The iOS-26 tinted-glass surface, with a pre-26 flat fill fallback.

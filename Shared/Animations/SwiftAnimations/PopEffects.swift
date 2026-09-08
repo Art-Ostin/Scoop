@@ -15,6 +15,12 @@ enum PopMotion {
 
     static let platterShrunkScale: CGFloat = 0.5
     static let lensCutoff: CGFloat = 0.6
+
+    ///`opacityPop`'s own shrunk pose, named because the event zoom wears it in two places at once: a
+    ///copy of the band's chrome pops in on the flying cover, driven off the flight's p, while the real
+    ///piece waits underneath. They have to meet on identical pixels at the cover's cut, so a literal
+    ///in either place is a seam waiting to open.
+    static let opacityShrunkScale: CGFloat = 0.4
 }
 
 
@@ -65,7 +71,7 @@ private struct BlurPopPhase: ViewModifier {
 
 extension View {
     
-    func opacityPop(visible: Bool, scale: CGFloat = 0.4, anchor: UnitPoint = .center) -> some View {
+    func opacityPop(visible: Bool, scale: CGFloat = PopMotion.opacityShrunkScale, anchor: UnitPoint = .center) -> some View {
         modifier(OpacityPop(visible: visible, shrunkScale: scale, anchor: anchor))
     }
     

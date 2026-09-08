@@ -79,8 +79,8 @@ extension InviteHistoryContainer {
             titleRow(for: pastEvent, isActiveRow: isActiveRow)
             
             VStack(spacing: 18) {
-                VStack(spacing: 18) {
-                    whatRowWithType(what: pastEvent.type, kind: pastEvent.kind)
+                VStack(spacing: pastEvent.message?.isEmpty == false ? 18 : 28) {
+                    whatRowWithTime(what: pastEvent.type, time: pastEvent.dateSent)
                     whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
                     whereRow(location: pastEvent.place)
                 }
@@ -91,25 +91,41 @@ extension InviteHistoryContainer {
                 }
             }
             .modifier(InviteBackground())
+            .overlay(alignment: .bottomTrailing) {
+                if isActiveRow {
+                    Text("Current Invite")
+                        .font(.title(14, .semibold))
+                        .foregroundStyle(.accent)
+                        .offset(y: 24)
+                        .padding(.trailing, 12)
+                }
+            }
+            .padding(.bottom, isActiveRow ? 8 : 0)
         }
     }
     
     private func titleRow(for proposal: PastEventProposal, isActiveRow: Bool) -> some View {
         HStack(spacing: Spacing.xs) {
-            Text(senderName(for: proposal))
-                .font(.title(17, .bold))
-                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+            Text(timeTitle(proposal))
+                .font(.title(17, .semibold))
+                .foregroundStyle(Color.textTertiary)
 
             Spacer()
-            Text(isActiveRow ? "Current Invite" : FormatEvent.dayMonthTime(proposal.dateSent))
-                .font(.title(14, .semibold))
-                .foregroundStyle(isActiveRow ? .accent : Color(red: 0.65, green: 0.65, blue: 0.65))
-            
         }
         .padding(.horizontal, 5)//Optical illusion -> looks slightly smoother indented
     }
     
-    private func whatRowWithType(what: Event.EventType, kind: ProposalKind) -> some View {
+    
+    private func timeTitle(_ proposal: PastEventProposal) -> String {
+        let name = senderName(for: proposal)
+        switch proposal.kind {
+        case .original: return "\(name)'s original Invite"
+        case .newTime: return "\(name) proposed a new Time"
+        case .newEvent: return "\(name) proposed a new event"
+        }
+    }
+    
+    private func whatRowWithTime(what: Event.EventType, time: Date) -> some View {
         HStack(alignment: .top) {
             HStack(spacing: iconGap) {
                 Text(what.emoji)
@@ -119,7 +135,7 @@ extension InviteHistoryContainer {
                 sectionLayer(title: "WHAT", bodyText: what.longTitle)
             }
             Spacer()
-            invitedTypeIcon(type: kind)
+            invitedTime(dateSent: time)
         }
         
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -148,13 +164,9 @@ extension InviteHistoryContainer {
     }
     
     
-    private func invitedTypeIcon(type: ProposalKind) -> some View {
-        let text = type == .original ? "Original" : type == .newTime ? "New Time" : "New Event"
-        
-        return Text(text)
-            .font(.body(10, .medium))
-            .frame(width: 62, height: 19)
-            .stroke(6.4, lineWidth: 1, color: Color.blackFill)
+    private func invitedTime(dateSent: Date) -> some View {
+        return Text(FormatEvent.dayMonthTime(dateSent))
+            .font(.body(12, .medium))
     }
     
     private func sectionLayer(title: String, bodyText: String, isBold: Bool = false) -> some View {
@@ -244,3 +256,6 @@ struct InviteBackground: ViewModifier {
     
     
 }
+
+//    .frame(width: 62, height: 19)
+//            .stroke(6.4, lineWidth: 1, color: Color.blackFill)

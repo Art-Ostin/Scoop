@@ -165,22 +165,29 @@ struct EditTypeTimePlace: View {
 
     @Binding var draft: EventFieldsDraft
 
+    //An open platter is glass over this section, so everything under it hides but the open menu's own
+    //label. Each row carries that hide itself; the seams and the time caption own no menu, so they hide here
+    private var popupOpen: Bool { ui.delayedTypePopupOpen || ui.delayedTimePopupOpen }
+
     var body: some View {
         VStack(spacing: 18) {
             InviteTypeRow(eventType: $draft.type, message: $draft.message, ui: ui, timePopupOpen: ui.delayedTimePopupOpen)
-            
+
             VeryLightDivider()
+                .blurPop(visible: !popupOpen, scale: 1)
             
             InviteTimeRow(
                 proposedTimes: $draft.time,
                 timeisOpen: $ui.timePopupOpen,
-                typePopUpOpen: ui.delayedTypePopupOpen
+                typePopUpOpen: ui.delayedTypePopupOpen,
+                captionHidden: ui.delayedTimePopupOpen
             )
             
             VeryLightDivider()
+                .blurPop(visible: !popupOpen, scale: 1)
             
             InvitePlaceRow(
-                popupOpen: ui.delayedTypePopupOpen || ui.delayedTimePopupOpen,
+                popupOpen: popupOpen,
                 location: $draft.place,
                 showMapView: $ui.showMapView
             )

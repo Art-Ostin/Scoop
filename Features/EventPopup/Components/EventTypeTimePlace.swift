@@ -26,11 +26,14 @@ struct EventTypeTimePlace: View {
     var body: some View {
         VStack(alignment: .leading, spacing: actionsBelow ? shortSpacing ? 12 : 14 : 19) {
             typeRow
+                .opacity(coveredOpacity)
             lightDivider
             timeRow
             lightDivider
             iconRow(.eventMapIcon, invite.place.name ?? "View Venue")
+                .opacity(coveredOpacity)
         }
+        .animation(.transition, value: timePopupOpen.wrappedValue)
         .padding(.horizontal, Spacing.lg)
         .padding(.top, actionsBelow ? Spacing.md : Spacing.lg - Spacing.xxs) //Alone, a nudge less than the sides
         .padding(.bottom, actionsBelow ? 14 : Spacing.lg)
@@ -101,16 +104,28 @@ extension EventTypeTimePlace {
     }
         
     private var lightDivider: some View {
-        VeryLightDivider().padding(.leading, textColumn)
+        VeryLightDivider().padding(.leading, textColumn).opacity(coveredOpacity)
     }
+
+    //Everything the card shows around an open time platter fades with it. The place row's pin sits left of
+    //the narrower platter and the dividers run out both sides — those are spill. The type row is not: the
+    //platter hugs its content now, and `.above` pins its BOTTOM, so its top edge sits below that row. It
+    //fades for focus, so the open platter is read against the photo rather than a half-lit card.
+    //FADED, never removed: the platter is anchored to the time row's frame, and reflowing the card under an
+    //open menu would move that anchor. The TIME row is deliberately absent from this — it IS the menu's
+    //label, hidden by `hidesLabel` on the exact frame the lens takes its place ("overlap, never a gap"),
+    //and a second fade keyed on `timePopupOpen` would pull it a frame early on the way in and fight the
+    //droplet close, which morphs back into it, on the way out.
+    private var coveredOpacity: Double { timePopupOpen.wrappedValue ? 0 : 1 }
 }
 
 //A selectable version of the time row
 private struct RespondEventTimeRow: View {
 
-    //Geometry: the popup's height, now that both pages share the taller one (TimePopupContainer.activePageHeight):
-    //24 top + 36 title + 12 + 232 pager on the new-time page, 2pt more on the invited one. It seeds the first
-    //bloom and the centring below; the menu measures the real platter on open.
+    //Geometry: a seed for the very FIRST bloom only, before any measurement exists — roughly the invited
+    //page, which is the page every open lands on. It no longer feeds the centring (`.centred` reads the
+    //measured height instead), and `tracksContentSizeChanges` corrects it within a frame, so being a little
+    //tall for a short invite costs nothing.
     private static let platterHeight: CGFloat = 305
     
     //Updates (1) what event type (2) The original invite selected day (3) A new invites proposed Times
@@ -123,19 +138,11 @@ private struct RespondEventTimeRow: View {
     //Which screen when it opens -> i.e. is It newTime or original invite
     @State private var page: TimePopupPage? = .newTime
     
-    //Puts the row's centre line through the platter's middle: half the platter down, less half the row.
-    //Pre-26 the classic platter floats above the label instead of covering it, so it starts a row-and-gap higher.
-    private var centringOffset: CGFloat {
-        let centred = (Self.platterHeight - rowHeight) / 2
-        if #available(iOS 26.0, *) { return centred }
-        return centred + rowHeight + TimeCustomMenuSpec.anchorGap
-    }
-
     var body: some View {
-        TimeCustomMenu(estimatedContentSize: CGSize(width: SelectTimeView.platterWidth, height: Self.platterHeight),
-                       tracksContentSizeChanges: false, //One height for both pages now, so there is nothing to track
-                       verticalPlacement: .above, //Pinned: .automatic picks a side by free space, and each side needs its own offset
-                       placementOffsetY: centringOffset,
+        TimeCustomMenu(estimatedContentSize: CGSize(width: TimePopupContainer.invitedWidth, height: Self.platterHeight),
+                       tracksContentSizeChanges: true, //Each page wears its own platter — narrower on the invited page, and hugging its own content — so both axes reflow. Off, the sizer only mounts while `cachedMenuSize` is nil, so the first open's size would freeze for the session
+                       verticalPlacement: .centred, //The menu reads the measured height and wears the row through its middle. An offset constant could only be right at ONE height, and neither page is that height now
+                       placementOffsetY: 0, //`.centred` needs no nudge, and the parameter's default is not zero
                        isOpen: $isOpen,
                        onOpen: { page = .invitedTimes }) {
             popup
