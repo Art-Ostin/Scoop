@@ -78,6 +78,7 @@ struct InvitePlaceRow: View {
             HStack(spacing: chevronSpacing) {
                 if let location {
                     eventText(location)
+                        .lineLimit(1)
                 } else {
                    EventRowPlaceholder(text: "Choose Place")
                 }

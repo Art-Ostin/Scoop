@@ -186,7 +186,6 @@ struct EventBackButton: View {
 struct NewEventToggleButton: View {
     @Binding var responseType: ResponseType
     @Binding var showConfirmScreen: Bool?
-    ///The copy the event zoom flies in on its cover — see `EventBackButton.inert`
     var inert: Bool = false
 
     private var isNewEvent: Bool { responseType == .newEvent }
@@ -203,10 +202,10 @@ struct NewEventToggleButton: View {
     private var surface: some View {
         if inert {
             label
-                .scoopGlassSurface(clear: Self.style == .clearGlass, shape: .capsule)
+                .scoopGlassSurface(clear: !isNewEvent, shape: .capsule)
                 .glassFallbackRestingShadow() //See EventBackButton.surface
         } else {
-            ScoopButton(style: Self.style, shape: .capsule) {
+            ScoopButton(style: isNewEvent ? .glass : .clearGlass, shape: .capsule) {
                 withAnimation(.transition) {
                     responseType = isNewEvent ? .originalInvite : .newEvent
                     showConfirmScreen = false

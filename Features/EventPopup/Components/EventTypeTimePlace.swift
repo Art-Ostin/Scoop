@@ -112,6 +112,7 @@ extension EventTypeTimePlace {
                 .frame(width: iconWidth)
             Text(text).font(.body(largeText ? 17 : 16, .bold))
         }
+        .lineLimit(1)
         .frame(height: rowHeight)
     }
         
@@ -122,6 +123,7 @@ extension EventTypeTimePlace {
     private var covered: Bool { timePopupOpenDelayed }
 }
 
+
 //A selectable version of the time row
 private struct RespondEventTimeRow: View {
 
@@ -130,8 +132,6 @@ private struct RespondEventTimeRow: View {
     private static let labelTextSize: CGFloat = 17
     private static let labelAnchorInset: CGFloat = (rowHeight - labelTextSize) / 2
     
-    //Updates (1) what event type (2) The original invite selected day (3) A new invites proposed Times
-    //Easier to pass in whole draft here
     @Binding var draft: RespondDraft
 
     //The container's, not the row's: an open platter dims the CTA, locks the card's drag and hides the title
