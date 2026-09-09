@@ -868,6 +868,7 @@
 				65A36F823048E5A700CF54BE /* Components */,
 				65304A3330477CB5007D3DA3 /* ComposeInvite */,
 				65A36F7D3048BF5A00CF54BE /* RespondToInvite */,
+				6549DA7D2F9E8E6E00C89DF2 /* RespondTimePopup */,
 				65A36F803048E13C00CF54BE /* ViewInvite.swift */,
 			);
 			path = EventPopup;
@@ -1159,7 +1160,6 @@
 				653770612E0ACA600058D225 /* SelectTypeView.swift */,
 				6537706D2E0B08DE0058D225 /* AddMessageView.swift */,
 				659CE9FF30109D3E00E0F735 /* SelectTimePopup */,
-				6549DA7D2F9E8E6E00C89DF2 /* RespondTimePopup */,
 				6549DA782F9E886100C89DF2 /* PlacePicker */,
 			);
 			path = AddInviteDetailsView;
@@ -1207,6 +1207,7 @@
 		6549DA7D2F9E8E6E00C89DF2 /* RespondTimePopup */ = {
 			isa = PBXGroup;
 			children = (
+				65B0A2683050D944009FA571 /* RespondEventTimeRow.swift */,
 				659CE9F930108D1D00E0F735 /* TimePopupContainer.swift */,
 				65756FDC3010BEAA00B9D2F5 /* RespondNewTime.swift */,
 				65756FDE3010BEB400B9D2F5 /* InvitedTimes.swift */,
@@ -1614,7 +1615,6 @@
 				65304A263047512B007D3DA3 /* EventImagePager.swift */,
 				65304A283047526F007D3DA3 /* EventImageOverlays.swift */,
 				65304A2F30477523007D3DA3 /* EventTypeTimePlace.swift */,
-				65B0A2683050D944009FA571 /* RespondEventTimeRow.swift */,
 				65B0A2663050BDA6009FA571 /* TimeBandGround.swift */,
 			);
 			path = Components;

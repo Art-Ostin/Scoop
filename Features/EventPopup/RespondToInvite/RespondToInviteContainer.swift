@@ -47,7 +47,7 @@ struct RespondToInviteContainer: View {
             cancelTitle: "Back",
             okTitle: "Confirm",
             offset: 36,
-            onOK: { ctaAction() }, //Never cleared here: the plate leaves under the response cover, with the card (`BlurCoverMotion.coveredAt`)
+            onOK: { ctaAction() }, //
             onCancel: {ui.showAcceptAlert = false}
         )
         .animation(.transition, value: [composeUI.delayedTimePopupOpen, composeUI.delayedTypePopupOpen])
@@ -90,7 +90,8 @@ extension RespondToInviteContainer {
         HStack(spacing: 6) {
             NewEventToggleButton(
                 responseType: $vm.respondDraft.respondType,
-                showConfirmScreen: $composeUI.showConfirmScreen
+                showConfirmScreen: $composeUI.showConfirmScreen,
+                noAvailableDays: vm.respondDraft.originalInvite.event.proposedTimes.availableTimes().isEmpty
             )
         }
         .animation(.transition, value: isComposeInviteScreen)
@@ -105,7 +106,8 @@ extension RespondToInviteContainer {
             NewEventToggleButton(
                 responseType: $vm.respondDraft.respondType,
                 showConfirmScreen: $composeUI.showConfirmScreen,
-                inert: true
+                inert: true,
+                noAvailableDays: vm.respondDraft.originalInvite.event.proposedTimes.availableTimes().isEmpty
             )
         }
     }

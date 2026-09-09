@@ -190,6 +190,8 @@ struct NewEventToggleButton: View {
 
     private var isNewEvent: Bool { responseType == .newEvent }
 
+    let noAvailableDays: Bool
+    
     var body: some View {
         surface
             .padding()
@@ -206,12 +208,27 @@ struct NewEventToggleButton: View {
                 .glassFallbackRestingShadow() //See EventBackButton.surface
         } else {
             ScoopButton(style: isNewEvent ? .glass : .clearGlass, shape: .capsule) {
-                withAnimation(.transition) {
-                    responseType = isNewEvent ? .originalInvite : .newEvent
-                    showConfirmScreen = false
-                }
+                switchEventType()
             } label: {
                 label
+            }
+        }
+    }
+    
+    //If any available days, go to the originalInvite with that day selected. If not new time
+    private func switchEventType() {
+        withAnimation(.transition) {
+            showConfirmScreen = false
+            if responseType == .newEvent {
+                if noAvailableDays {
+                    responseType = .newTime
+                    print("Gone to newTime")
+                } else {
+                    responseType = .originalInvite
+                    print("Gone to originalInvite")
+                }
+            } else {
+                responseType = .newEvent
             }
         }
     }

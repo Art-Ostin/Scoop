@@ -18,8 +18,6 @@ struct ToggleResponseMode: View {
     var anyAvailableInvitedDays: Bool
     
     var body: some View {
-        
-        
         ZStack {
             if timePopupPage == .newTime {
                 optionsLabel
@@ -72,7 +70,7 @@ extension ToggleResponseMode {
         togglePage()
         if timePopupPage == .newTime { //Only switch the type to modified, if I have modified selected
             if anyNewProposedTimes { responseType = .newTime }
-        } else {//Only switches if there are available dates
+        } else {
             if anyAvailableInvitedDays { responseType = .originalInvite}
         }
     }

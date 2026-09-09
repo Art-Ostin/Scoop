@@ -72,17 +72,19 @@ struct RespondEventTimeRow: View {
      }
     
     private var timeText: some View {
-        Text(Self.text(for: draft))
-            .font(.body(Self.labelTextSize, .bold))
+        let isSuggest: Bool = (Self.text(for: draft)) == "Suggest a Time"
+       return Text(Self.text(for: draft))
+            .font(.body(isSuggest ? 18 : Self.labelTextSize, isSuggest ? .medium : .bold))
     }
-
+    
     static func text(for draft: RespondDraft) -> String {
         switch draft.respondType {
         case .originalInvite:
-            guard let selectedTime = draft.originalInvite.selectedDay else { return "Select Time" }
+            guard let selectedTime = draft.originalInvite.selectedDay else { return "Suggest a Time" }
             return FormatEvent.shortDayAndTime(selectedTime)
         case .newTime:
-            return draft.newTime.proposedTimes.formatMultipleInvitedDays()
+            let days = draft.newTime.proposedTimes.formatMultipleInvitedDays()
+            if days.isEmpty { return "Suggest a Time" } else { return days}
         case .newEvent:
             return "" //This row is never the one a new-event draft draws
         }

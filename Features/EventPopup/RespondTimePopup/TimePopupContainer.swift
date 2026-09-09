@@ -104,12 +104,6 @@ extension TimePopupContainer {
         .clipped()
         .scrollPosition(id: $page)
         .scrollDisabled(true)
-        //`.scrollPosition(id:)` MOVES a live scroll; it never places a new one, and the menu writes
-        //`page` before this view exists (its onOpen fires ahead of the hosting window), so a fresh
-        //pager was born on its first page whatever `page` said. The OPENING page is therefore an
-        //initial offset: with two container-width pages, they are its leading and trailing edges.
-        //`.initialOffset` only — a role-less anchor re-anchors on every content-size change and
-        //would fight the toggle as the two page heights measure in.
         .defaultScrollAnchor(page == .newTime ? .trailing : .leading, for: .initialOffset)
     }
 
