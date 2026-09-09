@@ -183,6 +183,19 @@ extension ProposedTimes {
     func isExpired(asOf now: Date = .now) -> Bool {
         acceptableTimes(asOf: now).isEmpty
     }
+
+    //Whether a day can still be picked. The one predicate the respond popup asks — the cell that
+    //draws a day's status and the draft that selects one both come here, so a selected day can
+    //never read "Unavailable". `stillAvailable` alone (availableTimes) never consults the clock.
+    func isSelectable(_ date: Date, asOf now: Date = .now) -> Bool {
+        acceptableTimes(asOf: now).contains { $0.date == date }
+    }
+
+    //The day to land on when nothing is chosen yet — nil once every day has lapsed, which is the
+    //same set isExpired reports on.
+    func firstSelectableDate(asOf now: Date = .now) -> Date? {
+        acceptableTimes(asOf: now).first?.date
+    }
 }
 
 //Where an invite written before option numbers existed gets them: every entry decodes to the

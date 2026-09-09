@@ -49,11 +49,23 @@ extension ToggleResponseMode {
         .font(.body(13, .medium))
     }
     
+    @ViewBuilder
     private var cantMakeItLabel: some View {
-        Text("Can't make it?")
-            .font(.body(13, .bold))
-            .foregroundStyle((Color.textSecondary))
-            .kerning(0.5)
+        if anyAvailableInvitedDays {
+            Text("Can't make it?")
+                .font(.body(13, .bold))
+                .foregroundStyle((Color.textSecondary))
+                .kerning(0.5)
+        } else {
+            HStack(spacing: Spacing.hairline) {
+                Text("Choose Time")
+                    .foregroundStyle(Color.textSecondary)
+                    .font(.body(13, .medium))
+
+                Image(systemName: "chevron.right")
+                    .font(.body(11, .medium))
+            }
+        }
     }
     
     private func switchView() {

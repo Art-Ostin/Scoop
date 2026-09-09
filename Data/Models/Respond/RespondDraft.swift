@@ -20,7 +20,7 @@ struct RespondDraft: Codable  {
     var respondType: ResponseType
 
     init(event: UserEvent, userId: String) {
-        let selectedDay = event.proposedTimes.firstAvailableDate
+        let selectedDay = event.proposedTimes.firstSelectableDate()
         self.originalInvite = OriginalInvite(event: event, selectedDay: selectedDay)
         self.newTime = NewTimeDraft(event: event, proposedTimes: .init())
         self.newEvent = EventFieldsDraft(type: .socialMeet, place: event.location)
@@ -29,19 +29,15 @@ struct RespondDraft: Codable  {
 }
 
 extension RespondDraft {
-
-    //A stored draft carries its own snapshot of the invite. The live event always wins, so a
-    //reschedule by the other user — or a draft saved while the times were empty — can't shadow
-    //it, while the user's own edits (their new times, their new event, their message) survive.
     mutating func rehydrate(with event: UserEvent) {
         let type = respondType   //each property's didSet below rewrites it
         let keepsSelection = originalInvite.selectedDay.map { day in
-            event.proposedTimes.dates.contains { $0.date == day }
+            event.proposedTimes.isSelectable(day)
         } ?? false
 
         originalInvite = OriginalInvite(
             event: event,
-            selectedDay: keepsSelection ? originalInvite.selectedDay : event.proposedTimes.firstAvailableDate
+            selectedDay: keepsSelection ? originalInvite.selectedDay : event.proposedTimes.firstSelectableDate()
         )
         newTime = NewTimeDraft(event: event, proposedTimes: newTime.proposedTimes)
         respondType = type

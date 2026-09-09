@@ -57,7 +57,7 @@ extension TimePopupContainer {
                 responseType: $respondType,
                 timePopupPage: $page,
                 anyNewProposedTimes: newProposedTimes.dates.count > 0,
-                anyAvailableInvitedDays: times.availableDates().count > 0
+                anyAvailableInvitedDays: !times.acceptableTimes().isEmpty //The same days the cells let you pick — the toggle can't re-arm a mode with nothing selectable
             )
         }
         .padding(.horizontal, columnInset) //Shared across the swap, so it rides each page's own column
@@ -104,6 +104,13 @@ extension TimePopupContainer {
         .clipped()
         .scrollPosition(id: $page)
         .scrollDisabled(true)
+        //`.scrollPosition(id:)` MOVES a live scroll; it never places a new one, and the menu writes
+        //`page` before this view exists (its onOpen fires ahead of the hosting window), so a fresh
+        //pager was born on its first page whatever `page` said. The OPENING page is therefore an
+        //initial offset: with two container-width pages, they are its leading and trailing edges.
+        //`.initialOffset` only — a role-less anchor re-anchors on every content-size change and
+        //would fight the toggle as the two page heights measure in.
+        .defaultScrollAnchor(page == .newTime ? .trailing : .leading, for: .initialOffset)
     }
 
     private var activePageHeight: CGFloat? {

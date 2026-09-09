@@ -51,7 +51,7 @@ struct SelectTimeView: View {
         VStack(spacing: 0) {
             titleSection
             dayPicker
-                .padding(.top, isRespondMode ? Spacing.sm : Spacing.lg) //Respond mode: the parent supplies the title row and 12 of this gap through its own VStack spacing, so 12 here sums to compose's 24
+                .padding(.top, isRespondMode ? Spacing.sm : Spacing.lg)
             TimePicker(selectedHour: $selectedHour, selectedMinute: $selectedMinute)
                 .padding (.top, Spacing.xxs) //The wheel's own top fade does the separating
         }
@@ -91,7 +91,7 @@ private extension SelectTimeView {
 }
 
 private extension SelectTimeView {
-    
+
     func clickedUnavailableDay() async {
         guard warning != nil else { return }
         try? await Task.sleep(for: .seconds(1))

@@ -799,7 +799,16 @@ private struct MenuLensMorph: ViewModifier, Animatable {
             if pose.frostMix > 0 { //absent, not faded: a stacked glassEffect at opacity 0 still washes the composite milky
                 Color.clear
                     .frame(width: size.width, height: size.height)
-                    .glassEffect(.regular, in: shape) //plain glass: the platter takes its colour from whatever it is over, rather than casting a warm one of its own
+                    .glassEffect(.regular, in: shape) //plain glass: the platter casts no colour of its own
+                    //...but what it is OVER is averaged from a few points PAST its own edge, so the overhang drank
+                    //the photo — warmest at the top, warmest on the cloth side — however white the ground directly
+                    //behind it was. A same-size backing is the one thing that changes nothing (TimeBandFill is
+                    //exactly the platter's size, which is why repainting it white did not help). A well at twice
+                    //the shape, grouped WITH the lens and masked back to it, hands the lens its own white to
+                    //average; the well itself never shows. Same pin as `LensWell` in ScoopButton.swift.
+                    .background { shape.fill(Color.white).scaleEffect(2) } //backgrounds may overflow the frame
+                    .compositingGroup()
+                    .mask { shape } //the live morph shape, so well and mask track the flight frame for frame
                     .opacity(pose.frostOpacity)
             }
             content //always mounted, full-size on its resting rect: the lens mask IS the reveal; opacity only keeps the flying ball empty

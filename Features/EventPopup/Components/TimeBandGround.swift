@@ -68,19 +68,12 @@ final class TimeBandGround {
 //push defers a write into the observed controller once per pass.
 struct TimeBandFill: View {
 
-    //Geometry: how long the band waits behind the risen platter before it fades in — ON TOP of the 120ms
-    //shared delay in ComposeInviteViewModel. The exit ignores this and always cuts. TUNE THE DELAY HERE.
-    //Ceiling is the platter's bloom (widthBloom, a 0.46s spring): past that it fades in on a settled platter.
     static let bandFillDelay: TimeInterval = 0.04
 
     let ground: TimeBandGround?
     let visible: Bool
 
     var body: some View {
-        //The platter's whole silhouette, cropped to the slice of it that lies over the photo. A plain
-        //rectangle would push its square corners past the glass's rounded ones — the same surplus the
-        //measured height exists to remove, in miniature — and insetting it away would take a full corner
-        //radius off each side, baring the photo under the lens's straight edges instead.
         Color.white //the card's own white, carried up over the photo's foot — not appCanvas, which cast warm
             .frame(width: ground?.platterFrame.width, height: ground?.platterFrame.height)
             .clipShape(RoundedRectangle(cornerRadius: TimeCustomMenuSpec.platterCornerRadius)) //the menu's own, so the two can never drift

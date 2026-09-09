@@ -60,18 +60,17 @@ extension RespondToInviteContainer {
         EventImagePager(images: images,
                         title: titleText,
                         showsPageDots: !isConfirmNewEvent,
-                        titleVisible: !composeUI.delayedTimePopupOpen, //The time platter takes the band
-                        //…and lands on a white ground. It arrives on the DELAYED flag (behind the risen
-                        //platter) and leaves on the LIVE one (while the platter still covers it), so it
-                        //is never seen on bare photo. Its size is the platter's own measured overlap, so
-                        //no part of it stands proud of the glass.
+                        titleVisible: !composeUI.delayedTimePopupOpen,
                         bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen,
                         bandGround: composeUI.timeBand)
         .overlay(alignment: .topLeading) {
             backButton.eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
         }
         .overlay(alignment: .topTrailing) {
-            topRow.eventZoomBandChrome(corner: .topTrailing) { inertTopRow }
+            topRow
+                //Off with the title, on its clock: the platter never reaches this corner, so this is lockstep
+                .blurPop(visible: !composeUI.delayedTimePopupOpen, scale: 1)
+                .eventZoomBandChrome(corner: .topTrailing) { inertTopRow }
         }
     }
     
@@ -97,8 +96,6 @@ extension RespondToInviteContainer {
         .animation(.transition, value: isComposeInviteScreen)
     }
 
-    //The two above, minus their buttons: what the event zoom flies in on the cover. Same labels, same
-    //surfaces, same paddings — they hand off to the real pieces on identical pixels at the cover's cut
     var inertBackButton: some View {
         EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen, inert: true)
     }
@@ -121,16 +118,9 @@ extension RespondToInviteContainer {
 //Event Info Section -> Filling out details and confirm Invite Screen
 extension RespondToInviteContainer {
 
-    ///The two numbers this swap is tuned with. The lag holds the arriving body back until the leaving
-    ///one is spent; the blur is what makes the frames where they do still overlap read as depth rather
-    ///than a second printing of the same words. Floor for the lag is ~0.05 — under that the two fade
-    ///windows meet again (`DropdownCustomMenuSpec.revealLaunchDelay` records the same 0.13).
     private static let swapLag: TimeInterval = 0.13
     private static let swapBlur: CGFloat = 6 //Not the house 8: a full-width body at 8 reads as a rack-focus
 
-    ///Out on `.dismiss` — it gets out of the way — and in on `.transition` a beat later, into a box that
-    ///has already stopped moving. Never `blurPop`'s default scale: a whole body shrinking reads as the
-    ///card collapsing, not as a page leaving.
     private static func bodySwap(anchor: UnitPoint = .center) -> AnyTransition {
         .asymmetric(
             insertion: .blurPop(scale: 1, blur: swapBlur, anchor: anchor).animation(.transition.delay(swapLag)),
@@ -138,8 +128,6 @@ extension RespondToInviteContainer {
     }
 
     var eventInfoSection: some View {
-        //Top-pinned: centred, the two bodies re-centre on each other, and the one leaving rides the
-        //growth ~15pt down its own text while it fades — the smear. Pinned, only the bottom edge moves.
         ZStack(alignment: .top) {
             if type == .newEvent {
                 inviteDetailsPager
@@ -212,7 +200,13 @@ extension RespondToInviteContainer {
     
     var ctaButton: some View {
         //Hoisted, so the button and the flight that lands on it can never disagree about its look
-        let isActive = type != .newEvent || vm.respondDraft.newEvent.isComplete
+        //Each branch gates on what its response actually needs: accepting with no selectable day
+        //left would play the whole success cover over a write that threw.
+        let isActive: Bool = switch type {
+        case .originalInvite: vm.respondDraft.originalInvite.selectedDay != nil
+        case .newTime:        !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
+        case .newEvent:       vm.respondDraft.newEvent.isComplete
+        }
         let dimmed = actionsDimmed
         let font: Font = type == .newTime ? .body(15, .bold) : .body(18, .bold)
         let lineLimit = type == .newTime ? 2 : 1 //The only two-line label

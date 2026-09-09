@@ -53,17 +53,13 @@ extension InvitedTimes {
         )
     }
     
-    //A time might be unavailable either because other user has new commitment or it has expired, this function checks for both
+    //A time might be unavailable either because other user has new commitment or it has expired,
+    //this function checks for both. The set of days it calls available is `isSelectable`'s, so the
+    //status a cell draws and the day the draft selects can't disagree.
     private func getTimeStatus(_ time: ProposedTime) -> TimeStatus {
-        if !time.stillAvailable {
-            //1. If it more than six hours in future and not availble it means new commitment. If less than this it was expired.
-            if time.date > Date.now.addingTimeInterval(6 * 60 * 60) {
-                return .unavailable
-            } else {
-                return .expired
-            }
-        }
-        return .available
+        guard !proposedTimes.isSelectable(time.date) else { return .available }
+        //A day the other user took back reads "Unavailable"; one only the clock ruled out is "Expired".
+        return time.stillAvailable ? .expired : .unavailable
     }
 }
 
