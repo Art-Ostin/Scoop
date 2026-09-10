@@ -27,9 +27,6 @@ struct RespondToInviteContainer: View {
     var body: some View {
         VStack(spacing: 0) {
             imagePager
-            //Focusing the note scrolls the rows and the bar up behind the photo until the bar's glass sits
-            //`Spacing.sm` below it. The wrapper's frame is the clip and never moves, so the card's height
-            //never moves either — Done hangs off the bar as an overlay, outside the layout, for the same reason
             VStack(spacing: 0) {
                 Group {
                     eventInfoSection
@@ -74,6 +71,15 @@ struct RespondToInviteContainer: View {
             onCancel: {ui.showAcceptAlert = false}
         )
         .animation(.transition, value: [composeUI.delayedTimePopupOpen, composeUI.delayedTypePopupOpen])
+        .sheet(isPresented: $ui.showHistorySheet) {
+            if let profileImage = images.first {
+                InviteHistoryContainer(
+                    event: vm.respondDraft.originalInvite.event,
+                    profileImage: profileImage,
+                    userImage: vm.userImage
+                )
+            }
+        }
     }
 }
 
@@ -99,10 +105,14 @@ extension RespondToInviteContainer {
     }
     
     var titleText: String {
-        switch type {
-        case .originalInvite: "\(vm.profile.name)'s Invite"
-        case .newTime: "Invite \(vm.profile.name)"
-        case .newEvent: composeUI.showConfirmScreen == true ? "Confirm Invite" : "Invite \(vm.profile.name)"
+        if isFocused {
+            return "Add a Note"
+        } else {
+            switch type {
+            case .originalInvite: return "\(vm.profile.name)'s Invite"
+            case .newTime: return "Invite \(vm.profile.name)"
+            case .newEvent: return composeUI.showConfirmScreen == true ? "Confirm Invite" : "Invite \(vm.profile.name)"
+            }
         }
     }
     
@@ -169,6 +179,12 @@ extension RespondToInviteContainer {
                     .transition(Self.bodySwap())
             }
         }
+        .overlay(alignment: .topTrailing) {
+            if vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false {
+                pastResponseButton
+            }
+            
+        }
     }
     
     //Respond To Invite Screen
@@ -187,11 +203,6 @@ extension RespondToInviteContainer {
         )
     }
 
-    //The popup's writes land bare, except a type flip: that inserts or removes the message bar, so it runs on
-    //.transition — the clock `.eventZoom` eases the card's outline on — and the re-centred card's top and bottom
-    //edges travel with its contents instead of snapping. The toggle, the first day picked and the time wheel all
-    //flip the type from inside the popup's own window (the last two through RespondDraft's didSets), so an
-    //animation keyed on the type in this body never reaches the re-centring, which the eventZoom column does.
     private var popupDraft: Binding<RespondDraft> {
         Binding(
             get: { vm.respondDraft },
@@ -240,10 +251,19 @@ extension RespondToInviteContainer {
                 .transition(Self.bodySwap())
         }
     }
+    
+    private var pastResponseButton: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
+            ui.showHistorySheet = true
+        } label: {
+            Image(.historyIcon)
+                .resizable()
+                .frame(width: 15, height: 15)
+        }
+        .padding(.vertical)
+        .padding(.horizontal, 24)
+    }
 }
-
-
-
 
 //Action Button Section
 extension RespondToInviteContainer {
@@ -322,12 +342,6 @@ extension RespondToInviteContainer {
             .geometryGroup()
             .shrinkPress {respond(.decline)}
             .eventZoomDragExclusion()
-    }
-    
-    var warningText: some View {
-        Text("* If you accept & don't turn up you may be blocked")
-            .font(.body(12.5, .regularItalic))
-            .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
     }
     
     var selectedDayString: String {

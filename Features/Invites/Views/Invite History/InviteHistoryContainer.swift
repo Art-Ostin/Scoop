@@ -10,8 +10,10 @@ import SwiftUI
 struct InviteHistoryContainer: View {
 
     //Injected
-    let vm: InvitesViewModel
-    let eventProfile: EventProfile
+    let event: UserEvent
+    
+    let profileImage: UIImage
+    let userImage: UIImage
 
     @Environment(\.dismiss) private var dismiss
 
@@ -20,7 +22,7 @@ struct InviteHistoryContainer: View {
     private static let titleWidth = title.textWidth(font: .title(32, .bold)) //Measured in the bar's own font, so it tracks what's drawn
 
     var pastInvites: [PastEventProposal] {
-        (eventProfile.event.pastProposals ?? []).reversed()
+        (event.pastProposals ?? []).reversed()
     }
     
     var body: some View {
@@ -42,7 +44,6 @@ struct InviteHistoryContainer: View {
             .navigationTitle(Self.title)
             .scoopNavigationBarFonts(title: Self.title) //Guarantees the bar draws the font titleWidth is measured in
             .scrollIndicators(.hidden)
-            .task { await vm.ensureUserImageLoaded() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -53,26 +54,12 @@ struct InviteHistoryContainer: View {
                     }
                 }
             }
-            .overlay(alignment: .topLeading) {
-                mainPhoto
-                    .padding(.horizontal, 16) //Screen edge
-                    .padding(.horizontal, Self.titleWidth) //Length of the title
-                    .padding(.horizontal, 22) //Spacing between edge and content
-                    .offset(y: -48)
-            }
         }
     }
 }
 
 extension InviteHistoryContainer {
     
-    @ViewBuilder
-    private var mainPhoto: some View {
-        if let image = eventProfile.image {
-            SmallImage(image: image, size: 44, isCircle: true)
-                .imageShadow(hide: false)
-        }
-    }
     
     private func inviteSection(pastEvent: PastEventProposal, isActiveRow: Bool) -> some View {
         VStack(spacing: 14) {
@@ -214,20 +201,20 @@ extension InviteHistoryContainer {
     //senderId is an absolute user id — the repo arrayUnions one encoded snapshot onto BOTH users'
     //docs — so this reads correctly from either side of the negotiation.
     private func isFromOtherUser(_ proposal: PastEventProposal) -> Bool {
-        proposal.senderId == eventProfile.event.otherUserId
+        proposal.senderId == event.otherUserId
     }
 
     private func senderName(for proposal: PastEventProposal) -> String {
-        isFromOtherUser(proposal) ? eventProfile.event.otherUserName : "You"
+        isFromOtherUser(proposal) ? event.otherUserName : "You"
     }
 
     //Their face rides the EventProfile the sheet was opened with; the user's own comes off the VM
     private func profileImage(for proposal: PastEventProposal) -> UIImage? {
-        isFromOtherUser(proposal) ? eventProfile.image : vm.userImage
+        isFromOtherUser(proposal) ? profileImage : userImage
     }
     
     private func liveEvent() -> PastEventProposal {
-        return PastEventProposal(retiring: eventProfile.event)
+        return PastEventProposal(retiring: event)
     }
 }
 
@@ -253,9 +240,15 @@ struct InviteBackground: ViewModifier {
             .background(Color.white, in: .rect(cornerRadius: 16))
             .shadow(color: .black.opacity(0.05), radius: 7.5, x: 0, y: 1)
     }
-    
-    
 }
 
-//    .frame(width: 62, height: 19)
-//            .stroke(6.4, lineWidth: 1, color: Color.blackFill)
+/*
+ .overlay(alignment: .topLeading) {
+     mainPhoto
+         .padding(.horizontal, 16) //Screen edge
+         .padding(.horizontal, Self.titleWidth) //Length of the title
+         .padding(.horizontal, 22) //Spacing between edge and content
+         .offset(y: -48)
+ }
+
+ */

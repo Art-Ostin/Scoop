@@ -48,7 +48,8 @@ extension InvitesViewModel {
         let new = RespondViewModel(
             invite: invite,
             defaults: defaults,
-            session: session
+            session: session,
+            userImage: userImage ?? UIImage()
         )
         respondVMs[invite.event.id] = new
         return new
@@ -74,15 +75,10 @@ extension InvitesViewModel {
     }
 
     //The signed-in user's own face, for history rows they wrote. Cached on the VM rather than in
-    //profileImages so it survives a sheet dismissal and the eviction in updateInvitesLocally,
-    //which prunes that dictionary down to the profiles still backing a live invite.
     func ensureUserImageLoaded() async {
         guard userImage == nil else { return }
         userImage = try? await imageLoader.fetchFirstImage(profile: session.user)
     }
-    
-        
-    
 
     func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {
         let vm = respondVM(for: invite)

@@ -59,7 +59,9 @@ struct InvitesContainer: View {
         .ignoresSafeArea()
         .background { TimePickerWarmUp() }
         .sheet(item: $ui.showInviteHistory) { eventProfile in
-            InviteHistoryContainer(vm: vm, eventProfile: eventProfile)
+            if let profileImage = eventProfile.image, let userImage = vm.userImage {
+                InviteHistoryContainer(event: eventProfile.event, profileImage: profileImage, userImage: userImage)
+            }
         }
     }
 }

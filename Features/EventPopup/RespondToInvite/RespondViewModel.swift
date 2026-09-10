@@ -16,16 +16,18 @@ class RespondViewModel {
     let defaults: DefaultsManaging
     let session: Session
     let profile: UserProfile
+    let userImage: UIImage //Needed for the sheet container
 
     //Draft state (persisted to defaults on every edit)
     var respondDraft: RespondDraft {didSet {updateDefaults()}}
     
     
-    init(invite: EventProfile , defaults: DefaultsManaging, session: Session) {
+    init(invite: EventProfile , defaults: DefaultsManaging, session: Session, userImage: UIImage) {
         self.profile = invite.profile
         self.defaults = defaults
         self.session = session
         self.respondDraft = Self.loadRespondDraft(defaults: defaults, profile: invite.profile, event: invite.event, currentUserId: session.user.id)
+        self.userImage = userImage
     }
         
     @MainActor func deleteEventDefault() {
@@ -49,12 +51,20 @@ class RespondViewModel {
     private func deleteDraft() {
         respondDraft.newEvent = .init()
     }
+    
+    private func fetchUserImage() async {
+        guard userImage == nil else { return }
+        
+    }
+    
+    
 }
 
 @Observable final class RespondUIState {
 
     var showMeetInfo: Bool = false
     var showAcceptAlert: Bool = false
+    var showHistorySheet: Bool = false
 
     func hasEventMessage(_ respondDraft: RespondDraft) -> Bool {
         respondDraft.originalInvite.event.message?.isEmpty == false

@@ -53,6 +53,13 @@ extension Font {
     static func numeral(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight)
     }
+
+    // The system body face for TYPED text: the compose note's UITextView wears `preferredFont(.body)`
+    // (SF 17), so a SwiftUI note field that must set its own size — to shrink into a line limit — sets
+    // it through this, never `.system` at the call site, and the two note fields read as one instrument.
+    static func field(_ size: CGFloat = 17) -> Font {
+        .system(size: size)
+    }
 }
 
 //How far a shrink-to-fit line may scale down before truncating instead. One constant, so
@@ -70,5 +77,10 @@ extension UIFont {
     //Needed for changing navigation title
     static func title(_ size: CGFloat = 32, _ weight: Font.titleFontWeight = .bold) -> UIFont {
         UIFont(name: weight.rawValue, size: size) ?? .systemFont(ofSize: size, weight: .bold)
+    }
+
+    //The measuring twin of `Font.field`: a shrink-to-fit field lays its note out in this to pick the size
+    static func field(_ size: CGFloat = 17) -> UIFont {
+        .systemFont(ofSize: size)
     }
 }
