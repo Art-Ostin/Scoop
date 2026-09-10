@@ -806,7 +806,10 @@ private struct MenuLensMorph: ViewModifier, Animatable {
                     //exactly the platter's size, which is why repainting it white did not help). A well at twice
                     //the shape, grouped WITH the lens and masked back to it, hands the lens its own white to
                     //average; the well itself never shows. Same pin as `LensWell` in ScoopButton.swift.
-                    .background { shape.fill(Color.white).scaleEffect(2) } //backgrounds may overflow the frame
+                    //A hit-test fence, not a look: a filled shape is tappable and scaleEffect scales its hit region, while
+                    //mask/opacity clip nothing — unfenced, this well stood in front of the tap-away catcher and ate every
+                    //outside tap (ScoopButton fences its LensWell with `.contentShape(shape)`).
+                    .background { shape.fill(Color.white).scaleEffect(2).allowsHitTesting(false) } //backgrounds may overflow the frame
                     .compositingGroup()
                     .mask { shape } //the live morph shape, so well and mask track the flight frame for frame
                     .opacity(pose.frostOpacity)

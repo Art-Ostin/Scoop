@@ -149,6 +149,14 @@ extension View {
         modifier(EventZoomDragExclusionModifier())
     }
 
+    ///A body with a focused text field. The card rises so its top pins `EventZoomChoreo.keyboardPinGap`
+    ///below the plane's top safe-area edge — clear of the keyboard on any phone — the backdrop's tap
+    ///resigns the field instead of closing the card, and the dismiss drag and the chevron stand down
+    ///for the duration. `false` returns the card to centre on the same `.move` clock.
+    func eventZoomKeyboardFocus(_ focused: Bool, resign: @escaping () -> Void) -> some View {
+        modifier(EventZoomKeyboardFocusModifier(focused: focused, resign: resign))
+    }
+
     ///Chrome laid over the pager band (a top row, a back button, the page dots) sits under the
     ///flying cover for the whole open; this pops it in the moment the cover hands off to the live
     ///pager instead of letting the hand-off fade reveal it. `visible` is the piece's OWN page
@@ -681,6 +689,18 @@ private struct EventZoomDragLockedModifier: ViewModifier {
     }
 }
 
+private struct EventZoomKeyboardFocusModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    let focused: Bool
+    let resign: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onChange(of: focused, initial: true) { _, focused in flight?.setKeyboardFocus(focused, resign: resign) }
+    }
+}
+
 private struct EventZoomDragExclusionModifier: ViewModifier {
 
     //Injected
@@ -811,7 +831,7 @@ private struct EventZoomCard: View {
         ZStack {
             EventBackdrop()
                 .opacity(flight.backdropOpacity)
-                .onTapGesture { flight.close() }
+                .onTapGesture { flight.tapAway() }
 
             VStack(spacing: Spacing.xl) {
                 card
@@ -821,6 +841,8 @@ private struct EventZoomCard: View {
             .simultaneousGesture(flight.dismissDrag)
         }
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { containerTop = $0 }
+        //The top safe-area edge in global space, whichever way this plane meets it (inside it, or spanning it)
+        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY + $0.safeAreaInsets.top } action: { flight.reportPlaneTop($0) }
         .overlay(alignment: .top) { stationaryChevron }
         //Last, so the card body's alert covers the backdrop, the card and the chevron alike — and sits
         //outside the dismiss drag, which would otherwise scrub the card away under it
@@ -1018,6 +1040,10 @@ private struct EventZoomCardContent: View, Equatable {
     private var bandChromeTwinned: Set<UUID> = []
     private var chevronHiddenByCard = false //A body's confirm screen owns the corner with its own back button
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
+    private var keyboardFocused = false //A body's text field owns the screen: the card rises to the pin, the backdrop's tap resigns it, no scrub, no chevron
+    private var raise: CGFloat = 0 //The column's lift while `keyboardFocused` — negative, in the same offset the drag rides
+    private var planeTop: CGFloat = 0 //Global y of the plane's top safe-area edge, reported by the card view: what the raised card's top pins beneath
+    @ObservationIgnored private var resignKeyboard: (() -> Void)? //How the backdrop's tap-away hands the field back to the body
     @ObservationIgnored private var dragExclusions: [UUID: CGRect] = [:] //Global frames of controls that own their touch-down
 
     private let windDriver = WindCloseDriver() //The wind close's clock — the trajectory is time-domain, not a spring target
@@ -1147,7 +1173,7 @@ extension EventZoomChoreo {
 
     //The chevron: in a quarter into the open, gone at close start, for as long as the finger owns
     //the card, while a body's popup owns it, and on a confirm screen that brings its own
-    var chevronVisible: Bool { chevronIn && !closing && !fingerDown && !dragLocked && !chevronHiddenByCard }
+    var chevronVisible: Bool { chevronIn && !closing && !fingerDown && !dragLocked && !keyboardFocused && !chevronHiddenByCard }
 
     //Its stationary home, global — the resting card's foot plus the column's own gap. The
     //chevron never rides the drag or the flight, so the slot has to come from the card at REST:
@@ -1165,8 +1191,11 @@ extension EventZoomChoreo {
     //popup's ghostModel, both ported from DragTuning
     var cardOffset: CGSize {
         CGSize(width: DragTuning.rubberBand(dragOffset.width, limit: 160, response: 0.8),
-               height: rubberBanded(dragOffset.height))
+               height: rubberBanded(dragOffset.height) + raise) //The keyboard raise is a pose of the column, like the drag — the morph never folds for it
     }
+
+    //The raised card's top ↔ the plane's top safe-area edge
+    static let keyboardPinGap: CGFloat = Spacing.sm
 
     //Cast by a shape of the window BEHIND the card (the morph draws it), so it wears the window's
     //shape — and strength rides the flight: the resting source casts nothing of its own here, so
@@ -1186,6 +1215,13 @@ extension EventZoomChoreo {
             //The chevron's slot takes the RESTING pose only: the live frame folds the drag in, and
             //a committed close keeps that frozen drag for the whole flight home
             if !dragEngaged, !closing { restingCard = rect }
+            //A raised card that RESIZES (the note wrapping a line) re-centres under its raise, which would
+            //walk its top off the pin by half the delta; re-pin on the same clock as the resize itself.
+            //The reported rect already rides the raise, so the unraised top is backed out of it first
+            if keyboardFocused, !dragEngaged, !closing {
+                let pinned = pinnedRaise(unraisedTop: rect.minY - raise)
+                if pinned != raise { raise = pinned }
+            }
         }
         openWhenMeasured()
     }
@@ -1243,6 +1279,28 @@ extension EventZoomChoreo {
 
     func setDragLocked(_ locked: Bool) {
         if dragLocked != locked { dragLocked = locked }
+    }
+
+    func setKeyboardFocus(_ focused: Bool, resign: @escaping () -> Void) {
+        resignKeyboard = resign
+        guard keyboardFocused != focused else { return }
+        keyboardFocused = focused
+        //`.move`, the body's own clock for the rows it scrolls behind the photo: one motion, card and contents
+        withAnimation(.move) { raise = focused ? pinnedRaise(unraisedTop: restingCard.minY - raise) : 0 }
+    }
+
+    func reportPlaneTop(_ y: CGFloat) {
+        if planeTop != y { planeTop = y }
+    }
+
+    //A tap outside the card: with a body's field up it only resigns the field — the next tap closes
+    func tapAway() {
+        if keyboardFocused, let resignKeyboard { resignKeyboard() } else { close() }
+    }
+
+    //Never positive: a card whose top already sits above the pin stays where it is
+    private func pinnedRaise(unraisedTop: CGFloat) -> CGFloat {
+        min(planeTop + Self.keyboardPinGap - unraisedTop, 0)
     }
 
     func reportDragExclusion(id: UUID, rect: CGRect?) {
@@ -1805,7 +1863,7 @@ extension EventZoomChoreo {
         //Global space, so a touch-down can be tested against the controls that own theirs
         DragGesture(minimumDistance: 12, coordinateSpace: .global)
             .onChanged { [self] value in
-                guard landed, !closing, !dragLocked else { return }
+                guard landed, !closing, !dragLocked, !keyboardFocused else { return }
                 if dragOffset == .zero {
                     //First movement picks the owner: verticals engage the dismiss, horizontals
                     //belong to the pager — the invite popup's axis split. Once owned, BOTH axes track

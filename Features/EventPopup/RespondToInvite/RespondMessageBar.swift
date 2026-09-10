@@ -1,6 +1,6 @@
 //
-//  MessageInputBar.swift
-//  Scoop Test
+//  RespondMessageBar.swift
+//  Scoop
 //
 //  Created by Art Ostin on 10/09/2026.
 //
@@ -14,14 +14,37 @@ struct RespondToMessageBar: View {
     var isFocused: FocusState<Bool>.Binding
     
     private var textLimit: Int { 130 }
+
+    ///The bar's inset above its glass. The respond card scrolls the bar to a gap measured from the glass,
+    ///so it backs this out — one number, read from here, or the two drift apart
+    static let fieldTopInset: CGFloat = 6
     
     var body: some View {
-        
         chatTextField
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 24)
             .padding(.bottom, 18)
-            .padding(.top, 6)
+            .padding(.top, Self.fieldTopInset)
+            //Hung below the bar's foot, outside its layout: the card's height never moves for it
+            .overlay(alignment: .bottomTrailing) { doneButton }
+            .padding(.horizontal, Spacing.lg)
+    }
+}
+
+//Done: the focused note's only control, in and out on the blur pop
+extension RespondToMessageBar {
+
+    private var doneButton: some View {
+        ScoopButton(style: .tinted(.black, shadow: nil, glass: true), shape: Capsule()) {
+            isFocused.wrappedValue = false
+        } label: {
+            Text("Done")
+                .font(.body(14, .bold))
+                .foregroundStyle(Color.white)
+                .padding(Spacing.sm)
+                .padding(.horizontal, Spacing.xxs)
+        }
+        .blurPop(visible: isFocused.wrappedValue) //Hidden it also stops taking taps
+        .alignmentGuide(.bottom) { $0[.top] - Spacing.xs } //Its top `Spacing.xs` under the bar's foot
     }
 }
 

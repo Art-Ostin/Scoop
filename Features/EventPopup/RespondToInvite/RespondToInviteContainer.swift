@@ -19,20 +19,36 @@ struct RespondToInviteContainer: View {
     var type: ResponseType { vm.respondDraft.respondType }
     
     @FocusState var isFocused: Bool
+
+    //Local view state
+    @State private var rowsHeight: CGFloat = 0 //The type/time/place block as laid out — what the focused note scrolls behind the photo
     
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
         VStack(spacing: 0) {
             imagePager
-                if !isFocused {
+            //Focusing the note scrolls the rows and the bar up behind the photo until the bar's glass sits
+            //`Spacing.sm` below it. The wrapper's frame is the clip and never moves, so the card's height
+            //never moves either — Done hangs off the bar as an overlay, outside the layout, for the same reason
+            VStack(spacing: 0) {
+                Group {
                     eventInfoSection
-                        .transition(AnyTransition.move(edge: .top))
+                        .getHeight($rowsHeight)
+                        .allowsHitTesting(!isFocused) //Under the photo's edge while lifted: a clip hides, it does not fence
+                    messageSection
                 }
-                messageSection
+                .offset(y: isFocused ? -focusLift : 0)
+            }
+            .clipped()
+            .animation(.move, value: isFocused) //A position settle, on the clock the shell raises the whole card on
+
             actionSection
                 .padding(.top, 4)
         }
+        .contentShape(Rectangle()) //The card's empty white too: a tap anywhere on it hands the keyboard back
+        .onTapGesture { if isFocused { isFocused = false } } //Buttons and the bar's own tap win over this, as children do
         .animation(.transition, value: isFocused)
+        .eventZoomKeyboardFocus(isFocused) { isFocused = false } //The shell lifts the card to the top, routes the backdrop tap here, and holds the drag
         .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert) //An open menu or alert owns the finger
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
@@ -77,8 +93,7 @@ extension RespondToInviteContainer {
         }
         .overlay(alignment: .topTrailing) {
             topRow
-                //Off with the title, on its clock: the platter never reaches this corner, so this is lockstep
-                .blurPop(visible: !composeUI.delayedTimePopupOpen, scale: 1)
+                .blurPop(visible: !(composeUI.delayedTimePopupOpen || isFocused), scale: 1)
                 .eventZoomBandChrome(corner: .topTrailing) { inertTopRow }
         }
     }
@@ -123,6 +138,12 @@ extension RespondToInviteContainer {
     
     var isComposeInviteScreen: Bool { type == .newEvent && composeUI.showConfirmScreen != true }
     var isConfirmNewEvent: Bool { type == .newEvent && composeUI.showConfirmScreen == true }
+
+    //How far the rows and the bar scroll: the rows' whole block plus the bar's own inset above its glass,
+    //less the gap the glass keeps below the photo. Measured, not guessed — the type row grows with a note
+    var focusLift: CGFloat {
+        max(rowsHeight + RespondToMessageBar.fieldTopInset - Spacing.sm, 0)
+    }
 }
 
 
@@ -154,7 +175,7 @@ extension RespondToInviteContainer {
     var respondToInvite: some View {
         EventTypeTimePlace(
             invite: InviteSummary(event: vm.respondDraft.originalInvite.event),
-            respondDraft: $vm.respondDraft,
+            respondDraft: popupDraft, //Everything the time popup writes comes back through here
             timePopupOpen: $composeUI.timePopupOpen, //One owner for both screens' time platter
             timePopupOpenDelayed: composeUI.delayedTimePopupOpen, //…and the chrome's own 120/40ms clock
             actionsBelow: true, //adjusts padding in this view if actions below
@@ -163,6 +184,28 @@ extension RespondToInviteContainer {
             heroLanding: true, //The invite card's own time and place lines fly onto these rows
             bandGround: composeUI.timeBand, //The time platter's band reports through this row
             openInfo: {composeUI.showInfoScreen = true}
+        )
+    }
+
+    //The popup's writes land bare, except a type flip: that inserts or removes the message bar, so it runs on
+    //.transition — the clock `.eventZoom` eases the card's outline on — and the re-centred card's top and bottom
+    //edges travel with its contents instead of snapping. The toggle, the first day picked and the time wheel all
+    //flip the type from inside the popup's own window (the last two through RespondDraft's didSets), so an
+    //animation keyed on the type in this body never reaches the re-centring, which the eventZoom column does.
+    private var popupDraft: Binding<RespondDraft> {
+        Binding(
+            get: { vm.respondDraft },
+            set: { draft in
+                let current = vm.respondDraft.respondType
+                guard draft.respondType != current else {
+                    vm.respondDraft = draft
+                    return
+                }
+                var edit = draft
+                edit.respondType = current
+                vm.respondDraft = edit //The edit itself (a day, a wheel tick) keeps the popup's own timing
+                withAnimation(.transition) { vm.respondDraft.respondType = draft.respondType }
+            }
         )
     }
     
@@ -207,11 +250,8 @@ extension RespondToInviteContainer {
     
     var actionSection: some View {
         VStack {
-            //            if !isComposeInviteScreen { warningText }
             HStack(spacing: 18) {
                 if type != .newEvent {
-                    //Leaves the LAYOUT as it goes, so the CTA closes the gap behind it instead of
-                    //holding a half-width slot for the whole curve and snapping wide on the last frame
                     declineButton.transition(Self.bodySwap(anchor: .leading))
                 }
                 ctaButton
@@ -261,10 +301,14 @@ extension RespondToInviteContainer {
     }
     
     var isActive: Bool {
-        switch type {
-        case .originalInvite: vm.respondDraft.originalInvite.selectedDay != nil
-        case .newTime:        !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
-        case .newEvent:       vm.respondDraft.newEvent.isComplete
+        if isFocused  {
+            return false
+        } else {
+            switch type {
+            case .originalInvite: return vm.respondDraft.originalInvite.selectedDay != nil
+            case .newTime:    return    !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
+            case .newEvent:  return     vm.respondDraft.newEvent.isComplete
+            }
         }
     }
     
