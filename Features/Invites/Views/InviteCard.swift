@@ -120,7 +120,7 @@ extension InviteSlot {
     }
     
     private var cardOverlay: some View {
-        InviteCardOverlay(e: eventProfile.event, name: eventProfile.profile.name) { openInvite = eventProfile }
+        InviteCardOverlay(draft: draft, name: eventProfile.profile.name) { openInvite = eventProfile }
     }
         
     //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint

@@ -52,6 +52,7 @@ struct OriginalInvite: Codable {
 struct NewTimeDraft: Codable {
     let event: UserEvent
     var proposedTimes: ProposedTimes
+    var respondMessage: String = ""
 }
 
 
@@ -191,3 +192,4 @@ extension RespondDraft {
         self.respondType = p.respondType
     }
 }
+

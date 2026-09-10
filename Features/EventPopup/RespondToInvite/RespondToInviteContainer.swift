@@ -18,14 +18,21 @@ struct RespondToInviteContainer: View {
     
     var type: ResponseType { vm.respondDraft.respondType }
     
+    @FocusState var isFocused: Bool
+    
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
         VStack(spacing: 0) {
             imagePager
-            eventInfoSection
+                if !isFocused {
+                    eventInfoSection
+                        .transition(AnyTransition.move(edge: .top))
+                }
+                messageSection
             actionSection
                 .padding(.top, 4)
         }
+        .animation(.transition, value: isFocused)
         .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert) //An open menu or alert owns the finger
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
@@ -56,6 +63,8 @@ struct RespondToInviteContainer: View {
 
 //ImagePager logic
 extension RespondToInviteContainer {
+    
+    
     var imagePager: some View {
         EventImagePager(images: images,
                         title: titleText,
@@ -178,6 +187,20 @@ extension RespondToInviteContainer {
     }
 }
 
+//Message Section
+extension RespondToInviteContainer {
+    
+    @ViewBuilder
+    var messageSection: some View {
+        if type == .newTime {
+            RespondToMessageBar(text: $vm.respondDraft.newTime.respondMessage, isFocused: $isFocused)
+                .transition(Self.bodySwap())
+        }
+    }
+}
+
+
+
 
 //Action Button Section
 extension RespondToInviteContainer {
@@ -201,14 +224,6 @@ extension RespondToInviteContainer {
     var actionsDimmed: Bool { composeUI.delayedTypePopupOpen || composeUI.delayedTimePopupOpen }
     
     var ctaButton: some View {
-        //Hoisted, so the button and the flight that lands on it can never disagree about its look
-        //Each branch gates on what its response actually needs: accepting with no selectable day
-        //left would play the whole success cover over a write that threw.
-        let isActive: Bool = switch type {
-        case .originalInvite: vm.respondDraft.originalInvite.selectedDay != nil
-        case .newTime:        !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
-        case .newEvent:       vm.respondDraft.newEvent.isComplete
-        }
         let dimmed = actionsDimmed
         let font: Font = type == .newTime ? .body(15, .bold) : .body(18, .bold)
         let lineLimit = type == .newTime ? 2 : 1 //The only two-line label
@@ -222,7 +237,7 @@ extension RespondToInviteContainer {
             font: font,
             height: type == .newEvent ? 46 : 48,
             lineLimit: lineLimit,
-            glass: false, //The event zoom's capsule lands on this: flat, so it lands on identical pixels
+            glass: false,
             onTap: type == .originalInvite ? { ui.showAcceptAlert = true} : ctaAction
         )
         .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
@@ -242,6 +257,14 @@ extension RespondToInviteContainer {
         case .originalInvite:{ respond(.accepted)}
         case .newTime: {respond(.newTime)}
         case .newEvent: isComposeInviteScreen ? { composeUI.showConfirmScreen = true} : {respond(.newInvite)}
+        }
+    }
+    
+    var isActive: Bool {
+        switch type {
+        case .originalInvite: vm.respondDraft.originalInvite.selectedDay != nil
+        case .newTime:        !vm.respondDraft.newTime.proposedTimes.dates.isEmpty
+        case .newEvent:       vm.respondDraft.newEvent.isComplete
         }
     }
     

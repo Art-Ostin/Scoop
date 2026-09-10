@@ -7,13 +7,12 @@
 
 import SwiftUI
 
-
 private let hPadding = Spacing.lg
 
 //Main Overlay of the card
 struct InviteCardOverlay: View {
         
-    let e: UserEvent
+    let draft: RespondDraft
     let name: String
     let openInvite: () -> ()
     
@@ -25,11 +24,13 @@ struct InviteCardOverlay: View {
                 .eventZoomTitleSource(name) //Flies into the respond card's "<name>'s Invite"
             
             //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
-            lineSection(.whiteClock, fetchDay())
-                .eventZoomTimeSource(fetchDay())
-            lineSection(.whiteMap, placeName)
+            lineSection(.whiteClock, timeText)
+                .eventZoomTimeSource(timeText)
+                .lineLimitAndShrink(1)
+            
+            lineSection(.whiteMap, placeText)
                 .lineLimit(1)
-                .eventZoomPlaceSource(placeName)
+                .eventZoomPlaceSource(placeText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, hPadding)
@@ -40,10 +41,7 @@ struct InviteCardOverlay: View {
     }
 }
 
-
 extension InviteCardOverlay {
-    
-    
     private func lineSection(_ image: ImageResource, _ text: String) -> some View {
         HStack(spacing: 20) {
             Image(image)
@@ -62,11 +60,8 @@ extension InviteCardOverlay {
             
         } label: {
             HStack(alignment: .center, spacing: Spacing.xxs + 2) {
-                Text(e.type.emoji)
+                Text(typeText)
                     .font(.body(13))
-                
-                Text(e.type.longTitle)
-                    .font(.body(13, .bold))
             }
             .scaleEffect(0.9)
             .foregroundStyle(Color.white)
@@ -82,15 +77,7 @@ extension InviteCardOverlay {
     }
     
     //Hoisted, so the drawn line and the one the flight is told about can never disagree
-    private var placeName: String { e.location.name ?? "Unknown" }
 
-    private func fetchDay() -> String {
-        if let date = e.proposedTimes.firstAvailableDate {
-            return FormatEvent.shortDayAndTime(date)
-        } else {
-            return "Choose Time"
-        }
-    }
     
     private var inviteButton: some View {
         InviteButton(onTap: openInvite)
@@ -99,6 +86,84 @@ extension InviteCardOverlay {
         .padding(.bottom, 26) //28 + 4
     }
 }
+
+//What gets shown on the card depends on what sort of invite it is
+extension InviteCardOverlay {
+    
+    private var placeText: String {
+        switch draft.respondType {
+        case .newEvent: draft.newEvent.place?.name ?? "Unknown"
+        default: draft.originalInvite.event.location.name ?? "Unknown"
+        }
+    }
+    
+    
+    private var timeText: String {
+        switch draft.respondType {
+        //Scenario 1: In Original Invite
+        case .originalInvite:
+            //First try and get the first selected date
+            if let date = draft.originalInvite.selectedDay {
+                return FormatEvent.shortDayAndTime(date)
+                
+                //That failing, get the first available Date
+            } else if let date = draft.originalInvite.event.proposedTimes.firstAvailableDate {
+                return FormatEvent.shortDayAndTime(date)
+                //It should not be of type original Invite if no availble dates (should have updated) so
+            } else {
+                return " "
+            }
+            
+        case .newTime:
+            let proposedTimes = draft.newTime.proposedTimes
+            //If there are any available times list those
+            if !proposedTimes.dates.isEmpty {
+                if let time = proposedTimes.dates.first {
+                    return FormatEvent.shortDayAndTime(time.date)
+                } else {
+                    return ""
+                }
+            }
+            //If no available Times use last originalInvite Time
+            else {
+                if let lastDay =  draft.originalInvite.event.proposedTimes.dates.last {
+                    return FormatEvent.shortDayAndTime(lastDay.date)
+                } else {
+                    //That should always exist, if not just for whatever reason have this
+                    return "Time Expired"
+                }
+            }
+            
+        case .newEvent:
+            let proposedTimes = draft.newEvent.time.dates
+            //If there are proposedTimes do this
+            
+            if !proposedTimes.isEmpty {
+                if let time = proposedTimes.first {
+                   return FormatEvent.shortDayAndTime(time.date)
+                } else {
+                    return ""
+                }
+            } else {
+                //If there are no proposedTimes get them if there are any in the proposedInvites
+                return "Time not Chosen"
+            }
+        }
+    }
+    
+    private var typeText: String {
+        let originalType = draft.originalInvite.event.type
+        let newEventType = draft.newEvent.type
+        switch draft.respondType {
+        case .newEvent:
+            return newEventType.emoji + " " + newEventType.longTitle
+        default :
+            return originalType.emoji + " " + originalType.longTitle
+        }
+    }
+}
+
+
 
 
 //The 'Respond Card'
@@ -109,23 +174,20 @@ struct InviteHistoryButton: View {
     @Binding var showInviteHistory: EventProfile?
     let eventProfile: EventProfile
     
-    
     var body: some View {
         if eventProfile.event.pastProposals != nil {
-            if let kind = eventProfile.event.proposedKind {
-                ScoopButton(style: .glass, shape: .capsule) {
-                    showInviteHistory = eventProfile
-                } label: {
-                    Text("Response")
-                        .font(.body(12, .bold))
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        .foregroundStyle(Color.textPrimary)
-                }
-                .padding()
-                .padding(.horizontal, 12)
-                .expandHitArea()
+            ScoopButton(style: .glass, shape: .capsule) {
+                showInviteHistory = eventProfile
+            } label: {
+                Text("Response")
+                    .font(.body(12, .bold))
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 8)
+                    .foregroundStyle(Color.textPrimary)
             }
+            .padding()
+            .padding(.horizontal, 12)
+            .expandHitArea()
         }
     }
 }
