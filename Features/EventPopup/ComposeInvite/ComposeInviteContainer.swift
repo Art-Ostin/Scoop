@@ -57,11 +57,12 @@ extension ComposeInviteContainer {
     }
     
     private var optionsMenu: some View {
-        OptionsMenu(
-            hasChanges: vm.event.hasChanges,
-            onClear: {vm.event = .init()},
-            onDecline: { }
-        )
+        Text("Hello World")
+//        OptionsMenu(
+//            hasChanges: vm.event.hasChanges,
+//            onClear: {vm.event = .init()},
+//            onDecline: { }
+//        )
     }
     
     private var backButton: some View {
@@ -92,22 +93,35 @@ extension ComposeInviteContainer {
             EventTypeTimePlace(invite: invite, actionsBelow: true, openInfo: { ui.showInfoScreen = true })
                 .overlay(alignment: .topTrailing) {
                     if invite.message?.isEmpty != false {
-                        addMessageButton
+                        addNoteButton
                     }
                 }
         }
     }
     
-    private var addMessageButton: some View {
-        ScoopButton(style: .glass, shape: .circle, size: .small) {
+    private var addNoteButton: some View {
+        ScoopButton(style: .glass, shape: .capsule) {
             ui.showMessageScreen = true
         } label: {
-            Image(.addMessageIcon)
+            Text("Add a note")
+                .font(.body(14, .medium))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
         }
-        .scaleEffect(1.1)
         .padding(.horizontal, 32)
         .padding(.top, 16)
     }
+    
+//    private var addMessageButton: some View {
+//        ScoopButton(style: .glass, shape: .circle, size: .small) {
+//            ui.showMessageScreen = true
+//        } label: {
+//            Image(.addMessageIcon)
+//        }
+//        .scaleEffect(1.1)
+//        .padding(.horizontal, 32)
+//        .padding(.top, 16)
+//    }
 }
 
 

@@ -134,13 +134,14 @@ Features/<Name>/
   `.present`/`.dismiss` (overlays, menus, cards
   in/out), `.move` (position settles: scroll, drag-release, layout shifts, list
   insert/remove), `.quick` (sub-`.toggle` micro-feedback: near-instant dims, per-tick
-  updates). Call sites read `.animation(.toggle, value:)` / `withAnimation(.move) { }`.
+  updates), `.handOff` (a flown copy dissolving over the identical view it just landed on). Call sites read `.animation(.toggle, value:)` / `withAnimation(.move) { }`.
   Spring-first (`.smooth`/`.snappy`/`.bouncy`); a role is retuned once, here. A bare
   `withAnimation { }`, an inline `.easeInOut(0.2)`/`.spring(response:…)` at a call site, or
   `.spring(.snappy)`-style nesting is drift — use a role or add one. Press feedback stays in
   `PressEffect`. Measured system replications (`CustomAlert`, the in-app banner, the
-  Liquid-Glass menu morphs) and geometry-matched hero flights
-  (`ProfileZoomTransition`) keep their own measured curves in-file — never flatten those
+  Liquid-Glass menu morphs, the chat's send flight — `SendChoreography` in
+  `Features/Messages/Chat`, Apple Messages measured frame by frame) and geometry-matched hero
+  flights (`ProfileZoomTransition`) keep their own measured curves in-file — never flatten those
   into a role.
 
 ## UI architecture invariants (hard-won — do not "simplify" away)
@@ -167,6 +168,10 @@ Features/<Name>/
 
 The codebase is converging on this document (see git history on branch work from July 2026).
 Remaining known debt: dead-code sweep, DI label unification (`s:` → `session:`), Firebase
-imports in `Features/Events/EventViewModel.swift`, hardcoded colors/fonts sweep, error-handling
+imports still inside `Features/` (`Events/EventsViewModel.swift`, `Onboarding/OnboardingViewModel.swift`,
+`Onboarding/Login/VerifyEmailViewModel.swift`, `Profile/EditProfile/EditProfileViewModel.swift`,
+`Profile/EditProfile/Fields/EditInterests.swift` and `EditNationality.swift`, and the chat models
+`Messages/Chat/Models/ChatMessage.swift`, `ChatThread.swift`, `ChatState.swift` — the
+`@DocumentID`/`@ServerTimestamp` wrappers the listener echo decodes through), hardcoded colors/fonts sweep, error-handling
 sweep, first unit tests. When you fix an instance of debt in a file you're already touching,
 do it; don't launch drive-by refactors of untouched files inside a feature PR.

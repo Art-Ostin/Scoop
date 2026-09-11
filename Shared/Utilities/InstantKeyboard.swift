@@ -1,6 +1,6 @@
 //
 //  InstantKeyboard.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 20/07/2026.
 //
@@ -621,6 +621,63 @@ private struct KeyboardPrewarmer: UIViewRepresentable {
 
     func makeUIView(context: Context) -> PrewarmField { PrewarmField() }
     func updateUIView(_ uiView: PrewarmField, context: Context) {}
+}
+
+// MARK: - Keyboard settle gate
+
+/// Runs an action once the main thread is drawing again after a keyboard's arrival — two consecutive
+/// display-link intervals under `smoothGap` — or `cap` after arming, whichever comes first.
+///
+/// An animation started in the commit that summons the keyboard keeps its clock running through the
+/// keyboard's build: the session's first focus after a cold launch stalls the main thread for a few
+/// hundred milliseconds (simulator, prewarm on: a 172ms frame, then a 184ms one), and a 0.25s swap
+/// spent inside that lands as a hard cut. The owner cancels whenever something supersedes the action,
+/// and the action still re-reads live state when it runs.
+///
+///     @State private var gate = KeyboardSettleGate()
+///     gate.arm { withAnimation(.transition) { … } }
+///     .onDisappear { gate.cancel() }
+final class KeyboardSettleGate {
+
+    private static let smoothGap: CFTimeInterval = 0.05 //Three 60Hz frames: anything slower is still the keyboard's build
+    private static let cap: CFTimeInterval = 0.8 //Past the worst first-focus frame measured (367ms, a freshly booted simulator)
+
+    private var link: CADisplayLink?
+    private var action: (() -> Void)?
+    private var armedAt: CFTimeInterval = 0
+    private var lastTick: CFTimeInterval = 0
+    private var smoothTicks = 0
+
+    func arm(_ action: @escaping () -> Void) {
+        cancel()
+        self.action = action
+        armedAt = CACurrentMediaTime()
+        let l = CADisplayLink(target: self, selector: #selector(tick))
+        l.add(to: .main, forMode: .common) //A finger tracking a scroll must not park it
+        link = l
+    }
+
+    /// Drops a pending action. Fire, cap and cancel all invalidate the link, which is what breaks its
+    /// hold on the gate.
+    func cancel() {
+        link?.invalidate()
+        link = nil
+        action = nil
+        lastTick = 0
+        smoothTicks = 0
+    }
+
+    @objc private func tick(_ l: CADisplayLink) {
+        let now = CACurrentMediaTime() //When the callback actually ran: what a stall delays
+        let previous = lastTick
+        lastTick = now
+        guard previous > 0 else { return } //The first tick only starts the clock
+        smoothTicks = now - previous < Self.smoothGap ? smoothTicks + 1 : 0
+        guard smoothTicks >= 2 || now - armedAt > Self.cap else { return }
+        let action = action
+        cancel() //Before the call: an action that re-arms finds a clean gate
+        action?()
+    }
 }
 
 // MARK: - Interactive sheet keyboard overlap

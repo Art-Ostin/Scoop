@@ -1,5 +1,5 @@
 //
-//  ChatDayDividers.swift
+//  ChatDayDivider.swift
 //  Scoop
 //
 //  Created by Art Ostin on 04/03/2026.
@@ -10,6 +10,12 @@ import SwiftUI
 struct ChatDayDivider: View {
     
     let date: Date?
+
+    //The divider's laid-out height — its taller line plus its top padding — so a sent row that opens a new day
+    //can grow the divider in on the send's shift curve
+    static var height: CGFloat {
+        max(UIFont.body(12, .bold).lineHeight, UIFont.body(12, .regular).lineHeight) + Spacing.sm
+    }
     
     var body: some View {
         if let date {

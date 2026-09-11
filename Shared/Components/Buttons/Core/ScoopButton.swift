@@ -32,6 +32,9 @@ struct ScoopButton<Content: View, S: Shape>: View {
     // Tinted glass, layered path only: pin the lens' adaptive look by giving it a hidden backdrop
     // of this colour (see LensWell). Lives INSIDE the press, so the pinned disc scales as one.
     var lensWell: Color? = nil
+    // The system's pressed flag, forwarded for a container that moves with the press (see
+    // PressButtonStyle). Tinted PressEffect path only: native glass owns its own press.
+    var onPressChanged: ((Bool) -> Void)? = nil
 
     let action: () -> Void
     @ViewBuilder var label: () -> Content
@@ -77,7 +80,7 @@ extension ScoopButton {
                                            interactive: native, well: lensWell))
                 .expandHitArea(hitInset)
         }
-        .modifier(TintPress(native: native, effect: press, shadow: shadow, tint: color))
+        .modifier(TintPress(native: native, effect: press, shadow: shadow, tint: color, onPressChanged: onPressChanged))
         .foregroundStyle(Color.white)
     }
 }
@@ -200,12 +203,13 @@ private struct TintPress: ViewModifier {
     let effect: PressEffect
     let shadow: Elevation?
     let tint: Color
+    var onPressChanged: ((Bool) -> Void)? = nil
 
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *), native {
             content.shadow(shadow, tint: tint)
         } else {
-            content.pressButton(effect, shadow: shadow, tint: tint)
+            content.pressButton(effect, shadow: shadow, tint: tint, onPressChanged: onPressChanged)
         }
     }
 }

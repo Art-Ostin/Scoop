@@ -54,11 +54,11 @@ extension Font {
         .system(size: size, weight: weight)
     }
 
-    // The system body face for TYPED text: the compose note's UITextView wears `preferredFont(.body)`
-    // (SF 17), so a SwiftUI note field that must set its own size — to shrink into a line limit — sets
-    // it through this, never `.system` at the call site, and the two note fields read as one instrument.
+    // ModernEra for TYPED text: a note field that must set its own size — to shrink into a line limit — sets
+    // it through this, beside its `UIFont.field` twin that measures the shrink. Fixed-size: the call site
+    // scales by its own @ScaledMetric, and `.custom(_:size:)` would follow Dynamic Type a second time.
     static func field(_ size: CGFloat = 17) -> Font {
-        .system(size: size)
+        .custom(bodyFontWeight.regular.rawValue, fixedSize: size)
     }
 }
 
@@ -81,6 +81,6 @@ extension UIFont {
 
     //The measuring twin of `Font.field`: a shrink-to-fit field lays its note out in this to pick the size
     static func field(_ size: CGFloat = 17) -> UIFont {
-        .systemFont(ofSize: size)
+        .body(size, .regular)
     }
 }

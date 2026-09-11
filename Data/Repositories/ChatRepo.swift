@@ -1,5 +1,5 @@
 //
-//  MessageRepo.swift
+//  ChatRepo.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/03/2026.
@@ -27,10 +27,16 @@ class ChatRepo: ChatRepository {
         return "chats/\(eventId)/messages"
     }
     
-    func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws {
-        //1. Create the textMessage Model and add it to the right document
+    func newMessageId(eventId: String) -> String {
+        fs.newDocumentId(in: chatMessagePath(eventId: eventId))
+    }
+
+    func sendMessage(id: String, text: String, eventId: String, userId: String, recipientId: String) async throws {
+        //1. Create the textMessage Model and set it at the id the sender already shows. Built here with a
+        //nil date: @ServerTimestamp only writes the server sentinel for nil, and the `.modified` echo that
+        //stamps the row depends on it.
         let textMessage = ChatMessage(authorId: userId, recipientId: recipientId, content: text)
-        _ = try fs.add(chatMessagePath(eventId: eventId), value: textMessage)
+        try fs.set("\(chatMessagePath(eventId: eventId))/\(id)", value: textMessage)
         
         //2. Update the chatDocuments to reflect most recent
         let fields: [String : Any ] = [ChatThread.Field.lastMessageAt.rawValue : FieldValue.serverTimestamp()]

@@ -160,9 +160,10 @@ extension View {
         modifier(EventZoomKeyboardFocusModifier(focused: focused, resign: resign))
     }
 
-    ///The control a focused body hangs lowest (its Done): reports its foot, so the raise carries it
-    ///`keyboardClearance` clear of the keyboard when the top pin alone would leave it covered — a
-    ///wrapped note on a small phone. Without one, the pin is all the raise there is.
+    ///The control a focused body hangs lowest (its Done): pinned `keyboardClearance` above the keyboard.
+    ///While the top pin leaves a gap it hangs lower, into it (render-only, the card's height never
+    ///moves); when the pin alone would leave it covered — a wrapped note on a small phone — the raise
+    ///carries the card up instead. Without one, the pin is all the raise there is.
     func eventZoomKeyboardClearance() -> some View {
         modifier(EventZoomKeyboardClearanceModifier())
     }
@@ -703,7 +704,12 @@ private struct EventZoomKeyboardClearanceModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { flight?.reportKeyboardFoot(id: id, maxY: $0) }
+            .offset(y: flight?.keyboardDrop ?? 0) //Hung on the keyboard's line; render-only, so the card's height never moves for it
+            //Measured OUTSIDE the offset: the slot it hangs from, never the dropped control, which would chase itself
+            .background {
+                Color.clear
+                    .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { flight?.reportKeyboardFoot(id: id, maxY: $0) }
+            }
             .onDisappear { flight?.reportKeyboardFoot(id: id, maxY: nil) }
     }
 }
@@ -913,7 +919,7 @@ extension EventZoomCard {
             .background { cardFill }
             .modifier(flight.morph()) //Draws the card's shadow itself, as a shape BEHIND the window — see the morph
             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportCard($0) }
-            .padding(.horizontal, slot.inset) //The card is a full-bleed surface, not a text column
+            .padding(.horizontal, flight.keyboardInsetActive ? EventZoomChoreo.keyboardInset : slot.inset) //The card is a full-bleed surface, not a text column; a focused field wears the shell's own gap
     }
 
     //The chevron never rides the drag or the flight: it renders ABOVE the moving column, at the
@@ -1055,6 +1061,8 @@ private struct EventZoomCardContent: View, Equatable {
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
     private var keyboardFocused = false //A body's text field owns the screen: the card rises to the pin, the backdrop's tap resigns it, no scrub, no chevron
     private var raise: CGFloat = 0 //The column's lift while `keyboardFocused` — negative, in the same offset the drag rides
+    private(set) var keyboardInsetActive = false //The card wears `keyboardInset` in place of its caller's gap: `keyboardFocused` once landed, on `.transition`
+    private(set) var keyboardDrop: CGFloat = 0 //How far the clearance controls hang below their slot, onto the keyboard's line — positive, render-only
     private var planeTop: CGFloat = 0 //Global y of the plane's top safe-area edge, reported by the card view: what the raised card's top pins beneath
     @ObservationIgnored private var resignKeyboard: (() -> Void)? //How the backdrop's tap-away hands the field back to the body
     private var keyboardTop: CGFloat = .infinity //Global y of the keyboard's top edge (UIKit's will-change-frame); off screen or unknown, nothing to clear
@@ -1210,9 +1218,11 @@ extension EventZoomChoreo {
     }
 
     //The raised card's top ↔ the plane's top safe-area edge: flush (Arthur, 2026-09-10 — 12 read as too low)
-    static let keyboardPinGap: CGFloat = 0
-    //The lowest reported control's foot ↔ the keyboard's top, when the pin alone would leave it covered
+    static let keyboardPinGap: CGFloat = -Spacing.lg * 2.8
+    //The lowest reported control's foot ↔ the keyboard's top, exact: the control drops into a gap the pin leaves, the raise lifts it out of a covering
     static let keyboardClearance: CGFloat = Spacing.sm
+    //The card's gap to each screen edge while a body's field is focused; at rest it is the caller's `.eventZoom(inset:)` (10 on the respond card)
+    static let keyboardInset: CGFloat = 0
 
     //Cast by a shape of the window BEHIND the card (the morph draws it), so it wears the window's
     //shape — and strength rides the flight: the resting source casts nothing of its own here, so
@@ -1304,10 +1314,19 @@ extension EventZoomChoreo {
         //A flight keeps its geometry: a focus mid-open waits for `land()`, and a close never re-poses the
         //column under the trajectory it captured — a frozen raise stays folded in, like a frozen drag
         guard landed, !closing else { return }
+        reinset()
         //`.move`, the body's own clock for the rows it scrolls behind the photo: one motion, card and contents
         withAnimation(.move) {
             if focused { repin() } else if raise != 0 { raise = 0 }
         }
+    }
+
+    //The focused card's gap to the screen edge, in or out. A resize, so it rides `.transition` — `reportCard`'s clock for
+    //the mask that IS the card's edge; on `.move` the edge and the photo would come apart. The re-centre the resize
+    //causes (the band grows with the width) re-pins on that same clock, in `reportCard`
+    private func reinset() {
+        guard keyboardInsetActive != keyboardFocused else { return }
+        withAnimation(.transition) { keyboardInsetActive = keyboardFocused }
     }
 
     func reportPlaneTop(_ y: CGFloat) {
@@ -1332,12 +1351,21 @@ extension EventZoomChoreo {
         if keyboardFocused, let resignKeyboard { resignKeyboard() } else { close() }
     }
 
-    //The raise that holds the pin, written only when it moves (a same-value write stalls the glass). Reads
-    //`restingCard`, held clear of the raise; the feet ride it, so it is backed out of them
+    //The raise that holds the pin and the drop that hangs the clearance controls on the keyboard's line, each
+    //written only when it moves (a same-value write stalls the glass). Reads `restingCard`, held clear of the
+    //raise; the feet ride it, so it is backed out of them — before the raise below moves
     private func repin() {
         guard keyboardFocused, landed, !closing, !dragEngaged else { return }
+        let foot = keyboardFeet.values.max().map { $0 - raise }
         let pinned = pinnedRaise()
         if pinned != raise { raise = pinned }
+        //The pin's other half: the gap the flush top leaves above the keyboard, the control closes by hanging lower.
+        //None once a long note pushes its slot onto the line (the raise takes over), or while the keyboard is off the card
+        var drop: CGFloat = 0
+        if let foot, keyboardTop < restingCard.maxY + pinned {
+            drop = max(keyboardTop - Self.keyboardClearance - (foot + pinned), 0)
+        }
+        if drop != keyboardDrop { keyboardDrop = drop }
     }
 
     //The pin: the card's top `keyboardPinGap` below the plane's safe-area edge. Further only if the control
@@ -1537,7 +1565,8 @@ extension EventZoomChoreo {
             flightP = 1
             landed = true
             chevronIn = true //Nothing flew, so there is no committed beat to wait out
-            withAnimation(.move) { repin() } //A field focused before this waited for it
+            reinset()
+            withAnimation(.move) { repin() } //A field focused before this waited for it: its gap, then its pin
             withAnimation(.transition) { chromeP = 1 }
             handOffCover(after: Self.handOffBeat) //The cover parks on the band while the pager takes its first paint
             armBandChrome()
@@ -1602,7 +1631,8 @@ extension EventZoomChoreo {
         chevronIn = true //Normally already in on its own clock — a landing must never sit chevron-less
         pressPose = .rest //Spent by the shed's end; a close flies the disc home unpressed
         armBandChrome()
-        withAnimation(.move) { repin() } //A field focused mid-flight waited for this
+        reinset()
+        withAnimation(.move) { repin() } //A field focused mid-flight waited for this: its gap, then its pin
     }
 
     //The capsule's hand-off, on the spring's removal like the cover's: at p = 1 the capsule sits on

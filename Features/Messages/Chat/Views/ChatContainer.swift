@@ -1,5 +1,5 @@
 //
-//  ChatView.swift
+//  ChatContainer.swift
 //  Scoop
 //
 //  Created by Art Ostin on 02/03/2026.
@@ -10,13 +10,14 @@ import UIKit
 
 
 struct ChatContainer: View {
-    
+
     //Injected
     @Environment(\.dismiss) private var dismiss
     @State private var vm: ChatViewModel
     let isEvent: Bool
 
     //Local view state
+    @State private var ui = ChatUIState()
     @State private var profileImages: [UIImage] = []
     @State private var profileTrigger = 0
     @FocusState private var isFocused
@@ -38,26 +39,27 @@ struct ChatContainer: View {
         ))
         self.isEvent = isEvent
     }
-    
+
     var body: some View {
-        ChatScrollView(vm: vm, isFocused: $isFocused, isEvent: isEvent)
+        ChatScrollView(vm: vm, ui: ui, isFocused: $isFocused, isEvent: isEvent)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                MessageInputBar(vm: vm, isFocused: $isFocused)
+                MessageInputBar(vm: vm, ui: ui, isFocused: $isFocused, onSendFailed: sendFailed)
             }
             .zIndex(2)
 
             //1. The background and scope
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appCanvas.ignoresSafeArea())
+            .coordinateSpace(.named(ChatUIState.space)) //The bar and the list measure in one space, so a flight can cross between them
             .customScrollFade(height: 135, edge: .top, curve: .strong)
             .overlay(alignment: .topTrailing) {profileButton}
-        
+
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
         .task(id: vm.eventProfile.id) { await vm.startListening() }
         .onAppear { messageAppearCode() }
         .onDisappear { messageDisappearCode() }
-        
+
         .overlay(alignment: .topLeading) {chatDismissButton }
         .navigationBarBackButtonHidden()
     }
@@ -78,19 +80,24 @@ extension ChatContainer {
         )
         .onAppear { isFocused = false }
     }
-        
+
     private func messageAppearCode() {
         vm.session.activeChatEventId = vm.eventProfile.id
         vm.session.notifications.dismiss(where: { $0.eventId == vm.eventProfile.id })
     }
-    
+
     private func messageDisappearCode() {
         if vm.session.activeChatEventId == vm.eventProfile.id {
             vm.session.activeChatEventId = nil
         }
     }
-    
-    
+
+    //A send that failed: the ViewModel threw, the bar let the flight land, the container tells the user
+    private func sendFailed(_ error: Error) {
+        vm.session.notifications.push(.error(message: "Message not sent. \(error.localizedDescription)"))
+    }
+
+
     private var profileButton: some View {
         let avatarSize: CGFloat = 35
         return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
@@ -119,13 +126,13 @@ extension ChatContainer {
         if !profileImages.isEmpty { return profileImages }
         return vm.eventProfile.image.map { [$0] } ?? []
     }
-    
-    
+
+
     private var chatDismissButton: some View {
         let size: CGFloat = 39
         return ScoopButton(shape: Circle(), action: {dismiss()}) {
             Image(systemName: isEvent ? "xmark" : "chevron.left")
-                .font(.system(size: 16, weight: .heavy))
+                .font(.icon(16))
                 .frame(width: size, height: size) //Slightly larger than default medium
         }
         .padding(.horizontal)

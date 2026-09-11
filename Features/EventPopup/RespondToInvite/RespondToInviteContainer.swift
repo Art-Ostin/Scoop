@@ -22,7 +22,9 @@ struct RespondToInviteContainer: View {
 
     //Local view state
     @State private var rowsHeight: CGFloat = 0 //The type/time/place block as laid out — what the focused note scrolls behind the photo
-    
+    @State private var showsNoteTitle = false //`isFocused` as the title reads it — never the raw focus (see `retitle`)
+    @State private var noteTitleGate = KeyboardSettleGate() //A focus's retitle waits here until the keyboard's arrival stops stalling frames
+
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
         VStack(spacing: 0) {
@@ -42,23 +44,27 @@ struct RespondToInviteContainer: View {
             actionSection
                 .padding(.top, 4)
         }
-        .contentShape(Rectangle()) //The card's empty white too: a tap anywhere on it hands the keyboard back
-        .onTapGesture { if isFocused { isFocused = false } } //Buttons and the bar's own tap win over this, as children do
-        .animation(.transition, value: isFocused)
-        .eventZoomKeyboardFocus(isFocused) { isFocused = false } //The shell lifts the card to the top, routes the backdrop tap here, and holds the drag
-        .eventZoomChevronHidden(isConfirmNewEvent) //The confirm screen owns the corner with its back button
-        .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert) //An open menu or alert owns the finger
+        .contentShape(Rectangle())
+        .onTapGesture { if isFocused { isFocused = false } }
+    
+        .animation(.transition, value: [
+            composeUI.delayedTimePopupOpen,
+            composeUI.delayedTypePopupOpen,
+            isFocused, composeUI.showConfirmScreen]
+        )
+        
+        .eventZoomKeyboardFocus(isFocused) { isFocused = false }
+        .onChange(of: isFocused) { _, focused in retitle(focused) }
+        .onDisappear { noteTitleGate.cancel() }
+        .eventZoomChevronHidden(isConfirmNewEvent)
+        .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert)
+        
+        
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
-        .animation(.transition, value: composeUI.showConfirmScreen)
-        .sheet(isPresented: $composeUI.showMessageScreen) {
-            AddMessageView(message: $vm.respondDraft.newEvent.message,
-                           isRespondMessage: false,
-                           eventType: $vm.respondDraft.newEvent.type)
-        }
+        .sheet(isPresented: $composeUI.showMessageScreen) { addMessageView }
         .fullScreenCover(isPresented: $composeUI.showMapView) {
             MapView(defaults: vm.defaults, eventLocation: $vm.respondDraft.newEvent.place)
         }
-        //On the card's own plane, not inside it: the body is masked, so an in-place scrim stops at the card
         .eventZoomAlert(
             isPresented: $ui.showAcceptAlert,
             title: "\(selectedDayString)",
@@ -70,22 +76,12 @@ struct RespondToInviteContainer: View {
             onOK: { ctaAction() }, //
             onCancel: {ui.showAcceptAlert = false}
         )
-        .animation(.transition, value: [composeUI.delayedTimePopupOpen, composeUI.delayedTypePopupOpen])
-        .sheet(isPresented: $ui.showHistorySheet) {
-            if let profileImage = images.first {
-                InviteHistoryContainer(
-                    event: vm.respondDraft.originalInvite.event,
-                    profileImage: profileImage,
-                    userImage: vm.userImage
-                )
-            }
-        }
+        .sheet(isPresented: $ui.showHistorySheet) {inviteHistoryContainer}
     }
 }
 
 //ImagePager logic
 extension RespondToInviteContainer {
-    
     
     var imagePager: some View {
         EventImagePager(images: images,
@@ -95,7 +91,8 @@ extension RespondToInviteContainer {
                         bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen,
                         bandGround: composeUI.timeBand)
         .overlay(alignment: .topLeading) {
-            backButton.eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
+            EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen)
+                .eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
         }
         .overlay(alignment: .topTrailing) {
             topRow
@@ -103,9 +100,9 @@ extension RespondToInviteContainer {
                 .eventZoomBandChrome(corner: .topTrailing) { inertTopRow }
         }
     }
-    
+        
     var titleText: String {
-        if isFocused {
+        if showsNoteTitle {
             return "Add a Note"
         } else {
             switch type {
@@ -115,21 +112,66 @@ extension RespondToInviteContainer {
             }
         }
     }
-    
-    var backButton: some View {
-        EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen)
+
+    private func retitle(_ focused: Bool) {
+        noteTitleGate.cancel()
+        guard focused else {
+            if showsNoteTitle { withAnimation(.transition) { showsNoteTitle = false } }
+            return
+        }
+        noteTitleGate.arm {
+            guard isFocused, !showsNoteTitle else { return } //Live, not the captured `focused`: a Done inside the wait wins
+            withAnimation(.transition) { showsNoteTitle = true }
+        }
     }
 
-    var topRow: some View {
-        HStack(spacing: 6) {
-            NewEventToggleButton(
-                responseType: $vm.respondDraft.respondType,
-                showConfirmScreen: $composeUI.showConfirmScreen,
-                noAvailableDays: vm.respondDraft.originalInvite.event.proposedTimes.availableTimes().isEmpty
-            )
-        }
-        .animation(.transition, value: isComposeInviteScreen)
+    
+    
+    var isPastInvites: Bool {
+        vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false
     }
+
+    
+    
+    @ViewBuilder
+    var topRow: some View {
+        
+        if isPastInvites && type != .newEvent {
+            OptionsMenu(
+                showPastInvites: { ui.showHistorySheet = true },
+                showNewInvite: { switchEventType() }
+            )
+        } else  {
+            HStack(spacing: 8) {
+                NewEventToggleButton(isNewEvent: type == .newEvent) {
+                    switchEventType()
+                }
+                
+                if isPastInvites {
+                    InviteHistoryIconButton(showHistorySheet: $ui.showHistorySheet)
+                }
+            }
+            .padding(.trailing, isPastInvites ? 18 : 24)
+        }
+    }
+    
+    
+    private func switchEventType() {
+        withAnimation(.transition) {
+            composeUI.showConfirmScreen = false
+            if type == .newEvent {
+                if vm.respondDraft.originalInvite.event.proposedTimes.availableTimes().isEmpty {
+                    vm.respondDraft.respondType = .newTime
+                } else {
+                    vm.respondDraft.respondType = .originalInvite
+                }
+            } else {
+                vm.respondDraft.respondType = .newEvent
+            }
+        }
+    }
+    
+    
 
     var inertBackButton: some View {
         EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen, inert: true)
@@ -137,20 +179,15 @@ extension RespondToInviteContainer {
 
     var inertTopRow: some View {
         HStack(spacing: 6) {
-            NewEventToggleButton(
-                responseType: $vm.respondDraft.respondType,
-                showConfirmScreen: $composeUI.showConfirmScreen,
-                inert: true,
-                noAvailableDays: vm.respondDraft.originalInvite.event.proposedTimes.availableTimes().isEmpty
-            )
+            NewEventToggleButton(isNewEvent: type == .newEvent) {
+                switchEventType()
+            }
         }
     }
     
     var isComposeInviteScreen: Bool { type == .newEvent && composeUI.showConfirmScreen != true }
     var isConfirmNewEvent: Bool { type == .newEvent && composeUI.showConfirmScreen == true }
 
-    //How far the rows and the bar scroll: the rows' whole block plus the bar's own inset above its glass,
-    //less the gap the glass keeps below the photo. Measured, not guessed — the type row grows with a note
     var focusLift: CGFloat {
         max(rowsHeight + RespondToMessageBar.fieldTopInset - Spacing.sm, 0)
     }
@@ -179,12 +216,6 @@ extension RespondToInviteContainer {
                     .transition(Self.bodySwap())
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false {
-                pastResponseButton
-            }
-            
-        }
     }
     
     //Respond To Invite Screen
@@ -195,7 +226,7 @@ extension RespondToInviteContainer {
             timePopupOpen: $composeUI.timePopupOpen, //One owner for both screens' time platter
             timePopupOpenDelayed: composeUI.delayedTimePopupOpen, //…and the chrome's own 120/40ms clock
             actionsBelow: true, //adjusts padding in this view if actions below
-            shortSpacing: false,
+            shortSpacing: type == .newTime,
             largeText: true,
             heroLanding: true, //The invite card's own time and place lines fly onto these rows
             bandGround: composeUI.timeBand, //The time platter's band reports through this row
@@ -241,6 +272,8 @@ extension RespondToInviteContainer {
     }
 }
 
+
+
 //Message Section
 extension RespondToInviteContainer {
     
@@ -253,15 +286,9 @@ extension RespondToInviteContainer {
     }
     
     private var pastResponseButton: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
-            ui.showHistorySheet = true
-        } label: {
-            Image(.historyIcon)
-                .resizable()
-                .frame(width: 15, height: 15)
-        }
-        .padding(.vertical)
-        .padding(.horizontal, 24)
+        InviteHistoryIconButton(showHistorySheet: $ui.showHistorySheet)
+            .padding(.vertical)
+            .padding(.horizontal, 24)
     }
 }
 
@@ -352,3 +379,50 @@ extension RespondToInviteContainer {
         }
     }
 }
+
+//Extra Views
+extension RespondToInviteContainer {
+    
+    private var addMessageView: some View {
+        AddMessageView(message: $vm.respondDraft.newEvent.message,
+                       isRespondMessage: false,
+                       eventType: $vm.respondDraft.newEvent.type)
+    }
+    
+    @ViewBuilder
+    private var inviteHistoryContainer: some View {
+        if let profileImage = images.first {
+            InviteHistoryContainer(
+                event: vm.respondDraft.originalInvite.event,
+                profileImage: profileImage,
+                userImage: vm.userImage
+            )
+        }
+    }
+
+}
+
+
+/*    var hasMessage: Bool {
+ vm.respondDraft.originalInvite.event.message?.isEmpty == false
+}
+
+var isPastInvites: Bool {
+ vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false
+}
+
+var showPastInvitesOnImage: Bool {
+ if isPastInvites && !(type == .originalInvite && !hasMessage) && !isFocused { return true }
+ else { return false}
+}
+
+var showPastInvitesOnPage: Bool {
+ if isPastInvites && (type == .originalInvite && !hasMessage) { return true }
+ else { return false }
+}
+ if vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false {
+     pastResponseButton
+//                    .blurPop(visible: showPastInvitesOnPage)
+ }
+
+*/

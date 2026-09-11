@@ -18,9 +18,16 @@ struct PressEffect {
     // press. Only worth paying when there's a dim to see — scale alone reads on the way down.
     var releaseHold: Double = 0.12
     var release: (response: Double, damping: Double)
+    // Lands the release on the frame it is asked for instead of the spring + 0.48 s un-dim: for a
+    // button whose state flips as it is released (a send button turning empty), where the standard
+    // ramp would wash the new fill for half a second.
+    var instantRelease = false
 
     // Shrinks and dims — the standard tinted-button press.
     static let shrink = PressEffect(scale: 0.9, opacity: 0.75, pressDuration: 0.12, release: (0.4, 0.45))
+    // Dims without moving, on the touch-down frame, and releases on the spot — the chat's send button,
+    // whose draft field lifts beside it instead (SendChoreography).
+    static let dim = PressEffect(scale: 1, opacity: 0.25, pressDuration: 0, releaseHold: 0, release: (0.25, 1), instantRelease: true)
     // Shrinks without dimming — for buttons whose fill flips on tap. The dim's slow return
     // would wash out the new color, and a bouncy settle keeps the label rasterized at a
     // fractional scale (soft glyphs) long after the fill has landed. Releases at once, flat.
@@ -56,7 +63,8 @@ struct PressEffect {
             brightness: brightness * fraction,
             pressDuration: pressDuration,
             releaseHold: releaseHold,
-            release: release
+            release: release,
+            instantRelease: instantRelease
         )
     }
 }
@@ -123,7 +131,8 @@ private struct PressAnimation: ViewModifier {
     func onPressed(_ isPressed: Bool) {
         guard !isPressed else {
             pressStart = .now
-            withAnimation(.snappy(duration: effect.pressDuration)) {
+            // A zero press duration is a one-frame press, not a zero-length spring.
+            withAnimation(effect.pressDuration > 0 ? .snappy(duration: effect.pressDuration) : nil) {
                 scale = effect.scale; opacity = effect.opacity; brightness = effect.brightness
                 shadowStrength = Elevation.pressedStrength
             }
@@ -138,6 +147,12 @@ private struct PressAnimation: ViewModifier {
     }
 
     func release() {
+        guard !effect.instantRelease else {
+            var settle = Transaction()
+            settle.disablesAnimations = true
+            withTransaction(settle) { scale = 1; shadowStrength = 1; opacity = 1; brightness = 0 }
+            return
+        }
         withAnimation(.spring(response: effect.release.response, dampingFraction: effect.release.damping)) {
             scale = 1; shadowStrength = 1
         }
@@ -150,10 +165,14 @@ struct PressButtonStyle: ButtonStyle {
     var effect: PressEffect
     var elevation: Elevation?
     var tint: Color = .accent
+    // The system's pressed flag, for a view that moves WITH the press (the chat's draft field
+    // lifting beside its send button): the button's own look stays PressEffect's.
+    var onPressChanged: ((Bool) -> Void)? = nil
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .modifier(PressAnimation(isPressed: configuration.isPressed, effect: effect, elevation: elevation, tint: tint))
+            .onChange(of: configuration.isPressed) { _, pressed in onPressChanged?(pressed) }
     }
 }
 
@@ -235,8 +254,8 @@ extension View {
         pressButton(.select, shadow: shadow, tint: tint)
     }
 
-    func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color) -> some View {
-        buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, tint: tint))
+    func pressButton(_ effect: PressEffect, shadow: Elevation?, tint: Color, onPressChanged: ((Bool) -> Void)? = nil) -> some View {
+        buttonStyle(PressButtonStyle(effect: effect, elevation: shadow, tint: tint, onPressChanged: onPressChanged))
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded { _ in }) //allows long presses, fixes bug
     }
 

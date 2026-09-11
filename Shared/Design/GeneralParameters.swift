@@ -162,6 +162,10 @@ extension Animation {
     /// Micro-feedback below the `.toggle` threshold — near-instant dims and per-tick updates.
     static let quick = Animation.easeOut(duration: 0.12)
 
+    /// A flown copy dissolving over the identical view it has just landed on — gone before the eye can compare
+    /// the two (the chat's sent bubble). Flat, and short: there is nothing to see change.
+    static let handOff = Animation.smooth(duration: 0.12)
+
     /// The system's selection dot — measured frame-by-frame from iOS 26 Calendar's week strip.
     /// A flat 0.2s cubic (never bounces) that scales the dot 0.30↔1 about its centre as it fades 0↔1.
     static let selectionDot = Animation.timingCurve(0.32, 0.52, 0.30, 0.97, duration: 0.2)

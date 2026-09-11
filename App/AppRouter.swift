@@ -1,5 +1,5 @@
 //
-//  AppsRouter.swift
+//  AppRouter.swift
 //  Scoop
 //
 //  Created by Art Ostin on 25/05/2026.
@@ -27,6 +27,8 @@ extension AppRouter {
         switch notification {
         case .newMessage(let model):
             openMessage(eventId: model.eventId, session: session)
+        case .error:
+            break //Nothing to open: the banner only reports
         }
     }
 

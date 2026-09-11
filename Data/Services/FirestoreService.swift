@@ -34,6 +34,11 @@ final class FirestoreService: FirestoreServicing {
         let ref = try db.collection(path).addDocument(from: value)
         return ref.documentID
     }
+
+    //The id a document will keep, minted before its write — so a listener's echo of the write can be matched to it
+    func newDocumentId(in collectionPath: String) -> String {
+        db.collection(collectionPath).document().documentID
+    }
     
     func update(_ path: String, fields: [String: Any]) async throws {
         try await db.document(path).updateData(fields)

@@ -1,5 +1,5 @@
 //
-//  ManagersProtocol.swift
+//  DataProtocols.swift
 //  Scoop
 //
 //  Created by Art Ostin on 26/07/2025.
@@ -14,6 +14,7 @@ import UIKit
 protocol FirestoreServicing {
     func set<T: Encodable> (_ path: String, value: T, merge: Bool) throws
     func add<T: Encodable> (_ path: String, value: T) throws -> String
+    func newDocumentId(in collectionPath: String) -> String
     func get<T: Decodable>(_ path: String) async throws -> T
     func getCacheFirst<T: Decodable>(_ path: String) async throws -> T
     func warmUp()
@@ -65,7 +66,10 @@ protocol EventsRepository {
 }
 
 protocol ChatRepository {
-    func sendMessage(text: String, eventId: String, userId: String, recipientId: String) async throws
+    //The id a message will keep for life, minted before its write so the listener's echo merges into the
+    //row the sender already shows instead of replacing it
+    func newMessageId(eventId: String) -> String
+    func sendMessage(id: String, text: String, eventId: String, userId: String, recipientId: String) async throws
     func fetchMessages(eventId: String) async throws -> [ChatMessage]
     func chatsTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatThread>, Error>
     func messagesTracker(eventId: String) -> AsyncThrowingStream<FSCollectionEvent<ChatMessage>, Error>

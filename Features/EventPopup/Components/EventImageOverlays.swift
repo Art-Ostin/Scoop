@@ -19,6 +19,9 @@ struct EventTitle: View {
     var textRect: Binding<CGRect> = .constant(.zero)
     var coordSpace: String? = nil
 
+    //Local view state
+    @State private var reportedTitle: String? //The title `textRect` last described: how a report tells a whole swap from a morph
+
     ///The size this title lands at. A static because the event zoom's name morph lays its flying
     ///word out at the size it will land in — the two can never drift into a step at the hand-off.
     static func size(for title: String) -> CGFloat { title.starts(with: "Invite") ? 22 : 18 }
@@ -31,9 +34,29 @@ struct EventTitle: View {
         titleLine
             .foregroundStyle(Color.white)
             .animation(.transition, value: title)
-            .getRect(textRect, coordSpace: coordSpace) //Inside the padding: the glyphs, not the slot
+            .onGeometryChange(for: CGRect.self) { [coordSpace] geo in //Inside the padding: the glyphs, not the slot
+                geo.frame(in: coordSpace.map { CoordinateSpace.named($0) } ?? .global)
+            } action: { report($0) }
             .padding(.horizontal, imageHorizontalPadding)
             .padding(.bottom, imageBottomPadding)
+    }
+}
+
+//The glyph rect the pager cuts its frost capsule to
+extension EventTitle {
+
+    ///A line that swaps WHOLE ("Invite Sarah" ⇄ "Add a Note") lays out at its final size on frame one, and a
+    ///measured write lands outside the swap's transaction — bare, the frost snaps to the incoming words while
+    ///the outgoing ones are still blurring over it, so that report rides the swap's clock. A word morph re-lays
+    ///the line every frame, and the first report is the natural size: both stay bare
+    private func report(_ rect: CGRect) {
+        let swappedWhole = reportedTitle.map { $0 != title && (TitleWords($0) == nil || TitleWords(title) == nil) } ?? false
+        if swappedWhole {
+            withAnimation(.transition) { textRect.wrappedValue = rect }
+        } else {
+            textRect.wrappedValue = rect
+        }
+        if reportedTitle != title { reportedTitle = title }
     }
 }
 
@@ -46,6 +69,7 @@ extension EventTitle {
     private var titleLine: some View {
         if let words = TitleWords(title) {
             morphingLine(words)
+                .transition(.blurReplace) //Only when the line swaps branch ("Invite Sarah" ⇄ "Add a Note"): inside it the words still morph
         } else {
             Text(title)
                 .font(.title(Self.size(for: title), .bold))
@@ -78,9 +102,6 @@ extension EventTitle {
             removal: .blurPop(anchor: .bottomLeading).animation(.transition))
     }
 
-    ///The font's own space advance, so three runs measure exactly as the one string would: the event
-    ///zoom derives its flying word's landing from `Text(title)`'s metrics and must not find a wider
-    ///line here. It steps ~1pt as the size changes — under the word that is blurring out of that gap.
     private static func gap(at size: CGFloat) -> CGFloat {
         (" " as NSString).size(withAttributes: [.font: UIFont.title(size, .bold)]).width
     }
@@ -184,17 +205,16 @@ struct EventBackButton: View {
 }
 
 struct NewEventToggleButton: View {
-    @Binding var responseType: ResponseType
-    @Binding var showConfirmScreen: Bool?
+
     var inert: Bool = false
-
-    private var isNewEvent: Bool { responseType == .newEvent }
-
-    let noAvailableDays: Bool
     
+    let isNewEvent: Bool
+
+    let switchEventType: () -> ()
+        
     var body: some View {
         surface
-            .padding()
+            .padding(.vertical)
     }
 
     //One style for both forms, so the twin can never drift from the button it stands in for
@@ -215,23 +235,6 @@ struct NewEventToggleButton: View {
         }
     }
     
-    //If any available days, go to the originalInvite with that day selected. If not new time
-    private func switchEventType() {
-        withAnimation(.transition) {
-            showConfirmScreen = false
-            if responseType == .newEvent {
-                if noAvailableDays {
-                    responseType = .newTime
-                    print("Gone to newTime")
-                } else {
-                    responseType = .originalInvite
-                    print("Gone to originalInvite")
-                }
-            } else {
-                responseType = .newEvent
-            }
-        }
-    }
 
     private var label: some View {
         HStack(spacing: Spacing.xxs) {
@@ -245,32 +248,44 @@ struct NewEventToggleButton: View {
         }
         .padding(.horizontal, Spacing.xs)
         .padding(.vertical, 7)
-        .foregroundStyle(Color.textPrimary)
+        .foregroundStyle(Color.black)
     }
 }
 
 struct OptionsMenu: View {
+    
+    let showPastInvites: () -> ()
+    let showNewInvite: () -> ()
+    
+    
     //Always mounted, never self-gated: `.eventZoomBandChrome(visible:)` at the call site gates it
-    let hasChanges: Bool
-    let onClear: () -> Void
-    let onDecline: () -> Void
-
     var body: some View {
         Menu {
-            if hasChanges {
-                Button(action: onClear) { Label("Clear Invite Draft", image: "BinIcon") }
+            Button {
+                showNewInvite()
+            } label: {
+                Label("New Invite", systemImage: "plus")
+            }
+            
+            Button {
+                showPastInvites()
+            } label: {
+                Label {
+                    Text("Invite History")
+                } icon: {
+                    Image(.historyIcon)
+                        .resizable()
+                        .frame(width: 2, height: 2)
+                }
             }
 
-            Button(role: .destructive, action: onDecline) {
-                Label("Decline Profile", systemImage: "xmark")
-            }
         } label: {
             HStack(spacing: 3) {
                 ForEach(0..<3) { _ in
                     Circle().frame(width: 4, height: 4)
                 }
             }
-            .foregroundStyle(.white.opacity(0.8))
+            .foregroundStyle(.black)
             .buttonSize(.small)
             .scoopGlassSurface(clear: true, shape: .circle)
             .expandHitArea()
@@ -279,3 +294,26 @@ struct OptionsMenu: View {
         }
     }
 }
+
+
+struct InviteHistoryIconButton: View {
+    
+    @Binding var showHistorySheet: Bool
+    
+    var body: some View {
+        ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
+            showHistorySheet = false
+        } label: {
+            Image(.historyIcon)
+                .resizable()
+                .frame(width: 15, height: 15)
+        }
+    }
+}
+
+/*
+ if hasChanges {
+     Button(action: onClear) { Label("Clear Invite Draft", image: "BinIcon") }
+ }
+
+ */
