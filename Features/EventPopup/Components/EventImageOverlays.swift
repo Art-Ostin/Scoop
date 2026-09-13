@@ -270,13 +270,7 @@ struct OptionsMenu: View {
             Button {
                 showPastInvites()
             } label: {
-                Label {
-                    Text("Invite History")
-                } icon: {
-                    Image(.historyIcon)
-                        .resizable()
-                        .frame(width: 2, height: 2)
-                }
+                Label("Invite History", image: .historyIcon) //A menu drops .frame: the icon's size is the SVG's own width/height
             }
 
         } label: {

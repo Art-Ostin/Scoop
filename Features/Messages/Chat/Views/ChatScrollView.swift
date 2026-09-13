@@ -12,6 +12,7 @@ struct ChatScrollView: View {
     let ui: ChatUIState
     var isFocused: FocusState<Bool>.Binding
     let isEvent: Bool
+    let image: UIImage?
     private let keyboardCompensationPadding: CGFloat = 72
 
     @State private var isFirstAppear: Bool = true
@@ -97,7 +98,7 @@ extension ChatScrollView {
     //1. Views for the messages
     private var messageScrollSection: some View {
         ForEach(vm.messages) { message in
-            MessageSection(vm: vm, ui: ui, message: message)
+            MessageSection(vm: vm, ui: ui, message: message, image: image)
         }
     }
 

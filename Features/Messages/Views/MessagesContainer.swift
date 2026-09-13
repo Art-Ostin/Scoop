@@ -151,7 +151,7 @@ extension MessagesContainer {
             chatRepo: vm.chatRepo,
             imageLoader: vm.imageLoader,
             eventProfile: eventProfile,
-            isEvent: false
+            isEvent: false,
         )
         .task { try? await updateMessagesToRead(eventProfile) }
     }

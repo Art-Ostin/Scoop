@@ -13,11 +13,6 @@ enum MessageBubbleTail {
     case trailing
 }
 
-///The Messages balloon, drawn the way Apple's BubbleKit draws it on iOS 26: each corner is Apple's
-///continuous corner (three cubics) that blends towards a true circle as the bubble nears a pill, and
-///the tail is the droplet hanging under the outer bottom corner. Everything is a multiple of the
-///corner radius, so the tail keeps its proportions at any bubble size. `rect` is the body; the tail
-///extends below `rect.maxY` by `tailDrop(for:)`.
 struct MessageBubbleShape: Shape {
     var messageCornerRadius: CGFloat = BubbleMetrics.cornerRadius //Messages' radius: half the one-line body (20.14 at Large)
     var tail: MessageBubbleTail = .none

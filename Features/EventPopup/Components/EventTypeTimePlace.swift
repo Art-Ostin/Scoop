@@ -47,20 +47,28 @@ struct EventTypeTimePlace: View {
 //Type row
 extension EventTypeTimePlace {
     
+    @ViewBuilder
     private var typeRow: some View {
-        HStack(spacing: iconGap) {
-            Text(invite.type.emoji)
-                .font(.body(16, .bold))
-                .frame(width: iconWidth)
-
-            VStack(alignment: .leading, spacing: 4) {
-                eventTitleAndInfo
-                if let message = invite.message, !message.isEmpty {
-                    eventMessage(message: message)
+        if respondDraft?.wrappedValue.respondType == .newTime, let visibleMessage {
+            RespondTimeTypeRow(eventType: invite.type, message: visibleMessage, showInfo: openInfo) //Brings its own emoji column and row height
+        } else {
+            HStack(spacing: iconGap) {
+                Text(invite.type.emoji)
+                    .font(.body(16, .bold))
+                    .frame(width: iconWidth)
+                VStack(alignment: .leading, spacing: 4) {
+                    eventTitleAndInfo
+                    if let visibleMessage { eventMessage(message: visibleMessage) }
                 }
             }
+            .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
         }
-        .frame(minHeight: rowHeight) //Grows past the one-line row box when a message is present
+    }
+
+    //A message of only whitespace counts as none
+    private var visibleMessage: String? {
+        guard let message = invite.message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return message
     }
     
     private func eventMessage(message: String) -> some View {
@@ -96,7 +104,6 @@ extension EventTypeTimePlace {
             iconRow(.eventClockIcon, invite.time.formatMultipleInvitedDays())
         }
     }
-
     //Hoisted so the drawn rows and the strings the event zoom flies onto them can never disagree —
     //a hero that lands spelling something else hands off with a visible word change
     var placeName: String { invite.place.name ?? "View Venue" }
@@ -124,3 +131,36 @@ extension EventTypeTimePlace {
     private var covered: Bool { timePopupOpenDelayed }
 }
 
+
+/*
+ private var typeRow: some View {
+     
+     Group {
+         //If its respondDraft, there is a message & its the tpe of proposeNewTime
+         if let draft = respondDraft?.wrappedValue, let message = draft.originalInvite.event.message {
+             if draft.respondType == .newTime {
+                 RespondTimeTypeRow(
+                     eventType: draft.originalInvite.event.type,
+                     message: message,
+                     showInfo: {openInfo()}
+                 )
+             }
+         } else {
+             HStack(spacing: iconGap) {
+                 Text(invite.type.emoji)
+                     .font(.body(16, .bold))
+                     .frame(width: iconWidth)
+
+                 VStack(alignment: .leading, spacing: 4) {
+                     eventTitleAndInfo
+                     if let message = invite.message, !message.isEmpty {
+                         eventMessage(message: message)
+                     }
+                 }
+             }
+         }
+     }
+      //Grows past the one-line row box when a message is present
+ }
+
+ */

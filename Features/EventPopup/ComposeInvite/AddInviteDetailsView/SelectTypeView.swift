@@ -69,7 +69,6 @@ extension SelectTypeView {
                 .font(.body(size.emojiSize))
                 .frame(width: size.emojiColumn, alignment: .leading) //So all same width
             
-            
             Text(type == .socialMeet ? "Social Meet" : type.longTitle)
                 .font(.body(size.titleSize, type == selectedType ? .bold : .medium))
                 .kerning(kerningAmount(type)) //Fine tuned kerning so all same width

@@ -28,7 +28,7 @@ struct ChatContainer: View {
         chatRepo: ChatRepository,
         imageLoader: ImageLoading,
         eventProfile: EventProfile,
-        isEvent: Bool = false
+        isEvent: Bool = false,
     ) {
         _vm = State(initialValue: ChatViewModel(
             defaults: defaults,
@@ -41,7 +41,7 @@ struct ChatContainer: View {
     }
 
     var body: some View {
-        ChatScrollView(vm: vm, ui: ui, isFocused: $isFocused, isEvent: isEvent)
+        ChatScrollView(vm: vm, ui: ui, isFocused: $isFocused, isEvent: isEvent, image: transitionImages.first)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 MessageInputBar(vm: vm, ui: ui, isFocused: $isFocused, onSendFailed: sendFailed)
             }

@@ -281,7 +281,7 @@ extension RespondToInviteContainer {
             RespondToMessageBar(
                 text: $vm.respondDraft.newTime.respondMessage,
                 isFocused: $isFocused,
-                isFixedHeight: showsNoteTitle //The mirror, never the raw focus: UIKit's focus write carries no transaction, so the card would snap
+                isFixedHeight: showsNoteTitle //The mirror, neve
             )
                 .transition(Self.bodySwap())
         }

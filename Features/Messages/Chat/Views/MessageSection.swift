@@ -12,7 +12,9 @@ struct MessageSection: View {
     @Bindable var vm: ChatViewModel
     let ui: ChatUIState
     let message: ChatMessage
+    let image: UIImage?
 
+    
     var body: some View {
         let flight = ui.flight(for: message.id)
         let phase = flight?.phase
@@ -22,20 +24,27 @@ struct MessageSection: View {
                     .padding(.bottom, Spacing.md) //Inside the divider's own transition, so a sent row grows it in whole
                     .transition(flight == nil ? slideIn : growth(ChatDayDivider.height + Spacing.md).combined(with: .opacity))
             }
-            MessageBubbleView(
-                chat: message,
-                //A row a flight carries keeps its tail and run gap until the flight is torn down: the clone wears a
-                //tail, and the row's growth already counts the gap. The regroup after rides the teardown's `.move`.
-                nextIsNewAuthor: phase != nil || vm.isNextNewAuthor(for: message),
-                isMyChat: vm.isMyChat(message),
-                containerWidth: ui.containerWidth,
-                //The clock until the server confirms, and never swapped mid-flight: the time blurs in once the bubble has landed
-                showsTime: !vm.isPending(message) && (phase == nil || phase == .dissolving),
-                onBodyFrame: phase == nil ? nil : { ui.reportBody(frame: $0, for: message.id) }
-            )
-            //A row a send flight is carrying stays a ghost until the clone lands on it
-            .opacity(phase == .flying ? 0 : 1)
-            .transition(flight.map { growth($0.rowHeight) } ?? slideIn)
+            
+            HStack(alignment: .bottom, spacing: 6) {
+                if (phase != nil || vm.isNextNewAuthor(for: message)) && !vm.isMyChat(message) {
+                    if let image {
+                        SmallImage(image: image, size: 30, isCircle: true)
+                    }
+                }
+                
+                
+                MessageBubbleView(
+                    chat: message,
+                    nextIsNewAuthor: phase != nil || vm.isNextNewAuthor(for: message),
+                    isMyChat: vm.isMyChat(message),
+                    containerWidth: ui.containerWidth,
+                    showsTime: !vm.isPending(message) && (phase == nil || phase == .dissolving),
+                    onBodyFrame: phase == nil ? nil : { ui.reportBody(frame: $0, for: message.id) }
+                )
+                //A row a send flight is carrying stays a ghost until the clone lands on it
+                .opacity(phase == .flying ? 0 : 1)
+                .transition(flight.map { growth($0.rowHeight) } ?? slideIn)
+            }
         }
     }
 }
