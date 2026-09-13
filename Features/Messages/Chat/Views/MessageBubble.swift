@@ -33,6 +33,9 @@ enum BubbleMetrics {
     static let runGap = Spacing.sm //Clearance under the last bubble of a run, where its tail hangs
     static let badgeRow = Spacing.sm //The extra line a wrapped bubble opens under its text for the hour badge
     static let badgeGap = Spacing.labelGap //Between the inline hour badge and the text's last glyph
+    static let avatarSize: CGFloat = 35 //The sender's photo, beside the last bubble of a received run
+    static let avatarLeading = Spacing.gutter - Spacing.labelGap //That photo ↔ the screen edge: tucked 6 pt into the gutter
+    static let avatarGap = Spacing.hairline //Between that photo and the received bubbles' leading edge: all but touching
     //A one-line bubble body, Messages' height at every text size (40.2871 at Large)
     static var singleLineHeight: CGFloat { 2 * messagesInset + max(messagesFont.ascender - messagesFont.descender, linePitch) }
     //The text's top inset centres its capitals where Messages centres SF's; the bottom inset makes the body height exact
@@ -61,25 +64,30 @@ struct MessageBubbleView: View {
     //Local view state
     @State private var measured: BadgePlacement?
 
+    //A note outside any chat (the respond card's) is built with no author or recipient
+    var isInviteMessage: Bool { chat.authorId.isEmpty && chat.recipientId.isEmpty }
+    //An invite's note wears a received bubble's gray, though its tail hangs on the sender's side (`bubbleShape`)
+    private var wearsSentColors: Bool { isMyChat && !isInviteMessage }
+
     var body: some View {
         let placement = self.placement
         Text(chat.content)
             .font(BubbleMetrics.font)
-            .foregroundStyle(isMyChat ? Color.white : Color.textPrimary)
+            .foregroundStyle(wearsSentColors ? Color.white : Color.textPrimary)
             .lineSpacing(BubbleMetrics.lineSpacing)
             .padding(.leading, BubbleMetrics.leading)
             .padding(.trailing, BubbleMetrics.trailing + placement.reservation)
             .padding(.top, BubbleMetrics.top)
             .padding(.bottom, BubbleMetrics.bottom)
             .padding(.bottom, placement.isBelow ? BubbleMetrics.badgeRow : 0)
-            .background(bubbleShape.fill(isMyChat ? Color.accent : Color.fillGray))
+            .background(bubbleShape.fill(wearsSentColors ? Color.accent : Color.fillGray))
             .background(bodyFrameReporter)
             .overlay(alignment: .bottomTrailing) { hourMessageSent }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .background(columnMeasure)
             //Own bubbles end on the send button's trailing line (Spacing.gutter): a sent bubble is born on the draft field
-            //and its trailing edge travels out to that line as it contracts; received ones keep the margin
-            .padding(.leading, isMyChat ? Self.openSide : Spacing.margin)
+            //and its trailing edge travels out to that line as it contracts; received ones clear their sender's photo
+            .padding(.leading, isMyChat ? Self.openSide : Self.receivedSide)
             .padding(.trailing, isMyChat ? Spacing.gutter : Self.openSide)
             .padding(.bottom, nextIsNewAuthor ? BubbleMetrics.runGap : 0)
     }
@@ -114,11 +122,13 @@ extension MessageBubbleView {
 //Resting geometry, computed the way the body lays out — so a row's height and width are known before it exists
 extension MessageBubbleView {
 
-    private static let openSide = Spacing.margin + Spacing.xxl //The side a bubble leaves open, opposite its author
+    private static let openSide = Spacing.xl + Spacing.xxl //The side a bubble leaves open, opposite its author
+    //A received bubble's own side: the photo's leading line, then the column its sender's photo sits in
+    private static let receivedSide = BubbleMetrics.avatarLeading + BubbleMetrics.avatarSize + BubbleMetrics.avatarGap
 
     //The width a bubble may grow to inside a row of the given container width
     static func columnWidth(containerWidth: CGFloat, isMyChat: Bool) -> CGFloat {
-        max(0, containerWidth - openSide - (isMyChat ? Spacing.gutter : Spacing.margin))
+        max(0, containerWidth - openSide - (isMyChat ? Spacing.gutter : receivedSide))
     }
 
     //Where the hour badge goes: inline after a one-line text (reserving its width), else under the text when
@@ -161,11 +171,12 @@ extension MessageBubbleView {
 extension MessageBubbleView {
 
     private var hourMessageSent: some View {
-        MessageTimeBadge(date: chat.dateCreated ?? Date(), showsTime: showsTime, isMyChat: isMyChat)
+        MessageTimeBadge(date: chat.dateCreated ?? Date(), showsTime: showsTime, isMyChat: wearsSentColors)
     }
 
     private var bubbleShape: MessageBubbleShape {
-        MessageBubbleShape(tail: nextIsNewAuthor ? (isMyChat ? .trailing : .leading) : .none)
+        let side: MessageBubbleTail = isMyChat || isInviteMessage ? .trailing : .leading
+        return MessageBubbleShape(tail: nextIsNewAuthor ? side : .none)
     }
 
     private var bodyFrameReporter: some View {

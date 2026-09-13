@@ -12,8 +12,9 @@ struct InviteHistoryContainer: View {
     //Injected
     let event: UserEvent
     
-    let profileImage: UIImage
-    let userImage: UIImage
+    //Either face may still be loading: a missing one drops its avatar, never the page
+    let profileImage: UIImage?
+    let userImage: UIImage?
 
     @Environment(\.dismiss) private var dismiss
 

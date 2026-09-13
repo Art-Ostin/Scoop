@@ -43,13 +43,15 @@ struct InvitesContainer: View {
                     .animation(.move, value: isSingleInvite) //Answering the second-to-last invite settles the card wider rather than snapping
                 }
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        ScoopButton(style: .glass, shape: .capsule, size: .medium) {
-                            
-                        } label: {
-                            Text("Hello")
-                                .frame(width: 300)
-                                .frame(height: 40)
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        ForEach(0..<5, id: \.self) { _ in
+                            ScoopButton(style: .glass, shape: .capsule) {
+                            } label: {
+                                Text("Hello")
+                                    .font(.body(12, .bold))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                            }
                         }
                     }
                     .hideToolbarBackground()
@@ -58,16 +60,32 @@ struct InvitesContainer: View {
         }
         .ignoresSafeArea()
         .background { TimePickerWarmUp() }
+        .task { await vm.ensureUserImageLoaded() } //Your own face for the history rows; loaded here so it's ready before the sheet opens
         .sheet(item: $ui.showInviteHistory) { eventProfile in
-            if let profileImage = eventProfile.image, let userImage = vm.userImage {
-                InviteHistoryContainer(event: eventProfile.event, profileImage: profileImage, userImage: userImage)
-            }
+            InviteHistoryContainer(event: eventProfile.event, profileImage: eventProfile.image, userImage: vm.userImage)
         }
     }
 }
 
 //1. Logic for ProfileContainer
 extension InvitesContainer {
+    
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        
+        ToolbarItem(placement: .topBarLeading) {
+            ScoopButton(style: .glass, shape: .capsule) {
+                
+            } label: {
+                Text("Hello")
+                    .font(.body(12, .bold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+            }
+        }
+        
+    }
     
     private func inviteSlot(_ invite: EventProfile) -> some View {
         InviteSlot(

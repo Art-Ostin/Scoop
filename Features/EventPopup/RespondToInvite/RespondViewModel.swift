@@ -16,13 +16,13 @@ class RespondViewModel {
     let defaults: DefaultsManaging
     let session: Session
     let profile: UserProfile
-    let userImage: UIImage //Needed for the sheet container
+    var userImage: UIImage? //Needed for the sheet container; InvitesViewModel pushes it in once it lands
 
     //Draft state (persisted to defaults on every edit)
     var respondDraft: RespondDraft {didSet {updateDefaults()}}
-    
-    
-    init(invite: EventProfile , defaults: DefaultsManaging, session: Session, userImage: UIImage) {
+
+
+    init(invite: EventProfile , defaults: DefaultsManaging, session: Session, userImage: UIImage?) {
         self.profile = invite.profile
         self.defaults = defaults
         self.session = session
@@ -51,13 +51,6 @@ class RespondViewModel {
     private func deleteDraft() {
         respondDraft.newEvent = .init()
     }
-    
-    private func fetchUserImage() async {
-        guard userImage == nil else { return }
-        
-    }
-    
-    
 }
 
 @Observable final class RespondUIState {

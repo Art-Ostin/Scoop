@@ -26,11 +26,7 @@ struct RespondToMessageBar: View {
     private static let holdProbe = Array(repeating: "x", count: visibleLines).joined(separator: "\n")
     private static let textLimit = 130
     private static let countWarning = 25
-
-    //The bar's inset above its glass: the respond card's focus lift reads it
-    static let fieldTopInset: CGFloat = 6
-    //…and below: with the action row's own 4, the glass ↔ CTA gap
-    static let fieldBottomInset: CGFloat = 18
+    private static let fieldBottomInset: CGFloat = 18 //Geometry: with the action row's own 4, the glass ↔ CTA gap
 
     //The note's height in lines: its share of the `visibleLines` the field holds at
     private var lineCount: Int {
@@ -40,13 +36,15 @@ struct RespondToMessageBar: View {
     private var verticalPad: CGFloat { lineCount > 1 || isFixedHeight ? Spacing.xs : Spacing.sm }
     private var fieldHeight: CGFloat { (overflows || isFixedHeight ? holdHeight : noteHeight) + verticalPad * 2 }
 
+    //Focused, the note scrolls to reveal what sits above it: all of that scroll lives in RespondNoteReveal
     var body: some View {
-        noteField
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, Self.fieldBottomInset)
-//            .padding(.top, Self.fieldTopInset)
-            .overlay(alignment: .bottomTrailing) { doneButton }
-            .padding(.horizontal, Spacing.lg)
+        RespondNoteReveal(isFocused: isFocused, text: text, restHeight: fieldHeight + Self.fieldBottomInset) {
+            noteField
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, Self.fieldBottomInset)
+        } pinned: {
+            doneButton
+        }
     }
 }
 
@@ -69,6 +67,7 @@ extension RespondToMessageBar {
         .defaultScrollAnchor(.bottom, for: .initialOffset)
         .scrollDisabled(!overflows || !isFocused.wrappedValue) //Only while focused, where the shell holds the card's drag
         .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.never) //Declared here, not inherited from the reveal scroll
         .onScrollGeometryChange(for: EdgeOverflow.self, of: { EdgeOverflow($0) }) { hidden = $1 }
         .frame(height: fieldHeight)
         .mask { edgeFadeMask }
@@ -141,7 +140,6 @@ extension RespondToMessageBar {
                 .padding(.horizontal, Spacing.xxs)
         }
         .blurPop(visible: isFocused.wrappedValue)
-        .alignmentGuide(.bottom) { $0[.top] - Spacing.xs } //Hangs `Spacing.xs` under the bar's foot
         .eventZoomKeyboardClearance() //The lowest thing on the focused card: the shell raises it clear of the keyboard
     }
 }

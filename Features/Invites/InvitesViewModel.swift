@@ -49,7 +49,7 @@ extension InvitesViewModel {
             invite: invite,
             defaults: defaults,
             session: session,
-            userImage: userImage ?? UIImage()
+            userImage: userImage
         )
         respondVMs[invite.event.id] = new
         return new
@@ -74,10 +74,13 @@ extension InvitesViewModel {
         }
     }
 
-    //The signed-in user's own face, for history rows they wrote. Cached on the VM rather than in
+    //The signed-in user's own face, for history rows they wrote. Pushed into the cached RespondViewModels
+    //too: the cards build theirs on first render, before this lands
     func ensureUserImageLoaded() async {
         guard userImage == nil else { return }
-        userImage = try? await imageLoader.fetchFirstImage(profile: session.user)
+        guard let image = try? await imageLoader.fetchFirstImage(profile: session.user) else { return }
+        userImage = image
+        respondVMs.values.forEach { $0.userImage = image }
     }
 
     func draftBinding(for invite: EventProfile) -> Binding<RespondDraft> {

@@ -296,7 +296,7 @@ struct InviteHistoryIconButton: View {
     
     var body: some View {
         ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
-            showHistorySheet = false
+            showHistorySheet = true
         } label: {
             Image(.historyIcon)
                 .resizable()

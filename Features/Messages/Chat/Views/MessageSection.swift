@@ -25,31 +25,35 @@ struct MessageSection: View {
                     .transition(flight == nil ? slideIn : growth(ChatDayDivider.height + Spacing.md).combined(with: .opacity))
             }
             
-            HStack(alignment: .bottom, spacing: 6) {
-                if (phase != nil || vm.isNextNewAuthor(for: message)) && !vm.isMyChat(message) {
-                    if let image {
-                        SmallImage(image: image, size: 30, isCircle: true)
-                    }
-                }
-                
-                
-                MessageBubbleView(
-                    chat: message,
-                    nextIsNewAuthor: phase != nil || vm.isNextNewAuthor(for: message),
-                    isMyChat: vm.isMyChat(message),
-                    containerWidth: ui.containerWidth,
-                    showsTime: !vm.isPending(message) && (phase == nil || phase == .dissolving),
-                    onBodyFrame: phase == nil ? nil : { ui.reportBody(frame: $0, for: message.id) }
-                )
-                //A row a send flight is carrying stays a ghost until the clone lands on it
-                .opacity(phase == .flying ? 0 : 1)
-                .transition(flight.map { growth($0.rowHeight) } ?? slideIn)
-            }
+            MessageBubbleView(
+                chat: message,
+                nextIsNewAuthor: phase != nil || vm.isNextNewAuthor(for: message),
+                isMyChat: vm.isMyChat(message),
+                containerWidth: ui.containerWidth,
+                showsTime: !vm.isPending(message) && (phase == nil || phase == .dissolving),
+                onBodyFrame: phase == nil ? nil : { ui.reportBody(frame: $0, for: message.id) }
+            )
+            //An overlay inside the row's ghost and transition: the photo takes no room, so moving it never shifts a bubble
+            .overlay(alignment: .bottomLeading) { senderPhoto }
+            //A row a send flight is carrying stays a ghost until the clone lands on it
+            .opacity(phase == .flying ? 0 : 1)
+            .transition(flight.map { growth($0.rowHeight) } ?? slideIn)
         }
     }
 }
 
 extension MessageSection {
+
+    //The sender's photo beside the last bubble of their run, in the column received bubbles leave for it
+    @ViewBuilder
+    private var senderPhoto: some View {
+        if let image, !vm.isMyChat(message), vm.isNextNewAuthor(for: message) {
+            SmallImage(image: image, size: BubbleMetrics.avatarSize, isCircle: true)
+                .padding(.leading, BubbleMetrics.avatarLeading)
+                //Level with the tail's tip: the row ends a run gap below the body, and the tail hangs into it
+                .padding(.bottom, BubbleMetrics.runGap - MessageBubbleShape.tailDrop(for: BubbleMetrics.cornerRadius))
+        }
+    }
 
     private var slideIn: AnyTransition {
         .move(edge: .bottom).combined(with: .opacity)

@@ -32,11 +32,13 @@ struct RespondToInviteContainer: View {
             VStack(spacing: 0) {
                 Group {
                     eventInfoSection
-                        .getHeight($rowsHeight)
-                        .allowsHitTesting(!isFocused) //Under the photo's edge while lifted: a clip hides, it does not fence
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+                            withAnimation(rowsHeight > 0 ? .transition : nil) { rowsHeight = height } //A rewrap mid-focus rides the card's resize clock; the first reading lands bare
+                        }
+                        .noteRevealRows(isFocused: isFocused, room: noteRevealRoom) //Slide up behind the photo as the note's scroll grows over them (RespondNoteReveal)
                     messageSection
+                        .environment(\.noteRevealRoom, noteRevealRoom)
                 }
-                .offset(y: isFocused ? -focusLift : 0)
             }
             .clipped()
             .animation(.move, value: isFocused) //A position settle, on the clock the shell raises the whole card on
@@ -170,8 +172,6 @@ extension RespondToInviteContainer {
             }
         }
     }
-    
-    
 
     var inertBackButton: some View {
         EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen, inert: true)
@@ -188,9 +188,8 @@ extension RespondToInviteContainer {
     var isComposeInviteScreen: Bool { type == .newEvent && composeUI.showConfirmScreen != true }
     var isConfirmNewEvent: Bool { type == .newEvent && composeUI.showConfirmScreen == true }
 
-    var focusLift: CGFloat {
-        max(rowsHeight + RespondToMessageBar.fieldTopInset - Spacing.sm, 0)
-    }
+    //How far the focused note's scroll grows up over the rows (RespondNoteReveal)
+    private var noteRevealRoom: CGFloat { RespondNoteRevealSpec.room(over: rowsHeight) }
 }
 
 
@@ -278,12 +277,18 @@ extension RespondToInviteContainer {
     @ViewBuilder
     var messageSection: some View {
         if type == .newTime {
-            RespondToMessageBar(
-                text: $vm.respondDraft.newTime.respondMessage,
-                isFocused: $isFocused,
-                isFixedHeight: showsNoteTitle //The mirror, neve
-            )
-                .transition(Self.bodySwap())
+            
+            if !vm.respondDraft.newTime.respondMessage.isEmpty && !isFocused {
+                let chat = ChatMessage(authorId: "", recipientId: "", content: vm.respondDraft.newTime.respondMessage)
+                MessageBubbleView(chat: chat, nextIsNewAuthor: true, isMyChat: true)
+            } else {
+                RespondToMessageBar(
+                    text: $vm.respondDraft.newTime.respondMessage,
+                    isFocused: $isFocused,
+                    isFixedHeight: showsNoteTitle //The mirror, neve
+                )
+                    .transition(Self.bodySwap())
+            }
         }
     }
     
