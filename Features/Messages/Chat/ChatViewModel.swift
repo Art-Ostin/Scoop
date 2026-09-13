@@ -21,7 +21,8 @@ final class ChatViewModel {
     let eventProfile: EventProfile
 
     var messages: [ChatMessage] = []
-    //Own messages the server has not confirmed yet: their bubbles show a clock until the server's timestamp arrives
+    //Own messages the server has not confirmed yet: their bubbles show a clock until the server's timestamp arrives.
+    //A discarded send's id stays, so its row leaves still wearing the clock (ids are minted per send, never reused).
     var pendingIds: Set<String> = []
 
     //Ids whose listener echo has arrived: the write sits in Firestore's local store and will reach the server,
@@ -99,7 +100,7 @@ final class ChatViewModel {
             chatLog.error("send \(id, privacy: .public) is stored; its thread bookkeeping failed: \(error.localizedDescription, privacy: .public)")
             return false
         }
-        pendingIds.remove(id)
+        //Its id stays pending: cleared, the leaving row would blur its clock into a time for a message never sent
         withAnimation(.move) {
             messages.removeAll { $0.id == id }
         }
@@ -115,7 +116,12 @@ final class ChatViewModel {
             for try await change in chatRepo.messagesTracker(eventId: eventProfile.id) {
                 switch change {
                 case .initial(let initial):
+                    //A (re)started listener: every row it delivers sits in Firestore's local store, and a send the server
+                    //confirmed while no listener was attached arrives stamped here with no `.modified` behind it
+                    echoed.formUnion(initial.compactMap(\.id))
+                    let confirmed = pendingIds.intersection(initial.compactMap { $0.dateCreated != nil ? $0.id : nil })
                     self.messages = initial.reversed()
+                    if !confirmed.isEmpty { Task { @MainActor in self.pendingIds.subtract(confirmed) } }
                 case .added(let message):
                     //Our own send echoes back within milliseconds; anything else is a received message
                     if !merge(message) {
@@ -176,6 +182,10 @@ final class ChatUIState {
     var barFrame: CGRect = .zero //The input bar, the flight layer's host; its top is the list's floor
     var sendPressed = false
     var flights: [SendFlight] = []
+    //Bumped by a send whose composer collapses by a line or more: the list scrolls to its floor. The collapse is an
+    //inset change the scroll view clamps against, after which the bottom anchor no longer follows the row's growth
+    //(sim-traced: offset held while the list ended 94 pt above its floor, the row hidden under the bar)
+    var floorRequest = 0
     //Whether the list rests at its floor and whether the field holds a draft — observed, and written only when they
     //flip: together they pin the list to its floor while a draft grows the field, so the last message stays in view
     //and the field's collapse at T0 leaves the list exactly at its floor for the flight
@@ -218,9 +228,10 @@ final class ChatUIState {
     //now, so a collapsing field or a keyboard leaving mid-flight carries the landing with it.
     func landing(for flight: SendFlight) -> CGRect {
         let body = bodyFrames[flight.id]
-        let size = body.map { CGSize(width: $0.width.rounded(), height: $0.height.rounded()) } ?? flight.rowSize
+        //Unrounded: a body is 40.2871 pt tall, and rounding it to whole points lands the clone short of the row
+        let size = body?.size ?? flight.rowSize
         let anchoredTop = barFrame.minY - BubbleMetrics.runGap - size.height
-        let top = body.map { min($0.minY.rounded(), anchoredTop) } ?? anchoredTop
+        let top = body.map { min($0.minY, anchoredTop) } ?? anchoredTop
         return CGRect(x: flight.trailingX - size.width, y: top, width: size.width, height: size.height)
     }
 }

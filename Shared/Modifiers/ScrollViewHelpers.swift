@@ -16,6 +16,10 @@ struct HorizontalScrollView<Content: View>: View {
 
     var peek: CGFloat = 0
 
+    ///Keeps the page on its slot while the pager itself changes width (see `PageHoldOnResize`). Off by default: a pager
+    ///that swaps pages while it resizes is animating its own offset, and rounding it to a page would cut that swap
+    var holdsPageOnResize: Bool = false
+
     @ViewBuilder var content: Content
 
     @ViewBuilder
@@ -34,6 +38,7 @@ struct HorizontalScrollView<Content: View>: View {
                 content
             }
             .scrollTargetLayout()
+            .background { if holdsPageOnResize { PageHoldOnResize() } }
         }
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
@@ -51,6 +56,84 @@ private extension View {
     func peekClipDisabled(_ disabled: Bool) -> some View {
         if disabled { scrollClipDisabled() } else { self }
     }
+}
+
+///A resizing pager re-lays its container-width pages at the new width on every frame of the resize, but `.paging` leaves
+///the offset in points: page k drifts k × Δwidth off its slot and a strip of its neighbour shows (the respond card's photo,
+///as the focused note takes the card full-bleed). Measured on the sim, SwiftUI re-seats nothing — not
+///`defaultScrollAnchor(for: .sizeChanges)`, not an id-based `ScrollPosition`, and a `scrollTo` written mid-resize lands a
+///whole resize late. So this watches the scroll view itself and puts the offset back on page × width in the same layout
+///pass, every frame of the resize
+private struct PageHoldOnResize: UIViewRepresentable {
+
+    final class MarkerView: UIView {
+        private var observations: [NSKeyValueObservation] = []
+        private var width: CGFloat = 0
+        private var contentWidth: CGFloat = 0
+        private var heldPage: CGFloat? //The page a resize is holding, until a finger or a real page change moves the pager on
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            observations = []
+            heldPage = nil
+            guard window != nil else { return }
+            var view: UIView? = superview
+            while let current = view, !(current is UIScrollView) { view = current.superview }
+            guard let scroll = view as? UIScrollView else { return }
+            width = scroll.bounds.width
+            contentWidth = scroll.contentSize.width
+            //The bounds, not the content offset: a resize moves no offset, so the offset would never report it
+            observations = [
+                scroll.layer.observe(\.bounds) { [weak self, weak scroll] _, _ in
+                    MainActor.assumeIsolated { if let scroll { self?.boundsChanged(scroll) } }
+                },
+                scroll.observe(\.contentSize) { [weak self, weak scroll] _, _ in
+                    MainActor.assumeIsolated { if let scroll { self?.contentChanged(scroll) } }
+                },
+            ]
+        }
+
+        private func boundsChanged(_ scroll: UIScrollView) {
+            let newWidth = scroll.bounds.width
+            guard newWidth > 0 else { return }
+            if scroll.isTracking { heldPage = nil } //Never under a finger: its release settles on a page of the new width
+            guard newWidth != width else {
+                //The origin alone: a swipe, a settle, or a clamp being corrected. Half a page is the pager going elsewhere
+                if let page = heldPage, abs(scroll.contentOffset.x - page * width) > width / 2 { heldPage = nil }
+                return
+            }
+            let oldWidth = width
+            width = newWidth
+            guard oldWidth > 0, !scroll.isTracking else { return }
+            let page = heldPage ?? (scroll.contentOffset.x / oldWidth).rounded()
+            heldPage = page
+            hold(scroll, on: page)
+        }
+
+        private func contentChanged(_ scroll: UIScrollView) {
+            guard scroll.contentSize.width != contentWidth else { return } //SwiftUI re-sets the same size on every pass
+            contentWidth = scroll.contentSize.width
+            guard let heldPage, !scroll.isTracking else { return }
+            hold(scroll, on: heldPage) //A size landing late re-seats the clamp it caused
+        }
+
+        private func hold(_ scroll: UIScrollView, on page: CGFloat) {
+            let target = page * width
+            //The content width lands a frame behind the bounds, so the last page's slot overhangs it and the offset would
+            //clamp short of it. Grown by that lag only, never a page: SwiftUI sets the same width on its next pass
+            let shortfall = target + width - scroll.contentSize.width
+            if shortfall > 0, shortfall < width { scroll.contentSize.width = target + width }
+            if abs(scroll.contentOffset.x - target) > 0.01 { scroll.contentOffset.x = target }
+        }
+    }
+
+    func makeUIView(context: Context) -> MarkerView {
+        let view = MarkerView()
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ uiView: MarkerView, context: Context) {}
 }
 
 

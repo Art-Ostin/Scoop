@@ -140,7 +140,7 @@ struct InviteCarousel: View {
     }
 
     private var pager: some View {
-        HorizontalScrollView(progress: $scrollProgress, position: position) {
+        HorizontalScrollView(progress: $scrollProgress, position: position, holdsPageOnResize: true) { //The card it rides can widen under a later page
             ForEach(images, id: \.self) { image in
                 InvitePagePhoto(image: image, blurRect: blurRect)
                     .containerRelativeFrame(.horizontal)

@@ -19,7 +19,7 @@ enum MessageBubbleTail {
 ///corner radius, so the tail keeps its proportions at any bubble size. `rect` is the body; the tail
 ///extends below `rect.maxY` by `tailDrop(for:)`.
 struct MessageBubbleShape: Shape {
-    var messageCornerRadius: CGFloat = 18
+    var messageCornerRadius: CGFloat = BubbleMetrics.cornerRadius //Messages' radius: half the one-line body (20.14 at Large)
     var tail: MessageBubbleTail = .none
 
     ///How far the tail hangs below the body, so callers can reserve room for it

@@ -12,6 +12,7 @@ struct RespondToMessageBar: View {
     //Injected
     @Binding var text: String
     var isFocused: FocusState<Bool>.Binding
+    var isFixedHeight = false //True: the field stands at its `visibleLines` height from the first line, rather than growing into it. Flip it under `.transition`: a landed card snaps a bare resize
 
     //Local view state
     @State private var noteHeight: CGFloat = 0
@@ -36,8 +37,8 @@ struct RespondToMessageBar: View {
         holdHeight > 0 ? Int((noteHeight / holdHeight * CGFloat(Self.visibleLines)).rounded()) : 1
     }
     private var overflows: Bool { lineCount > Self.visibleLines }
-    private var verticalPad: CGFloat { lineCount > 1 ? Spacing.xs : Spacing.sm }
-    private var fieldHeight: CGFloat { (overflows ? holdHeight : noteHeight) + verticalPad * 2 }
+    private var verticalPad: CGFloat { lineCount > 1 || isFixedHeight ? Spacing.xs : Spacing.sm }
+    private var fieldHeight: CGFloat { (overflows || isFixedHeight ? holdHeight : noteHeight) + verticalPad * 2 }
 
     var body: some View {
         noteField

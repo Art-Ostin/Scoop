@@ -172,6 +172,14 @@ extension MessageInputBar {
         SendMotionLog.begin(flight: flight.id, birth: flight.birth, landing: ui.landing(for: flight), distanceFromFloor: ui.distanceFromFloor)
         #endif
         let message = withAnimation(SendChoreography.shift) { vm.stage(text: draft, id: id, at: now) }
+        //A composer taller than one line collapses at T0: once the row is in, the list is brought to its floor on the
+        //shift spring (a scroll issued in this update would be clamped to the old content and dropped)
+        if flight.birth.height > BubbleMetrics.fieldSingleLineHeight + 1 {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(50))
+                if ui.index(of: flight.id) != nil { ui.floorRequest += 1 }
+            }
+        }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(SendChoreography.duration))
             handOff(flight.id)
@@ -333,6 +341,7 @@ enum SendMotionLog {
         log.notice("send unflown: distanceFromFloor=\(distanceFromFloor, privacy: .public) field=\(fieldFrame.debugDescription, privacy: .public)")
     }
 
+
     //One flight per log: a send overlapping one still being logged flies, but is not measured
     static func begin(flight: UUID, birth: CGRect, landing: CGRect, distanceFromFloor: CGFloat) {
         guard current == nil else { return }
@@ -472,7 +481,7 @@ private struct SendBubbleClone: View {
         let right = flight.birth.maxX + (flight.trailingX - flight.birth.maxX) * pose.contraction - origin.x
         let top = flight.birth.minY + (landing.minY - flight.birth.minY) * pose.rise - origin.y
         //The text's top inset eases from the field's to the bubble's on that ease too, so the line does not jump at T0
-        let textInset = BubbleMetrics.fieldVertical + (BubbleMetrics.vertical - BubbleMetrics.fieldVertical) * pose.contraction
+        let textInset = BubbleMetrics.fieldVertical + (BubbleMetrics.top - BubbleMetrics.fieldVertical) * pose.contraction
         let veil = flight.isMultiline ? max(0, 1 - t / SendChoreography.veilDuration) : 0
         //The column's width, not the row's measured one: a rounded measurement a hair under the text's own width wraps it
         let textWidth = max(1, flight.textWidth)

@@ -17,18 +17,31 @@ enum BubbleMetrics {
     static var font: Font { .body(fontSize, weight) }
     //Scaled the way the Text it measures scales: `.custom(_:size:)` follows Dynamic Type relative to the body style
     static var uiFont: UIFont { UIFontMetrics(forTextStyle: .body).scaledFont(for: .body(fontSize, weight)) }
-    static let lineSpacing: CGFloat = 5
+    //Apple Messages' text balloon, read from ChatKit at runtime at every text size and confirmed on device pixels: the line
+    //pitch of the body style less 2 (20 at Large), 10 pt of inset above and below the text (16 at accessibility sizes), and
+    //the capital band centred. ModernEra keeps its size and reproduces those body heights, that pitch and that centre.
+    private static var messagesFont: UIFont { UIFont.preferredFont(forTextStyle: .body) } //SF at the reader's text size
+    //Geometry: ChatKit's 10 pt text inset, scaled 1.6x at accessibility sizes. Read from the body font itself (Body passes
+    //23 pt only at accessibility sizes), not the current trait collection, which a send button's action may not carry
+    private static var messagesInset: CGFloat { messagesFont.pointSize > 23 ? 16 : 10 }
+    static var linePitch: CGFloat { messagesFont.lineHeight + messagesFont.leading - 2 } //Geometry: ChatKit's short-body pitch
+    static var lineSpacing: CGFloat { linePitch - uiFont.lineHeight }
     static let leading = Spacing.md
     static let trailing = Spacing.md
-    static let vertical: CGFloat = 10 //Geometry: centres the 16 pt line in a 36 pt one-line bubble
     //The draft field's own top and bottom inset: its one line sits level with the send button beside it
     static var fieldVertical: CGFloat { max(0, (ButtonSize.large.size - uiFont.lineHeight) / 2) }
     static let runGap = Spacing.sm //Clearance under the last bubble of a run, where its tail hangs
     static let badgeRow = Spacing.sm //The extra line a wrapped bubble opens under its text for the hour badge
     static let badgeGap = Spacing.labelGap //Between the inline hour badge and the text's last glyph
-    static var cornerRadius: CGFloat { MessageBubbleShape().messageCornerRadius } //The shape owns its measured radius
-    //A one-line bubble body: ModernEra's line height is its point size
-    static var singleLineHeight: CGFloat { uiFont.lineHeight + vertical * 2 }
+    //A one-line bubble body, Messages' height at every text size (40.2871 at Large)
+    static var singleLineHeight: CGFloat { 2 * messagesInset + max(messagesFont.ascender - messagesFont.descender, linePitch) }
+    //The text's top inset centres its capitals where Messages centres SF's; the bottom inset makes the body height exact
+    static var top: CGFloat { messagesInset + messagesFont.ascender - messagesFont.capHeight / 2 - (uiFont.ascender - uiFont.capHeight / 2) }
+    static var bottom: CGFloat { singleLineHeight - uiFont.lineHeight - top }
+    static var cornerRadius: CGFloat { singleLineHeight / 2 } //Messages' balloon radius: a one-line body is a pill
+    //The hour badge's bottom inset keeps its baseline where it sat under the text's last line (an 8 pt badge padding
+    //under the former 10 pt text inset)
+    static var badgeBottom: CGFloat { bottom - 2 } //Geometry: the text's bottom inset less the badge's 2 pt lift
     //The empty draft field: the same line in the field's own insets
     static var fieldSingleLineHeight: CGFloat { uiFont.lineHeight + fieldVertical * 2 }
 }
@@ -56,7 +69,8 @@ struct MessageBubbleView: View {
             .lineSpacing(BubbleMetrics.lineSpacing)
             .padding(.leading, BubbleMetrics.leading)
             .padding(.trailing, BubbleMetrics.trailing + placement.reservation)
-            .padding(.vertical, BubbleMetrics.vertical)
+            .padding(.top, BubbleMetrics.top)
+            .padding(.bottom, BubbleMetrics.bottom)
             .padding(.bottom, placement.isBelow ? BubbleMetrics.badgeRow : 0)
             .background(bubbleShape.fill(isMyChat ? Color.accent : Color.fillGray))
             .background(bodyFrameReporter)
@@ -70,6 +84,7 @@ struct MessageBubbleView: View {
             .padding(.bottom, nextIsNewAuthor ? BubbleMetrics.runGap : 0)
     }
 }
+
 
 //The hour badge's placement
 extension MessageBubbleView {
@@ -125,7 +140,8 @@ extension MessageBubbleView {
         let textWidth = max(0, maxBubbleWidth - BubbleMetrics.leading - BubbleMetrics.trailing - placement.reservation)
         let layout = textLayoutSize(text: text, width: textWidth, font: BubbleMetrics.uiFont, lineSpacing: BubbleMetrics.lineSpacing)
         let width = ceil(layout.width) + BubbleMetrics.leading + BubbleMetrics.trailing + placement.reservation
-        let height = ceil(layout.height) + BubbleMetrics.vertical * 2 + (placement.isBelow ? BubbleMetrics.badgeRow : 0)
+        //Whole points of text, less float dust: a derived line spacing (15.000000000000007 at the largest size) must not ceil up a point
+        let height = ceil(layout.height - 0.001) + BubbleMetrics.top + BubbleMetrics.bottom + (placement.isBelow ? BubbleMetrics.badgeRow : 0)
         return CGSize(width: width, height: height)
     }
 
@@ -165,6 +181,9 @@ struct MessageTimeBadge: View {
     let showsTime: Bool
     let isMyChat: Bool
 
+    //The clock scales with the time it stands in for: `.body(10)` follows Dynamic Type, `.icon` is a fixed system size
+    @ScaledMetric(relativeTo: .body) private var clockSize: CGFloat = 10
+
     var body: some View {
         timeText
             .opacity(0) //Holds the time's size while the clock shows
@@ -176,7 +195,7 @@ struct MessageTimeBadge: View {
                             .transition(.blurReplace)
                     } else {
                         Image(systemName: "clock")
-                            .font(.icon(10, .regular))
+                            .font(.icon(clockSize, .regular))
                             .accessibilityLabel("Sending")
                             .transition(.blurReplace)
                     }
@@ -184,7 +203,8 @@ struct MessageTimeBadge: View {
                 .animation(.transition, value: showsTime)
             }
             .padding(.horizontal, Spacing.sm)
-            .padding(.vertical, Spacing.xs)
+            .padding(.top, Spacing.xs)
+            .padding(.bottom, BubbleMetrics.badgeBottom)
             .foregroundStyle(isMyChat ? Color.white.opacity(0.7) : Color.textTertiary)
     }
 

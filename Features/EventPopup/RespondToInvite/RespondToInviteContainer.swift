@@ -22,7 +22,7 @@ struct RespondToInviteContainer: View {
 
     //Local view state
     @State private var rowsHeight: CGFloat = 0 //The type/time/place block as laid out — what the focused note scrolls behind the photo
-    @State private var showsNoteTitle = false //`isFocused` as the title reads it — never the raw focus (see `retitle`)
+    @State private var showsNoteTitle = false //`isFocused` as the title and the note's full height read it — never the raw focus (see `retitle`)
     @State private var noteTitleGate = KeyboardSettleGate() //A focus's retitle waits here until the keyboard's arrival stops stalling frames
 
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
@@ -226,7 +226,7 @@ extension RespondToInviteContainer {
             timePopupOpen: $composeUI.timePopupOpen, //One owner for both screens' time platter
             timePopupOpenDelayed: composeUI.delayedTimePopupOpen, //…and the chrome's own 120/40ms clock
             actionsBelow: true, //adjusts padding in this view if actions below
-            shortSpacing: type == .newTime,
+            shortSpacing: false,
             largeText: true,
             heroLanding: true, //The invite card's own time and place lines fly onto these rows
             bandGround: composeUI.timeBand, //The time platter's band reports through this row
@@ -272,17 +272,23 @@ extension RespondToInviteContainer {
     }
 }
 
-
-
 //Message Section
 extension RespondToInviteContainer {
     
     @ViewBuilder
     var messageSection: some View {
         if type == .newTime {
-            RespondToMessageBar(text: $vm.respondDraft.newTime.respondMessage, isFocused: $isFocused)
+            RespondToMessageBar(
+                text: $vm.respondDraft.newTime.respondMessage,
+                isFocused: $isFocused,
+                isFixedHeight: showsNoteTitle //The mirror, never the raw focus: UIKit's focus write carries no transaction, so the card would snap
+            )
                 .transition(Self.bodySwap())
         }
+    }
+    
+    private var inviteHasMessage: Bool {
+        vm.respondDraft.originalInvite.event.message?.isEmpty == false
     }
     
     private var pastResponseButton: some View {
