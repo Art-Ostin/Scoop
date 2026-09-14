@@ -13,6 +13,7 @@ struct ProfileImageView: View {
     let images: [UIImage]
     let isUserProfile: Bool
     var selectedIndex: Binding<Int>? = nil //Reports the settled page used to seed Quick Invite.
+    @Environment(\.zoomHeroContainer) private var zoomHero //Present only inside the profile zoom, which hosts the carousel itself
 
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -25,13 +26,11 @@ struct ProfileImageView: View {
     var body: some View {
         VStack(spacing: Spacing.lg) {
             
-            //If its user profile, no imageCarousel zoom so must create it manually here
+            //The profile zoom hosts the carousel itself. Anywhere else — your own profile, or one a lens cover opened — the
+            //pager is drawn here, and its pages are the photo a lens cover grows into
             Group {
-                if isUserProfile {
+                if isUserProfile || zoomHero == nil {
                     UserProfileImagePager(images: images)
-                        .onAppear {
-                            print("Correcyly triggered this mode")
-                        }
                 } else {
                     ImageCarousel(horizontalPadding: 8, aspectRatio: 1.05)
                 }
@@ -106,9 +105,9 @@ struct UserProfileImagePager: View {
                     .resizable()
                     .scaledToFill()
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.image))
+            .lensCoverTarget(image: img, cornerRadius: CornerRadius.image) //Your own profile opens out of, and closes into, the Messages avatar
             .padding(.horizontal, 8)
             .containerRelativeFrame(.horizontal)
-        
     }
 }

@@ -40,7 +40,7 @@ struct EventDetails: View {
         VStack(spacing: Spacing.md + 2) {
             detailSection(title: "WHAT", mainText: type.longTitle, image: type.emoji, isType: true)
             LightDivider()
-            detailSection(title: "WHEN", mainText: FormatEvent.dayAndTime(time), image: "EventClockIcon")
+            detailSection(title: "WHEN", mainText: FormatEvent.shortDayAndTime(time), image: "EventClockIcon")
             LightDivider()
             detailSection(title: "WHERE", mainText: place.name ?? place.address ?? "Event Place?", image: "EventMapIcon")
         }

@@ -69,6 +69,11 @@ public enum FormatEvent {
     static func hourTime(_ date: Date) -> String {
         date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
     }
+
+    //The day alone, in the region's order: "Sep 12", or "12 Sep"
+    static func shortMonthDay(_ date: Date) -> String {
+        date.formatted(.dateTime.month(.abbreviated).day())
+    }
     
     //Format event Place
     static func placeName(_ place: EventLocation) -> String {

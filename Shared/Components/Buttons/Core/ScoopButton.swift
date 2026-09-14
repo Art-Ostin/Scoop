@@ -96,8 +96,19 @@ private struct ScoopGlassSurface<S: Shape>: ViewModifier {
         if #available(iOS 26.0, *) {
             content.glassEffect(clear ? .clear.interactive() : .regular.interactive(), in: shape)
         } else {
-            content.background(shape.fill(.ultraThinMaterial).brightness(0.06))
+            content.background(ScoopGlassStandIn(shape: shape))
         }
+    }
+}
+
+// The pre-26 glass look as a plain material fill: ScoopGlassSurface's fallback, and a stand-in that may be
+// RESIZED every frame, which a Liquid Glass lens may not (a lens re-rendered at a new size each frame costs
+// most of the frame rate — the event zoom's corner morph bridges two fixed-size lenses with this)
+struct ScoopGlassStandIn<S: Shape>: View {
+    let shape: S
+
+    var body: some View {
+        shape.fill(.ultraThinMaterial).brightness(0.06)
     }
 }
 

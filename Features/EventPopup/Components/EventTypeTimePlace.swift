@@ -56,7 +56,7 @@ extension EventTypeTimePlace {
                 Text(invite.type.emoji)
                     .font(.body(16, .bold))
                     .frame(width: iconWidth)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 1) {
                     eventTitleAndInfo
                     if let visibleMessage { eventMessage(message: visibleMessage) }
                 }

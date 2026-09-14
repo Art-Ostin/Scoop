@@ -19,9 +19,12 @@ struct InvitesContainer: View {
 
     //Local view state
     @State private var ui = InvitesUIState()
-    
+    @State private var isAtTopOfScroll = true
+    @State private var scrollPosition = ScrollPosition()
 
     @State var scrollProgress: Double = 0
+    
+    @Namespace var infoZoom
 
     private var isSingleInvite: Bool { vm.invites.count == 1 }
     private var peek: CGFloat { isSingleInvite ? 0 : Spacing.gutter }
@@ -33,37 +36,32 @@ struct InvitesContainer: View {
         ZoomNavigationStack {
             NavigationStack {
                 TabScrollView(type: .invites, showEmptyView: vm.invites.isEmpty) {
-                    HorizontalScrollView(progress: $scrollProgress, peek: peek) {
+                    HorizontalScrollView(progress: $scrollProgress, position: $scrollPosition, peek: peek) {
                         ForEach(vm.invites, id: \.self) { invite in
                             inviteSlot(invite)
+                                .id(invite.id)
                         }
                     }
                     .scrollClipDisabled()
                     .padding(.top, topPull)
-                    .animation(.move, value: isSingleInvite) //Answering the second-to-last invite settles the card wider rather than snapping
+                    .animation(.move, value: isSingleInvite)
                 }
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        ForEach(0..<5, id: \.self) { _ in
-                            ScoopButton(style: .glass, shape: .capsule) {
-                            } label: {
-                                Text("Hello")
-                                    .font(.body(12, .bold))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                            }
-                        }
-                    }
-                    .hideToolbarBackground()
-                }
+                .isAtTopOfScroll($isAtTopOfScroll)
+                .titleTravel($ui.titleTravel)
             }
         }
         .ignoresSafeArea()
+        .overlay(alignment: .topTrailing) { if vm.invites.count < 3 { infoIcon } else { eventsMenuBar } }
+        .overlay(alignment: .topLeading) { if vm.invites.count >= 3 { TitleInfoIcon(ui: ui) } }
         .background { TimePickerWarmUp() }
         .task { await vm.ensureUserImageLoaded() } //Your own face for the history rows; loaded here so it's ready before the sheet opens
         .sheet(item: $ui.showInviteHistory) { eventProfile in
             InviteHistoryContainer(event: eventProfile.event, profileImage: eventProfile.image, userImage: vm.userImage)
         }
+        .fullScreenCover(isPresented: $ui.showInfo) {
+            infoPage
+        }
+        
     }
 }
 
@@ -84,7 +82,11 @@ extension InvitesContainer {
                     .padding(.vertical, 4)
             }
         }
-        
+    }
+    
+    private func fetchDay(invite: EventProfile) -> String {
+        guard let date = invite.event.proposedTimes.firstDate else { return "" }
+        return FormatEvent.shortMonthDay(date)
     }
     
     private func inviteSlot(_ invite: EventProfile) -> some View {
@@ -99,9 +101,6 @@ extension InvitesContainer {
         )
         .containerRelativeFrame(.horizontal)
         .task { await vm.ensureImagesLoaded(for: invite.profile) }
-        .overlay(alignment: .topTrailing) {
-            InviteHistoryButton(showInviteHistory: $ui.showInviteHistory, eventProfile: invite)
-        }
     }
 }
 
@@ -146,4 +145,115 @@ extension InvitesContainer {
         responseCover?.close(cover)
     }
 }
+
+//Logic with the scroll Menu at the top
+extension InvitesContainer {
+    
+    //The chips scroll in their own lane that ends before the toggle, so none ever slides under it
+    private var eventsMenuBar: some View {
+        HStack(spacing: Spacing.xs) {
+            if ui.showEventsScrollMenu { actionRow }
+            toggleEventsMenuButton
+        }
+        .padding(.top, Spacing.md)
+    }
+
+    private var actionRow: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: Spacing.sm) {
+                ForEach(vm.invites, id: \.self) { invite in
+                    ScoopButton(style: .glass, shape: .capsule) {
+                        withAnimation(.move) { scrollPosition.scrollTo(id: invite.id) }
+                    } label: {
+                    Text("\(invite.profile.name) · \(fetchDay(invite: invite))")
+                        .padding(.vertical, 7)
+                        .padding(.horizontal, 10)
+                        .font(.body(12, .bold)) //+ your padding; each capsule hugs its label
+                    }
+                }
+            }
+            .instantPressDelivery()
+        }
+        .contentMargins(.leading, Spacing.gutter, for: .scrollContent)
+        .contentMargins(.trailing, Spacing.lg, for: .scrollContent) //The last chip can rest clear of the fade
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+        .mask { chipFadeMask }
+        .blurPop(visible: isAtTopOfScroll, anchor: .leading)
+    }
+
+    //Fades the chips out at the lane's end, before the toggle
+    private var chipFadeMask: some View {
+        HStack(spacing: 0) {
+            Color.black
+            LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                .frame(width: Spacing.lg)
+        }
+        .padding(.vertical, -Spacing.lg) //Taller than the row, so the chips' glass halos aren't cut above and below
+    }
+    
+    
+    private var infoIcon: some View {
+        ScoopButton(shape: Circle(), size: .medium) {
+            ui.showInfo = true
+        } label: {
+            Image(systemName: "info.circle")
+                .font(.body(15, .medium))
+                .foregroundStyle(Color.textPrimary)
+        }
+        .blurPop(visible: isAtTopOfScroll)
+        .padding(.top, Spacing.md)
+        .padding(.horizontal, Spacing.margin)
+        .matchedTransitionSource(id: "info", in: infoZoom)
+        .zIndex(0)
+    }
+    
+    
+    private var toggleEventsMenuButton: some View {
+        ScoopButton(shape: Circle(), size: .small) {
+            ui.showEventsScrollMenu.toggle()
+        } label: {
+            ZStack {
+                if ui.showEventsScrollMenu {
+                    Image(systemName: "eye.slash")
+                        .font(.body(12, .bold))
+                        .transition(.blurReplace)
+                } else {
+                    Text(vm.invites.count, format: .number)
+                        .font(.body(11, .bold))
+                        .transition(.blurReplace)
+                }
+            }
+            .animation(.transition, value: ui.showEventsScrollMenu)
+        }
+        .padding(.trailing, ui.showEventsScrollMenu ? Spacing.gutter : Spacing.margin)
+    }
+    
+    private var infoPage: some View {
+        Text("Hello World")
+            .navigationTransition(.zoom(sourceID: "info", in: infoZoom))
+    }
+}
+
+
+//Mirrors MeetContainer's TitleInfoIcon; only the leading changes with the title's width
+private struct TitleInfoIcon: View {
+
+    let ui: InvitesUIState
+
+    private let band: CGFloat = 44 //Geometry: the title's travel from rest to the nav bar
+
+    var body: some View {
+        Image(systemName: "info.circle")
+            .foregroundStyle(Color.textTertiary)
+            .font(.body(14, .medium))
+            .frame(width: 44, height: 44) //Geometry: finger-sized hit area around the 16pt glyph
+            .shrinkPress {ui.showInfo = true}
+            .padding(.top, 53)      //Geometry: 81 title centre − 22 half-box − 6 optical lift, from the safe-area top
+            .padding(.leading, 103) //Geometry: Meet's 81 + 22, the extra ink "Invites" has over "Meet" at 32pt bold
+            .offset(y: -ui.titleTravel)
+            .opacity(Double(1 - min(max(ui.titleTravel, 0) / band, 1))) //only the upward half fades
+    }
+}
+
 

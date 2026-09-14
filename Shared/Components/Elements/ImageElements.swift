@@ -17,7 +17,12 @@ struct AppImage: View {
     ///Widens the card past the type's own inset — a lone invite has no neighbour to leave room for
     var insetOverride: CGFloat? = nil
 
-    var inset: CGFloat { insetOverride ?? (type == .meet ? Spacing.gutter : 9) } //Geometry: invite cards run 18pt apart, most of the gap a screen − 48 card leaves
+    var inset: CGFloat { Self.inset(for: type, override: insetOverride) }
+
+    ///The gap a card leaves to each edge of its container — for chrome that must sit where the card's SLOT would put it
+    static func inset(for type: AppImageType, override: CGFloat? = nil) -> CGFloat {
+        override ?? (type == .meet ? Spacing.gutter : 9) //Geometry: invite cards run 18pt apart, most of the gap a screen − 48 card leaves
+    }
     var aspectRatio: CGFloat { type == .meet ? 1/1.2 : 1/1.55}
         
     var body: some View {

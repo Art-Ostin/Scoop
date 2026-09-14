@@ -35,7 +35,15 @@ import SwiftUI
         self.eventRepo = eventRepo
     }
 
-    var invites: [EventProfile] {session.invites}
+    //Soonest day first, the same day the chips show. Session holds arrival order, which is random at launch,
+    //and the id settles same-day ties so two invites don't swap places between launches
+    var invites: [EventProfile] {
+        session.invites.sorted { a, b in
+            let dayA = a.event.proposedTimes.firstDate ?? .distantFuture
+            let dayB = b.event.proposedTimes.firstDate ?? .distantFuture
+            return dayA == dayB ? a.id < b.id : dayA < dayB
+        }
+    }
 }
 
 //Logic to store and pass around respondViewModels
@@ -162,6 +170,10 @@ extension InvitesViewModel {
 }
 
 @Observable final class InvitesUIState {
+    
+    var showInfo: Bool = false
+    var showEventsScrollMenu = false
     var showQuickResponse: EventProfile?
     var showInviteHistory: EventProfile?
+    var titleTravel: CGFloat = 0   //How far the large title has risen; the ⓘ beside it rides this
 }

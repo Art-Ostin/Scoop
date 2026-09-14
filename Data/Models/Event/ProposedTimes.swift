@@ -85,6 +85,15 @@ struct ProposedTimes: Codable, Equatable, Hashable  {
     var firstAvailableDate: Date? {
         availableDates().first
     }
+    
+    //Returns first available date, if none, returns last date
+    var firstDate: Date? {
+        if let firstDate = firstAvailableDate { return firstDate }
+        else {
+            return dates.last?.date
+        }
+    }
+    
     var lastProposedDate: Date {
         dates.last?.date ?? .distantPast
     }

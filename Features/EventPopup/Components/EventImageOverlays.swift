@@ -253,55 +253,102 @@ struct NewEventToggleButton: View {
 }
 
 struct OptionsMenu: View {
-    
+
+    //Injected
+    ///The copy the event zoom flies on its cover: the same label on the same surface, no Menu under it (see EventBackButton.inert)
+    var inert: Bool = false
     let showPastInvites: () -> ()
     let showNewInvite: () -> ()
-    
-    
+    @Environment(\.eventZoomCornerMorphing) private var heroOwnsDisc //A flying copy keeps the disc's slot while the corner hero draws it
+
+    ///Where the disc sits inside the control's own box — the corner hero's landing is measured on the box and inset by this
+    static let discInset = EdgeInsets(top: imageTopPadding, leading: imageHorizontalPadding - 4, //Geometry: as the title — one shared inset from the artwork edge
+                                      bottom: 0, trailing: imageHorizontalPadding - 4)
+
     //Always mounted, never self-gated: `.eventZoomBandChrome(visible:)` at the call site gates it
     var body: some View {
-        Menu {
-            Button {
-                showNewInvite()
-            } label: {
-                Label("New Invite", systemImage: "plus")
-            }
-            
-            Button {
-                showPastInvites()
-            } label: {
-                Label("Invite History", image: .historyIcon) //A menu drops .frame: the icon's size is the SVG's own width/height
-            }
-
-        } label: {
-            HStack(spacing: 3) {
-                ForEach(0..<3) { _ in
-                    Circle().frame(width: 4, height: 4)
+        if inert {
+            label
+        } else {
+            Menu {
+                Button {
+                    showNewInvite()
+                } label: {
+                    Label("New Invite", systemImage: "plus")
                 }
+
+                Button {
+                    showPastInvites()
+                } label: {
+                    Label("Invite History", image: .historyIcon) //A menu drops .frame: the icon's size is the SVG's own width/height
+                }
+
+            } label: {
+                label
             }
-            .foregroundStyle(.black)
-            .buttonSize(.small)
-            .scoopGlassSurface(clear: true, shape: .circle)
-            .expandHitArea()
-            .padding(.horizontal, imageHorizontalPadding - 4)
-            .padding(.top, imageTopPadding)
         }
+    }
+
+    ///The disc alone, inert: what the corner hero lands as. A Menu label is no ScoopButton, so no fallback shadow
+    static var disc: some View {
+        HStack(spacing: 3) { //Geometry: the ellipsis' dot pitch inside the 26pt disc
+            ForEach(0..<3) { _ in
+                Circle().frame(width: 3.5, height: 3.5)
+            }
+        }
+        .foregroundStyle(.black)
+        .buttonSize(.small)
+        .scoopGlassSurface(clear: true, shape: .circle)
+    }
+
+    private var label: some View {
+        Group {
+            if inert && heroOwnsDisc { Color.clear.buttonSize(.small) } else { Self.disc }
+        }
+        .expandHitArea()
+        .padding(.horizontal, Self.discInset.leading)
+        .padding(.top, Self.discInset.top)
     }
 }
 
 
 struct InviteHistoryIconButton: View {
-    
+
+    //Injected
+    ///The copy the event zoom flies on its cover: the disc with no Button under it (see EventBackButton.inert)
+    var inert: Bool = false
     @Binding var showHistorySheet: Bool
-    
+    @Environment(\.eventZoomCornerMorphing) private var heroOwnsDisc //A flying copy keeps the disc's slot while the corner hero draws it
+
     var body: some View {
-        ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
-            showHistorySheet = true
-        } label: {
-            Image(.historyIcon)
-                .resizable()
-                .frame(width: 15, height: 15)
+        if !inert {
+            ScoopButton(style: .clearGlass, shape: Circle(), size: .small, press: .grow) {
+                showHistorySheet = true
+            } label: {
+                Self.icon
+            }
+        } else if heroOwnsDisc {
+            Color.clear.buttonSize(.small)
+        } else {
+            Self.disc
         }
+    }
+
+    ///ScoopButton's glass path without the Button: what a flying copy draws, and what the corner hero lands as
+    static var disc: some View {
+        icon
+            .buttonSize(.small)
+            .scoopGlassSurface(clear: true, shape: Circle())
+            .glassFallbackRestingShadow() //See EventBackButton.surface
+            .foregroundStyle(Color.textPrimary) //ScoopButton's own ink
+    }
+
+    //Template, stated: a Button draws its label's image as a template, and the Button-less copy must match it
+    private static var icon: some View {
+        Image(.historyIcon)
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 15, height: 15)
     }
 }
 

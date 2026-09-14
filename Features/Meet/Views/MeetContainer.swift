@@ -32,7 +32,7 @@ struct MeetContainer: View {
         .overlay(alignment: .topLeading) {TitleInfoIcon(ui: ui)}
         .overlay(alignment: .topTrailing) {historyButton}
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .fullScreenCover(isPresented: $ui.showInfo) {MeetInfo()}
+        .sheet(isPresented: $ui.showInfo) {MeetInfo()}
     }
 }
 

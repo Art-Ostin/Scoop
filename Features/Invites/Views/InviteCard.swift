@@ -102,6 +102,19 @@ extension InviteSlot {
             .overlay(alignment: .bottomLeading) { cardOverlay }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
+            .overlay(alignment: .topTrailing) { responseButton } //Outside the clip and the palette's curve: a lens, which neither should touch
+    }
+
+    //The invite's history, in the card's corner. On the card rather than the slot so it lifts off with
+    //the photo and morphs into the respond card's own corner control (`.eventZoomCornerSource`)
+    @ViewBuilder
+    private var responseButton: some View {
+        if draft.originalInvite.event.pastProposals?.isEmpty == false { //The respond card's own gate, off the same draft
+            InviteHistoryButton { showInviteHistory = eventProfile }
+                .eventZoomCornerSource { InviteHistoryButton.capsule }
+                .padding(.top, Spacing.md)
+                .padding(.trailing, Spacing.md + Spacing.sm - AppImage.inset(for: .invite, override: cardInset)) //Geometry: where the slot's corner held it (16 down, 28 in), the card's own inset backed out
+        }
     }
     
     private func blurAndColour(image: UIImage) -> some View {
@@ -139,19 +152,3 @@ extension InviteSlot {
             .extractPalette(image, id: eventProfile.profile.id, prominence: .subtle)
     }
 }
-
-
-/*
- func thereArePastInvites() -> Bool {
-     eventProfile.event.pastProposals != nil
- }
- 
- private var oldInviteHistoryButton: some View {
-     ScoopButton(style: .clearGlass, shape: Capsule()) {
-         showInviteHistory = eventProfile
-     } label: {
-         Text("Respond")
-             .frame(width: 40, height: 24)
-     }
- }
- */

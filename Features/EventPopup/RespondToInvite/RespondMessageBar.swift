@@ -11,6 +11,10 @@ struct RespondToMessageBar: View {
 
     //Injected
     @Binding var text: String
+    let eventHistory: [PastEventProposal]?
+    let hasPreviousMessages: Bool
+    let userId: String
+    let otherUserId: String
     var isFocused: FocusState<Bool>.Binding
     var isFixedHeight = false //True: the field stands at its `visibleLines` height from the first line, rather than growing into it. Flip it under `.transition`: a landed card snaps a bare resize
 
@@ -38,30 +42,45 @@ struct RespondToMessageBar: View {
 
     //Focused, the note scrolls to reveal what sits above it: all of that scroll lives in RespondNoteReveal
     var body: some View {
-        RespondNoteReveal(isFocused: isFocused, text: text, restHeight: fieldHeight + Self.fieldBottomInset) {
-            noteField
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, Self.fieldBottomInset)
-        } pinned: {
-            doneButton
-        }
+        RespondNoteReveal(
+            eventHistory: eventHistory,
+            userId: userId,
+            otherUserId: otherUserId,
+            isFocused: isFocused,
+            text: text,
+            restHeight: fieldHeight + Self.fieldBottomInset) {
+                noteField
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, Self.fieldBottomInset)
+            } pinned: {
+                doneButton
+            }
     }
 }
 
 //The note: grows a line at a time to `visibleLines`, then holds and scrolls to the line being typed
 extension RespondToMessageBar {
 
+    //The placeholder's words: the thread's over past proposals, the note's own once it stands at full height to be written
+    private var placeholderText: String {
+        hasPreviousMessages && !isFixedHeight ? "Message Thread..." : "Add a note..."
+    }
+
     private var noteField: some View {
         ScrollView {
-            TextField("Add a note...", text: $text, axis: .vertical)
-                .font(Self.font)
-                .lineSpacing(Self.lineSpacing)
-                .focused(isFocused)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
-                    withAnimation(.transition) { noteHeight = height } //Every write resizes a landed card
-                }
-                .padding(.horizontal)
-                .padding(.vertical, verticalPad)
+            ZStack(alignment: .topLeading) {
+                if text.isEmpty { placeholder } //In the layout, as the field's own was: an empty note is as tall as its words
+                TextField("", text: $text, axis: .vertical)
+                    .font(Self.font)
+                    .lineSpacing(Self.lineSpacing)
+                    .focused(isFocused)
+                    .accessibilityLabel(placeholderText)
+            }
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+                withAnimation(.transition) { noteHeight = height } //Every write resizes a landed card
+            }
+            .padding(.horizontal)
+            .padding(.vertical, verticalPad)
         }
         .scrollPosition($scrollPosition)
         .defaultScrollAnchor(.bottom, for: .initialOffset)
@@ -87,6 +106,21 @@ extension RespondToMessageBar {
     private func revealLastLine() {
         guard overflows else { return }
         withAnimation(.move) { scrollPosition.scrollTo(y: noteHeight - holdHeight) }
+    }
+
+    //The placeholder, drawn in the field's place so a change of words blur-replaces: the field's own only snaps to a new string
+    private var placeholder: some View {
+        ZStack(alignment: .topLeading) {
+            Text(placeholderText)
+                .id(placeholderText)
+                .transition(.blurReplace)
+        }
+        .font(Self.font)
+        .lineSpacing(Self.lineSpacing)
+        .foregroundStyle(Color.textPlaceholder)
+        .animation(.transition, value: placeholderText) //Outside the .id: a rebuilt animation has no old value to diff
+        .allowsHitTesting(false)
+        .accessibilityHidden(true) //The field carries the words as its label
     }
 
     //The same field at `visibleLines`: the height the note holds at, measured

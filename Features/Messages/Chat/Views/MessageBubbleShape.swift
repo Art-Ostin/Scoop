@@ -20,6 +20,27 @@ struct MessageBubbleShape: Shape {
     ///How far the tail hangs below the body, so callers can reserve room for it
     static func tailDrop(for cornerRadius: CGFloat) -> CGFloat { cornerRadius * 0.33925 }
 
+    ///How far out beyond the tailed edge a circle's centre sits when `gap` of clearance around the droplet (the tail
+    ///below the body's bottom edge) just touches it, its centre `centreAbove` up from that bottom edge. Higher up, the
+    ///circle overlaps the bubble, which is cut out of it (`SenderPhotoMask`).
+    static func tailHugDistance(circleRadius: CGFloat, centreAbove: CGFloat, gap: CGFloat, cornerRadius: CGFloat) -> CGFloat {
+        let reach = circleRadius + gap
+        var distance = -CGFloat.infinity
+        //The first cubic leaves the edge at a height the body's own height sets, and never reaches below the body
+        var start = tailCurves[0].end
+        for curve in tailCurves.dropFirst() {
+            for step in 0...32 {
+                let point = pointOnTail(curve, from: start, at: CGFloat(step) / 32)
+                let rise: CGFloat = point.y * cornerRadius + centreAbove //The centre's height above this point
+                guard point.y >= 0, abs(rise) < reach else { continue }
+                //x runs inward negative: the centre sits the rest of its reach out beyond this point
+                distance = max(distance, (reach * reach - rise * rise).squareRoot() + point.x * cornerRadius)
+            }
+            start = curve.end
+        }
+        return distance.isFinite ? distance : reach
+    }
+
     func path(in rect: CGRect) -> Path {
         guard rect.width > 0, rect.height > 0 else { return Path(rect) }
         let radius = min(messageCornerRadius, rect.width / 2, rect.height / 2)
@@ -153,6 +174,42 @@ private extension MessageBubbleShape {
         (CGPoint(x: -0.90025, y: 0.09632913), CGPoint(x: -0.62035, y: 0.28352913), CGPoint(x: -0.76955, y: 0.19297913)),
         (CGPoint(x: -1.1035, y: 0.00062913), CGPoint(x: -1.01735, y: 0.00972913), CGPoint(x: -1.04855, y: 0.00097913)),
     ]
+
+    ///A point along one of the droplet's cubics, in radii from the corner
+    static func pointOnTail(_ curve: (end: CGPoint, control1: CGPoint, control2: CGPoint), from start: CGPoint, at t: CGFloat) -> CGPoint {
+        let u: CGFloat = 1 - t
+        let near: CGPoint = start * (u * u * u) + curve.control1 * (3 * u * u * t)
+        let far: CGPoint = curve.control2 * (3 * u * t * t) + curve.end * (t * t * t)
+        return near + far
+    }
+}
+
+///The mask of the sender's photo on the floor of a received run's last row: the row, less that row's bubble and `gap`
+///of clearance around it. Laid out over the whole row, whose body starts `bodyLeading` in and ends a run gap above the
+///floor. Drawn out of a layer rather than subtracted as paths: CoreGraphics' path boolean operations flatten curves,
+///which faceted the photo's edge by up to 0.4 pt and thinned the clearance by up to 0.3 pt.
+struct SenderPhotoMask: View {
+
+    //Injected
+    var bodyLeading: CGFloat
+    var gap: CGFloat = BubbleMetrics.avatarGap
+    var runGap: CGFloat = BubbleMetrics.runGap
+    var cornerRadius: CGFloat = BubbleMetrics.cornerRadius
+
+    var body: some View {
+        let bubble = MessageBubbleShape(messageCornerRadius: cornerRadius, tail: .leading)
+        ZStack {
+            Rectangle()
+            ZStack {
+                bubble.fill()
+                bubble.stroke(lineWidth: 2 * gap)
+            }
+            .padding(.leading, bodyLeading)
+            .padding(.bottom, runGap)
+            .blendMode(.destinationOut)
+        }
+        .compositingGroup()
+    }
 }
 
 private func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint { CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y) }

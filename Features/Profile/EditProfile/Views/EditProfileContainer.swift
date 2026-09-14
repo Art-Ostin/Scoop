@@ -49,7 +49,7 @@ struct EditProfileContainer: View {
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .topLeading) { leadingAction }
         .overlay(alignment: .topTrailing) { editProfileDismissButton }
-        .interactiveDismissDisabled(!path.isEmpty || isEditingImage)
+        .interactiveDismissDisabled(!path.isEmpty || isEditingImage || showSavingScreen) //Also gates the lens cover's swipe down: a save in flight can't be swiped away
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
     }
 }

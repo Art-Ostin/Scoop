@@ -25,7 +25,7 @@ import SwiftUI
 //  The card body is content only — the frosted backdrop, the white surface, the stationary
 //  chevron and the dismiss drag are this file's. A body reaches back with
 //  `.eventZoomChevronHidden(_:)`, `.eventZoomDragLocked(_:)`, `.eventZoomDragExclusion()`,
-//  `.eventZoomBandChrome()`, `.eventZoomKeyboardFocus(_:resign:)` (+ `.eventZoomKeyboardClearance()`
+//  `.eventZoomBandChrome()`, `.eventZoomKeyboardFocus(_:extraLift:resign:)` (+ `.eventZoomKeyboardClearance()`
 //  on the control it hangs lowest) and `@Environment(\.eventZoomDismiss)`; all of them are no-ops when
 //  the body renders without a flight. `.eventZoomAlert(_:)` is the one exception — the body is
 //  masked, so its alert is drawn on the card's plane instead, and without a flight it falls back
@@ -122,6 +122,26 @@ extension View {
         modifier(EventZoomButtonTargetModifier(text: text, fill: fill, font: font, lineLimit: lineLimit))
     }
 
+    ///Marks the small glass control in the source card's top-trailing corner that the opened card's own corner
+    ///control takes over from — the invite card's "Response" against the respond card's options disc. `look` is
+    ///that control drawn inert (its surface, no Button), laid out at its own size: the flight carries it out of
+    ///the corner and morphs it into the landing disc, and flies it back on a tap close. The control reads
+    ///`eventZoomCornerSource` itself, to draw inert or keep only its slot in the chrome copy riding the cover.
+    ///Pair it with `.eventZoomCornerTarget`; without the pair both controls keep today's fades.
+    func eventZoomCornerSource<Look: View>(@ViewBuilder look: @escaping () -> Look) -> some View {
+        modifier(EventZoomCornerSourceModifier(look: { AnyView(look()) }))
+    }
+
+    ///The disc a `.eventZoomCornerSource` capsule lands on, inside a band-chrome piece the flight twins
+    ///(`eventZoomBandChrome(visible:corner:copy:)`). `inset` is where the disc sits inside the view this marks (a
+    ///Menu keeps its paddings inside its label); `look` is the disc drawn inert, exactly as it rests; `visible` is
+    ///the body's own hide of the corner. The piece's twin draws the same control inert and keeps the disc's slot
+    ///while `eventZoomCornerMorphing` is true — the hero is drawing the disc.
+    func eventZoomCornerTarget<Look: View>(inset: EdgeInsets = EdgeInsets(), visible: Bool = true,
+                                           @ViewBuilder look: @escaping () -> Look) -> some View {
+        modifier(EventZoomCornerTargetModifier(inset: inset, visible: visible, look: { AnyView(look()) }))
+    }
+
     ///Presents `card` grown out of the `.eventZoomSource` inside this view when `isPresented`
     ///flips true, and flies it home when it flips false (a Send or an Accept), on the chevron, on
     ///a backdrop tap, or on the card's swipe-down. The binding is written back false only when the
@@ -155,9 +175,10 @@ extension View {
     ///`.eventZoomKeyboardClearance()` would still meet the keyboard; the backdrop's tap resigns the
     ///field instead of closing the card, and the dismiss drag and the chevron stand down for the
     ///duration. `false` returns the card to centre on the same `.move` clock. A focus during the open
-    ///flight waits for the landing; one during a close leaves the flight's geometry alone.
-    func eventZoomKeyboardFocus(_ focused: Bool, resign: @escaping () -> Void) -> some View {
-        modifier(EventZoomKeyboardFocusModifier(focused: focused, resign: resign))
+    ///flight waits for the landing; one during a close leaves the flight's geometry alone. `extraLift`
+    ///carries the raised card that much further up, past the pin and the screen's own top.
+    func eventZoomKeyboardFocus(_ focused: Bool, extraLift: CGFloat = 0, resign: @escaping () -> Void) -> some View {
+        modifier(EventZoomKeyboardFocusModifier(focused: focused, extraLift: extraLift, resign: resign))
     }
 
     ///The control a focused body hangs lowest (its Done): pinned `keyboardClearance` above the keyboard.
@@ -249,7 +270,7 @@ enum EventZoomSourceShape: Equatable {
 
 ///Which corner of the pager band a chrome piece hangs from — the alignment its `.overlay` takes, and
 ///so the corner of the flying cover its twin is held against. Pinned, never scaled: the cover does not
-///merely travel, it SHRINKS (an invite card's 1/1.5 into the band's 1/0.8), and a rect lerp would leave
+///merely travel, it SHRINKS (an invite card's 1/1.55 into the band's 1/0.8), and a rect lerp would leave
 ///the piece hanging off the artwork for most of the flight before snapping home (`EventZoomTitleMorph`'s
 ///rule, and `bandTitle`'s).
 enum EventZoomBandCorner {
@@ -284,6 +305,7 @@ struct EventZoomBandChromeCopy: Identifiable {
     let id: UUID
     let corner: EventZoomBandCorner
     let view: AnyView
+    let popsIn: Bool //A takeoff's twin arrives on the house pop; a close's only fades — no lens resized per frame on the way out
 }
 
 ///What a band-chrome piece is doing this frame.
@@ -310,6 +332,65 @@ extension EnvironmentValues {
     @Entry var eventZoomButtonFlying = false
     ///As above, for the source's time and place lines while the row heroes own them
     @Entry var eventZoomRowsFlying = false
+    ///The source's corner capsule inside that copy (`.eventZoomCornerSource`): `.inert` draws its look with no
+    ///Button under it — interactive glass claims taps whatever the cover yields — and `.ghost` keeps only its
+    ///slot while the corner hero draws it. The resting source is `.live`
+    @Entry var eventZoomCornerSource = EventZoomCopyRole.live
+    ///True on the band's flying twins while the corner hero draws their landing disc: the twin keeps its slot, no glass
+    @Entry var eventZoomCornerMorphing = false
+    ///The band-chrome piece a view is laid out in — what a corner landing measures itself against
+    @Entry var eventZoomBandPiece: EventZoomBandPiece? = nil
+}
+
+///How a piece a flight copies draws on this frame
+enum EventZoomCopyRole { case live, inert, ghost }
+
+//MARK: - The corner a flight morphs
+
+///How the corner hero leaves on a close. `.morph` flies the landing disc back into the source's capsule (a tap,
+///a programmatic close); `.fade` lets the landing control fade out with the band's twins while the capsule
+///fades back in over the collapse's last stretch (a swipe — the finger's close keeps its calm morph home)
+enum EventZoomCornerMode { case morph, fade }
+
+///The disc the source's corner capsule lands on, as the body lays it out: its inset from the corner its band
+///piece hangs from, and its size. Measured inside the band-chrome modifier's own coordinate space, so the
+///piece's pop scale — 0.4 for the whole open — never reaches the numbers
+struct EventZoomCornerLanding: Equatable {
+    let corner: EventZoomBandCorner
+    let inset: CGSize //From that corner, along each axis
+    let size: CGSize
+    let visible: Bool //The body's own hide (a popup, a focused note): nothing flies back to a corner nobody can see
+}
+
+///The band-chrome piece a view sits in: the corner it hangs from and its laid-out size
+struct EventZoomBandPiece: Equatable {
+    let corner: EventZoomBandCorner
+    let size: CGSize
+}
+
+///The corner hero on this frame, resolved by the choreography from what it took at takeoff or at the close's
+///start. No landing means nothing to morph into: the hero then only carries the capsule on its source insets,
+///fading with the collapse exactly where the chrome copy's own capsule would have
+struct EventZoomCornerFlight {
+    let mode: EventZoomCornerMode
+    let source: CGRect //Global — where the source card draws the capsule
+    let sourceLook: AnyView
+    let landing: EventZoomCornerLanding?
+    let landingLook: AnyView?
+
+    ///A disc was taken and can be seen: the hero draws it — morphing on the open and a tap, fading on a swipe — so a
+    ///twin keeps only its slot
+    var landingTaken: Bool { landing?.visible == true && landingLook != nil }
+
+    ///The capsule and the disc are one shape changing between the two ends
+    var morphs: Bool { mode == .morph && landingTaken }
+}
+
+//One corner landing marker's latest reports (`EventZoomChoreo.cornerTargets`)
+private struct EventZoomCornerTargetReport {
+    let order: Int //When this marker first reported: the newest mount is the disc on screen
+    var landing: EventZoomCornerLanding?
+    var look: (() -> AnyView)?
 }
 
 //MARK: - The rows a flight carries
@@ -485,6 +566,8 @@ private struct EventZoomHostModifier: ViewModifier {
     @ObservationIgnored var rowRects: [EventZoomRowKind: CGRect] = [:]
     @ObservationIgnored var rowTexts: [EventZoomRowKind: String] = [:]
     @ObservationIgnored var pressPose: PressPose = .rest //That button's press as rendered — the hero takes off from it
+    @ObservationIgnored var cornerRect: CGRect = .zero //The source's corner capsule, global — the corner hero's home
+    @ObservationIgnored var cornerLook: (() -> AnyView)? //That capsule drawn inert, pushed every pass — taken once, at present
     @ObservationIgnored var requestClose: ((_ flightless: Bool) -> Bool)? //Set by the mounted card; the host closes through it — false back means a close is already flying
 
     func setVacated(_ vacated: Bool) {
@@ -632,6 +715,69 @@ private struct EventZoomButtonTargetModifier: ViewModifier {
     }
 }
 
+//On the source card's corner capsule. Unlike the button's, it has no ghost of its own: the control draws
+//inert, or keeps only its slot, off `eventZoomCornerSource` — a modifier cannot take the Button out from
+//under a label. No reset on disappear: the invite card gates it on its draft, which is fixed for the
+//anchor's whole life, and a tab switch's disappear would otherwise wipe a rect no layout re-reports.
+private struct EventZoomCornerSourceModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
+    let look: () -> AnyView
+
+    func body(content: Content) -> some View {
+        //Pushed every pass, as the source pushes its chrome: present() takes the latest. The copy riding
+        //the cover has no anchor, so it reports nothing
+        anchor?.cornerLook = look
+        return content
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { anchor?.cornerRect = $0 }
+    }
+}
+
+//On the landing disc, inside a band-chrome piece of the card body, so it reports to the flight: where the
+//disc sits from the piece's corner, read in the piece's OWN space — the band-chrome modifier installs it
+//inside the pop that scales the piece to 0.4 for the whole open, so the numbers never carry that scale.
+//Inside a twin there is no flight in the environment, and it reports nothing.
+private struct EventZoomCornerTargetModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    @Environment(\.eventZoomBandPiece) private var piece: EventZoomBandPiece?
+    let inset: EdgeInsets
+    let visible: Bool
+    let look: () -> AnyView
+
+    //Local view state
+    @State private var id = UUID() //Its claim on the landing: a type switch mounts the next disc before this one leaves
+    @State private var frame: CGRect = .zero //The marked view, in its piece's space
+
+    func body(content: Content) -> some View {
+        flight?.reportCornerLook(id: id, look: look) //Pushed every pass, unobserved — the flight takes it once per flight
+        return content
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(EventZoomChoreo.bandPieceSpace)) } action: { rect in
+                frame = rect
+                report(rect)
+            }
+            .onChange(of: piece) { report(frame) }
+            .onChange(of: visible) { report(frame) }
+            .onDisappear { flight?.dropCornerTarget(id: id) }
+    }
+
+    private func report(_ rect: CGRect) {
+        guard let flight, let piece, piece.size.width > 1, rect.width > 1 else { return }
+        let disc = CGRect(x: rect.minX + inset.leading, y: rect.minY + inset.top,
+                          width: rect.width - inset.leading - inset.trailing,
+                          height: rect.height - inset.top - inset.bottom)
+        let unit = piece.corner.unit
+        flight.reportCornerLanding(id: id, EventZoomCornerLanding(
+            corner: piece.corner,
+            inset: CGSize(width: unit.x == 1 ? piece.size.width - disc.maxX : disc.minX,
+                          height: unit.y == 1 ? piece.size.height - disc.maxY : disc.minY),
+            size: disc.size,
+            visible: visible))
+    }
+}
+
 private struct EventZoomModifier: ViewModifier {
 
     //Injected
@@ -687,10 +833,11 @@ private struct EventZoomKeyboardFocusModifier: ViewModifier {
     //Injected
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
     let focused: Bool
+    let extraLift: CGFloat
     let resign: () -> Void
 
     func body(content: Content) -> some View {
-        content.onChange(of: focused, initial: true) { _, focused in flight?.setKeyboardFocus(focused, resign: resign) }
+        content.onChange(of: focused, initial: true) { _, focused in flight?.setKeyboardFocus(focused, extraLift: extraLift, resign: resign) }
     }
 }
 
@@ -739,6 +886,7 @@ private struct EventZoomBandChromeModifier: ViewModifier {
 
     //Local view state
     @State private var id = UUID() //Its claim on the flight's twin list (the drag exclusions' pattern)
+    @State private var size: CGSize = .zero //Its laid-out size, for a corner landing measured inside it
 
     func body(content: Content) -> some View {
         //Pushed every pass and stored unobserved, exactly as the source pushes its own chrome closure
@@ -751,6 +899,11 @@ private struct EventZoomBandChromeModifier: ViewModifier {
         let phase = flight?.bandChrome(twinnedId: copy == nil ? nil : id) ?? .live //No flight: the piece simply rests
         let visible = onPage && phase != .hidden
         return content
+            //Its own space and size, INSIDE the pop: a corner landing measured in here never carries the 0.4 the
+            //piece wears for the whole open (`.eventZoomCornerTarget`)
+            .coordinateSpace(.named(EventZoomChoreo.bandPieceSpace))
+            .environment(\.eventZoomBandPiece, corner.map { EventZoomBandPiece(corner: $0, size: size) })
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { if size != $0 { size = $0 } }
             .opacityPop(visible: visible)
             //Opacity 0 still takes taps under the cover — and so does a piece `.arriving` behind its
             //own twin, which is the one the finger can actually see
@@ -1017,6 +1170,17 @@ private struct EventZoomCardContent: View, Equatable {
     private var rowTexts: [EventZoomRowKind: String] = [:]
     private var rowHeroShown = true //The heroes stand in for the rows until their fade is done (see `handOffRows`)
     private var rowHeroFade: Double = 1
+    //The corner capsule the source draws and the disc the card lands it on. The source end is taken at init and
+    //re-read with `source` at a landed close; the landing reports live and unobserved (`cornerTargets`, one entry per marker) and is TAKEN
+    //twice a flight — as the open leaves the source, and at the close's start — so the hero never chases a disc
+    //that moved, or changed kind, in mid-air
+    private var cornerSource: CGRect
+    private let cornerSourceLook: AnyView? //Built ONCE, like the chrome copy
+    @ObservationIgnored private var cornerTargets: [UUID: EventZoomCornerTargetReport] = [:] //Per marker: a type switch has two mounted at once
+    @ObservationIgnored private var cornerTargetCount = 0 //Stamps each marker's first report, so the newest mount wins
+    private var cornerLanding: EventZoomCornerLanding?
+    private var cornerLandingLook: AnyView?
+    private var cornerMode: EventZoomCornerMode = .morph //Latched at the close's start; the open always morphs
     private let onClosing: () -> Void //A committed close is leaving: the owner hides a lens' static ring
     private let onChromeReturn: () -> Void //A beat into the close: the screen's own chrome comes back, while the card is still flying
     private let onClosed: () -> Void //The close flight has landed; the owner clears state
@@ -1061,6 +1225,7 @@ private struct EventZoomCardContent: View, Equatable {
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
     private var keyboardFocused = false //A body's text field owns the screen: the card rises to the pin, the backdrop's tap resigns it, no scrub, no chevron
     private var raise: CGFloat = 0 //The column's lift while `keyboardFocused` — negative, in the same offset the drag rides
+    @ObservationIgnored private var keyboardExtraLift: CGFloat = 0 //How far past the pin the body asks the raised card to ride — positive, read only by the pin
     private(set) var keyboardInsetActive = false //The card wears `keyboardInset` in place of its caller's gap: `keyboardFocused` once landed, on `.transition`
     private(set) var keyboardDrop: CGFloat = 0 //How far the clearance controls hang below their slot, onto the keyboard's line — positive, render-only
     private var planeTop: CGFloat = 0 //Global y of the plane's top safe-area edge, reported by the card view: what the raised card's top pins beneath
@@ -1086,6 +1251,8 @@ private struct EventZoomCardContent: View, Equatable {
         self.rowSources = anchor.rowRects
         self.rowSourceTexts = anchor.rowTexts
         self.pressPose = anchor.pressPose
+        self.cornerSource = anchor.cornerRect
+        self.cornerSourceLook = anchor.cornerLook?()
         self.onClosing = onClosing
         self.onChromeReturn = onChromeReturn
         self.onClosed = onClosed
@@ -1176,6 +1343,16 @@ extension EventZoomChoreo {
 
     ///The card's identity value for the set (see `EventZoomCardContent.rowsGhosted`)
     var rowsGhosted: Bool { !settled && rowHeroActive }
+
+    ///The corner hero this frame: a source that marked a capsule, and a flight to fly — no lens, whose rows and
+    ///band chrome would hang off a 44pt face (`captureBandChrome`'s rule). Up from the TAP, the capsule hero's
+    ///rule, so the chrome copy never shows its own capsule for a frame before the hero takes it; it morphs only
+    ///once a landing has been taken. Nothing in the card body reads it, so it joins no identity below.
+    var cornerFlight: EventZoomCornerFlight? {
+        guard hasFlight, !shape.isLens, cornerSource.width > 1, let cornerSourceLook else { return nil }
+        return EventZoomCornerFlight(mode: cornerMode, source: cornerSource, sourceLook: cornerSourceLook,
+                                     landing: cornerLanding, landingLook: cornerLandingLook)
+    }
 
     ///Both ends of every flying row, global, for this frame. The landing is derived from the card's
     ///own frame the same way `ctaRect` is: measured OUTSIDE the morph's render transforms, so a
@@ -1299,6 +1476,30 @@ extension EventZoomChoreo {
         if ctaLineLimit != lineLimit { ctaLineLimit = lineLimit }
     }
 
+    ///Both unobserved, like the band's builders: the flight takes them together, at takeoff and at the close's start
+    func reportCornerLook(id: UUID, look: @escaping () -> AnyView) {
+        var report = cornerTargets[id] ?? newCornerTarget()
+        report.look = look
+        cornerTargets[id] = report
+    }
+
+    func reportCornerLanding(id: UUID, _ landing: EventZoomCornerLanding) {
+        var report = cornerTargets[id] ?? newCornerTarget()
+        report.landing = landing
+        cornerTargets[id] = report
+    }
+
+    //Its own entry only: a disc leaving on a type switch's transition can still report, and must never take the
+    //incoming disc's claim with it when it finally goes
+    func dropCornerTarget(id: UUID) {
+        cornerTargets[id] = nil
+    }
+
+    private func newCornerTarget() -> EventZoomCornerTargetReport {
+        cornerTargetCount += 1
+        return EventZoomCornerTargetReport(order: cornerTargetCount)
+    }
+
     func setChevronHiddenByCard(_ hidden: Bool) {
         if chevronHiddenByCard != hidden { chevronHiddenByCard = hidden }
     }
@@ -1307,8 +1508,9 @@ extension EventZoomChoreo {
         if dragLocked != locked { dragLocked = locked }
     }
 
-    func setKeyboardFocus(_ focused: Bool, resign: @escaping () -> Void) {
+    func setKeyboardFocus(_ focused: Bool, extraLift: CGFloat, resign: @escaping () -> Void) {
         resignKeyboard = resign
+        keyboardExtraLift = extraLift
         guard keyboardFocused != focused else { return }
         keyboardFocused = focused
         //A flight keeps its geometry: a focus mid-open waits for `land()`, and a close never re-poses the
@@ -1370,13 +1572,13 @@ extension EventZoomChoreo {
 
     //The pin: the card's top `keyboardPinGap` below the plane's safe-area edge. Further only if the control
     //hung lowest would still meet the keyboard, and never past the screen's own top; never positive — a card
-    //already above the pin stays where it is
+    //already above the pin stays where it is. The body's `keyboardExtraLift` then carries it on past both
     private func pinnedRaise() -> CGFloat {
         var lift = planeTop + Self.keyboardPinGap - restingCard.minY
         if let foot = keyboardFeet.values.max() {
             lift = min(lift, keyboardTop - Self.keyboardClearance - (foot - raise))
         }
-        return min(max(lift, -restingCard.minY), 0)
+        return min(max(lift, -restingCard.minY), 0) - keyboardExtraLift
     }
 
     func reportDragExclusion(id: UUID, rect: CGRect?) {
@@ -1416,6 +1618,7 @@ extension EventZoomChoreo {
             ctaLineLimit: ctaLineLimit,
             rows: rowFlights,
             rowFade: rowHeroFill,
+            corner: cornerFlight,
             coverShown: coverShown,
             titleShown: titleHeroShown,
             titleFade: titleHeroFade,
@@ -1434,6 +1637,8 @@ extension EventZoomChoreo {
 
     ///The card body's named coordinate space — what the band and the CTA measure themselves in
     static let cardSpace = "eventZoomCard"
+    ///A band-chrome piece's own space — what a corner landing is measured in, clear of the piece's pop
+    nonisolated static let bandPieceSpace = "eventZoomBandPiece" //Nonisolated: read from the geometry closure, which is Sendable
 
     #if DEBUG
     //Geometry-capture runs: -eventZoomSlow stretches every clock 4× for the camera
@@ -1575,6 +1780,8 @@ extension EventZoomChoreo {
         captureBandChrome() //Built and laid out in THIS pass, at the source — before the committed frame below
         Task { @MainActor [self] in
             try? await Task.sleep(for: .milliseconds(30)) //One committed frame at the source before the flight leaves it
+            guard !closing else { return } //A close inside the wait owns the card: nothing may open over it, or retake its corner
+            takeCornerLanding() //Reported in the measured passes the flight just waited out; taken as it leaves
             //Two completions on ONE spring: the landing at its perceptual end, and the cover's
             //hand-off only once it is REMOVED — p is exactly 1 then, so the cover and the live
             //page are the same pixels. At `.logicallyComplete` ~1.4% of the travel is still to
@@ -1681,7 +1888,7 @@ extension EventZoomChoreo {
             instant.disablesAnimations = true
             //The band's twins go in the SAME instant commit as the cover that carried them: the real
             //pieces have been painted underneath since the landing, so this is the swap, not a removal.
-            //Emptying the list here is also what makes a landed close fly none — see the morph's overlay.
+            //A landed close builds its own at its start (`close()`): these were laid out before the card was touched.
             withTransaction(instant) {
                 coverShown = false
                 bandCopies = []
@@ -1709,19 +1916,34 @@ extension EventZoomChoreo {
     //glass lens rebuilt at a new size every frame costs about seven eighths of the frame rate. Here it
     //takes its first layout in the committed frame the flight waits out above, never in a mid-flight
     //commit. The page as it stands at TAKEOFF: a twin cannot follow a flip it never re-renders for, and
-    //a piece off its page has nothing to fly.
+    //a piece off its page has nothing to fly. Built again at a landed close's start (`popsIn` false), from the page as it
+    //stands THEN, once the hand-off has spent these.
     //A LENS flies none: its cover starts at the ledger's 44pt face, and a piece laid out at the band's
     //size and held against that corner would hang off the photo into bare backdrop for most of the
     //flight — the slot-anchored rim's failure ([[project_wind_close_p_before_arrival]]). No lens card
     //carries band chrome anyway, and the calendar's open is signed off (Arthur, 2026-09-05).
-    private func captureBandChrome() {
+    private func captureBandChrome(popsIn: Bool = true) {
         guard hasFlight, !shape.isLens else { return }
         let twins = bandChromeSources
             .filter { $0.value.onPage }
-            .map { EventZoomBandChromeCopy(id: $0.key, corner: $0.value.corner, view: $0.value.copy()) }
+            .map { EventZoomBandChromeCopy(id: $0.key, corner: $0.value.corner, view: $0.value.copy(), popsIn: popsIn) }
         guard !twins.isEmpty else { return }
         bandCopies = twins
         bandChromeTwinned = Set(twins.map(\.id))
+    }
+
+    //The disc as it stands now, taken for a flight: the newest mounted marker's geometry and look together, or neither
+    private func takeCornerLanding() {
+        let newest = cornerTargets.values
+            .filter { $0.landing != nil && $0.look != nil }
+            .max { $0.order < $1.order }
+        guard let landing = newest?.landing, let look = newest?.look else {
+            if cornerLanding != nil { cornerLanding = nil }
+            if cornerLandingLook != nil { cornerLandingLook = nil }
+            return
+        }
+        if cornerLanding != landing { cornerLanding = landing }
+        cornerLandingLook = look()
     }
 
     //`flightless`: the source is gone (its row was pruned under the card), so there is nothing
@@ -1742,6 +1964,7 @@ extension EventZoomChoreo {
             source = anchor.rect
             titleRect = anchor.titleRect //The word flies home to where the label IS, for the same reason
             buttonSource = anchor.buttonRect
+            cornerSource = anchor.cornerRect
         }
 
         guard hasFlight, !flightless else { //No anchor, reduce motion, or a vanished source: leave by fade
@@ -1758,6 +1981,18 @@ extension EventZoomChoreo {
         withTransaction(instant) { //The name morph's pieces come back with it, over the line they left
             titleHeroFade = 1
             titleHeroShown = true
+        }
+        //The corner flies back on a tap and fades on a swipe (Arthur, 2026-09-13) — decided by the test the dispatch
+        //below picks the motion with, so the corner can never disagree with the flight. It takes the disc as it
+        //stands NOW, and the band's twins are built fresh when the hand-off already spent the takeoff's: a landed
+        //close used to fly none, which cut the corner away on the close's first frame — the cover is back over it —
+        //and a twin built at takeoff could spell a word the corner no longer says. Same commit as the cover.
+        let swipe = velocity >= DragTuning.arcSlowMorphCeil || dragEngaged
+        withTransaction(instant) {
+            let mode: EventZoomCornerMode = swipe ? .fade : .morph
+            if cornerMode != mode { cornerMode = mode }
+            takeCornerLanding()
+            if bandCopies.isEmpty { captureBandChrome(popsIn: false) }
         }
         //No capsule on the way OUT (Arthur, 2026-09-05): the reverse morph rode the folding window's foot
         //across the photo while narrowing back to a circle — a button sliding over the picture. The
@@ -2052,6 +2287,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let ctaLineLimit: Int
     let rows: [EventZoomRowFlight] //The lines the source and the card both draw — empty unless both ends marked and measured
     let rowFade: Double //Their hand-off, faded off the identical real rows painted under them since the landing
+    let corner: EventZoomCornerFlight? //The source's corner capsule and the band disc it morphs into — nil unless both a source marked one and a flight flies
     let coverShown: Bool
     let titleShown: Bool //The name morph's pieces outlive the cover's cut by their own fade
     let titleFade: Double
@@ -2282,6 +2518,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                                     .environment(\.eventZoomTitleFlying, nameMorph != nil)
                                     .environment(\.eventZoomButtonFlying, buttonHero)
                                     .environment(\.eventZoomRowsFlying, !rows.isEmpty)
+                                    .environment(\.eventZoomCornerSource, corner != nil && card.width > 1 ? .ghost : .inert) //Ghosted exactly when the hero draws
                                     .frame(width: max(source.width, 1), height: max(source.height, 1))
                                     .scaleEffect(x: cover.width / max(source.width, 1),
                                                  y: cover.height / max(source.height, 1))
@@ -2329,9 +2566,9 @@ struct EventZoomMorph: ViewModifier, Animatable {
             //the real piece to the pixel: the hand-off is the cover's own cut, on identical pixels, and
             //the real one has been painted behind it since the landing. Mounted with the cover, from
             //takeoff. On the title's ramp, so everything the band wears lands together.
-            //Gated on the LIST, not on `chromeMix`: the hand-off empties it, so a landed close flies no
-            //twin — it would carry one built before the card was ever touched, and the toggle's own word
-            //can have changed since. A close begun BEFORE the hand-off still has them, and they ride
+            //Gated on the LIST, not on `chromeMix`: the hand-off empties it, and a landed close refills it from
+            //the page as it stands at its start (`close()`) — the takeoff's were built before the card was
+            //ever touched, and the corner's own control can have changed since. A close begun BEFORE the hand-off keeps them, and they ride
             //`arrive` back down with the title, the frost and the foot they arrived with. Cutting those
             //at the close's first frame instead left the corner bare on a photo still fully on screen,
             //with no real piece under it to take over (`settled` is false from `close()`'s first line) —
@@ -2341,7 +2578,17 @@ struct EventZoomMorph: ViewModifier, Animatable {
                     ZStack {
                         ForEach(bandCopies) { bandChromeTwin($0, cover: cover, band: pagerLocal, pop: arrive) }
                     }
+                    .environment(\.eventZoomCornerMorphing, corner?.landingTaken == true) //The corner hero draws the disc: the twin keeps its slot
                     .offset(y: -lift) //With the picture it sits on
+                }
+            }
+            //The corner: the source's capsule morphing into the band's disc, or carried alone on its own insets while
+            //the twins fade the disc out (`cornerHero`). Above the cover and the twins — lenses, under no layer effect
+            .overlay {
+                if coverShown, let corner, card.width > 1 { //The card, not the band: the hero is posed from the card alone
+                    cornerHero(corner, cover: cover, sourceLocal: sourceLocal,
+                               t: min(max(pLanded, 0), 1), chromeCopy: chromeCopy, arrive: arrive)
+                        .offset(y: -lift) //With the picture it sits on
                 }
             }
             //The name morph rides ABOVE the cover rather than inside it: the word is posed in the
@@ -2435,7 +2682,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
             //this is at scale 1 from p = 0.95, so the two meet whatever the ramp did before that.
             //The scale re-renders the piece's lens at a new size for the ramp's ~150ms; it is the one
             //thing here that costs, and `Self.twinPopScale` is the knob.
-            .scaleEffect(Self.twinPopScale + (1 - Self.twinPopScale) * pop)
+            .scaleEffect(piece.popsIn ? Self.twinPopScale + (1 - Self.twinPopScale) * pop : 1)
             .opacity(pop)
             .frame(width: size.width, height: size.height, alignment: piece.corner.alignment)
             .position(x: cover.minX + unit.x * cover.width + (0.5 - unit.x) * size.width,
@@ -2450,12 +2697,72 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //The twin's arrival scale — the house `opacityPop`'s, so it matches the real piece it hands off to.
     //It is also the one expensive thing in this flight: these pieces are `.clearGlass`, and a lens
     //re-rendered at a new size every frame costs about seven eighths of the frame rate (the reason the
-    //CTA flies a FLAT capsule and hands its one real lens off unscaled). This capsule is ~100 × 31 against
+    //CTA flies a FLAT capsule and hands its one real lens off unscaled). These capsules are ~87 × 26 against
     //that CTA's full-width one, and it only scales over `arrive`'s 150ms — but if the open ever drops
     //frames on device, set this to 1 and the twins arrive on opacity alone, exactly as the band's title,
     //its frost capsule and its foot already do. Nothing else has to change: the pop ends at scale 1 well
     //before the cut either way.
     private static let twinPopScale: CGFloat = PopMotion.opacityShrunkScale
+
+    //The corner hero. Glass may move, never resize — a lens re-rendered at a new size every frame costs most of the
+    //frame rate (`ctaHero`'s rule) — so the capsule and the disc are each the real control's inert look at its own
+    //fixed size, and what changes shape between them is `ScoopGlassStandIn`, glass's own pre-26 material, which may
+    //resize, sized to the morph every frame. The capsule and its word leave over the CTA's shed as the stand-in takes
+    //the shape; the disc and its glyphs arrive over the CTA word's window as the stand-in gives it back. Each lens
+    //exists only inside its own ramp — stacked glass washes the composite even at opacity 0. At t = 0 this IS the
+    //resting capsule and at t = 1 the resting disc, on their own lenses, so both ends meet identical pixels: the
+    //source's own at the tap and the landing, the real disc (painted under it since `land()`) at the cover's cut.
+    //Posed as insets from the cover's corner (`bandChromeTwin`'s rule), so it rides the sink, the wind's belly and
+    //the breath with the picture. Without a disc taken it carries the capsule alone on its source insets, fading with
+    //the collapse where the chrome copy's own capsule would; on a swipe it fades the taken disc out on the band's own
+    //ramp (`arrive`, the twins' clock) as the capsule fades back in. ONE slot per lens, whichever way the flight goes:
+    //taking the disc, or a close switching the mode, only moves numbers — never swaps a lens on screen for a fresh one.
+    private func cornerHero(_ corner: EventZoomCornerFlight, cover: CGRect, sourceLocal: CGRect,
+                            t: CGFloat, chromeCopy: CGFloat, arrive: CGFloat) -> some View {
+        let unit = (corner.landing?.corner ?? .topTrailing).unit
+        let from = corner.source.offsetBy(dx: -card.minX, dy: -card.minY)
+        let fromInset = CGSize(width: unit.x == 1 ? sourceLocal.maxX - from.maxX : from.minX - sourceLocal.minX,
+                               height: unit.y == 1 ? sourceLocal.maxY - from.maxY : from.minY - sourceLocal.minY)
+        let taken = corner.landingTaken ? corner.landing : nil
+        let morph = corner.morphs ? taken : nil
+        let open = smoothstep(t)
+        let size = morph.map { CGSize(width: lerp(from.width, $0.size.width, open),
+                                      height: lerp(from.height, $0.size.height, open)) } ?? from.size
+        let inset = morph.map { CGSize(width: lerp(fromInset.width, $0.inset.width, t),
+                                       height: lerp(fromInset.height, $0.inset.height, t)) } ?? fromInset
+        let centre = Self.cornerCentre(cover: cover, unit: unit, inset: inset, size: size)
+        let capsule = morph == nil ? chromeCopy : 1 - smoothstep(t / Self.cornerShedEnd)
+        let disc = morph == nil ? arrive : smoothstep((t - Self.cornerArrivalStart) / Self.cornerArrivalSpan)
+        let discCentre = taken.map { morph == nil
+            ? Self.cornerCentre(cover: cover, unit: unit, inset: $0.inset, size: $0.size) : centre } ?? centre
+        return ZStack {
+            if morph != nil {
+                ScoopGlassStandIn(shape: Capsule())
+                    .frame(width: max(size.width, 1), height: max(size.height, 1))
+                    .opacity(1 - max(capsule, disc))
+                    .position(centre)
+            }
+            if capsule > 0 {
+                corner.sourceLook.fixedSize().opacity(capsule).position(centre)
+            }
+            if let landingLook = corner.landingLook, taken != nil, disc > 0 {
+                landingLook.fixedSize().opacity(disc).position(discCentre)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    //A piece `size` big, held `inset` in from the cover's corner `unit`: its centre in the card's space
+    private static func cornerCentre(cover: CGRect, unit: CGPoint, inset: CGSize, size: CGSize) -> CGPoint {
+        CGPoint(x: unit.x == 1 ? cover.maxX - inset.width - size.width / 2 : cover.minX + inset.width + size.width / 2,
+                y: unit.y == 1 ? cover.maxY - inset.height - size.height / 2 : cover.minY + inset.height + size.height / 2)
+    }
+
+    //The corner hero's capsule and word are gone by this share of the flight — the CTA capsule's own shed —
+    private static let cornerShedEnd: CGFloat = 0.35
+    //— and its disc and glyphs arrive over the CTA word's window, crisp and whole just before touchdown
+    private static let cornerArrivalStart: CGFloat = 0.62
+    private static let cornerArrivalSpan: CGFloat = 0.36
 
     //The words either side of the name, held at the title's own slot on the cover. They arrive on
     //the ramp the whole title used to, so nothing about the line's appearance changes — only the

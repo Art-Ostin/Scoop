@@ -19,7 +19,8 @@ struct ChatContainer: View {
     //Local view state
     @State private var ui = ChatUIState()
     @State private var profileImages: [UIImage] = []
-    @State private var profileTrigger = 0
+    @State private var showProfile = false
+    @State private var profileLens = LensCoverSource() //The avatar their profile grows out of and lands back on
     @FocusState private var isFocused
 
     init(
@@ -53,6 +54,7 @@ struct ChatContainer: View {
             .coordinateSpace(.named(ChatUIState.space)) //The bar and the list measure in one space, so a flight can cross between them
             .customScrollFade(height: 135, edge: .top, curve: .strong)
             .overlay(alignment: .topTrailing) {profileButton}
+            .lensCover(isPresented: $showProfile, source: profileLens) { profileView }
 
         //4. Code to execute and listen for
         .task(id: vm.eventProfile.profile.id) { profileImages = await vm.loadImages(profile: vm.eventProfile) }
@@ -75,7 +77,7 @@ extension ChatContainer {
                 event: vm.eventProfile.event,
                 imageLoader: vm.imageLoader, defaults: vm.defaults
             ),
-            profileImages: profileImages,
+            profileImages: transitionImages, //At least the photo the avatar shows, so the lens always has a page to land on while the full set loads
             mode: .viewProfile
         )
         .onAppear { isFocused = false }
@@ -102,13 +104,11 @@ extension ChatContainer {
         let avatarSize: CGFloat = 35
         return ScoopButton(shape: .rect(cornerRadius: CornerRadius.xl)) {
             isFocused = false
-            profileTrigger += 1
+            showProfile = true
         } label: {
             HStack(spacing: Spacing.xs) {
                 SmallImage(image: transitionImages.first ?? UIImage(), size: avatarSize, isCircle: true)
-                    .zoomTransition(images: transitionImages, trigger: profileTrigger) {
-                        profileView
-                    }
+                    .lensCoverSource(profileLens, image: transitionImages.first ?? UIImage()) //Inside the scale: the flight leaves from the circle as drawn
                     .scaleEffect(0.9)
 
                 Text(vm.eventProfile.profile.name)

@@ -1,6 +1,6 @@
 //
-//  InviteCardOverlay.swift
-//  Scoop Test
+//  InviteCardOverlays.swift
+//  Scoop
 //
 //  Created by Art Ostin on 04/09/2026.
 //
@@ -59,16 +59,16 @@ extension InviteCardOverlay {
         Button {
             
         } label: {
-            HStack(alignment: .center, spacing: Spacing.xxs + 2) {
+            HStack(alignment: .center, spacing: Spacing.sm) {
                 Text(typeText)
-                    .font(.body(13))
+                    .font(.body(15))
             }
-            .scaleEffect(0.9)
+//            .scaleEffect(0.9)
             .foregroundStyle(Color.white)
             .frame(height: 25)
             .padding(.trailing, 7)
             .padding(.leading, 5) //Leading edge bit extra padding
-            .capsuleStroke(lineWidth: 1, color: .white.opacity(0.6))
+//            .capsuleStroke(lineWidth: 1, color: .white.opacity(0.6))
             .padding(.top, 3.5)
             .padding(.trailing, hPadding)
             .expandHitArea()
@@ -156,9 +156,9 @@ extension InviteCardOverlay {
         let newEventType = draft.newEvent.type
         switch draft.respondType {
         case .newEvent:
-            return newEventType.emoji + " " + newEventType.longTitle
+            return newEventType.emoji + "  " + newEventType.longTitle
         default :
-            return originalType.emoji + " " + originalType.longTitle
+            return originalType.emoji + "  " + originalType.longTitle
         }
     }
 }
@@ -166,28 +166,40 @@ extension InviteCardOverlay {
 
 
 
-//The 'Respond Card'
-
+//The 'Response' capsule: the invite's history, from the card's top-trailing corner
 struct InviteHistoryButton: View {
-    
-    //Passed it in for binding and conditional propality isolated to this Icon
-    @Binding var showInviteHistory: EventProfile?
-    let eventProfile: EventProfile
-    
+
+    //Injected
+    let action: () -> Void
+    @Environment(\.eventZoomCornerSource) private var role //Live on the card; inert, or a bare slot, in the event zoom's flying chrome copy
+
     var body: some View {
-        if eventProfile.event.pastProposals != nil {
-            ScoopButton(style: .glass, shape: .capsule) {
-                showInviteHistory = eventProfile
-            } label: {
-                Text("Response")
-                    .font(.body(12, .bold))
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 8)
-                    .foregroundStyle(Color.textPrimary)
-            }
-            .padding()
-            .padding(.horizontal, 12)
-            .expandHitArea()
+        switch role {
+        case .live:
+            ScoopButton(style: Self.style, shape: .capsule, action: action) { Self.label }
+                .buttonStyle(.automatic) //Its own press, not the card's: it sits inside the card's zoom Button, whose style would reach it
+        case .inert:
+            Self.capsule
+        case .ghost:
+            Self.label.hidden()
         }
+    }
+
+    //One style for both forms, so the capsule the corner hero flies can never drift from the button it takes off from
+    private static let style: ScoopButtonStyle = .clearGlass
+
+    ///ScoopButton's glass path without the Button: the flying copy, and what the corner hero takes off as
+    static var capsule: some View {
+        label
+            .scoopGlassSurface(clear: Self.style == .clearGlass, shape: Capsule())
+            .glassFallbackRestingShadow() //See EventBackButton.surface
+    }
+
+    private static var label: some View {
+        Text("Response")
+            .font(.body(12, .bold))
+            .padding(.vertical, Spacing.xxs)
+            .padding(.horizontal, Spacing.xs)
+            .foregroundStyle(Color.textPrimary)
     }
 }

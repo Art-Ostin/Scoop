@@ -44,14 +44,19 @@ struct MessageSection: View {
 
 extension MessageSection {
 
-    //The sender's photo beside the last bubble of their run, in the column received bubbles leave for it
+    //The sender's photo on the floor of the last row of their run, under its bubble's tail. Laid out over the whole row,
+    //so its mask can cut the bubble out of it wherever the two overlap
     @ViewBuilder
     private var senderPhoto: some View {
         if let image, !vm.isMyChat(message), vm.isNextNewAuthor(for: message) {
-            SmallImage(image: image, size: BubbleMetrics.avatarSize, isCircle: true)
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: BubbleMetrics.avatarSize, height: BubbleMetrics.avatarSize)
+                .clipShape(Circle())
                 .padding(.leading, BubbleMetrics.avatarLeading)
-                //Level with the tail's tip: the row ends a run gap below the body, and the tail hangs into it
-                .padding(.bottom, BubbleMetrics.runGap - MessageBubbleShape.tailDrop(for: BubbleMetrics.cornerRadius))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .mask { SenderPhotoMask(bodyLeading: MessageBubbleView.receivedSide) }
         }
     }
 

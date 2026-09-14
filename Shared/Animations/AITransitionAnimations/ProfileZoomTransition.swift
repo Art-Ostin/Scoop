@@ -3123,8 +3123,9 @@ extension ZoomDetailController: UIScrollViewDelegate {
 /// does not expose. The reveal's corners animate to this value so they land
 /// concentric with the screen's own — making the mask's removal at
 /// completion invisible. Safe-area extents identify the hardware class;
-/// unknown future rounded devices fall back to the modern 55pt.
-private func estimatedDisplayCornerRadius(around view: UIView) -> CGFloat {
+/// unknown future rounded devices fall back to the modern 55pt. The lens
+/// cover (LensCover.swift) lands its window on the same value.
+func estimatedDisplayCornerRadius(around view: UIView) -> CGFloat {
     let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
     guard insets.bottom > 0 else { return 0 } // home-button device: square display
     // iPads: modern home-indicator models use ~18pt display corners; the

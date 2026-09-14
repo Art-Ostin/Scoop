@@ -48,6 +48,10 @@ class RespondViewModel {
         return storedDraft
     }
     
+    var userId: String {
+        session.user.id
+    }
+    
     private func deleteDraft() {
         respondDraft.newEvent = .init()
     }

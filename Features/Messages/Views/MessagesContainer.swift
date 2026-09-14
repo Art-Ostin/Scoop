@@ -21,7 +21,7 @@ struct MessagesContainer: View {
     @State private var showSettings = false
     @State private var showProfile = false
     @Namespace private var settingsZoom
-    @Namespace private var profileZoom
+    @State private var profileLens = LensCoverSource() //The avatar your profile grows out of and lands back on
     
     var body: some View {
         ZoomNavigationStack {
@@ -44,7 +44,7 @@ struct MessagesContainer: View {
                 
                 .navigationDestination(for: PastEventsRoute.self, destination: destination)
                 .fullScreenCover(isPresented: $showSettings) {settingScreen()}
-                .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
+                .lensCover(isPresented: $showProfile, source: profileLens) {userProfileScreen()}
             }
         }
         .ignoresSafeArea()
@@ -88,10 +88,10 @@ extension MessagesContainer {
     private var profileImage: some View {
         if let img = userProfileImages.first {
             SmallImage(image: img, size: 32, isCircle: true)
-                .matchedTransitionSource(id: "profile", in: profileZoom)
                 .shrinkPress {
                     showProfile = true
                 }
+                .lensCoverSource(profileLens, image: img, inToolbarPlatter: true) //Outside the press, so the flight leaves from the resting circle; the bar's glass around it is the ring a close lands it back into
         }
     }
     
@@ -136,7 +136,6 @@ extension MessagesContainer {
                 defaults: vm.defaults
             )
         )
-        .navigationTransition(.zoom(sourceID: "profile", in: profileZoom))
     }
     
     private func settingScreen() -> some View {

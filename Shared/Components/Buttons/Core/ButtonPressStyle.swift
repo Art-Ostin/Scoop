@@ -69,14 +69,15 @@ struct PressEffect {
     }
 }
 
-// A button's press AS RENDERED — the interpolated scale and brightness this frame, not the
+// A button's press AS RENDERED — the interpolated scale, brightness and opacity this frame, not the
 // targets the model holds. Published up the tree by every PressAnimation so a flight lifting the
 // button off the screen can take off from the pose the finger left it in (the event zoom's
-// capsule hero): without it a deliberate press grew the invite disc 22% and the flying copy
-// snapped back to 1.0 on the release frame (sim 2026-09-04).
+// capsule hero, the lens cover's circle): without it a deliberate press grew the invite disc 22%
+// and the flying copy snapped back to 1.0 on the release frame (sim 2026-09-04).
 struct PressPose: Equatable {
     var scale: CGFloat
     var brightness: Double
+    var opacity: Double = 1 //The standard shrink also dims to 0.75: a copy taking off at full opacity brightens in one frame
     static let rest = PressPose(scale: 1, brightness: 0)
 }
 
@@ -93,14 +94,15 @@ struct PressPoseKey: PreferenceKey {
 private struct PressPoseReporter: ViewModifier, Animatable {
     var scale: CGFloat
     var brightness: Double
+    var opacity: Double
 
-    var animatableData: AnimatablePair<CGFloat, Double> {
-        get { AnimatablePair(scale, brightness) }
-        set { scale = newValue.first; brightness = newValue.second }
+    var animatableData: AnimatablePair<CGFloat, AnimatablePair<Double, Double>> {
+        get { AnimatablePair(scale, AnimatablePair(brightness, opacity)) }
+        set { scale = newValue.first; brightness = newValue.second.first; opacity = newValue.second.second }
     }
 
     func body(content: Content) -> some View {
-        content.preference(key: PressPoseKey.self, value: PressPose(scale: scale, brightness: brightness))
+        content.preference(key: PressPoseKey.self, value: PressPose(scale: scale, brightness: brightness, opacity: opacity))
     }
 }
 
@@ -124,7 +126,7 @@ private struct PressAnimation: ViewModifier {
             .opacity(opacity)
             .brightness(brightness)
             .shadow(elevation, tint: tint, strength: shadowStrength)
-            .modifier(PressPoseReporter(scale: scale, brightness: brightness))
+            .modifier(PressPoseReporter(scale: scale, brightness: brightness, opacity: opacity))
             .onChange(of: isPressed) { _, isPressed in onPressed(isPressed) }
     }
 

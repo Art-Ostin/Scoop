@@ -63,11 +63,11 @@ extension InviteHistoryContainer {
     
     
     private func inviteSection(pastEvent: PastEventProposal, isActiveRow: Bool) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             titleRow(for: pastEvent, isActiveRow: isActiveRow)
             
             VStack(spacing: 18) {
-                VStack(spacing: pastEvent.message?.isEmpty == false ? 18 : 28) {
+                VStack(spacing: pastEvent.message?.isEmpty == false ? 36 : 36) {
                     whatRowWithTime(what: pastEvent.type, time: pastEvent.dateSent)
                     whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
                     whereRow(location: pastEvent.place)
@@ -78,7 +78,7 @@ extension InviteHistoryContainer {
                     messageSection(proposal: pastEvent, message: message)
                 }
             }
-            .modifier(InviteBackground())
+            .modifier(InviteBackground(hasMessage: pastEvent.message?.isEmpty == false))
             .overlay(alignment: .bottomTrailing) {
                 if isActiveRow {
                     Text("Current Invite")
@@ -99,6 +99,10 @@ extension InviteHistoryContainer {
                 .foregroundStyle(Color.textTertiary)
 
             Spacer()
+            
+            Text(proposal.kind == .original ? "Original Invite" : (proposal.kind == .newTime ? "New Time" : "New Event"))
+                .font(.title(14, .bold))
+                .foregroundStyle(Color.textSecondary)
         }
         .padding(.horizontal, 5)//Optical illusion -> looks slightly smoother indented
     }
@@ -107,9 +111,9 @@ extension InviteHistoryContainer {
     private func timeTitle(_ proposal: PastEventProposal) -> String {
         let name = senderName(for: proposal)
         switch proposal.kind {
-        case .original: return "\(name)'s original Invite"
-        case .newTime: return "\(name) proposed a new Time"
-        case .newEvent: return "\(name) proposed a new event"
+        case .original: return "\(name)" //'s original Invite
+        case .newTime: return "\(name)" //proposed a new Time
+        case .newEvent: return "\(name)" // proposed a new event
         }
     }
     
@@ -117,7 +121,7 @@ extension InviteHistoryContainer {
         HStack(alignment: .top) {
             HStack(spacing: iconGap) {
                 Text(what.emoji)
-                    .font(.body(16, .bold))
+                    .font(.body(14, .bold))
                     .detailIconColumn()
 
                 sectionLayer(title: "WHAT", bodyText: what.longTitle)
@@ -158,15 +162,9 @@ extension InviteHistoryContainer {
     }
     
     private func sectionLayer(title: String, bodyText: String, isBold: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs - 1) {
-            Text(title)
-                .font(.body(12, .medium))
-                .foregroundColor(Color(red: 0.83, green: 0.83, blue: 0.81))
-            
-            Text(bodyText)
-                .font(.body(17, isBold ? .bold : .medium))
-                .foregroundStyle(Color.textPrimary)
-        }
+        Text(bodyText)
+            .font(.body(17, isBold ? .bold : .medium))
+            .foregroundStyle(Color.textPrimary)
     }
     
     var dismissButton: some View {
@@ -221,8 +219,8 @@ extension InviteHistoryContainer {
 
 
 
-private let iconColumn: CGFloat = 16
-private let iconGap = Spacing.lg
+private let iconColumn: CGFloat = 20
+private let iconGap: CGFloat = 20
 private let avatarSize: CGFloat = 30
 
 private extension View {
@@ -233,11 +231,14 @@ private extension View {
 
 struct InviteBackground: ViewModifier {
     
+    let hasMessage: Bool
+    
+    
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 16)
-            .padding(.top, 20)
-            .padding(.bottom, 18)
+            .padding(.top, 24)
+            .padding(.bottom, hasMessage ? 18 : 24)
             .background(Color.white, in: .rect(cornerRadius: 16))
             .shadow(color: .black.opacity(0.05), radius: 7.5, x: 0, y: 1)
     }
@@ -250,6 +251,16 @@ struct InviteBackground: ViewModifier {
          .padding(.horizontal, Self.titleWidth) //Length of the title
          .padding(.horizontal, 22) //Spacing between edge and content
          .offset(y: -48)
+ }
+
+ */
+
+/*
+ VStack(alignment: .leading, spacing: Spacing.xs - 1) {
+     Text(title)
+         .font(.body(12, .medium))
+         .foregroundColor(Color(red: 0.83, green: 0.83, blue: 0.81))
+     
  }
 
  */
