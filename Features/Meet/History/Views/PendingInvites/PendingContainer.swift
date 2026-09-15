@@ -57,7 +57,12 @@ extension PendingInvitesView {
     }
     
     private var pendingCalendar: some View {
-        PendingCalendar(inviteDays: days, ui: ui, images: images)
+        PendingCalendar(inviteDays: days) { invite in
+            ViewInvite(inviteSummary: InviteSummary(event: invite.event),
+                       images: images(invite), //Read inside the card, so a set that loads while it is up reaches the pager
+                       name: invite.profile.name,
+                       title: "Invited \(invite.profile.name)")
+        }
             .padding(.horizontal, Spacing.gutter)
             .padding(.bottom, Spacing.xl) //The card → the section that follows it
     }

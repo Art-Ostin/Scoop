@@ -11,7 +11,7 @@ import SwiftUI
 struct EventBackdrop: View {
     var body: some View {
         Rectangle()
-            .fill(.thinMaterial)
+            .fill(.regularMaterial)
             .background(Color.white.opacity(0.2))
             .ignoresSafeArea()
     }

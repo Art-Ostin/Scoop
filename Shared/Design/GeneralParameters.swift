@@ -156,6 +156,15 @@ extension Animation {
     /// …and their dismissal. Quicker than `.present`, flat, never bounces — gets out of the way.
     static let dismiss = Animation.smooth(duration: 0.22)
 
+    /// Chrome springing out of the control that owns it — the Invites chips fanning out of their toggle. The one role
+    /// that overshoots on purpose: the farthest chip runs a few points past its slot (~2.8% of its travel) and settles.
+    /// Drive ONE progress with it and pose every piece from that value, so a re-tap turns everything round together.
+    static let sprout = Animation.spring(duration: 0.45, bounce: 0.25)
+
+    /// …and tucked back in. Quicker than `.sprout` and sprung harder, so the chips reach the control still travelling;
+    /// their ~4.6% undershoot happens under it, out of sight, and the control's glyph wears it as the landing's swell.
+    static let tuck = Animation.spring(duration: 0.36, bounce: 0.3)
+
     /// Position & offset settles — drag-release, programmatic scroll, layout shifts, list insert/remove. Physical, lightly sprung.
     static let move = Animation.spring(duration: 0.4, bounce: 0.08)
 

@@ -15,6 +15,8 @@ struct InvitesContainer: View {
     //Injected
     @Environment(AppRouter.self) private var router
     @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var chipLine: CGFloat = 12 //A chip's 12pt ModernEra line at the current Dynamic Type size
     let vm: InvitesViewModel
 
     //Local view state
@@ -24,9 +26,10 @@ struct InvitesContainer: View {
 
     @State var scrollProgress: Double = 0
     
-    @Namespace var infoZoom
+    @Namespace var calendarZoom
 
     private var isSingleInvite: Bool { vm.invites.count == 1 }
+    private var hasEventsMenu: Bool { vm.invites.count >= 3 }
     private var peek: CGFloat { isSingleInvite ? 0 : Spacing.gutter }
     private var cardInset: CGFloat? { isSingleInvite ? Spacing.gutter : nil }
     private var topPull: CGFloat { isSingleInvite ? -20 : -6 }
@@ -51,17 +54,13 @@ struct InvitesContainer: View {
             }
         }
         .ignoresSafeArea()
-        .overlay(alignment: .topTrailing) { if vm.invites.count < 3 { infoIcon } else { eventsMenuBar } }
-        .overlay(alignment: .topLeading) { if vm.invites.count >= 3 { TitleInfoIcon(ui: ui) } }
+        .overlay(alignment: .topTrailing) {calendarButton}
+        .overlay(alignment: .topLeading) { if hasEventsMenu { TitleInfoIcon(ui: ui) } }
         .background { TimePickerWarmUp() }
         .task { await vm.ensureUserImageLoaded() } //Your own face for the history rows; loaded here so it's ready before the sheet opens
         .sheet(item: $ui.showInviteHistory) { eventProfile in
             InviteHistoryContainer(event: eventProfile.event, profileImage: eventProfile.image, userImage: vm.userImage)
         }
-        .fullScreenCover(isPresented: $ui.showInfo) {
-            infoPage
-        }
-        
     }
 }
 
@@ -149,49 +148,20 @@ extension InvitesContainer {
 //Logic with the scroll Menu at the top
 extension InvitesContainer {
     
-    //The chips scroll in their own lane that ends before the toggle, so none ever slides under it
-    private var eventsMenuBar: some View {
-        HStack(spacing: Spacing.xs) {
-            if ui.showEventsScrollMenu { actionRow }
-            toggleEventsMenuButton
-        }
-        .padding(.top, Spacing.md)
-    }
-
-    private var actionRow: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: Spacing.sm) {
-                ForEach(vm.invites, id: \.self) { invite in
-                    ScoopButton(style: .glass, shape: .capsule) {
-                        withAnimation(.move) { scrollPosition.scrollTo(id: invite.id) }
-                    } label: {
-                    Text("\(invite.profile.name) · \(fetchDay(invite: invite))")
-                        .padding(.vertical, 7)
-                        .padding(.horizontal, 10)
-                        .font(.body(12, .bold)) //+ your padding; each capsule hugs its label
-                    }
-                }
-            }
-            .instantPressDelivery()
-        }
-        .contentMargins(.leading, Spacing.gutter, for: .scrollContent)
-        .contentMargins(.trailing, Spacing.lg, for: .scrollContent) //The last chip can rest clear of the fade
-        .scrollIndicators(.hidden)
-        .scrollClipDisabled()
-        .mask { chipFadeMask }
-        .blurPop(visible: isAtTopOfScroll, anchor: .leading)
-    }
-
-    //Fades the chips out at the lane's end, before the toggle
-    private var chipFadeMask: some View {
-        HStack(spacing: 0) {
-            Color.black
-            LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                .frame(width: Spacing.lg)
-        }
-        .padding(.vertical, -Spacing.lg) //Taller than the row, so the chips' glass halos aren't cut above and below
-    }
+    //The chips scroll in their own lane that ends before the toggle, so none ever rests under it; they sprout out of the toggle and tuck back into it
     
+    private var calendarButton: some View  {
+        ScoopButton(shape: Circle(), size: .medium, action: { ui.showCalendarView = true }) {
+            Image("CalendarIcon") //systemName: "calendar"
+                .resizable()
+                .frame(width: 18, height: 18)
+        }
+        .blurPop(visible: isAtTopOfScroll)
+        .matchedTransitionSource(id: "calendar", in: calendarZoom)
+        .fullScreenCover(isPresented: $ui.showCalendarView) {calendarView}
+        .padding(.top, Spacing.md) //As its small icon, sits in correct position
+        .padding(.horizontal, Spacing.margin)
+    }
     
     private var infoIcon: some View {
         ScoopButton(shape: Circle(), size: .medium) {
@@ -204,34 +174,13 @@ extension InvitesContainer {
         .blurPop(visible: isAtTopOfScroll)
         .padding(.top, Spacing.md)
         .padding(.horizontal, Spacing.margin)
-        .matchedTransitionSource(id: "info", in: infoZoom)
+        .matchedTransitionSource(id: "calendar", in: calendarZoom)
         .zIndex(0)
     }
     
-    
-    private var toggleEventsMenuButton: some View {
-        ScoopButton(shape: Circle(), size: .small) {
-            ui.showEventsScrollMenu.toggle()
-        } label: {
-            ZStack {
-                if ui.showEventsScrollMenu {
-                    Image(systemName: "eye.slash")
-                        .font(.body(12, .bold))
-                        .transition(.blurReplace)
-                } else {
-                    Text(vm.invites.count, format: .number)
-                        .font(.body(11, .bold))
-                        .transition(.blurReplace)
-                }
-            }
-            .animation(.transition, value: ui.showEventsScrollMenu)
-        }
-        .padding(.trailing, ui.showEventsScrollMenu ? Spacing.gutter : Spacing.margin)
-    }
-    
-    private var infoPage: some View {
-        Text("Hello World")
-            .navigationTransition(.zoom(sourceID: "info", in: infoZoom))
+    private var calendarView: some View {
+        CalendarContainer(vm: vm, onRespond: { respond($0, $1) })
+            .navigationTransition(.zoom(sourceID: "calendar", in: calendarZoom))
     }
 }
 
@@ -257,3 +206,69 @@ private struct TitleInfoIcon: View {
 }
 
 
+/*
+ private var eventsMenuBar: some View {
+     HStack(spacing: EventsMenuSprout.gap) {
+         if ui.eventsMenuMounted { actionRow }
+//            toggleEventsMenuButton
+     }
+     .frame(minHeight: chipLine + 14) //Geometry: a chip's scaled line + its 7pt padding pair, so the toggle centres in one height with or without the lane
+     .padding(.top, Spacing.md)
+     .onAppear { if !ui.showEventsScrollMenu && ui.eventsMenuMounted { shutEventsMenu() } } //A tuck whose completion never ran leaves no glass behind
+ }
+
+ 
+ .overlay(alignment: .trailing) { ChipFadeVeil(progress: ui.eventsMenuSprout, reduceMotion: reduceMotion) }
+
+ //One circle that stays on its spot while the chips leave and return; its inset and its glyphs ride their progress
+ private var toggleEventsMenuButton: some View {
+     let sprout = ui.eventsMenuSprout
+     return ScoopButton(shape: Circle(), size: EventsMenuSprout.toggle) {
+         toggleEventsMenu()
+     } label: {
+         ZStack {
+             Text(vm.invites.count, format: .number)
+                 .font(.body(13, .bold))
+                 .contentTransition(.numericText())
+                 .animation(.transition, value: vm.invites.count) //A count that changes while tucked rolls its digits
+                 .modifier(ToggleGlyphPose(progress: sprout, showsOpen: false, reduceMotion: reduceMotion))
+             Image(systemName: "eye.slash")
+                 .font(.body(12, .bold))
+         }
+     }
+     .padding(.trailing, Spacing.gutter)
+     .accessibilityLabel(ui.showEventsScrollMenu ? "Hide invite shortcuts" : "Show \(vm.invites.count) invite shortcuts")
+ }
+
+ .onChange(of: hasEventsMenu) { _, hasMenu in if !hasMenu { shutEventsMenu() } } //Under three invites the bar goes, so it comes back tucked, never half-open
+ .modifier(ChipSprout(progress: ui.eventsMenuSprout, reduceMotion: reduceMotion))
+ .modifier(ToggleGlyphPose(progress: sprout, showsOpen: true, reduceMotion: reduceMotion))
+ .modifier(ToggleGlyphPose(progress: sprout, showsOpen: false, reduceMotion: reduceMotion))
+
+ private var actionRow: some View {
+     ScrollView(.horizontal) {
+         HStack(spacing: Spacing.sm) {
+             ForEach(vm.invites) { invite in
+                 ScoopButton(style: .glass, shape: .capsule) {
+                     guard ui.showEventsScrollMenu else { return } //Hit-testing runs at model values, so a chip tucking home still takes taps at its slot
+                     withAnimation(.move) { scrollPosition.scrollTo(id: invite.id) }
+                 } label: {
+                     Text("\(invite.profile.name) · \(fetchDay(invite: invite))")
+                         .padding(.vertical, 7) //Geometry: ModernEra's 12pt line + 14 = the toggle's 26pt disc at the default text size, so the chips fly level with its centre
+                         .padding(.horizontal, 10)
+                         .font(.body(12, .bold)) //+ your padding; each capsule hugs its label
+                 }
+             }
+         }
+         .instantPressDelivery()
+         .animation(.move, value: vm.invites.map(\.id)) //An invite arriving or leaving while open reflows the lane instead of cutting
+     }
+     .contentMargins(.leading, Spacing.gutter, for: .scrollContent)
+     .contentMargins(.trailing, Spacing.lg, for: .scrollContent) //The last chip can rest clear of the fade
+     .scrollIndicators(.hidden)
+     .scrollClipDisabled()
+     .accessibilityHidden(!ui.showEventsScrollMenu || !isAtTopOfScroll) //Unreachable from the tap that tucks them, and while the row is popped away
+     .blurPop(visible: isAtTopOfScroll, anchor: .leading)
+ }
+
+ */

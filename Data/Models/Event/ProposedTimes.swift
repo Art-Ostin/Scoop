@@ -175,9 +175,6 @@ struct ProposedTimes: Codable, Equatable, Hashable  {
     
 }
 
-//How close to a proposed time the other side stops being able to accept. One constant, so the
-//list that draws a day, the list that calls the invite expired, and the copy explaining the
-//rule can't drift apart.
 extension ProposedTimes {
 
     static let acceptanceLead: TimeInterval = 4 * 60 * 60
@@ -193,15 +190,10 @@ extension ProposedTimes {
         acceptableTimes(asOf: now).isEmpty
     }
 
-    //Whether a day can still be picked. The one predicate the respond popup asks — the cell that
-    //draws a day's status and the draft that selects one both come here, so a selected day can
-    //never read "Unavailable". `stillAvailable` alone (availableTimes) never consults the clock.
     func isSelectable(_ date: Date, asOf now: Date = .now) -> Bool {
         acceptableTimes(asOf: now).contains { $0.date == date }
     }
 
-    //The day to land on when nothing is chosen yet — nil once every day has lapsed, which is the
-    //same set isExpired reports on.
     func firstSelectableDate(asOf now: Date = .now) -> Date? {
         acceptableTimes(asOf: now).first?.date
     }

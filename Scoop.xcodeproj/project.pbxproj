@@ -215,6 +215,9 @@
 		6594DABF30571AEA00EA583D /* RespondNoteReveal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6594DABE30571AEA00EA583D /* RespondNoteReveal.swift */; };
 		6594DAC13057458C00EA583D /* LensCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6594DAC03057458C00EA583D /* LensCover.swift */; };
 		659568262ED28BBA0091163E /* ShakeEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659568252ED28BBA0091163E /* ShakeEffect.swift */; };
+		6597B411305885A200A976DC /* CalendarContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6597B410305885A200A976DC /* CalendarContainer.swift */; };
+		6597B41330589C0800A976DC /* InviteDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6597B41230589C0800A976DC /* InviteDay.swift */; };
+		6597B4153059B95B00A976DC /* CalendarPendingEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6597B4143059B95B00A976DC /* CalendarPendingEvents.swift */; };
 		6598527D2FD7FDDB00D75CA5 /* EventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6598527C2FD7FDDB00D75CA5 /* EventDetails.swift */; };
 		659852822FD7FDFA00D75CA5 /* EventMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659852812FD7FDFA00D75CA5 /* EventMap.swift */; };
 		659852842FD7FE0E00D75CA5 /* EventInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659852832FD7FE0E00D75CA5 /* EventInfo.swift */; };
@@ -549,6 +552,9 @@
 		6594DABE30571AEA00EA583D /* RespondNoteReveal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespondNoteReveal.swift; sourceTree = "<group>"; };
 		6594DAC03057458C00EA583D /* LensCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensCover.swift; sourceTree = "<group>"; };
 		659568252ED28BBA0091163E /* ShakeEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEffect.swift; sourceTree = "<group>"; };
+		6597B410305885A200A976DC /* CalendarContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarContainer.swift; sourceTree = "<group>"; };
+		6597B41230589C0800A976DC /* InviteDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteDay.swift; sourceTree = "<group>"; };
+		6597B4143059B95B00A976DC /* CalendarPendingEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarPendingEvents.swift; sourceTree = "<group>"; };
 		6598527C2FD7FDDB00D75CA5 /* EventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetails.swift; sourceTree = "<group>"; };
 		659852812FD7FDFA00D75CA5 /* EventMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventMap.swift; sourceTree = "<group>"; };
 		659852832FD7FE0E00D75CA5 /* EventInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfo.swift; sourceTree = "<group>"; };
@@ -951,6 +957,7 @@
 				652D3D2E2F2E9A0600AE491D /* EventLocation.swift */,
 				657B8D582F2D73EE00583ADA /* ProposedTimes.swift */,
 				652D3D1F2F2E39AC00AE491D /* PastEventProposal.swift */,
+				6597B41230589C0800A976DC /* InviteDay.swift */,
 			);
 			path = Event;
 			sourceTree = "<group>";
@@ -1450,6 +1457,7 @@
 			children = (
 				65AF14912F64456000031513 /* InvitesViewModel.swift */,
 				6549DA692F9E85C800C89DF2 /* Views */,
+				6597B40F3058858F00A976DC /* CalendarView */,
 			);
 			path = Invites;
 			sourceTree = "<group>";
@@ -1566,6 +1574,15 @@
 				6549DA722F9E875700C89DF2 /* Settings */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		6597B40F3058858F00A976DC /* CalendarView */ = {
+			isa = PBXGroup;
+			children = (
+				6597B410305885A200A976DC /* CalendarContainer.swift */,
+				6597B4143059B95B00A976DC /* CalendarPendingEvents.swift */,
+			);
+			path = CalendarView;
 			sourceTree = "<group>";
 		};
 		659CE9FF30109D3E00E0F735 /* SelectTimePopup */ = {
@@ -2096,6 +2113,7 @@
 				65FAF9A02E42BEA70015E231 /* SimpleClockView.swift in Sources */,
 				657B8D532F2D41C300583ADA /* InviteTimeRow2.swift in Sources */,
 				6575C5A730371B2A00A99A9D /* HistoryContainer.swift in Sources */,
+				6597B41330589C0800A976DC /* InviteDay.swift in Sources */,
 				65E820A52E382C7F0098CC36 /* InterestsView.swift in Sources */,
 				6509DDC92E37A87B0042917B /* FlowNavigation.swift in Sources */,
 				65FAF98A2E414D1B0015E231 /* EventsContainer.swift in Sources */,
@@ -2113,6 +2131,7 @@
 				65B4E3992FA606A40044EE9A /* UserSession.swift in Sources */,
 				65304A1C30474201007D3DA3 /* EventBackdrop.swift in Sources */,
 				6577D7DD2E20424300FFCF82 /* EditHeight.swift in Sources */,
+				6597B4153059B95B00A976DC /* CalendarPendingEvents.swift in Sources */,
 				65F28E0A2F1E882A008BF4DA /* EditPreferredYears.swift in Sources */,
 				65E820992E37C2720098CC36 /* OnboardingContainer.swift in Sources */,
 				651975932F1FA9CE0002F6A2 /* DetailsExtraInfo.swift in Sources */,
@@ -2129,6 +2148,7 @@
 				9D4F2A7C1B8E3D5F00000002 /* ProfileMorph.swift in Sources */,
 				655FADCC2E89F0FC00AFAD5F /* ProfileViewModel.swift in Sources */,
 				650E8E5C2EB80D9E009F5454 /* DetailsSections.swift in Sources */,
+				6597B411305885A200A976DC /* CalendarContainer.swift in Sources */,
 				6593365C2E193CEA00150AAC /* MapSelectionView.swift in Sources */,
 				65140B1C2F55E41000ED1DDE /* ChatThread.swift in Sources */,
 				6514B60B2EB2FB9500551C3A /* ProfileImagesViewModel.swift in Sources */,

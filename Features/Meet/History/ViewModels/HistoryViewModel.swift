@@ -11,8 +11,7 @@ import SwiftUI
 @Observable
 @MainActor
 final class HistoryViewModel {
-    
-    
+
     private var session: Session
     
     init(session: Session) {
@@ -28,51 +27,10 @@ final class HistoryViewModel {
         session.sentInvites
     }
     
-    var activeInvites: [EventProfile] {
-        let now = Date()
+    var expiredInvites: [EventProfile] { sentInvites.expired() }
 
-        return sentInvites
-            .compactMap { invite -> (invite: EventProfile, soonest: Date)? in
-                guard let soonest = invite.event.proposedTimes.acceptableTimes(asOf: now).first?.date else { return nil }
-                return (invite, soonest)
-            }
-            .sorted { $0.soonest < $1.soonest }
-            .map(\.invite)
-    }
-    
-    var expiredInvites: [EventProfile] {
-        let now = Date()
+    var invitedDays: [InviteDay] { sentInvites.invitedDays() }
 
-        return sentInvites
-            .filter { $0.event.proposedTimes.isExpired(asOf: now) }
-            .sorted { $0.event.proposedTimes.lastProposedDate > $1.event.proposedTimes.lastProposedDate }
-    }
-    
-    
-    
-    var invitedDays: [InviteDay] {
-        let calendar = Calendar.current
-        let now = Date()
-
-        var byDay: [Date: [(time: Date, invite: EventProfile)]] = [:]
-
-        for invite in activeInvites {
-            for time in invite.event.proposedTimes.acceptableTimes(asOf: now) {
-                //Keyed by start of day: 19:00 and 21:30 on the 7th are one row, not two
-                let day = calendar.startOfDay(for: time.date)
-                byDay[day, default: []].append((time.date, invite))
-            }
-        }
-        return byDay
-            .map { day, entries in
-                let ordered = entries.sorted { $0.time < $1.time }.map(\.invite)
-                var seen = Set<String>()
-                return InviteDay(day: day, invites: ordered.filter { seen.insert($0.id).inserted })
-            }
-            .sorted { $0.day < $1.day }
-    }
-    
-    
     var imageLoader: ImageLoading { session.imageLoader }
     var defaults: DefaultsManaging { session.defaultsManager }
 
@@ -90,22 +48,9 @@ final class HistoryViewModel {
     }
 }
 
-
-struct InviteDay: Identifiable {
-    let day: Date //Start of day — the bucket key and the row's label
-    let invites: [EventProfile]
-
-    var id: Date { day }
-}
-
-
 @Observable
 final class HistoryUIState {
     var pagerProgress: Double = 0
-
-    ///The ledger lens whose card is up — cleared by the lens' own `.eventZoom` once the close
-    ///flight has landed. Either lens of an invite opens the same card, grown out of the one tapped.
-    var selectedLensID: String?
 
     var expandedInvite: String?
 

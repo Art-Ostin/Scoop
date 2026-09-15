@@ -13,11 +13,21 @@ struct PendingCalendar: View {
 
     //Injected
     let inviteDays: [InviteDay]
-    let ui: HistoryUIState //Which lens is up — either lens of an invite opens the same card, grown out of the one tapped
-    let images: (EventProfile) -> [UIImage] //The card's pages for an invite: its own image until the profile's set has loaded
+    private let card: (EventProfile) -> AnyView //What a lens opens: the screen that owns the calendar decides
+    private let onOpen: (EventProfile, Date) -> Void //A lens tapped on its day, just before its card opens: the owner can pose the card for that day
 
+    
     //Local view state
     @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal
+    @State private var selectedLensID: String? //Which lens is up — either lens of an invite opens the same card, grown out of the one tapped
+
+    //Generic init, erased once: .eventZoom wraps its card in AnyView anyway, and a generic type would outlaw the static layout constants below
+    init<Card: View>(inviteDays: [InviteDay], onOpen: @escaping (EventProfile, Date) -> Void = { _, _ in },
+                     @ViewBuilder card: @escaping (EventProfile) -> Card) {
+        self.inviteDays = inviteDays
+        self.onOpen = onOpen
+        self.card = { AnyView(card($0)) }
+    }
 
     //TODO: the composer proposes across 11 days (DayPicker.dayCount) — share one horizon constant when the data wiring lands
     private static let dayCount = 10
@@ -129,9 +139,10 @@ extension PendingCalendar {
     //The deadline always, and the rule a shared day raises only while some day actually holds
     //two invites — the case where one acceptance decides the others.
     private var acceptanceNote: String {
-        let deadline = "They have until \(Int(ProposedTimes.acceptanceLead / 3600)) hours before the invite to accept"
-        guard inviteDays.contains(where: { $0.invites.count > 1 }) else { return deadline }
-        return deadline + "\n\nAs soon as one person accepts, your invite to the others for that day expires"
+        let deadline = "They have until \(Int(ProposedTimes.acceptanceLead / 3600)) hours before the invite to accept.\nAs soon as one person accepts, your invite the others for that day expires."
+        return deadline
+//        guard inviteDays.contains(where: { $0.invites.count > 1 }) else { return deadline }
+//        return deadline + "\n\nAs soon as one person accepts, your invite to the others for that day expires"
     }
 }
 
@@ -205,8 +216,9 @@ extension PendingCalendar {
     private func lens(_ face: Face, day: Date) -> some View {
         Lens(face: face,
              lensID: "\(face.invite.id)#\(Int(day.timeIntervalSinceReferenceDate))",
-             ui: ui,
-             images: images)
+             selectedLensID: $selectedLensID,
+             onOpen: { onOpen(face.invite, day) },
+             card: card)
     }
 
     private func overflowChip(_ day: Date, hidden: Int) -> some View {
@@ -250,34 +262,35 @@ extension PendingCalendar {
         //Injected
         let face: Face
         let lensID: String
-        let ui: HistoryUIState
-        let images: (EventProfile) -> [UIImage]
+        @Binding var selectedLensID: String?
+        let onOpen: () -> Void
+        let card: (EventProfile) -> AnyView
 
         //Id-guarded, like the tab cards' bindings: an evicted card's landed dismissal must never
         //drop a newer lens' selection
         private var isPresented: Binding<Bool> {
             Binding {
-                ui.selectedLensID == lensID
+                selectedLensID == lensID
             } set: { presented in
-                if presented { ui.selectedLensID = lensID }
-                else if ui.selectedLensID == lensID { ui.selectedLensID = nil }
+                if presented { selectedLensID = lensID }
+                else if selectedLensID == lensID { selectedLensID = nil }
             }
         }
 
         var body: some View {
             let name = face.invite.profile.name
 
-            Button { ui.selectedLensID = lensID } label: {
+            Button {
+                onOpen() //First, in the same tap: the card's first body is built from the posed draft
+                selectedLensID = lensID
+            } label: {
                 LensFace(face: face)
             }
             .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
             .instantPressDelivery()
             .accessibilityLabel(face.isFirst ? name : "\(name) — alternative day")
             .eventZoom(isPresented: isPresented) {
-                ViewInvite(inviteSummary: InviteSummary(event: face.invite.event),
-                           images: images(face.invite), //Read inside the card, so a set that loads while it is up reaches the pager
-                           name: name,
-                           title: "Invited \(name)")
+                card(face.invite) //Built inside the card, so photos that load while it is up still reach it
             }
         }
     }

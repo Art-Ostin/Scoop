@@ -30,6 +30,14 @@ class RespondViewModel {
         self.userImage = userImage
     }
         
+    //The Invites calendar's tap: that day's proposed time selected, and back on the original invite whatever mode the draft was left in
+    func select(day: Date) {
+        let times = respondDraft.originalInvite.event.proposedTimes.acceptableTimes()
+        guard let time = times.first(where: { Calendar.current.isDate($0.date, inSameDayAs: day) })?.date else { return } //A day that has lapsed is left alone
+        guard respondDraft.respondType != .originalInvite || respondDraft.originalInvite.selectedDay != time else { return } //@Observable fires on every set, and a same-value write can stall the flight's glass
+        respondDraft.originalInvite.selectedDay = time //originalInvite's didSet puts the draft back on the original invite
+    }
+
     @MainActor func deleteEventDefault() {
         let profileId = respondDraft.originalInvite.event.otherUserId
         defaults.deleteEventDraft(profileId: profileId)

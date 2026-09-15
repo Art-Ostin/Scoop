@@ -26,8 +26,9 @@ struct InviteHistoryContainer: View {
         (event.pastProposals ?? []).reversed()
     }
     
+    @State var isTopOfScroll = false
+    
     var body: some View {
-        
         NavigationStack {
             ScrollView(.vertical) {
                 VStack(spacing: 60) {
@@ -41,6 +42,7 @@ struct InviteHistoryContainer: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, Spacing.clearance)
             }
+            .isAtTopOfScroll($isTopOfScroll)
             .background(Color(red: 0.97, green: 0.96, blue: 0.95).ignoresSafeArea())
             .navigationTitle(Self.title)
             .scoopNavigationBarFonts(title: Self.title) //Guarantees the bar draws the font titleWidth is measured in
@@ -63,40 +65,51 @@ extension InviteHistoryContainer {
     
     
     private func inviteSection(pastEvent: PastEventProposal, isActiveRow: Bool) -> some View {
-        VStack(spacing: 12) {
+        let message = visibleMessage(pastEvent) //Decided once, so the spacing and the note can't disagree
+        return VStack(spacing: 12) {
             titleRow(for: pastEvent, isActiveRow: isActiveRow)
-            
-            VStack(spacing: 18) {
-                VStack(spacing: pastEvent.message?.isEmpty == false ? 36 : 36) {
+
+            VStack(spacing: Spacing.lg) { //Above the rule: the note's break outweighs a row gap
+                VStack(spacing: Spacing.xl) { //One row rhythm, note or not, so stacked cards line up
                     whatRowWithTime(what: pastEvent.type, time: pastEvent.dateSent)
                     whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
                     whereRow(location: pastEvent.place)
                 }
-                
-                if let message = pastEvent.message {
-                    LightDivider()
-                    messageSection(proposal: pastEvent, message: message)
+
+                if let message {
+                    VStack(spacing: Spacing.lg) { //The same break below the rule as above it: the note's lowercase ink sits as far under it as the place row's baseline sits over it
+                        LightDivider()
+                            .padding(.leading, textColumn)
+                        messageSection(message: message)
+                    }
                 }
             }
-            .modifier(InviteBackground(hasMessage: pastEvent.message?.isEmpty == false))
+            .modifier(InviteBackground())
             .overlay(alignment: .bottomTrailing) {
                 if isActiveRow {
                     Text("Current Invite")
                         .font(.title(14, .semibold))
                         .foregroundStyle(.accent)
                         .offset(y: 24)
-                        .padding(.trailing, 12)
+                        .padding(.trailing, 5) //.horizontal
                 }
             }
-            .padding(.bottom, isActiveRow ? 8 : 0)
+            .padding(.bottom, isActiveRow ? 12 : 0)
         }
     }
     
     private func titleRow(for proposal: PastEventProposal, isActiveRow: Bool) -> some View {
         HStack(spacing: Spacing.xs) {
-            Text(timeTitle(proposal))
-                .font(.title(17, .semibold))
-                .foregroundStyle(Color.textTertiary)
+            
+            HStack(spacing: 12) {
+                if let image = profileImage(for: proposal) {
+                    smallTopImage(image: image)
+                }
+                
+                Text(timeTitle(proposal))
+                    .font(.title(17, .semibold))
+                    .foregroundStyle(Color.textTertiary)
+            }
 
             Spacer()
             
@@ -107,6 +120,22 @@ extension InviteHistoryContainer {
         .padding(.horizontal, 5)//Optical illusion -> looks slightly smoother indented
     }
     
+    
+    
+    
+    private func smallTopImage(image: UIImage) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: 45, height: 45)
+            
+            SmallImage(image: image, size: 35, isCircle: true)
+                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
+                .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 0)
+        }
+        .shrinkPress { }
+    }
+
     
     private func timeTitle(_ proposal: PastEventProposal) -> String {
         let name = senderName(for: proposal)
@@ -165,6 +194,7 @@ extension InviteHistoryContainer {
         Text(bodyText)
             .font(.body(17, isBold ? .bold : .medium))
             .foregroundStyle(Color.textPrimary)
+            .oneLineLimitAndShrink() //One line per detail row, so the card's rhythm never depends on the data
     }
     
     var dismissButton: some View {
@@ -175,24 +205,18 @@ extension InviteHistoryContainer {
         }
     }
     
-    private func messageSection(proposal: PastEventProposal, message: String) -> some View {
-        HStack(alignment: .top, spacing: Spacing.md) {
-            if let image = profileImage(for: proposal) {
-                SmallImage(image: image, size: avatarSize, isCircle: true)
-            }
-
-            Text(message)
-                .font(.body(14, .italic))
-                .lineSpacing(6)                          //Matches ConfirmMessageSection, so one note reads alike in both places
-                .lineLimit(3)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
-                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    //The header's face already says whose words these are, so the note wears none: it starts where the detail rows' text does
+    private func messageSection(message: String) -> some View {
+        Text(message)
+            .font(.body(14, .italic))
+            .lineSpacing(6)                          //Matches ConfirmMessageSection, so one note reads alike in both places
+            .lineLimit(3)
+            .minimumScaleFactor(0.7)
+            .allowsTightening(true)
+            .foregroundStyle(Color.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, textColumn)
     }
-
 }
 
 extension InviteHistoryContainer {
@@ -215,13 +239,18 @@ extension InviteHistoryContainer {
     private func liveEvent() -> PastEventProposal {
         return PastEventProposal(retiring: event)
     }
+
+    //A cleared note is saved as "", never nil, and whitespace counts as none.
+    //Returns the trimmed text, so a trailing newline can't add a blank line
+    private func visibleMessage(_ proposal: PastEventProposal) -> String? {
+        guard let text = proposal.message?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text
+    }
 }
 
-
-
-private let iconColumn: CGFloat = 20
-private let iconGap: CGFloat = 20
-private let avatarSize: CGFloat = 30
+private let iconColumn: CGFloat = 30 //Geometry: the emoji, clock and pin share one centre axis in it
+private let iconGap = Spacing.md
+private let textColumn = iconColumn + iconGap //Geometry: where every text line, and the rule, starts
 
 private extension View {
     func detailIconColumn() -> some View {
@@ -230,37 +259,53 @@ private extension View {
 }
 
 struct InviteBackground: ViewModifier {
-    
-    let hasMessage: Bool
-    
-    
+
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 16)
-            .padding(.top, 24)
-            .padding(.bottom, hasMessage ? 18 : 24)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.lg) //The same top and bottom whether or not a note closes the card
             .background(Color.white, in: .rect(cornerRadius: 16))
             .shadow(color: .black.opacity(0.05), radius: 7.5, x: 0, y: 1)
     }
 }
 
-/*
- .overlay(alignment: .topLeading) {
-     mainPhoto
-         .padding(.horizontal, 16) //Screen edge
-         .padding(.horizontal, Self.titleWidth) //Length of the title
-         .padding(.horizontal, 22) //Spacing between edge and content
-         .offset(y: -48)
- }
 
- */
 
 /*
- VStack(alignment: .leading, spacing: Spacing.xs - 1) {
-     Text(title)
-         .font(.body(12, .medium))
-         .foregroundColor(Color(red: 0.83, green: 0.83, blue: 0.81))
+ //                photoSection
+ private var photoSection: some View {
+     HStack(spacing: 28) {
+         if let profileImage {
+             topImage(image: profileImage)
+         }
+         if let userImage {
+             topImage(image: userImage)
+         }
+         Spacer()
+     }
+     .padding(.horizontal, 16)
+     .padding(.vertical, 16)
+     .padding(.bottom, 4)//some default padding between title and content.
      
+ }
+ 
+ private func topImage(image: UIImage) -> some View {
+     ZStack {
+         Circle()
+             .fill(Color.white)
+             .frame(width: 55, height: 55)
+         
+         SmallImage(image: image, size: 45, isCircle: true)
+             .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 0)
+             .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 0)
+     }
+     .shrinkPress { }
+ }
+ .overlay(alignment: .topLeading) {          // on the stack, not on its content
+//            circlePhoto
+//                .blurPop(visible: isTopOfScroll)    // .ignoresSafeArea() removed
+//                .padding(.horizontal, 16)
+//                .padding(.top, 20)
  }
 
  */

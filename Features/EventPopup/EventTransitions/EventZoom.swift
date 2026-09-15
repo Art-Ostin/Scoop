@@ -1918,12 +1918,14 @@ extension EventZoomChoreo {
     //commit. The page as it stands at TAKEOFF: a twin cannot follow a flip it never re-renders for, and
     //a piece off its page has nothing to fly. Built again at a landed close's start (`popsIn` false), from the page as it
     //stands THEN, once the hand-off has spent these.
-    //A LENS flies none: its cover starts at the ledger's 44pt face, and a piece laid out at the band's
-    //size and held against that corner would hang off the photo into bare backdrop for most of the
-    //flight — the slot-anchored rim's failure ([[project_wind_close_p_before_arrival]]). No lens card
-    //carries band chrome anyway, and the calendar's open is signed off (Arthur, 2026-09-05).
+    //A LENS flies them on the OPEN only, and late: its cover starts at the ledger's 44pt face and keeps
+    //corners of half its size until near the landing, so a piece held against that corner on `arrive`
+    //would hang off the photo into bare backdrop for most of the flight — the slot-anchored rim's failure
+    //([[project_wind_close_p_before_arrival]]). The morph fades a lens' twins in on `lensTwinArrive`
+    //instead, once the corner has squared up. A landed close from a lens still flies none, for the same
+    //reason in reverse. (A lens card first carried band chrome 2026-09-15: the Invites calendar's respond card.)
     private func captureBandChrome(popsIn: Bool = true) {
-        guard hasFlight, !shape.isLens else { return }
+        guard hasFlight, popsIn || !shape.isLens else { return }
         let twins = bandChromeSources
             .filter { $0.value.onPage }
             .map { EventZoomBandChromeCopy(id: $0.key, corner: $0.value.corner, view: $0.value.copy(), popsIn: popsIn) }
@@ -2455,6 +2457,10 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //just before touchdown where the land's reveal crossfades over already-identical words.
         //Hoisted out of the cover so the name morph shares one ramp.
         let arrive = smoothstep((p - 0.25) / 0.7)
+        //A lens' band-chrome twins wait for its corners: the cover's radius eases from half its size to the
+        //band's only as it lands, so a corner piece shown on `arrive` would sit off the photo. Full at 0.97,
+        //before the cut; the 0.8 start is a first tuning, to judge by eye
+        let lensTwinArrive = smoothstep((p - 0.8) / 0.17)
         //The frost's capsule, posed as INSETS from the cover's foot exactly as the title is (the name
         //morph's rule): the band's measured glyph rect, its leading and bottom insets held against the
         //cover's own edges — never scaled with the cover, because the words it backs never are. At
@@ -2576,7 +2582,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
             .overlay {
                 if coverShown, !bandCopies.isEmpty, pagerLocal.width > 1 {
                     ZStack {
-                        ForEach(bandCopies) { bandChromeTwin($0, cover: cover, band: pagerLocal, pop: arrive) }
+                        ForEach(bandCopies) { bandChromeTwin($0, cover: cover, band: pagerLocal, pop: shape.isLens ? lensTwinArrive : arrive) }
                     }
                     .environment(\.eventZoomCornerMorphing, corner?.landingTaken == true) //The corner hero draws the disc: the twin keeps its slot
                     .offset(y: -lift) //With the picture it sits on

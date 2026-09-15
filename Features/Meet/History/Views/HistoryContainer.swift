@@ -144,7 +144,8 @@ extension HistoryContainer {
             PendingInvitesView(days: vm.invitedDays,
                                expiredInvites: vm.expiredInvites,
                                ui: ui,
-                               images: { vm.images(for: $0) })
+                               images: { vm.images(for: $0) }
+            )
         }
         .scrollPosition($pendingScroll)
         .drawerNudge(isOpen: ui.showsExpired, by: expiredReveal, position: $pendingScroll)
@@ -152,7 +153,7 @@ extension HistoryContainer {
 }
 
 //Its own Title -> Fixes bug
-private struct HistoryTitle: View {
+ struct HistoryTitle: View {
     //Injected
     let ui: HistoryUIState
 
