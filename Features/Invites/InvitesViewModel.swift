@@ -43,7 +43,15 @@ import SwiftUI
         }
     }
     
+    //Needed as Calendar View also lists acceptedEvents
+    var acceptedEvents: [EventProfile] {
+        session.events
+    }
+    
+    
     var invitedDays: [InviteDay] { invites.invitedDays() }
+    
+    var expiredInvites: [EventProfile] { invites.expired()}
 
     func images(for invite: EventProfile) -> [UIImage] {
         let loaded = profileImages[invite.profile.id] ?? []

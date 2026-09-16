@@ -25,6 +25,14 @@ struct InviteSummary {
         self.message = draft.message
     }
     
+    //When from an accepted event
+    init(accepted event: UserEvent, at time: Date) {
+        self.type = event.type
+        self.time = ProposedTimes(items: [ProposedTime(date: time)])
+        self.place = event.location
+        self.message = event.message
+    }
+
     //When From invited event
     init(event: UserEvent) {
         self.type = event.type

@@ -34,6 +34,7 @@ import SwiftUI
     var profiles: [PendingProfile] { session.profiles }
     var pendingInvites: [PendingProfile] { session.profiles } // TODO: back with real pending invites
     var user: UserProfile { session.user }
+    var events: [EventProfile] { session.events} //Calendar View needs to store if the user has any events.
     
     func sendInvite(event: EventFieldsDraft, profile: UserProfile) async throws {
         try await profileRepo.updateProfileRec(userId: user.id, profileId: profile.id, status: .invited)

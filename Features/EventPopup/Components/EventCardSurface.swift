@@ -33,18 +33,42 @@ struct EventCardSurface: ViewModifier {
 //The dismiss chevron `.eventZoom` draws below its card — stationary, never riding the drag or the flight
 struct EventDismissButton: View {
     var visible: Bool = true
+    
+    let leadingTitle: String?
+    
     let onTap: () -> ()
+    
+    let onLeadingTap: (() -> ())?
+    
     var body: some View {
-        ScoopButton(shape: Circle(), action: { onTap() }) {
-            Image(systemName: "chevron.down")
-                .font(.body(17))
-                .fontWeight(.heavy)
-                .frame(width: 45, height: 45)
+        
+        HStack(spacing: Spacing.xs) {
+            if let leadingTitle, let onLeadingTap {
+                ScoopButton(shape: Capsule(), action: onLeadingTap) {
+                    Text(leadingTitle) // "View Event"
+                        .font(.body(16, .medium))
+                        .padding(.horizontal, Spacing.md)
+                        .frame(height: 45) //Geometry: the chevron's height
+                }
+                .opacityPop(visible: visible)
+                .allowsHitTesting(visible)
+                .animation(.transition, value: visible)
+                
+                
+                Spacer()
+                
+                ScoopButton(shape: Circle(), action: { onTap() }) {
+                    Image(systemName: "chevron.down")
+                        .font(.body(17))
+                        .fontWeight(.heavy)
+                        .frame(width: 45, height: 45)
+                }
+                .opacityPop(visible: visible)
+                .allowsHitTesting(visible)
+                .animation(.transition, value: visible)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
         }
-        .opacityPop(visible: visible)
-        .allowsHitTesting(visible)
-        .animation(.transition, value: visible)
-        .frame(maxWidth: .infinity, alignment: .trailing)
         .padding(.horizontal, 10)
         .padding(.horizontal, Spacing.sm) // 12
     }

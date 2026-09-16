@@ -179,6 +179,10 @@ extension ProposedTimes {
 
     static let acceptanceLead: TimeInterval = 4 * 60 * 60
 
+    //How far ahead an invite may propose, today included — the composer's grid and every calendar
+    //that draws the result read this one number, or a day picked at the far edge lands on no row.
+    static let horizonDays = 11
+
     //The days still worth offering: available, and far enough out to still be accepted.
     func acceptableTimes(asOf now: Date = .now) -> [ProposedTime] {
         availableTimes().filter { $0.date > now.addingTimeInterval(Self.acceptanceLead) }

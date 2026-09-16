@@ -29,9 +29,6 @@ struct PendingCalendar: View {
         self.card = { AnyView(card($0)) }
     }
 
-    //TODO: the composer proposes across 11 days (DayPicker.dayCount) — share one horizon constant when the data wiring lands
-    private static let dayCount = 10
-
     private static let faceSize: CGFloat = 42
     private static let echoFaceSize: CGFloat = 28
     //The primary wears a deliberately heavy edge and the echo a lighter one — 5pt of rim on a
@@ -61,7 +58,7 @@ struct PendingCalendar: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             HeaderRow(title: "Active", note: acceptanceNote)
 
-            let faces = ledger //One pass, read ten times — not rebuilt per row
+            let faces = ledger //One pass, read once per row — not rebuilt per row
             let rows = days
 
             VStack(spacing: 0) {
@@ -130,10 +127,15 @@ extension PendingCalendar {
             .frame(height: lineHeight) //Geometry: centred on the pile's first line, wherever the pile wraps
     }
 
+    //Always the whole window the composer could have proposed across, and never so few that an
+    //invited day falls off the end — a face the card cannot draw is an invite nobody answers
     private var days: [Date] {
         let cal = Calendar.current
         let start = cal.startOfDay(for: .now)
-        return (0..<Self.dayCount).compactMap { cal.date(byAdding: .day, value: $0, to: start) }
+        let furthest = inviteDays.map(\.day).max() ?? start
+        let span = max(ProposedTimes.horizonDays, (cal.dateComponents([.day], from: start, to: furthest).day ?? 0) + 1)
+
+        return (0..<span).compactMap { cal.date(byAdding: .day, value: $0, to: start) }
     }
 
     //The deadline always, and the rule a shared day raises only while some day actually holds

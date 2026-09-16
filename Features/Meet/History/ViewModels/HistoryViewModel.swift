@@ -27,6 +27,7 @@ final class HistoryViewModel {
         session.sentInvites
     }
     
+    
     var expiredInvites: [EventProfile] { sentInvites.expired() }
 
     var invitedDays: [InviteDay] { sentInvites.invitedDays() }

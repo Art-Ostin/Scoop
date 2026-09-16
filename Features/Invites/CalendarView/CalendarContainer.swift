@@ -1,6 +1,6 @@
 //
 //  CalendarContainer.swift
-//  Scoop Test
+//  Scoop
 //
 //  Created by Art Ostin on 14/09/2026.
 //
@@ -17,86 +17,174 @@ struct CalendarContainer: View {
     let vm: InvitesViewModel
     let onRespond: (EventProfile, ProfileResponse) -> Void //The Invites tab's own response flow
     
+    private static let title = "Calendar View"
+
     var body: some View {
         ZoomNavigationStack(isDetailPresented: $profileOpen) {
-            ScrollView {
-                VStack {
-                    heading
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.bottom, Spacing.clearance)
-                .padding(.horizontal, 24)
-                
-                
-                
-                
-            }
-            .overlay { dismissButtonLayer }
-            .eventZoomHost(eventZoomHost) //On the stack, not the ScrollView: the card and its backdrop also cover the large title
-            .interactiveDismissDisabled()
-            .task(id: vm.invites) { await loadInviteImages() }
-            .scrollIndicators(.hidden)
-            
+            titledScroll
+                .overlay { dismissButtonLayer }
+                .eventZoomHost(eventZoomHost)
         }
-        
+        .interactiveDismissDisabled(eventZoomHost.isPresenting || profileOpen)
+        .ignoresSafeArea()
     }
 }
 
 
+
 extension CalendarContainer {
-    
-    
-    private var heading: some View {
-        VStack(spacing: 12) {
-            Text("Calendar View")
-                .font(.title(32, .bold))
-            Text("See the days you've been invited to meet. Remember one invite can propose up to 3 different days.")
-                .font(.body(13, .regular))
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .kerning(0.312)
-                .lineSpacing(6)
+        
+    //iOS 26 hands the title to the bar: it takes the large title's slot, centred, and collapses into the
+    //inline title on scroll. iOS 18 has no such slot, so it keeps no bar and the title scrolls away with the content.
+    @ViewBuilder
+    private var titledScroll: some View {
+        if #available(iOS 26.0, *) {
+            NavigationStack {
+                scroll(titleInContent: false)
+                    .navigationTitle(Self.title) //The small centred title the big one collapses into
+                    .toolbar {
+                        ToolbarItem(placement: .largeTitle) { titleText } //Replaces the stock leading large title
+                    }
+                    .scoopNavigationBarFonts(title: Self.title)
+            }
+        } else {
+            scroll(titleInContent: true)
         }
-        .padding(.top, 48)
-        .ignoresSafeArea()
-    }
-    
-    
-    
-    private var subHeading: some View {
-        Text("See the days you've been invited to meet. Remember one invite can propose up to 3 different days.")
-            .font(.body(14, .medium))
-            .foregroundStyle(Color.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-            .lineSpacing(6)
-    }
-    
-    private var calendarView: some View {
-        PendingCalendar(inviteDays: vm.invitedDays,
-                        onOpen: { invite, day in vm.respondVM(for: invite).select(day: day) }) { invite in
-            RespondToInviteContainer(vm: vm.respondVM(for: invite),
-                                     images: vm.images(for: invite),
-                                     respond: { respond(invite, $0) })
-        }
-        .padding(.horizontal, 16)
     }
 
+    private func scroll(titleInContent: Bool) -> some View {
+        ScrollView {
+            VStack(spacing: 0) { //Each block below owns its own leading gap — no implicit ~8pt seams
+                heading(titleInContent: titleInContent)
+
+                calendarEventsView
+                    //One step below titleGap: the day grid carries its own air above the first label
+                    .padding(.top, Spacing.xl)
+
+                if !vm.expiredInvites.isEmpty {
+                    expiredEvents //No divider or title when nothing has expired
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, Spacing.clearance + Spacing.xl)
+            .padding(.horizontal, Spacing.margin)
+        }
+        .bottomScrollFade() //Directly on the scroll: the last rows dissolve rather than slide under the close button
+        .scrollIndicators(.hidden)
+        .background(Color.appCanvas.ignoresSafeArea())
+        .task(id: [vm.invites, vm.acceptedEvents]) { await loadInviteImages() }
+    }
+
+    @ViewBuilder
+    private func heading(titleInContent: Bool) -> some View {
+        if titleInContent {
+            VStack(spacing: Spacing.sm) {
+                titleText
+                subtitle
+            }
+            .padding(.top, Spacing.xxl)
+        } else {
+            subtitle
+        }
+    }
+
+    private var titleText: some View {
+        Text(Self.title)
+            .font(.title(32, .bold))
+    }
+
+    private var subtitle: some View {
+        Text("See the days you've been invited to meet. Remember one invite can propose up to 3 different days.")
+            .customSubtitle()
+    }
+    
     //The response cover draws at the app root, under this cover, so the calendar closes before the Invites tab responds
     private func respond(_ invite: EventProfile, _ response: ProfileResponse) {
         dismiss()
         onRespond(invite, response)
     }
     
-    //Skips profiles already in the cache, so photos the invite cards loaded aren't fetched again
+    //Skips profiles already in the cache, so photos the invite cards loaded aren't fetched again.
+    //Fetched in parallel and one task per person, so the faces land together rather than left to
+    //right, and two invites from the same person never fetch the same photos twice.
     private func loadInviteImages() async {
-        for invite in vm.invites {
-            await vm.ensureImagesLoaded(for: invite.profile)
+        var seen = Set<UserProfile.ID>()
+        let profiles = (vm.invites + vm.acceptedEvents).map(\.profile).filter { seen.insert($0.id).inserted }
+
+        await withTaskGroup(of: Void.self) { group in
+            for profile in profiles {
+                group.addTask { await vm.ensureImagesLoaded(for: profile) }
+            }
         }
     }
 }
 
+//Calendar Title view
+extension CalendarContainer {
+    
+    @ViewBuilder
+    private var calendarEventsView: some View {
+        if vm.invitedDays.isEmpty && vm.acceptedEvents.isEmpty {
+            emptyNote //Ten blank rows say the same thing at ten times the length
+        } else {
+            CalendarPendingEvents(invites: vm.invitedDays,
+                                  acceptedEvents: vm.acceptedEvents,
+                                  onOpen: { invite, day in vm.respondVM(for: invite).select(day: day) },
+                                  card: inviteCard,
+                                  meetingCard: meetingCard)
+        }
+    }
 
+    //The Invites tab shows its calendar button whether or not anything is still pending
+    private var emptyNote: some View {
+        Text("No one has proposed a day yet.")
+            .customSubtitle()
+    }
+
+    //Pending rows and expired avatars open the same respond card
+    private func inviteCard(_ invite: EventProfile) -> AnyView {
+        AnyView(RespondToInviteContainer(vm: vm.respondVM(for: invite),
+                                         images: vm.images(for: invite),
+                                         respond: { respond(invite, $0) }))
+    }
+
+    //View Event goes on here, not inside ViewInvite: Meet's pending ledger shows that view too
+    private func meetingCard(_ meeting: EventProfile) -> AnyView {
+        guard let time = meeting.event.acceptedTime else { return AnyView(EmptyView()) }
+        return AnyView(ViewInvite(inviteSummary: InviteSummary(accepted: meeting.event, at: time),
+                                  images: vm.images(for: meeting),
+                                  name: meeting.profile.name,
+                                  title: "Meeting \(meeting.profile.name)")
+            .eventZoomLeadingAction("View Event") {
+                // TODO: open the event
+            })
+    }
+
+    
+    private var expiredEvents: some View {
+        VStack(spacing: Spacing.xl) {
+            //A full rule, a step darker than the rows' own hairlines: this is a section break, not a row seam
+            LightDivider()
+                .padding(.horizontal, Spacing.xl)
+
+            expiredEventsTitle
+            CalendarExpiredEvents(expiredInvites: vm.expiredInvites, card: inviteCard)
+        }
+        .padding(.top, Spacing.xl)
+    }
+    
+    private var expiredEventsTitle: some View {
+        VStack(spacing: Spacing.sm) {
+            Text("Expired Events")
+                .font(.body(18, .italic))
+                .foregroundStyle(Color.textPrimary)
+
+            Text("Events where the proposed times have expired. Propose a new time to meet.")
+                .customSubtitle(lineSpacing: Spacing.xxs)
+                .padding(.horizontal, Spacing.margin)
+        }
+    }
+}
 
 
 
@@ -118,7 +206,7 @@ extension CalendarContainer {
         ScoopButton(style: .glass, shape: Circle(), size: .xLarge, press: .grow) {
             dismiss()
         } label: {
-            Image(systemName: "xmark") //"arrow.down.right.and.arrow.up.left"
+            Image(systemName: "xmark")
                 .foregroundStyle(.black)
                 .font(.icon(18, .heavy))
         }
@@ -130,24 +218,16 @@ extension CalendarContainer {
     private var chromeVisible: Bool { !eventZoomHost.chromeHidden }
 }
 
-/*
- //            NavigationStack {
- //                ScrollView {
- //                    VStack {
- //                        subHeading
- //                        calendarView
- //                            .padding(.top, 48)
- //                    }
- //                    .padding(.bottom, Spacing.clearance) //The last rows can scroll clear of the ✕
- //                }
- //                .scrollIndicators(.hidden)
- //                .navigationTitle("Calendar View")
- //                .background(Color.canvasSunken)
- //                .task(id: vm.invites) { await loadInviteImages() }
- //                .overlay { dismissButtonLayer }
- //            }
- //            .eventZoomHost(eventZoomHost) //On the stack, not the ScrollView: the card and its backdrop also cover the large title
- //            .interactiveDismissDisabled()
- //        }
- //        .ignoresSafeArea()
- */
+//iOS 26 dissolves content into the canvas at a scroll edge; before it, a painted fade does the
+//same job. `scrollFadeIfAvailable` is the chat's, and pins its pre-26 fallback to the top edge.
+private extension View {
+
+    @ViewBuilder
+    func bottomScrollFade() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectStyle(.soft, for: .bottom)
+        } else {
+            customScrollFade(height: Spacing.clearance, showFade: true, edge: .bottom)
+        }
+    }
+}

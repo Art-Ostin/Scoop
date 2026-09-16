@@ -18,7 +18,7 @@ struct DayPicker: View {
 
     //Local Parameters
     let columns = Array(repeating: GridItem(.fixed(DayCell.track), spacing: DayCell.columnGap), count: 7)
-    let dayCount = 11
+    let dayCount = ProposedTimes.horizonDays
     
     var body: some View {
         VStack(spacing: Spacing.xxs) {

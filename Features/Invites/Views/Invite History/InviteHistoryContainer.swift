@@ -16,11 +16,8 @@ struct InviteHistoryContainer: View {
     let profileImage: UIImage?
     let userImage: UIImage?
 
-    @Environment(\.dismiss) private var dismiss
-
     //Local view state
     private static let title = "Invite History"
-    private static let titleWidth = title.textWidth(font: .title(32, .bold)) //Measured in the bar's own font, so it tracks what's drawn
 
     var pastInvites: [PastEventProposal] {
         (event.pastProposals ?? []).reversed()
@@ -45,18 +42,10 @@ struct InviteHistoryContainer: View {
             .isAtTopOfScroll($isTopOfScroll)
             .background(Color(red: 0.97, green: 0.96, blue: 0.95).ignoresSafeArea())
             .navigationTitle(Self.title)
-            .scoopNavigationBarFonts(title: Self.title) //Guarantees the bar draws the font titleWidth is measured in
+            .navigationBarTitleDisplayMode(.inline) //A sheet nothing opens from: the small centred title leaves the room to the cards
+            .scoopNavigationBarFonts(title: Self.title) //The launch proxy alone can lose the title font on device
             .scrollIndicators(.hidden)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .heavy))
-                    }
-                }
-            }
+            .toolbar { DismissToolbarItem(type: .cross) } //Leading, where a single-view sheet's close belongs (as in MeetInfo)
         }
     }
 }
@@ -66,12 +55,12 @@ extension InviteHistoryContainer {
     
     private func inviteSection(pastEvent: PastEventProposal, isActiveRow: Bool) -> some View {
         let message = visibleMessage(pastEvent) //Decided once, so the spacing and the note can't disagree
-        return VStack(spacing: 12) {
-            titleRow(for: pastEvent, isActiveRow: isActiveRow)
+        return VStack(spacing: Spacing.sm) {
+            titleRow(for: pastEvent)
 
             VStack(spacing: Spacing.lg) { //Above the rule: the note's break outweighs a row gap
                 VStack(spacing: Spacing.xl) { //One row rhythm, note or not, so stacked cards line up
-                    whatRowWithTime(what: pastEvent.type, time: pastEvent.dateSent)
+                    whatRow(what: pastEvent.type)
                     whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
                     whereRow(location: pastEvent.place)
                 }
@@ -94,30 +83,33 @@ extension InviteHistoryContainer {
                         .padding(.trailing, 5) //.horizontal
                 }
             }
-            .padding(.bottom, isActiveRow ? 12 : 0)
+            .padding(.bottom, isActiveRow ? Spacing.sm : 0)
         }
     }
-    
-    private func titleRow(for proposal: PastEventProposal, isActiveRow: Bool) -> some View {
+
+    //On the page above its card, so the photo's white ring shows against the canvas
+    private func titleRow(for proposal: PastEventProposal) -> some View {
         HStack(spacing: Spacing.xs) {
-            
-            HStack(spacing: 12) {
+            HStack(spacing: Spacing.sm) {
                 if let image = profileImage(for: proposal) {
                     smallTopImage(image: image)
                 }
-                
-                Text(timeTitle(proposal))
-                    .font(.title(17, .semibold))
-                    .foregroundStyle(Color.textTertiary)
+
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(timeTitle(proposal))
+                        .font(.title(17, .semibold))
+                        .foregroundStyle(Color.textPrimary)
+                    invitedTime(dateSent: proposal.dateSent)
+                }
             }
 
             Spacer()
-            
+
             Text(proposal.kind == .original ? "Original Invite" : (proposal.kind == .newTime ? "New Time" : "New Event"))
                 .font(.title(14, .bold))
                 .foregroundStyle(Color.textSecondary)
         }
-        .padding(.horizontal, 5)//Optical illusion -> looks slightly smoother indented
+        .padding(.horizontal, 5) //Geometry: optical illusion, looks slightly smoother indented
     }
     
     
@@ -146,19 +138,14 @@ extension InviteHistoryContainer {
         }
     }
     
-    private func whatRowWithTime(what: Event.EventType, time: Date) -> some View {
-        HStack(alignment: .top) {
-            HStack(spacing: iconGap) {
-                Text(what.emoji)
-                    .font(.body(14, .bold))
-                    .detailIconColumn()
+    private func whatRow(what: Event.EventType) -> some View {
+        HStack(spacing: iconGap) {
+            Text(what.emoji)
+                .font(.body(14, .bold))
+                .detailIconColumn()
 
-                sectionLayer(title: "WHAT", bodyText: what.longTitle)
-            }
-            Spacer()
-            invitedTime(dateSent: time)
+            sectionLayer(title: "WHAT", bodyText: what.longTitle)
         }
-        
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
@@ -186,8 +173,9 @@ extension InviteHistoryContainer {
     
     
     private func invitedTime(dateSent: Date) -> some View {
-        return Text(FormatEvent.dayMonthTime(dateSent))
+        Text(FormatEvent.dayMonthTime(dateSent))
             .font(.body(12, .medium))
+            .foregroundStyle(Color.textTertiary)
     }
     
     private func sectionLayer(title: String, bodyText: String, isBold: Bool = false) -> some View {
@@ -195,14 +183,6 @@ extension InviteHistoryContainer {
             .font(.body(17, isBold ? .bold : .medium))
             .foregroundStyle(Color.textPrimary)
             .oneLineLimitAndShrink() //One line per detail row, so the card's rhythm never depends on the data
-    }
-    
-    var dismissButton: some View {
-        ScoopButton(style: .glass, shape: Circle(), size: .large) {
-            dismiss()
-        } label: {
-            Image(systemName: "xmark")
-        }
     }
     
     //The header's face already says whose words these are, so the note wears none: it starts where the detail rows' text does

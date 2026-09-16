@@ -44,9 +44,10 @@ extension View {
     }
 
     ///Marks the image that lifts off: its pixels become the flying cover, its global frame the
-    ///flight's home, and `shape` its rounding — `.circle(ring:)` for a glass lens (the close
-    ///grows a glass rim of that width out of the flying photo), `.rounded` for a card. The view
-    ///hides for the whole presentation, so the photo is never drawn twice.
+    ///flight's home, and `shape` its rounding — `.circle(ring:tint:)` for a glass lens (the close
+    ///grows a glass rim of that width out of the flying photo, and fades the lens' tint into it as
+    ///it lands), `.rounded` for a card. The view hides for the whole presentation, so the photo is
+    ///never drawn twice.
     func eventZoomSource(_ image: UIImage, shape: EventZoomSourceShape = .rounded()) -> some View {
         modifier(EventZoomSourceModifier(image: image, shape: shape, chrome: nil))
     }
@@ -159,6 +160,12 @@ extension View {
         modifier(EventZoomChevronHiddenModifier(hidden: hidden))
     }
 
+    ///A button the shell draws on the chevron's leading side (the calendar's View Event), in the
+    ///chevron's own stationary slot
+    func eventZoomLeadingAction(_ title: String, action: @escaping () -> Void) -> some View {
+        modifier(EventZoomLeadingActionModifier(title: title, action: action))
+    }
+
     ///While a body's own popup owns the finger (the type or time menu's drag-select), the shell's
     ///dismiss drag stands down and the chevron leaves with it
     func eventZoomDragLocked(_ locked: Bool) -> some View {
@@ -247,11 +254,16 @@ extension View {
 ///The source's rounding. `.circle` keeps deriving its radius from the CURRENT size as the cover
 ///grows — a clock-lerped radius reads app-icon-rectangular right beside the lens.
 enum EventZoomSourceShape: Equatable {
-    case circle(ring: CGFloat = 0)
+    case circle(ring: CGFloat = 0, tint: Color? = nil)
     case rounded(CGFloat = CornerRadius.image)
 
     var ring: CGFloat {
-        if case .circle(let ring) = self { ring } else { 0 }
+        if case .circle(let ring, _) = self { ring } else { 0 }
+    }
+
+    ///The lens' glass tint — the close's rim fades it in, so the photo lands on the resting ring's own colour. Nil for a plain lens and every card
+    var tint: Color? {
+        if case .circle(_, let tint) = self { tint } else { nil }
     }
 
     ///A lens — the ledger's glass-ringed face — lands with a breath; a card sinks (the close's
@@ -817,6 +829,19 @@ private struct EventZoomChevronHiddenModifier: ViewModifier {
     }
 }
 
+private struct EventZoomLeadingActionModifier: ViewModifier {
+
+    //Injected
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
+    let title: String
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        flight?.reportLeadingAction(action) //Pushed every pass, unobserved like the band's builders: a tap runs what the LATEST body built
+        return content.onChange(of: title, initial: true) { _, title in flight?.setLeadingActionTitle(title) }
+    }
+}
+
 private struct EventZoomDragLockedModifier: ViewModifier {
 
     //Injected
@@ -1001,8 +1026,10 @@ private struct EventZoomCard: View {
 
             VStack(spacing: Spacing.xl) {
                 card
-                EventDismissButton(visible: false) { } //A layout ghost: reserves the chevron's slot in the column, which the drag and the flight carry
+                EventDismissButton(visible: false, leadingTitle: nil, onTap: {}, onLeadingTap: nil) //A layout ghost: reserves the chevron's slot in the column, which the drag and the flight carry
             }
+            //A card with a leading action (the calendar's View Event) rests a step higher; the flight and the chevron's slot read it off the measured card
+            .offset(y: flight.leadingActionTitle == nil ? 0 : -Spacing.lg)
             .offset(flight.cardOffset)
             .simultaneousGesture(flight.dismissDrag)
         }
@@ -1080,7 +1107,10 @@ extension EventZoomCard {
     @ViewBuilder
     private var stationaryChevron: some View {
         if flight.hasChevronSlot {
-            EventDismissButton(visible: flight.chevronVisible) { flight.close() }
+            EventDismissButton(visible: flight.chevronVisible,
+                               leadingTitle: flight.leadingActionTitle,
+                               onTap: { flight.close() },
+                               onLeadingTap: { flight.leadingAction() })
                 .offset(y: flight.chevronSlotY - containerTop)
         }
     }
@@ -1197,6 +1227,7 @@ private struct EventZoomCardContent: View, Equatable {
     private var dragOffset: CGSize = .zero //Raw finger travel, BOTH axes; the card rides it rubber-banded (the profile dismiss's follow)
     private var chromeMix: CGFloat = 0 //The close's fold gate — snapped to 1 at close start; the fold's motion derives from the flight's p
     private var windRender = WindRender() //The wind close's per-frame pose: trajectory offset + settle-pop, written raw each tick
+    private var rimTint: CGFloat = 0 //A tinted lens' landing rim, 0 → 1 over its close and full before every landed commit. Written only when the shape has a tint
     private var landingScale: CGFloat = 1 //The tap close's landing breath — compress into touchdown, rebound past rest, settle; the open, the drag and the wind never write it
     private var breath: CGFloat = 0 //The open's landing bounce, 0 → 1 → 0 on its own clock (breathRise/breathSettle): the outline's give and the contents' lift
     private var cardLanding = false //A card's tap close is flying its own landing: the morph folds 1:1 with p and reads p < 0 as the sink
@@ -1222,6 +1253,8 @@ private struct EventZoomCardContent: View, Equatable {
     //the cut empties — after that the answer is the same either way, and this keeps it from flapping.
     private var bandChromeTwinned: Set<UUID> = []
     private var chevronHiddenByCard = false //A body's confirm screen owns the corner with its own back button
+    private(set) var leadingActionTitle: String? //A body's button on the chevron's leading side (`.eventZoomLeadingAction`); nil draws the chevron alone
+    @ObservationIgnored private(set) var leadingAction: () -> Void = {} //Its tap: a closure has no same-value guard, so the store stays unobserved
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
     private var keyboardFocused = false //A body's text field owns the screen: the card rises to the pin, the backdrop's tap resigns it, no scrub, no chevron
     private var raise: CGFloat = 0 //The column's lift while `keyboardFocused` — negative, in the same offset the drag rides
@@ -1504,6 +1537,14 @@ extension EventZoomChoreo {
         if chevronHiddenByCard != hidden { chevronHiddenByCard = hidden }
     }
 
+    func setLeadingActionTitle(_ title: String) {
+        if leadingActionTitle != title { leadingActionTitle = title }
+    }
+
+    func reportLeadingAction(_ action: @escaping () -> Void) {
+        leadingAction = action
+    }
+
     func setDragLocked(_ locked: Bool) {
         if dragLocked != locked { dragLocked = locked }
     }
@@ -1623,6 +1664,7 @@ extension EventZoomChoreo {
             titleShown: titleHeroShown,
             titleFade: titleHeroFade,
             rimMounted: landed,
+            rimTint: rimTint,
             shadow: shadowStrength)
     }
 
@@ -1735,6 +1777,13 @@ extension EventZoomChoreo {
         .delay(closeDuration * landingDipShare)
     private static let landingRebound = Animation.spring(duration: 0.32 * timeScale, bounce: 0.55) //A small pop past rest and a short settle
         .delay(closeDuration)
+    //A tinted lens' colour lands WITH it: the rim takes the tint from half-way through the flight
+    //(the ring ~90% grown) across the dip and the rebound, on a curve that ends exactly — well before
+    //the rebound's `.removed`, which owns the commit. It rides the rim's OWN animatable attribute
+    //(EventZoomLandingRim), never the morph's vector: the rebound retargets that whole vector, and a
+    //tint channel there swung with the breath (1.15 → 0.96) and moved the commit (probe 2026-09-16).
+    private static let landingTintIn = Animation.timingCurve(0.35, 0, 0.25, 1, duration: closeDuration * 1.35)
+        .delay(closeDuration * 0.5)
 
     //A card source's tap close — the profile card, the invite card — lands by SINKING, on a
     //per-frame curve of its own (`landCard`), the wind's pattern: an under-damped spring carries
@@ -2029,6 +2078,7 @@ extension EventZoomChoreo {
         } else if dragEngaged { //Let go by the finger: the plain morph home, as the swipe always landed
             withAnimation(Self.closeFlight, completionCriteria: .removed) {
                 flightP = 0
+                if shape.tint != nil { rimTint = 1 } //The flight's own spring, so the completion waits for both: full at the commit
             } completion: { self.onClosed() }
             withAnimation(Self.closeChrome) { chromeP = 0 }
         } else if shape.isLens { //A tap on a lens' card: the flight, and the landing breath that owns the commit
@@ -2083,6 +2133,7 @@ extension EventZoomChoreo {
     //it outwaits the flight's on the drag path.
     private func landOnSlot() {
         withAnimation(Self.landingDipIn) { landingScale = Self.landingDip }
+        if shape.tint != nil { withAnimation(Self.landingTintIn) { rimTint = 1 } }
         withAnimation(Self.landingRebound, completionCriteria: .removed) {
             landingScale = 1
         } completion: { self.onClosed() }
@@ -2131,6 +2182,7 @@ extension EventZoomChoreo {
                 withTransaction(instant) {
                     flightP = 0
                     chromeP = 0
+                    if shape.tint != nil { rimTint = 1 }
                     windRender = WindRender()
                 }
                 onClosed()
@@ -2152,6 +2204,8 @@ extension EventZoomChoreo {
             withTransaction(instant) {
                 flightP = p
                 chromeP = 1 - pace
+                //Over the arrival's last 40%: every landing tick is past tArrive (shouldLand), so the tint is full at the commit
+                if shape.tint != nil { rimTint = DragTuning.smoothstep(CGFloat((elapsed / max(plan.tArrive, 0.001) - 0.6) / 0.4)) }
                 windRender = WindRender(
                     offset: CGSize(width: x - lerpCenter.x,
                                    height: lensCenter.y + u - lerpCenter.y),
@@ -2294,6 +2348,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     let titleShown: Bool //The name morph's pieces outlive the cover's cut by their own fade
     let titleFade: Double
     let rimMounted: Bool //The landing rim's view exists from the landing on — mounted by a bare write, never inserted into a close in flight
+    let rimTint: CGFloat //The rim's tint mix, the choreo's model value — deliberately NOT in animatableData: the rim animates it on its own attribute (EventZoomLandingRim)
     let shadow: Double //The card's resting shadow's strength (EventZoomChoreo.shadowStrength)
 
     //The dismiss drag scrubs the fold 1:1 with raw descent over this distance — the invite
@@ -2495,13 +2550,10 @@ struct EventZoomMorph: ViewModifier, Animatable {
                 //From the landing on (a bare write, no morph in flight), so a close never inserts
                 //it mid-spring; dark until the rim has width, or its edge would fringe the cover's
                 if glassRing > 0, rimMounted || chromeMix > 0 {
-                    Color.clear
-                        .frame(width: max(cover.width + 2 * rim, 1), height: max(cover.height + 2 * rim, 1))
-                        .containerGlassEffect(clipped: true, shape: UnevenRoundedRectangle( //Clipped: the ledger ring's own no-shadow floor, matched
-                            topLeadingRadius: coverTopRadius + rim, //Concentric: the cover's corner plus the rim between them
-                            bottomLeadingRadius: coverBottomRadius + rim,
-                            bottomTrailingRadius: coverBottomRadius + rim,
-                            topTrailingRadius: coverTopRadius + rim))
+                    EventZoomLandingRim(tintMix: rimTint, tint: shape.tint,
+                                        size: CGSize(width: max(cover.width + 2 * rim, 1), height: max(cover.height + 2 * rim, 1)),
+                                        topRadius: coverTopRadius + rim, //Concentric: the cover's corner plus the rim between them
+                                        bottomRadius: coverBottomRadius + rim)
                         .opacity(rim > 0 ? 1 : 0)
                         .position(x: cover.midX, y: cover.midY)
                         .allowsHitTesting(false)
@@ -3178,6 +3230,35 @@ struct EventZoomRowMorph {
     private static func smoothstep(_ t: CGFloat) -> CGFloat {
         let x = min(max(t, 0), 1)
         return x * x * (3 - 2 * x)
+    }
+}
+
+//The close's landing rim: the cover's outline pushed out in clipped glass, posed per frame by the morph. Its own
+//Animatable view so the tint mix rides its OWN attribute — the morph's channels share one vector, which the tap's
+//rebound spring retargets whole. Untinted until a close begins (the rim sits mounted at opacity 0 over the landed
+//band, and glass at opacity 0 still washes what it covers); at full it passes the tint itself — the resting lens'
+//own value, so the landed commit swaps identical glass.
+private struct EventZoomLandingRim: View, Animatable {
+    var tintMix: CGFloat
+    let tint: Color?
+    let size: CGSize
+    let topRadius: CGFloat
+    let bottomRadius: CGFloat
+
+    var animatableData: CGFloat {
+        get { tintMix }
+        set { tintMix = newValue }
+    }
+
+    var body: some View {
+        let glassTint: Color? = if let tint, tintMix > 0 { tintMix >= 1 ? tint : tint.opacity(Double(min(tintMix, 1))) } else { nil }
+        Color.clear
+            .frame(width: size.width, height: size.height)
+            .containerGlassEffect(tint: glassTint, clipped: true, shape: UnevenRoundedRectangle( //Clipped: the ledger ring's own no-shadow floor, matched
+                topLeadingRadius: topRadius,
+                bottomLeadingRadius: bottomRadius,
+                bottomTrailingRadius: bottomRadius,
+                topTrailingRadius: topRadius))
     }
 }
 
