@@ -47,7 +47,7 @@ extension ProfileContainer {
 
     @ViewBuilder
     var inviteButton: some View {
-        let canInvite = vm.viewProfileType != .view && vm.viewProfileType != .accepted
+        let canInvite = vm.viewProfileType == .invite || vm.viewProfileType == .accept //Opt-in, so .declined and any later type stay buttonless
         if canInvite {
             InviteButton { openInvite() }
                 .opacity(ui.showInvite ? 0 : 1) //The button becomes the card while it's presented

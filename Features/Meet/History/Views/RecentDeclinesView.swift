@@ -77,6 +77,8 @@ struct HistoryCard: View {
     let heroImages: [UIImage]
     let imageLoader: ImageLoading
     let defaults: DefaultsManaging
+    
+    var isInvite: Bool { !(decline.event == nil) }
 
     //Local view state
     @State private var palette: OverlayPalette = .placeholder
@@ -115,9 +117,10 @@ extension HistoryCard {
 
     private var profileVM: ProfileViewModel {
         let model = ProfileViewModel(profile: profile,
+                                     event: decline.event,
                                      imageLoader: imageLoader,
                                      defaults: defaults)
-        model.viewProfileType = .view
+        if decline.event == nil { model.viewProfileType = .view } //A declined event opens as .declined by itself; a bare profile would open as .invite
         return model
     }
 }
@@ -245,7 +248,15 @@ extension HistoryCard {
             .padding(.bottom, Spacing.sm)
         }
         .overlay(alignment: .topTrailing) {
-            expiryLabel
+                expiryLabel
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if isInvite {
+                Text("Invite")
+                    .foregroundStyle(Color.white)
+                    .font(.body(12, .bold))
+                    .padding()
+            }
         }
     }
 
@@ -259,7 +270,7 @@ extension HistoryCard {
                         .transition(.blurReplace)
                 }
                 .animation(.transition, value: left)
-
+                .padding()
             }
         }
     }
@@ -267,13 +278,8 @@ extension HistoryCard {
     //One styling path, so the placeholder above stays an honest preview of the real label
     private func expiryPill(_ text: String) -> some View {
         Text(text)
-            .font(.body(10, .medium))
-            .foregroundStyle(Color.white)
-            .padding(.horizontal, 4) //Geometry: optical inset — the stroke hugs the glyphs
-            .padding(.vertical, 2)
-            .stroke(12, lineWidth: 0.5, color: Color.white)
-            .padding(8)
-            .padding(.horizontal, 2)
+            .font(.body(11, .bold))
+            .foregroundStyle(Color.white.opacity(0.8))
     }
     
     private var blurBackground: BlurAndGradientBackground {

@@ -46,7 +46,7 @@ extension ProfileDetailsView {
     }
 
     private var keyInfoStrokeColour: Color {
-        vm.viewProfileType == .accept ? Color.successGreen : Color.accent
+        (vm.viewProfileType == .accept || vm.viewProfileType == .declined) ? Color.successGreen : Color.accent //An invite's profile, pending or declined, wears the event green
     }
 
     private var profileInterests: some View {

@@ -48,19 +48,19 @@ extension Session {
 //Logic dealing with loading and showing the declined profiles
 extension Session {
     
-    //Any profile you have declined from the 5 previous days
-    static let daysToShowDeclined: CGFloat = 5
+    //Any profile you have declined from the 3 previous days — as long as a declined invite stays (UserEvent.daysToShowDeclined)
+    static let daysToShowDeclined: CGFloat = 3
     static let declinedWindow: TimeInterval = daysToShowDeclined * 24 * 60 * 60
     
     
-    //Checked fresh each time a view reads it, and so profiles drop off once they're over 5 days old
+    //Checked fresh each time a view reads it, and so profiles drop off once they're over 3 days old
     var recentlyDeclinedProfiles: [DeclinedProfile] {
         declinedProfiles.filter { $0.declinedAt > .now.addingTimeInterval(-Session.declinedWindow) }
     }
     
     //Upon launch load the recently declined profiles
     func loadRecentlyDeclined() async {
-        //Only want profiles who were declined in the last 5 days. So this gets 'last 5 days'.
+        //Only want profiles who were declined in the last 3 days. So this gets 'last 3 days'.
         let since = Date.now.addingTimeInterval(-Session.declinedWindow)
         //Stamp who this load is for. Firestore's continuations don't observe cancellation, so a
         //sign-out mid-flight would otherwise land this account's declines in the next one's session
@@ -68,7 +68,7 @@ extension Session {
         let loadingFor = user.id
         
         do {
-            //Fetch all the user 'profiles' where status is 'declined' and in last 5 days
+            //Fetch all the user 'profiles' where status is 'declined' and in last 3 days
             let declinedRecs = try await profilesRepo.recentlyDeclined(userId: loadingFor, since: since)
             
             //From the ids, load the profiles up

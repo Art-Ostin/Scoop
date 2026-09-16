@@ -81,7 +81,7 @@ extension PendingInvitesView {
         .padding(.horizontal, Spacing.gutter) //The card's edge on the title's
     }
 
-    //Pending lenses and expired avatars open the same sent-invite card
+    //The sent-invite card a pending lens opens
     private func inviteCard(_ invite: EventProfile) -> AnyView {
         AnyView(ViewInvite(inviteSummary: InviteSummary(event: invite.event),
                            images: images(invite), //Read inside the card, so a set that loads while it is up reaches the pager
@@ -99,35 +99,19 @@ extension PendingInvitesView {
             .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0, summary) })
     }
 
-    //Off the card, on the canvas: live invites sit raised, lapsed ones on the ground. The card's edge
-    //ends the calendar, so no rule and no outsized gap
+    //Off the card, on the canvas, and shut until opened: expired invites are the occasional case, so
+    //the page leads with its calendar. The card's edge ends the calendar, so no rule
     private var expiredSection: some View {
-        VStack(spacing: Spacing.lg) { //Tighter than the gap above: the heading reads with the avatars it explains
-            expiredTitle
-            expiredEvents
-        }
-        .padding(.top, Spacing.xl)
-    }
-
-    private var expiredTitle: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("Expired Invites")
-                .font(.body(18, .italic))
-                .foregroundStyle(Color.textPrimary)
-
-            Text("Invites where all your invited times have expired. They can still respond by proposing a new time")
-                .customSubtitle(lineSpacing: Spacing.xxs, alignment: .leading)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading) //A wrapped block is only as wide as its longest line: unframed, it centres off the card's edge
-        .padding(.horizontal, Spacing.gutter)
-    }
-    
-    private var expiredEvents: some View {
-        HistoryExpiredInvites(expiredInvites: expiredInvites, card: inviteCard)
-            .padding(.horizontal, Spacing.gutter) //Edge to edge with the card above
+        ExpiredInvites(expiredInvites: expiredInvites,
+                       expandedInvite: ui.expandedExpired,
+                       showsExpired: $ui.showsExpired,
+                       toggle: toggleExpired)
+            .padding(.top, Spacing.xl)
+            .padding(.horizontal, Spacing.gutter) //The heading and its card on the calendar card's edges
     }
 }
 
+//Opening an expired row closes whichever one was open
 extension PendingInvitesView {
 
     private func toggleExpired(_ inviteID: String) {

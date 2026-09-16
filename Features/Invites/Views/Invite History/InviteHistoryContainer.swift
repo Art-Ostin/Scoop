@@ -58,7 +58,7 @@ extension InviteHistoryContainer {
         return VStack(spacing: Spacing.sm) {
             titleRow(for: pastEvent)
 
-            VStack(spacing: Spacing.lg) { //Above the rule: the note's break outweighs a row gap
+            VStack(spacing: Spacing.md) { //Above the rule: the note's break outweighs a row gap
                 VStack(spacing: Spacing.xl) { //One row rhythm, note or not, so stacked cards line up
                     whatRow(what: pastEvent.type)
                     whenRow(time: pastEvent.time, isNewTime: pastEvent.kind == .newTime)
@@ -66,14 +66,13 @@ extension InviteHistoryContainer {
                 }
 
                 if let message {
-                    VStack(spacing: Spacing.lg) { //The same break below the rule as above it: the note's lowercase ink sits as far under it as the place row's baseline sits over it
                         LightDivider()
                             .padding(.leading, textColumn)
                         messageSection(message: message)
-                    }
                 }
             }
-            .modifier(InviteBackground())
+            .modifier(InviteBackground(hasMessage: pastEvent.message?.isEmpty == false))
+
             .overlay(alignment: .bottomTrailing) {
                 if isActiveRow {
                     Text("Current Invite")
@@ -89,7 +88,7 @@ extension InviteHistoryContainer {
 
     //On the page above its card, so the photo's white ring shows against the canvas
     private func titleRow(for proposal: PastEventProposal) -> some View {
-        HStack(spacing: Spacing.xs) {
+        HStack(alignment: .bottom, spacing: Spacing.xs) {
             HStack(spacing: Spacing.sm) {
                 if let image = profileImage(for: proposal) {
                     smallTopImage(image: image)
@@ -108,6 +107,8 @@ extension InviteHistoryContainer {
             Text(proposal.kind == .original ? "Original Invite" : (proposal.kind == .newTime ? "New Time" : "New Event"))
                 .font(.title(14, .bold))
                 .foregroundStyle(Color.textSecondary)
+                .padding(.horizontal, 2)// Trailing padding
+                .offset(y: -4)
         }
         .padding(.horizontal, 5) //Geometry: optical illusion, looks slightly smoother indented
     }
@@ -173,10 +174,14 @@ extension InviteHistoryContainer {
     
     
     private func invitedTime(dateSent: Date) -> some View {
-        Text(FormatEvent.dayMonthTime(dateSent))
+        let day = dateSent.formatted(.dateTime.month().day())
+        let time = dateSent.formatted(.dateTime.hour().minute())
+
+        return Text("\(day) \(time)")
             .font(.body(12, .medium))
             .foregroundStyle(Color.textTertiary)
     }
+    
     
     private func sectionLayer(title: String, bodyText: String, isBold: Bool = false) -> some View {
         Text(bodyText)
@@ -195,7 +200,7 @@ extension InviteHistoryContainer {
             .allowsTightening(true)
             .foregroundStyle(Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, textColumn)
+//            .padding(.leading, textColumn)
     }
 }
 
@@ -240,10 +245,13 @@ private extension View {
 
 struct InviteBackground: ViewModifier {
 
+    let hasMessage: Bool
+    
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.lg) //The same top and bottom whether or not a note closes the card
+            .padding(.top, Spacing.lg) //The same top and bottom whether or not a note closes the card
+            .padding(.bottom, hasMessage ? Spacing.md : Spacing.lg)
             .background(Color.white, in: .rect(cornerRadius: 16))
             .shadow(color: .black.opacity(0.05), radius: 7.5, x: 0, y: 1)
     }

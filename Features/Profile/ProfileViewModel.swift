@@ -9,7 +9,7 @@ import SwiftUI
 
 
 enum ProfileViewType {
-    case invite, accept, accepted, view
+    case invite, accept, accepted, declined, view
 }
 
 @MainActor
@@ -42,6 +42,8 @@ enum ProfileViewType {
             return .accepted
         } else if event?.status == .pending {
             return .accept
+        } else if event?.status == .declined {
+            return .declined
         } else {
             return .invite
         }
