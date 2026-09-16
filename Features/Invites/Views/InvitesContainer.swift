@@ -15,6 +15,7 @@ struct InvitesContainer: View {
     //Injected
     @Environment(AppRouter.self) private var router
     @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
+    @Environment(ViewEventFlight.self) private var viewEventFlight: ViewEventFlight?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var chipLine: CGFloat = 12 //A chip's 12pt ModernEra line at the current Dynamic Type size
     let vm: InvitesViewModel
@@ -145,6 +146,35 @@ extension InvitesContainer {
     }
 }
 
+//Logic to open an accepted event from the calendar
+extension InvitesContainer {
+
+    //The flight draws above the calendar's cover, so it closes the calendar itself, out of sight. It carries the card
+    //only when the popup was handed over at rest; otherwise, or under Reduce Motion, it fades onto the event instead
+    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture, _ summary: InviteSummary) {
+        let id = meeting.event.id
+        let copy = departure.ready && !reduceMotion ? AnyView(ViewInviteFlightCopy(inviteSummary: summary)) : nil
+        let closeCalendar = { withTransaction(Self.instant) { ui.showCalendarView = false } }
+        let openEvent = {
+            withTransaction(Self.instant) {
+                router.eventsPath = NavigationPath() //A pushed chat would cover the event
+                router.showEventId = id
+                router.selectedTab = .events
+            }
+        }
+        let handlers = ViewEventFlight.Handlers(closeCalendar: closeCalendar, openEvent: openEvent,
+                                                stillTargeted: { router.selectedTab == .events && router.eventsPath.isEmpty })
+        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, copy: copy), handlers: handlers) ?? false
+        if !started { closeCalendar(); openEvent() } //No plane to raise: a plain cut still lands on the event, the calendar closed
+    }
+
+    private static var instant: Transaction {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        return transaction
+    }
+}
+
 //Logic with the scroll Menu at the top
 extension InvitesContainer {
     
@@ -158,7 +188,7 @@ extension InvitesContainer {
         }
         .blurPop(visible: isAtTopOfScroll)
         .matchedTransitionSource(id: "calendar", in: calendarZoom)
-        .fullScreenCover(isPresented: $ui.showCalendarView) {calendarView}
+        .fullScreenCover(isPresented: $ui.showCalendarView, onDismiss: { viewEventFlight?.coverDidDismiss() }) {calendarView}
         .padding(.top, Spacing.md) //As its small icon, sits in correct position
         .padding(.horizontal, Spacing.margin)
     }
@@ -179,7 +209,7 @@ extension InvitesContainer {
     }
     
     private var calendarView: some View {
-        CalendarContainer(vm: vm, onRespond: { respond($0, $1) })
+        CalendarContainer(vm: vm, onRespond: { respond($0, $1) }, onViewEvent: { viewEvent($0, $1, $2) })
             .navigationTransition(.zoom(sourceID: "calendar", in: calendarZoom))
     }
 }

@@ -59,12 +59,15 @@ final class TaskBag {
     
     var profiles: [PendingProfile] = []
     var declinedProfiles: [DeclinedProfile] = []
-    
+    var declinedEvents: [EventProfile] = []
+
     private(set) var sentInvites: [EventProfile] = []
     private(set) var invites: [EventProfile] = []
     private(set) var events: [EventProfile] = []
     private(set) var pastEvents: [EventProfile] = []
-
+    
+    
+    
     //The chat currently on screen, so its banners are suppressed
     var activeChatEventId: String?
 
@@ -122,6 +125,9 @@ extension Session {
     func subscribeDeclinedLoad() {
         streams.insert("declinedProfiles", Task { @MainActor [weak self] in
             await self?.loadRecentlyDeclined()
+        })
+        streams.insert("declinedEvents", Task { @MainActor [weak self] in
+            await self?.loadRecentlyDeclinedEvents()
         })
     }
 }
@@ -222,3 +228,44 @@ extension Session {
         })
     }
 }
+
+//Logic dealing with loading recently declined events
+
+extension Session {
+    //Upon launch load the invites the user declined in the last 3 days
+    func loadRecentlyDeclinedEvents() async {
+        let since = Date.now.addingTimeInterval(-UserEvent.declinedWindow)
+        //Stamp who this load is for, so a sign-out mid-flight can't land these in the next account
+        let loadingFor = user.id
+        
+        do {
+            let declined = try await eventsRepo.recentlyDeclined(userId: loadingFor, since: since)
+            let loaded = try await profileLoader.fromEvents(declined)
+            guard sessionUser?.id == loadingFor else { return }
+            mergeDeclinedEvents(loaded)
+        } catch {
+            print ("Error")
+        }
+    }
+
+    //The fetch runs as a launch task, so an invite declined locally while it was in flight has to survive it.
+    //The server's copy wins where both have the invite. fromEvents returns in finish order, so restore newest first
+    private func mergeDeclinedEvents(_ fetched: [EventProfile]) {
+        let fetchedIds = Set(fetched.map(\.id))
+        let localOnly = declinedEvents.filter { !fetchedIds.contains($0.id) }
+        declinedEvents = (fetched + localOnly).sorted { ($0.event.declinedAt ?? .distantPast) > ($1.event.declinedAt ?? .distantPast) }
+    }
+
+    //Locally add a just-declined invite, so History shows it without a relaunch. The caller hands the invite in
+    //because the events listener prunes it from `invites` the moment the decline lands locally, before the write returns
+    func declineInvite(_ invite: EventProfile) {
+        var declined = invite
+        declined.event.status = .declined
+        declined.event.declinedAt = .now
+        //Replace rather than skip: the launch load can land the same invite first, and one id must mean one card
+        declinedEvents.removeAll { $0.id == invite.id }
+        declinedEvents.insert(declined, at: 0)
+    }
+}
+
+

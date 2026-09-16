@@ -68,6 +68,7 @@ extension Session {
         //Reset loaded data so the next sign-in re-gates on its own profile load
         //and can't flash the previous account's content
         profiles = []
+        declinedEvents = []
         declinedProfiles = []
         profilesHaveLoaded = false
         setInitialEvents(sent: [], invites: [], active: [], past: [])

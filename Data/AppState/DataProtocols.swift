@@ -51,6 +51,7 @@ protocol UserRepository {
 
 protocol EventsRepository {
     func createEvent(draft: EventFieldsDraft, user: UserProfile, profile: UserProfile) async throws
+    func recentlyDeclined(userId: String, since: Date) async throws -> [UserEvent]
     func eventTracker(userId: String) -> AsyncThrowingStream<FSCollectionEvent<UserEvent>, Error>
     func updateEventStatus(eventId: String, to newStatus: Event.EventStatus) async throws
     func deleteAllSentPendingInvites(userId: String) async throws

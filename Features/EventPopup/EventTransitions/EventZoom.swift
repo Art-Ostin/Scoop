@@ -161,8 +161,9 @@ extension View {
     }
 
     ///A button the shell draws on the chevron's leading side (the calendar's View Event), in the
-    ///chevron's own stationary slot
-    func eventZoomLeadingAction(_ title: String, action: @escaping () -> Void) -> some View {
+    ///chevron's own stationary slot. A tap pops both buttons and locks the card; once it rests on a
+    ///whole page, `action` receives it as it stands (`EventZoomDeparture`)
+    func eventZoomLeadingAction(_ title: String, action: @escaping (EventZoomDeparture) -> Void) -> some View {
         modifier(EventZoomLeadingActionModifier(title: title, action: action))
     }
 
@@ -256,6 +257,9 @@ extension View {
 enum EventZoomSourceShape: Equatable {
     case circle(ring: CGFloat = 0, tint: Color? = nil)
     case rounded(CGFloat = CornerRadius.image)
+    ///A photo band inside a card — `CornerRadius.image` top corners, a square foot. A flight's destination
+    ///(the View Event flight into an Events card), never a source's shape
+    case band
 
     var ring: CGFloat {
         if case .circle(let ring, _) = self { ring } else { 0 }
@@ -276,8 +280,46 @@ enum EventZoomSourceShape: Equatable {
         switch self {
         case .circle: min(size.width, size.height) / 2
         case .rounded(let radius): radius
+        case .band: CornerRadius.image
         }
     }
+
+    ///The foot's corners: the same as the top's, but for a band's square foot
+    func bottomRadius(for size: CGSize) -> CGFloat {
+        if case .band = self { 0 } else { radius(for: size) }
+    }
+
+    ///A band lands on a card that already wears its own elevation, so its cover casts no landing shadow
+    var castsCoverShadow: Bool {
+        if case .band = self { false } else { true }
+    }
+}
+
+///A card handed over by its leading action (`.eventZoomLeadingAction`), as it stands on screen: what a
+///caller needs to carry it onto another plane. Rects are global and at rest, the column's lift included
+struct EventZoomDeparture {
+    let ready: Bool //At rest on a whole page, everything below measured; false: a caller may only fade
+    let card: CGRect
+    let band: CGRect //The pager band
+    let bandTitle: CGRect //The title's glyph rect, in the band's own space
+    let title: String
+    let photo: UIImage? //The page on screen, as the pager draws it (decoded)
+    let source: UIImage? //The caller's own image at that page: the identity a landing matches
+    let page: Int
+    let pageCount: Int
+    let chevronSlotY: CGFloat //Global top of the chevron's row, where the buttons stood when tapped
+    let leadingTitle: String? //The leading action's label, so a copy of the row can pop away as the card leaves
+    let hide: @MainActor () -> Void //Hides the card and its buttons, once a caller's copy covers them; the frost stays until the cover goes
+    let restore: @MainActor () -> Void //Hands the card back before anything left: the buttons pop in, touches return
+}
+
+///The page an `EventImagePager` shows, pushed to its flight on every change
+struct EventZoomVisiblePage: Equatable {
+    let index: Int
+    let count: Int
+    let photo: UIImage
+    let source: UIImage?
+    let atRest: Bool //Settled on a whole page, the live carousel mounted
 }
 
 ///Which corner of the pager band a chrome piece hangs from — the alignment its `.overlay` takes, and
@@ -834,7 +876,7 @@ private struct EventZoomLeadingActionModifier: ViewModifier {
     //Injected
     @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo?
     let title: String
-    let action: () -> Void
+    let action: (EventZoomDeparture) -> Void
 
     func body(content: Content) -> some View {
         flight?.reportLeadingAction(action) //Pushed every pass, unobserved like the band's builders: a tap runs what the LATEST body built
@@ -1032,6 +1074,8 @@ private struct EventZoomCard: View {
             .offset(y: flight.leadingActionTitle == nil ? 0 : -Spacing.lg)
             .offset(flight.cardOffset)
             .simultaneousGesture(flight.dismissDrag)
+            .allowsHitTesting(!flight.leaving) //Handed over: the pager and the card's own buttons hold still
+            .opacity(flight.handedOver ? 0 : 1) //Its caller's copy stands in its place
         }
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { containerTop = $0 }
         //The top safe-area edge in global space, whichever way this plane meets it. NOT the sum: laid out
@@ -1110,8 +1154,9 @@ extension EventZoomCard {
             EventDismissButton(visible: flight.chevronVisible,
                                leadingTitle: flight.leadingActionTitle,
                                onTap: { flight.close() },
-                               onLeadingTap: { flight.leadingAction() })
+                               onLeadingTap: { flight.depart() })
                 .offset(y: flight.chevronSlotY - containerTop)
+                .opacity(flight.handedOver ? 0 : 1) //Its caller's copy of the row pops away in its place
         }
     }
 }
@@ -1254,7 +1299,11 @@ private struct EventZoomCardContent: View, Equatable {
     private var bandChromeTwinned: Set<UUID> = []
     private var chevronHiddenByCard = false //A body's confirm screen owns the corner with its own back button
     private(set) var leadingActionTitle: String? //A body's button on the chevron's leading side (`.eventZoomLeadingAction`); nil draws the chevron alone
-    @ObservationIgnored private(set) var leadingAction: () -> Void = {} //Its tap: a closure has no same-value guard, so the store stays unobserved
+    @ObservationIgnored private var leadingAction: (EventZoomDeparture) -> Void = { _ in } //Its hand-over: a closure has no same-value guard, so the store stays unobserved
+    private(set) var leaving = false //The leading action was tapped: both buttons pop away and the card holds still until it is handed over
+    private(set) var handedOver = false //Its caller has taken the card onto a plane of its own: this one draws only its backdrop
+    @ObservationIgnored private var visiblePage: EventZoomVisiblePage? //The pager's page as drawn, pushed on change
+    @ObservationIgnored private var restAt: ContinuousClock.Instant? //When the open's last motion — the breath, or a flightless cover's park — is spent
     private var dragLocked = false //A body's popup owns the finger: no dismiss scrub, no chevron
     private var keyboardFocused = false //A body's text field owns the screen: the card rises to the pin, the backdrop's tap resigns it, no scrub, no chevron
     private var raise: CGFloat = 0 //The column's lift while `keyboardFocused` — negative, in the same offset the drag rides
@@ -1406,7 +1455,7 @@ extension EventZoomChoreo {
 
     //The chevron: in a quarter into the open, gone at close start, for as long as the finger owns
     //the card, while a body's popup owns it, and on a confirm screen that brings its own
-    var chevronVisible: Bool { chevronIn && !closing && !fingerDown && !dragLocked && !keyboardFocused && !chevronHiddenByCard }
+    var chevronVisible: Bool { chevronIn && !closing && !fingerDown && !dragLocked && !keyboardFocused && !chevronHiddenByCard && !leaving }
 
     //Its stationary home, global — the resting card's foot plus the column's own gap. The
     //chevron never rides the drag or the flight, so the slot has to come from the card at REST:
@@ -1541,8 +1590,12 @@ extension EventZoomChoreo {
         if leadingActionTitle != title { leadingActionTitle = title }
     }
 
-    func reportLeadingAction(_ action: @escaping () -> Void) {
+    func reportLeadingAction(_ action: @escaping (EventZoomDeparture) -> Void) {
         leadingAction = action
+    }
+
+    func reportVisiblePage(_ page: EventZoomVisiblePage) {
+        visiblePage = page
     }
 
     func setDragLocked(_ locked: Bool) {
@@ -1591,7 +1644,54 @@ extension EventZoomChoreo {
 
     //A tap outside the card: with a body's field up it only resigns the field — the next tap closes
     func tapAway() {
+        guard !leaving else { return } //Handed over: the card's next move is its caller's
         if keyboardFocused, let resignKeyboard { resignKeyboard() } else { close() }
+    }
+
+    //The leading action's tap. Both buttons pop away and the card holds still; once it rests on a whole
+    //page — or the cap runs out, when the caller may only fade it — the caller takes it as it stands
+    func depart() {
+        guard !leaving, !closing else { return }
+        leaving = true //Bare: both buttons pop on their own `.transition` scope — a caller that flies the card pops its own copy
+        //At rest — nearly always — the card goes in the tap's own turn: the caller's flight starts from the tap, not a beat after it
+        if restingForDeparture {
+            leadingAction(departure())
+            return
+        }
+        Task { @MainActor [self] in
+            let cap = ContinuousClock.now + Self.departureRestCap
+            while !restingForDeparture, ContinuousClock.now < cap { try? await Task.sleep(for: .milliseconds(16)) }
+            guard leaving, !closing else { return } //A close begun meanwhile (its source vanished) owns the card
+            leadingAction(departure())
+        }
+    }
+
+    private static let departureRestCap = Duration.seconds(timeScale)
+
+    //Nothing on the card is moving: landed with the cover handed off, the breath spent, no finger or field
+    //holding it, and the pager settled on a whole page
+    private var restingForDeparture: Bool {
+        settled && !coverShown && !titleHeroShown && !fingerDown && !dragEngaged && !keyboardFocused
+            && restingCard.height > 1 && !destLocal.isEmpty
+            && (restAt.map { ContinuousClock.now >= $0 } ?? false) && (visiblePage?.atRest ?? false)
+    }
+
+    private func departure() -> EventZoomDeparture {
+        let page = visiblePage
+        return EventZoomDeparture(ready: restingForDeparture && page != nil,
+                                  card: restingCard, band: destRect, bandTitle: pagerTitle, title: title ?? "",
+                                  photo: page?.photo, source: page?.source,
+                                  page: page?.index ?? 0, pageCount: page?.count ?? 0,
+                                  chevronSlotY: chevronSlotY, leadingTitle: leadingActionTitle,
+                                  hide: { [weak self] in
+                                      var instant = Transaction()
+                                      instant.disablesAnimations = true
+                                      withTransaction(instant) { self?.handedOver = true }
+                                  },
+                                  restore: { [weak self] in
+                                      self?.leaving = false
+                                      self?.handedOver = false
+                                  })
     }
 
     //The raise that holds the pin and the drop that hangs the clearance controls on the keyboard's line, each
@@ -1819,6 +1919,7 @@ extension EventZoomChoreo {
             flightP = 1
             landed = true
             chevronIn = true //Nothing flew, so there is no committed beat to wait out
+            restAt = .now + Self.handOffBeat //The cover's park on the band is all the motion there is
             reinset()
             withAnimation(.move) { repin() } //A field focused before this waited for it: its gap, then its pin
             withAnimation(.transition) { chromeP = 1 }
@@ -1831,6 +1932,9 @@ extension EventZoomChoreo {
             try? await Task.sleep(for: .milliseconds(30)) //One committed frame at the source before the flight leaves it
             guard !closing else { return } //A close inside the wait owns the card: nothing may open over it, or retake its corner
             takeCornerLanding() //Reported in the measured passes the flight just waited out; taken as it leaves
+            //The breath is the open's last motion: a card handed over before it settles would be taken mid-bounce
+            restAt = .now + .seconds(Self.breathStartTime + Self.breathRiseTime
+                + Spring(duration: Self.openDuration * Self.breathSettleShare, bounce: 0.18).settlingDuration)
             //Two completions on ONE spring: the landing at its perceptual end, and the cover's
             //hand-off only once it is REMOVED — p is exactly 1 then, so the cover and the live
             //page are the same pixels. At `.logicallyComplete` ~1.4% of the travel is still to
@@ -2101,29 +2205,41 @@ extension EventZoomChoreo {
     //into the slot, 99% settled at cardReturnTime — and the last tick lands p on exactly 0
     //before the commit, so the source takes back identical pixels.
     private func landCard() {
-        let path = hypot(destRect.midX - source.midX, destRect.midY - source.midY)
-        let share = Double(min(Self.cardOvershoot / max(path, 1), 0.5)) //The excursion as a share of the travel
-        let l = log(1 / share)
-        let zeta = l / (Double.pi * Double.pi + l * l).squareRoot()
-        let omegaD = (Double.pi - acos(zeta)) / Self.cardCrossTime
-        let tDeep = Double.pi / omegaD
-        let decayRate = zeta * omegaD / (1 - zeta * zeta).squareRoot() //ζω, ω the undamped frequency
-        let lean = zeta / (1 - zeta * zeta).squareRoot()
+        let landing = Self.cardLanding(path: hypot(destRect.midX - source.midX, destRect.midY - source.midY))
         windDriver.run { [self] raw in
             let t = raw / Self.timeScale //-eventZoomSlow stretches playback
             var instant = Transaction()
             instant.disablesAnimations = true
-            if t < tDeep {
-                let p = exp(-decayRate * t) * (cos(omegaD * t) + lean * sin(omegaD * t))
-                withTransaction(instant) { flightP = CGFloat(p) }
-            } else if t < tDeep + Self.cardReturnTime {
-                let x = (t - tDeep) / Self.cardReturnTime * Self.cardSettleReach
-                withTransaction(instant) { flightP = CGFloat(-share * (1 + x) * exp(-x)) }
+            if let p = landing(t) {
+                withTransaction(instant) { flightP = p }
             } else {
                 windDriver.stop()
                 withTransaction(instant) { flightP = 0 }
                 onClosed()
             }
+        }
+    }
+
+    ///The card landing's p over time for a flight of `path` points, nil once settled — shared with the View Event
+    ///flight, which lands a card on its Events card the same way
+    static func cardLanding(path: CGFloat) -> (TimeInterval) -> CGFloat? {
+        let share = Double(min(cardOvershoot / max(path, 1), 0.5)) //The excursion as a share of the travel
+        let l = log(1 / share)
+        let zeta = l / (Double.pi * Double.pi + l * l).squareRoot()
+        let omegaD = (Double.pi - acos(zeta)) / cardCrossTime
+        let tDeep = Double.pi / omegaD
+        let decayRate = zeta * omegaD / (1 - zeta * zeta).squareRoot() //ζω, ω the undamped frequency
+        let lean = zeta / (1 - zeta * zeta).squareRoot()
+        let returnTime = cardReturnTime, settleReach = cardSettleReach
+        return { t in
+            if t < tDeep {
+                return CGFloat(exp(-decayRate * t) * (cos(omegaD * t) + lean * sin(omegaD * t)))
+            }
+            if t < tDeep + returnTime {
+                let x = (t - tDeep) / returnTime * settleReach
+                return CGFloat(-share * (1 + x) * exp(-x))
+            }
+            return nil
         }
     }
 
@@ -2234,7 +2350,7 @@ extension EventZoomChoreo {
         //Global space, so a touch-down can be tested against the controls that own theirs
         DragGesture(minimumDistance: 12, coordinateSpace: .global)
             .onChanged { [self] value in
-                guard landed, !closing, !dragLocked, !keyboardFocused else { return }
+                guard landed, !closing, !dragLocked, !keyboardFocused, !leaving else { return }
                 if dragOffset == .zero {
                     //First movement picks the owner: verticals engage the dismiss, horizontals
                     //belong to the pager — the invite popup's axis split. Once owned, BOTH axes track
@@ -2277,7 +2393,7 @@ private struct WindRender: Equatable {
 
 //The per-frame clock for the wind close: SwiftUI has no display link of its own, and the
 //shared WindFlightPlan is a time-domain trajectory, not a spring target the system can run.
-private final class WindCloseDriver {
+final class WindCloseDriver {
     private var link: CADisplayLink?
     private var start: CFTimeInterval = 0
     private var onTick: ((TimeInterval) -> Void)?
@@ -2418,7 +2534,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
         //The source's shape → the pager's band: top corners to the card's, the bottom pair
         //flattening where the rows begin. The landing rim wears the same pair, pushed out
         let coverTopRadius = lerp(coverRadius, CornerRadius.image, pLanded)
-        let coverBottomRadius = lerp(coverRadius, 0, pLanded)
+        let coverBottomRadius = lerp(max(shape.bottomRadius(for: cover.size), 0), 0, pLanded)
 
         //The name morph, re-derived per frame off the interpolated cover so the word tracks the
         //growing band instead of aiming at a frozen endpoint. Nil — no marked name, or a title
@@ -2611,7 +2727,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                             bottomLeadingRadius: coverBottomRadius,
                             bottomTrailingRadius: coverBottomRadius,
                             topTrailingRadius: coverTopRadius))
-                        .modifier(CoverShadow(isLens: glassRing > 0, lens: lensShadow, card: cardShadow))
+                        .modifier(CoverShadow(casts: shape.castsCoverShadow, isLens: glassRing > 0, lens: lensShadow, card: cardShadow))
                         .position(x: cover.midX, y: cover.midY)
                         .allowsHitTesting(false)
                 }
@@ -3266,13 +3382,16 @@ private struct EventZoomLandingRim: View, Animatable {
 //card's resting shadow. A branch, not two strength-0 passes — the cover is the one surface the
 //flight keeps cheap, and the kind never changes mid-flight.
 private struct CoverShadow: ViewModifier {
+    let casts: Bool
     let isLens: Bool
     let lens: CGFloat
     let card: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if isLens {
+        if !casts {
+            content
+        } else if isLens {
             content.lightShadow(strength: lens)
         } else {
             content.shadow(.zoomCard, strength: card)

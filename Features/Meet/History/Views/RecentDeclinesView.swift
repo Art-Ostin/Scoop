@@ -65,7 +65,7 @@ extension RecentDeclines {
     
     //The card's own image stands in until the profile's full set has loaded
     private func heroImages(for decline: DeclinedProfile) -> [UIImage] {
-        profileImages[decline.id] ?? [decline.profile.image]
+        profileImages[decline.profile.id] ?? [decline.profile.image]
     }
 }
 
@@ -94,7 +94,7 @@ struct HistoryCard: View {
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
             .task(id: image) {
-                palette = await PopupColorExtractor.shared.extractPalette(image, id: decline.id)
+                palette = await PopupColorExtractor.shared.extractPalette(image, id: decline.profile.id)
             }
             .zoomTransition(images: heroImages, windDismiss: true) {
                 chrome

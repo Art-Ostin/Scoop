@@ -11,6 +11,10 @@ import FirebaseFirestore
 //Event stored in user's profile with all Info they require about event (Check if not better to just store reference to event instead)
 struct UserEvent: Identifiable, Codable {
     
+    //An invite the user declined stays loaded for this long
+    static let daysToShowDeclined: TimeInterval = 3
+    static let declinedWindow: TimeInterval = daysToShowDeclined * 24 * 60 * 60
+    
     enum EdgeRole: String, Codable {
         case sent, received
     }
@@ -44,11 +48,9 @@ struct UserEvent: Identifiable, Codable {
     var chatState: ChatState?
 
     //5. MetaData
-    //Optional, not a defaulted array: the synthesised decoder calls decode, not decodeIfPresent,
-    //so a defaulted [] throws keyNotFound on every invite written before the field existed — and
-    //streamCollection turns that into finish(throwing:), taking the whole events stream with it
     var pastProposals: [PastEventProposal]?
     var createdAt: Date?
+    var declinedAt: Date? 
     var earlyTerminatorID: String? = nil
     
     //Nil is what an invite written before the field existed decodes to — and .original is what it was
@@ -75,7 +77,7 @@ extension UserEvent {
     enum Field: String {
         case otherUserId, otherUserName, otherUserPhoto, role,
              type, proposedTimes, proposedKind, acceptedTime, location, message,
-             status, canText, pastProposals, createdAt, earlyTerminatorID, chatState
+             status, canText, pastProposals, createdAt, declinedAt, earlyTerminatorID, chatState
     }
 
     //An expired invite stays loaded for this long, so the Expired section survives a relaunch.

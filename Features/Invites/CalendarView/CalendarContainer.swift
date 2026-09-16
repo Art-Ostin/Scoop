@@ -16,6 +16,7 @@ struct CalendarContainer: View {
     
     let vm: InvitesViewModel
     let onRespond: (EventProfile, ProfileResponse) -> Void //The Invites tab's own response flow
+    let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //The flight into Events: it closes this cover itself, from above it
     
     private static let title = "Calendar View"
 
@@ -56,6 +57,7 @@ extension CalendarContainer {
         ScrollView {
             VStack(spacing: 0) { //Each block below owns its own leading gap — no implicit ~8pt seams
                 heading(titleInContent: titleInContent)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
                 calendarEventsView
                     //One step below titleGap: the day grid carries its own air above the first label
@@ -151,22 +153,27 @@ extension CalendarContainer {
     //View Event goes on here, not inside ViewInvite: Meet's pending ledger shows that view too
     private func meetingCard(_ meeting: EventProfile) -> AnyView {
         guard let time = meeting.event.acceptedTime else { return AnyView(EmptyView()) }
-        return AnyView(ViewInvite(inviteSummary: InviteSummary(accepted: meeting.event, at: time),
+        let summary = InviteSummary(accepted: meeting.event, at: time)
+        return AnyView(ViewInvite(inviteSummary: summary,
                                   images: vm.images(for: meeting),
                                   name: meeting.profile.name,
                                   title: "Meeting \(meeting.profile.name)")
-            .eventZoomLeadingAction("View Event") {
-                // TODO: open the event
-            })
+            .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0, summary) })
+    }
+
+    
+    private var expiredDivider: some View {
+        Capsule()
+            .fill(Color.fillGray)
+            .frame(maxWidth: .infinity, maxHeight: 1)
+            .padding(.horizontal, 72) //Geometry: sets the divider's length, not a rhythm gap
     }
 
     
     private var expiredEvents: some View {
         VStack(spacing: Spacing.xl) {
             //A full rule, a step darker than the rows' own hairlines: this is a section break, not a row seam
-            LightDivider()
-                .padding(.horizontal, Spacing.xl)
-
+            expiredDivider
             expiredEventsTitle
             CalendarExpiredEvents(expiredInvites: vm.expiredInvites, card: inviteCard)
         }

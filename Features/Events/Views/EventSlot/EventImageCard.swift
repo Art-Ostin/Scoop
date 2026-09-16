@@ -19,9 +19,17 @@ struct EventImageCard: View {
     let userImage: UIImage?
     let targetTime: Date
     @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
+    @Environment(ViewEventFlight.self) private var viewEventFlight: ViewEventFlight?
 
     //Local view state
     @State private var page: Int = 0
+
+    //The photo the calendar's View Event flight lands on, while one is on its way to this card
+    private var landingPage: Int? { viewEventFlight?.landingPage(for: eventProfile.id, in: profileImages) }
+
+    private var imageHidden: Bool {
+        (responseCover?.eventImageHidden(eventProfile.id) ?? false) || (viewEventFlight?.imageHidden(eventProfile.id) ?? false)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,25 +38,65 @@ struct EventImageCard: View {
             //the card's clip squares the image's bottom edge (no radius there).
             //`page` is shared so the zoom opens on the photo the card shows,
             //and the card comes back on whichever photo the profile ended on.
-            EventImageCarousel(images: profileImages, page: $page)
+            EventImageCarousel(images: profileImages, page: $page,
+                               onProgress: { viewEventFlight?.reportPad(progress: $0, id: eventProfile.id) })
                 .zoomTransition(images: profileImages,
                                 page: $page,
                                 showsCardShadow: false,
                                 bottomCornerRadius: 0) {
                     profileView
                 }
-                //The accept flight's landing pad: hidden while the flown copy owns the
-                //pixels (the hand-off un-hides it beneath the still-opaque copy), and its
-                //global rect reported live so the cover's close knows where to land.
-                .opacity((responseCover?.eventImageHidden(eventProfile.id) ?? false) ? 0 : 1)
+                //The accept and View Event flights' landing pad: hidden while the flown copy
+                //owns the pixels (the hand-off un-hides it beneath the still-opaque copy), and
+                //its global rect reported live so the flight knows where to land.
+                .opacity(imageHidden ? 0 : 1)
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: {
                     responseCover?.reportEventImageFrame($0, id: eventProfile.id)
+                    viewEventFlight?.reportPad(frame: $0, id: eventProfile.id)
                 }
             timerSection
                 .padding(.vertical, 6)
         }
         .clipShape(.rect(cornerRadius: CornerRadius.image))
         .eventCardBackground()
+        .onChange(of: profileImages, initial: true) { viewEventFlight?.reportPad(images: $1, id: eventProfile.id) }
+        .task(id: landingPage) { await turnToLandingPage() }
+    }
+}
+
+//The calendar's View Event flight: the card turns to the popup's photo before it lands
+extension EventImageCard {
+
+    //A `.scrollPosition` write only moves a carousel that is live in a window, and the Events tab is put back in
+    //the window partway through the flight — so the turn is re-asserted until the carousel reports it
+    private func turnToLandingPage() async {
+        var turning = false
+        //However the turn ends — taken, or its flight gone before the carousel took it — `page` is left on what the
+        //carousel shows, or the zoom would open on a photo the card isn't showing
+        defer { if turning { settlePageOnPixels() } }
+        while let target = landingPage, !Task.isCancelled {
+            turning = true
+            let progress = viewEventFlight?.padProgress(for: eventProfile.id)
+            if let progress, abs(progress - Double(target)) < 0.01 { return }
+            if page == target, let progress {
+                setPage(Int(progress.rounded())) //A real change, so the write after it is one too
+                do { try await Task.sleep(for: ViewEventFlightMotion.commitBeat) } catch { return }
+            }
+            setPage(target)
+            do { try await Task.sleep(for: ViewEventFlightMotion.pageRecheck) } catch { return }
+        }
+    }
+
+    private func settlePageOnPixels() {
+        guard let progress = viewEventFlight?.padProgress(for: eventProfile.id) else { return }
+        let shown = Int(progress.rounded())
+        if page != shown { setPage(shown) }
+    }
+
+    private func setPage(_ index: Int) {
+        var instant = Transaction()
+        instant.disablesAnimations = true
+        withTransaction(instant) { page = index }
     }
 }
 
@@ -152,6 +200,7 @@ struct EventImageCarousel: View {
     //Injected
     let images: [UIImage]
     @Binding var page: Int
+    var onProgress: (Double) -> Void = { _ in } //Where it sits, in pages: the View Event flight lands only on a settled page
 
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -181,6 +230,7 @@ struct EventImageCarousel: View {
         //the page the profile ended on while the card is hidden mid-flight.
         .scrollPosition(id: settledPage)
         .trackScrollProgress(scrollProgress: $scrollProgress)
+        .onChange(of: scrollProgress, initial: true) { onProgress($1) }
     }
 
     private func profileImage(image: UIImage) -> some View {

@@ -24,16 +24,25 @@ struct PendingProfile: Identifiable, Equatable, Hashable {
 struct DeclinedProfile: Identifiable, Equatable, Hashable {
     let profile: PendingProfile
     let declinedAt: Date
-    var id: String { profile.id }
+    var inviteId: String? = nil //Set when it was this person's invite that was declined, not their profile
+
+    //The card's own id, not the person's: one person can have a declined profile and declined invites in the same list
+    var id: String { inviteId ?? profile.id }
 }
 
 extension DeclinedProfile {
+    //A declined invite drawn as a decline card. Nil without a photo: the card is the photo
+    init?(invite: EventProfile) {
+        guard let image = invite.image, let declinedAt = invite.event.declinedAt else { return nil }
+        self.init(profile: PendingProfile(profile: invite.profile, image: image), declinedAt: declinedAt, inviteId: invite.id)
+    }
+
     //The badge earns its place only once it's scarce, so above this the card wears nothing at all
     static let labelLead: TimeInterval = 2 * 24 * 60 * 60
 
     //When the window closes and this card drops out of History. Derived from the same constant
     //the filter uses, so the label and the removal can't drift apart.
-    var expiresAt: Date { declinedAt.addingTimeInterval(Session.declinedWindow) }
+    var expiresAt: Date { declinedAt.addingTimeInterval(inviteId == nil ? Session.declinedWindow : UserEvent.declinedWindow) }
 
     ///"2 days left" / "20 hours left" / "Under an hour" — nil while the card still has more than
     ///two days, which is most of its life. Ceil throughout: the number always reads as "gone
@@ -54,4 +63,8 @@ extension DeclinedProfile {
         let hours = Int((remaining / hour).rounded(.up))
         return "\(hours) hour\(hours == 1 ? "" : "s") left"
     }
+    
+    
+    
 }
+

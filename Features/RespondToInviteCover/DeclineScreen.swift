@@ -32,8 +32,6 @@ struct DeclineOverlay: View {
                 .keyframeAnimator(initialValue: 0.0, trigger: play) { _, t in
                     choreography(at: t, launch: launch, size: geo.size)
                 } keyframes: { _ in
-                    //A linear clock — DeclineChoreo.pose owns every curve on it. It only has
-                    //to outlive the flight; the exit rides `closing`, not this clock.
                     KeyframeTrack { LinearKeyframe(DeclineChoreo.clockEnd, duration: DeclineChoreo.clockEnd) }
                 }
         }

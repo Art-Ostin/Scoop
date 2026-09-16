@@ -8,11 +8,11 @@
 import SwiftUI
 
 extension View {
-    func customSubtitle(lineSpacing: CGFloat = 6) -> some View {
+    func customSubtitle(lineSpacing: CGFloat = 6, alignment: TextAlignment = .center) -> some View {
         self
             .font(.body(13, .regular))
             .foregroundStyle(Color.textSecondary)
-            .multilineTextAlignment(.center)
+            .multilineTextAlignment(alignment)
             .kerning(0.312)
             .lineSpacing(lineSpacing)
         

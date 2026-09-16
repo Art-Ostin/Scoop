@@ -9,7 +9,10 @@ import SwiftUI
 struct MeetContainer: View {
     
     //Inject Dependencies
+    @Environment(AppRouter.self) private var router
     @Environment(ResponseCoverPresenter.self) private var responseCover: ResponseCoverPresenter?
+    @Environment(ViewEventFlight.self) private var viewEventFlight: ViewEventFlight?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let vm: MeetViewModel
 
     //Local view state
@@ -60,14 +63,43 @@ extension MeetContainer {
         }
         .blurPop(visible: isAtTopOfScroll)
         .matchedTransitionSource(id: "history", in: historyZoom)
-        .fullScreenCover(isPresented: $ui.showHistory) {historyPage}
+        .fullScreenCover(isPresented: $ui.showHistory, onDismiss: { viewEventFlight?.coverDidDismiss() }) {historyPage}
         .padding(.top, Spacing.md) //As its small icon, sits in correct position
         .padding(.horizontal, Spacing.margin)
     }
-    
+
     private var historyPage: some View {
-        HistoryContainer(vm: HistoryViewModel(session: vm.session))
+        HistoryContainer(vm: HistoryViewModel(session: vm.session), onViewEvent: { viewEvent($0, $1, $2) })
             .navigationTransition(.zoom(sourceID: "history", in: historyZoom))
+    }
+}
+
+//Logic to open an accepted event from History's pending calendar
+extension MeetContainer {
+
+    //Mirrors InvitesContainer.viewEvent: the flight draws above History's cover, so it closes History itself, out of sight.
+    //It carries the card only when the popup was handed over at rest; otherwise, or under Reduce Motion, it fades onto the event
+    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture, _ summary: InviteSummary) {
+        let id = meeting.event.id
+        let copy = departure.ready && !reduceMotion ? AnyView(ViewInviteFlightCopy(inviteSummary: summary)) : nil
+        let closeHistory = { withTransaction(Self.instant) { ui.showHistory = false } }
+        let openEvent = {
+            withTransaction(Self.instant) {
+                router.eventsPath = NavigationPath() //A pushed chat would cover the event
+                router.showEventId = id
+                router.selectedTab = .events
+            }
+        }
+        let handlers = ViewEventFlight.Handlers(closeCalendar: closeHistory, openEvent: openEvent,
+                                                stillTargeted: { router.selectedTab == .events && router.eventsPath.isEmpty })
+        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, copy: copy), handlers: handlers) ?? false
+        if !started { closeHistory(); openEvent() } //No plane to raise: a plain cut still lands on the event, History closed
+    }
+
+    private static var instant: Transaction {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        return transaction
     }
 }
 

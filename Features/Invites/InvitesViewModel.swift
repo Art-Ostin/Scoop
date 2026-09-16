@@ -157,7 +157,10 @@ extension InvitesViewModel {
 
     private func decline(eventId: String) async throws {
         guard let event = respondVMs[eventId]?.respondDraft.originalInvite.event else { throw RespondError.missingDraft }
+        //Captured before the write: the events listener prunes it from session.invites before the write returns
+        let invite = session.invites.first { $0.id == event.id }
         try await eventRepo.declineEvent(eventId: event.id, otherUserId: event.otherUserId, userId: userId)
+        if let invite { session.declineInvite(invite) }
         updateInvitesLocally(eventId: event.id)
     }
 

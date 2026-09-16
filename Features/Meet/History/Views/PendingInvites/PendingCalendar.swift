@@ -13,20 +13,26 @@ struct PendingCalendar: View {
 
     //Injected
     let inviteDays: [InviteDay]
+    let upcomingEvents: [EventProfile] //Accepted events: one takes its whole day, and no pending face shares that day
     private let card: (EventProfile) -> AnyView //What a lens opens: the screen that owns the calendar decides
+    private let meetingCard: (EventProfile) -> AnyView //What a meeting's lens opens
     private let onOpen: (EventProfile, Date) -> Void //A lens tapped on its day, just before its card opens: the owner can pose the card for that day
 
-    
+
     //Local view state
     @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal
     @State private var selectedLensID: String? //Which lens is up — either lens of an invite opens the same card, grown out of the one tapped
 
     //Generic init, erased once: .eventZoom wraps its card in AnyView anyway, and a generic type would outlaw the static layout constants below
-    init<Card: View>(inviteDays: [InviteDay], onOpen: @escaping (EventProfile, Date) -> Void = { _, _ in },
-                     @ViewBuilder card: @escaping (EventProfile) -> Card) {
+    init<Card: View, MeetingCard: View>(inviteDays: [InviteDay], upcomingEvents: [EventProfile],
+                                        onOpen: @escaping (EventProfile, Date) -> Void = { _, _ in },
+                                        @ViewBuilder card: @escaping (EventProfile) -> Card,
+                                        @ViewBuilder meetingCard: @escaping (EventProfile) -> MeetingCard) {
         self.inviteDays = inviteDays
+        self.upcomingEvents = upcomingEvents
         self.onOpen = onOpen
         self.card = { AnyView(card($0)) }
+        self.meetingCard = { AnyView(meetingCard($0)) }
     }
 
     private static let faceSize: CGFloat = 42
@@ -48,6 +54,7 @@ struct PendingCalendar: View {
     private static let echoRowHeight: CGFloat = 56 //Geometry: the echo row as it settled — a 32pt lens + 2 × Spacing.sm
     private static let primaryPad = (rowHeight - lensFrame) / 2 //Geometry: 12 at a 52pt lens — gives back exactly what the lens took
     private static let echoPad = (echoRowHeight - echoLens) / 2 //Geometry: 11 at a 34pt lens
+    private static let freeRowHeight: CGFloat = 40 //Geometry: the same as the Calendar View's free rows (CalendarPendingEvents)
 
     //Four lenses is all one line holds beside its day — and at 52pt it is over budget: a long
     //label ("Wed Sep 30") renders at ~77% on a 393pt phone, and hits the 0.7 shrink floor and
@@ -56,35 +63,37 @@ struct PendingCalendar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            HeaderRow(title: "Active", note: acceptanceNote)
+//            HeaderRow(title: "Active", note: acceptanceNote)
 
-            let faces = ledger //One pass, read once per row — not rebuilt per row
-            let rows = days
+            let booked = meetings
+            let faces = ledger(skipping: Set(booked.keys)) //One pass, read once per row — not rebuilt per row
+            let rows = days(booked: booked)
+            //A meeting day is busy, though the ledger gives it no faces
+            let isFree = { (day: Date) in (faces[day] ?? []).isEmpty && booked[day] == nil }
 
             VStack(spacing: 0) {
                 ForEach(Array(rows.enumerated()), id: \.element) { index, day in
-                    let mine = faces[day] ?? []
                     let hasNext = index + 1 < rows.count
-                    let nextIsFree = hasNext && (faces[rows[index + 1]] ?? []).isEmpty
                     dayRow(day: day,
-                           faces: mine,
-                           showsDivider: hasNext && !(mine.isEmpty && nextIsFree),
-                           isTop: index == 0)
+                           faces: faces[day] ?? [],
+                           meeting: booked[day],
+                           showsDivider: hasNext && !(isFree(day) && isFree(rows[index + 1])))
                 }
             }
-            .padding(.horizontal, Spacing.md) //Rows own all vertical rhythm — the card adds none
+            .padding(.horizontal, 0) //Rows own all vertical rhythm — the card adds none
             .frame(maxWidth: .infinity)
-            .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
+            .background(Color.appCanvas, in: .rect(cornerRadius: CornerRadius.md))
         }
     }
 }
 
-//The rows: a bold day holding lenses, or a slim quiet line for a free day
+//The rows: a bold day holding a meeting or lenses, or a lighter, shorter row for a free day
 extension PendingCalendar {
 
-    private func dayRow(day: Date, faces: [Face], showsDivider: Bool, isTop: Bool) -> some View {
+    private func dayRow(day: Date, faces: [Face], meeting: EventProfile?, showsDivider: Bool) -> some View {
         VStack(spacing: 0) {
-            if faces.isEmpty { noEventDay(day: day, isTop: isTop) }
+            if let meeting { meetingDay(day: day, meeting: meeting) }
+            else if faces.isEmpty { noEventDay(day: day) }
             else { eventDay(day: day, faces: faces) }
 
             if showsDivider {
@@ -93,16 +102,14 @@ extension PendingCalendar {
         }
     }
 
-    //A free day pays half the gap on each side, so two meeting rows make one Spacing.md. The
-    //card's top edge has no neighbour to halve with — a free first row pays the whole 16 itself,
-    //the clearance a lens row already buys on its ring.
-    private func noEventDay(day: Date, isTop: Bool) -> some View {
+    //Matches the Calendar View's free rows: the same 16pt as a busy day's date, only regular
+    //weight, centred in a fixed row
+    private func noEventDay(day: Date) -> some View {
         Text(FormatEvent.shortDayAndTime(day, withHour: false, withToday: true))
-            .font(.body(14, .regular))
+            .font(.body(16, .regular))
             .foregroundStyle(Color.textTertiary.opacity(0.7)) //Tad Lighter
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, isTop ? Spacing.md : Spacing.xs)
-            .padding(.bottom, Spacing.xs)
+            .frame(height: Self.freeRowHeight)
     }
 
     private func eventDay(day: Date, faces: [Face]) -> some View {
@@ -119,6 +126,24 @@ extension PendingCalendar {
         .padding(.vertical, hasPrimary ? Self.primaryPad : Self.echoPad)
     }
 
+    //A meeting takes the whole day: one tinted lens on the rail, at a primary row's height
+    private func meetingDay(day: Date, meeting: EventProfile) -> some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            dayTitle(day: day, lineHeight: Self.lensFrame)
+
+            Spacer(minLength: 0)
+
+            Lens(face: (meeting, true),
+                 lensID: meeting.id, //The bare event id: invite lenses carry "#day", so the two never share a selection
+                 isMeeting: true,
+                 selectedLensID: $selectedLensID,
+                 onOpen: {},
+                 card: meetingCard)
+            .id(meeting.id) //A different meeting taking this day remounts the lens: its open card fades out, never flies home onto the new face
+        }
+        .padding(.vertical, Self.primaryPad)
+    }
+
     private func dayTitle(day: Date, lineHeight: CGFloat) -> some View {
         Text(FormatEvent.shortDayAndTime(day, withHour: false, withToday: true))
             .font(.body(16, .bold))
@@ -128,11 +153,11 @@ extension PendingCalendar {
     }
 
     //Always the whole window the composer could have proposed across, and never so few that an
-    //invited day falls off the end — a face the card cannot draw is an invite nobody answers
-    private var days: [Date] {
+    //invited day or a meeting falls off the end — a face the card cannot draw is an invite nobody answers
+    private func days(booked: [Date: EventProfile]) -> [Date] {
         let cal = Calendar.current
         let start = cal.startOfDay(for: .now)
-        let furthest = inviteDays.map(\.day).max() ?? start
+        let furthest = (inviteDays.map(\.day) + booked.keys).max() ?? start
         let span = max(ProposedTimes.horizonDays, (cal.dateComponents([.day], from: start, to: furthest).day ?? 0) + 1)
 
         return (0..<span).compactMap { cal.date(byAdding: .day, value: $0, to: start) }
@@ -195,11 +220,21 @@ extension PendingCalendar {
         return [.toggle(hidden: faces.count - shown)] + faces.suffix(shown).map(FaceCell.face)
     }
 
-    private var ledger: [Date: [Face]] {
+    //One accepted event per day, keyed like the invite days. Two on one day keep the earlier time
+    //(then the lower id), so the row never swaps between them as `session.events` reorders
+    private var meetings: [Date: EventProfile] {
+        let dated = upcomingEvents.compactMap { event in event.event.acceptedTime.map { (time: $0, event: event) } }
+        return Dictionary(grouping: dated) { Calendar.current.startOfDay(for: $0.time) }
+            .compactMapValues { sameDay in sameDay.min { ($0.time, $0.event.id) < ($1.time, $1.event.id) }?.event }
+    }
+
+    //A booked day gets no faces. It is skipped before `seen`, so an invite first proposed on a
+    //booked day keeps its primary lens on the next day it still proposes
+    private func ledger(skipping booked: Set<Date>) -> [Date: [Face]] {
         var seen: Set<String> = []
         var out: [Date: [Face]] = [:]
 
-        for row in inviteDays.sorted(by: { $0.day < $1.day }) {
+        for row in inviteDays.sorted(by: { $0.day < $1.day }) where !booked.contains(row.day) {
             var firsts: [Face] = []
             var echoes: [Face] = []
 
@@ -264,6 +299,7 @@ extension PendingCalendar {
         //Injected
         let face: Face
         let lensID: String
+        var isMeeting = false //An accepted event's lens: accent glass, and named as a meeting
         @Binding var selectedLensID: String?
         let onOpen: () -> Void
         let card: (EventProfile) -> AnyView
@@ -286,11 +322,11 @@ extension PendingCalendar {
                 onOpen() //First, in the same tap: the card's first body is built from the posed draft
                 selectedLensID = lensID
             } label: {
-                LensFace(face: face)
+                LensFace(face: face, tint: isMeeting ? .accent : nil)
             }
             .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
             .instantPressDelivery()
-            .accessibilityLabel(face.isFirst ? name : "\(name) — alternative day")
+            .accessibilityLabel(isMeeting ? "Meeting \(name)" : face.isFirst ? name : "\(name) — alternative day")
             .eventZoom(isPresented: isPresented) {
                 card(face.invite) //Built inside the card, so photos that load while it is up still reach it
             }
@@ -302,6 +338,7 @@ extension PendingCalendar {
 
         //Injected
         let face: Face
+        var tint: Color? = nil //A meeting's accent — the resting glass and the close's landing rim wear the same one
         @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
 
         var body: some View {
@@ -310,10 +347,10 @@ extension PendingCalendar {
             //The face vacates at the tap (the source hides itself): the flying cover carries the
             //photo, and the close must land on a vacant glass ring — never on a duplicate image
             SmallImage(image: face.invite.image ?? UIImage(), size: face.isFirst ? PendingCalendar.faceSize : PendingCalendar.echoFaceSize, isCircle: true)
-                .eventZoomSource(face.invite.image ?? UIImage(), shape: .circle(ring: ring)) //The close regrows the ring at this tier
+                .eventZoomSource(face.invite.image ?? UIImage(), shape: .circle(ring: ring, tint: tint)) //The close regrows the ring at this tier, in its tint
                 .padding(ring)
                 .lightShadow()
-                .containerGlassEffect(clipped: true, shape: Circle())
+                .containerGlassEffect(tint: tint, clipped: true, shape: Circle())
                 .opacity(anchor?.returning == true ? 0 : 1) //A committed close: the flight's own glass regrows the ring under the landing photo
                 .padding(face.isFirst ? 0 : PendingCalendar.echoHitInset)
                 .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses

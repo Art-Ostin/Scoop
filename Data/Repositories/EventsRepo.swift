@@ -223,10 +223,22 @@ extension EventsRepo {
     
     func declineEvent(eventId: String, otherUserId: String, userId: String) async throws {
         let updatedField: [String: Any] = [
-            UserEvent.Field.status.rawValue : Event.EventStatus.declined.rawValue
+            UserEvent.Field.status.rawValue : Event.EventStatus.declined.rawValue,
+            UserEvent.Field.declinedAt.rawValue : FieldValue.serverTimestamp()
         ]
         try await updateEvent(initId: otherUserId, recipId: userId, eventId: eventId, initFields: updatedField, recipFields: updatedField, eventFields: updatedField)
     }
+    
+    func recentlyDeclined(userId: String, since: Date) async throws -> [UserEvent] {
+        typealias F = UserEvent.Field
+        let declined: [UserEvent] = try await fs.fetchFromCollection("users/\(userId)/user_events") {
+            $0.whereField(F.declinedAt.rawValue, isGreaterThan: Timestamp(date: since))
+              .order(by: F.declinedAt.rawValue, descending: true)
+        }
+        return declined.filter { $0.role == .received }
+    }
+
+    
     
     func respondWithNewTime(newTime: RescheduleResponse) async throws {
         //1.Reverse who is initiator and who is recipient

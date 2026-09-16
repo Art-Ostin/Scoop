@@ -39,9 +39,6 @@ struct EventImagePager: View {
                         .scrollDisabled(flight?.dragEngaged ?? false)
                 }
             }
-            //The white ground the time platter lands on: the photo would otherwise show through the lens
-            //and tint its top edge. Same delayed flag as the title that vacates it; the HEIGHT and WIDTH
-            //are the platter's own measured overlap, so no part of the band ever stands proud of it.
             .overlay(alignment: .bottom) { TimeBandFill(ground: bandGround, visible: bandFilled) }
             //Hidden, never unmounted: the rect it reports is the name morph's anchor and the frost band's
             .overlay(alignment: .bottomLeading)  {
@@ -60,6 +57,7 @@ struct EventImagePager: View {
             .onChange(of: carouselVisible, initial: true) { if $1 { latch() } }
             .onChange(of: images) { if carouselVisible { latch() } }
             .onChange(of: drawnPage, initial: true) { visiblePhoto.wrappedValue = $1 }
+            .onChange(of: pageReport, initial: true) { if let page = $1 { flight?.reportVisiblePage(page) } }
             .coordinateSpace(.named(Self.bandSpace))
     }
     
@@ -71,6 +69,16 @@ struct EventImagePager: View {
     private var drawnPage: UIImage? {
         guard !drawn.isEmpty else { return nil }
         return drawn[min(max(Int(scrollProgress.rounded()), 0), drawn.count - 1)]
+    }
+
+    //The same page for a card handed over whole (`.eventZoomLeadingAction`): its index, and the caller's own
+    //image there, which is what the flight matches its landing on
+    private var pageReport: EventZoomVisiblePage? {
+        guard let photo = drawnPage else { return nil }
+        let index = min(max(Int(scrollProgress.rounded()), 0), drawn.count - 1)
+        return EventZoomVisiblePage(index: index, count: drawn.count, photo: photo,
+                                    source: images.indices.contains(index) ? images[index] : nil,
+                                    atRest: carouselVisible && abs(scrollProgress - scrollProgress.rounded()) < 0.001)
     }
 
     private var inviteCarousel: some View {

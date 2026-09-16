@@ -12,7 +12,8 @@ struct HistoryContainer: View {
     
     @Environment(\.dismiss) private var dismiss
     @State var vm: HistoryViewModel
-    
+    let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //A meeting card's "View Event": Meet closes History and opens the event
+
     @State private var selectedPage: Int? = 0
     
     @State private var ui = HistoryUIState()
@@ -26,18 +27,19 @@ struct HistoryContainer: View {
     private let fadeBand: CGFloat = 32
 
     private let expiredReveal: CGFloat = 400
+
+    private let canvas = Color.canvasSunken //Recessed, so the pending card reads raised — the ground and the page fade share this one read
     
     var body: some View {
         ZoomNavigationStack(isDetailPresented: $profileOpen) {
             VStack(spacing: 0) {
                 headerBand
-                
                 scrollSection
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.canvasSunken.ignoresSafeArea())
+            .background(canvas.ignoresSafeArea())
             .task(id: vm.declines) { await loadDeclineImages() }
-            .task(id: vm.sentInvites) { await loadInviteImages() }
+            .task(id: calendarProfileIDs) { await loadCalendarImages() }
             .overlay { dismissButtonLayer }
             .eventZoomHost(eventZoomHost) //Above the xmark: a lens' card and its backdrop cover the screen's chrome
         }
@@ -49,21 +51,21 @@ struct HistoryContainer: View {
 
 //Logic to do with the header
 extension HistoryContainer {
+    
     //Sits hard against the pager, which clips the cards at the underline's baseline
     private var headerBand: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            HistoryTitle(ui: ui)
-            
-            HistorySubHeading(ui: ui)
-                .padding(.top, -12)
-            
+        VStack(alignment: .leading, spacing: Spacing.lg) { //Title block ↔ icons
+            VStack(alignment: .leading, spacing: Spacing.labelGap) { //Title ↔ subtitle
+                HistoryTitle(ui: ui)
+                HistorySubHeading(ui: ui)
+            }
+
             SelectionSection(selectedPage: $selectedPage, ui: ui)
         }
         .padding(.top, 36)
         .padding(.horizontal, Spacing.gutter)
         .zIndex(1)
     }
-    
     
     private var dismissButtonLayer: some View {
         GeometryReader { proxy in
@@ -88,20 +90,26 @@ extension HistoryContainer {
         }
         .opacityPop(visible: chromeVisible)
         .allowsHitTesting(chromeVisible)
-        //Its OWN value-keyed scope: the host writes bare on purpose (an animated mount
-        //would flash the flight cover), so the pop cannot ride the call site's transaction
         .animation(.transition, value: chromeVisible)
     }
     
     private func loadDeclineImages() async {
-        for decline in vm.declines where vm.profileImages[decline.id] == nil {
+        for decline in vm.declines where vm.profileImages[decline.profile.id] == nil {
             await vm.loadProfileImages(decline.profile.profile)
         }
     }
 
-    private func loadInviteImages() async {
-        for invite in vm.sentInvites where vm.profileImages[invite.profile.id] == nil {
-            await vm.loadProfileImages(invite.profile)
+    //Keyed on people, not events: a chat message rewrites a meeting (EventProfile's == compares its
+    //chat state) but needs no new photos, so it must not restart the load
+    private var calendarProfileIDs: [UserProfile.ID] {
+        (vm.sentInvites + vm.upcomingEvents).map(\.profile.id)
+    }
+
+    //Pending invites and meetings alike: a meeting card's pager needs the full set too. One at a time,
+    //so a person on both lists is fetched once — the second pass finds their photos already cached
+    private func loadCalendarImages() async {
+        for event in vm.sentInvites + vm.upcomingEvents where vm.profileImages[event.profile.id] == nil {
+            await vm.loadProfileImages(event.profile)
         }
     }
 }
@@ -127,7 +135,7 @@ extension HistoryContainer {
         }
         .contentMargins(.top, fadeBand, for: .scrollContent)
         .scrollIndicators(.hidden)
-        .customScrollFade(height: fadeBand, color: .canvasWarm, curve: .even)
+        .customScrollFade(height: fadeBand, color: canvas, curve: .even)
     }
     
     private var pastDeclineSection: some View {
@@ -142,9 +150,11 @@ extension HistoryContainer {
     private var pendingInvitesView: some View {
         page {
             PendingInvitesView(days: vm.invitedDays,
+                               upcomingEvents: vm.upcomingEvents,
                                expiredInvites: vm.expiredInvites,
                                ui: ui,
-                               images: { vm.images(for: $0) }
+                               images: { vm.images(for: $0) },
+                               onViewEvent: onViewEvent
             )
         }
         .scrollPosition($pendingScroll)
@@ -209,8 +219,7 @@ private struct HistorySubHeading: View {
     var body: some View {
         ZStack(alignment: .leading) {
             Text(showsDeclines ? recentDeclinesText : pendingInvitesText)
-                .font(.body(14, .medium))
-                .foregroundStyle(Color.textSecondary)
+                .customSubtitle(alignment: .leading) //A wrapped declines line stays on the leading edge too
                 .id(showsDeclines)
                 .transition(.blurReplace)
         }

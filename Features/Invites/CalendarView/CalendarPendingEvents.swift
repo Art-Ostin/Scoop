@@ -16,6 +16,19 @@ private struct DayFace: Identifiable {
     var id: String { invite.id }
 }
 
+//A slot in a day's pile: a face, or the +N chip that folds the faces past one line
+private enum FaceCell: Identifiable {
+    case face(DayFace)
+    case toggle(hidden: Int) //0 once the day is open: the chip then folds rather than counts
+
+    var id: String {
+        switch self {
+        case .face(let face): face.id
+        case .toggle: "toggle" //Unique within its row's ForEach
+        }
+    }
+}
+
 struct CalendarPendingEvents: View {
 
     //Injected
@@ -24,14 +37,16 @@ struct CalendarPendingEvents: View {
     let onOpen: (EventProfile, Date) -> Void //Runs on tap, just before the card opens
     let card: (EventProfile) -> AnyView //.eventZoom wraps its card in AnyView anyway
     let meetingCard: (EventProfile) -> AnyView
+    var facesPerLine = 3 //Faces on a line before the pile wraps
+    var collapsesOverflow = false //A day over one line folds behind a +N chip in its leading slot, rather than wrapping
+    var faceSpacing = Spacing.sm //Between faces, across and down: a narrow column buys the date its width back here
 
     //Local view state
     @State private var selectedLensID: String? //Which avatar's card is open
+    @State private var openDays: Set<Date> = [] //Days showing every face — the +N chip's own reveal
 
     private static let rowHeight: CGFloat = 72
     private static let freeRowHeight: CGFloat = 40
-
-    private static let facesPerLine = 3
 
     var body: some View {
         let booked = meetings
@@ -40,14 +55,10 @@ struct CalendarPendingEvents: View {
 
         VStack(spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.element) { index, day in
-                let hasNext = index + 1 < rows.count
-                let isFree = (faces[day] ?? []).isEmpty && booked[day] == nil //Booked too: the ledger skips meeting days, so their faces are empty as well
-                let nextIsFree = hasNext && (faces[rows[index + 1]] ?? []).isEmpty && booked[rows[index + 1]] == nil
-
                 dayRow(day: day,
                        faces: faces[day] ?? [],
                        meeting: booked[day],
-                       showsDivider: hasNext && !(isFree && nextIsFree))
+                       showsDivider: index + 1 < rows.count)
             }
         }
     }
@@ -57,22 +68,24 @@ struct CalendarPendingEvents: View {
 extension CalendarPendingEvents {
 
     //A hairline under every row but the last: the day and its faces sit a column apart, and the
-    //rule is what says they are one row. Two free days back to back skip it — neither has faces to tie
+    //rule is what says they are one row
     private func dayRow(day: Date, faces: [DayFace], meeting: EventProfile?, showsDivider: Bool) -> some View {
         let isActive = !faces.isEmpty || meeting != nil
 
         return VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: Spacing.md) {
+            //The label takes the slack, not a Spacer: a stack spaces both sides of a Spacer, which
+            //would charge the date the gap twice
+            HStack(alignment: .top, spacing: Spacing.sm) {
                 dayLabel(for: day, isActive: isActive)
                     .frame(height: isActive ? Self.rowHeight : Self.freeRowHeight) //Centred on the row's first line, however far the pile wraps
-
-                Spacer(minLength: 0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 if let meeting {
                     meetingButton(meeting)
+                        .id(meeting.id) //A different meeting taking this day remounts the lens: its open card fades out, never flies home onto the new face
                         .frame(height: Self.rowHeight)
                 } else {
-                    let lines = lines(of: faces)
+                    let lines = lines(of: cells(day: day, faces: faces))
                     facePile(lines, day: day)
                         .frame(height: isActive ? Self.rowHeight * CGFloat(lines.count) : Self.freeRowHeight)
                 }
@@ -93,16 +106,44 @@ extension CalendarPendingEvents {
 
     //Trailing-aligned, and the ledger leads with echoes, so the last face of the last line is
     //always a primary — the rail the rows hang off
-    private func facePile(_ lines: [[DayFace]], day: Date) -> some View {
-        VStack(alignment: .trailing, spacing: Spacing.sm) {
+    private func facePile(_ lines: [[FaceCell]], day: Date) -> some View {
+        VStack(alignment: .trailing, spacing: faceSpacing) {
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
-                HStack(spacing: Spacing.sm) {
-                    ForEach(line) { face in
-                        avatarButton(face: face, day: day)
+                HStack(spacing: faceSpacing) {
+                    ForEach(line) { cell in
+                        switch cell {
+                        case .face(let face): avatarButton(face: face, day: day)
+                        case .toggle(let hidden): overflowChip(day, hidden: hidden)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private func overflowChip(_ day: Date, hidden: Int) -> some View {
+        let isOpen = openDays.contains(day)
+
+        return Button { toggleOverflow(day) } label: {
+            Group {
+                if isOpen {
+                    Image(systemName: "chevron.up")
+                        .font(.icon(13, .semibold))
+                } else {
+                    Text("+\(hidden)")
+                        .font(.body(14, .bold))
+                }
+            }
+            .foregroundStyle(Color.textSecondary)
+            .frame(width: AvatarFace.faceSize, height: AvatarFace.faceSize)
+            .padding(AvatarFace.ring)
+            .glassEffectIfAvailable(shape: Circle())
+            .clipShape(Circle()) //Clips the glass's own cast shadow — the no-shadow floor, matching the lenses
+            .contentShape(Circle())
+        }
+        .shrinkButton() //Not shrinkPress, whose raw DragGesture would claim the pager's pan
+        .instantPressDelivery()
+        .accessibilityLabel(isOpen ? "Show fewer" : "\(hidden) more invites")
     }
 
     private func avatarButton(face: DayFace, day: Date) -> some View {
@@ -114,7 +155,7 @@ extension CalendarPendingEvents {
             onOpen(face.invite, day) //First, so the card opens on the tapped day
             selectedLensID = lensID
         } label: {
-            AvatarFace(image: face.invite.image, isFirst: face.isFirst)
+            AvatarFace(image: face.invite.image, isFirst: face.isFirst, gap: faceSpacing)
         }
         .shrinkButton()
         .instantPressDelivery()
@@ -161,10 +202,12 @@ extension CalendarPendingEvents {
         return (0..<span).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
     }
 
+    //One accepted event per day. Two on one day keep the earlier time (then the lower id), so the
+    //row never swaps between them as the events list reorders
     private var meetings: [Date: EventProfile] {
-        Dictionary(acceptedEvents.compactMap { event in
-            event.event.acceptedTime.map { (Calendar.current.startOfDay(for: $0), event) }
-        }, uniquingKeysWith: { earlier, _ in earlier })
+        let dated = acceptedEvents.compactMap { event in event.event.acceptedTime.map { (time: $0, event: event) } }
+        return Dictionary(grouping: dated) { Calendar.current.startOfDay(for: $0.time) }
+            .compactMapValues { sameDay in sameDay.min { ($0.time, $0.event.id) < ($1.time, $1.event.id) }?.event }
     }
 
     private func ledger(skipping booked: Set<Date>) -> [Date: [DayFace]] {
@@ -187,9 +230,26 @@ extension CalendarPendingEvents {
         return out
     }
 
-    private func lines(of faces: [DayFace]) -> [[DayFace]] {
-        stride(from: 0, to: faces.count, by: Self.facesPerLine).map {
-            Array(faces[$0..<min($0 + Self.facesPerLine, faces.count)])
+    private func cells(day: Date, faces: [DayFace]) -> [FaceCell] {
+        guard collapsesOverflow, faces.count > facesPerLine else { return faces.map(FaceCell.face) }
+
+        if openDays.contains(day) {
+            return [.toggle(hidden: 0)] + faces.map(FaceCell.face)
+        }
+        let shown = facesPerLine - 1 //The chip takes the leading slot
+        //suffix, not prefix: faces run echoes-then-firsts, so the rail keeps its primaries
+        return [.toggle(hidden: faces.count - shown)] + faces.suffix(shown).map(FaceCell.face)
+    }
+
+    private func lines(of cells: [FaceCell]) -> [[FaceCell]] {
+        stride(from: 0, to: cells.count, by: facesPerLine).map {
+            Array(cells[$0..<min($0 + facesPerLine, cells.count)])
+        }
+    }
+
+    private func toggleOverflow(_ day: Date) {
+        withAnimation(.expand) {
+            if openDays.contains(day) { openDays.remove(day) } else { openDays.insert(day) }
         }
     }
 }
@@ -200,6 +260,7 @@ struct AvatarFace: View {
     let image: UIImage?
     let isFirst: Bool
     var tint: Color? = nil
+    var gap = Spacing.sm //To its neighbours on a line: the echo's tap circle may grow halfway across it
 
     @Environment(EventZoomAnchor.self) private var anchor: EventZoomAnchor?
 
@@ -213,13 +274,12 @@ struct AvatarFace: View {
     static let echoLens = echoFaceSize + 2 * echoRing //Geometry: the echo's true 44pt footprint
 
     //Geometry: pads the echo's touch circle out toward lensFrame, but never past half the gap to
-    //its neighbour — at Spacing.sm apart that lands on the 44pt minimum, and two echoes would
-    //otherwise trade taps wherever their circles overlap
-    static let echoHitInset = min((lensFrame - echoLens) / 2, Spacing.sm / 2)
+    //its neighbour — two echoes would otherwise trade taps wherever their circles overlap
+    private var echoHitInset: CGFloat { min((Self.lensFrame - Self.echoLens) / 2, gap / 2) }
 
     var body: some View {
         let rim = isFirst ? Self.ring : Self.echoRing
-        let hitInset = isFirst ? 0 : Self.echoHitInset
+        let hitInset = isFirst ? 0 : echoHitInset
 
         SmallImage(image: image ?? UIImage(), size: isFirst ? Self.faceSize : Self.echoFaceSize, isCircle: true)
             .background(Circle().fill(Color.fillGray)) //A face still loading is a grey disc, not an empty ring
@@ -228,7 +288,7 @@ struct AvatarFace: View {
             .lightShadow()
             .containerGlassEffect(tint: tint, clipped: true, shape: Circle())
             .opacity(anchor?.returning == true ? 0 : 1) //The closing flight draws its own ring, tint and all, so hide this one
-            .padding(hitInset) //Geometry: grows the echo's tap circle to the 44pt minimum
+            .padding(hitInset) //Geometry: grows the echo's tap circle toward the primary's
             .contentShape(Circle()) //PressButtonStyle sets none — without it the padding ring misses
             .padding(-hitInset) //Geometry: gives the space back, so the echo lays out at its true size
     }

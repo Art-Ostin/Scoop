@@ -18,9 +18,12 @@ final class HistoryViewModel {
         self.session = session
     }
     
-    //The windowed list, not the raw store: profiles drop off once they're over 5 days old
+    //Declined profiles and declined invites in one list, oldest decline first. Each drops off when its own window closes
     var declines: [DeclinedProfile] {
-        session.recentlyDeclinedProfiles
+        let invites = session.declinedEvents
+            .compactMap(DeclinedProfile.init(invite:))
+            .filter { $0.expiresAt > .now }
+        return (session.recentlyDeclinedProfiles + invites).sorted { $0.declinedAt < $1.declinedAt }
     }
     
     var sentInvites: [EventProfile] {
@@ -31,6 +34,13 @@ final class HistoryViewModel {
     var expiredInvites: [EventProfile] { sentInvites.expired() }
 
     var invitedDays: [InviteDay] { sentInvites.invitedDays() }
+    
+    //Accepted events from today on, for the pending calendar's meeting rows. `session.events` keeps
+    //an accepted event after its day has passed, and a past one would hold the page out of its empty state
+    var upcomingEvents: [EventProfile] {
+        let today = Calendar.current.startOfDay(for: .now)
+        return session.events.filter { ($0.event.acceptedTime ?? .distantPast) >= today }
+    }
 
     var imageLoader: ImageLoading { session.imageLoader }
     var defaults: DefaultsManaging { session.defaultsManager }

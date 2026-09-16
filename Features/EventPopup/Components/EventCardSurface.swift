@@ -53,23 +53,21 @@ struct EventDismissButton: View {
                 .opacityPop(visible: visible)
                 .allowsHitTesting(visible)
                 .animation(.transition, value: visible)
-                
-                
-                Spacer()
-                
-                ScoopButton(shape: Circle(), action: { onTap() }) {
-                    Image(systemName: "chevron.down")
-                        .font(.body(17))
-                        .fontWeight(.heavy)
-                        .frame(width: 45, height: 45)
-                }
-                .opacityPop(visible: visible)
-                .allowsHitTesting(visible)
-                .animation(.transition, value: visible)
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            Spacer()
+            ScoopButton(shape: Circle(), action: { onTap() }) {
+                Image(systemName: "chevron.down")
+                    .font(.body(17))
+                    .fontWeight(.heavy)
+                    .frame(width: 45, height: 45)
+            }
+            .opacityPop(visible: visible)
+            .allowsHitTesting(visible)
+            .animation(.transition, value: visible)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(.horizontal, 10)
         .padding(.horizontal, Spacing.sm) // 12
+        
     }
 }
