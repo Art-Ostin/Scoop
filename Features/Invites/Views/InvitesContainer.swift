@@ -94,7 +94,7 @@ extension InvitesContainer {
             vm: vm,
             eventProfile: invite,
             cardInset: cardInset,
-            onRespond: { respond(invite, $0) },
+            onRespond: { respond(invite, $0, $1) },
             draft: vm.draftBinding(for: invite),
             openInvite: $ui.showQuickResponse,
             showInviteHistory: $ui.showInviteHistory
@@ -108,8 +108,9 @@ extension InvitesContainer {
 extension InvitesContainer {
     
     
-    private func respond(_ invite: EventProfile, _ respondType: ProfileResponse) {
-        let cover = responseCover?.show(respondType, inviteeName: invite.profile.name,
+    //A sent time or invite flies the popup's page into the cover's circle, as Meet's first invite does
+    private func respond(_ invite: EventProfile, _ respondType: ProfileResponse, _ sendFlight: SendInviteFlightSource?) {
+        let cover = responseCover?.show(respondType, sendFlight: sendFlight, inviteeName: invite.profile.name,
                                         acceptFlight: acceptFlight(invite, respondType))
         Task { await respondToProfile(invite.event.id, respondType, cover: cover) }
     }
@@ -209,7 +210,7 @@ extension InvitesContainer {
     }
     
     private var calendarView: some View {
-        CalendarContainer(vm: vm, onRespond: { respond($0, $1) }, onViewEvent: { viewEvent($0, $1, $2) })
+        CalendarContainer(vm: vm, onRespond: { respond($0, $1, $2) }, onViewEvent: { viewEvent($0, $1, $2) })
             .navigationTransition(.zoom(sourceID: "calendar", in: calendarZoom))
     }
 }

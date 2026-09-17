@@ -221,7 +221,7 @@ struct ResponseCoverLayer: View {
         }
         .ignoresSafeArea()
         .transition(.asymmetric(
-            insertion: presenter.response == .decline || (presenter.sendFlight != nil && !reduceMotion)
+            insertion: presenter.response == .decline || (presenter.sendFlight?.frame != nil && !reduceMotion)
                 ? .identity : .opacity.animation(.transition),
             removal: .identity))
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { presenter.planeBounds = $0 }

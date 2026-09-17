@@ -96,7 +96,7 @@ extension Event.EventType {
         switch self {
         case .drink: "Grab Drinks"
         case .doubleDate: "Double Date"
-        case .socialMeet: "Social Meet"
+        case .socialMeet: "Social Meetup"
         case .custom: "Custom Meet"
         }
     }

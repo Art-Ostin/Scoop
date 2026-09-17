@@ -14,8 +14,8 @@ struct RespondToInviteContainer: View {
     @State var composeUI = ComposeInviteUIState()
     
     let images: [UIImage]
-    let respond: (ProfileResponse) -> ()
-    
+    let respond: (ProfileResponse, SendInviteFlightSource?) -> () //A sent time or invite hands over the page on screen — the cover's hero lifts off it
+
     var type: ResponseType { vm.respondDraft.respondType }
     
     @FocusState var isFocused: Bool
@@ -97,7 +97,10 @@ extension RespondToInviteContainer {
                         showsPageDots: !isConfirmNewEvent,
                         titleVisible: !composeUI.delayedTimePopupOpen,
                         bandFilled: composeUI.timePopupOpen && composeUI.delayedTimePopupOpen,
-                        bandGround: composeUI.timeBand)
+                        bandGround: composeUI.timeBand,
+                        visiblePhoto: $composeUI.visiblePhoto)
+        //The pager's frame IS the photo's — its root is the aspect box the carousel overlays
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { composeUI.photoFrame = $0 }
         .overlay(alignment: .topLeading) {
             EventBackButton(showConfirmScreen: $composeUI.showConfirmScreen)
                 .eventZoomBandChrome(visible: isConfirmNewEvent, corner: .topLeading) { inertBackButton }
@@ -386,10 +389,16 @@ extension RespondToInviteContainer {
     
     var ctaAction: () -> Void {
         switch type {
-        case .originalInvite:{ respond(.accepted)}
-        case .newTime: {respond(.newTime)}
-        case .newEvent: isComposeInviteScreen ? { composeUI.showConfirmScreen = true} : {respond(.newInvite)}
+        case .originalInvite:{ respond(.accepted, nil)}
+        case .newTime: {respond(.newTime, sendFlightSource)}
+        case .newEvent: isComposeInviteScreen ? { composeUI.showConfirmScreen = true} : {respond(.newInvite, sendFlightSource)}
         }
+    }
+
+    //Read at the tap, never in body: the card is at rest whenever the CTA can be pressed
+    private var sendFlightSource: SendInviteFlightSource? {
+        guard let image = composeUI.visiblePhoto, composeUI.photoFrame.width > 1 else { return nil }
+        return SendInviteFlightSource(image: image, frame: composeUI.photoFrame, cornerRadius: CornerRadius.image)
     }
     
     var isActive: Bool {
@@ -412,7 +421,7 @@ extension RespondToInviteContainer {
             .frame(height: 48)
             .capsuleStroke(lineWidth: 1, color: .borderStrong.opacity(actionsDimmed ? 0.4 : 1))
             .geometryGroup()
-            .shrinkPress {respond(.decline)}
+            .shrinkPress {respond(.decline, nil)}
             .eventZoomDragExclusion()
     }
     

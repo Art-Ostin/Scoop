@@ -30,8 +30,12 @@ import SwiftUI
 //What the send button hands the cover to fly: captured at the tap, while the card is at rest.
 struct SendInviteFlightSource {
     let image: UIImage //The page the user was looking at
-    let frame: CGRect //Its resting global rect
+    let frame: CGRect? //Its resting global rect — nil when there is nothing left to lift off (`grounded`)
     let cornerRadius: CGFloat //The card mask's clip radius, so the copy's corners match on frame 1
+
+    //The page alone, for a card that leaves at the tap: the calendar's cover draws above the response plane
+    //and zooms away with its card, so a copy flown beneath it would show the photo twice. The cover rests on it instead
+    var grounded: SendInviteFlightSource { SendInviteFlightSource(image: image, frame: nil, cornerRadius: cornerRadius) }
 }
 
 //Geometry-matched hero flight: its measured curves live in-file, per the motion rules.
@@ -76,9 +80,9 @@ struct SendInviteScreen: View {
     static let imageSize: CGFloat = 225
     static let ringSize: CGFloat = 275
 
-    //No measured source (the respond flows, previews) — or reduced motion — presents the
-    //resting pose from the first frame, exactly as this screen behaved before the flight
-    private var atRest: Bool { flight == nil || reduceMotion }
+    //No measured source (a grounded calendar response, previews) — or reduced motion — presents
+    //the resting pose from the first frame, exactly as this screen behaved before the flight
+    private var atRest: Bool { flight?.frame == nil || reduceMotion }
 
     var body: some View {
         GeometryReader { geo in
@@ -164,9 +168,9 @@ extension SendInviteScreen {
         let dest = CGRect(x: (geo.size.width - Self.imageSize) / 2,
                           y: (geo.size.height - Self.imageSize) / 2,
                           width: Self.imageSize, height: Self.imageSize)
-        guard let flight, !atRest, !arrived else { return dest }
+        guard let source = flight?.frame, !atRest, !arrived else { return dest }
         let origin = geo.frame(in: .global).origin
-        return flight.frame.offsetBy(dx: -origin.x, dy: -origin.y)
+        return source.offsetBy(dx: -origin.x, dy: -origin.y)
     }
 
     private var imageRadius: CGFloat {

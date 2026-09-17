@@ -15,7 +15,7 @@ struct CalendarContainer: View {
     @State private var eventZoomHost = EventZoomHost()
     
     let vm: InvitesViewModel
-    let onRespond: (EventProfile, ProfileResponse) -> Void //The Invites tab's own response flow
+    let onRespond: (EventProfile, ProfileResponse, SendInviteFlightSource?) -> Void //The Invites tab's own response flow
     let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //The flight into Events: it closes this cover itself, from above it
     
     private static let title = "Calendar View"
@@ -100,10 +100,11 @@ extension CalendarContainer {
             .customSubtitle()
     }
     
-    //The response cover draws at the app root, under this cover, so the calendar closes before the Invites tab responds
-    private func respond(_ invite: EventProfile, _ response: ProfileResponse) {
+    //The response cover draws at the app root, under this cover, so the calendar closes before the Invites tab responds.
+    //Its card leaves with it at the tap, so a send hands over the photo but no flight (SendInviteFlightSource.grounded)
+    private func respond(_ invite: EventProfile, _ response: ProfileResponse, _ sendFlight: SendInviteFlightSource?) {
         dismiss()
-        onRespond(invite, response)
+        onRespond(invite, response, sendFlight?.grounded)
     }
     
     //Skips profiles already in the cache, so photos the invite cards loaded aren't fetched again.
@@ -147,7 +148,7 @@ extension CalendarContainer {
     private func inviteCard(_ invite: EventProfile) -> AnyView {
         AnyView(RespondToInviteContainer(vm: vm.respondVM(for: invite),
                                          images: vm.images(for: invite),
-                                         respond: { respond(invite, $0) }))
+                                         respond: { respond(invite, $0, $1) }))
     }
 
     //View Event goes on here, not inside ViewInvite: Meet's pending ledger shows that view too

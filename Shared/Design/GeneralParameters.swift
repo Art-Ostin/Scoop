@@ -27,7 +27,11 @@ enum CornerRadius {
 
     //To construct concentric corners
     static func concentric(in parent: CGFloat, inset: CGFloat) -> CGFloat {
-        max(parent - inset, 4)
+        if parent - inset > 0 {
+            return parent - inset
+        } else {
+            return 0
+        }
     }
 
     //Every corner alike — the even starting point a cell varies one corner from

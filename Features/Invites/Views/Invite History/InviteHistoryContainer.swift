@@ -192,15 +192,20 @@ extension InviteHistoryContainer {
     
     //The header's face already says whose words these are, so the note wears none: it starts where the detail rows' text does
     private func messageSection(message: String) -> some View {
-        Text(message)
-            .font(.body(14, .italic))
-            .lineSpacing(6)                          //Matches ConfirmMessageSection, so one note reads alike in both places
-            .lineLimit(3)
-            .minimumScaleFactor(0.7)
-            .allowsTightening(true)
-            .foregroundStyle(Color.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-//            .padding(.leading, textColumn)
+        HStack(spacing: iconGap) {
+            Capsule()
+                .fill(Color.borderStrong)
+                .frame(width: 3)
+                .detailIconColumn() //On the icons' centre axis, like the emoji, clock and pin above
+
+            Text(message)
+                .font(.body(14, .italic))
+                .lineSpacing(6)                          //Matches ConfirmMessageSection, so one note reads alike in both places
+                .lineLimitAndShrink(3)
+                .foregroundStyle(Color.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .fixedSize(horizontal: false, vertical: true) //Only the text sets the height; the bar just fills it
     }
 }
 

@@ -7,83 +7,97 @@
 
 import SwiftUI
 
-private let hPadding = Spacing.lg
+//The glass inset plus its padding is the one column the title, the icons and the button's trailing edge share (34pt).
+//The respond card lands them on 24: every flight poses its pieces as insets and closes that gap on the way
+private let glassInset = Spacing.md //Card edge ↔ glass, on the sides and the foot
+private let glassPadding = Spacing.md + 2 //Glass edge ↔ its rows
+private let glassRadius = max(CornerRadius.concentric(in: ZoomStyle.cornerRadius, inset: glassInset), CornerRadius.sm)
+private let rowSize = EventZoomRowMorph.sourceSize //The row flight's source type, so the card and its flying copy can't disagree
+private let footTrim = 0.13 * rowSize //Geometry: ModernEra's cap top sits 0.085em under its line box, its baseline 0.215em over the foot — trimming the difference evens the glass above the first capital and below the last baseline
+private let buttonReserve: CGFloat = 42 + Spacing.xs //Geometry: InviteButton's circle, plus the gap the words keep from it
 
 //Main Overlay of the card
 struct InviteCardOverlay: View {
-        
+
     let draft: RespondDraft
     let name: String
     let openInvite: () -> ()
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text(name)
-                .font(.title(26, .bold))
-                .foregroundStyle(Color.white)
-                .eventZoomTitleSource(name) //Flies into the respond card's "<name>'s Invite"
-            
-            //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
-            lineSection(.whiteClock, timeText)
-                .eventZoomTimeSource(timeText)
-                .lineLimitAndShrink(1)
-            
-            lineSection(.whiteMap, placeText)
-                .lineLimit(1)
-                .eventZoomPlaceSource(placeText)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            title
+
+            VStack(alignment: .leading, spacing: 22) {
+                typeRow
+
+                //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
+                lineSection(.whiteClock, timeText)
+                    .eventZoomTimeSource(timeText)
+                    .lineLimitAndShrink(1)
+                    .padding(.trailing, buttonReserve) //Only the time row runs beside the centred button. Outside the marker, so the flight measures the row itself
+
+                lineSection(.whiteMap, placeText)
+                    .lineLimit(1)
+                    .eventZoomPlaceSource(placeText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, glassPadding)
+            .padding(.top, glassPadding)
+            .padding(.bottom, glassPadding - footTrim)
+            .overlay(alignment: .trailing) { inviteButton }
+            .containerGlassEffect(clear: true, tint: .clear, clipped: true, shape: .rect(cornerRadius: glassRadius)) //tint stays .clear: nil paints an opaque slab before iOS 26
+            .padding([.horizontal, .bottom], glassInset)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, hPadding)
-        .padding(.bottom, 28)
-        .padding(.trailing, 48)
-        .overlay(alignment: .topTrailing) { typeAndInfoButton}
-        .overlay(alignment: .bottomTrailing) {inviteButton}
     }
 }
 
 extension InviteCardOverlay {
+
+    //Only the name is marked: it flies alone into the respond card's "<name>'s Invite", where the suffix waits for it
+    private var title: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Text(name)
+                .eventZoomTitleSource(name)
+            Text("'s Invite")
+        }
+        .font(.title(20, .bold))
+        .foregroundStyle(Color.white)
+        .lineLimit(1) //A wrapping title would hand the flight a two-line frame
+        .padding(.horizontal, glassInset + glassPadding) //Starts over the icons
+    }
+
+    private var typeRow: some View {
+        HStack(spacing: EventZoomRowMorph.sourceIconGap) {
+            Text(eventType.emoji)
+                .font(.body(14)) //Fills the icon column, its ink the clock's and pin's size
+                .frame(width: EventZoomRowMorph.iconWidth)
+
+            Text(eventType.longTitle)
+                .font(.body(rowSize, .medium))
+                .foregroundStyle(Color.white)
+                .lineLimit(1)
+        }
+    }
+
+    //The row flight's geometry: its source copy draws this same column, gap, type and nudge
     private func lineSection(_ image: ImageResource, _ text: String) -> some View {
-        HStack(spacing: 20) {
+        HStack(spacing: EventZoomRowMorph.sourceIconGap) {
             Image(image)
-                .scaleEffect(1.2)
-                .frame(width: 20)
-                .offset(y: -2)//Fine tuned so in centre
-            
+                .scaleEffect(EventZoomRowMorph.sourceIconScale)
+                .frame(width: EventZoomRowMorph.iconWidth)
+                .offset(y: -2) //Geometry: centres the glyph on the capitals — the nudge the flight releases as it lands
+
             Text(text)
-                .font(.body(20, .medium))
+                .font(.body(rowSize, .medium))
                 .foregroundStyle(Color.white)
         }
     }
-    
-    private var typeAndInfoButton: some View {
-        Button {
-            
-        } label: {
-            HStack(alignment: .center, spacing: Spacing.sm) {
-                Text(typeText)
-                    .font(.body(15))
-            }
-//            .scaleEffect(0.9)
-            .foregroundStyle(Color.white)
-            .frame(height: 25)
-            .padding(.trailing, 7)
-            .padding(.leading, 5) //Leading edge bit extra padding
-//            .capsuleStroke(lineWidth: 1, color: .white.opacity(0.6))
-            .padding(.top, 3.5)
-            .padding(.trailing, hPadding)
-            .expandHitArea()
-        }
-        .shrinkButton()
-    }
-    
-    //Hoisted, so the drawn line and the one the flight is told about can never disagree
 
-    
+    //Centred on the glass's height: level with the time row, clear of the other two. A 42pt circle can't sit concentric in the glass's 12pt corner, so the corner is never its home
     private var inviteButton: some View {
         InviteButton(onTap: openInvite)
-        .eventZoomButtonSource() //Widens into the respond card's CTA — inside the paddings, so it measures the circle itself
-        .padding(.horizontal, hPadding)
-        .padding(.bottom, 26) //28 + 4
+            .eventZoomButtonSource() //Widens into the respond card's CTA — inside the padding, so it measures the circle itself
+            .padding(.trailing, glassPadding)
     }
 }
 
@@ -151,15 +165,9 @@ extension InviteCardOverlay {
         }
     }
     
-    private var typeText: String {
-        let originalType = draft.originalInvite.event.type
-        let newEventType = draft.newEvent.type
-        switch draft.respondType {
-        case .newEvent:
-            return newEventType.emoji + "  " + newEventType.longTitle
-        default :
-            return originalType.emoji + "  " + originalType.longTitle
-        }
+    private var eventType: Event.EventType {
+        if case .newEvent = draft.respondType { return draft.newEvent.type }
+        return draft.originalInvite.event.type
     }
 }
 
@@ -195,9 +203,12 @@ struct InviteHistoryButton: View {
             .glassFallbackRestingShadow() //See EventBackButton.surface
     }
 
+    private static let fontSize: CGFloat = 12
+    static let height = fontSize + 2 * Spacing.xxs //Geometry: ModernEra's line box is its point size — what the card seats concentrically in its corner
+
     private static var label: some View {
         Text("Response")
-            .font(.body(12, .bold))
+            .font(.body(fontSize, .bold))
             .padding(.vertical, Spacing.xxs)
             .padding(.horizontal, Spacing.xs)
             .foregroundStyle(Color.textPrimary)

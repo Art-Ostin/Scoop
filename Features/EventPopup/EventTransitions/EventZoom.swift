@@ -3023,7 +3023,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
     //One flying row, with every piece the SAME element the whole way — nothing is ever drawn twice at
     //two positions (the doubled text was the old flight's sloppy mid-air frame, device screenshot
     //2026-08-20). One icon slot, where the card's white template glyph dissolves into the card body's
-    //drawn art in place; one text column, where the card's 20 medium and the row's 17 bold sit on the
+    //drawn art in place; one text column, where the card's medium and the row's 17 bold sit on the
     //SAME leading anchor, size-matched by scale so the glyphs coincide, and cross-fade — a weight
     //cannot be scaled into another weight, and the pair is what makes the change read as one word
     //restyling rather than two words swapping. Both pieces hang out of a zero-size leading-aligned
@@ -3039,7 +3039,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
                     .renderingMode(.original)
                     .opacity(morph.art)
             }
-            .scaleEffect(1.2) //Both ends wear it — the icon is the one piece that is already the same size at each
+            .scaleEffect(morph.iconScale) //The card's glyph size at takeoff, the row's at the hand-off
             .frame(width: EventZoomRowMorph.iconWidth)
             .offset(y: morph.iconNudge)
             .frame(width: 0, height: 0)
@@ -3048,7 +3048,7 @@ struct EventZoomMorph: ViewModifier, Animatable {
             ZStack(alignment: .leading) {
                 //The card's own line, at the card's own type
                 Text(morph.sourceText)
-                    .font(.body(20, .medium))
+                    .font(.body(EventZoomRowMorph.sourceSize, .medium))
                     .frame(width: max(morph.sourceTextWidth, 1), alignment: .leading)
                     .scaleEffect(morph.sourceScale, anchor: .leading)
                     .opacity(1 - morph.weight)
@@ -3218,13 +3218,16 @@ struct EventZoomButtonMorph {
         let t = cta.width > 1 ? min(max(p, 0), 1) : 0
 
         //Posed as insets from the revealed window, never as a lerp between two screen rects — the
-        //same rule the name morph pays. Both trailing insets are the cards' own 24pt, which is what
-        //makes the open read as a pure leftward stretch rather than a slide. At p = 1 the window is
-        //the card's bounds and this resolves to the CTA's rect exactly — no pin needed.
+        //same rule the name morph pays. The CTA sits 24pt in; a source may sit further (the invite
+        //card's button rides its glass: inset + padding), so the trailing inset closes by `labelStart`,
+        //the moment the word begins to arrive. The word's window was cleared against a capsule already
+        //on its landing edge, and from there the open is the pure leftward stretch; a source already at
+        //24 (the Meet card) is unchanged. At p = 1 the window is the card's bounds and this resolves to
+        //the CTA's rect exactly — no pin needed.
         let open = Self.smoothstep(t)
         let width = Self.lerp(from.width, to.width, open)
         let height = Self.lerp(from.height, to.height, open)
-        let trailing = Self.lerp(sourceLocal.maxX - from.maxX, bounds.maxX - to.maxX, t)
+        let trailing = Self.lerp(sourceLocal.maxX - from.maxX, bounds.maxX - to.maxX, Self.smoothstep(t / Self.labelStart))
         let bottom = Self.lerp(sourceLocal.maxY - from.maxY, bounds.maxY - to.maxY, t)
         rect = CGRect(x: window.maxX - trailing - width,
                       y: window.maxY - bottom - height,
@@ -3242,8 +3245,10 @@ struct EventZoomButtonMorph {
         //here, so the milliseconds live at the END of the range, and a window widened at the front
         //would still have read as a flash. Crisp a tenth of a second before the landing — see the
         //note on the leaf: a pop with a spring of its own outlives the hand-off
-        label = Self.smoothstep((t - 0.62) / 0.36)
+        label = Self.smoothstep((t - Self.labelStart) / 0.36)
     }
+
+    private static let labelStart: CGFloat = 0.62 //Where the word begins to arrive — and where the trailing inset has landed
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {
         a + (b - a) * t
@@ -3263,12 +3268,15 @@ struct EventZoomButtonMorph {
 ///ends exactly at p = 0 and p = 1, so no pin is needed at either end.
 struct EventZoomRowMorph {
 
-    //Both ends already share these — the card's `lineSection` and the body's `iconRow` are each an
-    //HStack of a 20pt icon column and a 20pt gap — so the row's inner geometry is the one thing this
-    //morph never has to interpolate. If either end ever moves off them, the words and the icon stop
-    //landing together and this is the constant to look at.
+    //The row's inner geometry at each end. The card's `lineSection` and the body's `iconRow` are each an
+    //HStack of a 20pt icon column and a gap; the column is shared, but the card runs a tighter gap and a
+    //smaller glyph, so both ride the flight from one end to the other. If either end moves off these, the
+    //words and the icon stop landing together — these are the constants to look at.
     static let iconWidth: CGFloat = 20
-    static let iconGap: CGFloat = 20
+    static let sourceIconGap: CGFloat = 18 //`InviteCardOverlay.lineSection` reads it
+    private static let landingIconGap: CGFloat = 20 //`EventTypeTimePlace`'s `iconGap`
+    static let sourceIconScale: CGFloat = 1.1 //`InviteCardOverlay.lineSection` reads it
+    private static let landingIconScale: CGFloat = 1.2 //`EventTypeTimePlace.iconRow`'s glyph
 
     let kind: EventZoomRowKind
     let sourceText: String
@@ -3277,8 +3285,9 @@ struct EventZoomRowMorph {
     let textOrigin: CGPoint //The words' leading-centre, one icon column and gap to its right
     let sourceTextWidth: CGFloat
     let landingTextWidth: CGFloat
-    let sourceScale: CGFloat //The card's 20pt shrinking toward the row's 17
-    let landingScale: CGFloat //The row's 17pt blown up to meet it, so the two runs coincide
+    let sourceScale: CGFloat //The card's type scaling toward the row's
+    let landingScale: CGFloat //The row's type scaled to meet it, so the two runs coincide
+    let iconScale: CGFloat //The glyph's size, the card's toward the row's — on the type's clock
     let weight: CGFloat //0 = the card's look, 1 = the landing's: the twins' cross-fade
     let art: CGFloat //The icon's dissolve, on the same clock as the weight — one material change, not two
     let tint: Color //White on the artwork, the body's own ink on the card: mixed across the WHOLE flight
@@ -3300,17 +3309,20 @@ struct EventZoomRowMorph {
         let centre = Self.lerp(from.midY - sourceLocal.minY, to.midY - bounds.minY, t)
         let x = window.minX + leading
         let y = window.minY + centre
+        //The gap rides the same linear t as the leading inset, so the words' start moves as one line
+        let gap = Self.lerp(Self.sourceIconGap, Self.landingIconGap, t)
         icon = CGPoint(x: x + Self.iconWidth / 2, y: y)
-        textOrigin = CGPoint(x: x + Self.iconWidth + Self.iconGap, y: y)
+        textOrigin = CGPoint(x: x + Self.iconWidth + gap, y: y)
 
-        sourceTextWidth = from.width - Self.iconWidth - Self.iconGap
-        landingTextWidth = to.width - Self.iconWidth - Self.iconGap
+        sourceTextWidth = from.width - Self.iconWidth - Self.sourceIconGap
+        landingTextWidth = to.width - Self.iconWidth - Self.landingIconGap
 
         //One ratio, worn from opposite ends: whichever twin is visible is at scale 1 where it is the
         //truth, so both resting endpoints are the real type rather than a transformed copy of it
         let ratio = Self.landingSize / Self.sourceSize
         sourceScale = Self.lerp(1, ratio, open)
         landingScale = Self.lerp(1 / ratio, 1, open)
+        iconScale = Self.lerp(Self.sourceIconScale, Self.landingIconScale, open)
 
         //The weight swap is EARLY and quick when the two ends say the same words: it is invisible
         //then — same string, same anchor, a hair of weight — and getting it over with while the row
@@ -3336,7 +3348,7 @@ struct EventZoomRowMorph {
         iconNudge = Self.lerp(-2, 0, t) //Geometry: the card's own optical centring, released as it lands
     }
 
-    private static let sourceSize: CGFloat = 20 //`InviteCardOverlay.lineSection`
+    static let sourceSize: CGFloat = 18 //`InviteCardOverlay.lineSection` — its `rowSize`; the source copy draws at it too
     private static let landingSize: CGFloat = 17 //`EventTypeTimePlace`'s rows at `largeText`
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {

@@ -16,8 +16,8 @@ struct InviteSlot: View {
     let eventProfile: EventProfile
     var cardInset: CGFloat? = nil
 
-    let onRespond: (ProfileResponse) -> Void
-    
+    let onRespond: (ProfileResponse, SendInviteFlightSource?) -> Void
+
     @Binding var draft: RespondDraft
     
     @Binding var openInvite: EventProfile?
@@ -88,7 +88,7 @@ extension InviteSlot {
     }
 
     private var responseMode: ProfileMode {
-        .respondToInvite(respondVM: vm.respondVM(for: eventProfile), onResponse: onRespond)
+        .respondToInvite(respondVM: vm.respondVM(for: eventProfile), onResponse: { onRespond($0, nil) })
     }
 }
 
@@ -112,8 +112,7 @@ extension InviteSlot {
         if draft.originalInvite.event.pastProposals?.isEmpty == false { //The respond card's own gate, off the same draft
             InviteHistoryButton { showInviteHistory = eventProfile }
                 .eventZoomCornerSource { InviteHistoryButton.capsule }
-                .padding(.top, Spacing.md)
-                .padding(.trailing, Spacing.md + Spacing.sm - AppImage.inset(for: .invite, override: cardInset)) //Geometry: where the slot's corner held it (16 down, 28 in), the card's own inset backed out
+                .padding([.top, .trailing], ZoomStyle.cornerRadius - InviteHistoryButton.height / 2) //Geometry: concentric — the capsule's round end centred on the card corner's arc, whatever the pager's inset
         }
     }
     
