@@ -19,7 +19,7 @@ struct AppContainer: View {
     @State private var zoomPresentations = ZoomPresentationHost()
     @State private var eventZoomHost = EventZoomHost()
     @State private var responseCover = ResponseCoverPresenter()
-    @State private var viewEventFlight = ViewEventFlight() //Calendar View → Events: raises its own window, above every cover
+    @State private var viewEventFlight = ViewEventFlight() //Calendar View and Meet's History → Events: a stage laid over the app's own window, above the cover
 
     init(dependencies dep: AppDependencies) {
         _meetVM = State(initialValue: MeetViewModel(

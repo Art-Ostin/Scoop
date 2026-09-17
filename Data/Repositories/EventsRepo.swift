@@ -249,12 +249,14 @@ extension EventsRepo {
         let retired = try fs.encodeFields(PastEventProposal(retiring: newTime.oldEvent))
         let sentAt = Date()
         
-        //3. Construct fields to update for UserFields and Event. proposedKind and createdAt are
+        //3. Construct fields to update for UserFields and Event. proposedKind, createdAt and message are
         //rolling facts about the LIVE proposal — re-stamped together on every counter, so the
-        //next side to answer retires an accurate snapshot.
+        //next side to answer retires an accurate snapshot. No note writes null: the retired note
+        //left in place would read as this counter's, and be logged a second time next round.
         let userFields: [String : Any] = [
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.proposedKind.rawValue: ProposalKind.newTime.rawValue,
+            UserEvent.Field.message.rawValue: newTime.newMessage ?? NSNull(),
             UserEvent.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired]),
             UserEvent.Field.createdAt.rawValue: sentAt
         ]
@@ -267,6 +269,7 @@ extension EventsRepo {
         let eventFields: [String : Any] = [
             Event.Field.proposedTimes.rawValue: encodedTimes,
             Event.Field.proposedKind.rawValue: ProposalKind.newTime.rawValue,
+            Event.Field.message.rawValue: newTime.newMessage ?? NSNull(),
             Event.Field.initiatorId.rawValue: newInitiatorId,
             Event.Field.recipientId.rawValue: newTime.recipientId,
             Event.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired])
@@ -297,6 +300,7 @@ extension EventsRepo {
             UserEvent.Field.proposedTimes.rawValue: encodedTimes,
             UserEvent.Field.location.rawValue: encodedLocation,
             UserEvent.Field.type.rawValue: eventResponse.newType.rawValue,
+            
             UserEvent.Field.message.rawValue: eventResponse.newMessage ?? NSNull(),
             UserEvent.Field.proposedKind.rawValue: eventResponse.kind.rawValue,
             UserEvent.Field.pastProposals.rawValue: FieldValue.arrayUnion([retired])

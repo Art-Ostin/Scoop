@@ -39,7 +39,8 @@ struct EventImageCard: View {
             //`page` is shared so the zoom opens on the photo the card shows,
             //and the card comes back on whichever photo the profile ended on.
             EventImageCarousel(images: profileImages, page: $page,
-                               onProgress: { viewEventFlight?.reportPad(progress: $0, id: eventProfile.id) })
+                               onProgress: { viewEventFlight?.reportPad(progress: $0, id: eventProfile.id) },
+                               onDotsWindow: { viewEventFlight?.reportPad(dotsWindow: $0, id: eventProfile.id) })
                 .zoomTransition(images: profileImages,
                                 page: $page,
                                 showsCardShadow: false,
@@ -55,10 +56,12 @@ struct EventImageCard: View {
                     viewEventFlight?.reportPad(frame: $0, id: eventProfile.id)
                 }
             timerSection
-                .padding(.vertical, 6)
+                .padding(.vertical, Self.timerPadding)
         }
         .clipShape(.rect(cornerRadius: CornerRadius.image))
         .eventCardBackground()
+        //The whole card, which the View Event flight's card becomes
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { viewEventFlight?.reportPad(card: $0, id: eventProfile.id) }
         .onChange(of: profileImages, initial: true) { viewEventFlight?.reportPad(images: $1, id: eventProfile.id) }
         .task(id: landingPage) { await turnToLandingPage() }
     }
@@ -126,6 +129,11 @@ extension EventImageCard {
 
 extension EventImageCard {
     
+    //The strip under the photo, named for the View Event flight: its card lands this much taller than the photo
+    static let timerRowHeight: CGFloat = 56 //Geometry: the overlapping faces' box, the strip's tallest child
+    static let timerPadding: CGFloat = 6 //Geometry: the strip's breathing room above and below that box
+    static var timerStripHeight: CGFloat { timerRowHeight + 2 * timerPadding }
+
     private var timerSection: some View {
         HStack(spacing: Spacing.lg) {
             photoOverlap
@@ -144,7 +152,7 @@ extension EventImageCard {
                 .circleStroke(lineWidth: 1.5, color: .appCanvas)
                 .offset(x: 18, y: 15)
         }
-        .frame(width: 60, height: 56, alignment: .topLeading)
+        .frame(width: 60, height: Self.timerRowHeight, alignment: .topLeading)
     }
 }
 
@@ -201,6 +209,7 @@ struct EventImageCarousel: View {
     let images: [UIImage]
     @Binding var page: Int
     var onProgress: (Double) -> Void = { _ in } //Where it sits, in pages: the View Event flight lands only on a settled page
+    var onDotsWindow: (Int) -> Void = { _ in } //The page dots' size window, which that flight's twin of them starts from
 
     //Local view state
     @State private var scrollProgress: Double = 0
@@ -247,9 +256,30 @@ struct EventImageCarousel: View {
     
     
     private var pageIndicator: some View {
-        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white)
-            .scaleEffect(0.7, anchor: .trailing)
+        ImagePageIndicator(count: images.count, progress: scrollProgress, activeColor: .white, onWindow: onDotsWindow)
+            .scaleEffect(Self.dotsScale, anchor: .trailing)
             .padding(.horizontal, Spacing.lg)
-            .padding(.bottom, Spacing.xs)
+            .padding(.bottom, Self.dotsBottom)
+    }
+}
+
+//The dots' placement, named for the View Event flight, whose landing photo wears a twin of them
+extension EventImageCarousel {
+
+    static let dotsScale: CGFloat = 0.7
+    static let dotsBottom = Spacing.xs
+
+    ///The dots as `pageIndicator` rests them over the foot of a photo, in a strip `size` along that foot: centred, then
+    ///shrunk about their own trailing edge
+    static func restingDots(count: Int, page: Int, from window: Int, in size: CGSize) -> [(frame: CGRect, opacity: Double)] {
+        guard count > 0 else { return [] }
+        let cluster = ImagePageIndicator.restingDots(count: count, page: page, from: window)
+        let origin = CGPoint(x: (size.width - cluster.size.width) / 2, y: size.height - dotsBottom - cluster.size.height)
+        let anchor = CGPoint(x: origin.x + cluster.size.width, y: origin.y + cluster.size.height / 2)
+        return cluster.dots.map { dot in
+            let frame = dot.frame.offsetBy(dx: origin.x, dy: origin.y)
+            return (CGRect(x: anchor.x + (frame.minX - anchor.x) * dotsScale, y: anchor.y + (frame.minY - anchor.y) * dotsScale,
+                           width: frame.width * dotsScale, height: frame.height * dotsScale), dot.opacity)
+        }
     }
 }

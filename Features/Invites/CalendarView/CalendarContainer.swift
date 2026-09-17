@@ -16,7 +16,7 @@ struct CalendarContainer: View {
     
     let vm: InvitesViewModel
     let onRespond: (EventProfile, ProfileResponse, SendInviteFlightSource?) -> Void //The Invites tab's own response flow
-    let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //The flight into Events: it closes this cover itself, from above it
+    let onViewEvent: (EventProfile, EventZoomDeparture) -> Void //The flight into Events: it closes this cover itself, from above it
     
     private static let title = "Calendar View"
 
@@ -159,7 +159,7 @@ extension CalendarContainer {
                                   images: vm.images(for: meeting),
                                   name: meeting.profile.name,
                                   title: "Meeting \(meeting.profile.name)")
-            .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0, summary) })
+            .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0) })
     }
 
     

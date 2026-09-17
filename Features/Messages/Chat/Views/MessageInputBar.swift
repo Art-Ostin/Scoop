@@ -142,7 +142,7 @@ extension MessageInputBar {
         guard ui.fieldFrame.width > 0, ui.distanceFromFloor <= SendChoreography.floorSlop else { return sendUnflown(draft) }
 
         //The geometry the flight lands on, all known before the row exists
-        let column = MessageBubbleView.columnWidth(containerWidth: ui.containerWidth, isMyChat: true)
+        let column = MessageBubbleView.columnWidth(containerWidth: ui.containerWidth)
         let now = Date()
         let placement = MessageBubbleView.timePlacement(text: draft, maxBubbleWidth: column, date: now)
         let rowSize = MessageBubbleView.restingSize(text: draft, maxBubbleWidth: column, date: now)

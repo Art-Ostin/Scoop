@@ -20,27 +20,8 @@ struct ViewInvite: View {
     var body: some View {
         VStack(spacing: 0) {
             EventImagePager(images: images, title: title)
-            Self.details(inviteSummary) { showInfo = true }
+            EventTypeTimePlace(invite: inviteSummary, actionsBelow: false) { showInfo = true }
         }
         .sheet(isPresented: $showInfo) { Text("Test")}
-    }
-
-    ///What the card draws under its photo — one builder, so the View Event flight's copy can never drift from it
-    static func details(_ summary: InviteSummary, openInfo: @escaping () -> Void) -> some View {
-        EventTypeTimePlace(invite: summary, actionsBelow: false, openInfo: openInfo)
-    }
-}
-
-//The card as the View Event flight carries it off (`ViewEventFlight`): ViewInvite's own column, its photo band
-//left clear for the flight's cover to draw. Inert — the plane it rides takes every touch
-struct ViewInviteFlightCopy: View {
-    let inviteSummary: InviteSummary
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Color.clear.aspectRatio(AspectRatio.pendingEvent.ratio, contentMode: .fit) //EventImagePager's band
-            ViewInvite.details(inviteSummary) {}
-        }
-        .background(Color.white) //EventZoomCard's card fill
     }
 }

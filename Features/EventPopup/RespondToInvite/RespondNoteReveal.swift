@@ -172,7 +172,7 @@ extension RespondNoteReveal {
             ForEach(extractMessages(), id: \.self) { chatMessage in
                 let isMyChat = chatMessage.authorId == userId
                 MessageBubbleView(chat: chatMessage, nextIsNewAuthor: true, isMyChat: isMyChat, isInviteMessage: true)
-                    .padding(.leading, isMyChat ? 0 : -Spec.receivedPull)
+                    .offset(x: isMyChat ? 0 : -Spec.receivedPull) //Not a negative padding: that widens the row, and a row's width sets its widest bubble
             }
         }
         .padding(.horizontal, -Spacing.lg)

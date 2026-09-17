@@ -143,7 +143,10 @@ extension InvitesViewModel {
         guard let newTime = respondVMs[eventId]?.respondDraft.newTime else { throw RespondError.missingDraft }
         guard !newTime.proposedTimes.dates.isEmpty else { throw RespondError.emptyResponse }
         let event = newTime.event
-        let rescheduleResponse = RescheduleResponse(oldEvent: event, userId: userId, newTimes: newTime.proposedTimes)
+        let note = newTime.respondMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rescheduleResponse = RescheduleResponse(oldEvent: event, userId: userId,
+                                                    newTimes: newTime.proposedTimes,
+                                                    newMessage: note.isEmpty ? nil : note)
         try await eventRepo.respondWithNewTime(newTime: rescheduleResponse)
         updateInvitesLocally(eventId: rescheduleResponse.eventId)
     }

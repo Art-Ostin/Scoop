@@ -67,7 +67,6 @@ struct RespondToInviteContainer: View {
         .eventZoomChevronHidden(isConfirmNewEvent)
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert)
         
-        
         .sheet(isPresented: $composeUI.showInfoScreen) { Text("How it works")}
         .sheet(isPresented: $composeUI.showMessageScreen) { addMessageView }
         .fullScreenCover(isPresented: $composeUI.showMapView) {
@@ -75,9 +74,9 @@ struct RespondToInviteContainer: View {
         }
         .eventZoomAlert(
             isPresented: $ui.showAcceptAlert,
-            title: "\(selectedDayString)",
+            title: "Meet \(vm.profile.name)", //\(selectedDayString)
             emoji: "🧟",
-            message: "Meeting \(vm.profile.name). Cancel up to 10 hours before — no-shows may be blocked.",
+            message: "You're committing to meet on \(selectedDayString). Not showing will get your account blocked.",
             cancelTitle: "Back",
             okTitle: "Confirm",
             offset: 36,
@@ -356,7 +355,7 @@ extension RespondToInviteContainer {
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
     
-    var actionsDimmed: Bool { composeUI.delayedTypePopupOpen || composeUI.delayedTimePopupOpen }
+    var actionsDimmed: Bool { composeUI.delayedTypePopupOpen || composeUI.delayedTimePopupOpen || ui.showAcceptAlert }
     
     var ctaButton: some View {
         let dimmed = actionsDimmed
@@ -427,7 +426,9 @@ extension RespondToInviteContainer {
     
     var selectedDayString: String {
         if let day = vm.respondDraft.originalInvite.selectedDay {
-            return FormatEvent.shortDayAndTime(day, withHour: true, withMonth: true, withToday: false)
+            let time = FormatEvent.shortDayAndTime(day, withHour: false, withMonth: true, withToday: false)
+            let hour = FormatEvent.hourTime(day)
+            return "\(time) at \(hour)"
         } else {
             return "a time"
         }

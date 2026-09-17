@@ -13,6 +13,7 @@ struct RescheduleResponse {
     let oldEvent: UserEvent
     let userId: String
     let newTimes: ProposedTimes
+    let newMessage: String?
 
     var eventId: String { oldEvent.id }
     //The retiring proposal was theirs, so they are who the new one goes to

@@ -82,11 +82,11 @@ struct MessageBubbleView: View {
     //That note keeps no chat side at all: it hugs its text, and a long one can grow across the whole column its container lays it in
     private var leadingInset: CGFloat {
         guard !isOutsideChat else { return 0 }
-        return isMyChat ? Self.openSide : Self.receivedLeading(isInviteMessage: isInviteMessage)
+        return isMyChat ? Self.openSide(beside: Spacing.gutter) : Self.receivedLeading(isInviteMessage: isInviteMessage)
     }
     private var trailingInset: CGFloat {
         guard !isOutsideChat else { return 0 }
-        return isMyChat ? Spacing.gutter : Self.openSide
+        return isMyChat ? Spacing.gutter : Self.openSide(beside: Self.receivedLeading(isInviteMessage: isInviteMessage))
     }
 
     var body: some View {
@@ -149,7 +149,13 @@ extension MessageBubbleView {
 //Resting geometry, computed the way the body lays out — so a row's height and width are known before it exists
 extension MessageBubbleView {
 
-    private static let openSide = Spacing.xl + Spacing.xxl //The side a bubble leaves open, opposite its author
+    //Geometry: a row's width less the widest bubble it holds, Messages' limit with the + button beside its field (ChatKit's
+    //balloonMaxWidthForTranscriptWidth:…, 280.67 pt on the 402 pt width it was read at): the composer's 139.33 pt of insets,
+    //less its text view's 10 pt of line padding, plus the balloon's 28 pt of text inset. The same for either author, photo or
+    //not. Its other bound, 85% of the row inside 16 pt margins, only binds on rows wider than 627 pt, so it is left out
+    private static let columnInset: CGFloat = 121.333333
+    //The side a bubble leaves open, opposite its author: the rest of that inset once its own side is taken
+    private static func openSide(beside ownSide: CGFloat) -> CGFloat { columnInset - ownSide }
     //A received bubble's own side: the photo's leading line and radius, then out to where its tail rests on the photo
     static var receivedSide: CGFloat { BubbleMetrics.avatarLeading + BubbleMetrics.avatarSize / 2 + BubbleMetrics.avatarHugDistance }
     //Where a received bubble starts. An invite's message has no photo beside it, so it sits a hairline (2 pt) nearer the edge
@@ -158,8 +164,8 @@ extension MessageBubbleView {
     }
 
     //The width a bubble may grow to inside a row of the given container width
-    static func columnWidth(containerWidth: CGFloat, isMyChat: Bool, isInviteMessage: Bool? = false) -> CGFloat {
-        max(0, containerWidth - openSide - (isMyChat ? Spacing.gutter : receivedLeading(isInviteMessage: isInviteMessage)))
+    static func columnWidth(containerWidth: CGFloat) -> CGFloat {
+        max(0, containerWidth - columnInset)
     }
 
     //Where the hour badge goes. A bubble without one (`isInviteMessage` nil) reserves nothing

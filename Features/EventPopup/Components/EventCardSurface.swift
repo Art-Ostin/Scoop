@@ -32,6 +32,12 @@ struct EventCardSurface: ViewModifier {
 
 //The dismiss chevron `.eventZoom` draws below its card — stationary, never riding the drag or the flight
 struct EventDismissButton: View {
+
+    //The row's geometry, named for a caller that takes pictures of the buttons where they stand (the View Event flight)
+    static let height: CGFloat = 45 //Geometry: the chevron's disc, which the leading capsule matches
+    static let labelPadding = Spacing.md
+    static let edgeInset = 10 + Spacing.sm //Geometry: EventCardSurface's 10pt gap, then the row's own
+
     var visible: Bool = true
     
     let leadingTitle: String?
@@ -47,8 +53,8 @@ struct EventDismissButton: View {
                 ScoopButton(shape: Capsule(), action: onLeadingTap) {
                     Text(leadingTitle) // "View Event"
                         .font(.body(16, .medium))
-                        .padding(.horizontal, Spacing.md)
-                        .frame(height: 45) //Geometry: the chevron's height
+                        .padding(.horizontal, Self.labelPadding)
+                        .frame(height: Self.height)
                 }
                 .opacityPop(visible: visible)
                 .allowsHitTesting(visible)
@@ -59,15 +65,14 @@ struct EventDismissButton: View {
                 Image(systemName: "chevron.down")
                     .font(.body(17))
                     .fontWeight(.heavy)
-                    .frame(width: 45, height: 45)
+                    .frame(width: Self.height, height: Self.height)
             }
             .opacityPop(visible: visible)
             .allowsHitTesting(visible)
             .animation(.transition, value: visible)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .padding(.horizontal, 10)
-        .padding(.horizontal, Spacing.sm) // 12
+        .padding(.horizontal, Self.edgeInset)
         
     }
 }

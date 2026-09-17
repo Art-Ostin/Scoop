@@ -14,6 +14,7 @@ struct ImagePageIndicator: View {
     var activeWidth: CGFloat = 12
     var spacing: CGFloat = 8
     var activeColor: Color = .black
+    var onWindow: (Int) -> Void = { _ in } //Where the run of full-size dots starts, for a twin that must match it (`restingDots`)
 
     @State private var sizeState = ImagePageIndicatorSizeState()
 
@@ -37,12 +38,13 @@ struct ImagePageIndicator: View {
         .onAppear { updateSizeState(animated: false) }
         .onChange(of: selectedIndex) { _, _ in updateSizeState(animated: true) }
         .onChange(of: count) { _, _ in updateSizeState(animated: true) }
+        .onChange(of: sizeState, initial: true) { onWindow($1.fullSizeStart) }
     }
 
     private func capsule(closeness: Double) -> some View {
         Capsule()
             .fill(activeColor)
-            .opacity(0.55 + 0.45 * closeness)
+            .opacity(0.55 + 0.45 * closeness) //`restingDots` mirrors this
     }
 
     private struct Dot {
@@ -117,6 +119,26 @@ struct ImagePageIndicator: View {
         } else {
             sizeState = nextState
         }
+    }
+}
+
+extension ImagePageIndicator {
+
+    ///The cluster as it rests on a whole page — each dot's frame in the indicator's own, and its opacity — for a twin
+    ///drawn outside SwiftUI (the View Event flight lands wearing the event card's dots). The same layout the body
+    ///draws, on the size window the real indicator holds (`onWindow`) turned to `page`
+    static func restingDots(count: Int, page: Int, from start: Int = 0) -> (size: CGSize, dots: [(frame: CGRect, opacity: Double)]) {
+        let indicator = ImagePageIndicator(count: count, progress: Double(page))
+        var window = ImagePageIndicatorSizeState(fullSizeStart: start) //The real indicator's, as it stands: where it goes next depends on where it has been
+        window.select(page, count: count)
+        let row = indicator.layout(at: Double(page), sizeState: window)
+        let inset = max(0, (indicator.steadyWidth - row.width) / 2)
+        let dots = row.dots.filter { $0.width > 0 }.map { dot in
+            (frame: CGRect(x: inset + dot.x - dot.width / 2, y: (indicator.dotSize - dot.height) / 2,
+                           width: dot.width, height: dot.height),
+             opacity: 0.55 + 0.45 * dot.closeness)
+        }
+        return (CGSize(width: indicator.steadyWidth, height: indicator.dotSize), dots)
     }
 }
 

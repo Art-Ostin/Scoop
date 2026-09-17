@@ -166,7 +166,8 @@ struct AlertCardBackground: ViewModifier {
             .padding(.horizontal, 24)
             .padding(.vertical, 36)
             .frame(maxWidth: .infinity)
-            .glassEffectIfAvailable(shape: RoundedRectangle(cornerRadius: CornerRadius.alert))
+            .background(Color.white, in: .rect(cornerRadius: 16))
+//            .glassEffectIfAvailable(shape: RoundedRectangle(cornerRadius: CornerRadius.alert))
             .padding(.horizontal, 32)
             .shadow(.floating)
     }

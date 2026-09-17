@@ -12,7 +12,7 @@ struct HistoryContainer: View {
     
     @Environment(\.dismiss) private var dismiss
     @State var vm: HistoryViewModel
-    let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //A meeting card's "View Event": Meet closes History and opens the event
+    let onViewEvent: (EventProfile, EventZoomDeparture) -> Void //A meeting card's "View Event": Meet closes History and opens the event
 
     @State private var selectedPage: Int? = 0
     

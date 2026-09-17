@@ -150,11 +150,10 @@ extension InvitesContainer {
 //Logic to open an accepted event from the calendar
 extension InvitesContainer {
 
-    //The flight draws above the calendar's cover, so it closes the calendar itself, out of sight. It carries the card
-    //only when the popup was handed over at rest; otherwise, or under Reduce Motion, it fades onto the event instead
-    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture, _ summary: InviteSummary) {
+    //The flight draws above the calendar's cover, so it closes the calendar itself, out of sight. The card flies
+    //only when the popup was handed over at rest; otherwise, or under Reduce Motion, the screen fades onto the event instead
+    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture) {
         let id = meeting.event.id
-        let copy = departure.ready && !reduceMotion ? AnyView(ViewInviteFlightCopy(inviteSummary: summary)) : nil
         let closeCalendar = { withTransaction(Self.instant) { ui.showCalendarView = false } }
         let openEvent = {
             withTransaction(Self.instant) {
@@ -165,7 +164,7 @@ extension InvitesContainer {
         }
         let handlers = ViewEventFlight.Handlers(closeCalendar: closeCalendar, openEvent: openEvent,
                                                 stillTargeted: { router.selectedTab == .events && router.eventsPath.isEmpty })
-        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, copy: copy), handlers: handlers) ?? false
+        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, flies: departure.ready && !reduceMotion), handlers: handlers) ?? false
         if !started { closeCalendar(); openEvent() } //No plane to raise: a plain cut still lands on the event, the calendar closed
     }
 
@@ -210,7 +209,7 @@ extension InvitesContainer {
     }
     
     private var calendarView: some View {
-        CalendarContainer(vm: vm, onRespond: { respond($0, $1, $2) }, onViewEvent: { viewEvent($0, $1, $2) })
+        CalendarContainer(vm: vm, onRespond: { respond($0, $1, $2) }, onViewEvent: { viewEvent($0, $1) })
             .navigationTransition(.zoom(sourceID: "calendar", in: calendarZoom))
     }
 }

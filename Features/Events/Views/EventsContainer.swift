@@ -121,7 +121,7 @@ private struct EventsPager<Content: View>: View {
     @State private var pendingJump: String? //A deep-link landing not yet achieved
 
     var body: some View {
-        HorizontalScrollView(progress: .constant(0)) {
+        HorizontalScrollView(progress: .constant(0), alignment: .top) { //Top, not centre: a shorter event's card must not rest lower than its neighbour's
             content
         }
         .scrollPosition(id: $pagedId)

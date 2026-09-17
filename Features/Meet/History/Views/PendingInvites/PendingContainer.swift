@@ -16,7 +16,7 @@ struct PendingInvitesView: View {
     @Bindable var ui: HistoryUIState //Bindable, not let: the expired section drives showsExpired
 
     let images: (EventProfile) -> [UIImage] //The card's pages for an invite — each lens presents its own card
-    let onViewEvent: (EventProfile, EventZoomDeparture, InviteSummary) -> Void //A meeting card's "View Event": the owner leaves History for the event, carrying the card's details
+    let onViewEvent: (EventProfile, EventZoomDeparture) -> Void //A meeting card's "View Event": the owner leaves History for the event
 
     private var hasCalendar: Bool { !days.isEmpty || !upcomingEvents.isEmpty } //A meeting alone still earns the calendar
 
@@ -91,12 +91,12 @@ extension PendingInvitesView {
 
     private func meetingCard(_ meeting: EventProfile) -> AnyView {
         guard let time = meeting.event.acceptedTime else { return AnyView(EmptyView()) }
-        let summary = InviteSummary(accepted: meeting.event, at: time) //One summary: the card and the flight's copy of it can't drift
+        let summary = InviteSummary(accepted: meeting.event, at: time)
         return AnyView(ViewInvite(inviteSummary: summary,
                                   images: images(meeting),
                                   name: meeting.profile.name,
                                   title: "Meeting \(meeting.profile.name)")
-            .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0, summary) })
+            .eventZoomLeadingAction("View Event") { onViewEvent(meeting, $0) })
     }
 
     //Off the card, on the canvas, and shut until opened: expired invites are the occasional case, so

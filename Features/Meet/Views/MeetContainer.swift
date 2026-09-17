@@ -69,7 +69,7 @@ extension MeetContainer {
     }
 
     private var historyPage: some View {
-        HistoryContainer(vm: HistoryViewModel(session: vm.session), onViewEvent: { viewEvent($0, $1, $2) })
+        HistoryContainer(vm: HistoryViewModel(session: vm.session), onViewEvent: { viewEvent($0, $1) })
             .navigationTransition(.zoom(sourceID: "history", in: historyZoom))
     }
 }
@@ -78,10 +78,9 @@ extension MeetContainer {
 extension MeetContainer {
 
     //Mirrors InvitesContainer.viewEvent: the flight draws above History's cover, so it closes History itself, out of sight.
-    //It carries the card only when the popup was handed over at rest; otherwise, or under Reduce Motion, it fades onto the event
-    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture, _ summary: InviteSummary) {
+    //The card flies only when the popup was handed over at rest; otherwise, or under Reduce Motion, the screen fades onto the event
+    private func viewEvent(_ meeting: EventProfile, _ departure: EventZoomDeparture) {
         let id = meeting.event.id
-        let copy = departure.ready && !reduceMotion ? AnyView(ViewInviteFlightCopy(inviteSummary: summary)) : nil
         let closeHistory = { withTransaction(Self.instant) { ui.showHistory = false } }
         let openEvent = {
             withTransaction(Self.instant) {
@@ -92,7 +91,7 @@ extension MeetContainer {
         }
         let handlers = ViewEventFlight.Handlers(closeCalendar: closeHistory, openEvent: openEvent,
                                                 stillTargeted: { router.selectedTab == .events && router.eventsPath.isEmpty })
-        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, copy: copy), handlers: handlers) ?? false
+        let started = viewEventFlight?.begin(ViewEventFlight.Request(eventId: id, departure: departure, flies: departure.ready && !reduceMotion), handlers: handlers) ?? false
         if !started { closeHistory(); openEvent() } //No plane to raise: a plain cut still lands on the event, History closed
     }
 
