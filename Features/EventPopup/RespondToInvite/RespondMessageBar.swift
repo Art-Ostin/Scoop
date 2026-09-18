@@ -11,26 +11,44 @@ struct RespondToMessageBar: View {
 
     //Injected
     @Binding var text: String
-    let eventHistory: [PastEventProposal]?
+    let thread: [PastEventProposal] //The retired rounds and the live proposal, oldest first
     let hasPreviousMessages: Bool
     let userId: String
     let otherUserId: String
     var isFocused: FocusState<Bool>.Binding
-    var isFixedHeight = false //True: the field stands at its `visibleLines` height from the first line, rather than growing into it. Flip it under `.transition`: a landed card snaps a bare resize
+    var isOpen = false //The focus as the note's MOTION reads it: the card's ride, flipped in one transaction a beat behind the raw focus (the container's `rideNote`). Never flip it bare: a landed card snaps a bare resize
+    var namesNote = false //The placeholder reads as the note's own: flipped with the card's title, behind the keyboard's settle
+    var onDone: () -> Void = {} //Done's tap: the container closes the ride, then resigns the field (its `closeNote`) — never a bare resign from here
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo? //The zoom the card stands in: how wide the focused card will be
 
     //Local view state
     @State private var noteHeight: CGFloat = 0
     @State private var holdHeight: CGFloat = 0
     @State private var hidden = EdgeOverflow()
     @State private var scrollPosition = ScrollPosition(edge: .top)
+    @State private var showsDone = false //Done pops in as the ride arrives, not as it leaves (see `doneLag`)
+
+    //Open, the field stands at its `visibleLines` height from the first line, rather than growing into it: part of the ride
+    private var isFixedHeight: Bool { isOpen }
+
+    //The text's column as the OPEN card lays it out, held from the start: the card widens on a ride, and a text view
+    //whose width rides with it is re-typeset on every frame — a sixth of the ride's main thread, with the hold probe's
+    //(profile, 2026-09-17). Wider than the resting glass by the card's gap a side, which nothing shows: at rest the field
+    //is empty (a written note rests as its bubble) and its placeholder is a line. nil outside a zoom: the glass's own width
+    private var columnWidth: CGFloat? {
+        guard let width = flight?.keyboardCardWidth, width > 0 else { return nil }
+        return max(width - 2 * Spacing.lg - 2 * Self.fieldSideInset, 0)
+    }
 
     private static let font: Font = .body(17, .regularItalic)
     private static let lineSpacing: CGFloat = 2.5
     private static let visibleLines = 4
     private static let holdProbe = Array(repeating: "x", count: visibleLines).joined(separator: "\n")
+    private static let holdProbeWidth: CGFloat = 100 //Geometry: room for the probe's one-letter lines, no more
     private static let textLimit = 130
     private static let countWarning = 25
     private static let fieldBottomInset: CGFloat = 18 //Geometry: with the action row's own 4, the glass ↔ CTA gap
+    private static let fieldSideInset: CGFloat = Spacing.md //The glass ↔ its text, each side
 
     //The note's height in lines: its share of the `visibleLines` the field holds at
     private var lineCount: Int {
@@ -43,17 +61,28 @@ struct RespondToMessageBar: View {
     //Focused, the note scrolls to reveal what sits above it: all of that scroll lives in RespondNoteReveal
     var body: some View {
         RespondNoteReveal(
-            eventHistory: eventHistory,
+            thread: thread,
             userId: userId,
             otherUserId: otherUserId,
             isFocused: isFocused,
+            isOpen: isOpen,
             text: text,
-            restHeight: fieldHeight + Self.fieldBottomInset) {
+            restHeight: fieldHeight + Self.fieldBottomInset,
+            noteFootInset: Self.fieldBottomInset) {
                 noteField
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, Self.fieldBottomInset)
             } pinned: {
-                doneButton
+                doneSlot
+            }
+            .eventZoomKeyboardAccessory(Self.doneTitle, visible: showsDone) { onDone() } //Done itself: the zoom draws it on the keyboard's line
+            .onChange(of: isOpen) { _, open in
+                if !open { showsDone = false } //Out with the resign itself
+            }
+            .task(id: isOpen) {
+                guard isOpen else { return }
+                try? await Task.sleep(for: Self.doneLag)
+                if !Task.isCancelled { showsDone = true }
             }
     }
 }
@@ -63,7 +92,7 @@ extension RespondToMessageBar {
 
     //The placeholder's words: the thread's over past proposals, the note's own once it stands at full height to be written
     private var placeholderText: String {
-        hasPreviousMessages && !isFixedHeight ? "Message Thread..." : "Add a note..."
+        hasPreviousMessages && !namesNote ? "Message Thread..." : "Add a note..."
     }
 
     private var noteField: some View {
@@ -79,7 +108,9 @@ extension RespondToMessageBar {
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
                 withAnimation(.transition) { noteHeight = height } //Every write resizes a landed card
             }
-            .padding(.horizontal)
+            .frame(width: columnWidth, alignment: .leading)
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading) //Takes what the glass offers (a min too, or a wider column would size it): the column hangs off the leading inset and overhangs the trailing one
+            .padding(.horizontal, Self.fieldSideInset)
             .padding(.vertical, verticalPad)
         }
         .scrollPosition($scrollPosition)
@@ -128,6 +159,7 @@ extension RespondToMessageBar {
         TextField("", text: .constant(Self.holdProbe), axis: .vertical)
             .font(Self.font)
             .lineSpacing(Self.lineSpacing)
+            .frame(width: Self.holdProbeWidth) //Its lines never wrap, so its height is any width's — and a fixed one is typeset once, not on every frame the glass resizes
             .fixedSize(horizontal: false, vertical: true)
             .getHeight($holdHeight)
             .hidden()
@@ -164,17 +196,19 @@ extension RespondToMessageBar {
 //Done: the focused note's only control, in and out on the blur pop
 extension RespondToMessageBar {
 
-    private var doneButton: some View {
-        ScoopButton(style: .tinted(.black, shadow: nil, glass: true), shape: Capsule()) {
-            isFocused.wrappedValue = false
-        } label: {
-            Text("Done")
-                .font(.body(14, .bold))
-                .padding(Spacing.sm)
-                .padding(.horizontal, Spacing.xxs)
-        }
-        .blurPop(visible: isFocused.wrappedValue)
-        .eventZoomKeyboardClearance() //The lowest thing on the focused card: the shell raises it clear of the keyboard
+    private static let doneTitle = "Done"
+
+    //Done stands on the KEYBOARD's line, so the zoom draws it there, in its own plane (`.eventZoomKeyboardAccessory`):
+    //hung in the card it rode the whole ride while it popped in, a control flying up from under the keyboard. Held until
+    //the ride has all but arrived (the keyboard's spring is ~85% home), it appears where it will stand, as the card lands
+    private static let doneLag: Duration = .milliseconds(120)
+
+    //Where Done would hang in the card — under the note's resting foot, never scrolled — kept as the zoom's clearance
+    //slot: the lowest thing on the focused card, which the shell lifts clear of the keyboard under a long note
+    private var doneSlot: some View {
+        EventKeyboardAccessoryLabel(title: Self.doneTitle)
+            .hidden()
+            .eventZoomKeyboardClearance()
     }
 }
 

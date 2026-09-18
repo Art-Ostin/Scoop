@@ -19,10 +19,16 @@ struct RespondToInviteContainer: View {
     var type: ResponseType { vm.respondDraft.respondType }
     
     @FocusState var isFocused: Bool
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo? //The zoom the card stands in: its ride leaves in the same commit as the note's
 
     //Local view state
     @State private var rowsHeight: CGFloat = 0 //The type/time/place block as laid out — what the focused note scrolls behind the photo
-    @State private var showsNoteTitle = false //`isFocused` as the title and the note's full height read it — never the raw focus (see `retitle`)
+    @State private var noteOpen = false //`isFocused` as everything that MOVES reads it — never the raw focus (see `rideNote`)
+    @State private var noteRideGate = KeyboardSettleGate(smoothTicks: 0) //A focus's ride leaves on the first frame the keyboard's arrival lets through
+    @State private var noteAtRest = true //The note's ride is home: only then may a written note rest as its bubble (see `closeRide`)
+    @State private var noteRidesHome = false //…and on its way there: a second resign inside it (the focus flips a turn after Done's close) is not a focus that never rode
+    @State private var rideHomeTask: Task<Void, Never>? //The ride home's landing: a later close or refocus retires it
+    @State private var showsNoteTitle = false //`isFocused` as the title and the placeholder's words read it — never the raw focus (see `retitle`)
     @State private var noteTitleGate = KeyboardSettleGate() //A focus's retitle waits here until the keyboard's arrival stops stalling frames
     @State private var cardWidth: CGFloat = 0 //The card as laid out (the zoom masks its flight, never re-lays it out) — what the unsent note places its Edit or Thread against
     @State private var editsNote = false //A tap on the note's bubble: its field mounts first, so the focus has somewhere to land
@@ -37,20 +43,19 @@ struct RespondToInviteContainer: View {
                         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
                             withAnimation(rowsHeight > 0 ? .transition : nil) { rowsHeight = height } //A rewrap mid-focus rides the card's resize clock; the first reading lands bare
                         }
-                        .noteRevealRows(isFocused: isFocused, room: noteRevealRoom)
+                        .noteRevealRows(isOpen: noteOpen, isFocused: isFocused, room: noteRevealRoom)
                     messageSection
                         .environment(\.noteRevealRoom, noteRevealRoom)
                 }
             }
-            .clipped()
-            .animation(.move, value: isFocused) //A position settle, on the clock the shell raises the whole card on
+            .clipped() //The photo's foot: what the rows leave under, and the thread slides under as it rises
 
             actionSection
                 .padding(.top, 4)
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cardWidth = $0 }
         .contentShape(Rectangle())
-        .onTapGesture { if isFocused { isFocused = false } }
+        .onTapGesture { closeNote() }
     
         .animation(.transition, value: [
             composeUI.delayedTimePopupOpen,
@@ -58,12 +63,17 @@ struct RespondToInviteContainer: View {
             isFocused, composeUI.showConfirmScreen]
         )
         
-        .eventZoomKeyboardFocus(isFocused, extraLift: noteRevealLift) { isFocused = false }
+        .eventZoomKeyboardFocus(isFocused, riding: noteOpen, extraLift: noteRevealLift) { closeNote() }
         .onChange(of: isFocused) { _, focused in
+            rideNote(focused)
             retitle(focused)
             if focused { editsNote = false } //The bubble's edit has landed: from here the raw focus holds the field
         }
-        .onDisappear { noteTitleGate.cancel() }
+        .onDisappear {
+            noteRideGate.cancel()
+            noteTitleGate.cancel()
+            rideHomeTask?.cancel()
+        }
         .eventZoomChevronHidden(isConfirmNewEvent)
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert)
         
@@ -74,14 +84,14 @@ struct RespondToInviteContainer: View {
         }
         .eventZoomAlert(
             isPresented: $ui.showAcceptAlert,
-            title: "Meet \(vm.profile.name)", //\(selectedDayString)
+            title: confirmAlertTitle,
             emoji: "🧟",
-            message: "You're committing to meet on \(selectedDayString). Not showing will get your account blocked.",
+            message: confirmAlertText,
             cancelTitle: "Back",
             okTitle: "Confirm",
             offset: 36,
             onOK: { ctaAction() }, //
-            onCancel: {ui.showAcceptAlert = false}
+            onCancel:  isComposeInviteScreen ?  { composeUI.showConfirmScreen = true } : { ui.showAcceptAlert = false}
         )
         .sheet(isPresented: $ui.showHistorySheet) {inviteHistoryContainer}
     }
@@ -123,6 +133,49 @@ extension RespondToInviteContainer {
         }
     }
 
+    private func rideNote(_ focused: Bool) {
+        noteRideGate.cancel()
+        guard focused else {
+            closeRide()
+            return
+        }
+        noteRideGate.arm {
+            guard isFocused, !noteOpen else { return } //Live, not the captured `focused`: a Done inside the wait wins
+            rideHomeTask?.cancel()
+            noteAtRest = false
+            flight?.setKeyboardRide(true) //The shell first: its transaction and the body's below flush in one commit, the shell's clock already open
+            withAnimation(.keyboard) { noteOpen = true }
+        }
+    }
+
+    private func closeRide() {
+        guard noteOpen else {
+            if !noteAtRest, !noteRidesHome { withAnimation(.transition) { noteAtRest = true } } //A focus that never rode
+            return
+        }
+        noteRidesHome = true
+        flight?.setKeyboardRide(false) //The shell first, as on the way up
+        withAnimation(.keyboard) { noteOpen = false }
+        //Timed, not the transaction's completion: the shell's re-pins retarget what this transaction moves, and a
+        //retargeted transaction's completion never came (rig, 2026-09-17). Owned: a close, a refocus and a close again
+        //inside one wait would let the first timer land the bubble in the second ride
+        rideHomeTask?.cancel()
+        rideHomeTask = Task { @MainActor in
+            try? await Task.sleep(for: Self.rideHome)
+            guard !Task.isCancelled else { return } //`try?` swallows the cancellation: a cancelled sleep returns at once
+            noteRidesHome = false
+            guard !noteOpen, !isFocused, !noteAtRest else { return } //A refocus inside the ride keeps the field
+            withAnimation(.transition) { noteAtRest = true }
+        }
+    }
+
+    private func closeNote() {
+        guard isFocused else { return }
+        noteRideGate.cancel()
+        closeRide()
+        isFocused = false
+    }
+
     private func retitle(_ focused: Bool) {
         noteTitleGate.cancel()
         guard focused else {
@@ -135,25 +188,23 @@ extension RespondToInviteContainer {
         }
     }
 
+    //What the note answers, oldest first: the retired rounds, then the live proposal. The message being
+    //answered is the invite's own field until a counter retires it into the log, so it is not in
+    //`pastProposals` yet — on a first invite that log is empty and this is the only message there is
+    var messageThread: [PastEventProposal] {
+        let event = vm.respondDraft.originalInvite.event
+        return (event.pastProposals ?? []) + [PastEventProposal(retiring: event)]
+    }
+
     var hasPreviousMessages: Bool {
-        if let pastEvents = vm.respondDraft.originalInvite.event.pastProposals {
-            let messages = pastEvents.compactMap { $0.message }
-            return !messages.isEmpty
-        } else {
-            return false
-        }
+        RespondNoteRevealSpec.messageCount(in: messageThread) > 0
     }
     
     
     var isPastInvites: Bool {
         vm.respondDraft.originalInvite.event.pastProposals?.isEmpty == false
     }
-
     
-    
-    //The corner's one layout, drawn live on the band or inert as the flight's twin — so the two can never disagree
-    //on a control, a gap or an inset. The disc a card's "Response" capsule lands on is marked in both; only the live
-    //one reports (a twin has no flight around it)
     @ViewBuilder
     private func cornerRow(inert: Bool) -> some View {
         
@@ -208,14 +259,15 @@ extension RespondToInviteContainer {
     //How far the focused note's scroll grows up over the rows (RespondNoteReveal)
     private var noteRevealRoom: CGFloat { RespondNoteRevealSpec.room(over: rowsHeight) }
 
-    //How far past the shell's pin the focused card rides: only once the history holds more than one message (RespondNoteReveal)
-    private var noteRevealLift: CGFloat { RespondNoteRevealSpec.lift(over: vm.respondDraft.originalInvite.event.pastProposals) }
+    //How far past the shell's pin the focused card rides: only once the thread holds more than one message (RespondNoteReveal)
+    private var noteRevealLift: CGFloat { RespondNoteRevealSpec.lift(over: messageThread) }
 }
 
 
 //Event Info Section -> Filling out details and confirm Invite Screen
 extension RespondToInviteContainer {
 
+    private static let rideHome: Duration = .milliseconds(300) //The keyboard's spring is within a point of home: the note's ride has landed
     private static let swapLag: TimeInterval = 0.13
     private static let swapBlur: CGFloat = 6 //Not the house 8: a full-width body at 8 reads as a rack-focus
 
@@ -297,7 +349,7 @@ extension RespondToInviteContainer {
     @ViewBuilder
     var messageSection: some View {
         if type == .newTime {
-            if !vm.respondDraft.newTime.respondMessage.isEmpty && !isFocused && !editsNote {
+            if !vm.respondDraft.newTime.respondMessage.isEmpty && !isFocused && !editsNote && noteAtRest {
                 let chat = ChatMessage(authorId: "", recipientId: "", content: vm.respondDraft.newTime.respondMessage)
                 MessageBubbleView(chat: chat, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: nil, noteBadge: noteBadge,
                                   containerWidth: max(0, cardWidth - 2 * Spacing.margin))
@@ -310,12 +362,14 @@ extension RespondToInviteContainer {
             } else {
                 RespondToMessageBar(
                     text: $vm.respondDraft.newTime.respondMessage,
-                    eventHistory: vm.respondDraft.originalInvite.event.pastProposals,
+                    thread: messageThread,
                     hasPreviousMessages: hasPreviousMessages,
                     userId: vm.userId,
                     otherUserId: vm.profile.id,
                     isFocused: $isFocused,
-                    isFixedHeight: showsNoteTitle
+                    isOpen: noteOpen,
+                    namesNote: showsNoteTitle,
+                    onDone: closeNote
                 )
                 .transition(Self.bodySwap())
                 .task { if editsNote { isFocused = true } } //`.task`'s hop lands the write after the swap commits, when the field exists
@@ -323,9 +377,9 @@ extension RespondToInviteContainer {
         }
     }
     
-    //The note's corner: Thread once past messages sit above it in the reveal, Edit while there are none (RespondNoteReveal)
+    //The note's corner: Thread once messages sit above it in the reveal, Edit while there are none (RespondNoteReveal)
     private var noteBadge: MessageNoteBadge.Kind {
-        RespondNoteRevealSpec.messageCount(in: vm.respondDraft.originalInvite.event.pastProposals) > 0 ? .thread : .edit
+        hasPreviousMessages ? .thread : .edit
     }
 
     private var inviteHasMessage: Bool {
@@ -372,7 +426,7 @@ extension RespondToInviteContainer {
             height: type == .newEvent ? 46 : 48,
             lineLimit: lineLimit,
             glass: false,
-            onTap: type == .originalInvite ? { ui.showAcceptAlert = true} : ctaAction
+            onTap: isComposeInviteScreen ? {showConfirmScreen()} : {ui.showAcceptAlert = true}
         )
         .eventZoomDragExclusion() //A press that slides off the button never scrubs the card
         .eventZoomButtonTarget(text: ctaText, fill: fill, font: font, lineLimit: lineLimit) //The invite card's envelope widens into this
@@ -390,8 +444,12 @@ extension RespondToInviteContainer {
         switch type {
         case .originalInvite:{ respond(.accepted, nil)}
         case .newTime: {respond(.newTime, sendFlightSource)}
-        case .newEvent: isComposeInviteScreen ? { composeUI.showConfirmScreen = true} : {respond(.newInvite, sendFlightSource)}
+        case .newEvent: { respond(.newInvite, sendFlightSource) }
         }
+    }
+    
+    private func showConfirmScreen () {
+        withAnimation(.transition) { composeUI.showConfirmScreen = true }
     }
 
     //Read at the tap, never in body: the card is at rest whenever the CTA can be pressed
@@ -454,7 +512,24 @@ extension RespondToInviteContainer {
             )
         }
     }
-
+    
+    
+    private var confirmAlertTitle: String {
+        switch type {
+        case .originalInvite: return "Meet \(vm.profile.name)"
+            
+        default: return "Invite \(vm.profile.name)"
+        }
+    }
+    
+    private var confirmAlertText: String {
+        switch type {
+        case .originalInvite:
+            "You're committing to meet on \(selectedDayString). Not showing will get your account blocked."
+        default:
+            "You're committing to an in person event. If \(vm.profile.name) accepts & you don't show your account may be blocked."
+        }
+    }
 }
 
 

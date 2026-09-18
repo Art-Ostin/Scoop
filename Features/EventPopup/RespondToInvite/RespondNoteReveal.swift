@@ -15,42 +15,52 @@ private typealias Spec = RespondNoteRevealSpec
 struct RespondNoteReveal<Note: View, Pinned: View>: View {
 
     //Injected
-    //Logic to display the past messages
-    let eventHistory: [PastEventProposal]?
+    //The messages drawn above the note: the retired rounds and the live proposal, oldest first
+    let thread: [PastEventProposal]
     let userId: String
     let otherUserId: String
     
     
-    let isFocused: FocusState<Bool>.Binding
+    let isFocused: FocusState<Bool>.Binding //The raw focus: what the scroll's own rules read (reach, re-seats, the return from a pull)
+    let isOpen: Bool //The focus as the MOTION reads it: the card's ride, flipped in one transaction on the keyboard's spring (the container's `rideNote`). Everything here that moves keys on it
     let text: String //The note's text: typing brings a pulled note back into view
     let restHeight: CGFloat //The note as it lays out at rest, its foot inset included
+    let noteFootInset: CGFloat //How much of that rest is the gap under the note's glass: what a measure of the slot has to come off to be the glass's own foot
     let note: Note
     let pinned: Pinned //The note's Done: hung under the note's resting foot, never scrolled
     @Environment(\.noteRevealRoom) private var room //How far the focused scroll grows up over the rows
+    @Environment(EventZoomChoreo.self) private var flight: EventZoomChoreo? //The zoom the card stands in: how wide the focused card will be
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     //Local view state
     @State private var position = ScrollPosition(y: 0) //Resting on the note, the history parked above it
     @State private var tracker = RevealTracker(offset: 0) //The live offset, read on resign; a class so scrolling never re-renders
     @State private var historyHeight: CGFloat = 0 //The past messages as they lay out, measured: the block above the note, so a pull stops at the oldest one
     @State private var fadedOut = false //A resign from a pull hides the reveal while it re-seats
+    @State private var lift: CGFloat = 0 //The ride's follow-through, 0 → 1 → 0: the thread and the note land a few points past their place and ease back
+    @State private var slot = RevealSlot() //Where the note's own slot sits on screen; a class, so the ride's layout never re-renders this view to report it
 
-    
+
     init(
-        eventHistory: [PastEventProposal]?,
+        thread: [PastEventProposal],
         userId: String,
         otherUserId: String,
         isFocused: FocusState<Bool>.Binding,
+        isOpen: Bool,
         text: String,
         restHeight: CGFloat,
+        noteFootInset: CGFloat = 0,
         @ViewBuilder note: () -> Note,
         @ViewBuilder pinned: () -> Pinned
     ) {
-        self.eventHistory = eventHistory
+        self.thread = thread
         self.userId = userId
         self.otherUserId = otherUserId
         self.isFocused = isFocused
+        self.isOpen = isOpen
         self.text = text
         self.restHeight = restHeight
+        self.noteFootInset = noteFootInset
         self.note = note()
         self.pinned = pinned()
     }
@@ -62,28 +72,56 @@ struct RespondNoteReveal<Note: View, Pinned: View>: View {
 
     //The rest offset over a history this tall, never above the scroll's own top
     private func rest(over height: CGFloat) -> CGFloat {
-        let count = extractMessages().count
-        return max(height + Spec.topPadding(for: count) - Spec.startingPull(for: count), 0)
+        max(height + Spec.topPadding - Spec.startingPull(for: extractMessages().count), 0)
     }
 
     //The slack kept past the furthest rest: all of it at rest; focused, none once the starting pull covers it, so the note under the photo is the scroll's real end
     private var runwaySlack: CGFloat { max(Spec.slack - pull, 0) }
 
-    //The height the scroll grows up by: the rows' room while focused, none at rest
-    private var growth: CGFloat { isFocused.wrappedValue ? room : 0 }
+    //The height the scroll grows up by: the rows' room once the note is open, none at rest
+    private var growth: CGFloat { isOpen ? room : 0 }
 
-    //How far the focused note starts pulled down, as if the user had pulled it: the history grows by this above its bubbles,
+    //How far the open note starts pulled down, as if the user had pulled it: the history grows by this above its bubbles,
     //so the last bubble and the note slide down together. The resting offset never moves, so a resign needs no scroll of its own
-    private var pull: CGFloat { isFocused.wrappedValue ? Spec.startingPull(for: extractMessages().count) : 0 }
+    private var pull: CGFloat { isOpen ? Spec.startingPull(for: extractMessages().count) : 0 }
 
+    //The width the open card will stand at, known while it still rests narrower: the thread lays out at it from the start.
+    //0 outside a zoom (or before its plane has laid out): the thread then takes the card's own width
+    private var threadWidth: CGFloat { flight?.keyboardCardWidth ?? 0 }
+
+    //The note's own slot is all the card's layout ever sees of the reveal, open or not: the scroll and Done hang off it.
+    //Off a plain view, not off the scroll: a ScrollView's frame is re-laid out on every frame of a ride, and Done hung
+    //on it reported its foot to the shell sixty times a ride — each report a fresh re-pin, the drop forever chasing
     var body: some View {
-        scroll
+        Color.clear
+            .frame(height: restHeight)
+            .overlay(alignment: .top) {
+                scroll
+                    .offset(y: -Spec.followThrough * lift) //The thread and the note only: Done holds the keyboard's line
+                    .alignmentGuide(.top) { _ in Spec.glassBleed + growth } //Grows up over the rows, never down: the card's height holds
+            }
             .overlay(alignment: .topTrailing) {
                 pinned
-                    .padding(.top, Spec.glassBleed + restHeight + Spacing.xs) //Under the resting note's foot: Done never scrolls, and the starting pull is a scroll
                     .padding(.trailing, Spacing.lg)
+                    .alignmentGuide(.top) { _ in growth - restHeight - Spacing.xs } //Under the resting note's foot, up with the scroll's top: Done never scrolls, and the starting pull is a scroll
             }
-            .padding(.top, -(Spec.glassBleed + growth)) //Grows up over the rows, never down: the card's height holds
+            .onChange(of: isOpen) { _, open in followThrough(open) }
+    }
+
+    //The ride's landing: what the card carries keeps going a few points once the card has stopped, and eases back (the
+    //event zoom's landing breath, on the keyboard's clock). The rise ends flat, so the settle leaves from rest at its
+    //peak: issued from the rise's completion, the two are one motion. Not both in this turn — here a second write in
+    //the same turn folds the pair into no change at all (rig, 2026-09-17). A close is flat; reduce motion never lifts
+    private func followThrough(_ open: Bool) {
+        guard open, !reduceMotion else {
+            if lift != 0 { withAnimation(.keyboard) { lift = 0 } } //A close is flat: a rise still in flight turns for home with the card
+            return
+        }
+        withAnimation(.followThroughRise, completionCriteria: .logicallyComplete) {
+            lift = 1
+        } completion: {
+            withAnimation(.followThroughSettle) { lift = 0 }
+        }
     }
 }
 
@@ -96,12 +134,21 @@ extension RespondNoteReveal {
                 messageSection
                 Color.clear.frame(height: Spec.glassBleed)
                 note
+                    //Where the note IS, the scroll's own offset folded in — its layout slot is the card's, points above.
+                    //Into a class, read on a keystroke: written every frame of a ride and every frame of a scroll, a
+                    //@State here would re-render the whole reveal with it
+                    .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { slot.foot = $0 }
                 Color.clear.frame(height: room + runwaySlack) //Runway: as tall as the growth, plus any slack the starting pull doesn't already keep past the resting spot
             }
             .padding(.horizontal, Spacing.lg)
+            .background { KeyboardClampHold() } //In the content, outside the note: its nearest scroll is this one, not the note's own
         }
         .frame(height: Spec.glassBleed + restHeight + growth)
         .opacity(fadedOut ? 0 : 1)
+        //The scroll's top edge travels with the ride, a bleed above the rows' foot: clipped to it, the thread rose cut flat
+        //by a line nobody could see, the place row riding on the cut (device, 2026-09-17). The container's own clip — the
+        //photo's foot — is the only edge the thread ever meets: it slides under the photo, as a pull's does
+        .scrollClipDisabled()
         .scrollPosition($position)
         .defaultScrollAnchor(UnitPoint(x: 0.5, y: restOffset / (restOffset + pull + room - growth + runwaySlack)), for: .initialOffset)
         .scrollDisabled(!isFocused.wrappedValue)
@@ -125,8 +172,9 @@ extension RespondNoteReveal {
             }
         }
         .onChange(of: text) {
-            //Typing into a pulled note brings it back into view
-            guard isFocused.wrappedValue, tracker.offset < restOffset - 0.5 else { return }
+            //Typing into a note the pull has taken off the screen brings it back. A shallower pull stands: a peek at the
+            //thread survived the first keystroke only once this asked where the note actually was (Arthur, 2026-09-17)
+            guard isFocused.wrappedValue, tracker.offset < restOffset - 0.5, noteIsCovered else { return }
             withAnimation(.move) { position.scrollTo(y: restOffset) }
         }
         .onScrollPhaseChange { _, phase, context in
@@ -135,6 +183,13 @@ extension RespondNoteReveal {
                   abs(context.geometry.contentOffset.y - restOffset) > 0.5 else { return }
             withAnimation(.move) { position.scrollTo(y: restOffset) }
         }
+    }
+
+    //The note's glass, where it stands this instant, reaches under the keyboard's line — so what the user is typing into is
+    //not on the screen. Unknown either way (no keyboard up, or nothing measured yet): treated as covered, the rule as it stood
+    private var noteIsCovered: Bool {
+        guard let line = flight?.keyboardLine, slot.foot > 0 else { return true }
+        return slot.foot - noteFootInset > line
     }
 
     //A pull can't glide home with the card's resign, so the reveal fades out, re-seats unseen and fades back in
@@ -154,8 +209,9 @@ extension RespondNoteReveal {
         withTransaction(instant) { position.scrollTo(y: restOffset) }
     }
 
-    //The past messages laid out at a new height (their first measure, or a rewrap as the card's width changes): the block and the
-    //offset move together in one instant write, so the note stays exactly where it is and every rest still parks on it
+    //The past messages laid out at a new height (their first measure, a new message, a text size change — never a ride: they
+    //stand at the open card's width from the start): the block and the offset move together in one instant write, so the
+    //note stays exactly where it is and every rest still parks on it
     private func resize(history height: CGFloat) {
         guard abs(height - historyHeight) > 0.5 else { return }
         let offset = tracker.offset + rest(over: height) - restOffset //The rest's own shift: less than the height's when floored at the top
@@ -164,45 +220,90 @@ extension RespondNoteReveal {
         withTransaction(instant) {
             historyHeight = height
             position.scrollTo(y: offset)
+            tracker.offset = offset //Where the scroll is being put: a second measure in the same pass (the zoom's width landing a pass after the mount) must shift from here, not from the last offset the scroll reported
         }
     }
 
+    //The block above the note: exactly the rest offset tall, so every rest parks on the note; the pull grows it from the top,
+    //so the last bubble rides down with the note. The bubbles hang in it, off its foot, at the OPEN card's width from the
+    //start: laid out at the card's own width they re-flowed on every frame of its widening — the last line re-broke twice in
+    //its final 2.5pt, the badge hopped a row, and each change of height fired an instant `resize` mid-ride (device,
+    //2026-09-17). An overlay, so the wider block never widens the scroll's content (and the note with it): at rest it
+    //overhangs the card a gap a side, out of sight — no ink in its gutters, and the thread is dissolved there anyway
     private var messageSection: some View {
-        VStack(spacing: 0) {
-            ForEach(extractMessages(), id: \.self) { chatMessage in
-                let isMyChat = chatMessage.authorId == userId
-                MessageBubbleView(chat: chatMessage, nextIsNewAuthor: true, isMyChat: isMyChat, isInviteMessage: true)
-                    .offset(x: isMyChat ? 0 : -Spec.receivedPull) //Not a negative padding: that widens the row, and a row's width sets its widest bubble
+        Color.clear
+            .frame(height: restOffset + pull)
+            .overlay(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    ForEach(extractMessages(), id: \.self) { chatMessage in
+                        let isMyChat = chatMessage.authorId == userId
+                        MessageBubbleView(chat: chatMessage, nextIsNewAuthor: true, isMyChat: isMyChat, isInviteMessage: true,
+                                          containerWidth: threadWidth) //The badge's row is right on the first pass, not a pass (and 12pt) later
+                            .offset(x: isMyChat ? 0 : -Spec.receivedPull) //Not a negative padding: that widens the row, and a row's width sets its widest bubble
+                    }
+                }
+                .padding(.horizontal, threadWidth > 0 ? 0 : -Spacing.lg) //No zoom around it: the card's own width, out past the scroll's margins
+                .frame(width: threadWidth > 0 ? threadWidth : nil)
+                .fixedSize(horizontal: false, vertical: true) //Its own height, never the block's: measured inside the block, the bubbles would squeeze to fit it
+                //Measured only at the width it keeps: inside a zoom that lands a pass after the mount, and a first measure at
+                //the card's own width moved the offset twice in that pass — the scroll kept the second, the tracker the
+                //first, and every Done from rest then read as a return from a pull, and faded (rig, 2026-09-17)
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
+                    if flight == nil || abs(size.width - threadWidth) < 0.5 { resize(history: size.height) }
+                }
+                //The thread and the rows share one band of the card, so the ride is a swap: the rows dissolve as they leave
+                //(`noteRevealRows`), the thread resolves as it rises with the note — and back. Scoped to the look alone:
+                //the block's own growth stays on the ride's spring
+                .animation(isOpen ? Spec.threadIn : Spec.threadOut) {
+                    $0.opacity(isOpen ? 1 : 0)
+                        .blur(radius: isOpen ? 0 : Spec.swapBlur)
+                }
+                .accessibilityHidden(!isOpen) //Dissolved at rest: nothing for VoiceOver to land on
             }
-        }
-        .padding(.horizontal, -Spacing.lg)
-        .fixedSize(horizontal: false, vertical: true) //Its own height, never the block's: measured inside the block, the bubbles would squeeze to fit it
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { resize(history: $0) }
-        .frame(height: restOffset + pull, alignment: .bottom) //Exactly the rest offset tall, so every rest parks on the note. The pull grows it from the top, so the last bubble rides down with the note
     }
     
     private func extractMessages() -> [ChatMessage] {
-        guard let eventHistory else { return [] }
-        return eventHistory.compactMap { pastEventProposal in
-            guard let message = pastEventProposal.message, !message.isEmpty else { return nil } //Blank counts as none, as it does for the lift
-            let authorId = pastEventProposal.senderId
+        thread.compactMap { proposal in
+            guard let message = proposal.message, !message.isEmpty else { return nil } //Blank counts as none, as it does for the lift
+            let authorId = proposal.senderId
             let recipientId = authorId == userId ? otherUserId : userId
-            return ChatMessage(authorId: authorId, recipientId: recipientId, content: message)
+            var chat = ChatMessage(authorId: authorId, recipientId: recipientId, content: message)
+            chat.dateCreated = proposal.dateSent //The round's own stamp: the corner reads the day it was sent, not today
+            return chat
         }
     }
 }
 
-//The container's half: the rows the scroll grows over slide up behind the photo, out of reach of taps and VoiceOver
+//The container's half: the rows the scroll grows over leave up under the photo, dissolving as they go, out of reach of
+//taps and VoiceOver. The slide rides the transaction that flips `isOpen` (the ride's); the dissolve keeps its own, shorter
+//clock, so the rows are gone before the thread, rising into the band they held, has resolved — and on the way back they
+//resolve once it has cleared
 extension View {
-    func noteRevealRows(isFocused: Bool, room: CGFloat) -> some View {
-        offset(y: isFocused ? -room : 0)
-            .allowsHitTesting(!isFocused) //Under the photo's edge while lifted: a clip hides, it does not fence
-            .accessibilityHidden(isFocused)
+    func noteRevealRows(isOpen: Bool, isFocused: Bool, room: CGFloat) -> some View {
+        animation(isOpen ? RespondNoteRevealSpec.rowsOut : RespondNoteRevealSpec.rowsIn) {
+            $0.opacity(isOpen ? 0 : 1)
+                .blur(radius: isOpen ? RespondNoteRevealSpec.swapBlur : 0)
+        }
+        .offset(y: isOpen ? -room : 0)
+        .allowsHitTesting(!isFocused && !isOpen) //Under the photo's edge while lifted: a clip hides, it does not fence
+        .accessibilityHidden(isFocused || isOpen)
     }
 }
 
 //The reveal's measures
 enum RespondNoteRevealSpec {
+    //The ride's swap, rows ⇄ thread: whichever leaves is dismissed at once, whichever arrives resolves a beat into the
+    //ride, once the band it takes has begun to clear — the card's own body swap, on a shorter lag (this one is moving)
+    static let rowsOut: Animation = .dismiss
+    static let threadIn: Animation = .transition.delay(swapLag)
+    static let threadOut: Animation = .dismiss
+    static let rowsIn: Animation = .transition.delay(swapLag)
+    static let swapLag: TimeInterval = 0.06
+    static let swapBlur: CGFloat = 6 //The card's body swap's: a full-width block at the house 8 reads as a rack-focus
+    //How far past their place the thread and the note land before they ease back (`.followThroughRise`/`Settle`): the
+    //card itself stops dead with the keyboard. Raise it for a livelier landing
+    static let followThrough: CGFloat = 4
+
     static let glassBleed: CGFloat = Spacing.sm //Headroom above the glass inside the scroll; focused, the glass's gap under the photo before the starting pull
     //How far the focused note starts pulled down, by how many past messages there are: raise a case to start it lower.
     //Only the starting scroll: the gap between the last bubble and the note doesn't change, and a push takes it back up. Keep every
@@ -214,14 +315,11 @@ enum RespondNoteRevealSpec {
         default: Spacing.xxl + 10 //2 or more, the photo riding higher: 58
         }
     }
-    //The blank between the oldest message and the scroll's own top, by how many past messages there are: a full pull stops there with
-    //iOS's own bounce. Raise a case for more room under the photo (a history shorter than the starting pull shows more)
-    static func topPadding(for count: Int) -> CGFloat {
-        switch count {
-        case 0, 1: 0
-        default: Spacing.xl //2 or more: 36
-        }
-    }
+    //The blank between the oldest message and the scroll's own top, where a full pull stops with iOS's own bounce: as deep as
+    //the gap the thread keeps at its other end, under the last bubble (its `runGap` plus the `glassBleed` over the note), so
+    //the messages sit in an even band under the photo. One message used to get none of it and its bubble met the photo's
+    //edge; two or more got Spacing.xl, which read as a hole (Arthur, 2026-09-17)
+    static let topPadding: CGFloat = Spacing.lg
     static let slack: CGFloat = Spacing.md //The least room past the resting spot, so the note's own growth never clamps the offset low
     //Geometry: a received bubble still clears the chat's photo column (33.7 pt in at Large) where a sent one ends a gutter off
     //its edge; pulled out by the difference, both sit a gutter in. Follows the text size, as that column does
@@ -230,17 +328,76 @@ enum RespondNoteRevealSpec {
     //How far the focused scroll may grow up over rows this tall: all of them, less the bleed it keeps under the photo
     static func room(over rowsHeight: CGFloat) -> CGFloat { max(rowsHeight - glassBleed, 0) }
 
-    //How much higher the focused card rides once the history holds more than one message: the photo's foot rises by this
-    //and its top slides further off the screen, so the photo still fills it. One message or none stays at the shell's pin
-    static let historyLift: CGFloat = Spacing.xl
-    static func lift(over eventHistory: [PastEventProposal]?) -> CGFloat {
-        messageCount(in: eventHistory) > 1 ? historyLift : 0
+    //How much higher the focused card rides past the shell's pin, by how many messages sit above the note: the photo's foot
+    //rises by this and its top slides further off the screen, so the photo still fills it. A thread pushes the note down by
+    //its `startingPull`, and Done stands on the keyboard's line whatever the card does — so without this the note's glass
+    //runs under Done (measured: 7.6pt with one message, whose 48pt pull is more than twice the 20pt a bare note starts at)
+    static func lift(over thread: [PastEventProposal]) -> CGFloat {
+        switch messageCount(in: thread) {
+        case 0: 0 //The note starts barely pulled: its glass clears Done on the pin alone
+        case 1: Spacing.md //16
+        default: Spacing.xl //2 or more, their block deeper again: 36
+        }
     }
 
     //The past messages the reveal draws above the note: a blank one counts as none, as it does in `extractMessages`
-    static func messageCount(in eventHistory: [PastEventProposal]?) -> Int {
-        (eventHistory ?? []).count(where: { $0.message?.isEmpty == false })
+    static func messageCount(in thread: [PastEventProposal]) -> Int {
+        thread.count(where: { $0.message?.isEmpty == false })
     }
+}
+
+//The keyboard stretches this scroll's bounds to the screen's foot, with a safe-area inset to match. As it leaves, UIKit strips the
+//inset before SwiftUI has shrunk the bounds back: for that instant no offset above the top is legal, UIKit clamps it
+//(`_adjustContentOffsetIfNecessary`), and as all of it happens inside the keyboard's own animation block, the clamp is ANIMATED, on
+//the keyboard's curve. SwiftUI's re-seat lands a pass later, outside the block: the offset is right again, the clamp's animation
+//still plays on top of it — the note leapt up by the whole offset and sank for 0.38s, or the thread rolled down through the card
+//(rig, 2026-09-17). Put back here, inside the same block, the clamp's animation and the restore's cancel exactly, and SwiftUI never
+//sees the offset leave: the tracker still reads the rest, so a resign from rest doesn't fade. Watches the scroll view itself, as
+//`PageHoldOnResize` does; a finger, a deceleration and SwiftUI's own scrollTo all run outside an animation block, and are left alone
+private struct KeyboardClampHold: UIViewRepresentable {
+
+    final class MarkerView: UIView {
+        private var observation: NSKeyValueObservation?
+        private var restoring = false
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            observation = nil
+            guard window != nil else { return }
+            var view: UIView? = superview
+            while let current = view, !(current is UIScrollView) { view = current.superview }
+            guard let scroll = view as? UIScrollView else { return }
+            observation = scroll.observe(\.contentOffset, options: [.old, .new]) { [weak self] scroll, change in
+                MainActor.assumeIsolated { self?.offsetChanged(scroll, from: change.oldValue, to: change.newValue) }
+            }
+        }
+
+        private func offsetChanged(_ scroll: UIScrollView, from old: CGPoint?, to new: CGPoint?) {
+            guard !restoring, let old, let new, new.y < old.y - 0.5, UIView.inheritedAnimationDuration > 0,
+                  !scroll.isTracking, !scroll.isDragging, !scroll.isDecelerating else { return }
+            //…and onto the bottom limit of the bounds as they stand, still stretched: nothing else lands exactly there
+            let limit = max(scroll.contentSize.height + scroll.adjustedContentInset.bottom - scroll.bounds.height, -scroll.adjustedContentInset.top)
+            guard abs(new.y - limit) < 0.5 else { return }
+            restoring = true
+            scroll.contentOffset = old //Inside the same block: an equal and opposite animation. The bounds shrink next, and the offset is legal again
+            restoring = false
+        }
+    }
+
+    func makeUIView(context: Context) -> MarkerView {
+        let view = MarkerView()
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ view: MarkerView, context: Context) {}
+}
+
+//Where the note's own view ends on screen, its foot inset included: written whenever the card lays out or the scroll
+//moves, read only on a keystroke
+private final class RevealSlot {
+    var foot: CGFloat = 0
 }
 
 //The reveal's live offset: written every scroll frame, read only on resign

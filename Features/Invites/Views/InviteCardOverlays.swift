@@ -14,6 +14,7 @@ private let glassPadding = Spacing.md + 2 //Glass edge ↔ its rows
 private let glassRadius = max(CornerRadius.concentric(in: ZoomStyle.cornerRadius, inset: glassInset), CornerRadius.sm)
 private let rowSize = EventZoomRowMorph.sourceSize //The row flight's source type, so the card and its flying copy can't disagree
 private let footTrim = 0.13 * rowSize //Geometry: ModernEra's cap top sits 0.085em under its line box, its baseline 0.215em over the foot — trimming the difference evens the glass above the first capital and below the last baseline
+private let paneBlurRadius: CGFloat = 24 //What the card's glur reached at its foot, now flat across the pane and nowhere else
 private let buttonReserve: CGFloat = 42 + Spacing.xs //Geometry: InviteButton's circle, plus the gap the words keep from it
 
 //Main Overlay of the card
@@ -21,7 +22,13 @@ struct InviteCardOverlay: View {
 
     let draft: RespondDraft
     let name: String
+    let image: UIImage //The artwork the pane frosts a window into
+    let surface: Color //The tone the artwork gave us, near-black already; the pane mixes and weights it
+    var titleRect: Binding<CGRect> = .constant(.zero) //Where the name's frost is cut, in the card's space
     let openInvite: () -> ()
+
+    ///The card's own space. The name reports its glyphs into it, and the card cuts the frost there.
+    static let cardSpace = "inviteCardBand"
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
@@ -45,13 +52,54 @@ struct InviteCardOverlay: View {
             .padding(.top, glassPadding)
             .padding(.bottom, glassPadding - footTrim)
             .overlay(alignment: .trailing) { inviteButton }
-            .containerGlassEffect(clear: true, tint: .clear, clipped: true, shape: .rect(cornerRadius: glassRadius)) //tint stays .clear: nil paints an opaque slab before iOS 26
+            .containerGlassEffect(clear: true, tint: .clear, clipped: true, shape: .rect(cornerRadius: glassRadius))
+            .background { paneBackdrop } //Behind the lens, so the clear glass has a blurred, veiled backdrop to refract instead of sharp artwork
             .padding([.horizontal, .bottom], glassInset)
         }
     }
 }
 
 extension InviteCardOverlay {
+
+    //A window cut into the artwork: inside the pane the photo is blurred and veiled, outside it stays
+    //sharp. Blur-then-mask, never mask-then-blur — masking first lets the gaussian smear past the
+    //pane's edge and go translucent at its rim. The copy is drawn at card size and pushed back into
+    //place off the pane's own geometry (the pane sits `glassInset` in from three card edges), so the
+    //card's veil lands exactly where it always did and nothing has to be measured
+    private var paneBackdrop: some View {
+        GeometryReader { proxy in
+            let pane = proxy.size
+            let cardWidth = pane.width + glassInset * 2
+            let cardHeight = cardWidth / AspectRatio.inviteCard.ratio
+            Color.clear
+                .overlay {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .padding(-paneBlurRadius) //Load-bearing: .blur samples transparency past the layer, so without the overhang the rim fades out over a band one radius wide
+                }
+                .frame(width: cardWidth, height: cardHeight)
+                .blur(radius: paneBlurRadius)
+                .overlay { paneVeil }
+                .offset(x: -glassInset, y: -(cardHeight - glassInset - pane.height))
+        }
+        .clipShape(.rect(cornerRadius: glassRadius))
+        .allowsHitTesting(false)
+    }
+
+    //The card's own scrim, drawn at card size so the pane shows the exact slice of the ramp it used
+    //to wear — the tone is the artwork's, pulled halfway to black
+    private var paneVeil: some View {
+        BlurAndGradientBackground(
+            textRegion: BlurAndGradientBackground.inviteRegion,
+            colour: panelTone,
+            scrimOpacity: BlurAndGradientBackground.inviteScrimOpacity
+        ).scrimGradient
+    }
+
+    private var panelTone: Color {
+        surface.mix(with: .black, by: BlurAndGradientBackground.inviteScrimBlackMix) //Perceptual: hue holds while lightness and chroma come down together
+    }
 
     //Only the name is marked: it flies alone into the respond card's "<name>'s Invite", where the suffix waits for it
     private var title: some View {
@@ -63,6 +111,7 @@ extension InviteCardOverlay {
         .font(.title(20, .bold))
         .foregroundStyle(Color.white)
         .lineLimit(1) //A wrapping title would hand the flight a two-line frame
+        .getRect(titleRect, coordSpace: Self.cardSpace) //Inside the padding: the glyphs, not the slot — the frost is cut to the word
         .padding(.horizontal, glassInset + glassPadding) //Starts over the icons
     }
 

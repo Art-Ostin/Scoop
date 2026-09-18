@@ -35,6 +35,17 @@ struct ComposeInviteContainer: View {
         .animation(.transition, value: ui.showConfirmScreen)
         .onAppear { ui.showConfirmScreen = false} //Fixes bug with back button not showing
         .animation(.transition, value: [ui.delayedTimePopupOpen, ui.delayedTypePopupOpen])
+        .eventZoomAlert(
+            isPresented: $ui.showConfirmAlert,
+            title: "Invite \(name)", //\(selectedDayString)
+            emoji: "🧟",
+            message: "You are committing to meet \(name). If they accept a time & you don't show your account may be blocked. ",
+            cancelTitle: "Back",
+            okTitle: "Confirm",
+            offset: 36,
+            onOK: { ctaAction(ui.showConfirmScreen == true)() }, //
+            onCancel: {ui.showConfirmAlert = false}
+        )
     }
 }
 
@@ -54,15 +65,6 @@ extension ComposeInviteContainer {
         //The pager's frame IS the photo's — its root is the aspect box the carousel overlays
         .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { ui.photoFrame = $0 }
         .overlay(alignment: .topLeading) { backButton.eventZoomBandChrome(visible: isConfirm) }
-    }
-    
-    private var optionsMenu: some View {
-        Text("Hello World")
-//        OptionsMenu(
-//            hasChanges: vm.event.hasChanges,
-//            onClear: {vm.event = .init()},
-//            onDecline: { }
-//        )
     }
     
     private var backButton: some View {
@@ -96,6 +98,7 @@ extension ComposeInviteContainer {
                         addNoteButton
                     }
                 }
+                .padding(.bottom, Spacing.xxs) //This page's gap above the CTA: the respond card's confirm screen pays the same 4 through its actionSection
         }
     }
     
@@ -111,17 +114,6 @@ extension ComposeInviteContainer {
         .padding(.horizontal, 32)
         .padding(.top, 16)
     }
-    
-//    private var addMessageButton: some View {
-//        ScoopButton(style: .glass, shape: .circle, size: .small) {
-//            ui.showMessageScreen = true
-//        } label: {
-//            Image(.addMessageIcon)
-//        }
-//        .scaleEffect(1.1)
-//        .padding(.horizontal, 32)
-//        .padding(.top, 16)
-//    }
 }
 
 
@@ -131,12 +123,11 @@ extension ComposeInviteContainer {
     
     private var ctaButton: some View {
         let isConfirm = ui.showConfirmScreen == true
-        let dimmed = ui.delayedTypePopupOpen || ui.delayedTimePopupOpen
+        let dimmed = ui.delayedTypePopupOpen || ui.delayedTimePopupOpen || ui.showConfirmAlert
         let text = isConfirm ? "Send to \(name)" : "Preview"
         let fill = WideActionButton.restingFill(isActive: vm.event.isComplete, isDimmed: dimmed)
 
         return VStack {
-            if isConfirm { warningMessage }
             WideActionButton(
                 text: text,
                 isActive: vm.event.isComplete,
@@ -144,7 +135,7 @@ extension ComposeInviteContainer {
                 showShadow: false,
                 height: 46,
                 glass: false, //The event zoom's capsule lands on this: flat, so it lands on identical pixels
-                onTap: { ctaAction(isConfirm)() }
+                onTap:  ui.showConfirmScreen == true ? { ui.showConfirmAlert = true }  : ctaAction(isConfirm)
             )
             .eventZoomDragExclusion()
             .eventZoomButtonTarget(text: text, fill: fill) //The card's envelope widens into this
@@ -152,13 +143,7 @@ extension ComposeInviteContainer {
         .padding(.bottom, 12)
         .padding(.horizontal, Spacing.margin) //Each page owns the gap above this button
     }
-    
-    private var warningMessage: some View {
-        Text("* If they accept & you don't show, you may be blocked")
-            .font(.body(12.5, .regularItalic))
-            .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
-    }
-    
+        
     private func ctaAction(_ isConfirm: Bool) -> () -> Void {
         isConfirm
             ? { onSend(vm.event, sendFlightSource) }
@@ -178,8 +163,6 @@ struct EditTypeTimePlace: View {
 
     @Binding var draft: EventFieldsDraft
 
-    //An open platter is glass over this section, so everything under it hides but the open menu's own
-    //label. Each row carries that hide itself; the seams and the time caption own no menu, so they hide here
     private var popupOpen: Bool { ui.delayedTypePopupOpen || ui.delayedTimePopupOpen }
 
     var body: some View {
@@ -210,3 +193,13 @@ struct EditTypeTimePlace: View {
         .padding(.top, -4)//Only 20 padding on the top
     }
 }
+
+/*
+ //            if isConfirm { warningMessage }
+ private var warningMessage: some View {
+     Text("* If they accept & you don't show, you may be blocked")
+         .font(.body(12.5, .regularItalic))
+         .foregroundStyle(Color(red: 0.55, green: 0.55, blue: 0.55))
+ }
+
+ */

@@ -187,9 +187,6 @@ extension EventsContainer {
         showMessageScreen = nil
     }
 
-    //A just-accepted invite: land the pager on its event (title and message button follow
-    //selectedEventId). Runs behind the accept cover's still-opaque wash, so the vertical
-    //rest happens unseen — and the accept flight's landing pad sits at its resting rect.
     private func focusEvent(id: String?) {
         guard let id else { return }
         //Not in the list yet: keep the id PENDING rather than consuming it — consuming on

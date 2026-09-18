@@ -73,6 +73,58 @@ extension MessageSection {
     }
 }
 
+//One round of the invite's back-and-forth, drawn above the chat's own messages
+struct InviteNoteSection: View {
+
+    //Injected
+    let ui: ChatUIState
+    let note: InviteNote
+    let image: UIImage?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(note.kind == .original ? "Original Invite" : note.kind.text())
+                .font(.body(12, .bold))
+                .foregroundStyle(Color.textTertiary)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.md)
+
+            MessageBubbleView(
+                chat: note.chat,
+                nextIsNewAuthor: true,
+                isMyChat: note.isMine,
+                isInviteMessage: true,
+                containerWidth: ui.containerWidth
+            )
+            .offset(x: note.isMine ? 0 : receivedShift)
+            .overlay(alignment: .bottomLeading) { senderPhoto }
+        }
+    }
+}
+
+extension InviteNoteSection {
+
+    //The invite flag pulls a received bubble toward a photo-less edge; this puts it back on the chat's line
+    private var receivedShift: CGFloat {
+        MessageBubbleView.receivedSide - MessageBubbleView.receivedLeading(isInviteMessage: true)
+    }
+
+    //Their photo on the floor of the note, drawn as `MessageSection` draws it
+    @ViewBuilder
+    private var senderPhoto: some View {
+        if let image, !note.isMine {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: BubbleMetrics.avatarSize, height: BubbleMetrics.avatarSize)
+                .clipShape(Circle())
+                .padding(.leading, BubbleMetrics.avatarLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .mask { SenderPhotoMask(bodyLeading: MessageBubbleView.receivedSide) }
+        }
+    }
+}
+
 //The insertion half of a sent row's transition: its layout height runs 0 → the resting height while the
 //content inside stays at its natural size (top-aligned; the row is invisible until the flight lands).
 private struct RowGrowth: ViewModifier, Animatable {

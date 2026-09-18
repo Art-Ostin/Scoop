@@ -123,7 +123,15 @@ extension InvitesContainer {
 
     //This deals with holding the respond screen cover & dismissing invitePopup behind
     private func respondToProfile(_ eventId: String, _ respondType: ProfileResponse, cover: Int?) async {
-        async let minDelay: Void = Task.sleep(for: respondType == .decline ? .seconds(2) : .seconds(3))
+        //Minimum time the cover stays on screen. A proposed new time is the SAME SendInviteScreen
+        //Meet shows for a first invite, so it takes the same floor; only the accept card — whose
+        //entrance runs three times longer — earns the longer one.
+        let hold: Duration = switch respondType {
+        case .decline: .seconds(2)
+        case .accepted: ResponseCoverHold.accept
+        case .newTime, .newInvite: ResponseCoverHold.send
+        }
+        async let minDelay: Void = Task.sleep(for: hold)
 
         try? await Task.sleep(for: BlurCoverMotion.coveredAt)
         ui.showQuickResponse = nil

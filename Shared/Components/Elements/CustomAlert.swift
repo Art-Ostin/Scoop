@@ -161,16 +161,17 @@ struct AlertPlate: View {
  }
 
 struct AlertCardBackground: ViewModifier {
+    
     func body(content: Content) -> some View {
         content
             .padding(.horizontal, 24)
             .padding(.vertical, 36)
             .frame(maxWidth: .infinity)
             .background(Color.white, in: .rect(cornerRadius: 16))
-//            .glassEffectIfAvailable(shape: RoundedRectangle(cornerRadius: CornerRadius.alert))
             .padding(.horizontal, 32)
             .shadow(.floating)
     }
+    
 }
 
 extension View {

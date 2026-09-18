@@ -27,6 +27,7 @@ struct ChatScrollView: View {
         ScrollView {
             LazyVStack(spacing: Spacing.xxs) {
                 ChatEventView(event: vm.eventProfile.event)
+                inviteNoteSection
                 messageScrollSection
             }
         }
@@ -96,6 +97,12 @@ struct ChatScrollView: View {
 extension ChatScrollView {
 
     //1. Views for the messages
+    private var inviteNoteSection: some View {
+        ForEach(vm.inviteNotes) { note in
+            InviteNoteSection(ui: ui, note: note, image: image)
+        }
+    }
+
     private var messageScrollSection: some View {
         ForEach(vm.messages) { message in
             MessageSection(vm: vm, ui: ui, message: message, image: image)
@@ -104,11 +111,12 @@ extension ChatScrollView {
 
     //2.loadMessages on appear
     private func loadMessages() async {
-        guard isFirstAppear, !vm.messages.isEmpty else { return }
+        guard isFirstAppear, !vm.messages.isEmpty || !vm.inviteNotes.isEmpty else { return }
+        let waitsForMessages = vm.messages.isEmpty //A thread of notes alone still waits for the listener's first snapshot
         scrollToBottomEdge()
         try? await Task.sleep(for: .milliseconds(50))
         scrollToBottomEdge()
-        isFirstAppear = false
+        isFirstAppear = waitsForMessages
     }
     //3. Logic for sending a message
     private func onMessageSend(_ old: Int, _ new: Int) {

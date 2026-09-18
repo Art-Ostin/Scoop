@@ -637,16 +637,26 @@ private struct KeyboardPrewarmer: UIViewRepresentable {
 ///     @State private var gate = KeyboardSettleGate()
 ///     gate.arm { withAnimation(.transition) { … } }
 ///     .onDisappear { gate.cancel() }
+///
+/// `smoothTicks: 0` fires on the first tick the link delivers instead: the first frame the app can draw
+/// after the focus commit, however long that commit blocked. For a MOTION that has to leave with the
+/// keyboard (the respond card's ride), where waiting out two more frames would read as the card
+/// following the keyboard rather than rising with it; a blur swap wants the full settle.
 final class KeyboardSettleGate {
 
     private static let smoothGap: CFTimeInterval = 0.05 //Three 60Hz frames: anything slower is still the keyboard's build
     private static let cap: CFTimeInterval = 0.8 //Past the worst first-focus frame measured (367ms, a freshly booted simulator)
 
+    private let smoothTicksNeeded: Int //Consecutive on-time intervals before the action runs; none runs it on the first tick
     private var link: CADisplayLink?
     private var action: (() -> Void)?
     private var armedAt: CFTimeInterval = 0
     private var lastTick: CFTimeInterval = 0
     private var smoothTicks = 0
+
+    init(smoothTicks: Int = 2) {
+        smoothTicksNeeded = smoothTicks
+    }
 
     func arm(_ action: @escaping () -> Void) {
         cancel()
@@ -671,9 +681,11 @@ final class KeyboardSettleGate {
         let now = CACurrentMediaTime() //When the callback actually ran: what a stall delays
         let previous = lastTick
         lastTick = now
-        guard previous > 0 else { return } //The first tick only starts the clock
-        smoothTicks = now - previous < Self.smoothGap ? smoothTicks + 1 : 0
-        guard smoothTicks >= 2 || now - armedAt > Self.cap else { return }
+        if smoothTicksNeeded > 0 {
+            guard previous > 0 else { return } //The first tick only starts the clock
+            smoothTicks = now - previous < Self.smoothGap ? smoothTicks + 1 : 0
+        }
+        guard smoothTicks >= smoothTicksNeeded || now - armedAt > Self.cap else { return }
         let action = action
         cancel() //Before the call: an action that re-arms finds a clean gate
         action?()

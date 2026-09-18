@@ -48,6 +48,8 @@ class ComposeInviteViewModel {
 
 @Observable
 class ComposeInviteUIState {
+    
+    var showConfirmAlert: Bool = false
     var showMapView: Bool = false
     var showInfoScreen: Bool = false
     var showMessageScreen: Bool = false

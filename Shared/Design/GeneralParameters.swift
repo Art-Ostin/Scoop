@@ -172,6 +172,26 @@ extension Animation {
     /// Position & offset settles — drag-release, programmatic scroll, layout shifts, list insert/remove. Physical, lightly sprung.
     static let move = Animation.spring(duration: 0.4, bounce: 0.08)
 
+    /// Content riding the system keyboard in or out — the card a focused field raises, anything that must read as one
+    /// motion with the keyboard. The keyboard's own spring: read out of UIKit on iOS 26 (a CASpringAnimation of mass 1,
+    /// stiffness 555.03, damping 47.12 — critically damped, response 0.2667s; the 0.3833s in its notification is Core
+    /// Animation's cut-off, not the response) and fitted to a device recording within 1.3pt. Earlier systems use the
+    /// classic mass 3 / stiffness 1000 / damping 500, which both frameworks clamp to critical: response 0.344s. Never
+    /// bounces — what a ride's contents do once it stops is `.followThroughRise`/`.followThroughSettle`.
+    static let keyboard: Animation = {
+        if #available(iOS 26, *) { .smooth(duration: 0.2667) } else { .smooth(duration: 0.344) }
+    }()
+
+    /// Cargo carrying on after what carries it has stopped — a `.keyboard` ride's contents landing a few points past
+    /// their place and easing back. A pair: drive ONE 0 → 1 → 0 value with them and pose the lift from it — the rise in
+    /// the ride's own commit, the settle from the rise's completion (the rise ends flat, so the settle leaves from rest at
+    /// the peak and the two read as one motion). The rise is brake-shaped and starts while the ride still has speed, so
+    /// the summed speed never climbs; the return is lightly under-damped, so it finishes decisively instead of crawling
+    /// its last point (the event zoom's landing breath, scaled to the keyboard's clock: start 0.30, rise 0.70, return 1.3
+    /// of the ride's response).
+    static let followThroughRise = Animation.timingCurve(0.25, 0, 0.9, 1, duration: 0.19).delay(0.08)
+    static let followThroughSettle = Animation.spring(duration: 0.35, bounce: 0.18)
+
     /// Micro-feedback below the `.toggle` threshold — near-instant dims and per-tick updates.
     static let quick = Animation.easeOut(duration: 0.12)
 

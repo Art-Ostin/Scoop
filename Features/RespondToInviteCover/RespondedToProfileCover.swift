@@ -60,6 +60,27 @@ enum ResponseCoverEntrance {
 }
 
 
+/*
+ How long a cover holds before its exit — a FLOOR, not a schedule: each flow also waits on its
+ own write, and a slow one holds the cover past this. It lives here rather than in the tabs
+ because the hold belongs to the cover on screen, not to whoever presented it — Meet's first
+ invite and the Invites tab's new-time proposal show the IDENTICAL SendInviteScreen, and a
+ literal in each container let them drift to 1.9s and 3s (2026-09-17).
+ */
+enum ResponseCoverHold {
+    //The send covers — SendInviteScreen, shown for both .newInvite and .newTime. Its flight
+    //arrives at ~0.51s (commitGuard + SendFlightMotion.spring), so this leaves ~1.4s of
+    //landed stillness before the exit. THE tuning knob for how long "You've Invited X!" sits.
+    static let send: Duration = .seconds(1.9)
+
+    //The accept card's floor, longer only because its entrance is: a 1.1s coin spin plus the
+    //0.5s reveal, and the accepted flow routes to the Events tab and lets the landing pad
+    //settle before closing. The same ~1.4s of stillness on a longer clock — which is exactly
+    //why a send cover can't borrow it.
+    static let accept: Duration = .seconds(3)
+}
+
+
 @MainActor
 @Observable
 final class ResponseCoverPresenter {

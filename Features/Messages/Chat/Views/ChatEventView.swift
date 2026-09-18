@@ -33,23 +33,14 @@ struct ChatEventView: View {
                         .lineLimit(1)
                 }
                 
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    eventDetails(event: event)
-                    if let message = event.message {
-                        Text(message)
-                            .font(.body(14, .italic))
-                            .foregroundStyle(Color.textSecondary)
-                            .lineLimit(2)
-                            .lineSpacing(2)
-                    }
-                }
+                eventDetails(event: event)
             }
             .padding(.horizontal, Spacing.lg)
-            .padding(.top, Spacing.lg)
+            .padding(.top, Spacing.md)
             .padding(.bottom, Spacing.md)
             .frame(maxWidth: .infinity)
-            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent.opacity(0.15))
-            .padding(.horizontal, Spacing.xl)
+            .stroke(CornerRadius.md, lineWidth: 1, color: Color.accent)
+            .padding(.horizontal, Spacing.gutter)
         }
     }
 }

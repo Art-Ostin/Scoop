@@ -9,7 +9,7 @@ import Foundation
 
 struct PastEventProposal: Codable, Equatable, Identifiable, Hashable {
     //1: Who proposed it, when, and what kind of change it was
-    let senderId: String
+    var senderId: String
     let dateSent: Date
     let kind: ProposalKind
 
@@ -29,5 +29,13 @@ struct PastEventProposal: Codable, Equatable, Identifiable, Hashable {
         time = oldEvent.proposedTimes
         place = oldEvent.location
         message = oldEvent.message
+    }
+}
+
+extension PastEventProposal {
+    //The live proposal, attributed to whoever owns it on this edge
+    init(live event: UserEvent, userId: String) {
+        self.init(retiring: event, now: event.acceptedTime ?? Date())
+        senderId = event.role == .sent ? userId : event.otherUserId
     }
 }

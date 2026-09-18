@@ -133,8 +133,9 @@ extension MeetContainer {
                                         from: declineSource, sendFlight: sendFlight, inviteeName: profile.name)
         Task {
             //Step 2: Minimum time the cover stays on screen. The decline flight rests at
-            //~0.99s + mount latency; 1.4 keeps ~0.35s of landed stillness before the exit.
-            async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(1.4) : .seconds(1.9))
+            //~0.99s + mount latency; 1.4 keeps ~0.35s of landed stillness before the exit. The
+            //send cover takes the shared floor — it is the same screen the Invites tab shows.
+            async let minDelay: Void = Task.sleep(for: event == nil ? .seconds(1.4) : ResponseCoverHold.send)
 
             //Step 3: Once the cover is opaque, dismiss the quick invite beneath it. Held past the
             //cover's own fade-in — dismissing mid-morph shows the profile collapsing through it.

@@ -11,41 +11,9 @@ import os
 
 private let viewEventLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Scoop", category: "viewEventFlight")
 
-/*
- Calendar View → Events, and Meet's History → Events. A meeting's popup hands its card over in the tap's own turn
- (`.eventZoomLeadingAction`) and the card BECOMES the event's card. In that same turn a copy of the whole popup stands
- over it on identical pixels — its material, the photo as a live aspect-fill layer, everything else the render server's
- own pixels — the popup itself goes, and the copy leaves: the white card travels to the event card's frame and the
- photo grows down over the rows as they fade, all on ONE spring, while the title leaves the photo, the page dots and the
- card's rim arrive on it and both buttons pop away, each on a short clock of its own. Two turns later the cover closes
- and Events opens on the event, unseen under the material, which clears a beat after the event's card is known to be on the glass — and the copy's body clears with
- it, off the event's own card standing under it, so the timer strip sharpens into the card's foot with the rest of the
- screen. The photo lands with a single soft overshoot, and the landing is the accept flight's: the real photo shows
- again beneath the copy, and the copy dissolves off identical pixels.
-
- Why Core Animation: opening Events costs the main thread a third of a second on a device (device video 2026-09-17:
- 0.38s frozen, longer when the pager rested on another event), and everything SwiftUI animates — `withAnimation`, a
- display link writing state — stops for as long as the main thread does. The first flight hid that freeze under a
- still picture of the screen, so the tap read as dead for half a second and the card then skipped the first half of
- its travel. Here every moving thing is a UIKit spring committed to the render server BEFORE the switch is asked for
- (sim-proven through a 3s block, 2026-09-17), so the card leaves in the tap's frame and cannot stall, whatever the
- switch costs. The main thread only ever decides — when to clear the material, whether to re-aim, when to hand off.
-
- Why an overlay in the app's own window, not a window above it: the popup lives in a fullScreenCover, which draws
- above every root plane, so the stage must stand over the cover while it goes — and a plain view added to the app
- window stays above the cover's transition view through an unanimated dismissal. One window is one render context:
- the popup's hide and the stage's arrival are one commit, the material is the stage's alone from that commit on (so
- it never matters which turn UIKit takes the cover off in), and the landing's un-hide is one commit with the copy
- still over it — none of which two windows ever promised (the first flight spaced every such pair a beat apart).
-
- Geometry-matched hero flight: its measured curves live in-file, per the motion rules.
- */
 enum ViewEventFlightMotion {
-    //THE tuning knob — the card's one spring: travel, size and the riders pinned to it all in the same transaction, so
-    //every edge overshoots the same 4.6% of its OWN travel (on a 402pt screen the photo's foot dips ~7pt past its slot,
-    //its top ~3.5pt) and comes back once. Arthur, 2026-09-17: "one soft overshoot" over the first flight's 16pt sink
-    //and 0.7s creep home.
-    static let spring = Spring(duration: 0.5, bounce: 0.3)
+
+    static let spring = Spring(duration: 0.5, bounce: 0.5) //The photo's bounce: every edge passes its slot by 16% of its own travel (~19pt at the photo's centre on a 402pt screen), swings ~3pt back past it, and is home. Arthur, 2026-09-17: 0.3 (~5pt) went unseen under the clearing material, 0.4 (~11pt) was still too little
     static let reaim = Spring(duration: 0.4, bounce: 0) //`.move`'s clock without its bounce: a correction glides, it never adds a second overshoot
 
     static let chromeFade: TimeInterval = 0.15 //The popup's title and its halo leave the photo
@@ -58,9 +26,9 @@ enum ViewEventFlightMotion {
     static let handOff: TimeInterval = 0.12 //`Animation.handOff`, mirrored for UIKit
     static let curtainFade: TimeInterval = 0.22 //`Animation.dismiss`, mirrored for UIKit
 
-    //Derived, never tuned: the spring's overshoot at its deepest (0.35s for 0.5/0.3). From there the card only comes
-    //home, so the landing may swap pixels as soon as the render server is drawing it within a pixel of its slot —
-    //a first pass THROUGH the slot, a tenth of a second earlier, is not a landing
+    //Derived, never tuned: the spring's overshoot at its deepest (0.29s for 0.5/0.5). Before it the card is on its first
+    //pass THROUGH the slot, which is not a landing; after it, the landing may swap pixels once the render server has
+    //drawn the card within a pixel of its slot for `restTicks` polls running — the bounce's later passes are crossings too
     static var peak: TimeInterval {
         let zeta = 1 - spring.bounce
         return Double.pi / (2 * Double.pi / spring.duration * (1 - zeta * zeta).squareRoot())
@@ -74,7 +42,8 @@ enum ViewEventFlightMotion {
     static let landingCap: Duration = .milliseconds(2000) //A flight's: the card is down in well under a second, and the event must be landable by then
     static let watchdog: Duration = .milliseconds(3500) //Past every cap above: whatever else has happened, the stage goes and touches return
     static let aimTolerance: CGFloat = 1 //A pad further off than this is re-aimed at; anything less goes unseen under the landing's dissolve
-    static let restTolerance: CGFloat = 0.34 //A device pixel at @3x: the card is home once the render server draws it this close
+    static let restTolerance: CGFloat = 0.34 //A device pixel at @3x: the card is home once the render server draws it this close…
+    static let restTicks = 3 //…on this many polls running (~50ms): a bouncing card crosses its slot at speed, and a hand-off there would cut the bounce dead
     static let reaimLimit = 2 //A pad still moving after this many corrections is left to the landing's dissolve
 }
 
@@ -316,7 +285,7 @@ extension ViewEventFlight {
             try? await Task.sleep(for: ViewEventFlightMotion.watchdog * EventZoomChoreo.timeScale)
             self?.expire(g)
         }
-        viewEventLog.debug("begin \(request.eventId, privacy: .public) page \(request.departure.page) flies \(stage.flies), staged in \(Self.ms(since: tapped)) ms")
+        viewEventLog.debug("begin \(request.eventId, privacy: .public) page \(request.departure.page) flies \(stage.flies), waited \(Int(request.departure.waited / .milliseconds(1))) ms for the popup to land, staged in \(Self.ms(since: tapped)) ms")
         //The switch is asked for only once this turn's commit has gone to the render server — whatever it costs the main
         //thread, the flight is already running there — and one empty turn after that: a popup whose hide rendered a
         //pass late is off the glass too before the long turn begins
@@ -464,10 +433,12 @@ extension ViewEventFlight {
         guard let switchedAt else { return }
         let earliest = leftAt + ViewEventFlightMotion.peak * EventZoomChoreo.timeScale
         var reaims = 0
+        var stillFor = 0 //Polls in a row the card has been drawn at home: one still bouncing passes THROUGH its slot, and is within a pixel of it for a tick
         while g == generation, handlers?.stillTargeted() == true, appWindow?.bounds.size == stageSize,
               ContinuousClock.now < switchedAt + ViewEventFlightMotion.landingCap * EventZoomChoreo.timeScale {
             liftFrostIfShown(g)
             if let stage, let appWindow, appWindow.subviews.last !== stage.overlay { appWindow.bringSubviewToFront(stage.overlay) }
+            stillFor = stage?.isSettled == true ? stillFor + 1 : 0
             switch verdict() {
             case .miss:
                 abort(g)
@@ -480,7 +451,7 @@ extension ViewEventFlight {
                     reaims += 1
                 }
                 //Home, and the material wholly gone: the real photo showing through a blur still clearing would blur the landing
-                if CACurrentMediaTime() >= max(earliest, frostClearAt ?? .infinity), stage?.isSettled == true {
+                if CACurrentMediaTime() >= max(earliest, frostClearAt ?? .infinity), stillFor >= ViewEventFlightMotion.restTicks {
                     handOff(g, onto: pad)
                     return
                 }

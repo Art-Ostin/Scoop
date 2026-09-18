@@ -28,6 +28,12 @@ struct BlurAndGradientBackground: ViewModifier {
     //Outlines the bottom area, to meausure it is bright enough and adjust luminosity accordingly
     static let inviteRegion: CGFloat = 0.44   //1:1.5 art under a whole confirm block
     static let profileRegion: CGFloat = 0.28 //1:1.2 art under two lines — starts lower, at 0.72
+
+    static let inviteScrimBlackMix: Double = 0.1
+
+    ///The opacity of that mixed colour over the photo, at the card's foot. 0.55 is
+    ///`OverlayPalette.placeholder`'s own cover, the weight the card is designed around.
+    static let inviteScrimOpacity: CGFloat = 0.55
     
     func body(content: Content) -> some View {
         content

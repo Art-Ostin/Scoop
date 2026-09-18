@@ -64,6 +64,20 @@ final class ChatViewModel {
         return pendingIds.contains(id) || (message.dateCreated == nil && isMyChat(message))
     }
 
+    //The invite's notes, oldest first: the retired rounds, then the live proposal
+    var inviteNotes: [InviteNote] {
+        let event = eventProfile.event
+        let rounds = (event.pastProposals ?? []) + [PastEventProposal(live: event, userId: userId)]
+        return rounds.enumerated().compactMap { index, round in
+            guard let text = round.message?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+            let isMine = round.senderId == userId
+            var chat = ChatMessage(authorId: round.senderId, recipientId: isMine ? event.otherUserId : userId, content: text)
+            chat.id = "invite-\(index)"
+            chat.dateCreated = round.dateSent
+            return InviteNote(id: index, kind: round.kind, isMine: isMine, chat: chat)
+        }
+    }
+
     //MARK: Sending — staged at T0 inside the bar's transaction, committed behind the flight
 
     //The id the row keeps for life, minted before the write: the listener's echo then merges into the
@@ -165,6 +179,14 @@ final class ChatViewModel {
         withTransaction(settle) { messages[idx] = merged }
         return true
     }
+}
+
+//One round of the invite's back-and-forth, drawn above the chat's own messages
+struct InviteNote: Identifiable {
+    let id: Int
+    let kind: ProposalKind
+    let isMine: Bool
+    let chat: ChatMessage
 }
 
 //MARK: - UI state

@@ -12,8 +12,9 @@ import UIKit
 //typed line and the sent line share a face and their insets: the text neither changes font nor jumps
 //on the frame the composer becomes the bubble.
 enum BubbleMetrics {
-    static let fontSize: CGFloat = 16
-    static let weight: Font.bodyFontWeight = .medium
+    //Messages' size and weight in Scoop's own face: 17 Regular, where Apple sets SF 17 Regular
+    static let fontSize: CGFloat = 17
+    static let weight: Font.bodyFontWeight = .regular
     static var font: Font { .body(fontSize, weight) }
     //Scaled the way the Text it measures scales: `.custom(_:size:)` follows Dynamic Type relative to the body style
     static var uiFont: UIFont { UIFontMetrics(forTextStyle: .body).scaledFont(for: .body(fontSize, weight)) }
@@ -25,7 +26,10 @@ enum BubbleMetrics {
     //23 pt only at accessibility sizes), not the current trait collection, which a send button's action may not carry
     private static var messagesInset: CGFloat { messagesFont.pointSize > 23 ? 16 : 10 }
     static var linePitch: CGFloat { messagesFont.lineHeight + messagesFont.leading - 2 } //Geometry: ChatKit's short-body pitch
-    static var lineSpacing: CGFloat { linePitch - uiFont.lineHeight }
+    //Never negative: a face whose line box outgrows the 20 pt pitch (SF 17's is 20.2871) would ask for negative
+    //spacing, and SwiftUI clamps that to 0 while NSLayoutManager honours it — the measured model would then read
+    //shorter than the Text draws, and a send flight would land mid-air. ModernEra 17 asks for 3
+    static var lineSpacing: CGFloat { max(0, linePitch - uiFont.lineHeight) }
     static let leading = Spacing.md
     static let trailing = Spacing.md
     //The draft field's own top and bottom inset: its one line sits level with the send button beside it
@@ -36,10 +40,12 @@ enum BubbleMetrics {
     static let avatarSize: CGFloat = 35 //The sender's photo, on the floor of a received run's last row
     static let avatarLeading = Spacing.gutter - Spacing.xs //That photo ↔ the screen edge: tucked 8 pt into the gutter
     static let avatarGap = Spacing.hairline //The clearance that photo keeps around the bubble it gives way to
-    //The photo's centre ↔ the received bubbles' leading edge: as near as the tail's droplet allows with that clearance, eased
-    //a hairline wider so the bubble bites 2 pt less of the photo (`SenderPhotoMask`). Follows the radius at every text size
+    //The photo's centre ↔ the received bubbles' leading edge: as near as the tail's droplet allows with that clearance,
+    //then eased out so the bubble only nicks the photo (`SenderPhotoMask`). Follows the radius at every text size
     static var avatarHugDistance: CGFloat {
-        MessageBubbleShape.tailHugDistance(circleRadius: avatarSize / 2, centreAbove: avatarSize / 2 - runGap, gap: avatarGap, cornerRadius: cornerRadius) + Spacing.hairline
+        //Geometry: measured off the real mask — the kiss itself bites 4.2 pt deep (3.8% of the photo), 3 pt out nicks it
+        //1.2 pt (0.6%), and by 5 pt the bubble clears the photo altogether
+        MessageBubbleShape.tailHugDistance(circleRadius: avatarSize / 2, centreAbove: avatarSize / 2 - runGap, gap: avatarGap, cornerRadius: cornerRadius) + 3
     }
     //A one-line bubble body, Messages' height at every text size (40.2871 at Large)
     static var singleLineHeight: CGFloat { 2 * messagesInset + max(messagesFont.ascender - messagesFont.descender, linePitch) }
