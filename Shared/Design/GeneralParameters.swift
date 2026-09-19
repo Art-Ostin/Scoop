@@ -195,6 +195,11 @@ extension Animation {
     /// Micro-feedback below the `.toggle` threshold — near-instant dims and per-tick updates.
     static let quick = Animation.easeOut(duration: 0.12)
 
+    /// A control leaving with the tap that ended its job — the focused note's Done. About 20ms: a frame or two of fade,
+    /// so it still reads as a fade and never as a cut, and gone before anything it rode with has visibly moved. Linear:
+    /// at this length a curve's shape can't be seen, only how evenly its frames share the fade
+    static let vanish = Animation.linear(duration: 0.02)
+
     /// A flown copy dissolving over the identical view it has just landed on — gone before the eye can compare
     /// the two (the chat's sent bubble). Flat, and short: there is nothing to see change.
     static let handOff = Animation.smooth(duration: 0.12)

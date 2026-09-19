@@ -82,14 +82,16 @@ extension View {
     //`tint` colours the glass itself (and becomes the fallback fill) — pass it with
     //an alpha to let more of the backdrop through.
     //Only for a surface with NO glass inside it — see `containerGlassEffect` below.
+    //`isActive: false` takes the material off without unmounting anything (`.identity`; the fallback's fill
+    //fades): a surface that morphs into an unglassed one and back keeps one identity through both.
     @ViewBuilder
-    func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, tint: Color? = nil, shape: S) -> some View {
+    func glassEffectIfAvailable<S: InsettableShape>(clear: Bool = false, interactive: Bool = false, tint: Color? = nil, isActive: Bool = true, shape: S) -> some View {
         if #available(iOS 26.0, *) {
             let base: Glass = clear ? .clear : .regular
             let glass: Glass = base.tint(tint)
-            self.glassEffect(interactive ? glass.interactive() : glass, in: shape)
+            self.glassEffect(isActive ? (interactive ? glass.interactive() : glass) : .identity, in: shape)
         } else {
-            self.background(shape.fill(tint ?? Color.appCanvas))
+            self.background(shape.fill(tint ?? Color.appCanvas).opacity(isActive ? 1 : 0))
         }
     }
 

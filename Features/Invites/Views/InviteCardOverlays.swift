@@ -7,14 +7,10 @@
 
 import SwiftUI
 
-//The glass inset plus its padding is the one column the title, the icons and the button's trailing edge share (34pt).
-//The respond card lands them on 24: every flight poses its pieces as insets and closes that gap on the way
-private let glassInset = Spacing.md //Card edge ↔ glass, on the sides and the foot
-private let glassPadding = Spacing.md + 2 //Glass edge ↔ its rows
-private let glassRadius = max(CornerRadius.concentric(in: ZoomStyle.cornerRadius, inset: glassInset), CornerRadius.sm)
+private let hPadding = Spacing.lg
 private let rowSize = EventZoomRowMorph.sourceSize //The row flight's source type, so the card and its flying copy can't disagree
-private let footTrim = 0.13 * rowSize //Geometry: ModernEra's cap top sits 0.085em under its line box, its baseline 0.215em over the foot — trimming the difference evens the glass above the first capital and below the last baseline
-private let paneBlurRadius: CGFloat = 24 //What the card's glur reached at its foot, now flat across the pane and nowhere else
+private let rowGap = Spacing.md //Tighter than the name's gap, so the rows read as one block under it
+private let footInset = Spacing.lg - 0.215 * rowSize //Geometry: ModernEra's baseline sits 0.215em over its line box's foot, so dropping the box that far lands the last baseline Spacing.lg off the card's foot, level with the sides
 private let buttonReserve: CGFloat = 42 + Spacing.xs //Geometry: InviteButton's circle, plus the gap the words keep from it
 
 //Main Overlay of the card
@@ -22,113 +18,54 @@ struct InviteCardOverlay: View {
 
     let draft: RespondDraft
     let name: String
-    let image: UIImage //The artwork the pane frosts a window into
-    let surface: Color //The tone the artwork gave us, near-black already; the pane mixes and weights it
-    var titleRect: Binding<CGRect> = .constant(.zero) //Where the name's frost is cut, in the card's space
     let openInvite: () -> ()
 
-    ///The card's own space. The name reports its glyphs into it, and the card cuts the frost there.
-    static let cardSpace = "inviteCardBand"
-
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            title
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            HStack(spacing: Spacing.sm) {
+                Text(name)
+                    .font(.title(26, .bold))
+                    .foregroundStyle(Color.white)
+                    .eventZoomTitleSource(name) //Flies into the respond card's "<name>'s Invite"
+                    .frame(maxWidth: .infinity, alignment: .leading) //Takes what the type leaves, so the two can't overlap
 
-            VStack(alignment: .leading, spacing: 22) {
-                typeRow
+                typeLabel
+            }
 
-                //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
+            //Both fly into the respond card's own rows, restyling on the way (`.eventZoomRowTarget`)
+            VStack(alignment: .leading, spacing: rowGap) {
                 lineSection(.whiteClock, timeText)
                     .eventZoomTimeSource(timeText)
                     .lineLimitAndShrink(1)
-                    .padding(.trailing, buttonReserve) //Only the time row runs beside the centred button. Outside the marker, so the flight measures the row itself
+                    .offset(y: -4)//Do Not Remove!! CRitical Keep, paramount for design. 
 
                 lineSection(.whiteMap, placeText)
                     .lineLimit(1)
                     .eventZoomPlaceSource(placeText)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, glassPadding)
-            .padding(.top, glassPadding)
-            .padding(.bottom, glassPadding - footTrim)
-            .overlay(alignment: .trailing) { inviteButton }
-            .containerGlassEffect(clear: true, tint: .clear, clipped: true, shape: .rect(cornerRadius: glassRadius))
-            .background { paneBackdrop } //Behind the lens, so the clear glass has a blurred, veiled backdrop to refract instead of sharp artwork
-            .padding([.horizontal, .bottom], glassInset)
+            .padding(.trailing, buttonReserve) //Only the rows run beside the envelope
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, hPadding)
+        .padding(.bottom, footInset)
+        .overlay(alignment: .bottomTrailing) { inviteButton }
     }
 }
 
 extension InviteCardOverlay {
 
-    //A window cut into the artwork: inside the pane the photo is blurred and veiled, outside it stays
-    //sharp. Blur-then-mask, never mask-then-blur — masking first lets the gaussian smear past the
-    //pane's edge and go translucent at its rim. The copy is drawn at card size and pushed back into
-    //place off the pane's own geometry (the pane sits `glassInset` in from three card edges), so the
-    //card's veil lands exactly where it always did and nothing has to be measured
-    private var paneBackdrop: some View {
-        GeometryReader { proxy in
-            let pane = proxy.size
-            let cardWidth = pane.width + glassInset * 2
-            let cardHeight = cardWidth / AspectRatio.inviteCard.ratio
-            Color.clear
-                .overlay {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .padding(-paneBlurRadius) //Load-bearing: .blur samples transparency past the layer, so without the overhang the rim fades out over a band one radius wide
-                }
-                .frame(width: cardWidth, height: cardHeight)
-                .blur(radius: paneBlurRadius)
-                .overlay { paneVeil }
-                .offset(x: -glassInset, y: -(cardHeight - glassInset - pane.height))
-        }
-        .clipShape(.rect(cornerRadius: glassRadius))
-        .allowsHitTesting(false)
-    }
-
-    //The card's own scrim, drawn at card size so the pane shows the exact slice of the ramp it used
-    //to wear — the tone is the artwork's, pulled halfway to black
-    private var paneVeil: some View {
-        BlurAndGradientBackground(
-            textRegion: BlurAndGradientBackground.inviteRegion,
-            colour: panelTone,
-            scrimOpacity: BlurAndGradientBackground.inviteScrimOpacity
-        ).scrimGradient
-    }
-
-    private var panelTone: Color {
-        surface.mix(with: .black, by: BlurAndGradientBackground.inviteScrimBlackMix) //Perceptual: hue holds while lightness and chroma come down together
-    }
-
-    //Only the name is marked: it flies alone into the respond card's "<name>'s Invite", where the suffix waits for it
-    private var title: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(name)
-                .eventZoomTitleSource(name)
-            Text("'s Invite")
-        }
-        .font(.title(20, .bold))
-        .foregroundStyle(Color.white)
-        .lineLimit(1) //A wrapping title would hand the flight a two-line frame
-        .getRect(titleRect, coordSpace: Self.cardSpace) //Inside the padding: the glyphs, not the slot — the frost is cut to the word
-        .padding(.horizontal, glassInset + glassPadding) //Starts over the icons
-    }
-
-    private var typeRow: some View {
-        HStack(spacing: EventZoomRowMorph.sourceIconGap) {
+    //The plan's type on the name's line, its trailing edge on the envelope's
+    private var typeLabel: some View {
+        HStack(spacing: Spacing.xs) {
             Text(eventType.emoji)
-                .font(.body(14)) //Fills the icon column, its ink the clock's and pin's size
-                .frame(width: EventZoomRowMorph.iconWidth)
-
             Text(eventType.longTitle)
-                .font(.body(rowSize, .medium))
-                .foregroundStyle(Color.white)
-                .lineLimit(1)
         }
+        .font(.body(15))
+        .foregroundStyle(Color.white)
+        .fixedSize() //Never truncates; the name gives way
     }
 
-    //The row flight's geometry: its source copy draws this same column, gap, type and nudge
+    //The row flight's geometry: its source copy draws this same column, gap, glyph scale and type
     private func lineSection(_ image: ImageResource, _ text: String) -> some View {
         HStack(spacing: EventZoomRowMorph.sourceIconGap) {
             Image(image)
@@ -142,11 +79,11 @@ extension InviteCardOverlay {
         }
     }
 
-    //Centred on the glass's height: level with the time row, clear of the other two. A 42pt circle can't sit concentric in the glass's 12pt corner, so the corner is never its home
     private var inviteButton: some View {
         InviteButton(onTap: openInvite)
-            .eventZoomButtonSource() //Widens into the respond card's CTA — inside the padding, so it measures the circle itself
-            .padding(.trailing, glassPadding)
+            .eventZoomButtonSource() //Widens into the respond card's CTA — inside the paddings, so it measures the circle itself
+            .padding(.horizontal, hPadding)
+            .padding(.bottom, Spacing.lg) //Its foot on the last baseline, as the Meet card's stands on its last line: a 24/24 corner, and about centred on the two rows
     }
 }
 

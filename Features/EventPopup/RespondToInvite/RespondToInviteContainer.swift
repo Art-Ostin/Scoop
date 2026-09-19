@@ -25,13 +25,8 @@ struct RespondToInviteContainer: View {
     @State private var rowsHeight: CGFloat = 0 //The type/time/place block as laid out — what the focused note scrolls behind the photo
     @State private var noteOpen = false //`isFocused` as everything that MOVES reads it — never the raw focus (see `rideNote`)
     @State private var noteRideGate = KeyboardSettleGate(smoothTicks: 0) //A focus's ride leaves on the first frame the keyboard's arrival lets through
-    @State private var noteAtRest = true //The note's ride is home: only then may a written note rest as its bubble (see `closeRide`)
-    @State private var noteRidesHome = false //…and on its way there: a second resign inside it (the focus flips a turn after Done's close) is not a focus that never rode
-    @State private var rideHomeTask: Task<Void, Never>? //The ride home's landing: a later close or refocus retires it
     @State private var showsNoteTitle = false //`isFocused` as the title and the placeholder's words read it — never the raw focus (see `retitle`)
     @State private var noteTitleGate = KeyboardSettleGate() //A focus's retitle waits here until the keyboard's arrival stops stalling frames
-    @State private var cardWidth: CGFloat = 0 //The card as laid out (the zoom masks its flight, never re-lays it out) — what the unsent note places its Edit or Thread against
-    @State private var editsNote = false //A tap on the note's bubble: its field mounts first, so the focus has somewhere to land
 
     //Card content only: `.eventZoom` draws the backdrop, the white surface and the chevron around it
     var body: some View {
@@ -53,7 +48,6 @@ struct RespondToInviteContainer: View {
             actionSection
                 .padding(.top, 4)
         }
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { cardWidth = $0 }
         .contentShape(Rectangle())
         .onTapGesture { closeNote() }
     
@@ -67,12 +61,10 @@ struct RespondToInviteContainer: View {
         .onChange(of: isFocused) { _, focused in
             rideNote(focused)
             retitle(focused)
-            if focused { editsNote = false } //The bubble's edit has landed: from here the raw focus holds the field
         }
         .onDisappear {
             noteRideGate.cancel()
             noteTitleGate.cancel()
-            rideHomeTask?.cancel()
         }
         .eventZoomChevronHidden(isConfirmNewEvent)
         .eventZoomDragLocked(composeUI.typePopupOpen || composeUI.timePopupOpen || ui.showAcceptAlert)
@@ -141,32 +133,17 @@ extension RespondToInviteContainer {
         }
         noteRideGate.arm {
             guard isFocused, !noteOpen else { return } //Live, not the captured `focused`: a Done inside the wait wins
-            rideHomeTask?.cancel()
-            noteAtRest = false
             flight?.setKeyboardRide(true) //The shell first: its transaction and the body's below flush in one commit, the shell's clock already open
             withAnimation(.keyboard) { noteOpen = true }
         }
     }
 
+    //A written note's bubble is a pose of the note's own surface, flipped by this very write (the bar's `restsAsBubble`):
+    //field ⇄ bubble is part of the ride, in its transaction, on its spring. Nothing waits for the ride to be home
     private func closeRide() {
-        guard noteOpen else {
-            if !noteAtRest, !noteRidesHome { withAnimation(.transition) { noteAtRest = true } } //A focus that never rode
-            return
-        }
-        noteRidesHome = true
+        guard noteOpen else { return } //A focus that never rode: nothing left its place
         flight?.setKeyboardRide(false) //The shell first, as on the way up
         withAnimation(.keyboard) { noteOpen = false }
-        //Timed, not the transaction's completion: the shell's re-pins retarget what this transaction moves, and a
-        //retargeted transaction's completion never came (rig, 2026-09-17). Owned: a close, a refocus and a close again
-        //inside one wait would let the first timer land the bubble in the second ride
-        rideHomeTask?.cancel()
-        rideHomeTask = Task { @MainActor in
-            try? await Task.sleep(for: Self.rideHome)
-            guard !Task.isCancelled else { return } //`try?` swallows the cancellation: a cancelled sleep returns at once
-            noteRidesHome = false
-            guard !noteOpen, !isFocused, !noteAtRest else { return } //A refocus inside the ride keeps the field
-            withAnimation(.transition) { noteAtRest = true }
-        }
     }
 
     private func closeNote() {
@@ -267,7 +244,6 @@ extension RespondToInviteContainer {
 //Event Info Section -> Filling out details and confirm Invite Screen
 extension RespondToInviteContainer {
 
-    private static let rideHome: Duration = .milliseconds(300) //The keyboard's spring is within a point of home: the note's ride has landed
     private static let swapLag: TimeInterval = 0.13
     private static let swapBlur: CGFloat = 6 //Not the house 8: a full-width body at 8 reads as a rack-focus
 
@@ -349,37 +325,21 @@ extension RespondToInviteContainer {
     @ViewBuilder
     var messageSection: some View {
         if type == .newTime {
-            if !vm.respondDraft.newTime.respondMessage.isEmpty && !isFocused && !editsNote && noteAtRest {
-                let chat = ChatMessage(authorId: "", recipientId: "", content: vm.respondDraft.newTime.respondMessage)
-                MessageBubbleView(chat: chat, nextIsNewAuthor: true, isMyChat: true, isInviteMessage: nil, noteBadge: noteBadge,
-                                  containerWidth: max(0, cardWidth - 2 * Spacing.margin))
-                    .padding(.horizontal, Spacing.margin) //The card's column: a long note grows out to the buttons' edges, a short one hugs its text
-                    .padding(.top, -6)//KEY!! Don't delete makes spacing equal between action button and row above.
-                    .padding(.vertical, 4) //Add a bit of extra padding
-                    .shrinkPress {
-                        withAnimation(.transition) { editsNote = true } //Not `isFocused = true`: with no field mounted to take it, that write is dropped
-                    }
-            } else {
-                RespondToMessageBar(
-                    text: $vm.respondDraft.newTime.respondMessage,
-                    thread: messageThread,
-                    hasPreviousMessages: hasPreviousMessages,
-                    userId: vm.userId,
-                    otherUserId: vm.profile.id,
-                    isFocused: $isFocused,
-                    isOpen: noteOpen,
-                    namesNote: showsNoteTitle,
-                    onDone: closeNote
-                )
-                .transition(Self.bodySwap())
-                .task { if editsNote { isFocused = true } } //`.task`'s hop lands the write after the swap commits, when the field exists
-            }
+            //One view, written or not: a written note rests as a bubble, and the bubble is a pose of the bar's own
+            //surface (its `noteSurface`), so field ⇄ bubble morphs inside the note's ride instead of swapping after it
+            RespondToMessageBar(
+                text: $vm.respondDraft.newTime.respondMessage,
+                thread: messageThread,
+                hasPreviousMessages: hasPreviousMessages,
+                userId: vm.userId,
+                otherUserId: vm.profile.id,
+                isFocused: $isFocused,
+                isOpen: noteOpen,
+                namesNote: showsNoteTitle,
+                onDone: closeNote
+            )
+            .transition(Self.bodySwap())
         }
-    }
-    
-    //The note's corner: Thread once messages sit above it in the reveal, Edit while there are none (RespondNoteReveal)
-    private var noteBadge: MessageNoteBadge.Kind {
-        hasPreviousMessages ? .thread : .edit
     }
 
     private var inviteHasMessage: Bool {

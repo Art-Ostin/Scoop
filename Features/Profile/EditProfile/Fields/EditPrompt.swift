@@ -150,9 +150,19 @@ extension PromptGeneric {
                 .lineSpacing(8)
                 .font(.body(17, .medium))
                 .focused($isFocused)
+                .submitLabel(.done)
                 .lineLimit(3)
-                .onChange(of: prompt.response) { _, newValue in
-                    if newValue.count > maxChars {
+                .onChange(of: prompt.response) { oldValue, newValue in
+                    //An answer is one paragraph. The break is taken out here, not in a binding: a binding that
+                    //refuses it hands the editor back an unchanged value, and the editor keeps drawing the new line
+                    if newValue.contains(where: \.isNewline) {
+                        if newValue.filter({ !$0.isNewline }) == oldValue { //Return, reading Done: closes the keyboard
+                            prompt.response = oldValue
+                            isFocused = false
+                        } else {
+                            prompt.response = String(newValue.withoutLineBreaks.prefix(maxChars)) //Pasted or dictated
+                        }
+                    } else if newValue.count > maxChars {
                         prompt.response = String(newValue.prefix(maxChars))
                     }
                 }

@@ -17,6 +17,12 @@ struct MessageBubbleShape: Shape {
     var messageCornerRadius: CGFloat = BubbleMetrics.cornerRadius //Messages' radius: half the one-line body (20.14 at Large)
     var tail: MessageBubbleTail = .none
 
+    //The radius eases when a surface wearing this shape morphs out of another's (the respond card's note, out of its field's)
+    var animatableData: CGFloat {
+        get { messageCornerRadius }
+        set { messageCornerRadius = newValue }
+    }
+
     ///How far the tail hangs below the body, so callers can reserve room for it
     static func tailDrop(for cornerRadius: CGFloat) -> CGFloat { cornerRadius * 0.33925 }
 

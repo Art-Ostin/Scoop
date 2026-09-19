@@ -884,10 +884,6 @@ private struct EventZoomBandChromeModifier: ViewModifier {
     @State private var size: CGSize = .zero //Its laid-out size, for a corner landing measured inside it
 
     func body(content: Content) -> some View {
-        //Pushed every pass and stored unobserved, exactly as the source pushes its own chrome closure
-        //(`EventZoomSourceModifier`): the flight takes what the card's LATEST body built and calls it
-        //ONCE, before takeoff. A closure captured at appearance would fly a stale page. Free only
-        //because the store is @ObservationIgnored — an observed write from inside a body would loop.
         if let copy, let corner {
             flight?.reportBandChrome(id: id, corner: corner, onPage: onPage, copy: copy)
         }
@@ -1012,7 +1008,7 @@ private struct EventZoomCard: View {
         .onGeometryChange(for: CGFloat.self) { max($0.frame(in: .global).minY, $0.safeAreaInsets.top) } action: { flight.reportPlaneTop($0) }
         //The plane itself, which nothing the card does moves: how wide the card will stand once a field has it, known
         //before it widens, and the line a keyboard's frame has to sit above to be on screen at all
-        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportPlane($0) }
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { flight.reportPlane($0, restingInset: slot.inset) }
         //Screen coordinates, which this full-screen plane's global space matches; hidden, the frame sits below the screen
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { note in
             guard (note.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? Bool) ?? true,
@@ -1086,12 +1082,13 @@ extension EventZoomCard {
     @ViewBuilder
     private var keyboardAccessory: some View {
         if let title = flight.keyboardAccessoryTitle {
-            ScoopButton(style: .tinted(.blackFill, shadow: nil, glass: true), shape: Capsule()) {
+            ScoopButton(style: .tinted(.black, shadow: nil, glass: true), shape: Capsule()) { //Pure .black, NOT .blackFill: a design call (2026-09-18) — never "fix" it back to the token
                 flight.tapKeyboardAccessory()
             } label: {
                 EventKeyboardAccessoryLabel(title: title)
             }
-            .blurPop(visible: flight.keyboardAccessoryVisible)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { flight.reportKeyboardAccessory(height: $0) } //Its own height, under the pop's scale: where its top will stand is known before it shows
+            .blurPop(visible: flight.keyboardAccessoryVisible, hide: .vanish) //In on the pop's spring as the card lands; out in ~20ms, with the tap that closed the note (Arthur, 2026-09-18)
             .padding(.trailing, Spacing.lg)
             .padding(.bottom, flight.keyboardAccessoryInset)
             .animation(flight.keyboardAccessoryVisible ? .keyboard : nil, value: flight.keyboardAccessoryInset) //A keyboard of another height, mid-note; hidden, it takes its line bare
@@ -1170,7 +1167,7 @@ private struct EventZoomCardContent: View, Equatable {
     private var source: CGRect //The source's frame in global space — the flight's home
     private let shape: EventZoomSourceShape //A circle's ring is the glass rim the close grows around the photo; a card has none
     let coverPhoto: UIImage //The source's pixels: the flying cover, and the pager's page when a caller hands it nothing
-    private let chrome: AnyView? //The source's chrome, copied once at source size — rides the cover out and back
+    private var chrome: AnyView? //The source's chrome, copied once at source size — rides the cover out, and is taken again at a landed close so it rides back as the card now is
     private let titleName: String? //The word the source's chrome and the card's title share — nil unless marked
     private var titleRect: CGRect //Where the source draws it, global — re-read with `source` at a landed close
     private var buttonSource: CGRect //The source's round button, global — re-read with `source` too
@@ -1269,9 +1266,11 @@ private struct EventZoomCardContent: View, Equatable {
     private(set) var keyboardAccessoryVisible = false
     @ObservationIgnored private var keyboardAccessoryAction: () -> Void = {} //Its tap: a closure has no same-value guard, so the store stays unobserved
     private var accessoryKeyboardTop: CGFloat? //Where a PRESENTED keyboard's top last stood: the accessory's line. A keyboard on its way out never moves it — the control pops away where it stands
+    @ObservationIgnored private var accessoryHeight: CGFloat = 0 //The accessory's own height, measured; read only on a body's keystroke
     @ObservationIgnored private var keyboardFrameSeen = false //A frame has been reported since the raw focus: the cache below is no longer this focus's best knowledge
     private var planeTop: CGFloat = 0 //Global y of the plane's top safe-area edge, reported by the card view: what the raised card's top pins beneath
     private var planeWidth: CGFloat = 0 //The plane's width: what the focused card's is known from before it widens (`keyboardCardWidth`)
+    private var restingInset: CGFloat = 0 //The caller's gap, which the card wears at rest: what the resting card's width is known from while it stands wider (`restingCardWidth`)
     private var planeBottom: CGFloat = .infinity //Global y of the plane's foot: a keyboard whose top is not above it is off screen
     @ObservationIgnored private var resignKeyboard: (() -> Void)? //How the backdrop's tap-away hands the field back to the body
     private var keyboardTop: CGFloat = .infinity //Global y of the keyboard's top edge (UIKit's will-change-frame); off screen or unknown, nothing to clear
@@ -1314,9 +1313,22 @@ extension EventZoomChoreo {
     //0 until the plane has laid out
     var keyboardCardWidth: CGFloat { max(planeWidth - 2 * Self.keyboardInset, 0) }
 
+    //…and how wide it rests, known while a field still has it: what a body lays out for the card it is riding home to
+    //(the respond note closing onto its bubble). Never a measure of the card: every read under a card changing its gap
+    //comes back mid-spring. 0 until the plane has laid out
+    var restingCardWidth: CGFloat { max(planeWidth - 2 * restingInset, 0) }
+
     //The presented keyboard's top edge, global — what a body's own content has to stay above to be read or typed into.
     //nil while none is up (or none is coming: a hardware keyboard reports its frame off screen)
     var keyboardLine: CGFloat? { accessoryKeyboardTop }
+
+    //The top edge of the body's keyboard accessory, standing on the keyboard's line, global: what a body's own text has to stay
+    //above to be read beside it (the respond note's Done sits over the trailing end of its last line otherwise). nil while no
+    //keyboard is up or no accessory is drawn
+    var keyboardAccessoryTop: CGFloat? {
+        guard let line = accessoryKeyboardTop, keyboardAccessoryTitle != nil, accessoryHeight > 0 else { return nil }
+        return line - Self.keyboardClearance - accessoryHeight
+    }
 
     //The accessory's foot above the plane's own: the keyboard as it last stood, and the clearance over it
     var keyboardAccessoryInset: CGFloat {
@@ -1591,6 +1603,10 @@ extension EventZoomChoreo {
         if keyboardAccessoryVisible != visible { keyboardAccessoryVisible = visible }
     }
 
+    func reportKeyboardAccessory(height: CGFloat) {
+        accessoryHeight = height
+    }
+
     func reportKeyboardAccessory(_ action: @escaping () -> Void) {
         keyboardAccessoryAction = action
     }
@@ -1649,7 +1665,7 @@ extension EventZoomChoreo {
     }
 
     //How long a ride owns the landed resizes after it leaves: the commit's own passes and the keyboard's late frame all
-    //land inside it, and the body's own resizes a beat later (a written note resting as its bubble at 0.3s) do not
+    //land inside it, and the body's own resizes a beat later (a line wrapping as the note is typed) do not
     private static let keyboardRideSettle: CFTimeInterval = 0.2
     //Where a presented, docked keyboard's top last stood, in any card, and how wide its plane was: the next focus's best
     //knowledge of where it will stand — in a plane of that width (a rotation, or an iPad, is another keyboard)
@@ -1663,8 +1679,9 @@ extension EventZoomChoreo {
         if planeTop != y { planeTop = y }
     }
 
-    func reportPlane(_ rect: CGRect) {
+    func reportPlane(_ rect: CGRect, restingInset inset: CGFloat) {
         if planeWidth != rect.width { planeWidth = rect.width }
+        if restingInset != inset { restingInset = inset }
         planeBottom = rect.maxY
     }
 
@@ -2171,6 +2188,12 @@ extension EventZoomChoreo {
             titleRect = anchor.titleRect //The word flies home to where the label IS, for the same reason
             buttonSource = anchor.buttonRect
             cornerSource = anchor.cornerRect
+            rowSources = anchor.rowRects
+            rowSourceTexts = anchor.rowTexts
+            //What the card shows NOW: an edit made in the card (another day picked, a counter drafted) must
+            //ride home on the copy, not pop in at the landing. Invisible here — at p = 1 the copy isn't
+            //mounted — and built once more for the whole close, so its body still never re-runs in flight
+            chrome = anchor.chrome?()
         }
 
         guard hasFlight, !flightless else { //No anchor, reduce motion, or a vanished source: leave by fade
@@ -3270,11 +3293,11 @@ struct EventZoomButtonMorph {
         let t = cta.width > 1 ? min(max(p, 0), 1) : 0
 
         //Posed as insets from the revealed window, never as a lerp between two screen rects — the
-        //same rule the name morph pays. The CTA sits 24pt in; a source may sit further (the invite
-        //card's button rides its glass: inset + padding), so the trailing inset closes by `labelStart`,
+        //same rule the name morph pays. The CTA sits 24pt in; a source may sit further in, so
+        //the trailing inset closes by `labelStart`,
         //the moment the word begins to arrive. The word's window was cleared against a capsule already
         //on its landing edge, and from there the open is the pure leftward stretch; a source already at
-        //24 (the Meet card) is unchanged. At p = 1 the window is the card's bounds and this resolves to
+        //24 (the Meet card, the invite card) is unchanged. At p = 1 the window is the card's bounds and this resolves to
         //the CTA's rect exactly — no pin needed.
         let open = Self.smoothstep(t)
         let width = Self.lerp(from.width, to.width, open)
@@ -3321,13 +3344,13 @@ struct EventZoomButtonMorph {
 struct EventZoomRowMorph {
 
     //The row's inner geometry at each end. The card's `lineSection` and the body's `iconRow` are each an
-    //HStack of a 20pt icon column and a gap; the column is shared, but the card runs a tighter gap and a
-    //smaller glyph, so both ride the flight from one end to the other. If either end moves off these, the
+    //HStack of a 20pt icon column and a gap; both ride the flight from one end to the other (today the
+    //card's gap and glyph equal the landing's, so the lerps rest). If either end moves off these, the
     //words and the icon stop landing together — these are the constants to look at.
     static let iconWidth: CGFloat = 20
-    static let sourceIconGap: CGFloat = 18 //`InviteCardOverlay.lineSection` reads it
+    static let sourceIconGap: CGFloat = 20 //`InviteCardOverlay`'s rows read it
     private static let landingIconGap: CGFloat = 20 //`EventTypeTimePlace`'s `iconGap`
-    static let sourceIconScale: CGFloat = 1.1 //`InviteCardOverlay.lineSection` reads it
+    static let sourceIconScale: CGFloat = 1.2 //`InviteCardOverlay.lineSection` reads it
     private static let landingIconScale: CGFloat = 1.2 //`EventTypeTimePlace.iconRow`'s glyph
 
     let kind: EventZoomRowKind
@@ -3400,7 +3423,7 @@ struct EventZoomRowMorph {
         iconNudge = Self.lerp(-2, 0, t) //Geometry: the card's own optical centring, released as it lands
     }
 
-    static let sourceSize: CGFloat = 18 //`InviteCardOverlay.lineSection` — its `rowSize`; the source copy draws at it too
+    static let sourceSize: CGFloat = 18 //`InviteCardOverlay`'s `rowSize`; the source copy draws at it too
     private static let landingSize: CGFloat = 17 //`EventTypeTimePlace`'s rows at `largeText`
 
     private static func lerp(_ a: CGFloat, _ b: CGFloat, _ t: CGFloat) -> CGFloat {

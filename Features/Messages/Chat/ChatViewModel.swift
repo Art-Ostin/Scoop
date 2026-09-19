@@ -87,7 +87,7 @@ final class ChatViewModel {
         chatRepo.newMessageId(eventId: eventProfile.id)
     }
 
-    //The optimistic row. Appended inside the caller's transaction so its insertion rides the caller's curve;
+    //The optimistic row. Appended inside the caller's transaction so the list's move to it rides the caller's curve;
     //a flying send has already registered `id` with its flight, so the row mounts as a ghost.
     @discardableResult
     func stage(text: String, id: String, at date: Date = Date()) -> ChatMessage {
@@ -201,16 +201,18 @@ final class ChatUIState {
 
     var containerWidth: CGFloat = 0
     var fieldFrame: CGRect = .zero //The draft field at rest (measured outside its press lift), in the chat space
-    var barFrame: CGRect = .zero //The input bar, the flight layer's host; its top is the list's floor
+    var barFrame: CGRect = .zero //The input bar, the flight layer's host, one line tall whatever the draft; its top is the list's floor
     var sendPressed = false
     var flights: [SendFlight] = []
-    //Bumped by a send whose composer collapses by a line or more: the list scrolls to its floor. The collapse is an
-    //inset change the scroll view clamps against, after which the bottom anchor no longer follows the row's growth
-    //(sim-traced: offset held while the list ended 94 pt above its floor, the row hidden under the bar)
-    var floorRequest = 0
+    //The draft's height past its first line. The bar's inset is always one line tall — a taller field overflows upward,
+    //over the list — and the list holds this much room under its last row instead. So a draft that wraps, and the send
+    //that collapses it, reach the list as a content-size change, which its bottom anchor follows; an inset change it
+    //clamps against and then ignores (device-traced: the T0 collapse dropped the list 29 pt before the row brought it
+    //back up). Written by the field as it grows; a send closes it frame by frame, on the field's collapse spring
+    var draftOverflow: CGFloat = 0
     //Whether the list rests at its floor and whether the field holds a draft — observed, and written only when they
     //flip: together they pin the list to its floor while a draft grows the field, so the last message stays in view
-    //and the field's collapse at T0 leaves the list exactly at its floor for the flight
+    //and the send finds the list exactly at its floor for the flight
     var atFloor = true
     var hasDraft = false
 
@@ -218,9 +220,41 @@ final class ChatUIState {
     //Written on every scroll tick and read only by a send at T0, so never observed.
     @ObservationIgnored var distanceFromFloor: CGFloat = 0
 
+    //How far a draft past the field's five lines is scrolled inside it. Written on every scroll of the field and read
+    //only by a send at T0, so never observed.
+    @ObservationIgnored var fieldScroll: CGFloat = 0
+
     //The ghost rows' laid-out bodies, per flight. Reported on every frame the list shifts; the clones read them
     //while re-rendering each frame anyway, where an observed write would re-render every row per frame.
     @ObservationIgnored private var bodyFrames: [UUID: CGRect] = [:]
+
+    //Each flight's clock. T0 is the frame its clone is first posed on, not the tap — and the send's own update is the
+    //slowest frame of the flight (the row mounts, the text is laid out three times), so a clock that ran through it
+    //would skip the opening poses: the bubble sitting in the field, the first of the contraction. The first tick after
+    //that frame is re-based to follow it by one frame, which is also where SwiftUI starts the field's collapse and
+    //the list's shift: the three stay in step. Written while the clone renders, so never observed.
+    @ObservationIgnored private var clocks: [UUID: (origin: Date, rebased: Bool)] = [:]
+
+    func elapsed(for flight: SendFlight, at tick: Date) -> Double {
+        //A timeline that was paused hands over the date it stopped on (sim-traced: the flight layer's, seconds stale, read
+        //as the posing frame and spent the re-base on the send frame itself): no tick is older than a frame
+        let date = max(tick, Date().addingTimeInterval(-SendChoreography.frame))
+        guard let clock = clocks[flight.id] else {
+            clocks[flight.id] = (date, false)
+            return 0
+        }
+        var origin = clock.origin
+        if !clock.rebased, date.timeIntervalSince(origin) > SendChoreography.frame / 2 {
+            origin = max(origin, date.addingTimeInterval(-SendChoreography.frame))
+            clocks[flight.id] = (origin, true)
+        }
+        return max(0, date.timeIntervalSince(origin))
+    }
+
+    //What a flight's clock has left to run, read without starting or re-basing it: nil before its first posed frame
+    func remaining(for flightId: UUID, at date: Date = Date()) -> Double? {
+        clocks[flightId].map { SendChoreography.duration - date.timeIntervalSince($0.origin) }
+    }
 
     func flight(for messageId: String?) -> SendFlight? {
         guard let messageId else { return nil }
@@ -242,12 +276,14 @@ final class ChatUIState {
 
     func forget(_ flightId: UUID) {
         bodyFrames[flightId] = nil
+        clocks[flightId] = nil
     }
 
     //Where a flight's body comes to rest, read live: on the trailing line, at the higher of two tops — the row's
     //own (a short thread never shifts; a later send carries an earlier row up) and its run gap above the floor
-    //(a full list keeps its bottom anchored, so a row still growing in ends there). The floor is the bar's top
-    //now, so a collapsing field or a keyboard leaving mid-flight carries the landing with it.
+    //(a full list keeps its bottom anchored, so a row the list is still shifting up to ends there). The floor is the
+    //bar's top now — one line tall whatever the draft, so a collapsing field never moves it — and a keyboard leaving
+    //mid-flight carries the landing with it.
     func landing(for flight: SendFlight) -> CGRect {
         let body = bodyFrames[flight.id]
         //Unrounded: a body is 40.2871 pt tall, and rounding it to whole points lands the clone short of the row
@@ -270,9 +306,9 @@ struct SendFlight: Identifiable {
     var rowSize: CGSize = .zero //The resting body computed at T0: the row's growth target, and the clone's size until the row reports its own
     var textWidth: CGFloat = 0 //The width the row's text wraps against (the column, less insets and any inline badge)
     var trailingX: CGFloat = 0 //The own-bubble column's trailing edge, chat space
-    var isMultiline = false //The field's wrap and the row's differ: the clone's text is posed at the row's and veiled in
+    var birthScroll: CGFloat = 0 //How far the draft was scrolled inside the field at T0 (past five lines): the clone's text is born there
     var timeline: KeyframeTimeline<SendPose>
-    var start: Date? = nil //T0: the flight layer samples every pose from the time since
+    var start: Date? = nil //The send's moment: the date its clock badge and its message wear (its poses run on `ChatUIState.elapsed`)
     var phase: Phase = .flying
 
     var rowHeight: CGFloat { rowSize.height + BubbleMetrics.runGap }

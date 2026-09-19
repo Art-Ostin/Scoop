@@ -43,7 +43,7 @@ extension ToggleResponseMode {
             
             Text("Options")
         }
-        .foregroundStyle(anyAvailableInvitedDays ? Color.textSecondary : Color.textAccent)
+        .foregroundStyle(anyAvailableInvitedDays ? Color.textAccent : Color.textSecondary)
         .font(.body(13, .medium))
     }
     

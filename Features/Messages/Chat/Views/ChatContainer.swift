@@ -21,7 +21,7 @@ struct ChatContainer: View {
     @State private var profileImages: [UIImage] = []
     @State private var showProfile = false
     @State private var profileLens = LensCoverSource() //The avatar their profile grows out of and lands back on
-    @FocusState private var isFocused
+    @State private var isFocused = false //Not @FocusState: the composer is a UIKit text view, and a FocusState no SwiftUI field is bound to drops its writes
 
     init(
         defaults: DefaultsManaging,

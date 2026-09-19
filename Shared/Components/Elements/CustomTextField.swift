@@ -47,6 +47,7 @@ struct MessageComposerField: View {
         InstantKeyboardField(
             text: $text,
             textLimit: textLimit,
+            allowsNewlines: false, //A note is one paragraph: Return reads Done
             placeholder: placeHolder,
             scrollEnabledAfterLineCount: 4,
             isFocused: $isFocused
@@ -72,5 +73,12 @@ struct MessageComposerField: View {
                 .padding(.trailing, Spacing.sm)
                 .padding(.bottom, Spacing.sm)
         }
+    }
+}
+
+//Text kept to one paragraph (a note, a prompt answer): where a line break would have split it, one space
+extension String {
+    var withoutLineBreaks: String {
+        split(whereSeparator: \.isNewline).joined(separator: " ") //A run of breaks is one gap; those at either end go
     }
 }

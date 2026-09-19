@@ -79,6 +79,7 @@ enum InstantKeyboard {
 struct InstantKeyboardField: UIViewRepresentable {
     @Binding var text: String
     var textLimit: Int = 130
+    var allowsNewlines: Bool = true //false: Return reads Done and closes the keyboard, and pasted line breaks read as spaces
     var placeholder: String? = nil
     var placeholderLineSpacing: CGFloat = 6
     var placeholderFont: UIFont = .body(18, .regular)
@@ -158,6 +159,7 @@ struct InstantKeyboardField: UIViewRepresentable {
         view.font = font
         applyTextStyle(to: view)
         applyTextContainerInset(to: view)
+        applyReturnKey(to: view)
         view.adjustsFontForContentSizeCategory = true
         view.alwaysBounceVertical = false
         // Keep UITextView scrolling enabled for stable intrinsic sizing and wrapping.
@@ -190,7 +192,10 @@ struct InstantKeyboardField: UIViewRepresentable {
         }
         applyTextStyle(to: view)
         applyTextContainerInset(to: view)
+        applyReturnKey(to: view)
         context.coordinator.textLimit = textLimit
+        context.coordinator.allowsNewlines = allowsNewlines
+        context.coordinator.isFocused = isFocused
         context.coordinator.scrollEnabledAfterLineCount = scrollEnabledAfterLineCount
         context.coordinator.configurePlaceholder(
             in: view,
@@ -239,6 +244,15 @@ struct InstantKeyboardField: UIViewRepresentable {
         }
     }
 
+    //Without line breaks Return has nothing to insert, so it reads Done. The keyboard reads the key as it rises:
+    //a change while it is up needs a reload
+    private func applyReturnKey(to view: InstantTextView) {
+        let returnKey: UIReturnKeyType = allowsNewlines ? .default : .done
+        guard view.returnKeyType != returnKey else { return }
+        view.returnKeyType = returnKey
+        if view.isFirstResponder { view.reloadInputViews() }
+    }
+
     private func applyTextStyle(to view: InstantTextView) {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
@@ -263,20 +277,32 @@ struct InstantKeyboardField: UIViewRepresentable {
         Coordinator(
             text: $text,
             textLimit: textLimit,
-            scrollEnabledAfterLineCount: scrollEnabledAfterLineCount
+            allowsNewlines: allowsNewlines,
+            scrollEnabledAfterLineCount: scrollEnabledAfterLineCount,
+            isFocused: isFocused
         )
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
         let text: Binding<String>
         var textLimit: Int
+        var allowsNewlines: Bool
         var scrollEnabledAfterLineCount: Int?
+        var isFocused: Binding<Bool>?
         private var placeholderLabel: UILabel?
 
-        init(text: Binding<String>, textLimit: Int, scrollEnabledAfterLineCount: Int?) {
+        init(
+            text: Binding<String>,
+            textLimit: Int,
+            allowsNewlines: Bool,
+            scrollEnabledAfterLineCount: Int?,
+            isFocused: Binding<Bool>?
+        ) {
             self.text = text
             self.textLimit = textLimit
+            self.allowsNewlines = allowsNewlines
             self.scrollEnabledAfterLineCount = scrollEnabledAfterLineCount
+            self.isFocused = isFocused
         }
 
         func textView(
@@ -284,15 +310,22 @@ struct InstantKeyboardField: UIViewRepresentable {
             shouldChangeTextIn range: NSRange,
             replacementText replacement: String
         ) -> Bool {
+            if !allowsNewlines, replacement == "\n" { //Return, reading Done: closes the keyboard instead
+                isFocused?.wrappedValue = false //The binding first: `updateFocus` raises the keyboard again while it still wants focus
+                textView.resignFirstResponder()
+                return false
+            }
             let currentText = textView.text ?? ""
             guard let stringRange = Range(range, in: currentText) else { return false }
-            let updatedText = currentText.replacingCharacters(
+            var updatedText = currentText.replacingCharacters(
                 in: stringRange,
                 with: replacement
             )
             let limit = max(0, textLimit)
+            let hasLineBreaks = !allowsNewlines && updatedText.contains(where: \.isNewline) //Pasted or dictated
+            if hasLineBreaks { updatedText = updatedText.withoutLineBreaks }
 
-            guard updatedText.count > limit else { return true }
+            guard hasLineBreaks || updatedText.count > limit else { return true }
 
             let limitedText = String(updatedText.prefix(limit))
             textView.text = limitedText
@@ -303,13 +336,19 @@ struct InstantKeyboardField: UIViewRepresentable {
         }
 
         func textViewDidChange(_ textView: UITextView) {
-            let limitedText = String(textView.text.prefix(max(0, textLimit)))
+            let newText: String = allowsNewlines ? textView.text : textView.text.withoutLineBreaks //Any break that got past the check above
+            let limitedText = String(newText.prefix(max(0, textLimit)))
             if textView.text != limitedText {
                 textView.text = limitedText
             }
             text.wrappedValue = limitedText
             updatePlaceholderVisibility(in: textView)
             updateScrollGesture(in: textView)
+        }
+
+        //A tap back in after Return closed the keyboard: the binding follows, or `updateFocus` would close it again
+        func textViewDidBeginEditing(_ textView: UITextView) {
+            if isFocused?.wrappedValue == false { isFocused?.wrappedValue = true }
         }
 
         func updateScrollGesture(in textView: UITextView) {
@@ -409,6 +448,7 @@ extension InstantKeyboardField {
     init(
         text: Binding<String?>,
         textLimit: Int = 130,
+        allowsNewlines: Bool = true,
         placeholder: String? = nil,
         placeholderLineSpacing: CGFloat = 6,
         placeholderFont: UIFont = .body(18, .regular),
@@ -426,6 +466,7 @@ extension InstantKeyboardField {
                 set: { text.wrappedValue = $0 }
             ),
             textLimit: textLimit,
+            allowsNewlines: allowsNewlines,
             placeholder: placeholder,
             placeholderLineSpacing: placeholderLineSpacing,
             placeholderFont: placeholderFont,

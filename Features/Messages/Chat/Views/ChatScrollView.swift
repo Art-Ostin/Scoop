@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatScrollView: View {
     @Bindable var vm: ChatViewModel
     let ui: ChatUIState
-    var isFocused: FocusState<Bool>.Binding
+    var isFocused: Binding<Bool>
     let isEvent: Bool
     let image: UIImage?
     private let keyboardCompensationPadding: CGFloat = 72
@@ -30,6 +30,7 @@ struct ChatScrollView: View {
                 inviteNoteSection
                 messageScrollSection
             }
+            .modifier(DraftRoom(height: ui.draftOverflow))
         }
 
         //1. The background of the scroll View
@@ -37,25 +38,16 @@ struct ChatScrollView: View {
         .scrollFadeIfAvailable(edge: .bottom)
         .scrollFadeIfAvailable(edge: .top)
 
-
-//        .customScrollFade(height: 100, showFade: true, edge: .top)
         .background(Color.appCanvas)
         .contentMargins(.top, Spacing.xxxl, for: .scrollContent)
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
-        //The bottom stays pinned while a send is in flight, so the sent row growing in moves the older rows up by
-        //exactly its growth — no scroll request, nothing to clamp or drop — and while a draft sits in the field at the
-        //floor. The anchor follows content growth only: the composer growing is an inset change, which the geometry
-        //action below follows instead. Off otherwise, so a received message keeps its animated scroll rather than a jump.
         .defaultScrollAnchor(!ui.flights.isEmpty || (ui.atFloor && ui.hasDraft) ? .bottom : nil, for: .sizeChanges)
 
         //2. Functions to trigger with updates
         .task(id: vm.messages.count == 0) {await loadMessages()} //Scroll to bottom on launch and if flip to zero
         .onChange(of: vm.messages.count) {onMessageSend($0, $1)}
         .onChange(of: isFocused.wrappedValue) { keyboardFocused($1)} //If new keyboard is focused
-        .onChange(of: ui.floorRequest) { //A multi-line send's composer collapsed: the list settles on its floor
-            withAnimation(SendChoreography.shift) { scrollPosition.scrollTo(edge: .bottom) }
-        }
 
         //3. Tracks scroll geometry — distance from bottom AND container shrinks (keyboard open).
         .onScrollGeometryChange(for: ScrollGeometry.self) { $0 } action: { _, geo in
@@ -64,9 +56,10 @@ struct ChatScrollView: View {
             //insets, and the offset runs from −insetTop (sim-probed: content 990, offset 210, top 134, container 646)
             let previousDistance = ui.distanceFromFloor
             ui.distanceFromFloor = geo.contentSize.height - (geo.contentOffset.y + geo.contentInsets.top + geo.containerSize.height)
-            //A draft that wraps grows the composer and raises the floor by a line, and the bottom anchor ignores inset
-            //changes (sim-traced: offset held, distance 0 → 21 at the second line, so every multi-line send went unflown).
-            //A list that sat at its floor follows it up: the last message stays in view and the send still flies.
+            //A draft that wraps opens room under the last row (`draftOverflow`), which the bottom anchor follows; an inset
+            //that grows under an open draft (the keyboard, the bar's focus padding) it ignores (sim-traced: offset held,
+            //distance 0 → 21). A list that sat at its floor follows it up either way: the last message stays in view and
+            //the send still flies.
             let followsFloor = ui.hasDraft && !isScrolling && !compensateOnShrink
                 && previousDistance <= SendChoreography.floorSlop && ui.distanceFromFloor > SendChoreography.floorSlop
             //scrollTo(y:) runs from the content's top edge, contentOffset from −insetTop (sim-traced: asked for 239 + 21, landed at 126)
@@ -112,6 +105,9 @@ extension ChatScrollView {
     //2.loadMessages on appear
     private func loadMessages() async {
         guard isFirstAppear, !vm.messages.isEmpty || !vm.inviteNotes.isEmpty else { return }
+        //The first message sent into an empty thread restarts this task: its flight is already moving the list, and a
+        //scroll here would snap it to the floor mid-air
+        guard ui.flights.isEmpty else { isFirstAppear = false; return }
         let waitsForMessages = vm.messages.isEmpty //A thread of notes alone still waits for the listener's first snapshot
         scrollToBottomEdge()
         try? await Task.sleep(for: .milliseconds(50))
@@ -152,6 +148,24 @@ extension ChatScrollView {
         withAnimation(animated ? .move : nil) {
             scrollPosition.scrollTo(edge: .bottom)
         }
+    }
+}
+
+//The room the list keeps under its last row for a draft taller than one line (`ChatUIState.draftOverflow`): the field
+//stands that far up out of the bar, over the list. Outside the lazy stack, so it never stirs the stack's row estimates,
+//and Animatable, so a send closing it lays the list out afresh on every frame of the collapse spring, and the list
+//follows each frame at once. The content never shrinks in one step under a list at its floor: that step is clamped,
+//and the bottom anchor then stops following the sent row (sim-traced twice).
+private struct DraftRoom: ViewModifier, Animatable {
+    var height: CGFloat
+
+    var animatableData: CGFloat {
+        get { height }
+        set { height = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        content.padding(.bottom, max(0, height))
     }
 }
 

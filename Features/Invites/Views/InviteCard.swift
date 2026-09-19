@@ -24,7 +24,6 @@ struct InviteSlot: View {
 
     //Local Parameters
     @State var palette: OverlayPalette = .placeholder
-    @State private var titleRect: CGRect = .zero //Where the chrome draws the name, in the card's space
 
     var body: some View {
         VStack(spacing: 72) {
@@ -98,13 +97,11 @@ extension InviteSlot {
     
     //Drawn over the card at rest, and copied onto the event zoom's flying cover
     private func cardOverlay(image: UIImage) -> some View {
-        photo(image: image)
-            .blurBackground(rect: titleRect, image: image) //The name's own frost, cut from the artwork — the band the event pager's title wears
-            .overlay(alignment: .bottomLeading) { cardChrome(image: image) }
-            .coordinateSpace(.named(InviteCardOverlay.cardSpace)) //Encloses the chrome, and its bounds are the photo's — what the frost's rect is measured against
+        blurAndColour(image: image)
+            .overlay(alignment: .bottomLeading) { cardOverlay }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
-            .animation(.transition, value: palette) //Extraction lands a frame late — the pane's tone fades up out of the placeholder's black rather than snapping
-            .overlay(alignment: .topTrailing) { responseButton } //Outside the clip: a lens, which it shouldn't touch
+            .animation(.transition, value: palette) //Extraction lands a frame late — scrim and tint fade in rather than snap
+            .overlay(alignment: .topTrailing) { responseButton } //Outside the clip and the palette's curve: a lens, which neither should touch
     }
 
     //The invite's history, in the card's corner. On the card rather than the slot so it lifts off with
@@ -118,9 +115,7 @@ extension InviteSlot {
         }
     }
     
-    //The artwork, sharp to the card's foot. Neither the glur nor the scrim gradient runs here any
-    //more: the rows' darkening is the overlay's pane, one hard edge instead of a veil under a lens
-    private func photo(image: UIImage) -> some View {
+    private func blurAndColour(image: UIImage) -> some View {
         Color.clear
             .overlay {
                 Image(uiImage: image)
@@ -128,34 +123,32 @@ extension InviteSlot {
                     .scaledToFill()
             }
             .clipShape(.rect(cornerRadius: ZoomStyle.cornerRadius))
+            .modifier(BlurAndGradientBackground(
+                textRegion: BlurAndGradientBackground.inviteRegion,
+                blurReach: 0.75, //Lower than the default 0.825 — about 16pt nearer the name
+                colourRegion: BlurAndGradientBackground.inviteColourRegion, //The colour reaches higher than the blur
+                colour: palette.surface,
+                scrimOpacity: palette.scrimOpacity
+            ))
     }
     
-    //The card's chrome — title, rows, envelope, and the frosted window they sit on. Takes the artwork
-    //because the pane cuts its blurred backdrop out of it
-    private func cardChrome(image: UIImage) -> some View {
-        InviteCardOverlay(
-            draft: draft,
-            name: eventProfile.profile.name,
-            image: image,
-            surface: palette.surface,
-            titleRect: $titleRect
-        ) { openInvite = eventProfile }
+    private var cardOverlay: some View {
+        InviteCardOverlay(draft: draft, name: eventProfile.profile.name) { openInvite = eventProfile }
     }
         
-    //Only `surface` is read — the tone the pane wears. Its solved `scrimOpacity` is ignored: the
-    //pane's weight is fixed, so the card can never darken a beat after it appears
+    //The title stays white; the time and place rows wear the artwork's hue, so the scrim is solved against that tint
     private func fetchColour(image: UIImage) async {
         palette = await PopupColorExtractor.shared
             .extractPalette(
                 image,
                 id: eventProfile.profile.id,
-                prominence: .custom(saturation: 0.05, brightness: 1, contrast: 4.5), //Off-white rows: full brightness, a trace of chroma
-                textRegionHeight: BlurAndGradientBackground.inviteRegion,
+                prominence: .custom(saturation: 0.05, brightness: 1, contrast: 4.5), //Off-white: full brightness, just enough chroma to read as the artwork's hue
+                textRegionHeight: BlurAndGradientBackground.inviteColourRegion, //The tone is solved over the area the colour covers
                 cardAspectRatio: AspectRatio.inviteCard.ratio, //Matches AppImage(type: .invite)
                 maximumDominantLuminance: 0.15, //Prefer a dark tone the photo already has
-                minimumSurfaceChroma: 0.4 //Raised, so the hue survives at that luminance
+                minimumSurfaceChroma: 0.4 //Quieter than the standard tint — the rows carry the hue here
             )
         _ = await PopupColorExtractor.shared
-            .extractPalette(image, id: eventProfile.profile.id, prominence: .subtle) //Warms the palette the PROFILE screens solve for the same face (Meet's card, the declined rows)
+            .extractPalette(image, id: eventProfile.profile.id, prominence: .subtle)
     }
 }

@@ -32,8 +32,13 @@ enum BubbleMetrics {
     static var lineSpacing: CGFloat { max(0, linePitch - uiFont.lineHeight) }
     static let leading = Spacing.md
     static let trailing = Spacing.md
-    //The draft field's own top and bottom inset: its one line sits level with the send button beside it
-    static var fieldVertical: CGFloat { max(0, (ButtonSize.large.size - uiFont.lineHeight) / 2) }
+    //The draft field's leading inset: its text sits 3 pt further in than a bubble's (Arthur's spec, 2026-09-18 — 3 is not
+    //on the Spacing scale). Its trailing inset is the bubble's own: the field is sized to the bubble's column plus this air
+    //(MessageInputBar), so the lines it types are the lines it sends, edge to edge
+    static let fieldLeading = leading + 3
+    //The draft field's own top and bottom inset: its one line sits level with the send button beside it. Never under a
+    //hairline: past AX3 the line outgrows the button, and a bare line box clips ModernEra's descenders at the field's edge
+    static var fieldVertical: CGFloat { max(Spacing.hairline, (ButtonSize.large.size - uiFont.lineHeight) / 2) }
     static let runGap = Spacing.sm //Clearance under the last bubble of a run, where its tail hangs
     static let badgeRow = Spacing.sm //The extra line a wrapped bubble opens under its text for the hour badge
     static let badgeGap = Spacing.labelGap //Between the inline hour badge and the text's last glyph
@@ -69,7 +74,7 @@ struct MessageBubbleView: View {
     //True for an invite's message: its corner reads the day it was sent (Sep 12), and a received one sits 2 pt nearer
     //the edge, with no photo beside it. False reads the hour (12:00); nil leaves the corner empty
     var isInviteMessage: Bool? = false
-    var noteBadge: MessageNoteBadge.Kind? = nil //The respond card's unsent note: its corner reads Edit or Thread in the accent, in place of any time
+    var mutesSentFill: Bool = false //The respond card's thread riding home over its rows: a sent bubble's fill takes the received gray, its text and badge unchanged
     //The scroll container's width, so the hour badge's placement is right on the first layout pass instead of
     //one pass later (a 12 pt height snap a send flight landing on the row cannot pre-empt)
     var containerWidth: CGFloat = 0
@@ -79,36 +84,20 @@ struct MessageBubbleView: View {
     //Local view state
     @State private var measured: BadgePlacement?
 
-    //A note outside any chat (the respond card's) is built with no author or recipient
-    private var isOutsideChat: Bool { chat.authorId.isEmpty && chat.recipientId.isEmpty }
-    //That note wears a received bubble's gray, though its tail hangs on the sender's side (`bubbleShape`)
-    private var wearsSentColors: Bool { isMyChat && !isOutsideChat }
     //Own bubbles end on the send button's trailing line (Spacing.gutter): a sent bubble is born on the draft field
     //and its trailing edge travels out to that line as it contracts; received ones rest their tail on their sender's photo.
-    //That note keeps no chat side at all: it hugs its text, and a long one can grow across the whole column its container lays it in
     private var leadingInset: CGFloat {
-        guard !isOutsideChat else { return 0 }
-        return isMyChat ? Self.openSide(beside: Spacing.gutter) : Self.receivedLeading(isInviteMessage: isInviteMessage)
+        isMyChat ? Self.openSide(beside: Spacing.gutter) : Self.receivedLeading(isInviteMessage: isInviteMessage)
     }
     private var trailingInset: CGFloat {
-        guard !isOutsideChat else { return 0 }
-        return isMyChat ? Spacing.gutter : Self.openSide(beside: Self.receivedLeading(isInviteMessage: isInviteMessage))
+        isMyChat ? Spacing.gutter : Self.openSide(beside: Self.receivedLeading(isInviteMessage: isInviteMessage))
     }
 
     var body: some View {
         let placement = self.placement
-        Text(chat.content)
-            .font(BubbleMetrics.font)
-            .foregroundStyle(wearsSentColors ? Color.white : Color.textPrimary)
-            .lineSpacing(BubbleMetrics.lineSpacing)
-            .padding(.leading, BubbleMetrics.leading)
-            .padding(.trailing, BubbleMetrics.trailing + placement.reservation)
-            .padding(.top, BubbleMetrics.top)
-            .padding(.bottom, BubbleMetrics.bottom)
-            .padding(.bottom, placement.isBelow ? BubbleMetrics.badgeRow : 0)
-            .background(bubbleShape.fill(wearsSentColors ? Color.accent : Color.fillGray))
+        MessageBubbleLabel(text: chat.content, foreground: isMyChat ? .white : .textPrimary, placement: placement) { cornerBadge }
+            .background(bubbleShape.fill(isMyChat && !mutesSentFill ? Color.accent : Color.fillGray))
             .background(bodyFrameReporter)
-            .overlay(alignment: .bottomTrailing) { cornerBadge }
             .frame(maxWidth: .infinity, alignment: isMyChat ? .trailing : .leading)
             .background(columnMeasure)
             .padding(.leading, leadingInset)
@@ -118,7 +107,32 @@ struct MessageBubbleView: View {
 }
 
 
-//The corner badge's placement: the hour, the day, or the note's Edit or Thread
+//A bubble's label: its text in the bubble's type and insets, the corner's badge hung off it. One drawing for the chat's
+//bubbles and for the respond card's unsent note — whose fill morphs out of its field's glass, so it draws that itself
+//(`RespondToMessageBar`) — as `restingSize` is their one measure: the label and its measure cannot drift apart
+struct MessageBubbleLabel<Badge: View>: View {
+
+    //Injected
+    let text: String
+    let foreground: Color
+    let placement: MessageBubbleView.BadgePlacement
+    @ViewBuilder let badge: Badge
+
+    var body: some View {
+        Text(text)
+            .font(BubbleMetrics.font)
+            .foregroundStyle(foreground)
+            .lineSpacing(BubbleMetrics.lineSpacing)
+            .padding(.leading, BubbleMetrics.leading)
+            .padding(.trailing, BubbleMetrics.trailing + placement.reservation)
+            .padding(.top, BubbleMetrics.top)
+            .padding(.bottom, BubbleMetrics.bottom)
+            .padding(.bottom, placement.isBelow ? BubbleMetrics.badgeRow : 0)
+            .overlay(alignment: .bottomTrailing) { badge }
+    }
+}
+
+//The corner badge's placement: the hour or the day
 extension MessageBubbleView {
 
     struct BadgePlacement: Equatable {
@@ -138,7 +152,6 @@ extension MessageBubbleView {
 
     //The room the corner's badge takes inline, or nil when the corner is empty
     private var cornerBadgeWidth: CGFloat? {
-        if let noteBadge { return MessageNoteBadge.inlineWidth(for: noteBadge) }
         guard let isInviteMessage else { return nil }
         return Self.inlineTimeBadgeWidth(for: chat.dateCreated ?? Date(), showsDay: isInviteMessage)
     }
@@ -174,6 +187,12 @@ extension MessageBubbleView {
         max(0, containerWidth - columnInset)
     }
 
+    //The width a bubble's text wraps against in that row. The composer wraps its draft against it too, as Messages'
+    //does: the lines it types are the lines it sends, so a send flight carries its text 1:1 from the first frame
+    static func textColumn(containerWidth: CGFloat) -> CGFloat {
+        max(0, columnWidth(containerWidth: containerWidth) - BubbleMetrics.leading - BubbleMetrics.trailing)
+    }
+
     //Where the hour badge goes. A bubble without one (`isInviteMessage` nil) reserves nothing
     static func timePlacement(text: String, maxBubbleWidth: CGFloat, date: Date, isInviteMessage: Bool? = false) -> BadgePlacement {
         guard let isInviteMessage else { return .hidden }
@@ -194,7 +213,12 @@ extension MessageBubbleView {
     //The bubble body at rest (the tail hangs below it), for a text sent into a column of this width. The send
     //flight lands on it and the row grows to it.
     static func restingSize(text: String, maxBubbleWidth: CGFloat, date: Date, isInviteMessage: Bool? = false) -> CGSize {
-        let placement = timePlacement(text: text, maxBubbleWidth: maxBubbleWidth, date: date, isInviteMessage: isInviteMessage)
+        restingSize(text: text, maxBubbleWidth: maxBubbleWidth,
+                    placement: timePlacement(text: text, maxBubbleWidth: maxBubbleWidth, date: date, isInviteMessage: isInviteMessage))
+    }
+
+    //…and under any corner badge, its placement already known: the respond card's note, whose corner reads Edit or Thread
+    static func restingSize(text: String, maxBubbleWidth: CGFloat, placement: BadgePlacement) -> CGSize {
         let textWidth = max(0, maxBubbleWidth - BubbleMetrics.leading - BubbleMetrics.trailing - placement.reservation)
         let layout = textLayoutSize(text: text, width: textWidth, font: BubbleMetrics.uiFont, lineSpacing: BubbleMetrics.lineSpacing)
         let width = ceil(layout.width) + BubbleMetrics.leading + BubbleMetrics.trailing + placement.reservation
@@ -220,15 +244,13 @@ extension MessageBubbleView {
 
     @ViewBuilder
     private var cornerBadge: some View {
-        if let noteBadge {
-            MessageNoteBadge(kind: noteBadge)
-        } else if let isInviteMessage {
-            MessageTimeBadge(date: chat.dateCreated ?? Date(), showsDay: isInviteMessage, showsTime: showsTime, isMyChat: wearsSentColors)
+        if let isInviteMessage {
+            MessageTimeBadge(date: chat.dateCreated ?? Date(), showsDay: isInviteMessage, showsTime: showsTime, isMyChat: isMyChat)
         }
     }
 
     private var bubbleShape: MessageBubbleShape {
-        let side: MessageBubbleTail = isMyChat || isOutsideChat ? .trailing : .leading
+        let side: MessageBubbleTail = isMyChat ? .trailing : .leading
         return MessageBubbleShape(tail: nextIsNewAuthor ? side : .none)
     }
 
@@ -283,7 +305,8 @@ struct MessageTimeBadge: View {
     }
 }
 
-//Edit or Thread, where a sent message's time sits: the respond card's unsent note. Only a label — the note's own press opens it
+//Edit or Thread, where a sent message's time sits: the respond card's unsent note, which draws its own bubble around
+//`MessageBubbleLabel` (`RespondToMessageBar`, whose field morphs into it). Only a label — the note's own press opens it
 struct MessageNoteBadge: View {
     enum Kind {
         case edit //No past messages: the press opens the note alone
