@@ -15,6 +15,7 @@ struct OnboardingInterests: View {
 
     //Local view state
     @State private var selected: [String] = []
+    
 
     var body: some View {
         GenericInterests(selected: $selected)

@@ -9,15 +9,15 @@ import SwiftUI
 
 struct EditIdealMeetup: View {
 
-    @State var dreamDateText: String = ""
-    
     @FocusState var isFocused
     
+    let vm: EditProfileViewModel
     
-    //Local view state
-    @State private var selected: [String] = []
+    @State var idealMeetupTypes: [String]
+    @State var dreamDateText: String?
+    @State var selectedDays: [String]
     
-    @State private var selectedDays: [String] = []
+    @State private var showIncompleteAlert = false
 
     private let rows: [[String]] = [
         ["Drinks", "Coffee", "Brunch", "Lunch"],
@@ -25,19 +25,32 @@ struct EditIdealMeetup: View {
         ["Dinner", "Rave", "A Walk", "Pastries"],
         ["A Movie", "Thrifting", "Park", "Ice Cream"]
     ]
-    
     private let days: [String] = [
         "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
     ]
-    
     private let timeOfDay: [String] = [
         "Lunch", "Afternoon", "Evening", "Night"
     ]
-
+    
+    init(vm: EditProfileViewModel) {
+        self.vm = vm
+        _idealMeetupTypes = .init(wrappedValue: vm.draft.preferredMeetUpType)
+        _dreamDateText = .init(wrappedValue: vm.draft.dreamDateNote)
+        _selectedDays = .init(wrappedValue: vm.draft.availableDays)
+    }
+    
     var body: some View {
         content
             .keyboardDoneButton(isFocused: $isFocused, hide: .dismiss)
             .background(Color.appCanvas.ignoresSafeArea())
+            .onDisappear { savePreferences() }
+            .checkBeforePop(invalid: !idealMeetupTypes.isEmpty && idealMeetupTypes.count < 3, triggerAlert: $showIncompleteAlert)
+            .customAlertCard(
+                isPresented: $showIncompleteAlert,
+                title: "Error",
+                message: "Please choose 3 meetup types",
+                onOK: { showIncompleteAlert.toggle() }
+            )
     }
 }
 
@@ -45,11 +58,8 @@ struct EditIdealMeetup: View {
 // MARK: - The column
 extension EditIdealMeetup {
 
-    //The chips wait out the field's return before they fade back in: the space they take reopens on the
-    //keyboard's clock, they arrive into it a beat behind. Going, they leave with everything else
     private static let chipsReturnLag: TimeInterval = 0.15
 
-    //Everything the keyboard must not shove: it holds still and lifts the one fixed amount instead
     private var content: some View {
         VStack(spacing: isFocused ? Spacing.lg : Spacing.xl) { //24 focused, 36 at rest: the field comes up to the title, the title never moves
             VStack(alignment: .leading, spacing: 8) {
@@ -62,8 +72,6 @@ extension EditIdealMeetup {
             VStack(spacing: 24) {
                 if !isFocused {
                     defaultOptions
-                        //The delay belongs ON the transition — `AnyTransition.blurPop` has no curve of its
-                        //own, so an outer `.animation(_:value:)` would time the whole column, not the chips
                         .transition(.asymmetric(
                             insertion: .blurPop().animation(.transition.delay(Self.chipsReturnLag)),
                             removal: .blurPop()))
@@ -74,10 +82,6 @@ extension EditIdealMeetup {
             if !isFocused {
                 inputtedDays
                     .padding(.top, 12)
-                    //The transition form, not the modifier: nothing sits below these, so holding a slot
-                    //while hidden only makes the column report a height it is not drawing. It also puts
-                    //them on the same lever as the chips — a transition takes a `.delay()`, a `blurPop`
-                    //modifier carries its own curve and cannot
                     .transition(.asymmetric(
                         insertion: .blurPop().animation(.transition.delay(Self.chipsReturnLag)),
                         removal: .blurPop()))
@@ -94,7 +98,7 @@ extension EditIdealMeetup {
             ForEach(rows, id: \.self) { row in
                 HStack(spacing: 18) {      // one row of chips
                     ForEach(row, id: \.self) { option in
-                        OptionCell(text: option,  maxCount: 3, isCapsule: true, selection: $selected)
+                        OptionCell(text: option,  maxCount: 3, isCapsule: true, selection: $idealMeetupTypes)
                     }
                 }
             }
@@ -103,12 +107,12 @@ extension EditIdealMeetup {
     }
     
     private var addDreamMeet: some View {
-        PromptInput(text: $dreamDateText, isFocused: $isFocused, isPrompt: false)
+        PromptInput(text: Binding(unwrapping: $dreamDateText), isFocused: $isFocused, isPrompt: false)
     }
     
     private var inputtedDays: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Text("Preferred Days")
+            Text("Your Preferred Days To Meet")
                 .font(.title(18, .medium))
             
             HStack(spacing: 0) {      // spacing 0: the Spacers carry the gap, so the ends stay on the margin
@@ -135,8 +139,16 @@ extension EditIdealMeetup {
         }
         .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    EditIdealMeetup()
+    
+    private func savePreferences() {
+        if idealMeetupTypes != vm.draft.preferredMeetUpType {
+            vm.set(.preferredMeetUpType, \.preferredMeetUpType, to: idealMeetupTypes)
+        }
+        if dreamDateText != vm.draft.dreamDateNote {
+            vm.set(.dreamDateNote, \.dreamDateNote, to: dreamDateText)
+        }
+        if selectedDays != vm.draft.availableDays {
+            vm.set(.availableDays, \.availableDays, to: selectedDays)
+        }
+    }
 }

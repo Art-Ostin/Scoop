@@ -11,6 +11,7 @@ struct IdealMeetupView: View {
     
     
     let vm: EditProfileViewModel
+    
     @Binding var path: [EditProfileRoute]
 
     var body: some View {

@@ -192,7 +192,7 @@ extension EditProfileContainer {
             case .myLifeAs:              EditMyMedia(vm: vm)
             case .languages:             EditLanguages(vm: vm)
             case .desiredAgeRange:       EditPreferredYears(vm: vm)
-            case .idealMeetup:           EditIdealMeetup()
+            case .idealMeetup:           EditIdealMeetup(vm: vm)
             }
         }
         .navigationBarBackButtonHidden(true)

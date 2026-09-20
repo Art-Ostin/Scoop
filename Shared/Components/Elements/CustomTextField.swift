@@ -76,6 +76,18 @@ struct MessageComposerField: View {
     }
 }
 
+//A stored `String?` read as a field's `String`. Labelled `unwrapping:` on purpose: SwiftUI already
+//ships an unlabelled `Binding.init?(_:)` for optionals, which FAILS to nil rather than substituting,
+//and an unlabelled twin here would be ambiguous with it at every call site.
+extension Binding where Value == String {
+    /// - Parameter empty: what a nil reads as, and the value that writes back as nil. A field the user
+    ///   never filled in and one they cleared then both persist as nil, never as "".
+    init(unwrapping source: Binding<String?>, empty: String = "") {
+        self.init(get: { source.wrappedValue ?? empty },
+                  set: { source.wrappedValue = $0 == empty ? nil : $0 })
+    }
+}
+
 //Text kept to one paragraph (a note, a prompt answer): where a line break would have split it, one space
 extension String {
     var withoutLineBreaks: String {
