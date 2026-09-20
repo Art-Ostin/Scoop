@@ -19,6 +19,7 @@ enum EditProfileRoute: Hashable {
     case lifestyle
     case myLifeAs
     case desiredAgeRange
+    case idealMeetup
 }
 
 
@@ -191,6 +192,7 @@ extension EditProfileContainer {
             case .myLifeAs:              EditMyMedia(vm: vm)
             case .languages:             EditLanguages(vm: vm)
             case .desiredAgeRange:       EditPreferredYears(vm: vm)
+            case .idealMeetup:           EditIdealMeetup()
             }
         }
         .navigationBarBackButtonHidden(true)

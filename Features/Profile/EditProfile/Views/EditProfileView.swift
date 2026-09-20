@@ -20,6 +20,7 @@ struct EditProfileView: View {
         //One scroll view: the photo grid is a bare row so it scrolls with the sections
         List {
             ProfileImages(vm: vm, isEditingImage: $isEditingImage)
+            IdealMeetupView(vm: vm, path: $path)
             PromptsSection(vm: vm, path: $path)
             CoreInfo(vm: vm)
             ExtraInfo(vm: vm)

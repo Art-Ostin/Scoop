@@ -150,10 +150,11 @@ Features/<Name>/
   title styling (large→inline collapse, SFProRounded via `scoopNavigationBarFonts`) depends on
   both staying alive across content swaps. Pagers nest *inside* the vertical scroll.
 - Profiles present at the app root **above** the TabView through
-  `ZoomPresentationHost`; never hide the tab bar for them. Profiles opened from a circular avatar (the Messages
-  toolbar → EditProfile, the chat header → their profile) instead present through `.lensCover`
+  `ZoomPresentationHost`; never hide the tab bar for them. Profiles opened from a circular avatar (the chat
+  header → their profile) instead present through `.lensCover`
   (`LensCover.swift`), a fullScreenCover whose flight lands on `UserProfileImagePager`'s
-  `.lensCoverTarget` pages — `ProfileImageView` draws that pager whenever there is no zoom hero. A source in a toolbar item passes `inToolbarPlatter: true`: a close hides iOS 26's glass platter around it (`PlatterView.isHidden`, instant both ways) and lands the photo wearing a rim grown to that glass. Chat hides the tab bar
+  `.lensCoverTarget` pages — `ProfileImageView` draws that pager whenever there is no zoom hero. The Messages
+  toolbar avatar (→ EditProfile) keeps the native `.zoom` transition by choice — don't port it to `.lensCover`. A source in a toolbar item passes `inToolbarPlatter: true`: a close hides iOS 26's glass platter around it (`PlatterView.isHidden`, instant both ways) and lands the photo wearing a rim grown to that glass. Chat hides the tab bar
   path-based on its container.
 - Keep `ZoomPresentationLayer` mounted beside the `TabView` and inject its
   `ZoomPresentationHost`; otherwise profile presentations fall back inside their tab.

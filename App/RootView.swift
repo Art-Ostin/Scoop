@@ -25,6 +25,8 @@ struct RootView : View {
             WindDismissHarness() //Capture rig for the declined-card wind dismissal
         } else if ProcessInfo.processInfo.arguments.contains("-uiHarnessChatSend") {
             ChatSendHarness() //The real chat on an in-memory repository, for measuring the send flight
+        } else if ProcessInfo.processInfo.arguments.contains("-uiHarnessIdealMeetup") {
+            EditIdealMeetup() //The growing note field and its focus mode, on a signed-out simulator
         } else {
             appBody
         }

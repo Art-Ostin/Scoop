@@ -84,23 +84,26 @@ extension SettingsContainer {
             .padding(.leading, Spacing.md)
     }
     
-    private var keySettingsSection: some View {
-        
-        CustomList(title: "legal") {
-            
-            customRow(text: "Privacy Policy")
-            
-            customDivider
-            
-            customRow(text: "Terms of Service")
+    
+     private var keySettingsSection: some View {
+         
+         CustomList(title: "legal") {
+             
+             customRow(text: "Privacy Policy")
+             
+             customDivider
+             
+             customRow(text: "Terms of Service")
 
-            customDivider
-            
-            customRow(text: "Download My Data (Beta)")
-        }
-        .font(.body(17, .medium))
-        .foregroundStyle(Color.textPrimary)
-    }
+             customDivider
+             
+             customRow(text: "Download My Data (Beta)")
+         }
+         .font(.body(17, .medium))
+         .foregroundStyle(Color.textPrimary)
+     }
+    
+    
     
     private var softDivider: some View {
         Rectangle()

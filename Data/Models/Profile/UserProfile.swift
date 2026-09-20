@@ -24,6 +24,11 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
     var lookingFor: String
     var degree: String
     
+    //2.5 Ideal Meet Up three pieces of info
+    var preferredMeetUpType: [String] = []
+    var dreamDateNote: String?
+    var availableDays: [String] = []
+    
     //3. Extra Info
     var hometown: String
     var interests: [String]
@@ -70,6 +75,8 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
         self.nationality = draft.nationality
         self.lookingFor = draft.lookingFor
         self.degree = draft.degree
+        
+        
 
         self.hometown = draft.hometown
         self.interests = draft.interests
@@ -89,7 +96,8 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
 //Firestore field names (used for update/query keys to avoid typos).
 extension UserProfile {
     enum Field: String {
-        case name, sex, attractedTo, year, height, interests, degree, hometown,
+        case name, sex, attractedTo, year, height, interests, degree,
+             preferredMeetUpType, dreamDateNote, availableDays, hometown,
              nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
              marijuana, drugs, prompt1, prompt2, prompt3, languages,
              favouriteMovie, favouriteSong, favouriteBook,
