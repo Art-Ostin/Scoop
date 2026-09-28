@@ -199,8 +199,10 @@ extension MessagesContainer {
     }
 
     private func prepareUserImages() async {
+        let start = Date() // ⏱
         let gallery = vm.user.imagePathURL //Taken with the load, so the photos always carry the gallery they show
         let images = await vm.loadUserImages()
+        print("⏱ re-seed: \(images.count) photos from ImageLoader \(start.elapsed)") // ⏱
         guard !Task.isCancelled else { return } //A newer gallery's load owns the seed
         userProfileImages = images
         userProfileGallery = gallery

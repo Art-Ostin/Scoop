@@ -17,10 +17,6 @@ extension LinearGradient {
         )
     }
 
-    static func appCanvasFade(startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
-        canvasFade(.appCanvas, startPoint: startPoint, endPoint: endPoint)
-    }
-
     ///A straight 0→100% ramp. Short bands read as a hard edge under the curved variants — their
     ///opacity plateaus through the middle and then cliffs — so a gap-sized fade wants this one.
     static func evenCanvasFade(_ color: Color, startPoint: UnitPoint, endPoint: UnitPoint) -> LinearGradient {
@@ -94,11 +90,13 @@ struct CustomHorizontalScrollFade: ViewModifier {
     let showFade: Bool
     let fromLeading: Bool
     let isCardInvite: Bool
+    let color: Color
 
     func body(content: Content) -> some View {
         content.overlay(alignment: fromLeading ? .leading : .trailing) {
             if showFade {
-                LinearGradient.appCanvasFade(
+                LinearGradient.canvasFade(
+                    color,
                     startPoint: fromLeading ? .leading : .trailing,
                     endPoint: fromLeading ? .trailing : .leading
                 )
@@ -117,13 +115,13 @@ extension View {
     }
 
 
-    func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true, isCardInvite: Bool = false) -> some View {
-        self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite))
+    func customHorizontalScrollFade(width: CGFloat, showFade: Bool, fromLeading: Bool = true, isCardInvite: Bool = false, color: Color = .appCanvas) -> some View {
+        self.modifier(CustomHorizontalScrollFade(width: width, showFade: showFade, fromLeading: fromLeading, isCardInvite: isCardInvite, color: color))
     }
-    
-    func customHScrollFade(showFade: Bool = true) -> some View {
+
+    func customHScrollFade(showFade: Bool = true, color: Color = .appCanvas) -> some View {
         self
-        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: true, isCardInvite: true)
-        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: false, isCardInvite: true)
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: true, isCardInvite: true, color: color)
+        .customHorizontalScrollFade(width: Spacing.margin, showFade: showFade, fromLeading: false, isCardInvite: true, color: color)
     }
 }

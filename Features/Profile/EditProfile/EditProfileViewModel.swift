@@ -93,7 +93,9 @@ import SwiftUI
         if order != Array(order.indices) || !replacements.isEmpty {
             //Moves made on photos that are no longer the stored ones (a stale seed, a second Save after the echo) must not land
             guard isCurrent else { throw GalleryChanged() }
+            let uploadStart = Date() // ⏱
             let uploads = try await upload(replacements, userId: userId)
+            print("⏱ uploads: \(replacements.count) photo(s) in parallel \(uploadStart.elapsed)") // ⏱
             var gallery: [StoredPhoto] = []
             for origin in order {
                 let old = stored.indices.contains(origin) ? stored[origin] : nil
@@ -109,7 +111,9 @@ import SwiftUI
             values[.imagePathURL] = gallery.map(\.url)
         }
         guard !values.isEmpty else { return }
+        let writeStart = Date() // ⏱
         try await userRepo.updateUser(userId: userId, values: values)
+        print("⏱ Firestore updateUser \(writeStart.elapsed)") // ⏱
         didSave = true
         let discarded = replaced
         Task { await discard(discarded) } //Only now does nothing point at them; cleanup never holds the dismiss
@@ -173,7 +177,9 @@ extension EditProfileViewModel {
         let slot = image.index
         guard photoOrder.indices.contains(slot) else { return }
         if images.indices.contains(slot) { images[slot] = image.image }
+        let start = Date() // ⏱
         if let data = image.jpegData { updatedImages[photoOrder[slot]] = data }
+        print("⏱ JPEG encode (main thread) \(start.elapsed) · \(image.image.cgImage?.width ?? 0)×\(image.image.cgImage?.height ?? 0) px · \((updatedImages[photoOrder[slot]]?.count ?? 0) / 1024) KB") // ⏱
     }
 
     //Mirrors ImageLoader.loadProfileImages' compactMap, so index i here is the i-th photo it loads

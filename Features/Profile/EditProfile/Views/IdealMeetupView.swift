@@ -57,7 +57,7 @@ extension IdealMeetupView {
                 }
             }
             .contentMargins(.horizontal, 20, for: .scrollContent)
-            .customHScrollFade()
+            .customHScrollFade(color: .white)
         }
     }
     

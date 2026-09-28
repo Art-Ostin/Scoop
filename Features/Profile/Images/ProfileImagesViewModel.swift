@@ -29,6 +29,7 @@ import UIKit
     
     //Have a guard statement on the actual button for 'valid tap' so that the images are all non-optional (as they should be)
     func saveAll(images: [UIImage?]) async  {
+        let start = Date() // ⏱
         guard let userId = await auth.fetchAuthUser()?.uid else { return }
         let items = Array(images.enumerated())
         let storage = self.storageService
@@ -37,9 +38,11 @@ import UIKit
             try await withThrowingTaskGroup(of: (Int, String, URL).self) { group in
                 for (i, image) in items {
                     group.addTask {
+                        let encodeStart = Date() // ⏱
                         guard let image = image, let data = Self.jpegDataForUpload(from: image) else {
                             throw ImageEncodingError.encodingFailed
                         }
+                        print("⏱ photo \(i): redraw + JPEG \(encodeStart.elapsed) · \(data.count / 1024) KB") // ⏱
                         let (path, url) = try await storage.saveImage(data: data, userId: userId)
                         return (i, path, url)
                     }
@@ -49,6 +52,7 @@ import UIKit
                 }
             }
         } catch {print(error) }
+        print("⏱ TOTAL onboarding upload (\(items.count) photos) \(start.elapsed)") // ⏱
         let sorted = results.sorted { $0.index < $1.index }
         defaults.mutateSignUpDraft { draft in
             draft.imagePath = sorted.map { $0.path }

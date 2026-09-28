@@ -29,15 +29,21 @@ class StorageService: StorageServicing {
         let basePath = "users/\(userId)/\(filename)"
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
+        let start = Date(), tag = filename.prefix(4) // ⏱
         _ = try await imagePath(basePath).putDataAsync(data, metadata: meta)
+        print("⏱ [\(tag)] putData \(start.elapsed) · \(data.count / 1024) KB") // ⏱
+        let uploaded = Date() // ⏱
         let vPath = variantPath(from: basePath)
         let vRef  = imagePath(vPath)
         try await Task.sleep(nanoseconds: UInt64(1_000_000_000)) //Delay here speeds up image upload
         for attempt in 0..<10 { // delays: 0.5s, 1s, 2s, 4s, 8s, 16s
+            let ask = Date() // ⏱
             do {
                 let url = try await vRef.downloadURL()
+                print("⏱ [\(tag)] resized ✓ try \(attempt + 1) at +\(uploaded.elapsed) (round trip \(ask.elapsed)) · saveImage \(start.elapsed)") // ⏱
                 return (vPath, url)
             } catch {
+                print("⏱ [\(tag)] resized ✗ try \(attempt + 1) at +\(uploaded.elapsed) (round trip \(ask.elapsed)): \(error.localizedDescription)") // ⏱
                 let delaySeconds =  pow(2.0, Double(attempt))
                 try await Task.sleep(nanoseconds: UInt64(delaySeconds * 1_000_000_000))
             }
@@ -58,3 +64,4 @@ class StorageService: StorageServicing {
         return "\(dir)/\(base).\(ext)"
     }
 }
+extension Date { var elapsed: String { String(format: "%.2fs", -timeIntervalSinceNow) } } // ⏱ temp timing helper

@@ -164,14 +164,17 @@ extension EditProfileContainer {
     //Handed to EditProfileView's toolbar: the loading screen and the cover's dismissal are
     //this container's state, so the write stays here and only the button moves to the bar.
     private func saveProfile() {
+        let start = Date() // ⏱
         Task { @MainActor in
             if !vm.updatedImages.isEmpty {
                 showSavingScreen = true
             }
             do {
                 try await vm.saveProfileChanges()
+                print("⏱ TOTAL Save tap → dismiss \(start.elapsed)") // ⏱
                 dismiss()
             } catch {
+                print("⏱ TOTAL Save failed after \(start.elapsed)") // ⏱
                 editProfileLog.error("Profile save failed: \(String(describing: error), privacy: .public)")
                 showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
             }
