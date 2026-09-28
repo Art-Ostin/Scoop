@@ -22,12 +22,9 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
     var height: String
     var nationality: [String]
     var lookingFor: String
+    var lookingForText: String
     var degree: String
-    
-    //2.5 Ideal Meet Up three pieces of info
-    var preferredMeetUpType: [String] = []
-    var dreamDateNote: String?
-    var availableDays: [String] = []
+    var meetupPreferences: MeetupPreferences = MeetupPreferences(preferredActivities: [], preferredDays: [], dreamDate: "")
     
     //3. Extra Info
     var hometown: String
@@ -74,9 +71,8 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
         self.height = draft.height
         self.nationality = draft.nationality
         self.lookingFor = draft.lookingFor
+        self.lookingForText = draft.lookingForText
         self.degree = draft.degree
-        
-        
 
         self.hometown = draft.hometown
         self.interests = draft.interests
@@ -97,8 +93,8 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
 extension UserProfile {
     enum Field: String {
         case name, sex, attractedTo, year, height, interests, degree,
-             preferredMeetUpType, dreamDateNote, availableDays, hometown,
-             nationality, lookingFor, imagePath, imagePathURL, drinking, smoking,
+             meetupPreferences, hometown,
+             nationality, lookingFor, lookingForText, imagePath, imagePathURL, drinking, smoking,
              marijuana, drugs, prompt1, prompt2, prompt3, languages,
              favouriteMovie, favouriteSong, favouriteBook,
              preferredYears, cancelCount, frozenUntil, blockedContext, isBlocked, rating, createdAt

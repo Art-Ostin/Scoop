@@ -43,10 +43,13 @@ struct EditNationality: View {
     
     var body: some View {
         GenericNationality(countriesSelected: $countriesSelected) { countriesSelected.toggle($0, limit: 3)}
-        .onDisappear {
-            guard countriesSelected != vm.draft.nationality else { return }
-            vm.set(.nationality, \.nationality, to: countriesSelected)
-        }
+        .commitBeforePop { commit() } //At the TAP: the list behind is current before the pop starts
+        .onDisappear { commit() }      //A net for exits that skip the back button; a second call writes nothing
+    }
+
+    private func commit() {
+        guard countriesSelected != vm.draft.nationality else { return }
+        vm.set(.nationality, \.nationality, to: countriesSelected)
     }
 }
 
@@ -82,7 +85,7 @@ struct GenericNationality: View {
                 nationalitiesView
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(.top, Spacing.xxxl)
+            .padding(.top, Spacing.md)
             .background(Color.appCanvas)
             .overlay {alphabet}
     }

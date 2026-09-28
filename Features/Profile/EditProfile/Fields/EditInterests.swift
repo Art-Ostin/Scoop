@@ -44,14 +44,18 @@ struct EditInterests: View {
         self.vm = vm
         _selected = .init(wrappedValue: vm.draft.interests)
     }
+
+    //Committed at the back tap, not on disappear: `onDisappear` lands a whole transition late, so the
+    //list behind renders its old interests for the length of the slide and then snaps to these
+    private func commit() {
+        guard selected != vm.draft.interests else { return }
+        vm.set(.interests, \.interests, to: selected)
+    }
     
     var body: some View {
         GenericInterests(selected: $selected)
-            .checkBeforePop(invalid: selected.count < 6, triggerAlert: $showEmptyAlert)
-            .onDisappear {
-                guard selected != vm.draft.interests else { return}
-                vm.set(.interests, \.interests, to: selected)
-            }
+            .checkBeforePop(invalid: selected.count < 6, triggerAlert: $showEmptyAlert) { commit() } //At the TAP: the list behind is current before the pop starts
+            .onDisappear { commit() } //A net for exits that skip the back button; a second call writes nothing
             .customAlertCard(
                 isPresented: $showEmptyAlert,
                 title: "Error",
@@ -89,7 +93,7 @@ struct GenericInterests: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollTitle(selectedCount: selected.count, totalCount: maxCount, title: "Passions")
-                .padding(.top, Spacing.xxxl)
+                .padding(.top, Spacing.md)
             selectedInterestsView
             interestsSections
         }

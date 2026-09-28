@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PhotosUI
 
 struct ImageCell: View {
     let image: UIImage
@@ -45,33 +44,33 @@ struct OnboardingPhotoCell: View {
 
     //Injected
     @Binding var selectedImage: ImageSlot?
-    let index: Int
-    @Binding var image: UIImage?
-
-    //Local view state
-    @State private var pickerItem: PhotosPickerItem?
+    let index: Int //The photo's tile: which photo it is, not where it sits in the grid
+    let image: UIImage?
+    let isLoading: Bool //A pick has claimed this cell and is still loading
+    let onAdd: () -> Void //Opens the grid's one picker from this cell, which can fill several at once
 
     var body: some View {
         Group {
             if let image {
                 ImageCell(image: image, size: 120)
                     .onTapGesture {selectedImage = ImageSlot(index: index, image: image)}
+            } else if isLoading {
+                loadingTile
             } else {
                 placeHolderView
             }
         }
         .shadow(.button, strength: selectedImage?.index == index ? 1 : 0)
-        .task(id: pickerItem) {await loadPickedImage()}
     }
 }
 
 extension OnboardingPhotoCell {
     private var placeHolderView: some View {
-        PhotosPicker(selection: $pickerItem, matching: .images) {
+        Button(action: onAdd) {
             imagePlaceholder
         }
     }
-        
+
     private var imagePlaceholder: some View {
         Image("ImagePlaceholder")
             .resizable()
@@ -79,14 +78,12 @@ extension OnboardingPhotoCell {
             .frame(width: 120, height: 120)
             .clipShape(.rect(cornerRadius: CornerRadius.smallImage))
     }
-    
-    func loadPickedImage () async {
-        guard let item = pickerItem else { return }
-        //Optional read: a failed pick just leaves the placeholder
-        if let data = try? await item.loadTransferable(type: Data.self),
-           let uiImage = UIImage(data: data) {
-            self.image = uiImage
-        }
+
+    private var loadingTile: some View {
+        RoundedRectangle(cornerRadius: CornerRadius.smallImage)
+            .fill(Color.fillGray)
+            .frame(width: 120, height: 120)
+            .overlay { ProgressView() }
     }
 }
 

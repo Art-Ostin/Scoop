@@ -20,6 +20,7 @@ struct DraftProfile: Codable {
     var hometown = ""
     var nationality: [String] = []
     var lookingFor = ""
+    var lookingForText = "" //Drafts saved before this field existed still decode
     var imagePath: [String] = []
     var imagePathURL: [String] = []
     var drinking = ""

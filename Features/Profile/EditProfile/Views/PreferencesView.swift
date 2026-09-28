@@ -13,8 +13,8 @@ struct PreferencesView: View {
     private var preferences: [EditPreview] {
         let p = vm.draft
         return [
-            EditPreview("Attracted To", [p.attractedTo], route: .option(.attractedTo)),
-            EditPreview("Age Preference", p.preferredYears, route: .desiredAgeRange)
+            EditPreview(title: "Attracted To", response: [p.attractedTo], route: .option(.attractedTo)),
+            EditPreview(title: "Age Preference", response: p.preferredYears, route: .desiredAgeRange)
         ]
     }
     

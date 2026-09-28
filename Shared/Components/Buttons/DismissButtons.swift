@@ -64,10 +64,14 @@ extension EnvironmentValues {
     }
 }
 
-/// Refuses the pop while `invalid`, raising the screen's own alert instead.
+/// Refuses the pop while `invalid`, raising the screen's own alert instead — and commits on the way
+/// out, at the tap, so the list behind is already current before the pop begins.
 struct CheckBeforePop: ViewModifier {
     let invalid: Bool
     @Binding var triggerAlert: Bool
+    /// Run when the pop is ALLOWED, before it happens. `onDisappear` is a transition too late: the
+    /// screen behind renders its old values for the whole slide and then snaps.
+    let onPop: (() -> Void)?
 
     @Environment(\.popGuard) private var popGuard
 
@@ -77,7 +81,7 @@ struct CheckBeforePop: ViewModifier {
             //not the one captured when the screen appeared.
             .onChange(of: invalid, initial: true) {
                 popGuard.wrappedValue = {
-                    guard invalid else { return true }
+                    guard invalid else { onPop?(); return true }
                     triggerAlert = true
                     return false
                 }
@@ -87,8 +91,16 @@ struct CheckBeforePop: ViewModifier {
 }
 
 extension View {
-    func checkBeforePop(invalid: Bool, triggerAlert: Binding<Bool>) -> some View {
-        modifier(CheckBeforePop(invalid: invalid, triggerAlert: triggerAlert))
+    func checkBeforePop(invalid: Bool, triggerAlert: Binding<Bool>, onPop: (() -> Void)? = nil) -> some View {
+        modifier(CheckBeforePop(invalid: invalid, triggerAlert: triggerAlert, onPop: onPop))
+    }
+
+    /// Commits at the back tap for a screen with nothing to validate. `onDisappear` is a transition too
+    /// late — the screen behind renders its old values for the length of the slide and then snaps to the
+    /// new ones. Never refuses the pop; a screen that must also refuse uses `checkBeforePop` instead,
+    /// which carries the same hook (both write the one `popGuard`, so a screen takes one or the other).
+    func commitBeforePop(_ commit: @escaping () -> Void) -> some View {
+        modifier(CheckBeforePop(invalid: false, triggerAlert: .constant(false), onPop: commit))
     }
 }
 

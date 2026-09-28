@@ -140,22 +140,25 @@ extension InvitedTimeCell {
         dismissMenu()
     }
     
-    private func resetShakeFlag()  async  {
+    private func resetShakeFlag() async  {
         guard isShaking else { return }
         do { try await Task.sleep(for: .seconds(1)) } catch { return }
         withAnimation(.transition) { isShaking = false }
     }
 }
 
-private extension View {
-    func invitedTimeCellBackground(isSelected: Bool, isActive: Bool) -> some View {
+extension View {
+    func invitedTimeCellBackground(isSelected: Bool, isActive: Bool, isLookingFor: Bool = false) -> some View {
         self
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.md)
             .padding(.vertical, Spacing.sm)
-            .frame(minHeight: invitedTimeCellHeight)
+            .frame(minHeight: isLookingFor ? 64 : invitedTimeCellHeight)
             .background(Color.white, in: .rect(cornerRadius: CornerRadius.md))
-            .stroke(CornerRadius.md, color: isSelected ? Color.accent : isActive ? Color.borderLight: Color.borderLight.opacity(isActive ? 0.9 : 1) )
+            .stroke(CornerRadius.md, color:
+                        isSelected ? Color.accent :
+                        isActive ? (isLookingFor ? Color.borderLight.opacity(0.8) : Color.borderLight) :
+                        Color.borderLight.opacity(isActive ? 0.9 : 1) )
             .contentShape(.rect(cornerRadius: CornerRadius.md)) //the tap follows the card; ScoopButton's shape went with it
     }
 }

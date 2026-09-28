@@ -13,9 +13,10 @@ struct EditIdealMeetup: View {
     
     let vm: EditProfileViewModel
     
-    @State var idealMeetupTypes: [String]
-    @State var dreamDateText: String?
-    @State var selectedDays: [String]
+    @State var activities: [String]
+    @State var preferredDays: [String]
+    @State var dreamDate: String
+
     
     @State private var showIncompleteAlert = false
 
@@ -28,15 +29,12 @@ struct EditIdealMeetup: View {
     private let days: [String] = [
         "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
     ]
-    private let timeOfDay: [String] = [
-        "Lunch", "Afternoon", "Evening", "Night"
-    ]
     
     init(vm: EditProfileViewModel) {
         self.vm = vm
-        _idealMeetupTypes = .init(wrappedValue: vm.draft.preferredMeetUpType)
-        _dreamDateText = .init(wrappedValue: vm.draft.dreamDateNote)
-        _selectedDays = .init(wrappedValue: vm.draft.availableDays)
+        _activities = .init(wrappedValue: vm.draft.meetupPreferences.preferredActivities)
+        _preferredDays = .init(wrappedValue: vm.draft.meetupPreferences.preferredDays)
+        _dreamDate = .init(wrappedValue: vm.draft.meetupPreferences.dreamDate)
     }
     
     var body: some View {
@@ -44,7 +42,8 @@ struct EditIdealMeetup: View {
             .keyboardDoneButton(isFocused: $isFocused, hide: .dismiss)
             .background(Color.appCanvas.ignoresSafeArea())
             .onDisappear { savePreferences() }
-            .checkBeforePop(invalid: !idealMeetupTypes.isEmpty && idealMeetupTypes.count < 3, triggerAlert: $showIncompleteAlert)
+            .checkBeforePop(invalid: !activities.isEmpty && activities.count < 3,
+                            triggerAlert: $showIncompleteAlert) { savePreferences() } //At the TAP: the list behind is current before the pop starts
             .customAlertCard(
                 isPresented: $showIncompleteAlert,
                 title: "Error",
@@ -64,7 +63,7 @@ extension EditIdealMeetup {
         VStack(spacing: isFocused ? Spacing.lg : Spacing.xl) { //24 focused, 36 at rest: the field comes up to the title, the title never moves
             VStack(alignment: .leading, spacing: 8) {
                 SignUpTitle(text: "Ideal Meetup")
-                Text("Choose 3")
+                Text("Choose at least 3")
                     .blurPop(visible: !isFocused, scale: 1)
                     .customCaption()
             }
@@ -89,7 +88,7 @@ extension EditIdealMeetup {
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, 84)
+        .padding(.top, Spacing.lg)
         .animation(.keyboard, value: isFocused) //one transaction: the gap, the chips and the caption all leave on it
     }
 
@@ -98,7 +97,7 @@ extension EditIdealMeetup {
             ForEach(rows, id: \.self) { row in
                 HStack(spacing: 18) {      // one row of chips
                     ForEach(row, id: \.self) { option in
-                        OptionCell(text: option,  maxCount: 3, isCapsule: true, selection: $idealMeetupTypes)
+                        OptionCell(text: option,  maxCount: 5, isCapsule: true, selection: $activities)
                     }
                 }
             }
@@ -107,7 +106,7 @@ extension EditIdealMeetup {
     }
     
     private var addDreamMeet: some View {
-        PromptInput(text: Binding(unwrapping: $dreamDateText), isFocused: $isFocused, isPrompt: false)
+        PromptInput(text: $dreamDate, isFocused: $isFocused, isPrompt: false)
     }
     
     private var inputtedDays: some View {
@@ -117,7 +116,7 @@ extension EditIdealMeetup {
             
             HStack(spacing: 0) {      // spacing 0: the Spacers carry the gap, so the ends stay on the margin
                 ForEach(days, id: \.self) { day in
-                    OptionCell(text: day, maxCount: 4, isCapsule: true, selection: $selectedDays, isCircle: true)
+                    OptionCell(text: day, maxCount: 4, isCapsule: true, selection: $preferredDays, isCircle: true)
 
                     if day != days.last {
                         Spacer(minLength: Spacing.xxs)
@@ -126,29 +125,8 @@ extension EditIdealMeetup {
             }
         }
     }
-    
-    private var preferredTimeOfDay: some View {
-        HStack(spacing: 0) {      // spacing 0: an HStack gap lands on BOTH sides of a Spacer
-            ForEach(timeOfDay, id: \.self) { day in
-                OptionCell(text: day, maxCount: 100, isCapsule: true, selection: $selectedDays)
-
-                if day != timeOfDay.last {
-                    Spacer(minLength: Spacing.xxs)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-    }
-    
+        
     private func savePreferences() {
-        if idealMeetupTypes != vm.draft.preferredMeetUpType {
-            vm.set(.preferredMeetUpType, \.preferredMeetUpType, to: idealMeetupTypes)
-        }
-        if dreamDateText != vm.draft.dreamDateNote {
-            vm.set(.dreamDateNote, \.dreamDateNote, to: dreamDateText)
-        }
-        if selectedDays != vm.draft.availableDays {
-            vm.set(.availableDays, \.availableDays, to: selectedDays)
-        }
+        vm.setMeetupPreferences(MeetupPreferences(preferredActivities: activities, preferredDays: preferredDays, dreamDate: dreamDate))
     }
 }

@@ -13,20 +13,21 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var vm: EditProfileViewModel
 
-    @Binding var path: [EditProfileRoute]
     @Binding var isEditingImage: Bool //Written by the photo grid's editor, read by the container's dismissal
+    @Binding var isReorderingImage: Bool //Raised while a grid photo is lifted, read by the container's dismissal
 
     var body: some View {
         //One scroll view: the photo grid is a bare row so it scrolls with the sections
         List {
             ProfileImages(vm: vm, isEditingImage: $isEditingImage)
-            IdealMeetupView(vm: vm, path: $path)
-            PromptsSection(vm: vm, path: $path)
+            IdealMeetupView(vm: vm)
+            PromptsSection(vm: vm)
             CoreInfo(vm: vm)
             ExtraInfo(vm: vm)
-            InterestsView(vm: vm, path: $path)
+            InterestsView(vm: vm)
             PreferencesView(vm: vm)
         }
+        .reorderLiftLayer(isReordering: $isReorderingImage) //A lifted photo floats here, above its row's clip, and the List holds still under it
         .environment(\.defaultMinListRowHeight, 0)
         .contentMargins(.top, 12, for: .scrollContent)
         .contentMargins(.bottom, Spacing.clearance + 24, for: .scrollContent) //clears the floating edit button

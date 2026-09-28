@@ -18,8 +18,11 @@ struct MessagesContainer: View {
     
     //Local view state
     @State private var userProfileImages: [UIImage] = []
+    @State private var userProfileGallery: [String] = [] //The stored imagePathURL those photos were loaded from
     @State private var showSettings = false
     @State private var showProfile = false
+    @State private var editProfileVM: EditProfileViewModel? //Built on each open; outlives the cover so a swipe away can still save
+    @State private var showSaveAlert = false
     @Namespace private var settingsZoom
     @Namespace private var profileZoom
     
@@ -44,12 +47,23 @@ struct MessagesContainer: View {
                 
                 .navigationDestination(for: PastEventsRoute.self, destination: destination)
                 .fullScreenCover(isPresented: $showSettings) {settingScreen()}
-                .fullScreenCover(isPresented: $showProfile) {userProfileScreen()}
+                .fullScreenCover(isPresented: $showProfile, onDismiss: offerToSave) { [editProfileVM] in //Captured so the body tracks it, or the cover opens on a stale nil
+                    userProfileScreen(editProfileVM)
+                }
             }
         }
         .ignoresSafeArea()
-        .task { await prepareUserImages() }
+        .task(id: vm.user.imagePathURL) { await prepareUserImages() } //Re-seeds after a save, so Edit Profile reopens on the stored order
         .hideTabBar(!path.isEmpty)
+        .customAlertCard(
+            isPresented: $showSaveAlert,
+            title: "Unsaved Changes",
+            message: "Would you like to save your changes",
+            cancelTitle: "No",
+            okTitle: "Yes",
+            onOK: saveEdits,
+            onCancel: { showSaveAlert = false } //The card's buttons don't close it themselves
+        )
     }
 }
 
@@ -90,6 +104,7 @@ extension MessagesContainer {
             SmallImage(image: img, size: 32, isCircle: true)
                 .matchedTransitionSource(id: "profile", in: profileZoom)
                 .shrinkPress {
+                    editProfileVM = makeEditProfileVM()
                     showProfile = true
                 }
         }
@@ -121,22 +136,30 @@ extension MessagesContainer {
         }
     }
     
-    private func userProfileScreen() -> some View {
-        EditProfileContainer(
-            vm: EditProfileViewModel(
-                session: vm.session,
-                storageService: vm.storageService,
-                userRepo: vm.userRepo,
-                imageLoader: vm.imageLoader,
-                importedImages: userProfileImages
-            ),
-            profileVM: ProfileViewModel(
-                profile: vm.user,
-                imageLoader: vm.imageLoader,
-                defaults: vm.defaults
+    @ViewBuilder
+    private func userProfileScreen(_ editVM: EditProfileViewModel?) -> some View {
+        if let editVM {
+            EditProfileContainer(
+                vm: editVM,
+                profileVM: ProfileViewModel(
+                    profile: vm.user,
+                    imageLoader: vm.imageLoader,
+                    defaults: vm.defaults
+                )
             )
+            .navigationTransition(.zoom(sourceID: "profile", in: profileZoom))
+        }
+    }
+
+    private func makeEditProfileVM() -> EditProfileViewModel {
+        EditProfileViewModel(
+            session: vm.session,
+            storageService: vm.storageService,
+            userRepo: vm.userRepo,
+            imageLoader: vm.imageLoader,
+            importedImages: userProfileImages,
+            importedGallery: userProfileGallery
         )
-        .navigationTransition(.zoom(sourceID: "profile", in: profileZoom))
     }
     
     private func settingScreen() -> some View {
@@ -160,8 +183,27 @@ extension MessagesContainer {
 //3. components only used in this screen
 extension MessagesContainer {
     
+    //Any close, swipe or X, that leaves edits no save has landed offers them a save here
+    private func offerToSave() {
+        if editProfileVM?.hasUnsavedChanges == true { showSaveAlert = true }
+    }
+
+    //The cover is already gone, so the write runs behind the Messages screen
+    private func saveEdits() {
+        showSaveAlert = false
+        guard let editProfileVM else { return }
+        Task {
+            do { try await editProfileVM.saveProfileChanges() }
+            catch {} // TODO: surface the failure via InAppNotificationCenter
+        }
+    }
+
     private func prepareUserImages() async {
-        userProfileImages = await vm.loadUserImages()
+        let gallery = vm.user.imagePathURL //Taken with the load, so the photos always carry the gallery they show
+        let images = await vm.loadUserImages()
+        guard !Task.isCancelled else { return } //A newer gallery's load owns the seed
+        userProfileImages = images
+        userProfileGallery = gallery
     }
     
     private func updateMessagesToRead(_ eventProfile: EventProfile) async throws {

@@ -12,7 +12,6 @@ struct PromptsSection: View {
 
     //Injected
     @Bindable var vm: EditProfileViewModel
-    @Binding var path: [EditProfileRoute]
 
     private var prompts: [PromptResponse] {
         [vm.draft.prompt1, vm.draft.prompt2, vm.draft.prompt3]
@@ -21,12 +20,10 @@ struct PromptsSection: View {
     var body: some View {
         Section {
             ForEach(prompts.indices, id: \.self) { i in
-                Button { path.append(.prompt(i)) } label: {
-                    promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
-                }
-                .listRowInsets(EdgeInsets(top: 20, leading: Spacing.md, bottom: i == 2 ? 20 : Spacing.xxs, trailing: Spacing.md))
-                .buttonStyle(.plain)
-                .listRowSeparator(.hidden)
+                promptResponse(prompt: prompts[i].prompt, response: prompts[i].response)
+                    .editorLink(.prompt(i))
+                    .listRowInsets(EdgeInsets(top: 20, leading: Spacing.md, bottom: i == 2 ? 20 : Spacing.xxs, trailing: Spacing.md))
+                    .listRowSeparator(.hidden)
             }
         } header: {
             Text("Prompts")

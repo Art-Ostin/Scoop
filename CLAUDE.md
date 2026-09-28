@@ -160,6 +160,10 @@ Features/<Name>/
   `ZoomPresentationHost`; otherwise profile presentations fall back inside their tab.
 - `CustomMenu` content/footer renders in a separate UIWindow: it must be its own `View` struct,
   or `@Environment(\.customMenuDismiss)` silently no-ops.
+- Photo grids reorder through `Shared/Modifiers/ReorderableGrid.swift`: `.reorderableGrid` on the grid and
+  `.reorderableCell` on each cell, with the ForEach keyed by the same ids. The lift is a UIKit long press on
+  purpose — every SwiftUI LongPress/Drag pairing starves the List's pan or lets the cell's Button fire after the
+  drop. A grid inside a List row puts `.reorderLiftLayer()` on the List, because the row clips the lifted photo.
 
 ## Naming
 
@@ -173,7 +177,7 @@ Features/<Name>/
 The codebase is converging on this document (see git history on branch work from July 2026).
 Remaining known debt: dead-code sweep, DI label unification (`s:` → `session:`), Firebase
 imports still inside `Features/` (`Events/EventsViewModel.swift`, `Onboarding/OnboardingViewModel.swift`,
-`Onboarding/Login/VerifyEmailViewModel.swift`, `Profile/EditProfile/EditProfileViewModel.swift`,
+`Onboarding/Login/VerifyEmailViewModel.swift`,
 `Profile/EditProfile/Fields/EditInterests.swift` and `EditNationality.swift`, and the chat models
 `Messages/Chat/Models/ChatMessage.swift`, `ChatThread.swift`, `ChatState.swift` — the
 `@DocumentID`/`@ServerTimestamp` wrappers the listener echo decodes through), hardcoded colors/fonts sweep, error-handling

@@ -155,29 +155,36 @@ struct PromptInput: View {
     var isFocused: FocusState<Bool>.Binding
     
     let isPrompt: Bool
+    var isLookingFor: Bool = false
 
     //Local view state
-    @State private var floorHeight: CGFloat = 0 //Four lines of this field's own type, measured — see `floorTwin`
+    @State private var floorHeight: CGFloat = 0 //`floorLines` of this field's own type, measured — see `floorTwin`
 
     //The growing field's floor. Measured rather than computed: a line's height is the font's, and
-    //`lineSpacing` only falls BETWEEN lines, so four lines is not four of anything you can multiply
-    private static let floorLines = 4
-    private static let floorProbe = Array(repeating: "x", count: floorLines).joined(separator: "\n")
+    //`lineSpacing` only falls BETWEEN lines, so four lines is not four of anything you can multiply.
+    //Looking For stands at two: its box holds the first two lines and grows from the third
+    private var floorLines: Int { isLookingFor ? 2 : 4 }
+    private var floorProbe: String { Array(repeating: "x", count: floorLines).joined(separator: "\n") }
     private static let probeWidth: CGFloat = 100 //Geometry: room for the probe's one-letter lines, no more
-    //Geometry: the placeholder's own inset — the field is padded to the same, so the two coincide by construction
-    private static let textInset = (horizontal: 22.0, vertical: Spacing.lg)
+    //Geometry: where the text sits in the box — the placeholder and the growing field are both padded to it, so
+    //the two coincide by construction. Looking For centres its first line where the option rows above it centre
+    //their label: 16 in, and (56 − 17) / 2 down, a 17pt line centred in the 56pt row — 81pt at rest (19.5 + 42 + 19.5)
+    private var textInset: (horizontal: CGFloat, vertical: CGFloat) {
+        isLookingFor ? (horizontal: Spacing.md, vertical: 19.5) : (horizontal: 22, vertical: Spacing.lg)
+    }
 
-    var placeholderText: String { isPrompt ? "Type your response here" : "Describe the Dream Meetup..."}
-    var cornerRadius: CGFloat { isPrompt ? 24 : 16 }
-    var height: CGFloat { isPrompt ? 120 : 130 }
-    var maxChars: Int { isPrompt ? 110 : 200 }
-    var lineLimit: Int { isPrompt ? 3 : 100 }
+    var placeholderText: String { isPrompt ? "Type your response here" : isLookingFor ? "Describe the kind of thing you want" : "Describe the Dream Meetup..."}
+    var cornerRadius: CGFloat { isPrompt ? CornerRadius.xl : CornerRadius.md }
+    var maxChars: Int { isPrompt || isLookingFor ? 110 : 200 }
+    //The prompts' fixed box. Nothing here sizes the growing field — that holds at `floorLines`
+    private static let promptHeight: CGFloat = 120
+    private static let promptLineLimit = 3
     
     
     var body: some View {
         ZStack(alignment: .topLeading) {
             editor
-                .background(Color.clear)
+                .background(isLookingFor ? Color.white : Color.clear, in: RoundedRectangle(cornerRadius: cornerRadius))
                 .lineSpacing(8)
                 .font(.body(17, .medium))
                 .focused(isFocused)
@@ -210,17 +217,16 @@ struct PromptInput: View {
                 Text(placeholderText)
                     .font(.body(17, .medium))
                     .foregroundStyle(Color.textPlaceholder)
-                // Geometry: match the TextEditor’s visual inset
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, Spacing.lg)
+                    .padding(.horizontal, textInset.horizontal) //Geometry: on the field's own text — see `textInset`
+                    .padding(.vertical, textInset.vertical)
                     .allowsHitTesting(false)
             }
         }
         .stroke(cornerRadius, lineWidth: 0.5)
     }
 
-    //The prompts keep the box they have: a fixed four-ish lines that scrolls. Ideal Meetup's grows —
-    //it stands at four lines and takes a line at a time as the text wraps past them
+    //The prompts keep the box they have: a fixed four-ish lines that scrolls. Ideal Meetup's and Looking
+    //For's grow — they stand at `floorLines` (four, two) and take a line at a time as the text wraps past them
     @ViewBuilder
     private var editor: some View {
         if isPrompt {
@@ -228,20 +234,22 @@ struct PromptInput: View {
                 .contentMargins(16)
                 .scrollContentBackground(.hidden)
                 .frame(maxWidth: .infinity)
-                .frame(height: height)
+                .frame(height: Self.promptHeight)
                 .customScrollFade(height: Spacing.lg, color: .appCanvas, edge: .top, curve: .even)
                 .customScrollFade(height: Spacing.lg, color: .appCanvas, edge: .bottom, curve: .even)
-                .lineLimit(lineLimit)
+                .lineLimit(Self.promptLineLimit)
         } else {
             TextField("", text: $text, axis: .vertical)
+                .textClipDisabled() //ModernEra's accents and descenders overhang its clip: see TextClipDisabler
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .frame(minHeight: floorHeight, alignment: .top) //The floor sits on the TEXT, so the insets below are clear of it
                 //NOT `.contentMargins(16)`: measured on an iPhone 17 Pro (2026-09-20) it is a no-op on a
                 //vertical TextField — the text lands flush in the corner. This padding IS the prompts'
                 //`contentMargins(16)`, restated: a TextEditor adds its own ~5pt lineFragmentPadding on top
-                //of that margin, so 22 here puts the two fields' text on the same line as each other
-                .padding(.horizontal, Self.textInset.horizontal)
-                .padding(.vertical, Self.textInset.vertical)
+                //of that margin, so 22 here puts the two fields' text on the same line as each other.
+                //Looking For lines up with its option rows instead — see `textInset`
+                .padding(.horizontal, textInset.horizontal)
+                .padding(.vertical, textInset.vertical)
                 .background(alignment: .topLeading) { floorTwin }
                 //A vertical TextField is only as tall as its text — it does NOT fill the box the floor
                 //holds open, so without this the box takes taps on its first line alone. The TextEditor
@@ -256,7 +264,7 @@ struct PromptInput: View {
     //lines never wrap, so a fixed narrow width gives the same answer as the real one — and is typeset
     //once instead of on every keystroke
     private var floorTwin: some View {
-        TextField("", text: .constant(Self.floorProbe), axis: .vertical)
+        TextField("", text: .constant(floorProbe), axis: .vertical)
             .font(.body(17, .medium))
             .lineSpacing(8)
             .frame(width: Self.probeWidth)
@@ -266,52 +274,57 @@ struct PromptInput: View {
     }
 }
 
-/*
- 
- ZStack(alignment: .topLeading) {
-     TextEditor(text: $prompt.response)
-         .padding()
-         .scrollContentBackground(.hidden)
-         .frame(maxWidth: .infinity)
-         .frame(height: 120)
-         .lineSpacing(8)
-         .font(.body(17, .medium))
-         .focused($isFocused)
-         .submitLabel(.done)
-         .lineLimit(3)
-         .onChange(of: prompt.response) { oldValue, newValue in
-             if newValue.contains(where: \.isNewline) {
-                 if newValue.filter({ !$0.isNewline }) == oldValue { //Return, reading Done: closes the keyboard
-                     prompt.response = oldValue
-                     isFocused = false
-                 } else {
-                     prompt.response = String(newValue.withoutLineBreaks.prefix(maxChars)) //Pasted or dictated
-                 }
-             } else if newValue.count > maxChars {
-                 prompt.response = String(newValue.prefix(maxChars))
-             }
-         }
-         .overlay(alignment: .bottomTrailing) {
-             let remaining = max(0, maxChars - (prompt.response).count)
-             if remaining <= 25 {
-                 Text("\(remaining)")
-                     .font(.body(14))
-                     .foregroundStyle(Color.warningYellow)
-                     .padding(.trailing, Spacing.sm)
-                     .padding(.bottom, Spacing.sm)
-             }
-         }
-     
-     
-     if prompt.response.isEmpty {
-         Text("Type your response here")
-             .font(.body(17, .medium))
-             .foregroundStyle(Color.textPlaceholder)
-         // Geometry: match the TextEditor’s visual inset
-             .padding(.horizontal, 22)
-             .padding(.vertical, Spacing.lg)
-             .allowsHitTesting(false)
-     }
- }
- .stroke(CornerRadius.lg, lineWidth: 0.5)
- */
+// MARK: - Unclipped text
+
+private extension View {
+    //ModernEra's accents (Å, É) and descenders (g, y, j) overhang its line box, and a vertical TextField clips its text
+    //view to exactly its lines, so they were cut flat on the first and last lines. This lets them draw into the padding.
+    //Put it straight on the TextField, before any frame or padding: it finds the text view by sitting exactly over it.
+    //Only on a field that grows with its text — a squeezed one scrolls its lines, and they would spill out
+    func textClipDisabled() -> some View {
+        background(TextClipDisabler())
+    }
+}
+
+//Finds the text view it sits exactly under and turns its clip off. Fails safe: a field SwiftUI stops hosting in a
+//UITextView is left as it was
+private struct TextClipDisabler: UIViewRepresentable {
+
+    final class Marker: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            setNeedsLayout()
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            DispatchQueue.main.async { [weak self] in self?.disableClip() } //Once SwiftUI has placed the text view too
+        }
+
+        private func disableClip() {
+            guard let window else { return }
+            let frame = convert(bounds, to: window)
+            //Origin and width, each within a point: SwiftUI rounds the text view's frame to pixels, and a growing
+            //field's height trails the marker's by a pass
+            func find(in view: UIView) -> UITextView? {
+                if let textView = view as? UITextView {
+                    let own = textView.convert(textView.bounds, to: window)
+                    if abs(own.minX - frame.minX) < 1, abs(own.minY - frame.minY) < 1, abs(own.width - frame.width) < 1 { return textView }
+                }
+                //A plain loop: `lazy.compactMap(…).first` evaluates the match twice, doubling the search at every level down
+                for subview in view.subviews { if let textView = find(in: subview) { return textView } }
+                return nil
+            }
+            sequence(first: self as UIView, next: \.superview).lazy.compactMap(find(in:)).first?.clipsToBounds = false
+        }
+    }
+
+    func makeUIView(context: Context) -> Marker {
+        let marker = Marker()
+        marker.isUserInteractionEnabled = false
+        return marker
+    }
+
+    func updateUIView(_ uiView: Marker, context: Context) {}
+}
+

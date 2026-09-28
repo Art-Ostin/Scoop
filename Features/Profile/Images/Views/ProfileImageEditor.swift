@@ -20,6 +20,7 @@ struct ProfileImageEditor: View {
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
     @State private var chipsIn: Bool = false //The image's own chips arrive over the zoom, not after it
+    @State private var didEdit = false //Set by a pick or a crop: an untouched Save changes nothing
 
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
         self._importedImage = State(initialValue: importedImage)
@@ -37,13 +38,14 @@ struct ProfileImageEditor: View {
                 saveButton
                     .padding(.top, Spacing.lg)
             }
-            .padding(.top, 120) //Geometry: drops the editor block clear of the status/cancel zone
+            .padding(.top, 96) //Geometry: drops the editor block clear of the status/cancel zone
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             cancelButton
         }
         .task(id: item) { await loadImage() }
         .fullScreenCover(isPresented: $showImageCropper) {cropView}
+        .instantPressDelivery() //The zoom hosts this screen in a scroll: without it every press lands ~150ms late
     }
 }
 
@@ -56,10 +58,6 @@ extension ProfileImageEditor {
     private var heroPhoto: some View {
         ImageCarousel(horizontalPadding: Spacing.md, aspectRatio: Self.heroAspect,
                       displaying: importedImage.image)
-            //The chips ride the flight in, so they arrive on the growing image
-            //rather than landing on a screen that has already settled. The fade
-            //sits on the chips alone — the hero's pixels belong to the
-            //transition and must never fade with them.
             .overlay(alignment: .bottomTrailing) {
                 changeImageButton
                     .padding(.horizontal, Spacing.md)
@@ -94,23 +92,14 @@ extension ProfileImageEditor {
     }
     
     private var saveButton: some View {
-        Button {
-            onSave(importedImage)
+        ScoopButton(style: .tinted(.black, shadow: .button), shape: .capsule, press: .grow, nativeGlassPress: true) {
+            if didEdit { onSave(importedImage) }
             zoomDismiss()
-        } label : {
+
+        } label: {
             Text("Save")
                 .font(.body(20, .bold))
-                .frame(width: 90, height: 37)
-                .foregroundStyle(.accent)
-                .background (
-                    RoundedRectangle(cornerRadius: CornerRadius.sm)
-                        .fill(Color.white )
-                        .shadow(.button)
-                )
-                .overlay (
-                    RoundedRectangle(cornerRadius: CornerRadius.sm)
-                        .stroke(.black, lineWidth: 1)
-                )
+                .frame(width: 120, height: 40)
         }
     }
     
@@ -146,6 +135,7 @@ extension ProfileImageEditor {
         if let data = try? await item.loadTransferable(type: Data.self),
            let uiImage = UIImage(data: data) {
             importedImage.image = uiImage
+            didEdit = true
         }
     }
 }
@@ -161,8 +151,41 @@ extension ProfileImageEditor {
         ) { croppedImage in
             if let newCroppedImage = croppedImage {
                 importedImage.image = newCroppedImage
+                didEdit = true
             }
         }
     }
     
 }
+
+/*
+ 
+ Button {
+     onSave(importedImage)
+     zoomDismiss()
+ } label : {
+     ScoopButton(style: .tinted(.accent), shape: .capsule) {
+         
+     } label: {
+         Text("Save")
+             .font(.body(20, .bold))
+             .frame(width: 90, height: 37)
+     }
+
+     
+     
+     Text("Save")
+         .font(.body(20, .bold))
+         .frame(width: 90, height: 37)
+         .foregroundStyle(.accent)
+         .background (
+             RoundedRectangle(cornerRadius: CornerRadius.sm)
+                 .fill(Color.white )
+                 .shadow(.button)
+         )
+         .overlay (
+             RoundedRectangle(cornerRadius: CornerRadius.sm)
+                 .stroke(.black, lineWidth: 1)
+         )
+ }
+ */

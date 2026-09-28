@@ -14,11 +14,11 @@ struct CoreInfo: View {
     private var items: [EditPreview] {
         let u = vm.draft
         return [
-            EditPreview("Name", [u.name], route: .textField(.name)),
-            EditPreview("Sex", [u.sex], route: .option(.sex)),
-            EditPreview("Year", [u.year], route: .option(.year)),
-            EditPreview("Height", [u.height], route: .height),
-            EditPreview("Nationality", [u.nationality.joined(separator: "  ")], route: .nationality)
+            EditPreview(title: "Name", response: [u.name], route: .textField(.name)),
+            EditPreview(title: "Sex", response: [u.sex], route: .option(.sex)),
+            EditPreview(title: "Year", response: [u.year], route: .option(.year)),
+            EditPreview(title: "Height", response: [u.height], route: .height),
+            EditPreview(title: "Nationality", response: [u.nationality.joined(separator: "  ")], route: .nationality)
         ]
     }
 
@@ -36,7 +36,7 @@ struct CoreInfo: View {
 struct ExtraInfo: View {
     //Injected
     @Bindable var vm: EditProfileViewModel
-
+    
     private var items: [EditPreview] {
         let u = vm.draft
         let lifestyle = ["🍻 \(u.drinking)", "💊 \(u.drugs)", "🌿 \(u.marijuana) ", "🚬 \(u.smoking)"].joined(separator: "   ")
@@ -48,19 +48,19 @@ struct ExtraInfo: View {
         ].compactMap { $0 }
 
         return [
-            EditPreview("Seeking", [u.lookingFor], route: .option(.lookingFor)),
-            EditPreview("Degree", [u.degree], route: .textField(.degree)),
-            EditPreview("Hometown", [u.hometown], route: .textField(.hometown)),
-            EditPreview("Vices", [""], route: .lifestyle),
-            EditPreview("Media", [favouriteMedia.joined(separator: "    ")], route: .myLifeAs),
-            EditPreview("Languages", u.languages, route: .languages)
+            EditPreview(title: "Seeking", subHeading: u.lookingForText, response: [u.lookingFor], route: .lookingFor),
+            EditPreview(title: "Degree", response: [u.degree], route: .textField(.degree)),
+            EditPreview(title: "Hometown", response: [u.hometown], route: .textField(.hometown)),
+            EditPreview(title: "Vices", response: [""], route: .lifestyle),
+            EditPreview(title: "Media", response: [favouriteMedia.joined(separator: "    ")], route: .myLifeAs),
+            EditPreview(title: "Languages", response: u.languages, route: .languages)
         ]
     }
 
     var body: some View {
         Section("Extra") {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, info in
-                ListItem(title: info.title, response: info.response, value: info.route)
+                ListItem(title: info.title, subHeading: info.subHeading, response: info.response, value: info.route)
                     .padding(.top, index == 0 ? Spacing.xs : 0)
                     .padding(.bottom, index == items.count - 1 ? Spacing.xs : 0)
             }
@@ -68,17 +68,17 @@ struct ExtraInfo: View {
     }
 }
 
-
 struct EditPreview: Identifiable {
-
     let title: String
+    let subHeading: String?
     let response: [String]
     let route: EditProfileRoute
 
     var id: EditProfileRoute { route }
 
-    init(_ title: String, _ response: [String], route: EditProfileRoute) {
+    init(title: String, subHeading: String? = nil, response: [String], route: EditProfileRoute) {
         self.title = title
+        self.subHeading = subHeading
         self.response = response
         self.route = route
     }

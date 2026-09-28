@@ -11,7 +11,6 @@ struct InterestsView: View {
 
     //Injected
     @Bindable var vm: EditProfileViewModel
-    @Binding var path: [EditProfileRoute]
 
     private var interests: [String] { vm.draft.interests }
 
@@ -29,7 +28,7 @@ struct InterestsView: View {
                 InterestsRow(left: interests[start],
                              right: start + 1 < interests.count ? interests[start + 1] : nil,
                              topInset: start == 0 ? Spacing.lg : rowInset,
-                             bottomInset: rowInset) { path.append(.interests) }
+                             bottomInset: rowInset)
                     .padding(.bottom, start == rowStarts.last ? Spacing.xs - 2 : 0)
             }
             .listRowSeparator(.hidden)
@@ -63,21 +62,18 @@ private struct InterestsRow: View {
     let right: String?
     var topInset: CGFloat? = nil
     var bottomInset: CGFloat? = nil
-    let onTap: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
-            HStack {
-                Text(left)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        HStack {
+            Text(left)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(right ?? "")
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .font(.body(15))
-            .foregroundStyle(Color.textSecondary)
+            Text(right ?? "")
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .buttonStyle(.plain)
+        .font(.body(15))
+        .foregroundStyle(Color.textSecondary)
+        .editorLink(.interests)
         .editProfileRow(top: topInset, bottom: bottomInset)
     }
 }

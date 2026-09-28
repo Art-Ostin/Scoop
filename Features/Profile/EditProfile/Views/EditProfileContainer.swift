@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import os
 
+private let editProfileLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Scoop", category: "editProfile")
 
 enum EditProfileRoute: Hashable {
     case prompt(Int)
@@ -19,7 +21,8 @@ enum EditProfileRoute: Hashable {
     case lifestyle
     case myLifeAs
     case desiredAgeRange
-    case idealMeetup
+    case meetupPreferences
+    case lookingFor
 }
 
 
@@ -38,7 +41,8 @@ struct EditProfileContainer: View {
     @State private var saveLabelWidth: CGFloat = 0 //Measured, so the lens knows how wide to grow
     @State private var popGuard: (() -> Bool)? = nil //Set by a pushed screen that can refuse to be left
     @State private var isEditingImage = false //A photo editor is up; its drag is not the cover's
-
+    @State private var isReorderingImage = false //A photo is lifted in the grid; its drag is not the cover's
+    
     var body: some View {
         ZStack {
             if isEdit {
@@ -50,8 +54,9 @@ struct EditProfileContainer: View {
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .topLeading) { leadingAction }
         .overlay(alignment: .topTrailing) { editProfileDismissButton }
-        .interactiveDismissDisabled(!path.isEmpty || isEditingImage || showSavingScreen) //Also gates the lens cover's swipe down: a save in flight can't be swiped away
+        .interactiveDismissDisabled(!path.isEmpty || isEditingImage || isReorderingImage || showSavingScreen) //Also gates the cover's swipe down: a save in flight or a photo in the air can't be swiped away
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
+        .task { await vm.refreshImagesIfStale() } //Opened on photos loaded before the last save landed: reload the stored ones
     }
 }
 
@@ -62,7 +67,7 @@ extension EditProfileContainer {
     private var editProfileView: some View {
         ZoomNavigationStack {
             NavigationStack(path: $path) { // As EditProfile appears in full screen cover
-                EditProfileView(vm: vm, path: $path, isEditingImage: $isEditingImage)
+                EditProfileView(vm: vm, isEditingImage: $isEditingImage, isReorderingImage: $isReorderingImage)
                     .mask { Rectangle().ignoresSafeArea(edges: .vertical) } //Fixes bug
                     .navigationDestination(for: EditProfileRoute.self, destination: destination)
             }
@@ -98,9 +103,6 @@ extension EditProfileContainer {
 extension EditProfileContainer {
 
     //The leading slot belongs to the flow, not to either screen inside it: ONE lens that reads
-    //"Save" at the root and a back chevron in a field editor. Because the view survives the push,
-    //the glass morphs between the two states instead of two separate buttons crossfading — which
-    //is the whole point, and is impossible while the back button is the pushed screen's own.
     @ViewBuilder
     private var leadingAction: some View {
         let isRoot = path.isEmpty
@@ -140,7 +142,7 @@ extension EditProfileContainer {
         let shrinkDismiss: Bool = !isEdit && isDetailsOpen
         
         return ScoopButton(style: .clearGlass, shape: Circle(), size: .large) {
-            dismiss()
+            dismiss() //Unsaved edits are offered a save by the presenter once the cover has closed
         } label: {
             Image(systemName: "xmark")
                 .foregroundStyle(shrinkDismiss ? .white : .black)
@@ -170,6 +172,7 @@ extension EditProfileContainer {
                 try await vm.saveProfileChanges()
                 dismiss()
             } catch {
+                editProfileLog.error("Profile save failed: \(String(describing: error), privacy: .public)")
                 showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
             }
         }
@@ -192,10 +195,13 @@ extension EditProfileContainer {
             case .myLifeAs:              EditMyMedia(vm: vm)
             case .languages:             EditLanguages(vm: vm)
             case .desiredAgeRange:       EditPreferredYears(vm: vm)
-            case .idealMeetup:           EditIdealMeetup(vm: vm)
+            case .meetupPreferences:     EditIdealMeetup(vm: vm)
+            case .lookingFor:            EditLookingFor(vm: vm)
             }
         }
         .navigationBarBackButtonHidden(true)
+        .toolbarVisibility(.visible, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline) //Else a later title or item inherits the root's large bar
         .environment(\.popGuard, $popGuard)
     }
 }

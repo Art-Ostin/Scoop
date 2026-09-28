@@ -52,7 +52,7 @@ struct EditLanguages: View {
         .focusable()
         .onAppear {isFocused = true}
         .frame(maxHeight: .infinity, alignment:.top)
-        .padding(.top, Spacing.xxxl)
+        .padding(.top, Spacing.md)
         .background(Color.appCanvas)
         .ignoresSafeArea(.keyboard)
         .onChange(of: isScrolling) {
@@ -65,12 +65,13 @@ struct EditLanguages: View {
                 searchText = ""
             }
         }
-        .onDisappear {
-            guard selected != vm.draft.languages else {
-                return
-            }
-            vm.set(.languages, \.languages, to: selected)
-        }
+        .commitBeforePop { commit() } //At the TAP: the list behind is current before the pop starts
+        .onDisappear { commit() }      //A net for exits that skip the back button; a second call writes nothing
+    }
+
+    private func commit() {
+        guard selected != vm.draft.languages else { return }
+        vm.set(.languages, \.languages, to: selected)
     }
 }
 

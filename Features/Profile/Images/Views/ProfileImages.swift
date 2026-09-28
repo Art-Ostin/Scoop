@@ -1,35 +1,47 @@
 //
-//  ImageView.swift
+//  ProfileImages.swift
 //  Scoop
 //
 //  Created by Art Ostin on 23/07/2025.
-// Allow Editing on their profile and the option to cancel it. To
-
+//
 
 import SwiftUI
-import PhotosUI
-
 
 struct ProfileImages: View {
 
+    //Injected
     @Bindable var vm: EditProfileViewModel
     @Binding var isEditingImage: Bool //Raised while a cell's editor owns the screen
 
+    //Local view state
     private let columnCount = 3
-    private let photoCount = 6
+    private let pressScale: CGFloat = 0.92 //A cell's press depth; a held photo lifts out of however far the press has got
+    //The one corner a grid-edge photo presents to the card's own corner — the dial for how concentric the grid reads
+    private let outerCorner: CGFloat = CornerRadius.lg
+
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 12), count: columnCount) //Geometry: photo-grid gutter, held clear for the .tile shadow
     }
 
-    //The one corner a grid-edge photo presents to the card's own corner — the dial for how concentric the grid reads
-    private let outerCorner: CGFloat = CornerRadius.lg
+    //The photos a drag may move, in screen order: every loaded photo, or none while the gallery isn't safely aligned
+    private var movablePhotos: [Int] {
+        vm.canReorderPhotos ? Array(vm.photoOrder.prefix(vm.images.count)) : []
+    }
 
     var body: some View {
         Section {
             LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(0..<photoCount, id: \.self) {index in
-                    photoCell(index)
+                //Keyed by photo, not slot: a drop moves the cells themselves, and each zoom source travels with its photo
+                ForEach(Array(vm.photoOrder.enumerated()), id: \.element) { slot, photo in
+                    photoCell(slot)
+                        .reorderableCell(photo)
                 }
+            }
+            //Hold a photo to lift it; the others make room, and the new order waits for Save
+            .reorderableGrid(movablePhotos, pressScale: pressScale, pressResponse: ZoomStyle.pressDownResponse) { from, to in
+                vm.movePhoto(from: from, to: to)
+            } preview: { photo, slot in
+                liftedPhoto(photo, slot: slot)
             }
             .padding(-6)
         } header: {
@@ -41,14 +53,14 @@ struct ProfileImages: View {
 }
 
 extension ProfileImages {
-    
-    //Adjust hte corner Radius
-    private func corners(for index: Int) -> RectangleCornerRadii {
+
+    //Grid-edge photos round the corner they present to the card harder than their inward ones
+    private func corners(for slot: Int) -> RectangleCornerRadii {
         let inner = CornerRadius.smallImage
-        let firstColumn = index % columnCount == 0
-        let lastColumn = index % columnCount == columnCount - 1
-        let firstRow = index < columnCount
-        let lastRow = index >= photoCount - columnCount
+        let firstColumn = slot % columnCount == 0
+        let lastColumn = slot % columnCount == columnCount - 1
+        let firstRow = slot < columnCount
+        let lastRow = slot >= EditProfileViewModel.photoSlots - columnCount
 
         return RectangleCornerRadii(
             topLeading:     firstRow && firstColumn ? outerCorner : inner,
@@ -57,25 +69,39 @@ extension ProfileImages {
             topTrailing:    firstRow && lastColumn  ? outerCorner : inner)
     }
 
-    //The grid is always `photoCount` slots, but `vm.images` carries only the photos that
+    //The grid is always `EditProfileViewModel.photoSlots` slots, but `vm.images` carries only the photos that
     //resolved — ImageLoader compactMaps away every path that is missing or fails to fetch, so
     //an account with a gap in its gallery hands us a short array. Empty slots wear the
     //placeholder, exactly as they do before the load lands.
-    private func photoCell(_ index: Int) -> some View {
-        let image = vm.images.indices.contains(index) ? vm.images[index] : EditProfileViewModel.placeholder
-        return ProfilePhoto(image: image, corners: corners(for: index))
-            .zoomTransition(
-                images: [image],
-                showsCardShadow: false, //The grid's cells rest flat on the section surface
-                cornerRadius: CornerRadius.smallImage,
-                pressScale: 0.92,
-                continuousCollapse: true, //Shrinks and travels home as one motion; a dive past a grid cell reads as a detour
-                dismissDurationScale: 1.5 //Folding a whole screen into a 110pt cell is a huge shrink over a short trip: the tuned clock reads fast on it
-            ) {
-                editBadge //Card chrome: the flight fades it out rather than flying it
-            } content: {
-                editor(index: index, image: image)
-            }
+    private func image(at slot: Int) -> UIImage {
+        vm.images.indices.contains(slot) ? vm.images[slot] : EditProfileViewModel.placeholder
+    }
+
+    private func photoCell(_ slot: Int) -> some View {
+        let image = image(at: slot)
+        return ReorderSlotReader(slot: slot) { shown in
+            ProfilePhoto(image: image, corners: corners(for: shown)) //Mid-drag, the corners of the slot it has slid to
+        }
+        .zoomTransition(
+            images: [image],
+            showsCardShadow: false, //The grid's cells rest flat on the section surface
+            cornerRadius: CornerRadius.smallImage,
+            pressScale: pressScale,
+            continuousCollapse: true, //Shrinks and travels home as one motion; a dive past a grid cell reads as a detour
+            dismissDurationScale: 1.5 //Folding a whole screen into a 110pt cell is a huge shrink over a short trip: the tuned clock reads fast on it
+        ) {
+            editBadge //Card chrome: the flight fades it out rather than flying it
+        } content: {
+            editor(index: slot, image: image)
+        }
+        .disabled(!vm.galleryIsCurrent) //Photos loaded before the last save landed: an edit would file under the wrong stored photo
+    }
+
+    //The photo in the hand: the cell's own face without its Button, cut for the slot it would land in
+    private func liftedPhoto(_ photo: Int, slot: Int) -> some View {
+        let image = vm.photoOrder.firstIndex(of: photo).map { image(at: $0) } ?? EditProfileViewModel.placeholder
+        return ProfilePhoto(image: image, corners: corners(for: slot))
+            .overlay { editBadge }
     }
 
     private var editBadge: some View {
@@ -86,7 +112,7 @@ extension ProfileImages {
 
     private func editor(index: Int, image: UIImage) -> some View {
         ProfileImageEditor(importedImage: ImageSlot(index: index, image: image)) { updatedImage in
-            Task { try await vm.changeImage(image: updatedImage) }
+            Task { vm.changeImage(image: updatedImage) } //Next turn: the JPEG encode never holds the collapse's first frame
         }
         //The screen's own presence IS the flag — nothing else here knows the zoom is up. It drops
         //on teardown, i.e. AFTER the collapse lands, so the drag stays disowned for the whole flight.

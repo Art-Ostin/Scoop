@@ -184,6 +184,8 @@ struct PressEffectModifier: ViewModifier {
     var effect: PressEffect
     var elevation: Elevation?
     var tint: Color = .accent
+    //Off, the press stands down and the touches go on to its content: a field that is a button until it's focused
+    var isEnabled = true
     var action: (() -> Void)?
 
     @Environment(\.scenePhase) private var scenePhase
@@ -224,7 +226,8 @@ struct PressEffectModifier: ViewModifier {
                            hypot(value.translation.width, value.translation.height) < Self.tapSlop {
                             action()
                         }
-                    }
+                    },
+                isEnabled: isEnabled
             )
             // A cancelled touch (incoming call, app switch, system alert) never
             // delivers onEnded, which owns the resets — without these the press
@@ -236,6 +239,12 @@ struct PressEffectModifier: ViewModifier {
                 wasDrag = false
             }
             .onDisappear {
+                isPressed = false
+                wasDrag = false
+            }
+            //Switched off mid-touch, the drag is cancelled and onEnded never comes: let the press go here
+            .onChange(of: isEnabled) { _, enabled in
+                guard !enabled else { return }
                 isPressed = false
                 wasDrag = false
             }
@@ -270,11 +279,11 @@ extension View {
         press(.shrink, shadow: shadow, tint: tint, action: action)
     }
 
-    func subtleShrinkPress(shadow: Elevation? = nil, tint: Color = .accent, action: (() -> Void)? = nil) -> some View {
-        press(.subtleShrink, shadow: shadow, tint: tint, action: action)
+    func subtleShrinkPress(shadow: Elevation? = nil, tint: Color = .accent, isEnabled: Bool = true, action: (() -> Void)? = nil) -> some View {
+        press(.subtleShrink, shadow: shadow, tint: tint, isEnabled: isEnabled, action: action)
     }
 
-    func press(_ effect: PressEffect, shadow: Elevation?, tint: Color, action: (() -> Void)?) -> some View {
-        modifier(PressEffectModifier(effect: effect, elevation: shadow, tint: tint, action: action))
+    func press(_ effect: PressEffect, shadow: Elevation?, tint: Color, isEnabled: Bool = true, action: (() -> Void)?) -> some View {
+        modifier(PressEffectModifier(effect: effect, elevation: shadow, tint: tint, isEnabled: isEnabled, action: action))
     }
 }

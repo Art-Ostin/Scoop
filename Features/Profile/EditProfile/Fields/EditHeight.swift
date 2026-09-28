@@ -38,6 +38,8 @@ struct EditHeight: View {
             set: { vm.set(.height, \.height, to: $0) }
         )
     }
+    
+    
     var body: some View {
         HeightGeneric(selection: selection)
     }
