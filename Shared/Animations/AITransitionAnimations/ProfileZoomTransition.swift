@@ -608,10 +608,11 @@ public extension View {
     /// Default false: every existing card keeps its arc.
     /// `squeezeLanding` gives this source's BUTTON close (`zoomDismiss`) a
     /// landing with weight (see DragTuning's squeeze section): the screen
-    /// shrinks without braking, drops into the card's slot still moving,
-    /// squeezes below the slot's size and springs back out to it. The slot's
-    /// own photo shows under the dip, so the squeeze never uncovers the
-    /// surface behind the card. Gesture closes are untouched. Default false.
+    /// collapses at a level speed, meets the card's slot still moving, dips
+    /// below the slot's size as the slot takes the blow and swells back out
+    /// to it. The card is the only copy of its photo on screen throughout:
+    /// the dip bares the surface the card rests on, as a press of the card
+    /// does. Gesture closes are untouched. Default false.
     /// `dismissDurationScale` stretches this source's dismissal clock — 1.5
     /// plays the whole collapse half again as long. It scales the travel, the
     /// mask's condense race and the settle as one, so the flight only ever
@@ -710,14 +711,17 @@ public extension View {
 /// `@Environment(\.zoomDismiss)` and call it — the screen collapses into its
 /// card with the same morph the Back button drives (a `squeezeLanding`
 /// source lands with a squeeze instead). Outside a zoom destination it is a
-/// no-op.
+/// no-op. `isReady` tells a control that leaves chrome behind with the tap
+/// whether the call would be taken up: a zoom destination refuses it while
+/// a flight or a drag owns the screen.
 public struct ZoomDismissAction {
     let run: () -> Void
+    var isReady: () -> Bool = { true }
     public func callAsFunction() { run() }
 }
 
 private struct ZoomDismissKey: EnvironmentKey {
-    static let defaultValue = ZoomDismissAction(run: {})
+    static let defaultValue = ZoomDismissAction(run: {}, isReady: { false })
 }
 
 public extension EnvironmentValues {
@@ -1629,44 +1633,46 @@ enum DragTuning {
     static let windPaceFloor: TimeInterval = 0.25
 
     /// ── THE SQUEEZE LANDING (`zoomTransition(squeezeLanding:)`) ──
-    /// An opted-in source's BUTTON close lands like a soft object dropped
-    /// into its slot, in three C¹-spliced pieces (SqueezeFlightPlan):
-    ///   APPROACH — the size falls in LOG space (a zoom's felt speed is
-    ///   relative) on a cubic whose rate only ever rises: it leaves at
-    ///   squeezeLaunchPace × the average and hits the slot's size at
-    ///   squeezeArrivalPace × — the shrink never brakes. A soft launch and
-    ///   a hard arrival keep the on-screen edge speed near level too (a
-    ///   level log-rate alone halves it as the card shrinks). The page
-    ///   folds onto the photo in step with the size, so the whole screen
-    ///   drops as one object. Position is perspective-coupled to the size
-    ///   and eased in, so the card is already over its slot when it drops
-    ///   the last stretch.
-    ///   SQUEEZE — contact at full speed: a critically damped brake takes
-    ///   the size to exactly 1 − squeezeDepth, stiffness solved from the
-    ///   arrival speed.
-    ///   REBOUND — from rest at the bottom, an under-damped spring expands
-    ///   it back out, a little past the slot, and settles.
+    /// An opted-in source's BUTTON close lands like a soft object thrown
+    /// into its slot, in two C¹-spliced pieces (SqueezeFlightPlan):
+    ///   FLIGHT — a short push off from rest, then nothing acts on the
+    ///   card: its size falls at a LEVEL rate, so its edges cross the screen
+    ///   at one speed and it reaches its slot with all of its momentum. The
+    ///   page folds onto the photo on the same terms — its own edges level
+    ///   too — so the whole screen collapses as one object. Position is
+    ///   perspective-coupled to the size and eased in: the sideways travel
+    ///   is spent by contact, and the card meets its slot head-on.
+    ///   LANDING — from contact, one closed form to rest. The slot takes
+    ///   the blow as a PAD (a critically damped brake: the dead weight of
+    ///   the hit) and a RIPPLE (an under-damped spring: the dip, the swell
+    ///   back past the slot, the settle), each struck with its share of the
+    ///   arrival speed. The size's rate at contact is the flight's own and
+    ///   never steps after it; nothing restarts from rest. The shares are
+    ///   solved so the dip bottoms at squeezeDepth.
     /// Position is pinned to the slot from contact on: the whole landing
     /// plays in the size. A tap carries no momentum of its own; this flight
     /// supplies it.
-    /// The approach's duration, contact included.
-    static let squeezeApproachDuration: TimeInterval = 0.30
-    /// The log-rate at launch and at contact, as multiples of the average.
-    /// The rate keeps rising while 2·launch + arrival ≤ 3 and
-    /// launch + 2·arrival ≥ 3 (the cubic's accelerations at both ends).
-    /// Sim, a 370pt hero into a 110pt cell: edges leave at ~300pt/s, peak
-    /// ~480, contact at ~400 — sagging 17% where 0.8/1.4 sagged 47%.
-    static let squeezeLaunchPace: CGFloat = 0.4
-    static let squeezeArrivalPace: CGFloat = 1.8
-    /// The dip below the slot's size at the bottom of the squeeze.
+    /// The flight's duration, push-off included.
+    static let squeezeApproachDuration: TimeInterval = 0.26
+    /// The push-off: the rate rises on a smoothstep, from rest up to the
+    /// flight's speed. Brief enough to read as a launch, never as a slow
+    /// start.
+    static let squeezeLaunch: TimeInterval = 0.04
+    /// The dip below the slot's size at the landing's bottom.
     static let squeezeDepth: CGFloat = 0.1
-    /// The rebound's spring: overshoot past the slot ≈ depth ×
-    /// e^{−ζπ/√(1−ζ²)} (≈ 1.9% at these values), then one faint undershoot.
-    static let squeezeReboundOmega: CGFloat = 21
-    static let squeezeReboundDamping: CGFloat = 0.47
-    /// Backstop on the rebound before a hard commit; the settle gate
-    /// normally commits well before it.
-    static let squeezeSettleCap: TimeInterval = 0.8
+    /// The pad's rate, 1/s: it has taken its share of the blow 1/rate after
+    /// contact, and let go of it by ~6/rate. Lower lands softer, and hands
+    /// the ripple less.
+    static let squeezePadRate: CGFloat = 90
+    /// The ripple's spring. Its tempo sets the landing's length (the dip
+    /// bottoms ~1/omega after contact, the swell peaks ~5/omega after it);
+    /// its damping the swell past the slot — 16% of the dip at 0.5, the
+    /// swing after that sub-pixel.
+    static let squeezeRippleOmega: CGFloat = 25
+    static let squeezeRippleDamping: CGFloat = 0.5
+    /// Backstop from contact before a hard commit; the settle gate
+    /// normally commits ~0.3s after it.
+    static let squeezeSettleCap: TimeInterval = 0.6
 
     static func smoothstep(_ x: CGFloat) -> CGFloat {
         let c = min(max(x, 0), 1)
@@ -2167,65 +2173,113 @@ struct WindFlightPlan {
 /// flight seconds. Pure math: the dismiss controller renders it.
 struct SqueezeFlightPlan {
     let k0: CGFloat
-    let tContact: TimeInterval  // the approach reaches the slot's size
-    let tBottom: TimeInterval   // the squeeze bottoms out at 1 − depth
+    let tContact: TimeInterval  // the flight reaches the slot's size
+    let tBottom: TimeInterval   // the dip bottoms out
     let tEnd: TimeInterval      // hard landing commit
-    private let logK0: CGFloat
-    private let arrival: CGFloat // closing speed at contact, size/s
-    private let brake: CGFloat   // the squeeze's critically damped rate
-    private let rebound: WindSpring
+    private let launch: CGFloat  // the launch's length
+    private let cruise: CGFloat  // closing speed from the launch to contact, size/s
+    private let ripple: WindSpring
+    private let padKick: CGFloat // the pad's share of the arrival speed
+    private let padRate: CGFloat
+    private let restSpeed: CGFloat // the settle gate's bound, pt/s on this flight's clock
 
-    init(k0: CGFloat, durationScale: Double) {
+    init(k0 start: CGFloat, durationScale: Double) {
+        let k0 = max(start, 1.0001)
+        let scale = CGFloat(max(durationScale, 0.0001))
+        let approach = CGFloat(DragTuning.squeezeApproachDuration) * scale
+        let launch = min(CGFloat(DragTuning.squeezeLaunch) * scale, approach)
+        // The launch covers cruise·launch/2, the cruise the rest.
+        let cruise = (k0 - 1) / (approach - launch / 2)
+        let omega = DragTuning.squeezeRippleOmega / scale
+        let rate = DragTuning.squeezePadRate / scale
+        // The ripple's share of the arrival is solved so the dip bottoms at
+        // squeezeDepth: the dip only deepens with the share, from the pad's
+        // own shallow one. An arrival too gentle for the depth gives the
+        // ripple all of it and dips less; one too hard gives the pad all.
+        var lo: CGFloat = 0, hi: CGFloat = 1
+        for _ in 0..<24 {
+            let mid = (lo + hi) / 2
+            let dip = Self.dip(cruise: cruise, share: mid, omega: omega, rate: rate)
+            if dip.depth < DragTuning.squeezeDepth { lo = mid } else { hi = mid }
+        }
+        let share = (lo + hi) / 2
         self.k0 = k0
-        logK0 = log(max(k0, 1.0001))
-        tContact = DragTuning.squeezeApproachDuration * durationScale
-        arrival = logK0 * DragTuning.squeezeArrivalPace / CGFloat(tContact)
-        // u = −v·t·e^{−ωt} bottoms at t = 1/ω, v/(e·ω) deep: ω is solved
-        // so the depth is exact whatever speed the approach arrives with.
-        brake = arrival / (CGFloat(M_E) * DragTuning.squeezeDepth)
-        tBottom = tContact + TimeInterval(1 / brake)
-        rebound = WindSpring(u0: -DragTuning.squeezeDepth, du0: 0,
-                             zeta: DragTuning.squeezeReboundDamping,
-                             omega: DragTuning.squeezeReboundOmega / CGFloat(durationScale))
-        tEnd = tBottom + DragTuning.squeezeSettleCap * durationScale
+        self.launch = launch
+        self.cruise = cruise
+        ripple = Self.ripple(cruise: cruise, share: share, omega: omega)
+        padKick = (1 - share) * cruise
+        padRate = rate
+        restSpeed = 10 / scale
+        tContact = TimeInterval(approach)
+        tBottom = tContact + TimeInterval(
+            Self.dip(cruise: cruise, share: share, omega: omega, rate: rate).t)
+        tEnd = tContact + DragTuning.squeezeSettleCap * durationScale
     }
 
-    /// The approach's covered share of the log distance, and its rate: a
-    /// cubic Hermite leaving at the launch pace and arriving at the
-    /// arrival pace, its slope rising between.
-    private func covered(_ x: CGFloat) -> (q: CGFloat, dq: CGFloat) {
-        let m0 = DragTuning.squeezeLaunchPace, m1 = DragTuning.squeezeArrivalPace
-        let x2 = x * x, x3 = x2 * x
-        return ((3 * x2 - 2 * x3) + m0 * (x3 - 2 * x2 + x) + m1 * (x3 - x2),
-                (6 * x - 6 * x2) + m0 * (3 * x2 - 4 * x + 1) + m1 * (3 * x2 - 2 * x))
+    private static func ripple(cruise: CGFloat, share: CGFloat, omega: CGFloat) -> WindSpring {
+        WindSpring(u0: 0, du0: -share * cruise,
+                   zeta: DragTuning.squeezeRippleDamping, omega: omega)
     }
 
-    /// The approach's progress: its covered share of the log distance, 1
-    /// from contact on. The page's fold rides it, in step with the size.
+    /// The landing `t` after contact, as the size's offset from the slot's
+    /// and its rate: the ripple's spring plus the pad's critically damped
+    /// brake, each struck with its share of the arrival speed.
+    private static func landing(_ t: CGFloat, ripple: WindSpring,
+                                kick: CGFloat, rate: CGFloat) -> (u: CGFloat, du: CGFloat) {
+        let s = ripple.eval(t)
+        let e = exp(-rate * t)
+        return (s.u - kick * t * e, s.du - kick * (1 - rate * t) * e)
+    }
+
+    /// The dip's bottom: the rate's first zero, which the pad's own bottom
+    /// (1/rate) and the ripple's (acos ζ / ω_d) bracket.
+    private static func dip(cruise: CGFloat, share: CGFloat, omega: CGFloat,
+                            rate: CGFloat) -> (t: CGFloat, depth: CGFloat) {
+        let ripple = ripple(cruise: cruise, share: share, omega: omega)
+        let kick = (1 - share) * cruise
+        let pad = 1 / rate, spring = acos(ripple.zeta) / ripple.omegaD
+        var lo = min(pad, spring), hi = max(pad, spring)
+        for _ in 0..<24 {
+            let mid = (lo + hi) / 2
+            if landing(mid, ripple: ripple, kick: kick, rate: rate).du < 0 { lo = mid } else { hi = mid }
+        }
+        let t = (lo + hi) / 2
+        return (t, -landing(t, ripple: ripple, kick: kick, rate: rate).u)
+    }
+
+    /// The fold's share of the page, 1 from contact on. The renderer lerps
+    /// the page onto the photo by it and THEN scales by the size, so the
+    /// share that closes the page's edges at a level on-screen speed is the
+    /// size's covered share x over the size itself: k·lerp(a, b, x/k) is
+    /// k·a + x·(b − a), linear in time like the photo's own edges.
     func progress(at t: TimeInterval) -> CGFloat {
-        t < tContact ? covered(CGFloat(max(t, 0) / tContact)).q : 1
+        guard t < tContact else { return 1 }
+        let k = size(at: t).k
+        return min(max((k0 - k) / ((k0 - 1) * k), 0), 1)
     }
 
-    /// Size and its rate at flight time `t` — C¹ across both splices.
+    /// Size and its rate at flight time `t` — C¹ throughout: the launch's
+    /// rate rises on a smoothstep, from rest to the cruise's speed with no
+    /// corner at either end, and contact hands the landing that same speed.
     func size(at t: TimeInterval) -> (k: CGFloat, dk: CGFloat) {
-        if t < tContact {
-            let (q, dq) = covered(CGFloat(t / tContact))
-            let k = exp(logK0 * (1 - q))
-            return (k, -k * logK0 * dq / CGFloat(tContact))
+        let t = CGFloat(max(t, 0)), contact = CGFloat(tContact)
+        if t < launch {
+            let x = t / launch, x2 = x * x
+            return (k0 - cruise * launch * x2 * x * (1 - x / 2),
+                    -cruise * x2 * (3 - 2 * x))
         }
-        if t < tBottom {
-            let tc = CGFloat(t - tContact), e = exp(-brake * tc)
-            return (1 - arrival * tc * e, -arrival * (1 - brake * tc) * e)
+        if t < contact {
+            return (k0 - cruise * (t - launch / 2), -cruise)
         }
-        let s = rebound.eval(CGFloat(t - tBottom))
+        let s = Self.landing(t - contact, ripple: ripple, kick: padKick, rate: padRate)
         return (1 + s.u, s.du)
     }
 
     /// The sideways travel still ahead, as a share of the launch offset.
     /// Perspective ties it to the size — (k − 1)/(k0 − 1) — and u²(2 − u)
     /// eases it in, so it leaves at the size's own pace and is spent, at
-    /// zero speed, by contact. Nothing from contact on: the landing plays
-    /// in the size alone.
+    /// zero speed, by contact. Nothing from contact on: the card meets its
+    /// slot head-on, and the landing plays in the size alone.
     func travelLeft(k: CGFloat, at t: TimeInterval) -> CGFloat {
         guard t < tContact else { return 0 }
         let u = min(max((k - 1) / (k0 - 1), 0), 1)
@@ -2234,10 +2288,12 @@ struct SqueezeFlightPlan {
 
     /// True once the flight may commit: the hard stop, or rest past the
     /// bottom at SUB-DEVICE-PIXEL on a card `extent` pt across — the commit
-    /// teleports the residual (WindFlightPlan.shouldLand's bound).
+    /// teleports the residual (WindFlightPlan.shouldLand's bound, its speed
+    /// on this flight's own clock: a stretched flight rests at the same
+    /// point of its landing).
     func shouldLand(elapsed: TimeInterval, k: CGFloat, dk: CGFloat, extent: CGFloat) -> Bool {
         elapsed >= tEnd
-            || (elapsed > tBottom && abs(k - 1) * extent < 0.3 && abs(dk) * extent < 10)
+            || (elapsed > tBottom && abs(k - 1) * extent < 0.3 && abs(dk) * extent < restSpeed)
     }
 }
 
@@ -2841,15 +2897,18 @@ final class ZoomDetailController: UIViewController {
         detailHost.rootView = AnyView(
             detailContent
                 .environment(\.zoomHeroContainer, hero)
-                .environment(\.zoomDismiss, ZoomDismissAction { [weak self] in
-                    self?.programmaticDismiss()
-                }))
+                .environment(\.zoomDismiss, ZoomDismissAction(
+                    run: { [weak self] in self?.programmaticDismiss() },
+                    isReady: { [weak self] in self?.takesDismiss ?? false })))
     }
+
+    /// Whether a programmatic dismissal would be taken up right now.
+    private var takesDismiss: Bool { landed && !dismissController.isInteracting }
 
     /// Programmatic dismissal (the X button / zoomDismiss). Ignored while a
     /// flight or drag already owns the screen, or before the open has landed.
     private func programmaticDismiss() {
-        guard landed, !dismissController.isInteracting else { return }
+        guard takesDismiss else { return }
         dismissController.dismissProgrammatically()
     }
 
@@ -4659,11 +4718,6 @@ final class MorphDismissController: NSObject {
 
     private var squeezeFlight: SqueezeFlight?
     private var squeezeCondenseDone = false
-    /// The slot's own photo, laid under the flying card once the card covers
-    /// the slot: the squeeze dips the card INSIDE its slot, and the ring that
-    /// opens shows the photo's own edges, never the surface behind the hidden
-    /// cell. Leaves with the scene at teardown.
-    private var squeezeUnderlay: UIView?
 
     /// The SQUEEZE flight (`zoomTransition(squeezeLanding:)`): the button
     /// close as one display-link trajectory — see DragTuning's squeeze
@@ -4671,7 +4725,7 @@ final class MorphDismissController: NSObject {
     /// refusal, abort and teardown cover it unchanged.
     private func runSqueeze() {
         // A card near the hero's own size has too little fall to land with
-        // weight: its fixed-depth squeeze would sink in slow motion.
+        // weight: it would reach its slot too gently for the landing to read.
         guard let detail, let detailView, let (flightHero, s) = flightTarget(),
               detailView.transform.a / s > 1.8
         else {
@@ -4761,10 +4815,11 @@ final class MorphDismissController: NSObject {
         ).scaledBy(x: a, y: a)
         detailView.transform = transform
         let pace = CGFloat(min(max(elapsed / plan.tContact, 0), 1))
-        // The condense rides the size's own progress: an eased clock of
-        // its own would stall the card's height mid-approach. The page's
-        // last sliver folds away AT contact, into the squeeze's brake; the
-        // photo's crop settles well before.
+        // The condense rides the plan's fold share — page, corners, curtain
+        // and the photo's crop alike — so every edge of the collapsing
+        // screen keeps a level on-screen speed: an eased clock of its own
+        // would stall one of them mid-flight. The page's last sliver folds
+        // away AT contact, into the landing.
         var raced = flight.flightHero
         if !squeezeCondenseDone {
             let closing = plan.progress(at: elapsed)
@@ -4774,7 +4829,7 @@ final class MorphDismissController: NSObject {
             detail.setHeroBottomRadius(DragTuning.lerp(
                 flight.heroBottomStart, cardRadii.bottom, closing))
             detail.setHeroCurtain(closing)
-            detail.setHeroCropScrub(DragTuning.smoothstep(closing / 0.8))
+            detail.setHeroCropScrub(closing)
             sceneOverlayHost?.view.alpha = pace * closing * closing
             if closing >= 1 {
                 squeezeCondenseDone = true
@@ -4785,15 +4840,6 @@ final class MorphDismissController: NSObject {
             sceneOverlayHost?.view.alpha = pace
         }
         updateLandingRigs(window: screenWindow(of: raced, under: transform, in: detailView))
-        // The bare photo's window, not the folding page's: once it covers
-        // the slot it keeps covering it until contact (its offset share
-        // u(2 − u) only falls), so the slot's photo slides in beneath unseen.
-        // The page's own edge can pass inside the slot mid-fold.
-        if squeezeUnderlay == nil, elapsed >= plan.tContact
-            || screenWindow(of: flight.flightHero, under: transform, in: detailView)
-                .insetBy(dx: -0.5, dy: -0.5).contains(sourceRect) {
-            installSqueezeUnderlay()
-        }
         landingShadowRig?.alpha = pace
         coverFade?.alpha = DragTuning.smoothstep(pace)
         scrim?.alpha = diveScrimStart * (1 - pace)
@@ -4807,33 +4853,6 @@ final class MorphDismissController: NSObject {
         stopDive()
         landFlight(target: flight.target, flightHero: flight.flightHero, s: flight.s,
                    condensed: squeezeCondenseDone)
-    }
-
-    /// The squeeze's underlay: the photo the card lands showing, cut to the
-    /// slot's shape — pixel-identical to the card at full size.
-    private func installSqueezeUnderlay() {
-        guard squeezeUnderlay == nil, let detail, let host = shadowHost,
-              let plane = host.superview else { return }
-        let photo = UIImageView(image: coverFade?.image ?? detail.currentPageImageView.image)
-        photo.contentMode = .scaleAspectFill
-        photo.clipsToBounds = true
-        photo.isUserInteractionEnabled = false
-        photo.frame = host.convert(sourceRect, to: plane) // flight coords → the scene's plane
-        if cardRadii.bottom == cardRadii.top {
-            photo.layer.cornerRadius = cardRadii.top
-            photo.layer.cornerCurve = .continuous
-        } else {
-            let shape = SplitCornerView()
-            shape.apply(frame: photo.bounds, radii: cardRadii)
-            photo.mask = shape
-        }
-        // Above the scrim, beneath the card and its shadow rig.
-        if let rig = landingShadowRig, rig.superview === plane {
-            plane.insertSubview(photo, belowSubview: rig)
-        } else {
-            plane.insertSubview(photo, belowSubview: host)
-        }
-        squeezeUnderlay = photo
     }
 
     /// The committed collapse's plane decision: only a landing slot that
@@ -5322,10 +5341,6 @@ final class MorphDismissController: NSObject {
         // atomic swap, never a double-composite and never a gap.
         landingShadowRig?.removeFromSuperview()
         landingShadowRig = nil
-        // Same transaction: the unhidden card's landing overlay takes over
-        // the squeeze underlay's identical pixels.
-        squeezeUnderlay?.removeFromSuperview()
-        squeezeUnderlay = nil
         if let open = openAnimator, open.state == .active {
             open.stopAnimation(false)
             open.finishAnimation(at: .current)

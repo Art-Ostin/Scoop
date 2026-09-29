@@ -19,7 +19,7 @@ struct ProfileImageEditor: View {
     @State private var importedImage: ImageSlot
     @State private var item: PhotosPickerItem?
     @State private var showImageCropper: Bool = false
-    @State private var chipsIn: Bool = false //The image's own chips arrive over the zoom, not after it
+    @State private var chipsIn: Bool = false //The image's own chips arrive over the zoom, and leave with the tap that closes it
     @State private var didEdit = false //Set by a pick or a crop: an untouched Save changes nothing
 
     init(importedImage: ImageSlot, onSave: @escaping (ImageSlot) -> Void) {
@@ -68,7 +68,7 @@ extension ProfileImageEditor {
                     .padding(.horizontal, Spacing.md)
                     .opacity(chipsIn ? 1 : 0)
             }
-            .animation(.transition, value: chipsIn)
+            .animation(chipsIn ? .transition : .quick, value: chipsIn)
             .onAppear { chipsIn = true }
     }
 
@@ -77,7 +77,7 @@ extension ProfileImageEditor {
 
     private var cancelButton: some View {
         Button {
-            zoomDismiss()
+            close()
         } label: {
             Text("Cancel")
                 .foregroundStyle(Color.textTertiary)
@@ -94,8 +94,7 @@ extension ProfileImageEditor {
     private var saveButton: some View {
         ScoopButton(style: .tinted(.black, shadow: .button), shape: .capsule, press: .grow, nativeGlassPress: true) {
             if didEdit { onSave(importedImage) }
-            zoomDismiss()
-
+            close()
         } label: {
             Text("Save")
                 .font(.body(20, .bold))
@@ -103,6 +102,13 @@ extension ProfileImageEditor {
         }
     }
     
+    //The chips hang off the hero's resting crop, which the collapse folds away from under them: left in,
+    //they trail the photo home on a strip of the page. A tap the zoom refuses leaves the screen up, chips and all
+    private func close() {
+        if zoomDismiss.isReady() { chipsIn = false }
+        zoomDismiss()
+    }
+
     private var changeImageButton: some View {
         PhotosPicker(selection: $item, matching: .images) {
             HStack(spacing: Spacing.xs) {
@@ -157,35 +163,3 @@ extension ProfileImageEditor {
     }
     
 }
-
-/*
- 
- Button {
-     onSave(importedImage)
-     zoomDismiss()
- } label : {
-     ScoopButton(style: .tinted(.accent), shape: .capsule) {
-         
-     } label: {
-         Text("Save")
-             .font(.body(20, .bold))
-             .frame(width: 90, height: 37)
-     }
-
-     
-     
-     Text("Save")
-         .font(.body(20, .bold))
-         .frame(width: 90, height: 37)
-         .foregroundStyle(.accent)
-         .background (
-             RoundedRectangle(cornerRadius: CornerRadius.sm)
-                 .fill(Color.white )
-                 .shadow(.button)
-         )
-         .overlay (
-             RoundedRectangle(cornerRadius: CornerRadius.sm)
-                 .stroke(.black, lineWidth: 1)
-         )
- }
- */

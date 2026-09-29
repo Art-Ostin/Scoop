@@ -36,7 +36,7 @@ struct OptionCell: View {
         if isSelected && fillsBlack { return .blackFill }
         return isSelected || hasHitMax ? .accent : .border
     }
-
+    
     var backgroundColor: Color {
         optionFilled ? (fillsBlack ? .blackFill : .accent) : .appCanvas
     }

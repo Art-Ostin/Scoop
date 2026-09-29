@@ -22,7 +22,7 @@ struct EditIdealMeetup: View {
 
     private let rows: [[String]] = [
         ["Drinks", "Coffee", "Brunch", "Lunch"],
-        ["Live Music", "Double Date", "Base Jumping"],
+        ["Live Music", "Double Date", "Social Meet"],
         ["Dinner", "Rave", "A Walk", "Pastries"],
         ["A Movie", "Thrifting", "Park", "Ice Cream"]
     ]

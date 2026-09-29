@@ -12,11 +12,11 @@ class Interests {
     
     static var instance = Interests()
     
-    var social: [String] = [ "Bars", "Raves", "Clubbing", "Movie Nights", "House Party", "Darties", "Dinner Parties", "Road Trips", "Concerts", "Wine n Dine", "Pub", "Game Nights", "Brunch", "Festival", "Karoke"]
-    var passions: [String] = [ "Reading", "Poetry","Cold Swimming", "Sport","Writing", "Photography", "Museums", "Psychology", "Anime", "Nature", "Fashion", "Astronomy", "Movies", "Entrepreneurship", "Philosophy", "Formula 1", "Volunteering", "Politics", "Art", "Podcasts", "Food", "Music"]
-    var sports: [String] = ["Badminton", "Rugby", "Baseball", "Soccer", "Basketball", "Tennis", "Football", "Handball", "Lacrosse", "Volleyball", "Softball", "Boxing", "Athletics", "Cycling", "Running", "Rowing", "Gym/Fitness", "Martial Arts", "Skateboarding", "Ice Hockey", "Pilates", "Yoga", "Kayaking", "Roller Skating", "Climbing", "Ultimate Frisbee", "Ice Skating", "Snowboarding", "Darts", "Golf", "Mountain Biking", "Bouldering", "Quidditch", "Surfing", "Skiing", "Sailing", "Spikeball", "Shooting", "Squash", "Fencing"]
-    var music1 = ["Pop", "Rock", "Hip-Hop", "Grime", "R & B", "Country", "Reggae", "Soul", "Jazz", "Funk", "Blues", "Acoustic", "Folk", "Latin Pop", "Disco", "K-Pop", "Afrobeat", "Metal", "Classical", "Chill", "Retro Bangers"]
-    var music2 = ["EDM", "House", "Techno", "Trance", "D & B", "Dance", "Dubstep", "Electronica", "Ambient", "Tech House", "Melodic Techno", "Psytrance", "Big Room", "Acid", "Garage", "Afro tech", "Tropical House", "Jungle", "Liquid"]
-    var music3 = ["Indie", "Indie pop", "Indie Rock", "Lo-fi", "Shoegaze", "Dream Pop", "Psychedelic Rock", "Grunge", "Emo", "Post-Rock", "Slowcore", "Folk Music", "Experimental", "Punk"]
+    var social: [String] = ["Bars", "Brunch", "Clubbing", "Concerts", "Darties", "Dinner Parties", "Festival", "Game Nights", "House Party", "Karoke", "Movie Nights", "Pub", "Raves", "Road Trips", "Wine n Dine"]
+    var passions: [String] = ["Anime", "Art", "Astronomy", "Cold Swimming", "Entrepreneurship", "Fashion", "Food", "Formula 1", "Movies", "Museums", "Music", "Nature", "Philosophy", "Photography", "Podcasts", "Poetry", "Politics", "Psychology", "Reading", "Sport", "Volunteering", "Writing"]
+    var sports: [String] = ["Athletics", "Badminton", "Baseball", "Basketball", "Bouldering", "Boxing", "Climbing", "Cycling", "Darts", "Fencing", "Football", "Golf", "Gym/Fitness", "Handball", "Ice Hockey", "Ice Skating", "Kayaking", "Lacrosse", "Martial Arts", "Mountain Biking", "Pilates", "Quidditch", "Roller Skating", "Rowing", "Rugby", "Running", "Sailing", "Shooting", "Skateboarding", "Skiing", "Snowboarding", "Soccer", "Softball", "Spikeball", "Squash", "Surfing", "Tennis", "Ultimate Frisbee", "Volleyball", "Yoga"]
+    var music1 = ["Acoustic", "Afrobeat", "Blues", "Chill", "Classical", "Country", "Disco", "Folk", "Funk", "Grime", "Hip-Hop", "Jazz", "K-Pop", "Latin Pop", "Metal", "Pop", "R & B", "Reggae", "Retro Bangers", "Rock", "Soul"]
+    var music2 = ["Acid", "Afro tech", "Ambient", "Big Room", "D & B", "Dance", "Dubstep", "EDM", "Electronica", "Garage", "House", "Jungle", "Liquid", "Melodic Techno", "Psytrance", "Tech House", "Techno", "Trance", "Tropical House"]
+    var music3 = ["Dream Pop", "Emo", "Experimental", "Folk Music", "Grunge", "Indie", "Indie pop", "Indie Rock", "Lo-fi", "Post-Rock", "Psychedelic Rock", "Punk", "Shoegaze", "Slowcore"]
 
 }

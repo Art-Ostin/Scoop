@@ -26,8 +26,18 @@ struct IdealMeetupView: View {
                 .editorLink(.meetupPreferences)
                 .listRowInsets(EdgeInsets(top: Spacing.lg, leading: Spacing.md, bottom: Spacing.lg, trailing: Spacing.md))
         } header: {
-            Text("Ideal Meetup")
-                .padding(.leading, -Spacing.sm) //Geometry: negates the header's row inset so it lines up with the large title
+            HStack {
+                Text("Meetup Preferences")
+                    .padding(.leading, -Spacing.sm) //Geometry: negates the header's row inset so it lines up with the large title
+                Spacer()
+                //On the header, not the card: one editor holds all three answers, so the pencil sits on the group's name
+                NavigationLink(value: EditProfileRoute.meetupPreferences) {
+                    Image(isEmpty ? "EditButton" : "EditGray")
+                        .expandHitArea()
+                }
+                .buttonStyle(.plain)
+                .accessibilityHidden(true) //The card is already the VoiceOver button for this editor
+            }
         }
     }
 }
@@ -39,38 +49,25 @@ extension IdealMeetupView {
         Group {
             if isEmpty {
                 addText("Add your ideal meetup")
-                    .padding(.trailing, 17 + Spacing.xs) //Geometry: the EditButton's 17pt width plus a gap, so an accessibility-size line never runs under it
             } else {
                 VStack(alignment: .leading, spacing: Spacing.lg) {
-                    answer("Preferred Dates:") { activitiesRow }
-                        .padding(.horizontal, 10)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm)
-                            .stroke(isEmpty ? .accent : Color.border, lineWidth: 0.5))
-                    answer("Preferred Days:") { dayStrip }
-                        .padding(.horizontal, 10)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm)
-                            .stroke(isEmpty ? .accent : Color.border, lineWidth: 0.5))
-
-                    answer("The dream date:") { dreamQuote }
+                    answer("Go-to dates") { activitiesRow }
+                        .meetupBorder(isEmpty: isEmpty)
+                    answer("Best days") { dayStrip }
+                        .meetupBorder(isEmpty: isEmpty)
+                    answer("Dream date") { dreamQuote }
+                        .meetupBorder(isEmpty: isEmpty)
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading) //Full width even as one short line, so the pencil sits on the card's inset, not on the sentence
-        .overlay(alignment: isEmpty ? .trailing : .topTrailing) { //Centred on the lone line; otherwise on the first label's
-            Image(isEmpty ? "EditButton" : "EditGray")
-                .padding(.top, -10)
-        }
+        .frame(maxWidth: .infinity, alignment: .leading) //Full width even as one short line, so VoiceOver's focus ring frames the card, not the sentence
     }
 
     private func answer<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text(title)
                 .foregroundStyle(Color.textTertiary)
-                .font(.body(14, .italic))
+                .font(.body(14))
             content()
         }
     }
@@ -87,7 +84,7 @@ extension IdealMeetupView {
 
     //The editor's grid order (EditIdealMeetup.rows), not tap order, so the card reads like the grid it was picked from
     private static let activityOrder = [
-        "Drinks", "Coffee", "Brunch", "Lunch", "Live Music", "Double Date", "Base Jumping",
+        "Drinks", "Coffee", "Brunch", "Lunch", "Live Music", "Double Date", "Social Meet",
         "Dinner", "Rave", "A Walk", "Pastries", "A Movie", "Thrifting", "Park", "Ice Cream"
     ]
 
@@ -112,14 +109,12 @@ extension IdealMeetupView {
     }
 
     private var spreadTrio: some View {
-        HStack(spacing: 0) { //spacing 0: the Spacers carry the gap, so the first and last tags hold the column's edges
+        HStack(spacing: 36) { //spacing 0: the Spacers carry the gap, so the first and last tags hold the column's edges
             ForEach(activities, id: \.self) { activity in
                 activityTag(activity)
-                if activity != activities.last {
-                    Spacer(minLength: Spacing.xs)
-                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     //Wraps rather than scrolls, so every pick is on show without a swipe. .scrollable because .vstack collapses to 10pt in a List row — nothing scrolls
@@ -138,7 +133,7 @@ extension IdealMeetupView {
             .fixedSize()
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, Spacing.xs)
-            .capsuleStroke(lineWidth: 1, color: Color.textPlaceholder)
+            .capsuleStroke(lineWidth: 0.5, color: Color.borderLight)
     }
 }
 
@@ -169,9 +164,9 @@ extension IdealMeetupView {
         return Text(day)
             .font(.body(13, isChosen ? .bold : .medium))
             .foregroundStyle(isChosen ? Color.textPrimary : Color.textPlaceholder)
-            .frame(width: 30, height: 30) //Geometry: the dot — the widest day, "Wed", keeps ~5pt of air a side
-            .circleStroke(lineWidth: isChosen ? 1 : 0, color: isChosen ? Color.textPrimary : Color.white)
-            .padding(.top, 2)
+            .frame(width: 32, height: 32) //Geometry: the dot — the widest day, "Wed", keeps ~5pt of air a side
+            .circleStroke(lineWidth: isChosen ? 0.5 : 0, color: isChosen ? Color.border : Color.white)
+//            .padding(.top, 2)
     }
 }
 
@@ -184,12 +179,12 @@ extension IdealMeetupView {
             addText("Add")
         } else {
             HStack(spacing: Spacing.sm) {
-                Capsule()
-                    .fill(Color.borderStrong)
-                    .frame(width: 3) //Geometry: Invite History's note bar
+//                Capsule()
+//                    .fill(Color.borderStrong)
+//                    .frame(width: 3) //Geometry: Invite History's note bar
 
                 Text(dreamDate)
-                    .font(.body(15, .italic))
+                    .font(.body(16, .italic))
                     .foregroundStyle(Color.textPrimary)
                     .lineSpacing(6) //The app's quote leading, = Invite History's note
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -220,5 +215,17 @@ extension IdealMeetupView {
             dreamDate.isEmpty ? nil : "Dream date: " + dreamDate
         ]
         return parts.compactMap { $0 }.joined(separator: ". ")
+    }
+}
+
+
+extension View {
+     func meetupBorder(isEmpty: Bool) -> some View {
+        self
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 16)
+            .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm)
+                .stroke(isEmpty ? .accent : Color.border, lineWidth: 0.5))
     }
 }

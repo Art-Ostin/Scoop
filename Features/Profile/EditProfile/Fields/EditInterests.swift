@@ -110,11 +110,12 @@ extension GenericInterests {
             ScrollView(.horizontal) {
                 HStack(alignment: .top) {
                     ForEach(selected, id: \.self) { selection in
-                        OptionCell(text: selection, selection: $selected, style: .outlined)
+                        OptionCell(text: selection, isCapsule: true, selection: $selected, style: .outlined)
                     }
                 }
                 .padding(.top, Spacing.xs) //Geometry: headroom for the xmark badge, which overhangs its chip by 6
                 .frame(minHeight: 48, alignment: .top) //holds the row open while nothing is selected
+                .instantPressDelivery()
             }
             .contentMargins(.all, EdgeInsets(top: 0, leading: Spacing.md, bottom: 0, trailing: Spacing.xl), for: .scrollContent)
             .scrollPosition($selectedScrollPos)
@@ -216,7 +217,7 @@ struct InterestSection: View {
             .padding(.bottom, Spacing.md)
 
             FlowLayout(mode: .scrollable, items: options, itemSpacing: Spacing.xs) { input in
-                OptionCell(text: input, maxCount: maxCount, selection: $selected)
+                OptionCell(text: input, maxCount: maxCount, isCapsule: true, selection: $selected)
             }
             .offset(x: -Spacing.xxs) //Keeps the chips aligned with the section header
         }
