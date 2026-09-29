@@ -1,5 +1,5 @@
 //
-//  AddImageView3.swift
+//  OnboardingImages.swift
 //  Scoop
 //
 //  Created by Art Ostin on 23/07/2025.
@@ -27,9 +27,9 @@ struct OnboardingImages: View {
     @State private var loadingTiles: Set<Int> = [] //Tiles a pick has claimed while it loads — a drag carries the claim along, and no later pick can take them
     private let columns = Array(repeating: GridItem(.fixed(120), spacing: 10), count: 3) //Geometry: photo-grid pitch (cell + gap)
 
-    init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing, authService: AuthServicing) {
+    init(vm: OnboardingViewModel, defaultsManager: DefaultsManaging, storageService: StorageServicing) {
         self.vm = vm
-        _imageVM = State(wrappedValue: ProfileImagesViewModel(defaults: defaultsManager, storageService: storageService, auth: authService))
+        _imageVM = State(wrappedValue: ProfileImagesViewModel(defaults: defaultsManager, storageService: storageService))
     }
 
     var body: some View {
@@ -62,7 +62,7 @@ struct OnboardingImages: View {
                 showSavingScreen = true
                 Task {
                     do {
-                         await imageVM.saveAll(images: order.map { images[$0] }) //Screen order is upload order: the first cell is the main photo
+                         try await imageVM.saveAll(images: order.compactMap { images[$0] }) //Screen order is upload order: the first cell is the main photo
                          try await vm.createProfile()
                          dep.session.appState = .app
                     } catch {
@@ -93,10 +93,7 @@ struct OnboardingImages: View {
                 }
                 .transition(.opacity)
                 .frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
-                .background(Color.appCanvas)
-                .onTapGesture {
-                    showSavingScreen = false
-                }
+                .background(Color.appCanvas) //A tap can't dismiss it: Complete would run twice
             }
         }
         .toolbar(showSavingScreen ? .hidden : .visible, for: .navigationBar)

@@ -494,6 +494,7 @@ public final class ZoomRootController: UIViewController {
         detailPresentationBinding?.wrappedValue = true
         detail.dismissController.continuousCollapse = marker.continuousCollapse
         detail.dismissController.windDismiss = marker.windDismiss
+        detail.dismissController.squeezeLanding = marker.squeezeLanding
         detail.dismissController.dismissDurationScale = marker.dismissDurationScale
         sceneIsBehindTabBar = false // every open starts above the bar
         // Parented to whoever owns the plane the views are added to — UIKit
@@ -605,6 +606,12 @@ public extension View {
     /// small overshoot and one tight settle. Slow lets-go keep the calm
     /// continuous morph. Wins over `continuousCollapse` when both are set.
     /// Default false: every existing card keeps its arc.
+    /// `squeezeLanding` gives this source's BUTTON close (`zoomDismiss`) a
+    /// landing with weight (see DragTuning's squeeze section): the screen
+    /// shrinks without braking, drops into the card's slot still moving,
+    /// squeezes below the slot's size and springs back out to it. The slot's
+    /// own photo shows under the dip, so the squeeze never uncovers the
+    /// surface behind the card. Gesture closes are untouched. Default false.
     /// `dismissDurationScale` stretches this source's dismissal clock — 1.5
     /// plays the whole collapse half again as long. It scales the travel, the
     /// mask's condense race and the settle as one, so the flight only ever
@@ -620,6 +627,7 @@ public extension View {
         pressScale: CGFloat = ZoomStyle.pressScale,
         continuousCollapse: Bool = false,
         windDismiss: Bool = false,
+        squeezeLanding: Bool = false,
         dismissDurationScale: Double = 1,
         @ViewBuilder cardOverlay: @escaping () -> Overlay,
         @ViewBuilder content: @escaping () -> Content
@@ -633,6 +641,7 @@ public extension View {
             pressScale: pressScale,
             continuousCollapse: continuousCollapse,
             windDismiss: windDismiss,
+            squeezeLanding: squeezeLanding,
             dismissDurationScale: dismissDurationScale,
             cardOverlay: { AnyView(cardOverlay()) },
             detail: { AnyView(content()) }))
@@ -699,8 +708,9 @@ public extension View {
 
 /// Programmatic dismissal for a zoom destination: read it in the content via
 /// `@Environment(\.zoomDismiss)` and call it — the screen collapses into its
-/// card with the same catchable morph the Back button drives. Outside a
-/// zoom destination it is a no-op.
+/// card with the same morph the Back button drives (a `squeezeLanding`
+/// source lands with a squeeze instead). Outside a zoom destination it is a
+/// no-op.
 public struct ZoomDismissAction {
     let run: () -> Void
     public func callAsFunction() { run() }
@@ -808,6 +818,7 @@ private struct ZoomTransitionModifier: ViewModifier {
     let pressScale: CGFloat
     let continuousCollapse: Bool
     let windDismiss: Bool
+    let squeezeLanding: Bool
     let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
@@ -831,6 +842,7 @@ private struct ZoomTransitionModifier: ViewModifier {
                     bottomCornerRadius: bottomCornerRadius,
                     continuousCollapse: continuousCollapse,
                     windDismiss: windDismiss,
+                    squeezeLanding: squeezeLanding,
                     dismissDurationScale: dismissDurationScale,
                     cardOverlay: cardOverlay, detail: detail))
                 .contentShape(Rectangle())
@@ -911,6 +923,7 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
     let bottomCornerRadius: CGFloat
     let continuousCollapse: Bool
     let windDismiss: Bool
+    var squeezeLanding = false //Only the Button-wrapped modifier offers it
     let dismissDurationScale: Double
     let cardOverlay: () -> AnyView
     let detail: () -> AnyView
@@ -940,6 +953,7 @@ private struct ZoomSourceRepresentable: UIViewRepresentable {
         v.bottomCornerRadius = bottomCornerRadius
         v.continuousCollapse = continuousCollapse
         v.windDismiss = windDismiss
+        v.squeezeLanding = squeezeLanding
         v.dismissDurationScale = dismissDurationScale
         v.cardOverlay = cardOverlay
         v.detail = detail
@@ -1114,6 +1128,8 @@ final class ZoomSourceMarkerView: UIView {
     var continuousCollapse = false
     /// `zoomTransition(windDismiss:)` — likewise handed over at push.
     var windDismiss = false
+    /// `zoomTransition(squeezeLanding:)` — likewise handed over at push.
+    var squeezeLanding = false
     /// `zoomTransition(dismissDurationScale:)` — likewise handed over at push.
     var dismissDurationScale: Double = 1
     var cardRadii: CardRadii {
@@ -1612,6 +1628,46 @@ enum DragTuning {
     /// trajectory may reach the slot sooner, but the dressing never snaps.
     static let windPaceFloor: TimeInterval = 0.25
 
+    /// ── THE SQUEEZE LANDING (`zoomTransition(squeezeLanding:)`) ──
+    /// An opted-in source's BUTTON close lands like a soft object dropped
+    /// into its slot, in three C¹-spliced pieces (SqueezeFlightPlan):
+    ///   APPROACH — the size falls in LOG space (a zoom's felt speed is
+    ///   relative) on a cubic whose rate only ever rises: it leaves at
+    ///   squeezeLaunchPace × the average and hits the slot's size at
+    ///   squeezeArrivalPace × — the shrink never brakes. A soft launch and
+    ///   a hard arrival keep the on-screen edge speed near level too (a
+    ///   level log-rate alone halves it as the card shrinks). The page
+    ///   folds onto the photo in step with the size, so the whole screen
+    ///   drops as one object. Position is perspective-coupled to the size
+    ///   and eased in, so the card is already over its slot when it drops
+    ///   the last stretch.
+    ///   SQUEEZE — contact at full speed: a critically damped brake takes
+    ///   the size to exactly 1 − squeezeDepth, stiffness solved from the
+    ///   arrival speed.
+    ///   REBOUND — from rest at the bottom, an under-damped spring expands
+    ///   it back out, a little past the slot, and settles.
+    /// Position is pinned to the slot from contact on: the whole landing
+    /// plays in the size. A tap carries no momentum of its own; this flight
+    /// supplies it.
+    /// The approach's duration, contact included.
+    static let squeezeApproachDuration: TimeInterval = 0.30
+    /// The log-rate at launch and at contact, as multiples of the average.
+    /// The rate keeps rising while 2·launch + arrival ≤ 3 and
+    /// launch + 2·arrival ≥ 3 (the cubic's accelerations at both ends).
+    /// Sim, a 370pt hero into a 110pt cell: edges leave at ~300pt/s, peak
+    /// ~480, contact at ~400 — sagging 17% where 0.8/1.4 sagged 47%.
+    static let squeezeLaunchPace: CGFloat = 0.4
+    static let squeezeArrivalPace: CGFloat = 1.8
+    /// The dip below the slot's size at the bottom of the squeeze.
+    static let squeezeDepth: CGFloat = 0.1
+    /// The rebound's spring: overshoot past the slot ≈ depth ×
+    /// e^{−ζπ/√(1−ζ²)} (≈ 1.9% at these values), then one faint undershoot.
+    static let squeezeReboundOmega: CGFloat = 21
+    static let squeezeReboundDamping: CGFloat = 0.47
+    /// Backstop on the rebound before a hard commit; the settle gate
+    /// normally commits well before it.
+    static let squeezeSettleCap: TimeInterval = 0.8
+
     static func smoothstep(_ x: CGFloat) -> CGFloat {
         let c = min(max(x, 0), 1)
         return c * c * (3 - 2 * c)
@@ -2101,6 +2157,87 @@ struct WindFlightPlan {
             t += 0.004
         }
         return worst
+    }
+}
+
+// MARK: - The squeeze landing
+
+/// The squeeze landing's solve (see DragTuning's squeeze section). `k` is
+/// the flying card's size relative to its slot — 1 is landed; clocks are
+/// flight seconds. Pure math: the dismiss controller renders it.
+struct SqueezeFlightPlan {
+    let k0: CGFloat
+    let tContact: TimeInterval  // the approach reaches the slot's size
+    let tBottom: TimeInterval   // the squeeze bottoms out at 1 − depth
+    let tEnd: TimeInterval      // hard landing commit
+    private let logK0: CGFloat
+    private let arrival: CGFloat // closing speed at contact, size/s
+    private let brake: CGFloat   // the squeeze's critically damped rate
+    private let rebound: WindSpring
+
+    init(k0: CGFloat, durationScale: Double) {
+        self.k0 = k0
+        logK0 = log(max(k0, 1.0001))
+        tContact = DragTuning.squeezeApproachDuration * durationScale
+        arrival = logK0 * DragTuning.squeezeArrivalPace / CGFloat(tContact)
+        // u = −v·t·e^{−ωt} bottoms at t = 1/ω, v/(e·ω) deep: ω is solved
+        // so the depth is exact whatever speed the approach arrives with.
+        brake = arrival / (CGFloat(M_E) * DragTuning.squeezeDepth)
+        tBottom = tContact + TimeInterval(1 / brake)
+        rebound = WindSpring(u0: -DragTuning.squeezeDepth, du0: 0,
+                             zeta: DragTuning.squeezeReboundDamping,
+                             omega: DragTuning.squeezeReboundOmega / CGFloat(durationScale))
+        tEnd = tBottom + DragTuning.squeezeSettleCap * durationScale
+    }
+
+    /// The approach's covered share of the log distance, and its rate: a
+    /// cubic Hermite leaving at the launch pace and arriving at the
+    /// arrival pace, its slope rising between.
+    private func covered(_ x: CGFloat) -> (q: CGFloat, dq: CGFloat) {
+        let m0 = DragTuning.squeezeLaunchPace, m1 = DragTuning.squeezeArrivalPace
+        let x2 = x * x, x3 = x2 * x
+        return ((3 * x2 - 2 * x3) + m0 * (x3 - 2 * x2 + x) + m1 * (x3 - x2),
+                (6 * x - 6 * x2) + m0 * (3 * x2 - 4 * x + 1) + m1 * (3 * x2 - 2 * x))
+    }
+
+    /// The approach's progress: its covered share of the log distance, 1
+    /// from contact on. The page's fold rides it, in step with the size.
+    func progress(at t: TimeInterval) -> CGFloat {
+        t < tContact ? covered(CGFloat(max(t, 0) / tContact)).q : 1
+    }
+
+    /// Size and its rate at flight time `t` — C¹ across both splices.
+    func size(at t: TimeInterval) -> (k: CGFloat, dk: CGFloat) {
+        if t < tContact {
+            let (q, dq) = covered(CGFloat(t / tContact))
+            let k = exp(logK0 * (1 - q))
+            return (k, -k * logK0 * dq / CGFloat(tContact))
+        }
+        if t < tBottom {
+            let tc = CGFloat(t - tContact), e = exp(-brake * tc)
+            return (1 - arrival * tc * e, -arrival * (1 - brake * tc) * e)
+        }
+        let s = rebound.eval(CGFloat(t - tBottom))
+        return (1 + s.u, s.du)
+    }
+
+    /// The sideways travel still ahead, as a share of the launch offset.
+    /// Perspective ties it to the size — (k − 1)/(k0 − 1) — and u²(2 − u)
+    /// eases it in, so it leaves at the size's own pace and is spent, at
+    /// zero speed, by contact. Nothing from contact on: the landing plays
+    /// in the size alone.
+    func travelLeft(k: CGFloat, at t: TimeInterval) -> CGFloat {
+        guard t < tContact else { return 0 }
+        let u = min(max((k - 1) / (k0 - 1), 0), 1)
+        return u * u * (2 - u)
+    }
+
+    /// True once the flight may commit: the hard stop, or rest past the
+    /// bottom at SUB-DEVICE-PIXEL on a card `extent` pt across — the commit
+    /// teleports the residual (WindFlightPlan.shouldLand's bound).
+    func shouldLand(elapsed: TimeInterval, k: CGFloat, dk: CGFloat, extent: CGFloat) -> Bool {
+        elapsed >= tEnd
+            || (elapsed > tBottom && abs(k - 1) * extent < 0.3 && abs(dk) * extent < 10)
     }
 }
 
@@ -2700,7 +2837,7 @@ final class ZoomDetailController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         // The user's builder IS the screen; ImageCarousel() inside it resolves
         // to this controller's hero container, and zoomDismiss runs the same
-        // catchable morph pop the Back button drives.
+        // morph pop the Back button drives (or the squeeze landing).
         detailHost.rootView = AnyView(
             detailContent
                 .environment(\.zoomHeroContainer, hero)
@@ -3150,8 +3287,10 @@ func estimatedDisplayCornerRadius(around view: UIView) -> CGFloat {
 /// The scene — scrim over the WHOLE nav view (bar included), receded home
 /// plane, shadow host wrapping the masked detail — is built once at
 /// presentation and persists until a dismissal lands, so dismissals arm
-/// instantly. Every flight runs on a property animator, so a new touch can
-/// seize the card mid-air (catchFlight). No UIKit transition machinery is
+/// instantly. The open, cancel and collapse run on property animators, so a
+/// new touch can seize the open or cancel mid-air (catchFlight); the dive,
+/// wind and squeeze run on the `diveLink` display link, and every committed
+/// dismissal refuses the grab. No UIKit transition machinery is
 /// involved: the navigation bar is never told anything happened.
 final class MorphDismissController: NSObject {
 
@@ -3180,6 +3319,9 @@ final class MorphDismissController: NSObject {
     /// Opt-in (`zoomTransition(windDismiss:)`): flick releases fly the
     /// one-piece wind trajectory — see `runWind`.
     var windDismiss = false
+    /// Opt-in (`zoomTransition(squeezeLanding:)`): the button close lands
+    /// with a squeeze — see `runSqueeze`.
+    var squeezeLanding = false
     /// Opt-in (`zoomTransition(dismissDurationScale:)`): stretches every
     /// dismissal clock this scene runs — see `runCollapse`.
     var dismissDurationScale: Double = 1
@@ -3655,7 +3797,8 @@ final class MorphDismissController: NSObject {
     }
 
     /// The X button / zoomDismiss: the same collapse, self-driven — a tap
-    /// carries no momentum, so no bounce is earned (buttonDamping).
+    /// carries no momentum, so no bounce is earned (buttonDamping). A
+    /// `squeezeLanding` source supplies its own and lands with a squeeze.
     func dismissProgrammatically() {
         guard !isInteracting else { return }
         isInteracting = true
@@ -3665,9 +3808,13 @@ final class MorphDismissController: NSObject {
             armDismissal()
             flightIsDismissal = true
             shadowHost?.layer.shadowOpacity = ZoomStyle.flightShadowOpacity
-            runCollapse(velocity: .zero,
-                        duration: DragTuning.buttonFlightDuration,
-                        damping: DragTuning.buttonDamping)
+            if squeezeLanding {
+                runSqueeze()
+            } else {
+                runCollapse(velocity: .zero,
+                            duration: DragTuning.buttonFlightDuration,
+                            damping: DragTuning.buttonDamping)
+            }
         }
         // A bar-band landing drops behind the bar a turn EARLY. The swap
         // re-parents a hosted SwiftUI screen, which costs a layout pass,
@@ -4230,6 +4377,7 @@ final class MorphDismissController: NSObject {
         diveLink?.invalidate()
         diveLink = nil
         windFlight = nil
+        squeezeFlight = nil
     }
 
     // MARK: The wind dismiss (one-piece flick trajectory)
@@ -4457,21 +4605,28 @@ final class MorphDismissController: NSObject {
         homeView?.transform = recedeTransform(0.94 + 0.06 * pace)
     }
 
-    /// Commits the wind landing: the exact target pose and every landed
-    /// value in one transaction, then the shared completed teardown — the
-    /// mirror of the collapse animator's .end completion.
     private func finishWind() {
         guard let wind = windFlight else { return }
         stopDive()
+        landFlight(target: wind.target, flightHero: wind.flightHero, s: wind.s,
+                   condensed: windCondenseDone)
+    }
+
+    /// Commits a display-link landing (wind or squeeze): the exact target
+    /// pose and every landed value in one transaction, then the shared
+    /// completed teardown — the mirror of the collapse animator's .end
+    /// completion.
+    private func landFlight(target: CGAffineTransform, flightHero: CGRect,
+                            s: CGFloat, condensed: Bool) {
         guard let detailView, let home else {
             teardown(completed: true)
             return
         }
-        detailView.transform = wind.target
-        maskView?.apply(frame: wind.flightHero, radii: cardRadii.scaled(by: wind.s))
+        detailView.transform = target
+        maskView?.apply(frame: flightHero, radii: cardRadii.scaled(by: s))
         detail?.setHeroBottomRadius(cardRadii.bottom)
         detail?.setHeroCurtain(1)
-        if !windCondenseDone {
+        if !condensed {
             detail?.setHeroCrop(flight: true)
             detailView.layoutIfNeeded()
         }
@@ -4486,6 +4641,199 @@ final class MorphDismissController: NSObject {
         // and both changes commit in the same transaction (no flash).
         home.setCardHidden(false)
         teardown(completed: true)
+    }
+
+    // MARK: The squeeze landing (a button close with weight)
+
+    /// The squeeze flight's scene endpoints; its plan owns the size.
+    private struct SqueezeFlight {
+        var plan: SqueezeFlightPlan
+        var target = CGAffineTransform.identity
+        var flightHero = CGRect.zero
+        var s: CGFloat = 1             // landing scale
+        var travel = CGVector.zero     // the hero center's launch offset from the slot's
+        var maskStart = CGRect.zero
+        var maskRadiiStart = CardRadii.uniform(0)
+        var heroBottomStart: CGFloat = 0
+    }
+
+    private var squeezeFlight: SqueezeFlight?
+    private var squeezeCondenseDone = false
+    /// The slot's own photo, laid under the flying card once the card covers
+    /// the slot: the squeeze dips the card INSIDE its slot, and the ring that
+    /// opens shows the photo's own edges, never the surface behind the hidden
+    /// cell. Leaves with the scene at teardown.
+    private var squeezeUnderlay: UIView?
+
+    /// The SQUEEZE flight (`zoomTransition(squeezeLanding:)`): the button
+    /// close as one display-link trajectory — see DragTuning's squeeze
+    /// section. It shares the wind's clock slot (`diveLink`), so catch
+    /// refusal, abort and teardown cover it unchanged.
+    private func runSqueeze() {
+        // A card near the hero's own size has too little fall to land with
+        // weight: its fixed-depth squeeze would sink in slow motion.
+        guard let detail, let detailView, let (flightHero, s) = flightTarget(),
+              detailView.transform.a / s > 1.8
+        else {
+            runCollapse(velocity: .zero,
+                        duration: DragTuning.buttonFlightDuration,
+                        damping: DragTuning.buttonDamping)
+            return
+        }
+        dropBehindBarIfLandingNeedsIt() // backstop: the programmatic path pre-paid it
+
+        let c = CGPoint(x: detailView.bounds.midX, y: detailView.bounds.midY)
+        let tr = detailView.transform
+        var flight = SqueezeFlight(plan: SqueezeFlightPlan(
+            k0: tr.a / s, durationScale: dismissDurationScale))
+        flight.flightHero = flightHero
+        flight.s = s
+        flight.target = CGAffineTransform(
+            translationX: sourceRect.midX - c.x - s * (flightHero.midX - c.x),
+            y: sourceRect.midY - c.y - s * (flightHero.midY - c.y)
+        ).scaledBy(x: s, y: s)
+        flight.travel = CGVector(
+            dx: c.x + tr.a * (flightHero.midX - c.x) + tr.tx - sourceRect.midX,
+            dy: c.y + tr.d * (flightHero.midY - c.y) + tr.ty - sourceRect.midY)
+
+        // Atmosphere resolves by contact: the home is still, undimmed and
+        // full size when the card lands in it.
+        coverFade = installCoverFade()
+        dropShadow(over: flight.plan.tContact)
+        detail.setHeroCropScrub(0)
+        if let scrim {
+            scrim.alpha = CGFloat(scrim.layer.presentation()?.opacity ?? Float(scrim.alpha))
+            scrim.layer.removeAllAnimations()
+            diveScrimStart = scrim.alpha
+        }
+        flight.maskStart = maskView?.frame ?? detailView.bounds
+        flight.maskRadiiStart = maskView?.radii ?? .uniform(displayRadius)
+        flight.heroBottomStart = detail.heroBottomRadius
+        squeezeFlight = flight
+        squeezeCondenseDone = false
+
+        diveClock = Double(detailView.window?.layer.speed ?? 1)
+        // Stamped by the first tick, not now: this turn's commit still pays
+        // for the arm (the chrome copy's first render, a Save's cell swap),
+        // and a clock started here would open the flight partway in.
+        diveStart = 0
+        let link = CADisplayLink(target: self, selector: #selector(squeezeTick))
+        link.preferredFrameRateRange = CAFrameRateRange(
+            minimum: 80, maximum: 120, preferred: 120)
+        link.add(to: .main, forMode: .common)
+        diveLink = link
+
+        // FAIL-SAFE twin of the wind's: a stalled link still lands.
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + (flight.plan.tEnd + 3) / max(diveClock, 0.001)
+        ) { [weak self] in
+            guard let self, diveLink === link, isInteracting else { return }
+            finishSqueeze()
+        }
+    }
+
+    @objc private func squeezeTick(_ link: CADisplayLink) {
+        guard let flight = squeezeFlight, let detail, let detailView else {
+            // The scene fell apart mid-flight — resolve (see runCollapse).
+            stopDive()
+            if isInteracting { teardown(completed: true) }
+            return
+        }
+        let plan = flight.plan
+        if diveStart == 0 { diveStart = link.timestamp } // the first frame is t = 0
+        let elapsed = (link.timestamp - diveStart) * diveClock
+        let (k, dk) = plan.size(at: elapsed)
+        if plan.shouldLand(elapsed: elapsed, k: k, dk: dk,
+                           extent: max(sourceRect.width, sourceRect.height)) {
+            finishSqueeze()
+            return
+        }
+        // Pose: the plan's size about the hero's center, which rides the
+        // plan's sideways share home and stays pinned to the slot after.
+        let c = CGPoint(x: detailView.bounds.midX, y: detailView.bounds.midY)
+        let left = plan.travelLeft(k: k, at: elapsed)
+        let a = flight.s * k
+        let transform = CGAffineTransform(
+            translationX: sourceRect.midX + flight.travel.dx * left
+                - c.x - a * (flight.flightHero.midX - c.x),
+            y: sourceRect.midY + flight.travel.dy * left
+                - c.y - a * (flight.flightHero.midY - c.y)
+        ).scaledBy(x: a, y: a)
+        detailView.transform = transform
+        let pace = CGFloat(min(max(elapsed / plan.tContact, 0), 1))
+        // The condense rides the size's own progress: an eased clock of
+        // its own would stall the card's height mid-approach. The page's
+        // last sliver folds away AT contact, into the squeeze's brake; the
+        // photo's crop settles well before.
+        var raced = flight.flightHero
+        if !squeezeCondenseDone {
+            let closing = plan.progress(at: elapsed)
+            raced = DragTuning.lerp(flight.maskStart, flight.flightHero, closing)
+            maskView?.apply(frame: raced, radii: CardRadii.lerp(
+                flight.maskRadiiStart, cardRadii.scaled(by: flight.s), closing))
+            detail.setHeroBottomRadius(DragTuning.lerp(
+                flight.heroBottomStart, cardRadii.bottom, closing))
+            detail.setHeroCurtain(closing)
+            detail.setHeroCropScrub(DragTuning.smoothstep(closing / 0.8))
+            sceneOverlayHost?.view.alpha = pace * closing * closing
+            if closing >= 1 {
+                squeezeCondenseDone = true
+                detail.setHeroCrop(flight: true) // clears the scrub; same geometry
+                detailView.layoutIfNeeded()
+            }
+        } else {
+            sceneOverlayHost?.view.alpha = pace
+        }
+        updateLandingRigs(window: screenWindow(of: raced, under: transform, in: detailView))
+        // The bare photo's window, not the folding page's: once it covers
+        // the slot it keeps covering it until contact (its offset share
+        // u(2 − u) only falls), so the slot's photo slides in beneath unseen.
+        // The page's own edge can pass inside the slot mid-fold.
+        if squeezeUnderlay == nil, elapsed >= plan.tContact
+            || screenWindow(of: flight.flightHero, under: transform, in: detailView)
+                .insetBy(dx: -0.5, dy: -0.5).contains(sourceRect) {
+            installSqueezeUnderlay()
+        }
+        landingShadowRig?.alpha = pace
+        coverFade?.alpha = DragTuning.smoothstep(pace)
+        scrim?.alpha = diveScrimStart * (1 - pace)
+        // Eased out, so the grid is at rest by the time the card hits it.
+        let settle = 1 - (1 - pace) * (1 - pace)
+        homeView?.transform = recedeTransform(0.94 + 0.06 * settle)
+    }
+
+    private func finishSqueeze() {
+        guard let flight = squeezeFlight else { return }
+        stopDive()
+        landFlight(target: flight.target, flightHero: flight.flightHero, s: flight.s,
+                   condensed: squeezeCondenseDone)
+    }
+
+    /// The squeeze's underlay: the photo the card lands showing, cut to the
+    /// slot's shape — pixel-identical to the card at full size.
+    private func installSqueezeUnderlay() {
+        guard squeezeUnderlay == nil, let detail, let host = shadowHost,
+              let plane = host.superview else { return }
+        let photo = UIImageView(image: coverFade?.image ?? detail.currentPageImageView.image)
+        photo.contentMode = .scaleAspectFill
+        photo.clipsToBounds = true
+        photo.isUserInteractionEnabled = false
+        photo.frame = host.convert(sourceRect, to: plane) // flight coords → the scene's plane
+        if cardRadii.bottom == cardRadii.top {
+            photo.layer.cornerRadius = cardRadii.top
+            photo.layer.cornerCurve = .continuous
+        } else {
+            let shape = SplitCornerView()
+            shape.apply(frame: photo.bounds, radii: cardRadii)
+            photo.mask = shape
+        }
+        // Above the scrim, beneath the card and its shadow rig.
+        if let rig = landingShadowRig, rig.superview === plane {
+            plane.insertSubview(photo, belowSubview: rig)
+        } else {
+            plane.insertSubview(photo, belowSubview: host)
+        }
+        squeezeUnderlay = photo
     }
 
     /// The committed collapse's plane decision: only a landing slot that
@@ -4974,6 +5322,10 @@ final class MorphDismissController: NSObject {
         // atomic swap, never a double-composite and never a gap.
         landingShadowRig?.removeFromSuperview()
         landingShadowRig = nil
+        // Same transaction: the unhidden card's landing overlay takes over
+        // the squeeze underlay's identical pixels.
+        squeezeUnderlay?.removeFromSuperview()
+        squeezeUnderlay = nil
         if let open = openAnimator, open.state == .active {
             open.stopAnimation(false)
             open.finishAnimation(at: .current)

@@ -29,10 +29,12 @@ class UserRepo: UserRepository {
         try await fs.getCacheFirst(userPath(userId))
     }
     
-    func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws {
+    //Acked, or queued (false) after 10 s: Firestore holds the write until it can land, so the caller may move on
+    @discardableResult
+    func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws -> Bool {
         var data: [String: Any] = [:]
         for (key, value) in values { data[key.rawValue] = value}
-        try await fs.update(userPath(userId), fields: data)
+        return try await fs.update(userPath(userId), fields: data, patience: 10)
     }
     
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error> {

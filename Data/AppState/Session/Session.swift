@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Network
 
 enum ShowProfilesState {
     case active, closed, respond
@@ -42,6 +43,10 @@ final class TaskBag {
     let profileLoader: ProfileLoading
     let imageLoader: ImageLoading
     let notifications: InAppNotificationCenter
+
+    //Firestore queues an offline write silently and never returns, so a save asks this first
+    @ObservationIgnored private let network: NWPathMonitor = { let monitor = NWPathMonitor(); monitor.start(queue: .global(qos: .utility)); return monitor }()
+    var isOnline: Bool { network.currentPath.status == .satisfied }
 
     //Listeners the app holds — cancelled when the session stops
     private let streams = TaskBag()

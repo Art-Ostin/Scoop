@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
-import FirebaseStorage
 import UIKit
 
 protocol FirestoreServicing {
@@ -19,6 +18,7 @@ protocol FirestoreServicing {
     func getCacheFirst<T: Decodable>(_ path: String) async throws -> T
     func warmUp()
     func update(_ path: String, fields: [String : Any]) async throws
+    func update(_ path: String, fields: [String : Any], patience: TimeInterval) async throws -> Bool
     func delete(_ path: String) async throws
     func encodeFields<T: Encodable>(_ value: T) throws -> [String: Any]
     func listenD<T: Decodable>(_ path: String) -> AsyncThrowingStream<T?, Error>
@@ -36,16 +36,15 @@ protocol AuthServicing {
 }
 
 protocol StorageServicing {
-    func imagePath(_ imageId: String) -> StorageReference
-    func getImageURL(path: String) async throws -> URL
-    func saveImage(data: Data, userId: String) async throws -> (path: String, url: URL)
+    //Resized and uploaded as the final ≤1350 variant; the URL is ready on return and the bytes already cached under it
+    func saveImage(_ image: UIImage, userId: String) async throws -> (path: String, url: URL)
     func deleteImage(path: String) async throws
 }
 
 protocol UserRepository {
     func createUser(draft: DraftProfile) throws -> UserProfile
     func fetchProfile(userId: String) async throws -> UserProfile
-    func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws
+    @discardableResult func updateUser(userId: String, values: [UserProfile.Field : Any]) async throws -> Bool //false: queued offline, lands later
     func userListener(userId: String) -> AsyncThrowingStream<UserProfile?, Error>
 }
 
@@ -86,6 +85,7 @@ protocol ImageLoading: Actor {
     func loadProfileImages(_ profile: UserProfile) async -> [UIImage]
     func fetchImage(for url: URL) async throws -> UIImage
     func removeImage(for url: URL)
+    func store(_ data: Data, for url: URL)
     func fetchFirstImage(profile: UserProfile) async throws -> UIImage?
     func addProfileImagesToCache(for profiles: [UserProfile])
 }

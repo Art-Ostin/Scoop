@@ -48,6 +48,9 @@ struct ViewAndEditProfileToggle: View {
 struct ListItem<Value: Hashable>: View {
     
     let title: String
+    
+    @State private var subHeadingLineCount = 0
+    var subHeadingWraps: Bool { hasSubHeading && subHeadingLineCount >= 2 }
     var subHeading: String? = nil
 
     var response: [String]
@@ -70,7 +73,7 @@ struct ListItem<Value: Hashable>: View {
                 
                 Spacer(minLength: 16)
                 
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: subHeadingLineCount == 2 ? 0 : 2) {
                     Text(isEmpty ? "Add" : (writeAll ? "All" : response.joined(separator: ", ")))
                         .foregroundStyle(isEmpty ? Color.textPlaceholder : Color.textTertiary)
                         .font(.body(15))
@@ -82,11 +85,16 @@ struct ListItem<Value: Hashable>: View {
                             .font(.body(12, .regularItalic))
                             .foregroundStyle(Color.textTertiary)
                             .lineLimit(2)
+                            
+                            //To check if the subheading is two lines, if it is apply an offset
+                            .onGeometryChange(for: Int.self) { //Rendered height ÷ one line = lines drawn
+                                Int(($0.size.height / UIFont.body(12, .regularItalic).lineHeight).rounded())
+                            } action: { subHeadingLineCount = $0 }
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true) //Lays out at its natural height…
                 .frame(height: 0)
-                .offset(y: hasSubHeading ? Spacing.hairline : 0) //A two-line pair sits a touch low, optically centred on the title
+                .offset(y: subHeadingWraps ? -3 : 0) //A two-line pair sits a touch low, optically centred on the title
             }
         }
         .editProfileRow()

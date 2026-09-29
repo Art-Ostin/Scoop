@@ -8,275 +8,217 @@
 import SwiftUI
 import SwiftUIFlowLayout
 
-
-
 struct IdealMeetupView: View {
-    
+
+    //Injected
     let vm: EditProfileViewModel
 
-    var activities: [String] { vm.draft.meetupPreferences.preferredActivities}
-    var preferredDays: [String] { vm.draft.meetupPreferences.preferredDays}
-    var dreamMeetup: String { vm.draft.meetupPreferences.dreamDate}
-    
-    let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    
-    let vPadding: CGFloat = 20
-    let hPadding: CGFloat = 20
-        
+    private var preferences: MeetupPreferences { vm.draft.meetupPreferences }
+    private var preferredDays: [String] { preferences.preferredDays }
+    private var dreamDate: String { preferences.dreamDate.trimmingCharacters(in: .whitespacesAndNewlines) }
+
     var body: some View {
         Section {
-            VStack(alignment: .leading, spacing: 16) {
-                whatSection
-                whenSection
-                dreamTextSection
-            }
-            .overlay(alignment: .topTrailing) {
-                Image(noPreferencesYet() ? "EditButton" : "EditGray")
-            }
-            .listRowInsets(EdgeInsets(top: vPadding, leading: 0, bottom: vPadding, trailing: 0))
-        }  header: {
-            Text("Meetup Preferences")
+            card
+                .accessibilityElement(children: .ignore) //One summary — before editorLink, so its combine keeps the button trait
+                .accessibilityLabel("Ideal meetup")
+                .accessibilityValue(accessibilitySummary)
+                .editorLink(.meetupPreferences)
+                .listRowInsets(EdgeInsets(top: Spacing.lg, leading: Spacing.md, bottom: Spacing.lg, trailing: Spacing.md))
+        } header: {
+            Text("Ideal Meetup")
                 .padding(.leading, -Spacing.sm) //Geometry: negates the header's row inset so it lines up with the large title
         }
-        .editorLink(.meetupPreferences)
     }
 }
 
-
+//The card: three answers, or one invitation when there are none
 extension IdealMeetupView {
-    
-    private var whatSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(title: "What:")
-                .padding(.horizontal, hPadding)
-            ScrollView(.horizontal) {
-                HStack(spacing: 24) {
-                    ForEach(activities, id: \.self) { activity in
-                        whatBubble(typeText: activity)
+
+    private var card: some View {
+        Group {
+            if isEmpty {
+                addText("Add your ideal meetup")
+                    .padding(.trailing, 17 + Spacing.xs) //Geometry: the EditButton's 17pt width plus a gap, so an accessibility-size line never runs under it
+            } else {
+                VStack(alignment: .leading, spacing: Spacing.lg) {
+                    answer("Preferred Dates:") { activitiesRow }
+                        .padding(.horizontal, 10)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm)
+                            .stroke(isEmpty ? .accent : Color.border, lineWidth: 0.5))
+                    answer("Preferred Days:") { dayStrip }
+                        .padding(.horizontal, 10)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .overlay(RoundedRectangle(cornerRadius: CornerRadius.sm)
+                            .stroke(isEmpty ? .accent : Color.border, lineWidth: 0.5))
+
+                    answer("The dream date:") { dreamQuote }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading) //Full width even as one short line, so the pencil sits on the card's inset, not on the sentence
+        .overlay(alignment: isEmpty ? .trailing : .topTrailing) { //Centred on the lone line; otherwise on the first label's
+            Image(isEmpty ? "EditButton" : "EditGray")
+                .padding(.top, -10)
+        }
+    }
+
+    private func answer<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(title)
+                .foregroundStyle(Color.textTertiary)
+                .font(.body(14, .italic))
+            content()
+        }
+    }
+
+    private func addText(_ text: String) -> some View {
+        Text(text)
+            .font(.body(14))
+            .foregroundStyle(Color.textAccent)
+    }
+}
+
+//What: every pick as a soft tag — three spread across the column, more wrapping onto as many lines as they need
+extension IdealMeetupView {
+
+    //The editor's grid order (EditIdealMeetup.rows), not tap order, so the card reads like the grid it was picked from
+    private static let activityOrder = [
+        "Drinks", "Coffee", "Brunch", "Lunch", "Live Music", "Double Date", "Base Jumping",
+        "Dinner", "Rave", "A Walk", "Pastries", "A Movie", "Thrifting", "Park", "Ice Cream"
+    ]
+
+    private var activities: [String] {
+        let picked = preferences.preferredActivities
+        return Self.activityOrder.filter { picked.contains($0) }
+            + picked.filter { !Self.activityOrder.contains($0) } //An option the grid no longer offers keeps a place at the end
+    }
+
+    @ViewBuilder
+    private var activitiesRow: some View {
+        if activities.isEmpty {
+            addText("Add")
+        } else if activities.count == 3 {
+            ViewThatFits(in: .horizontal) { //A trio too long to spread falls back to the wrap rather than overrunning the card
+                spreadTrio
+                activitiesFlow
+            }
+        } else {
+            activitiesFlow
+        }
+    }
+
+    private var spreadTrio: some View {
+        HStack(spacing: 0) { //spacing 0: the Spacers carry the gap, so the first and last tags hold the column's edges
+            ForEach(activities, id: \.self) { activity in
+                activityTag(activity)
+                if activity != activities.last {
+                    Spacer(minLength: Spacing.xs)
+                }
+            }
+        }
+    }
+
+    //Wraps rather than scrolls, so every pick is on show without a swipe. .scrollable because .vstack collapses to 10pt in a List row — nothing scrolls
+    private var activitiesFlow: some View {
+        FlowLayout(mode: .scrollable, items: activities, itemSpacing: Spacing.xs) { activity in
+            activityTag(activity)
+        }
+        .padding(-Spacing.xs) //Geometry: negates FlowLayout's itemSpacing padding round every tag, so the block sits flush on the column with the tags 16pt apart
+    }
+
+    private func activityTag(_ activity: String) -> some View {
+        Text(activity)
+            .font(.body(15))
+            .foregroundStyle(Color.textPrimary)
+            .lineLimit(1)
+            .fixedSize()
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
+            .capsuleStroke(lineWidth: 1, color: Color.textPlaceholder)
+    }
+}
+
+//When: the week, with the chosen days as the editor's black dots
+extension IdealMeetupView {
+
+    private static let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    @ViewBuilder
+    private var dayStrip: some View {
+        if preferredDays.isEmpty {
+            addText("Add")
+        } else {
+            HStack(spacing: 0) { //spacing 0: the Spacers carry the gap, so Mon and Sun hold the column's edges (the editor's recipe)
+                ForEach(Self.weekdays, id: \.self) { day in
+                    dayDot(day)
+                    if day != Self.weekdays.last {
+                        Spacer(minLength: Spacing.xxs)
                     }
                 }
             }
-            .contentMargins(.horizontal, 20, for: .scrollContent)
-            .customHScrollFade(color: .white)
+            .dynamicTypeSize(...DynamicTypeSize.large) //The dots are fixed, so larger letters would spill out of them
         }
     }
-    
-    private var whenSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(title: "When:")
-                .padding(.horizontal, hPadding)
 
-            HStack {
-                ForEach(days, id: \.self) { day in
-                    dayBubble(day: day, isActive: preferredDays.contains(day))
-                    if day != days.last { Spacer() }
-                }
+    private func dayDot(_ day: String) -> some View {
+        let isChosen = preferredDays.contains(day)
+        return Text(day)
+            .font(.body(13, isChosen ? .bold : .medium))
+            .foregroundStyle(isChosen ? Color.textPrimary : Color.textPlaceholder)
+            .frame(width: 30, height: 30) //Geometry: the dot — the widest day, "Wed", keeps ~5pt of air a side
+            .circleStroke(lineWidth: isChosen ? 1 : 0, color: isChosen ? Color.textPrimary : Color.white)
+            .padding(.top, 2)
+    }
+}
+
+//Dream date: their own words, on the app's quote bar
+extension IdealMeetupView {
+
+    @ViewBuilder
+    private var dreamQuote: some View {
+        if dreamDate.isEmpty {
+            addText("Add")
+        } else {
+            HStack(spacing: Spacing.sm) {
+                Capsule()
+                    .fill(Color.borderStrong)
+                    .frame(width: 3) //Geometry: Invite History's note bar
+
+                Text(dreamDate)
+                    .font(.body(15, .italic))
+                    .foregroundStyle(Color.textPrimary)
+                    .lineSpacing(6) //The app's quote leading, = Invite History's note
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, hPadding)
+            .fixedSize(horizontal: false, vertical: true) //Only the text sets the height; the bar just fills it
+//            .padding(.top, 4) //Bit more padding than the others
         }
     }
-    
-    private var dreamTextSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            sectionTitle(title: "The Dream Date:")
-            dreamDateText(dreamDate: dreamMeetup)
-        }
-        .padding(.horizontal, hPadding)
-    }
 }
 
-//Components
+//State
 extension IdealMeetupView {
-    
-    private func addPreferences(text: String) -> some View {
-        Text(text)
-            .foregroundStyle(Color.accent)
-            .font(.body(14, .medium))
+
+    private var isEmpty: Bool {
+        activities.isEmpty && preferredDays.isEmpty && dreamDate.isEmpty
     }
-    
-    private func sectionTitle(title: String) -> some View {
-        Text(title)
-            .font(.system(size: 14, weight: .medium).italic())
-            .foregroundStyle(Color.black.opacity(0.5))
-    }
-    
-    
-    private func whatBubble(typeText: String) -> some View {
-        Text(typeText)
-            .font(.body(14, .medium))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .capsuleStroke(lineWidth: 1, color: Color.textPlaceholder)
-    }
-    
-    private func dayBubble(day: String, isActive: Bool) -> some View {
-        Text(day)
-            .font(.body(13, .medium))
-            .foregroundStyle(Color.textPrimary)
-            .frame(width: 34, height: 34)
-            .capsuleStroke(lineWidth: 1, color: Color.textPlaceholder)
-            .opacity(isActive ? 1 : 0.15)
-    }
-    
-    
-    private func dreamDateText(dreamDate: String) -> some View {
-        Text(dreamDate)
-            .font(.body(14, .mediumItalic))
-            .multilineTextAlignment(.leading)
-            .foregroundStyle(Color.textPrimary)
-            .lineSpacing(6)
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+    //What VoiceOver reads for the card: only the answers given, with full day names
+    private var accessibilitySummary: String {
+        guard !isEmpty else { return "Add your ideal meetup" }
+        let dayNames = Calendar.current.weekdaySymbols //Sunday first, whatever the locale's first weekday
+        let days = Self.weekdays.indices
+            .filter { preferredDays.contains(Self.weekdays[$0]) }
+            .map { dayNames[($0 + 1) % 7] }
+        let parts: [String?] = [
+            activities.isEmpty ? nil : "What: " + activities.formatted(.list(type: .and)),
+            days.isEmpty ? nil : "When: " + days.formatted(.list(type: .and)),
+            dreamDate.isEmpty ? nil : "Dream date: " + dreamDate
+        ]
+        return parts.compactMap { $0 }.joined(separator: ". ")
     }
 }
-
-//Function Helpers
-extension IdealMeetupView {
-    
-    private func noPreferencesYet() -> Bool {
-        return preferredDays.isEmpty && activities.isEmpty && dreamMeetup.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-}
-
-
-
-
-/*
- 
- struct IdealMeetupView: View {
-     
-     let vm: EditProfileViewModel
-     
-     var body: some View {
-         Section {
-             
-             
-             
-             
-             
-             
-             
-             Group {
-                 if isEmptyView() {
-                     Text("Add Meet Up Preferences")
-                         .foregroundStyle(Color.accent)
-                         .font(.body(14))
-                 } else {
-                     VStack(spacing: hasOnlyTwoInputs ? 36 : 24) {
-                         typesSelected
-                         textSection
-                             .padding(.horizontal, 4)
-                         selectedDaySection
-                             .padding(.horizontal, 4)
-                     }
-                 }
-             }
-                 .frame(minHeight: isEmptyView() ? 130 : 0, alignment: .top)
-                 .frame(maxWidth: .infinity)
-                 .listRowInsets(EdgeInsets(top: hasOnlyAMessage ? 28 : 20, leading: Spacing.md, bottom: hasOnlyAMessage ? 28 : 20, trailing: Spacing.md))
-                 .overlay(alignment: .topTrailing) {
-                     Image(isEmptyView() ? "EditButton" : "EditGray")
-                 }
-                 .editorLink(.idealMeetup)
-         } header: {
-             Text("Meetup Preferences")
-                 .padding(.leading, -Spacing.sm) //Geometry: negates the header's row inset so it lines up with the large title
-         }
-     }
- }
-
- extension IdealMeetupView {
-     
-     private var hasOnlyAMessage: Bool {
-         hasNote && !hasTypes && !hasDays
-     }
-
-     private var hasOnlyTwoInputs: Bool {
-         [hasTypes, hasNote, hasDays].filter { $0 }.count == 2
-     }
-     
-     
-     
-     
-     
-     
-     
-     private var typesSelected: some View {
-         VStack(alignment: .leading, spacing: 6) {
-             if hasTypes {
-                 FlowLayout(mode: .scrollable, items: vm.draft.preferredMeetUpType, itemSpacing: Spacing.xs) { type in
-                     Text(type)
-                         .lineLimit(1)
-                         .fixedSize()
-                         .font(.body(15, .bold))
-                         .foregroundStyle(Color.white)
-                         .padding(.horizontal, Spacing.sm)
-                         .padding(.vertical, 10)
-                         .background(Color.blackFill, in: .capsule)
-                 }
-                 .padding(.horizontal, -Spacing.xs) //Geometry: negates FlowLayout's per-item itemSpacing padding so the chips sit flush with the label
-                 .padding(.vertical, -Spacing.xs) //Geometry: the same padding above the first row and below the last
-                 .frame(maxWidth: .infinity, alignment: .leading)
-             }
-         }
-     }
-     
-     @ViewBuilder
-     private var textSection: some View {
-         if let note = vm.draft.dreamDateNote, !note.isEmpty {
-             Text(note)
-                 .font(.body(14, .mediumItalic))
-                 .multilineTextAlignment(.leading)
-                 .foregroundStyle(Color.textPrimary)
-                 .lineSpacing(6)
-                 .frame(maxWidth: .infinity, alignment: .leading)
-         }
-     }
-     
-     @ViewBuilder
-     private var selectedDaySection: some View {
-         if hasDays {
-             HStack{
-                 Text("Preferred Days:")
-                     .foregroundStyle(Color(red: 0.65, green: 0.65, blue: 0.65))
-                 Spacer(minLength: 24)
-                    
-                 Group {
-                     if vm.draft.availableDays.count > 3 {
-                         Text(daysInShort)
-                     } else {
-                         Text(daysInFull)
-                     }
-                 }
-                 .foregroundStyle(Color(red: 0.53, green: 0.53, blue: 0.53))
-             }
-             .font(.body(14, .mediumItalic))
-         }
-     }
-     
-     private static let week: [(short: String, full: String)] = [
-         ("Mon", "Monday"), ("Tue", "Tuesday"), ("Wed", "Wednesday"), ("Thu", "Thursday"),
-         ("Fri", "Friday"), ("Sat", "Saturday"), ("Sun", "Sunday")
-     ]
-     
-     private var daysInShort: String {
-         Self.week
-             .filter{ vm.draft.availableDays.contains($0.short) }
-             .map(\.short)
-             .joined(separator: ", ")
-     }
-
-     private var daysInFull: String {
-         Self.week
-             .filter { vm.draft.availableDays.contains($0.short) }
-             .map(\.full)
-             .joined(separator: ", ")
-     }
-
-     private func isEmptyView() -> Bool { !hasTypes && !hasNote }
-     
-     private var hasTypes: Bool { !vm.draft.preferredMeetUpType.isEmpty }
-     private var hasDays: Bool { !vm.draft.availableDays.isEmpty }
-     private var hasNote: Bool { !(vm.draft.dreamDateNote?.isEmpty ?? true) }
- }
- */
-

@@ -131,11 +131,9 @@ extension ProfileImageEditor {
     
     private func loadImage () async {
         guard let item = item else { return }
-        let start = Date() // ⏱
         //Optional read: a failed pick keeps the current image
         if let data = try? await item.loadTransferable(type: Data.self),
            let uiImage = UIImage(data: data) {
-            print("⏱ pick: loadTransferable \(start.elapsed) · \(data.count / 1024) KB") // ⏱
             importedImage.image = uiImage
             didEdit = true
         }

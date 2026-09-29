@@ -42,7 +42,10 @@ struct EditProfileContainer: View {
     @State private var popGuard: (() -> Bool)? = nil //Set by a pushed screen that can refuse to be left
     @State private var isEditingImage = false //A photo editor is up; its drag is not the cover's
     @State private var isReorderingImage = false //A photo is lifted in the grid; its drag is not the cover's
-    
+    @State private var isSaving = false //A write is in flight: no second tap, no X, no swipe until it lands or fails
+    @State private var showSaveError = false
+    @State private var saveErrorMessage = ""
+
     var body: some View {
         ZStack {
             if isEdit {
@@ -54,8 +57,10 @@ struct EditProfileContainer: View {
         .overlay(alignment: .bottom) { editProfileButton }
         .overlay(alignment: .topLeading) { leadingAction }
         .overlay(alignment: .topTrailing) { editProfileDismissButton }
-        .interactiveDismissDisabled(!path.isEmpty || isEditingImage || isReorderingImage || showSavingScreen) //Also gates the cover's swipe down: a save in flight or a photo in the air can't be swiped away
+        .interactiveDismissDisabled(!path.isEmpty || isEditingImage || isReorderingImage || isSaving) //Also gates the cover's swipe down: a save in flight or a photo in the air can't be swiped away
         .customLoadingScreen(isPresented: showSavingScreen, text: "Updating Profile")
+        .customAlertCard(isPresented: $showSaveError, title: "Not Saved", message: saveErrorMessage,
+                         onOK: { showSaveError = false }) //Raised in the cover: the root banner would sit behind it
         .task { await vm.refreshImagesIfStale() } //Opened on photos loaded before the last save landed: reload the stored ones
     }
 }
@@ -152,7 +157,7 @@ extension EditProfileContainer {
         .scaleEffect(shrinkDismiss ? 0.7 : !isEdit ? 0.7 :  1, anchor: .trailing)
         .animation(.move, value: shrinkDismiss)
         .opacity(path.isEmpty ? 1 : 0) //Hide the view when in an edit view
-        .allowsHitTesting(path.isEmpty ? true  : false)
+        .allowsHitTesting(path.isEmpty && !isSaving)
         .blurPop(visible: !isEditingImage, anchor: .trailing) //Out of the photo editor's way
         .padding(.trailing, Spacing.md)
     }
@@ -164,20 +169,29 @@ extension EditProfileContainer {
     //Handed to EditProfileView's toolbar: the loading screen and the cover's dismissal are
     //this container's state, so the write stays here and only the button moves to the bar.
     private func saveProfile() {
-        let start = Date() // ⏱
+        guard !isSaving else { return }
+        isSaving = true
+        let loader = Task { @MainActor in //Only a save still running after a beat earns it: the common one is a 0.15 s write
+            try await Task.sleep(for: .milliseconds(300))
+            try Task.checkCancellation() //A save that ended as the timer fired must not re-show it
+            showSavingScreen = true
+        }
         Task { @MainActor in
-            if !vm.updatedImages.isEmpty {
-                showSavingScreen = true
-            }
             do {
                 try await vm.saveProfileChanges()
-                print("⏱ TOTAL Save tap → dismiss \(start.elapsed)") // ⏱
-                dismiss()
+                dismiss() //isSaving stays up: the cover is on its way out
             } catch {
-                print("⏱ TOTAL Save failed after \(start.elapsed)") // ⏱
                 editProfileLog.error("Profile save failed: \(String(describing: error), privacy: .public)")
-                showSavingScreen = false // TODO: surface the failure via InAppNotificationCenter
+                saveErrorMessage = switch error as? EditProfileViewModel.SaveError {
+                case .offline: "You're offline. Check your connection and try again."
+                case .galleryChanged: "Your photos changed on another device. Close and reopen to edit them."
+                case nil: "Your changes couldn't be saved. Please try again."
+                }
+                isSaving = false
+                showSaveError = true
             }
+            loader.cancel()
+            showSavingScreen = false
         }
     }
 }

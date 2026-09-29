@@ -5,85 +5,44 @@
 //  Created by Art Ostin on 29/10/2025.
 //
 
-import Foundation
-import SwiftUI
 import UIKit
-
 
 @MainActor
 @Observable final class ProfileImagesViewModel {
-    
-    private var defaults: DefaultsManaging
+
+    private let defaults: DefaultsManaging
     private let storageService: StorageServicing
-    private let auth: AuthServicing
-    
-    init(defaults: DefaultsManaging, storageService: StorageServicing, auth: AuthServicing) {
+
+    init(defaults: DefaultsManaging, storageService: StorageServicing) {
         self.defaults = defaults
-        self.storageService  = storageService
-        self.auth = auth
+        self.storageService = storageService
     }
-    
-    private enum ImageEncodingError: Error {
-        case encodingFailed
-    }
-    
-    //Have a guard statement on the actual button for 'valid tap' so that the images are all non-optional (as they should be)
-    func saveAll(images: [UIImage?]) async  {
-        let start = Date() // ⏱
-        guard let userId = await auth.fetchAuthUser()?.uid else { return }
-        let items = Array(images.enumerated())
-        let storage = self.storageService
-        var results: [(index: Int, path: String, url: URL)] = []
-        do {
-            try await withThrowingTaskGroup(of: (Int, String, URL).self) { group in
-                for (i, image) in items {
-                    group.addTask {
-                        let encodeStart = Date() // ⏱
-                        guard let image = image, let data = Self.jpegDataForUpload(from: image) else {
-                            throw ImageEncodingError.encodingFailed
-                        }
-                        print("⏱ photo \(i): redraw + JPEG \(encodeStart.elapsed) · \(data.count / 1024) KB") // ⏱
-                        let (path, url) = try await storage.saveImage(data: data, userId: userId)
-                        return (i, path, url)
-                    }
-                }
-                for try await r in group {
-                    results.append(r)
+
+    private struct NoSignUpDraft: Error {}
+
+    //Screen order in, gallery order out: the first photo is the main one. The draft's id IS the auth uid, so no auth round trip
+    func saveAll(images: [UIImage]) async throws {
+        guard let userId = defaults.signUpDraft?.id else { throw NoSignUpDraft() }
+        let storage = storageService
+        let results = await withTaskGroup(of: Result<(Int, String, URL), Error>.self) { group in
+            for (i, image) in images.enumerated() {
+                group.addTask {
+                    do { let photo = try await storage.saveImage(image, userId: userId); return .success((i, photo.path, photo.url)) }
+                    catch { return .failure(error) }
                 }
             }
-        } catch {print(error) }
-        print("⏱ TOTAL onboarding upload (\(items.count) photos) \(start.elapsed)") // ⏱
-        let sorted = results.sorted { $0.index < $1.index }
+            var all: [Result<(Int, String, URL), Error>] = []
+            for await result in group { all.append(result) }
+            return all
+        }
+        let saved = results.compactMap { try? $0.get() }.sorted { $0.0 < $1.0 }
+        for case .failure(let error) in results { //One failed: the others' objects would never be referenced, so they go, off the critical path
+            Task { for photo in saved { try? await storage.deleteImage(path: photo.1) } }
+            throw error
+        }
         defaults.mutateSignUpDraft { draft in
-            draft.imagePath = sorted.map { $0.path }
-            draft.imagePathURL = sorted.map { $0.url.absoluteString }
+            draft.imagePath = saved.map { $0.1 }
+            draft.imagePathURL = saved.map { $0.2.absoluteString }
         }
-    }
-    
-    nonisolated static func jpegDataForUpload( from image: UIImage, backgroundColor: UIColor = .white) -> Data? {
-        let hasAlpha: Bool = {
-            guard let info = image.cgImage?.alphaInfo else { return false }
-            switch info {
-            case .first, .last, .premultipliedFirst, .premultipliedLast: return true
-            default: return false
-            }
-        }()
-
-        // Redraw to normalize orientation & optionally flatten alpha
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = image.scale
-        format.opaque = !hasAlpha
-
-        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
-        let rendered = renderer.image { ctx in
-            if hasAlpha {
-                backgroundColor.setFill()
-                ctx.fill(CGRect(origin: .zero, size: image.size))
-            }
-            image.draw(in: CGRect(origin: .zero, size: image.size))
-        }
-
-        // Max quality JPEG (still compressed, but least lossy)
-        return rendered.jpegData(compressionQuality: 1.0)
     }
 }

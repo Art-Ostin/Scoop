@@ -50,7 +50,7 @@ final class AppDependencies {
 
         //2. assigning the variables used through the app with the initialised services
         self.authService = auth
-        self.storageService = StorageService()
+        self.storageService = StorageService(imageLoader: imageLoader)
         self.userRepo = userRepo
         self.eventRepo = eventsRepo
         self.imageLoader = imageLoader

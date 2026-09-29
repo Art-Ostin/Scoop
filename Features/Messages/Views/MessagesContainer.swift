@@ -62,7 +62,7 @@ struct MessagesContainer: View {
             cancelTitle: "No",
             okTitle: "Yes",
             onOK: saveEdits,
-            onCancel: { showSaveAlert = false } //The card's buttons don't close it themselves
+            onCancel: { showSaveAlert = false; editProfileVM?.discardEdits() } //The card's buttons don't close it themselves; No drops the edits and whatever they uploaded
         )
     }
 }
@@ -188,21 +188,22 @@ extension MessagesContainer {
         if editProfileVM?.hasUnsavedChanges == true { showSaveAlert = true }
     }
 
-    //The cover is already gone, so the write runs behind the Messages screen
+    //The cover is already gone, so the write runs behind the Messages screen; a failure drops the edits and their uploads
     private func saveEdits() {
         showSaveAlert = false
         guard let editProfileVM else { return }
         Task {
             do { try await editProfileVM.saveProfileChanges() }
-            catch {} // TODO: surface the failure via InAppNotificationCenter
+            catch {
+                vm.session.notifications.push(.error(message: "Your profile changes couldn't be saved."))
+                editProfileVM.discardEdits()
+            }
         }
     }
 
     private func prepareUserImages() async {
-        let start = Date() // ⏱
         let gallery = vm.user.imagePathURL //Taken with the load, so the photos always carry the gallery they show
         let images = await vm.loadUserImages()
-        print("⏱ re-seed: \(images.count) photos from ImageLoader \(start.elapsed)") // ⏱
         guard !Task.isCancelled else { return } //A newer gallery's load owns the seed
         userProfileImages = images
         userProfileGallery = gallery

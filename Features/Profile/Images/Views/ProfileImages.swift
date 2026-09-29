@@ -87,8 +87,8 @@ extension ProfileImages {
             showsCardShadow: false, //The grid's cells rest flat on the section surface
             cornerRadius: CornerRadius.smallImage,
             pressScale: pressScale,
-            continuousCollapse: true, //Shrinks and travels home as one motion; a dive past a grid cell reads as a detour
-            dismissDurationScale: 1.5 //Folding a whole screen into a 110pt cell is a huge shrink over a short trip: the tuned clock reads fast on it
+            windDismiss: true, //The Declined Profiles' close: a flick rides past the cell and lands with a bounce
+            squeezeLanding: true //Save and Cancel drop the photo into its cell: a squeeze below its size, then a spring back out
         ) {
             editBadge //Card chrome: the flight fades it out rather than flying it
         } content: {
@@ -112,7 +112,7 @@ extension ProfileImages {
 
     private func editor(index: Int, image: UIImage) -> some View {
         ProfileImageEditor(importedImage: ImageSlot(index: index, image: image)) { updatedImage in
-            Task { vm.changeImage(image: updatedImage) } //Next turn: the JPEG encode never holds the collapse's first frame
+            Task { vm.changeImage(image: updatedImage) } //Next turn: the cell swap and the upload kick-off never hold the collapse's first frame
         }
         //The screen's own presence IS the flag — nothing else here knows the zoom is up. It drops
         //on teardown, i.e. AFTER the collapse lands, so the drag stays disowned for the whole flight.

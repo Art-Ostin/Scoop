@@ -20,7 +20,7 @@ import SwiftUI
     var images: [UIImage] = Array(repeating: placeholder, count: 6) //The loaded photos in screen order; a drop reorders them
 
     var updatedFields: [UserProfile.Field : Any] = [:]
-    var updatedImages: [Int: Data] = [:] //Replacements keyed by the photo's ORIGINAL slot, so each follows its photo through any reorder
+    private var uploads: [Int: PendingUpload] = [:] //One per replaced photo, started by the editor's Save and keyed by the photo's ORIGINAL slot, so it follows its photo through any reorder
     private(set) var photoOrder: [Int] = Array(0..<photoSlots) //photoOrder[slot] = the original slot of the photo shown there; also its grid id
     @ObservationIgnored private var importedGallery: [String] //The stored imagePathURL `images` were loaded from
     private(set) var didSave = false //A save leaves the edits above in place, so showSaveButton alone still reads true after one
@@ -39,7 +39,7 @@ import SwiftUI
 
     var user: UserProfile { session.user }
 
-    var showSaveButton: Bool { !updatedFields.isEmpty || !updatedImages.isEmpty || hasReorderedPhotos }
+    var showSaveButton: Bool { !updatedFields.isEmpty || !uploads.isEmpty || hasReorderedPhotos }
     var hasUnsavedChanges: Bool { showSaveButton && !didSave } //Read by the presenter once the cover has closed
 
     func set<T: Equatable>(_ key: UserProfile.Field, _ kp: WritableKeyPath<UserProfile, T>,  to value: T) {
@@ -81,26 +81,29 @@ import SwiftUI
 
     //ONE write for everything pending: fields, the reordered gallery and fresh uploads land together or not at all
     func saveProfileChanges() async throws {
+        guard session.isOnline else { throw SaveError.offline } //Firestore would queue the write silently; nothing to wait on
         //Captured before the first await: the listener rewrites session.user the moment the write lands locally
         let userId = user.id
         let stored = Self.storedPhotos(of: user)
         let isCurrent = galleryIsCurrent
         let order = photoOrder
-        let replacements = updatedImages
+        let pending = uploads
         var values = updatedFields
 
         var replaced: [StoredPhoto] = []
-        if order != Array(order.indices) || !replacements.isEmpty {
+        if order != Array(order.indices) || !pending.isEmpty {
             //Moves made on photos that are no longer the stored ones (a stale seed, a second Save after the echo) must not land
-            guard isCurrent else { throw GalleryChanged() }
-            let uploadStart = Date() // ⏱
-            let uploads = try await upload(replacements, userId: userId)
-            print("⏱ uploads: \(replacements.count) photo(s) in parallel \(uploadStart.elapsed)") // ⏱
+            guard isCurrent else { throw SaveError.galleryChanged }
+            var fresh: [Int: StoredPhoto] = [:]
+            for (origin, upload) in pending {
+                if case .success(let photo) = await upload.task.result { fresh[origin] = photo; continue }
+                fresh[origin] = try await startUpload(upload.image, at: origin).value //Died before Save (a network blip mid-edit): one fresh try
+            }
             var gallery: [StoredPhoto] = []
             for origin in order {
                 let old = stored.indices.contains(origin) ? stored[origin] : nil
-                if let fresh = uploads[origin] {
-                    gallery.append(fresh)
+                if let photo = fresh[origin] {
+                    gallery.append(photo)
                     if let old { replaced.append(old) }
                 } else if let old {
                     gallery.append(old)
@@ -111,10 +114,10 @@ import SwiftUI
             values[.imagePathURL] = gallery.map(\.url)
         }
         guard !values.isEmpty else { return }
-        let writeStart = Date() // ⏱
-        try await userRepo.updateUser(userId: userId, values: values)
-        print("⏱ Firestore updateUser \(writeStart.elapsed)") // ⏱
+        let landed = try await userRepo.updateUser(userId: userId, values: values)
         didSave = true
+        //Queued instead: Firestore lands it when it can; the replaced photos stay until then, so the old gallery keeps its files
+        guard landed else { return session.notifications.push(.error(message: "Saved on this phone. Your changes reach the server once you're back online.")) }
         let discarded = replaced
         Task { await discard(discarded) } //Only now does nothing point at them; cleanup never holds the dismiss
     }
@@ -140,7 +143,13 @@ extension EditProfileViewModel {
         let url: String
     }
 
-    private struct GalleryChanged: Error {}
+    enum SaveError: Error { case offline, galleryChanged } //The container words its alert by these
+
+    //A replacement in flight, with the photo it came from so a failed upload can be retried at Save
+    private struct PendingUpload {
+        let image: UIImage
+        let task: Task<StoredPhoto, Error>
+    }
 
     var hasReorderedPhotos: Bool { photoOrder != Array(photoOrder.indices) }
 
@@ -156,7 +165,7 @@ extension EditProfileViewModel {
     //A stale seed reloads from the stored gallery; until it lands, the grid neither lifts nor opens an editor
     func refreshImagesIfStale() async {
         while !galleryIsCurrent, !Task.isCancelled {
-            guard updatedImages.isEmpty, !hasReorderedPhotos else { return } //Edits made against the old photos: Save refuses them
+            guard uploads.isEmpty, !hasReorderedPhotos else { return } //Edits made against the old photos: Save refuses them
             let gallery = user.imagePathURL
             let loaded = await imageLoader.loadProfileImages(user)
             guard gallery == user.imagePathURL else { continue } //The gallery moved mid-load: load the newer one
@@ -172,14 +181,39 @@ extension EditProfileViewModel {
         photoOrder.reorder(from: from, to: to)
     }
 
-    //The editor hands back the slot it opened from; the replacement is filed under that photo's origin
+    //The editor hands back the slot it opened from; the replacement is filed under that photo's origin and starts uploading now
     func changeImage(image: ImageSlot) {
         let slot = image.index
         guard photoOrder.indices.contains(slot) else { return }
         if images.indices.contains(slot) { images[slot] = image.image }
-        let start = Date() // ⏱
-        if let data = image.jpegData { updatedImages[photoOrder[slot]] = data }
-        print("⏱ JPEG encode (main thread) \(start.elapsed) · \(image.image.cgImage?.width ?? 0)×\(image.image.cgImage?.height ?? 0) px · \((updatedImages[photoOrder[slot]]?.count ?? 0) / 1024) KB") // ⏱
+        let origin = photoOrder[slot]
+        if let earlier = uploads[origin] { Task { await discard(uploads: [earlier]) } } //Edited twice: the first upload is an orphan once it lands
+        startUpload(image.image, at: origin)
+    }
+
+    //Edits the presenter dropped: whatever their uploads landed is unreferenced
+    func discardEdits() {
+        let dropped = Array(uploads.values)
+        uploads = [:]
+        Task { await discard(uploads: dropped) }
+    }
+
+    @discardableResult
+    private func startUpload(_ image: UIImage, at origin: Int) -> Task<StoredPhoto, Error> {
+        let storage = storageService, userId = user.id
+        let task = Task {
+            let saved = try await storage.saveImage(image, userId: userId)
+            return StoredPhoto(path: saved.path, url: saved.url.absoluteString)
+        }
+        uploads[origin] = PendingUpload(image: image, task: task)
+        return task
+    }
+
+    //Uploads nothing will reference: delete whatever landed (a failed one left nothing)
+    private func discard(uploads: [PendingUpload]) async {
+        var photos: [StoredPhoto] = []
+        for upload in uploads { if case .success(let photo) = await upload.task.result { photos.append(photo) } }
+        await discard(photos)
     }
 
     //Mirrors ImageLoader.loadProfileImages' compactMap, so index i here is the i-th photo it loads
@@ -187,22 +221,6 @@ extension EditProfileViewModel {
         user.imagePathURL.enumerated().compactMap { i, url in
             guard URL(string: url) != nil else { return nil }
             return StoredPhoto(path: user.imagePath.indices.contains(i) ? user.imagePath[i] : "", url: url)
-        }
-    }
-
-    //saveImage already returns the resized variant's path, so it is stored as-is
-    private func upload(_ replacements: [Int: Data], userId: String) async throws -> [Int: StoredPhoto] {
-        let storage = storageService
-        return try await withThrowingTaskGroup(of: (Int, StoredPhoto).self) { group in
-            for (origin, data) in replacements {
-                group.addTask {
-                    let saved = try await storage.saveImage(data: data, userId: userId)
-                    return (origin, StoredPhoto(path: saved.path, url: saved.url.absoluteString))
-                }
-            }
-            var uploads: [Int: StoredPhoto] = [:]
-            for try await (origin, photo) in group { uploads[origin] = photo }
-            return uploads
         }
     }
 

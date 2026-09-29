@@ -102,6 +102,13 @@ actor ImageLoader: ImageLoading  {
         cache.removeObject(forKey: url as NSURL)
         try? FileManager.default.removeItem(at: diskFile(for: url))
     }
+
+    //A photo the app just uploaded, cached under its URL exactly as a fetch would leave it
+    func store(_ data: Data, for url: URL) {
+        guard let image = UIImage(data: data) else { return }
+        cache.setObject(image, forKey: url as NSURL, cost: data.count)
+        writeDisk(data: data, for: url)
+    }
 }
 
 //Private memory + disk cache plumbing

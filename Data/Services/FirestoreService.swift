@@ -8,6 +8,9 @@
 import Foundation
 import FirebaseFirestore
 import AppIntents
+import os
+
+private let firestoreLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Scoop", category: "firestore")
 
 
 enum FSCollectionEvent<Model> {
@@ -42,6 +45,21 @@ final class FirestoreService: FirestoreServicing {
     
     func update(_ path: String, fields: [String: Any]) async throws {
         try await db.document(path).updateData(fields)
+    }
+
+    //Firestore never fails an offline write, it queues it: the ack is awaited for `patience`, then the caller learns
+    //the write is queued (false) and it lands whenever it can
+    func update(_ path: String, fields: [String: Any], patience: TimeInterval) async throws -> Bool {
+        let (acks, ack) = AsyncStream<Result<Bool, Error>>.makeStream()
+        Task {
+            do { try await db.document(path).updateData(fields); ack.yield(.success(true)) }
+            catch { //Past its patience the caller has moved on: a rejection then would revert silently, so it is at least logged
+                if case .terminated = ack.yield(.failure(error)) { firestoreLog.error("Queued write to \(path, privacy: .public) rejected: \(String(describing: error), privacy: .public)") }
+            }
+        }
+        Task { try? await Task.sleep(for: .seconds(patience)); ack.yield(.success(false)) }
+        for await first in acks { return try first.get() }
+        return false
     }
     
     func delete(_ path: String) async throws {
