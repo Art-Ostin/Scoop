@@ -52,18 +52,19 @@ struct ListItem<Value: Hashable>: View {
     @State private var subHeadingLineCount = 0
     var subHeadingWraps: Bool { hasSubHeading && subHeadingLineCount >= 2 }
     var subHeading: String? = nil
-
+    
     var response: [String]
         
     let value: Value
+    var showsDivider = true //Off for the last row in a section
     
     var isEmpty: Bool { response.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty } }
-
+    
     //Every year picked reads as "All" — a set, since picks append in tap order
     var writeAll: Bool { Set(response) == Set(OptionField.year.options) }
-
+    
     var hasSubHeading: Bool { subHeading?.isEmpty == false }
-
+    
     var body: some View {
         NavigationLink(value: value) {
             HStack {
@@ -97,18 +98,25 @@ struct ListItem<Value: Hashable>: View {
                 .offset(y: subHeadingWraps ? -3 : 0) //A two-line pair sits a touch low, optically centred on the title
             }
         }
-        .editProfileRow()
+        .editProfileRow(showsDivider: showsDivider)
     }
 }
 
 extension View {
 
-    //The Edit Profile row box — the insets and separator column every row on the screen shares.
-    func editProfileRow(top: CGFloat? = nil, bottom: CGFloat? = nil) -> some View {
-        alignmentGuide(.listRowSeparatorTrailing) { $0[.trailing] }
-            .listRowSeparatorTint(.borderLight)
-            .listRowInsets(EdgeInsets(top: top ?? (Spacing.md + 3), leading: Spacing.lg,
-                                      bottom: bottom ?? (Spacing.md + 3), trailing: Spacing.lg))
+    func editProfileRow(top: CGFloat? = nil, bottom: CGFloat? = nil, showsDivider: Bool = false) -> some View {
+        let bottomInset = bottom ?? (Spacing.md + 3)
+        return overlay(alignment: .bottom) {
+            if showsDivider {
+                Rectangle()
+                    .fill(Color.border)
+                    .frame(height: 0.5)
+                    .offset(y: bottomInset) //Geometry: rides the bottom inset down onto the row's edge
+            }
+        }
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: top ?? (Spacing.md + 3), leading: Spacing.lg,
+                                  bottom: bottomInset, trailing: Spacing.lg))
     }
 
     func editorLink(_ route: EditProfileRoute) -> some View {

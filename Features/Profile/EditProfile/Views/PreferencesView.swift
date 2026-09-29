@@ -21,7 +21,8 @@ struct PreferencesView: View {
     var body: some View {
         Section {
             ForEach(preferences) { info in
-                ListItem(title: info.title, response: info.response, value: info.route)
+                ListItem(title: info.title, response: info.response, value: info.route,
+                         showsDivider: info.id != preferences.last?.id)
             }
         } header: {
             HStack(alignment: .bottom) {

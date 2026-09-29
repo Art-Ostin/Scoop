@@ -106,6 +106,7 @@ struct GenericInterests: View {
 }
 
 extension GenericInterests {
+    
     private var selectedInterestsView: some View {
             ScrollView(.horizontal) {
                 HStack(alignment: .top) {
@@ -202,16 +203,8 @@ struct InterestSection: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .center, spacing: Spacing.lg) {
-                if let image = image {
-                    Image(image)
-                        .resizable()
-                        .frame(width: 22, height: 20)
-                }
-                if let title = title {
-                    Text(title)
-                        .font(.body(20))
-                        .offset(y: 1)
-                }
+                sectionImage
+                sectionTitle
             }
             .padding(.horizontal, Spacing.xxs)
             .padding(.bottom, Spacing.md)
@@ -222,5 +215,27 @@ struct InterestSection: View {
             .offset(x: -Spacing.xxs) //Keeps the chips aligned with the section header
         }
         .padding(.bottom, (title == nil || title == "Music") ? 0 : 60)
+    }
+}
+
+
+extension InterestSection {
+    
+    @ViewBuilder
+    private var sectionTitle: some View {
+        if let title {
+            Text(title)
+                .font(.body(20))
+                .offset(y: 1)
+        }
+    }
+    
+    @ViewBuilder
+    private var sectionImage: some View {
+        if let image = image {
+            Image(image)
+                .resizable()
+                .frame(width: 22, height: 20)
+        }
     }
 }

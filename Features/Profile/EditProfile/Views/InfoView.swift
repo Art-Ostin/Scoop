@@ -25,7 +25,8 @@ struct CoreInfo: View {
     var body: some View {
         Section("Core") {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, info in
-                ListItem(title: info.title, response: info.response, value: info.route)
+                ListItem(title: info.title, response: info.response, value: info.route,
+                         showsDivider: index < items.count - 1)
                     .padding(.top, index == 0 ? Spacing.xs : 0)
                     .padding(.bottom, index == items.count - 1 ? Spacing.xs : 0)
             }
@@ -60,7 +61,8 @@ struct ExtraInfo: View {
     var body: some View {
         Section("Extra") {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, info in
-                ListItem(title: info.title, subHeading: info.subHeading, response: info.response, value: info.route)
+                ListItem(title: info.title, subHeading: info.subHeading, response: info.response, value: info.route,
+                         showsDivider: index < items.count - 1)
                     .padding(.top, index == 0 ? Spacing.xs : 0)
                     .padding(.bottom, index == items.count - 1 ? Spacing.xs : 0)
             }
